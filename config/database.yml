@@ -1,0 +1,14 @@
+default: &default
+  adapter: mysql2
+  pool: 5
+  timeout: 5000
+  encoding: utf8
+  collation: utf8_unicode_ci
+  reconnect: true
+  username: <%= ENV['STA_DEFAULT_DB_USER']%>
+  password: <%= ENV['STA_DEFAULT_DB_PASSWORD']%>
+  host: <%= ENV['STA_DEFAULT_DB_HOST']%>
+
+development:
+  <<: *default
+  database: simple_token_api_<%= Rails.env%>

@@ -1,0 +1,4 @@
+hello:
+  world:
+    key_template: 'hello_%{user_id}'
+    expiry_in_hours: 7100

@@ -1,0 +1,5 @@
+'SampleServiceKlass':
+  :mandatory:
+    - :param_1
+  :optional:
+    - :param_2

@@ -7,16 +7,16 @@ end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.4'
-gem 'mysql2'
-gem 'oj'
-gem 'http'
-gem 'rake'
+gem 'mysql2', '0.4.9'
+gem 'oj', '3.3.8'
+gem 'http', '3.0.0'
+gem 'rake', '12.1.0'
 
 #gem 'memcached', '1.8.0'
-gem 'dalli'
+gem 'dalli', '2.7.6'
 
-gem 'sanitize'
-gem 'exception_notification'
+gem 'sanitize', '4.5.0'
+gem 'exception_notification', '4.2.2'
 
 gem 'aws-sdk-kms', '1.2.0'
 gem 'aws-sdk-dynamodb', '1.2.0'

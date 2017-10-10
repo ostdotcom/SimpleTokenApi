@@ -21,8 +21,8 @@ module Rotp
         else
           return error_with_action_and_data(
               'r_t_1',
-              'invalid otp ' + otp,
-              'Invalid Otp',
+              'Otp is incorrect ' + otp,
+              'Otp is incorrect',
               GlobalConstant::ApiErrorAction.default,
               {otp: otp}
           )

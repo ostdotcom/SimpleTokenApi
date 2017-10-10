@@ -7,7 +7,7 @@ class CreateAdminSecrets < DbMigrationConnection
         t.column :udid, :string, null: false
         t.column :login_salt, :blob, null: false #encrypted
         t.column :ga_secret, :blob, null: false #encrypted
-        t.column :last_opt_at, :integer, null: true, limit: 8
+        t.column :last_otp_at, :integer, null: true, limit: 8
         t.timestamps
         t.timestamps
       end

@@ -9,6 +9,17 @@ class Admin < EstablishSimpleTokenAdminDbConnection
        }
 
 
+  # Add Admin
+  #
+  # * Author: Aman
+  # * Date: 10/10/2017
+  # * Reviewed By:
+  #
+  # @param [String] email
+  # @param [String] password
+  #
+  # @return [String] Url for QR code
+  #
   def self.add_admin(email, password)
     udid = SecureRandom.hex(16)
     ga_secret = ROTP::Base32.random_base32
@@ -46,9 +57,20 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_secrets_obj = AdminSecret.new(udid: udid, login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
     admin_secrets_obj.save!(validate: false)
     puts url
+    return url
   end
 
-
+  # Add Admin
+  #
+  # * Author: Aman
+  # * Date: 10/10/2017
+  # * Reviewed By:
+  #
+  # @param [String] salt
+  # @param [String] password
+  #
+  # @return [String] MD5 Encrypted password
+  #
   def self.get_encrypted_password(password, salt)
     Digest::MD5.hexdigest("#{password}::#{salt}")
   end

@@ -9,10 +9,10 @@ default: &default
   password: <%= ENV['STA_DEFAULT_DB_PASSWORD']%>
   host: <%= ENV['STA_DEFAULT_DB_HOST']%>
 
-development:
+<%= Rails.env%>:
   <<: *default
   database: simple_token_api_<%= Rails.env%>
 
-simple_token_admin_development:
+simple_token_admin_<%= Rails.env%>:
   <<: *default
   database: simple_token_admin_<%= Rails.env%>

@@ -12,3 +12,7 @@ default: &default
 development:
   <<: *default
   database: simple_token_api_<%= Rails.env%>
+
+simple_token_admin_development:
+  <<: *default
+  database: simple_token_admin_<%= Rails.env%>

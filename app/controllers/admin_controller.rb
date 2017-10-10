@@ -14,7 +14,7 @@ class AdminController < ApiController
     service_response = AdminManagement::Login::PasswordAuth.new(params).perform
 
     if service_response.success?
-      cookie_value = service_response.data.delete(:step1_cookie_value)
+      cookie_value = service_response.data.delete(:step_1_cookie_value)
       cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
         value: cookie_value,
         expires: GlobalConstant::Cookie.default_expiry.from_now,
@@ -38,8 +38,9 @@ class AdminController < ApiController
     ).perform
 
     if service_response.success?
+      cookie_value = service_response.data.delete(:step_2_cookie_value)
       cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
-        value: service_response.data[:step2_cookie_value],
+        value: cookie_value,
         expires: GlobalConstant::Cookie.default_expiry.from_now,
         domain: :all
       }

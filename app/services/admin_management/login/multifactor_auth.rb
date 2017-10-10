@@ -12,7 +12,7 @@ module AdminManagement
       # * Date: 10/10/2017
       # * Reviewed By:
       #
-      # @param [String] step_1_cookie_value (mandatory) - this is the step1_cookie_value entered
+      # @param [String] step_1_cookie_value (mandatory) - this is the step_1_cookie_value entered
       # @param [String] otp (mandatory) - this is the Otp entered
       #
       # @return [AdminManagement::Login::MultifactorAuth]
@@ -23,7 +23,7 @@ module AdminManagement
         @step_1_cookie_value = @params[:step_1_cookie_value].to_s
         @otp = @params[:otp].to_s
 
-        @step2_cookie_value = nil
+        @step_2_cookie_value = nil
         @admin_id = nil
       end
 
@@ -45,7 +45,7 @@ module AdminManagement
         r = validate_otp
         return r unless r.success?
 
-        r = set_step2_cookie_value
+        r = set_step_2_cookie_value
         return r unless r.success?
 
         success_with_data(
@@ -138,15 +138,15 @@ module AdminManagement
       # * Reviewed By:
       #
       # @return [Result::Base]
-      # Sets @step2_cookie_value
+      # Sets @step_2_cookie_value
       #
-      def set_step2_cookie_value
+      def set_step_2_cookie_value
         current_ts = Time.now.to_i
         token_e = Digest::MD5.hexdigest(
             "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{current_ts}:d:#{@admin_secrets.ga_secret}"
         )
 
-        @step2_cookie_value = "#{@admin.id}:#{current_ts}:d:#{token_e}"
+        @step_2_cookie_value = "#{@admin.id}:#{current_ts}:d:#{token_e}"
 
         success
       end

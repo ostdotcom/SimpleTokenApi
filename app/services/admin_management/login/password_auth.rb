@@ -25,7 +25,7 @@ module AdminManagement
         @admin_secret = nil
         @login_salt_d = nil
         @cookie_value = nil
-        @step1_cookie_value = nil
+        @step_1_cookie_value = nil
       end
 
       # Perform
@@ -52,10 +52,10 @@ module AdminManagement
         r = match_password_hash
         return r unless r.success?
 
-        r = set_step1_cookie_value
+        r = set_step_1_cookie_value
         return r unless r.success?
 
-        success_with_data(step1_cookie_value: @step1_cookie_value)
+        success_with_data(step_1_cookie_value: @step_1_cookie_value)
 
       end
 
@@ -139,17 +139,17 @@ module AdminManagement
       # * Date: 10/10/2017
       # * Reviewed By: Sunil Khedar
       #
-      # Sets @step1_cookie_value
+      # Sets @step_1_cookie_value
       #
       # @return [Result::Base]
       #
-      def set_step1_cookie_value
+      def set_step_1_cookie_value
         current_ts = Time.now.to_i
         token_e = Digest::MD5.hexdigest(
           "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{current_ts}:s"
         )
 
-        @step1_cookie_value = "#{@admin.id}:#{current_ts}:s:#{token_e}"
+        @step_1_cookie_value = "#{@admin.id}:#{current_ts}:s:#{token_e}"
 
         success
       end

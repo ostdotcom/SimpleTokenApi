@@ -22,6 +22,8 @@ gem 'aws-sdk-kms', '1.2.0'
 # gem 'aws-sdk-dynamodb', '1.2.0'
 gem 'aws-sdk-s3', '1.5.0'
 
+gem 'rotp', '3.3.0'
+
 group :development, :test do
   # Use Puma as the app server
   gem 'puma', '~> 3.7'

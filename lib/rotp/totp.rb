@@ -23,7 +23,7 @@ module Rotp
               'r_t_1',
               'Otp is incorrect ' + otp,
               'Otp is incorrect',
-              GlobalConstant::ApiErrorAction.default,
+              GlobalConstant::ErrorAction.default,
               {otp: otp}
           )
         end
@@ -34,7 +34,7 @@ module Rotp
             'r_t_2',
             'exception in verify_with_drift_and_prior: ' + e.message,
             'Something went wrong.',
-            GlobalConstant::ApiErrorAction.default,
+            GlobalConstant::ErrorAction.default,
             {
                 otp: otp
             }
@@ -54,7 +54,7 @@ module Rotp
             'r_t_3',
             'exception in provisioning_uri: ' + e.message,
             'Something went wrong.',
-            GlobalConstant::ApiErrorAction.default,
+            GlobalConstant::ErrorAction.default,
             {
                 name: name
             }

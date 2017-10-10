@@ -71,8 +71,8 @@ module AdminManagement
         return unauthorized_access_response('al_m_la_1') if cookie_parts.length != 4
         return unauthorized_access_response('al_m_la_2') if cookie_parts[2] != 's'
 
-        @admin_id = cookie_parts[0]
-        @cookie_timestamp = cookie_parts[1]
+        @admin_id = cookie_parts[0].to_i
+        @cookie_timestamp = cookie_parts[1].to_i
         token = cookie_parts[3]
 
         return unauthorized_access_response('al_m_la_3') if @cookie_timestamp < (Time.now.to_i - EXPIRY_INTERVAL.to_i)
@@ -192,15 +192,12 @@ module AdminManagement
       # @return [Result::Base]
       #
       def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-        Result::Base.error(
-            {
-                error: err,
-                error_message: display_text,
-                error_action: GlobalConstant::ApiErrorAction.logout,
-                error_display_text: display_text,
-                data: {},
-                http_code: GlobalConstant::ErrorCode.logged_out
-            }
+        error_with_action_and_data(
+          err,
+          display_text,
+          display_text,
+          GlobalConstant::ErrorAction.default,
+          {}
         )
       end
 

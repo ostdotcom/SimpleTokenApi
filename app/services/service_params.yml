@@ -9,3 +9,8 @@
     - :step_1_cookie_value
     - :otp
   :optional:
+
+'AdminManagement::VerifyCookie':
+  :mandatory:
+    - :cookie_value
+  :optional:

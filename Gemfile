@@ -19,7 +19,7 @@ gem 'sanitize', '4.5.0'
 gem 'exception_notification', '4.2.2'
 
 gem 'aws-sdk-kms', '1.2.0'
-gem 'aws-sdk-dynamodb', '1.2.0'
+# gem 'aws-sdk-dynamodb', '1.2.0'
 gem 'aws-sdk-s3', '1.5.0'
 
 group :development, :test do

@@ -1,0 +1,2 @@
+class AdminSecret < EstablishSimpleTokenAdminDbConnection
+end

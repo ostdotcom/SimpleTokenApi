@@ -1,3 +1,17 @@
 constants:
-  hello:
-    world: 1
+  kms:
+    login:
+      arn: <%= ENV['STA_LOGIN_KMS_ARN']%>
+      id: <%= ENV['STA_LOGIN_KMS_ID']%>
+    kyc:
+      arn: <%= ENV['STA_KYC_KMS_ARN']%>
+      id: <%= ENV['STA_KYC_KMS_ID']%>
+
+  aws:
+    region: <%= ENV['STA_DEFAULT_AWS_REGION']%>
+    admin:
+      access_key: <%= ENV['STA_ADMIN_AWS_ACCESS_KEY']%>
+      secret_key: <%= ENV['STA_ADMIN_AWS_SECRET_KEY']%>
+    user:
+      access_key: <%= ENV['STA_USER_AWS_ACCESS_KEY']%>
+      secret_key: <%= ENV['STA_USER_AWS_SECRET_KEY']%>

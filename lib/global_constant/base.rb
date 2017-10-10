@@ -7,6 +7,14 @@ module GlobalConstant
       @memcache_config ||= fetch_config.fetch('memcached', {})
     end
 
+    def self.kms
+      @kms ||= fetch_config.fetch('kms', {})
+    end
+
+    def self.aws
+      @aws ||= fetch_config.fetch('aws', {})
+    end
+
     private
 
     def self.fetch_config

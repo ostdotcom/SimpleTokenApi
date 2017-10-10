@@ -1,5 +1,11 @@
-'SampleServiceKlass':
+'UserManagement::Login':
   :mandatory:
-    - :param_1
+    - :email
+    - :password
   :optional:
-    - :param_2
+
+'UserManagement::SignUp':
+  :mandatory:
+    - :email
+    - :password
+  :optional:

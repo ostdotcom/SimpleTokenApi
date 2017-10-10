@@ -4,11 +4,32 @@ module Aws
 
     include ::Util::ResultHelper
 
+    # Initialize
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @param [String] purpose - this is the purpose for accessing the KMS service - login OR kyc
+    # @param [String] role - this is the role of the user for whom the KMS service is being called - admin OR user
+    #
+    # @return [Aws::Kms]
+    #
     def initialize(purpose, role)
       @purpose = purpose
       @role = role
     end
 
+    # Decrypt
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @param [Blob] ciphertext_blob - the blob you want to decrypt
+    #
+    # @return [Result::Base]
+    #
     def decrypt(ciphertext_blob)
       begin
 
@@ -30,6 +51,7 @@ module Aws
           'Something went wrong.',
           GlobalConstant::ApiErrorAction.default,
           {
+            purpose: @purpose,
             role: @role,
             ciphertext_blob: ciphertext_blob
           }
@@ -37,6 +59,16 @@ module Aws
       end
     end
 
+    # Encrypt
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @param [String] plaintext - the plaintext you want to encrypt
+    #
+    # @return [Result::Base]
+    #
     def encrypt(plaintext)
       begin
 
@@ -59,6 +91,7 @@ module Aws
           'Something went wrong.',
           GlobalConstant::ApiErrorAction.default,
           {
+            purpose: @purpose,
             role: @role,
             plaintext: plaintext
           }
@@ -66,8 +99,53 @@ module Aws
       end
     end
 
+    # Generate data key
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [Result::Base]
+    #
+    def generate_data_key
+      begin
+
+        resp = client.generate_data_key({
+                                   key_id: key_id,
+                                   key_spec: "AES_256"
+                                 })
+
+        return success_with_data(
+          ciphertext_blob: resp.ciphertext_blob,
+          plaintext: resp.plaintext
+        )
+
+      rescue => e
+        return exception_with_action_and_data(
+          e,
+          'a_k_3',
+          'exception in generate_data_key: ' + e.message,
+          'Something went wrong.',
+          GlobalConstant::ApiErrorAction.default,
+          {
+            purpose: @purpose,
+            role: @role
+          }
+        )
+      end
+
+    end
+
     private
 
+    # Client
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [Aws::KMS::Client]
+    #
     def client
       @client ||= Aws::KMS::Client.new(
         access_key_id: access_key_id,
@@ -76,24 +154,64 @@ module Aws
       )
     end
 
+    # Key id
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [String] returns the key id
+    #
     def key_id
       GlobalConstant::Aws::Kms.get_key_id_for(@purpose)
     end
 
+    # Access key
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [String] returns access key for AWS
+    #
     def access_key_id
-      config['access_key']
+      credentials['access_key']
     end
 
+    # Secret key
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [String] returns secret key for AWS
+    #
     def secret_key
-      config['secret_key']
+      credentials['secret_key']
     end
 
+    # Region
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [String] returns region
+    #
     def region
       GlobalConstant::Aws::Common.region
     end
 
-    def config
-      @config ||= GlobalConstant::Aws::Common.get_credentials_for(@role)
+    # Credentials
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [Hash] returns Hash of AWS credentials
+    #
+    def credentials
+      @credentials ||= GlobalConstant::Aws::Common.get_credentials_for(@role)
     end
 
   end

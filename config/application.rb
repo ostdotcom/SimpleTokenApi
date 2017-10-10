@@ -46,6 +46,14 @@ module SimpleTokenApi
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
 
+    # Enable CORS for local development
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*', :headers => :any, :methods => [:get, :post, :options]
+      end
+    end if Rails.env.development?
+
     require_relative('../lib/custom_log_formatter')
     config.log_level = :info
     config.log_formatter = CustomLogFormatter.new

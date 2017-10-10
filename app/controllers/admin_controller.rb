@@ -31,7 +31,19 @@ class AdminController < ApiController
   # * Reviewed By: Sunil Khedar
   #
   def multifactor_auth
+    service_response = AdminManagement::Login::MultifactorAuth.new(
+      params.merge(step_1_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym])
+    ).perform
 
+    if service_response.success?
+      cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
+        value: service_response.data[:step2_cookie_value],
+        expires: GlobalConstant::Cookie.default_expiry.from_now,
+        domain: :all
+      }
+    end
+
+    render_api_response(service_response)
   end
 
 

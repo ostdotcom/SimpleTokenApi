@@ -4,8 +4,8 @@
     - :password
   :optional:
 
-'UserManagement::SignUp':
+'AdminManagement::Login::MultifactorAuth':
   :mandatory:
-    - :email
-    - :password
+    - :step_1_cookie_value
+    - :otp
   :optional:

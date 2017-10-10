@@ -43,7 +43,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     encrypted_ga_secret = r.data[:ciphertext_blob]
 
     #get ga_secret qr code
-    rotp_client = Rotp::Totp.new(ga_secret)
+    rotp_client = TimeBasedOtp.new(ga_secret)
     r = rotp_client.provisioning_uri(email)
     return r unless r.success?
     otpauth = r.data[:otpauth]

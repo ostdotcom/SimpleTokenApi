@@ -1,6 +1,4 @@
-module Rotp
-
-  class Totp
+  class TimeBasedOtp
 
     DRIFT_TIME = 30 # expiry time difference for otp
 
@@ -69,5 +67,3 @@ module Rotp
     end
 
   end
-
-end

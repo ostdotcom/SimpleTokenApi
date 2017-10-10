@@ -122,7 +122,7 @@ module AdminManagement
       #
       def validate_otp
         return unauthorized_access_response('al_m_la_6') if login_salt_d.blank? || ga_secret_d.blank?
-        rotp_obj = Rotp::Totp.new(ga_secret_d)
+        rotp_obj = TimeBasedOtp.new(ga_secret_d)
         r = rotp_obj.verify_with_drift_and_prior(@otp, @admin_secrets.last_otp_at)
         return r unless r.success?
 

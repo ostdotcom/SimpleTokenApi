@@ -65,7 +65,7 @@ module Rotp
     private
 
     def client
-      @client ||= ROTP::TOTP.new(@secret, issuer: "Simple Token Api")
+      @client ||= ROTP::TOTP.new(@secret, issuer: "sta")
     end
 
   end

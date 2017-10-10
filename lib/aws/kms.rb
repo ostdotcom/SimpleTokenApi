@@ -49,7 +49,7 @@ module Aws
           'a_k_1',
           'exception in decrypt: ' + e.message,
           'Something went wrong.',
-          GlobalConstant::ApiErrorAction.default,
+          GlobalConstant::ErrorAction.default,
           {
             purpose: @purpose,
             role: @role,
@@ -89,7 +89,7 @@ module Aws
           'a_k_2',
           'exception in encrypt: ' + e.message,
           'Something went wrong.',
-          GlobalConstant::ApiErrorAction.default,
+          GlobalConstant::ErrorAction.default,
           {
             purpose: @purpose,
             role: @role,
@@ -126,7 +126,7 @@ module Aws
           'a_k_3',
           'exception in generate_data_key: ' + e.message,
           'Something went wrong.',
-          GlobalConstant::ApiErrorAction.default,
+          GlobalConstant::ErrorAction.default,
           {
             purpose: @purpose,
             role: @role

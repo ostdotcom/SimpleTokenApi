@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module GlobalConstant
 
-  class ApiErrorAction
+  class ErrorAction
 
     class << self
 

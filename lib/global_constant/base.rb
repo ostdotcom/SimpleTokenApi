@@ -15,6 +15,10 @@ module GlobalConstant
       @aws ||= fetch_config.fetch('aws', {})
     end
 
+    def self.cynopsis
+      @aws ||= fetch_config.fetch('cynopsis', {})
+    end
+
     private
 
     def self.fetch_config

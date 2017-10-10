@@ -7,6 +7,11 @@ constants:
       arn: <%= ENV['STA_KYC_KMS_ARN']%>
       id: <%= ENV['STA_KYC_KMS_ID']%>
 
+  cynopsis:
+    base_url: <%= ENV['STA_CYNOPSIS_BASE_URL']%>
+    token: <%= ENV['STA_CYNOPSIS_TOKEN']%>
+    domain_name: <%= ENV['STA_CYNOPSIS_DOMAIN_NAME']%>
+
   aws:
     region: <%= ENV['STA_DEFAULT_AWS_REGION']%>
     admin:

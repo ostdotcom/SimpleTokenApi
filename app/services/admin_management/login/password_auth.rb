@@ -10,8 +10,8 @@ module AdminManagement
       # * Date: 10/10/2017
       # * Reviewed By: Sunil Khedar
       #
-      # @param [String] email - this is the email entered
-      # @param [String] password - this is the password entered
+      # @param [String] email (mandatory) - this is the email entered
+      # @param [String] password (mandatory) - this is the password entered
       #
       # @return [AdminManagement::Login::PasswordAuth]
       #
@@ -25,6 +25,7 @@ module AdminManagement
         @admin_secret = nil
         @login_salt_d = nil
         @cookie_value = nil
+        @step1_cookie_value = nil
       end
 
       # Perform
@@ -51,10 +52,10 @@ module AdminManagement
         r = match_password_hash
         return r unless r.success?
 
-        r = set_step1_cookie_val
+        r = set_step1_cookie_value
         return r unless r.success?
 
-        success
+        success_with_data(step1_cookie_value: @step1_cookie_value)
 
       end
 
@@ -88,7 +89,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin_secret
-        @admin_secret = AdminSecret.where(uuid: @admin.uuid).first
+        @admin_secret = AdminSecret.where(udid: @admin.udid).first
         return incorrect_login_error('am_l_pa_2') unless @admin_secret.present?
 
         success
@@ -138,11 +139,18 @@ module AdminManagement
       # * Date: 10/10/2017
       # * Reviewed By: Sunil Khedar
       #
-      # Sets @cookie_value
+      # Sets @step1_cookie_value
       #
       # @return [Result::Base]
       #
-      def set_step1_cookie_val
+      def set_step1_cookie_value
+        current_ts = Time.now.to_i
+        token_e = Digest::MD5.hexdigest(
+          "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{current_ts}:s"
+        )
+
+        @step1_cookie_value = "#{@admin.id}:#{current_ts}:s:#{token_e}"
+
         success
       end
 
@@ -157,8 +165,8 @@ module AdminManagement
       def incorrect_login_error(err_code)
         error_with_action_and_data(
           err_code,
-          'Email or passowrd entered is incorrect.',
-          'Email or passowrd entered is incorrect.',
+          'Email or password entered is incorrect.',
+          'Email or password entered is incorrect.',
           GlobalConstant::ErrorAction.default,
           {}
         )

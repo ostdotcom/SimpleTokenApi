@@ -1,4 +1,4 @@
-'UserManagement::Login':
+'AdminManagement::Login::PasswordAuth':
   :mandatory:
     - :email
     - :password

@@ -20,3 +20,6 @@ constants:
     user:
       access_key: <%= ENV['STA_USER_AWS_ACCESS_KEY']%>
       secret_key: <%= ENV['STA_USER_AWS_SECRET_KEY']%>
+
+  redis:
+    url: <%= ENV['STA_REDIS_ENDPOINT'] %>

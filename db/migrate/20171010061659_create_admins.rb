@@ -6,7 +6,7 @@ class CreateAdmins < DbMigrationConnection
 
       create_table :admins do |t|
         t.column :email, :string, null: false
-        t.column :password, :blob, null: false #encrypted
+        t.column :password, :string, null: false
         t.column :admin_secret_id, :integer, limit: 8, null: false
         t.column :status, :tinyint, limit: 1, null: false, default: 1
         t.timestamps

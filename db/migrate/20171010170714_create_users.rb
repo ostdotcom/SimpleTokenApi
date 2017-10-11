@@ -6,7 +6,7 @@ class CreateUsers < DbMigrationConnection
 
       create_table :users do |t|
         t.column :email, :string, null: false
-        t.column :password, :blob, null: false #encrypted
+        t.column :password, :string, null: false
         t.column :user_secret_id, :integer, limit: 8, null: false
         t.column :first_name, :string, null: true
         t.column :last_name, :string, null: true
@@ -18,7 +18,7 @@ class CreateUsers < DbMigrationConnection
       end
 
       add_index :users, :email, unique: true, name: 'uniq_email'
-      add_index :users, :email, unique: true, name: 'uniq_bt_name'
+      add_index :users, :bt_name, unique: true, name: 'uniq_bt_name'
 
     end
 

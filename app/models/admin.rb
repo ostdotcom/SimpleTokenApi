@@ -18,6 +18,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   def self.add_admin(email, password)
 
+    return 'Admin email/password is blank' if password.blank? || email.blank?
     return 'Admin email already present' if Admin.where(email: email).present?
 
     #udid = SecureRandom.hex(16)

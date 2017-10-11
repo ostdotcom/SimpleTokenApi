@@ -14,3 +14,9 @@
   :mandatory:
     - :cookie_value
   :optional:
+
+'UserManagement::SignUp':
+  :mandatory:
+    - :email
+    - :password
+  :optional:

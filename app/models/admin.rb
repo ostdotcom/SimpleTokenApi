@@ -1,7 +1,5 @@
 class Admin < EstablishSimpleTokenAdminDbConnection
 
-  has_one :admin_secret, :primary_key => 'udid', :foreign_key => 'udid'
-
   enum status: {
            GlobalConstant::Admin.active_status => 1,
            GlobalConstant::Admin.inactive_status => 2,

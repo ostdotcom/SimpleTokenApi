@@ -101,6 +101,7 @@ module UserManagement
 
     def create_user_extended_details
       user_extended_details_params = {user_id: @user_id}
+      md5_user_extended_details_params = {user_id: @user_id}
 
       data_to_encrypt = {
           birthdate: @birthdate,
@@ -119,6 +120,7 @@ module UserManagement
         r = encryptor_obj.encrypt(value)
         return r unless r.success?
         user_extended_details_params[key.to_sym] = r.data[:ciphertext_blob]
+        md5_user_extended_details_params[key.to_sym] = Digest::MD5.hexdigest(value.to_s.downcase)
       end
 
       r = upload_passport_image
@@ -130,9 +132,13 @@ module UserManagement
       user_extended_details_params.merge!(passport_url: @passport_url, selfie_url: @selfie_url)
 
       EstablishSimpleTokenUserDbConnection.transaction do
-        UserExtendedDetail.create!(user_extended_details_params)
+        ued = UserExtendedDetail.create!(user_extended_details_params)
         @user_secret.save!
         @user.save!
+
+        md5_user_extended_details_params.merge!(user_extended_detail_id: ued.id)
+
+        Md5UserExtendedDetail.create!(md5_user_extended_details_params)
       end
 
       success

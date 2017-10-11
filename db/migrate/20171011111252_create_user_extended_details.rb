@@ -21,7 +21,7 @@ class CreateUserExtendedDetails < DbMigrationConnection
         t.timestamps
       end
 
-      add_index :user_extended_details, :user_id, unique: true, name: 'uniq_user_id'
+      add_index :user_extended_details, :user_id, unique: false, name: 'uniq_user_id'
 
     end
 

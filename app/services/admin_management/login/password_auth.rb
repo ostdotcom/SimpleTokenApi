@@ -163,7 +163,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def incorrect_login_error(err_code)
-        error_with_action_and_data(
+        error_with_data(
           err_code,
           'Email or password entered is incorrect.',
           'Email or password entered is incorrect.',

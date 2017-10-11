@@ -17,7 +17,7 @@
               verified_at_timestamp: verified_at_timestamp
           )
         else
-          return error_with_action_and_data(
+          return error_with_data(
               'r_t_1',
               'Otp is incorrect ' + otp,
               'Otp is incorrect',
@@ -27,7 +27,7 @@
         end
 
       rescue => e
-        return exception_with_action_and_data(
+        return exception_with_data(
             e,
             'r_t_2',
             'exception in verify_with_drift_and_prior: ' + e.message,
@@ -47,7 +47,7 @@
           otpauth: otpauth
       )
       rescue => e
-        return exception_with_action_and_data(
+        return exception_with_data(
             e,
             'r_t_3',
             'exception in provisioning_uri: ' + e.message,

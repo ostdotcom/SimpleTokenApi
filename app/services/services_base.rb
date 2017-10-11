@@ -58,7 +58,7 @@ class ServicesBase
       missing_mandatory_params << mandatory_param if @params[mandatory_param].to_s.blank?
     end if service_params_list[:mandatory].present?
 
-    return error_with_action_and_data('sb_1',
+    return error_with_data('sb_1',
                                       "Mandatory parameter(s) #{missing_mandatory_params.join(", ")} missing.",
                                       'Something Went Wrong.',
                                       GlobalConstant::ErrorAction.mandatory_params_missing,

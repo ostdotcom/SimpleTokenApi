@@ -106,7 +106,7 @@ module Cynopsis
           when 'upload'
             response = response.post(request_path, :form => params)
           else
-            return error_with_action_and_data('cb_1',
+            return error_with_data('cb_1',
                                               "Request type not implemented: #{request_type}",
                                               'Something Went Wrong.',
                                               GlobalConstant::ErrorAction.default,
@@ -117,14 +117,14 @@ module Cynopsis
           when 200
             return success_with_data(response: Oj.load(response.body.to_s))
           else
-            return error_with_action_and_data('cb_2',
+            return error_with_data('cb_2',
                                               "Error in API call: #{response.status}",
                                               'Something Went Wrong.',
                                               GlobalConstant::ErrorAction.default,
                                               {})
         end
       rescue => e
-        return error_with_action_and_data('cb_3',
+        return error_with_data('cb_3',
                                           "Exception in API call: #{e.message}",
                                           'Something Went Wrong.',
                                           GlobalConstant::ErrorAction.default,

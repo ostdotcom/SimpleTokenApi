@@ -192,7 +192,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-        error_with_action_and_data(
+        error_with_data(
           err,
           display_text,
           display_text,

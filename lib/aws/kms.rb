@@ -44,7 +44,7 @@ module Aws
         )
 
       rescue => e
-        return exception_with_action_and_data(
+        return exception_with_data(
           e,
           'a_k_1',
           'exception in decrypt: ' + e.message,
@@ -84,7 +84,7 @@ module Aws
         )
 
       rescue => e
-        return exception_with_action_and_data(
+        return exception_with_data(
           e,
           'a_k_2',
           'exception in encrypt: ' + e.message,
@@ -121,7 +121,7 @@ module Aws
         )
 
       rescue => e
-        return exception_with_action_and_data(
+        return exception_with_data(
           e,
           'a_k_3',
           'exception in generate_data_key: ' + e.message,

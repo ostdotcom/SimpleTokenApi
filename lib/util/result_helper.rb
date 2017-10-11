@@ -46,15 +46,17 @@ module Util
     # @param [String] display_heading (optional) - display heading
     # @param [String] display_text (mandatory) - error display text
     # @param [String] action (mandatory) - error action
-    # @param [Hash] data (mandatory) - error data
+    # @param [Hash] data (mandatory) - data
+    # @param [Hash] error_data (mandatory) - error data
     #
     # @return [Result::Base]
     #
-    def error_with_data(code, message, display_text, action, data, display_heading = 'Error')
+    def error_with_data(code, message, display_text, action, data, error_data = {}, display_heading = 'Error')
       Result::Base.error(
           {
               error: code,
               error_message: message,
+              error_data: error_data,
               error_action: action,
               error_display_text: display_text,
               error_display_heading: display_heading,

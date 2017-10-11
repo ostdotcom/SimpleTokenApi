@@ -37,6 +37,7 @@ module Result
                   :error_display_text,
                   :error_display_heading,
                   :error_action,
+                  :error_data,
                   :message,
                   :data,
                   :exception,
@@ -80,6 +81,7 @@ module Result
     def set_error(params)
       @error = params[:error] if params.key?(:error)
       @error_message = params[:error_message] if params.key?(:error_message)
+      @error_data = params[:error_data] if params.key?(:error_data)
       @error_action = params[:error_action] if params.key?(:error_action)
       @error_display_text = params[:error_display_text] if params.key?(:error_display_text)
       @error_display_heading = params[:error_display_heading] if params.key?(:error_display_heading)
@@ -163,11 +165,12 @@ module Result
     #
     def errors_present?
       @error.present? ||
-          @error_message.present? ||
-          @error_display_text.present? ||
-          @error_display_heading.present? ||
-          @error_action.present? ||
-          @exception.present?
+        @error_message.present? ||
+        @error_data.present? ||
+        @error_display_text.present? ||
+        @error_display_heading.present? ||
+        @error_action.present? ||
+        @exception.present?
     end
 
     # Exception message
@@ -253,7 +256,7 @@ module Result
     #
     def self.send_notification_mail(e, params)
       ApplicationMailer.notify(
-          body: {exception: {message: e.message, backtrace: e.backtrace}},
+          body: {exception: {message: e.message, backtrace: e.backtrace, error_data: @error_data}},
           data: params,
           subject: "#{params[:error]} : #{params[:error_message]}"
       ).deliver
@@ -271,6 +274,7 @@ module Result
       @n_err ||= {
           error: nil,
           error_message: nil,
+          error_data: nil,
           error_action: nil,
           error_display_text: nil,
           error_display_heading: nil
@@ -301,6 +305,7 @@ module Result
       [
           :error,
           :error_message,
+          :error_data,
           :error_action,
           :error_display_text,
           :error_display_heading
@@ -357,7 +362,8 @@ module Result
                 msg: hash[:error_message],
                 action: hash[:error_action] || GlobalConstant::ErrorAction.default,
                 display_text: hash[:error_display_text] || 'Something went wrong.',
-                display_heading: hash[:error_display_heading] || 'Error.'
+                display_heading: hash[:error_display_heading] || 'Error.',
+                error_data: hash[:error_data] || {}
             },
             data: hash[:data]
         }

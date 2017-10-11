@@ -74,6 +74,33 @@ module Util
       obj.is_a?(Hash) || obj.is_a?(ActionController::Parameters)
     end
 
+    # Is the Email a Valid Email
+    #
+    # * Author: Puneet
+    # * Date: 10/10/2017
+    # * Reviewed By:
+    #
+    # @return [Boolean] returns a boolean
+    #
+    def self.is_valid_email?(email)
+      GlobalConstant::Regex.email.match(email).present?
+    end
+
+    # Should Email be send to this email & this env
+    #
+    # * Author: Puneet
+    # * Date: 10/10/2017
+    # * Reviewed By:
+    #
+    # @return [Boolean] returns a boolean
+    #
+    def self.is_email_send_allowed?(email)
+      return false unless is_valid_email?(email)
+      Rails.env.production? || [
+        ''
+      ].include?(email)
+    end
+
   end
 
 end

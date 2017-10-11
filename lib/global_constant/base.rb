@@ -4,19 +4,23 @@ module GlobalConstant
   class Base
 
     def self.memcache_config
-      @memcache_config ||= fetch_config.fetch('memcached', {})
+      @memcache_config ||= fetch_config.fetch('memcached', {}).with_indifferent_access
     end
 
     def self.kms
-      @kms ||= fetch_config.fetch('kms', {})
+      @kms ||= fetch_config.fetch('kms', {}).with_indifferent_access
     end
 
     def self.aws
-      @aws ||= fetch_config.fetch('aws', {})
+      @aws ||= fetch_config.fetch('aws', {}).with_indifferent_access
     end
 
     def self.cynopsis
-      @aws ||= fetch_config.fetch('cynopsis', {})
+      @cynopsis ||= fetch_config.fetch('cynopsis', {}).with_indifferent_access
+    end
+
+    def self.pepo_campaigns_config
+      @pepo_campaigns ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
     end
 
     private

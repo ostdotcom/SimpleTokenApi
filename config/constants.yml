@@ -20,3 +20,12 @@ constants:
     user:
       access_key: <%= ENV['STA_USER_AWS_ACCESS_KEY']%>
       secret_key: <%= ENV['STA_USER_AWS_SECRET_KEY']%>
+
+  pepo_campaigns:
+    api:
+      key: <%= ENV['STA_CAMPAIGN_CLIENT_KEY']%>
+      secret: <%= ENV['STA_CAMPAIGN_CLIENT_SECRET']%>
+      base_url: <%= ENV['STA_CAMPAIGN_BASE_URL']%>
+      version: 'v1'
+    list_ids:
+      master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>

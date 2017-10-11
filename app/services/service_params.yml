@@ -38,7 +38,6 @@
     - :first_name
     - :last_name
     - :birthdate
-    - :user_id
     - :street_address
     - :city
     - :state

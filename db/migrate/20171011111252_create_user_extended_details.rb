@@ -14,6 +14,7 @@ class CreateUserExtendedDetails < DbMigrationConnection
         t.column :ethereum_address, :blob, null: false #encrypted
         t.column :estimated_participation_amount, :blob, null: false #encrypted
         t.column :passport_number, :blob, null: false #encrypted
+        t.column :passport_country, :blob, null: false #encrypted
         t.column :passport_url, :string, null: false
         t.column :selfie_url, :string, null: false
         t.timestamps

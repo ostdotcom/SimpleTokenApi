@@ -99,7 +99,7 @@ module AdminManagement
         @admin = Admin.where(id: @admin_id).first
         return unauthorized_access_response('al_m_la_5') if @admin.blank?
 
-        @admin_secrets = @admin.admin_secret
+        @admin_secrets = AdminSecret.where(udid: @admin.udid).first
         return unauthorized_access_response('al_m_la_5') if @admin_secrets.blank?
 
         step_1_cookie_token = Digest::MD5.hexdigest(

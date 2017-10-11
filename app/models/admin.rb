@@ -11,7 +11,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   # * Author: Aman
   # * Date: 10/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # @param [String] email
   # @param [String] password
@@ -62,10 +62,10 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   # * Author: Aman
   # * Date: 10/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil Khedar
   #
-  # @param [String] salt
   # @param [String] password
+  # @param [String] salt
   #
   # @return [String] MD5 Encrypted password
   #

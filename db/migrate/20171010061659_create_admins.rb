@@ -1,6 +1,6 @@
 class CreateAdmins < DbMigrationConnection
 
-  def change
+  def up
 
     run_migration_for_db(EstablishSimpleTokenAdminDbConnection.config_key) do
 
@@ -17,6 +17,12 @@ class CreateAdmins < DbMigrationConnection
 
     end
 
+  end
+
+  def down
+    run_migration_for_db(EstablishSimpleTokenAdminDbConnection.config_key) do
+      drop_table :admins
+    end
   end
 
 end

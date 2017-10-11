@@ -1,4 +1,4 @@
-class AdminController < ApiController
+class Admin::LoginController < ApiController
 
   before_action :validate_cookie, except: [
     :password_auth
@@ -32,7 +32,6 @@ class AdminController < ApiController
   # * Reviewed By: Sunil Khedar
   #
   def multifactor_auth
-    puts "------------------------------------------"
     service_response = AdminManagement::Login::MultifactorAuth.new(
       params.merge(step_1_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym])
     ).perform

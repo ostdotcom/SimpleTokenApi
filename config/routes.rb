@@ -6,7 +6,7 @@ Rails.application.routes.draw do
     match 'login' => :login, via: :POST
   end
 
-  scope 'api/admin', controller: 'admin' do
+  scope 'api/admin', controller: 'admin/login' do
     match 'login' => :password_auth, via: :POST
     match 'mfa' => :multifactor_auth, via: :POST
   end

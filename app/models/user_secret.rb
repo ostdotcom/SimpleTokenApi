@@ -1,0 +1,2 @@
+class UserSecret < EstablishSimpleTokenUserDbConnection
+end

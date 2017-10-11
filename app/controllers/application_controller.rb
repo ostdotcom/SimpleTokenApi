@@ -29,7 +29,6 @@ class ApplicationController < ActionController::API
                              error_message: 'Resource not found',
                              http_code: GlobalConstant::ErrorCode.not_found
                            })
-
     render_api_response(r)
   end
 

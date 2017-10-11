@@ -1,0 +1,4 @@
+class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
+
+
+end

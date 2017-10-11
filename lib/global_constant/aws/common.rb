@@ -21,6 +21,10 @@ module GlobalConstant
           GlobalConstant::Base.aws['region']
         end
 
+        def kyc_bucket
+          GlobalConstant::Base.s3['kyc_bucket']
+        end
+
         private
 
         def user_access_credentials

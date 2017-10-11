@@ -23,3 +23,6 @@ constants:
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>
+
+  s3:
+    kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>    

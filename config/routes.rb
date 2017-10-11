@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/login' do
     match 'sign-up' => :sign_up, via: :POST
     match 'login' => :login, via: :POST
+    match 'kyc-submit' => :kyc_submit, via: :POST
   end
 
   scope 'api/admin', controller: 'admin/login' do
@@ -14,3 +15,4 @@ Rails.application.routes.draw do
   match '*permalink', to: 'application#not_found', via: :all
 
 end
+

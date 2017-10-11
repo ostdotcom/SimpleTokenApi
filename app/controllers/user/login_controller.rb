@@ -1,9 +1,6 @@
 class User::LoginController < User::BaseController
 
-  before_action :validate_cookie, except: [
-    :sign_up,
-    :login
-  ]
+  before_action :validate_cookie, except: [:sign_up, :login]
 
   # Sign up
   #
@@ -17,9 +14,9 @@ class User::LoginController < User::BaseController
     if service_response.success?
       cookie_value = service_response.data.delete(:cookie_value)
       cookies[GlobalConstant::Cookie.user_cookie_name.to_sym] = {
-        value: cookie_value,
-        expires: GlobalConstant::Cookie.default_expiry.from_now,
-        domain: :all
+          value: cookie_value,
+          expires: GlobalConstant::Cookie.default_expiry.from_now,
+          domain: :all
       }
     end
 
@@ -44,6 +41,11 @@ class User::LoginController < User::BaseController
       }
     end
 
+    render_api_response(service_response)
+  end
+
+  def kyc_submit
+    service_response = UserManagement::KycSubmit.new(params).perform
     render_api_response(service_response)
   end
 

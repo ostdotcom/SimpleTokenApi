@@ -16,7 +16,11 @@ module GlobalConstant
     end
 
     def self.cynopsis
-      @aws ||= fetch_config.fetch('cynopsis', {})
+      @cynopsis ||= fetch_config.fetch('cynopsis', {})
+    end
+
+    def self.s3
+      @s3 ||= fetch_config.fetch('s3', {})
     end
 
     def self.redis_config

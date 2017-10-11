@@ -1,4 +1,4 @@
-class User::LoginController < ApiController
+class User::LoginController < User::BaseController
 
   before_action :validate_cookie, except: [
     :sign_up,

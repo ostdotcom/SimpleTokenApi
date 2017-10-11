@@ -20,3 +20,14 @@
     - :email
     - :password
   :optional:
+
+'UserManagement::Login':
+  :mandatory:
+    - :email
+    - :password
+  :optional:
+
+'UserManagement::VerifyCookie':
+  :mandatory:
+    - :cookie_value
+  :optional:

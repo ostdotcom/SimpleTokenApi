@@ -16,11 +16,20 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @param [String] email
   # @param [String] password
   #
-  # @return [String] Url for QR code
-  #
   def self.add_admin(email, password)
-    udid = SecureRandom.hex(16)
+
+    return 'Admin email already present' if Admin.where(email: email).present?
+
+    #udid = SecureRandom.hex(16)
     ga_secret = ROTP::Base32.random_base32
+
+    #get ga_secret qr code
+    rotp_client = TimeBasedOtp.new(ga_secret)
+    r = rotp_client.provisioning_uri(email)
+    return r unless r.success?
+    otpauth = r.data[:otpauth]
+    escaped_otpauth = CGI.escape(otpauth)
+    url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
 
     #get cmk key and text
     kms_login_client = Aws::Kms.new('login','admin')
@@ -40,20 +49,14 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     return r unless r.success?
     encrypted_ga_secret = r.data[:ciphertext_blob]
 
-    #get ga_secret qr code
-    rotp_client = TimeBasedOtp.new(ga_secret)
-    r = rotp_client.provisioning_uri(email)
-    return r unless r.success?
-    otpauth = r.data[:otpauth]
-    escaped_otpauth = CGI.escape(otpauth)
-    url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
+    #create admin secrets
+    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
+    admin_secrets_obj.save!(validate: false)
 
-    #create admin and admin secret objects
-    admin_obj = Admin.new(email: email, password: encrypted_password, status: 'active', udid: udid)
+    #create admin
+    admin_obj = Admin.new(email: email, password: encrypted_password, admin_secret_id: admin_secrets_obj.id, status: 'active')
     admin_obj.save!(validate: false)
 
-    admin_secrets_obj = AdminSecret.new(udid: udid, login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
-    admin_secrets_obj.save!(validate: false)
     puts url
     return url
   end

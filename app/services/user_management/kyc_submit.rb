@@ -19,6 +19,7 @@ module UserManagement
       @ethereum_address = @params[:ethereum_address]
       @estimated_participation_amount = @params[:estimated_participation_amount]
       @passport_number = @params[:passport_number]
+      @passport_country = @params[:passport_country]
       @passport_file = @params[:passport_file]
       @selfie_file = @params[:selfie_file]
 
@@ -51,10 +52,20 @@ module UserManagement
     private
 
     def fetch_user_data
+
+      return error_with_data(
+          'um_ks_1',
+          'Kyc Already Added',
+          'Kyc Already Added',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if UserExtendedDetail.where(user_id: @user.id).first.present?
+
+
       @user = User.where(id: @user_id).first
 
       return error_with_data(
-          'um_su_1',
+          'um_ks_2',
           'Invalid User',
           'Invalid User',
           GlobalConstant::ErrorAction.default,
@@ -100,7 +111,8 @@ module UserManagement
           postal_code: @postal_code,
           ethereum_address: @ethereum_address,
           estimated_participation_amount: @estimated_participation_amount,
-          passport_number: @passport_number
+          passport_number: @passport_number,
+          passport_country: @passport_country
       }
 
       data_to_encrypt.each do |key, value|

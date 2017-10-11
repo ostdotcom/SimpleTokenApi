@@ -46,6 +46,7 @@
     - :ethereum_address
     - :estimated_participation_amount
     - :passport_number
+    - :passport_country
     - :passport_file
     - :selfie_file
   :optional:

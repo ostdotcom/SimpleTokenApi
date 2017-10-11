@@ -59,7 +59,7 @@ module UserManagement
           'Kyc Already Added',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if UserExtendedDetail.where(user_id: @user.id).first.present?
+      ) if UserExtendedDetail.where(user_id: @user_id).first.present?
 
 
       @user = User.where(id: @user_id).first

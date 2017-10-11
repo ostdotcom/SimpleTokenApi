@@ -84,7 +84,8 @@ class ApplicationController < ActionController::API
       err = response_hash.delete(:err) || {}
       response_hash[:err] = {
         display_text: (err[:display_text] || 'Something went wrong.'),
-        display_heading: (err[:display_heading] || 'Error')
+        display_heading: (err[:display_heading] || 'Error'),
+        error_data: (err[:error_data] || {})
       }
 
       response_hash[:data] = {}

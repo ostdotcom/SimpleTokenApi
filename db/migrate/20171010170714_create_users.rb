@@ -7,7 +7,7 @@ class CreateUsers < DbMigrationConnection
       create_table :users do |t|
         t.column :email, :string, null: false
         t.column :password, :string, null: false
-        t.column :user_secret_id, :initeger, null: true
+        t.column :user_secret_id, :integer, null: true
         t.column :status, :tinyint, limit: 1, null: false, default: 1
         t.timestamps
         t.timestamps

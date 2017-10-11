@@ -55,7 +55,7 @@ module AdminManagement
 
       private
 
-      # Parse and validate step1 cookie
+      # Parse and validate step 1 cookie
       #
       # * Author: Aman
       # * Date: 10/10/2017
@@ -77,15 +77,15 @@ module AdminManagement
 
         return unauthorized_access_response('al_m_la_3') if @cookie_timestamp < (Time.now.to_i - EXPIRY_INTERVAL.to_i)
 
-        r = fetch_admin_step1_cookie_token
+        r = fetch_admin_step_1_cookie_token
         return r unless r.success?
 
-        return unauthorized_access_response('al_m_la_4') if token != r.data[:step1_cookie_token]
+        return unauthorized_access_response('al_m_la_4') if token != r.data[:step_1_cookie_token]
 
         success
       end
 
-      # fetch admin step1 token
+      # fetch admin step 1 token
       #
       # * Author: Aman
       # * Date: 10/10/2017
@@ -94,7 +94,7 @@ module AdminManagement
       # @return [Result::Base]
       # Sets @admin, @admin_secret
       #
-      def fetch_admin_step1_cookie_token
+      def fetch_admin_step_1_cookie_token
 
         @admin = Admin.where(id: @admin_id).first
         return unauthorized_access_response('al_m_la_5') if @admin.blank?
@@ -102,12 +102,12 @@ module AdminManagement
         @admin_secrets = @admin.admin_secret
         return unauthorized_access_response('al_m_la_5') if @admin_secrets.blank?
 
-        step1_cookie_token = Digest::MD5.hexdigest(
+        step_1_cookie_token = Digest::MD5.hexdigest(
             "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{@cookie_timestamp}:s"
         )
 
         success_with_data(
-            step1_cookie_token: step1_cookie_token
+            step_1_cookie_token: step_1_cookie_token
         )
       end
 

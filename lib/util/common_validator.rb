@@ -1,6 +1,9 @@
 module Util
   class CommonValidator
 
+    REGEX_EMAIL = /\A[A-Z0-9]+[A-Z0-9_%+-]*(\.[A-Z0-9_%+-]{1,})*@(?:[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,24}\Z/mi
+
+
     # Check for numeric-ness of an input
     #
     # * Author: Kedar
@@ -83,7 +86,7 @@ module Util
     # @return [Boolean] returns a boolean
     #
     def self.is_valid_email?(email)
-      GlobalConstant::Regex.email.match(email).present?
+      email =~ REGEX_EMAIL
     end
 
     # Should Email be send to this email & this env

@@ -36,7 +36,7 @@ module UserManagement
     #
     def perform
 
-      r = validate
+      r = validate_and_sanitize
       return r unless r.success?
 
       r = check_if_email_already_registered
@@ -53,6 +53,32 @@ module UserManagement
 
     private
 
+    def validate_and_sanitize
+      @email.to_s.downcase.strip!
+
+      r = validate
+      return r unless r.success?
+
+      return error_with_data(
+          'um_su_1',
+          'Invalid Email',
+          'Invalid Email',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {email: "Invalid Email"}
+      ) if !Util::CommonValidator.is_valid_email?(@email)
+
+      return error_with_data(
+          'um_su_1',
+          'Password should be minimum 8 characters',
+          'Password should be minimum 8 characters',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {password: 'Password should be minimum 8 characters'}
+      ) if @password.length < 8
+
+    end
+
     # Check if email already registered
     #
     # * Author: Kedar
@@ -65,11 +91,11 @@ module UserManagement
       user = User.where(email: @email).first
 
       return error_with_data(
-        'um_su_1',
-        'User is already registered.',
-        'User is already registered.',
-        GlobalConstant::ErrorAction.default,
-        {}
+          'um_su_1',
+          'User is already registered.',
+          'User is already registered.',
+          GlobalConstant::ErrorAction.default,
+          {}
       ) if user.present?
 
       success
@@ -86,7 +112,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def generate_login_salt
-      r = Aws::Kms.new('login','user').generate_data_key
+      r = Aws::Kms.new('login', 'user').generate_data_key
       return r unless r.success?
 
       @login_salt_hash = r.data
@@ -111,10 +137,10 @@ module UserManagement
       password_e = User.get_encrypted_password(@password, @login_salt_hash[:plaintext])
 
       @user = User.create!(
-        email: @email,
-        password: password_e,
-        user_secret_id: @user_secret.id,
-        status: GlobalConstant::User.active_status
+          email: @email,
+          password: password_e,
+          user_secret_id: @user_secret.id,
+          status: GlobalConstant::User.active_status
       )
     end
 

@@ -15,7 +15,14 @@ class User::BaseController < ApiController
     ).perform
 
     if service_response.success?
+      cookies[GlobalConstant::Cookie.user_cookie_name.to_sym] = {
+        value: service_response.data[:extended_cookie_value],
+        expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
+        domain: :all
+      } if service_response.data[:extended_cookie_value].present?
+
       params[:user_id] = service_response.data[:user_id]
+
     else
       render_api_response(service_response)
     end

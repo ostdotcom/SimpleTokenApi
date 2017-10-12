@@ -23,6 +23,7 @@ module AdminManagement
 
         @admin = nil
         @admin_id = nil
+        @created_ts = nil
       end
 
       # Perform

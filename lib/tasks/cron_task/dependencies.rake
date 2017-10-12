@@ -12,7 +12,7 @@ namespace :cron_task do
   #
   task :validate_params do
     fail '@process_name blank' if @process_name.blank?
-    fail '@performer_klass blank' if @performer_klass.blank?
+    fail '@task_name blank' if @task_name.blank?
   end
 
   #
@@ -62,6 +62,21 @@ namespace :cron_task do
   #
   def lock_file_path
     @lock_file_path ||= "#{Rails.root.to_s}/log/#{@process_name}.lock"
+  end
+
+  # Get Performer Klass
+  #
+  # * Author: Puneet
+  # * Date: 10/10/2017
+  # * Reviewed By:
+  #
+  def get_performer_klass
+    case @task_name.to_s
+      when 'cron_task:continuous:process_email_service_api_call_hooks'
+        Crons::HookProcessors::EmailServiceApiCall
+      else
+        fail "unsupported #{@task_name}"
+    end
   end
 
 end

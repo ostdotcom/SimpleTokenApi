@@ -1,7 +1,7 @@
 class CreateEmailServiceApiCallHook < DbMigrationConnection
 
   def up
-    run_migration_for_db(EstablishSimpleTokenApiDbConnection.config_key) do
+    run_migration_for_db(EstablishSimpleTokenEmailDbConnection.config_key) do
 
       create_table :email_service_api_call_hooks do |t|
 
@@ -32,7 +32,7 @@ class CreateEmailServiceApiCallHook < DbMigrationConnection
   end
 
   def down
-    run_migration_for_db(EstablishSimpleTokenApiDbConnection.config_key) do
+    run_migration_for_db(EstablishSimpleTokenEmailDbConnection.config_key) do
       drop_table :email_service_api_call_hooks if EstablishSimpleTokenApiDbConnection.exists? :email_service_api_call_hooks
     end
   end

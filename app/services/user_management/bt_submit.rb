@@ -17,6 +17,7 @@ module UserManagement
 
       super
 
+      @user_id = @params[:user_id]
       @bt_name = @params[:bt_name]
       @skip_name = @params[:skip_name]
       @user_id = @params[:user_id]
@@ -24,6 +25,8 @@ module UserManagement
       @user = nil
 
       @error_data = {}
+
+      @has_changed = false
 
     end
 
@@ -45,6 +48,8 @@ module UserManagement
 
       r = update_user
       return r unless r.success?
+
+      enqueue_job if @has_changed
 
       success_with_data(user_id: @user_id)
     end
@@ -120,12 +125,33 @@ module UserManagement
     # * Reviewed By:
     #
     def update_user
-      @user.set_bt_done
+
+      @user.send("set_"+GlobalConstant::User.token_sale_bt_done_property)
       @user.bt_name = @bt_name unless @skip_name
-      @user.save!
+
+      if @user.changed?
+        @user.save!
+        @has_changed = true
+      end
+
       success
+
     end
 
+    # Enqueue Bg Job
+    #
+    # * Author: Kedar
+    # * Date: 12/10/2017
+    # * Reviewed By:
+    #
+    def enqueue_job
+      BgJob.enqueue(
+        BtSubmittedJob,
+        {
+          user_id: @user_id
+        }
+      )
+    end
 
     # Unauthorized access response
     #

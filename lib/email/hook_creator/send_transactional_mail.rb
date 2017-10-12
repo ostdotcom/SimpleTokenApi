@@ -20,7 +20,6 @@ module Email
       #
       def initialize(params)
         super
-        @event_type = params[:event_type]
         @template_name = params[:template_name]
         @template_vars = params[:template_vars]
       end
@@ -65,7 +64,7 @@ module Email
       # @return [String] event type that goes into hook table
       #
       def event_type
-        @event_type
+        GlobalConstant::EmailServiceApiCallHook.send_double_opt_in_mail_event_type
       end
 
       # check if this template is supported currently

@@ -20,3 +20,7 @@ simple_token_admin_<%= Rails.env%>:
 simple_token_user_<%= Rails.env%>:
   <<: *default
   database: simple_token_user_<%= Rails.env%>
+
+simple_token_email_<%= Rails.env%>:
+  <<: *default
+  database: simple_token_email_<%= Rails.env%>

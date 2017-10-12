@@ -93,6 +93,26 @@ module Util
       })
     end
 
+    # Current Time
+    #
+    # * Author: Sunil Khedar
+    # * Date: 19/10/2017
+    # * Reviewed By: Kedar
+    #
+    def current_time
+      @c_t ||= Time.now
+    end
+
+    # Current Time Stamp
+    #
+    # * Author: Sunil Khedar
+    # * Date: 19/10/2017
+    # * Reviewed By: Kedar
+    #
+    def current_timestamp
+      @c_tstmp ||= current_time.to_i
+    end
+
   end
 
 end

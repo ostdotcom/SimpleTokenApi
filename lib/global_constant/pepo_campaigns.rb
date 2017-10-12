@@ -77,7 +77,7 @@ module GlobalConstant
 
       # double optin email - sent when user is adding email for the first time
       def double_opt_in_template
-        'double_opt_in_v1'
+        'token_sale_double_opt'
       end
 
       # double optin confirmation - sent when user status changes from pending to confirmed

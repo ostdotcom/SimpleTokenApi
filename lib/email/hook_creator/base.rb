@@ -15,8 +15,8 @@ module Email
       # @return [Email::HookCreator::Base] returns an object of Email::HookCreator::Base class
       #
       def initialize(params)
-        @custom_description = params[:custom_description]
         @email = params[:email]
+        @custom_description = params[:custom_description]
       end
 
       # Perform
@@ -110,7 +110,6 @@ module Email
       def create_hook(params = {})
         EmailServiceApiCallHook.create!(
           event_type: event_type,
-          user_id: @user_id,
           email: @email,
           execution_timestamp: params[:execution_timestamp] || current_timestamp,
           custom_description: @custom_description,

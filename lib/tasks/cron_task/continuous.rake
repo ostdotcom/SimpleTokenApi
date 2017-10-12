@@ -25,8 +25,8 @@ namespace :cron_task do
     desc "rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1"
     desc "*/5 * * * * cd /mnt/simpletoken/current && rake RAILS_ENV=staging cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
     task :process_email_service_api_call_hooks do |task|
+      @task_name = task
       @process_name = "#{task}_#{ENV['lock_key_suffix']}"
-      @performer_klass = Crons::HookProcessors::EmailServiceApiCall
       @sleep_interval = 120
       execute_continuous_task
     end
@@ -55,8 +55,9 @@ namespace :cron_task do
           current_time = Time.now
           log_line "Starting iteration #{@iteration_count} at #{current_time} with params: #{@params}"
 
-          performer_klass = @performer_klass.new(@params)
-          performer_klass.perform
+          performer_klass = get_performer_klass
+
+          performer_klass.new(@params).perform
 
           @iteration_count += 1
           sleep(@sleep_interval) # sleep for @sleep_interval second after one iteration.

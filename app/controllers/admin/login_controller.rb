@@ -41,7 +41,10 @@ class Admin::LoginController < Admin::BaseController
   def multifactor_auth
 
     service_response = AdminManagement::Login::MultifactorAuth.new(
-      params.merge(single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym])
+      params.merge({
+                     single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
+                     browser_user_agent: request.env['HTTP_USER_AGENT'].to_s
+                   })
     ).perform
 
     if service_response.success?

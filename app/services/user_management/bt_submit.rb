@@ -63,7 +63,8 @@ module UserManagement
       if !@skip_name
         @bt_name.to_s.strip!
         validation_errors[:bt_name] = "Branded Token Name is mandatory." if @bt_name.blank?
-        validation_errors[:bt_name] = "Branded Token Name is already taken." if User.where(bt_name: @bt_name).where.not(id: @user_id).exists?
+        existing_bt_row = User.where(bt_name: @bt_name).first
+        validation_errors[:bt_name] = "Branded Token Name is already taken." if existing_bt_row.present? && existing_bt_row.id != @user_id
       end
 
       return error_with_data(

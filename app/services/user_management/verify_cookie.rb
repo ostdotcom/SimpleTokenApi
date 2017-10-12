@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @param [String] cookie_value (mandatory) - this is the admin cookie value
+    # @params [String] cookie_value (mandatory) - this is the user cookie value
     #
     # @return [UserManagement::VerifyCookie]
     #
@@ -24,7 +24,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @return [AdminManagement::VerifyCookie]
+    # @return [Result::Base]
     #
     def perform
       r = validate
@@ -76,6 +76,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_token
+      # TODO: Cache user object
       user = User.where(id: @user_id).first
       return unauthorized_access_response('um_vc_4') unless user.present? &&
         (user.status == GlobalConstant::User.active_status)

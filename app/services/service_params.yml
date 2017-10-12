@@ -6,11 +6,16 @@
 
 'AdminManagement::Login::MultifactorAuth':
   :mandatory:
-    - :step_1_cookie_value
+    - :single_auth_cookie_value
     - :otp
   :optional:
 
-'AdminManagement::VerifyCookie':
+'AdminManagement::VerifyCookie::SingleAuth':
+  :mandatory:
+    - :cookie_value
+  :optional:
+
+'AdminManagement::VerifyCookie::DoubleAuth':
   :mandatory:
     - :cookie_value
   :optional:

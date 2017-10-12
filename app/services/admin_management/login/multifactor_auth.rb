@@ -4,190 +4,222 @@ module AdminManagement
 
     class MultifactorAuth < ServicesBase
 
-      EXPIRY_INTERVAL = 15.minutes
-
       # Initialize
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # @param [String] step_1_cookie_value (mandatory) - this is the step_1_cookie_value entered
-      # @param [String] otp (mandatory) - this is the Otp entered
+      # @params [String] single_auth_cookie_value (mandatory) - single auth cookie value
+      # @params [String] otp (mandatory) - this is the Otp entered
       #
       # @return [AdminManagement::Login::MultifactorAuth]
       #
       def initialize(params)
+
         super
 
-        @step_1_cookie_value = @params[:step_1_cookie_value].to_s
+        @single_auth_cookie_value = @params[:single_auth_cookie_value].to_s
         @otp = @params[:otp].to_s
 
-        @step_2_cookie_value = nil
+        @double_auth_cookie_value = nil
+
         @admin_id = nil
+        @admin = nil
+        @admin_secret = nil
+        @login_salt_d = nil
+        @ga_secret_d = nil
+
       end
 
       # Perform
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base]
       #
       def perform
+
         r = validate
         return r unless r.success?
 
-        r = parse_and_validate_cookie
+        r = validate_single_auth_cookie
+        return r unless r.success?
+
+        r = fetch_admin
+        return r unless r.success?
+
+        r = fetch_admin_secret
+        return r unless r.success?
+
+        r = decrypt_login_salt
+        return r unless r.success?
+
+        r = decrypt_ga_secret
         return r unless r.success?
 
         r = validate_otp
         return r unless r.success?
 
-        r = set_step_2_cookie_value
+        r = set_double_auth_cookie_value
         return r unless r.success?
 
         success_with_data(
-            step_2_cookie_value: @step_2_cookie_value
+            double_auth_cookie_value: @double_auth_cookie_value
         )
       end
 
       private
 
-      # Parse and validate step 1 cookie
+      # Parse and validate single auth cookie
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil Khedar
+      #
+      # Sets @admin_id
       #
       # @return [Result::Base]
-      # Sets @admin_id, @cookie_timestamp
       #
-      def parse_and_validate_cookie
+      def validate_single_auth_cookie
 
-        cookie_parts = @step_1_cookie_value.try(:split, ":")
+        service_response = AdminManagement::VerifyCookie::SingleAuth.new(
+          cookie_value: @single_auth_cookie_value
+        ).perform
 
-        return unauthorized_access_response('al_m_la_1') if cookie_parts.length != 4
-        return unauthorized_access_response('al_m_la_2') if cookie_parts[2] != 's'
+        return unauthorized_access_response('am_l_ma_1') unless service_response.success?
 
-        @admin_id = cookie_parts[0].to_i
-        @cookie_timestamp = cookie_parts[1].to_i
-        token = cookie_parts[3]
-
-        return unauthorized_access_response('al_m_la_3') if @cookie_timestamp < (Time.now.to_i - EXPIRY_INTERVAL.to_i)
-
-        r = fetch_admin_step_1_cookie_token
-        return r unless r.success?
-
-        return unauthorized_access_response('al_m_la_4') if token != r.data[:step_1_cookie_token]
+        @admin_id = service_response.data[:admin_id]
 
         success
       end
 
-      # fetch admin step 1 token
+      # Fetch admin
+      #
+      # * Author: Kedar
+      # * Date: 10/10/2017
+      # * Reviewed By: Sunil Khedar
+      #
+      # Sets @admin
+      #
+      # @return [Result::Base]
+      #
+      def fetch_admin
+        @admin = Admin.where(id: @admin_id).first
+        return incorrect_login_error('am_l_ma_2') unless @admin.present?
+
+        success
+      end
+
+      # Fetch admin secret
+      #
+      # * Author: Kedar
+      # * Date: 10/10/2017
+      # * Reviewed By: Sunil Khedar
+      #
+      # Sets @admin_secret
+      #
+      # @return [Result::Base]
+      #
+      def fetch_admin_secret
+        @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
+        return unauthorized_access_response('am_l_ma_3') unless @admin_secret.present?
+
+        success
+      end
+
+      # Decrypt login salt
+      #
+      # * Author: Kedar
+      # * Date: 10/10/2017
+      # * Reviewed By: Sunil Khedar
+      #
+      # Sets @login_salt_d
+      #
+      # @return [Result::Base]
+      #
+      def decrypt_login_salt
+
+        login_salt_e = @admin_secret.login_salt
+        return unauthorized_access_response('am_l_ma_4') unless login_salt_e.present?
+
+        r = Aws::Kms.new('login', 'admin').decrypt(login_salt_e)
+        return unauthorized_access_response('am_l_ma_5') unless r.success?
+
+        @login_salt_d = r.data[:plaintext]
+
+        success
+      end
+
+      # Decrypt ga secret
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil Khedar
+      #
+      # Sets @ga_secret_d
       #
       # @return [Result::Base]
-      # Sets @admin, @admin_secret
       #
-      def fetch_admin_step_1_cookie_token
+      def decrypt_ga_secret
 
-        @admin = Admin.where(id: @admin_id).first
-        return unauthorized_access_response('al_m_la_5') if @admin.blank?
+        decryptor_obj = LocalCipher.new(@login_salt_d)
 
-        @admin_secrets = AdminSecret.where(udid: @admin.udid).first
-        return unauthorized_access_response('al_m_la_5') if @admin_secrets.blank?
+        resp = decryptor_obj.decrypt(@admin_secret.ga_secret)
+        return unauthorized_access_response('am_l_ma_6') unless resp.success?
 
-        step_1_cookie_token = Digest::MD5.hexdigest(
-            "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{@cookie_timestamp}:s"
-        )
+        @ga_secret_d = resp.data[:plaintext]
 
-        success_with_data(
-            step_1_cookie_token: step_1_cookie_token
-        )
+        success
       end
 
       # Validate otp
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil Khedar
       #
       # @return [Result::Base]
       # Sets last_otp_at of admin secrets
       #
       def validate_otp
-        return unauthorized_access_response('al_m_la_6') if login_salt_d.blank? || ga_secret_d.blank?
-        rotp_obj = TimeBasedOtp.new(ga_secret_d)
-        r = rotp_obj.verify_with_drift_and_prior(@otp, @admin_secrets.last_otp_at)
-        return r unless r.success?
+        rotp_obj = TimeBasedOtp.new(@ga_secret_d)
+        r = rotp_obj.verify_with_drift_and_prior(@otp, @admin_secret.last_otp_at)
+        return unauthorized_access_response('am_l_ma_7') unless r.success?
 
-        @admin_secrets.last_otp_at = r.data[:verified_at_timestamp]
-        @admin_secrets.save!(validate: false)
+        @admin_secret.last_otp_at = r.data[:verified_at_timestamp]
+        @admin_secret.save!(validate: false)
+
         success
       end
 
-      # Set Step2 cookie
+      # Set Double auth cookie
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil Khedar
+      #
+      # Sets @double_auth_cookie_value
       #
       # @return [Result::Base]
-      # Sets @step_2_cookie_value
       #
-      def set_step_2_cookie_value
-        current_ts = Time.now.to_i
-        token_e = Digest::MD5.hexdigest(
-            "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{current_ts}:d:#{@admin_secrets.ga_secret}"
+      def set_double_auth_cookie_value
+        @double_auth_cookie_value = Admin.cookie_value(
+          @admin.id,
+          @admin.password,
+          GlobalConstant::Cookie.double_auth_prefix
         )
 
-        @step_2_cookie_value = "#{@admin.id}:#{current_ts}:d:#{token_e}"
-
         success
-      end
-
-      # Fetch login_salt_d
-      #
-      # * Author: Aman
-      # * Date: 10/10/2017
-      # * Reviewed By:
-      #
-      # @return [String] Decrypted Login Salt
-      #
-      def login_salt_d
-        @login_salt_d ||= begin
-          kms_obj = Aws::Kms.new('login', 'admin')
-          resp = kms_obj.decrypt(@admin_secrets.login_salt)
-          resp.success? ? resp.data[:plaintext] : ''
-        end
-      end
-
-      # Fetch ga_secret_d
-      #
-      # * Author: Aman
-      # * Date: 10/10/2017
-      # * Reviewed By:
-      #
-      # @return [String] Decrypted Ga Secret key
-      #
-      def ga_secret_d
-        @ga_secret_d ||= begin
-          decryptor_obj = LocalCipher.new(login_salt_d)
-          resp = decryptor_obj.decrypt(@admin_secrets.ga_secret)
-          resp.success? ? resp.data[:plaintext] : ''
-        end
       end
 
       # Error Response
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil Khedar
       #
       # @return [Result::Base]
       #

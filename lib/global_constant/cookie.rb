@@ -13,8 +13,20 @@ module GlobalConstant
         'tu'
       end
 
-      def default_expiry
-        1.day
+      def double_auth_expiry
+        1.hour
+      end
+
+      def single_auth_expiry
+        5.minute
+      end
+
+      def single_auth_prefix
+        's'
+      end
+
+      def double_auth_prefix
+        'd'
       end
 
     end

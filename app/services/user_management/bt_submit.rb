@@ -106,7 +106,7 @@ module UserManagement
           GlobalConstant::ErrorAction.default,
           {},
           {bt_name: 'Branded Tokens name cannot be updated'}
-      ) if @user.properties_array.include?(GlobalConstant::User.bt_done_property)
+      ) if @user.properties_array.include?(GlobalConstant::User.token_sale_bt_done_property)
 
       success
     end

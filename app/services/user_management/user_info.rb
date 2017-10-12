@@ -65,9 +65,9 @@ module UserManagement
 
     def get_user_state(user)
 
-     return 'optin_done' if user.properties_array.include?(GlobalConstant::User.kyc_optin_done_property)
+     return 'optin_done' if user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
 
-     return 'bt_done' if user.properties_array.include?(GlobalConstant::User.bt_done_property)
+     return 'bt_done' if user.properties_array.include?(GlobalConstant::User.token_sale_bt_done_property)
 
      return 'kyc_submit_done' if user.first_name.present?
 

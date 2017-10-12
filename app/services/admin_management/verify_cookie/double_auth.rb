@@ -76,6 +76,8 @@ module AdminManagement
       # @Sets @extended_cookie_value
       #
       def set_extended_cookie_value
+        return if (@created_ts + 10.minute.to_i) >= Time.now.to_i
+
         @extended_cookie_value = Admin.get_cookie_value(
             @admin_id,
             @admin[:password],

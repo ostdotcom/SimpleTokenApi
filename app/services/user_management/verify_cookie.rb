@@ -59,7 +59,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # Sets @user_id, @current_ts, @token
+    # Sets @user_id, @created_ts, @token
     #
     # @return [Result::Base]
     #
@@ -72,8 +72,8 @@ module UserManagement
       @user_id = parts[0].to_i
       return unauthorized_access_response('um_vc_3') unless @user_id > 0
 
-      @current_ts = parts[1].to_i
-      return unauthorized_access_response('um_vc_4') unless (@current_ts + 20.minute.to_i) >= Time.now.to_i
+      @created_ts = parts[1].to_i
+      return unauthorized_access_response('um_vc_4') unless (@created_ts + 20.minute.to_i) >= Time.now.to_i
 
       @token = parts[3]
 
@@ -103,7 +103,7 @@ module UserManagement
         @user.password,
         @user.user_secret_id,
         @browser_user_agent,
-        @current_ts
+        @created_ts
       )
       return unauthorized_access_response('um_vc_6') unless (evaluated_token == @token)
 
@@ -137,6 +137,8 @@ module UserManagement
     # @Sets @extended_cookie_value
     #
     def set_extended_cookie_value
+      return if (@created_ts + 10.minute.to_i) >= Time.now.to_i
+
       @extended_cookie_value = User.cookie_value(
         @user,
         @user_secret,

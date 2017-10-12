@@ -53,4 +53,14 @@ class User::LoginController < User::BaseController
     render_api_response(service_response)
   end
 
+  def bt_submit
+    service_response = UserManagement::BtSubmit.new(params).perform
+    render_api_response(service_response)
+  end
+
+  def user_info
+    service_response = UserManagement::UserInfo.new(cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym]).perform
+    render_api_response(service_response)
+  end
+
 end

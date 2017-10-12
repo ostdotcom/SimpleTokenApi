@@ -62,3 +62,14 @@
     - :passport_file
     - :selfie_file
   :optional:
+
+'UserManagement::UserInfo':
+  :mandatory:
+    - :cookie_value
+  :optional:
+
+'UserManagement::BtSubmit':
+  :mandatory:
+    - :bt_name
+    - :skip_name
+  :optional:

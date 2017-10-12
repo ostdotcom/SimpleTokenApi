@@ -6,14 +6,25 @@ class User < EstablishSimpleTokenUserDbConnection
     GlobalConstant::User.deactived_status => 3
   }
 
-
-  # Property config
+  # Array of Properties symbols
   #
   # * Author: Aman
   # * Date: 11/10/2017
   # * Reviewed By:
   #
-  def self.property_config
+  # @returns [Array<Symbol>] returns Array of properties bits set for user
+  #
+  def properties_array
+    @properties_array ||= User.get_bits_set_for_properties(properties)
+  end
+
+  # properties config
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By:
+  #
+  def self.properties_config
     @u_prop_con ||= {
         GlobalConstant::User.bt_done_property => 1,
         GlobalConstant::User.kyc_optin_done_property => 2
@@ -28,7 +39,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        property: property_config
+        properties: properties_config
     }
   end
 

@@ -48,7 +48,10 @@ module Email
 
         return error_with_data(
           'e_hc_uc_1',
-          'mandatory param email missing'
+          'mandatory param email missing',
+          'mandatory param email missing',
+          GlobalConstant::ErrorAction.default,
+          {}
         ) if @email.blank?
 
         r = validate_email

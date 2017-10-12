@@ -26,7 +26,7 @@ namespace :cron_task do
     desc "*/5 * * * * cd /mnt/simpletoken/current && rake RAILS_ENV=staging cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
     task :process_email_service_api_call_hooks do |task|
       @process_name = "#{task}_#{ENV['lock_key_suffix']}"
-      @performer_klass = 'HookProcessors::EmailServiceApiCall'
+      @performer_klass = Crons::HookProcessors::EmailServiceApiCall
       @sleep_interval = 120
       execute_continuous_task
     end
@@ -46,7 +46,7 @@ namespace :cron_task do
 
         @iteration_count = 1
         @running_interval ||= DEFAULT_RUNNING_INTERVAL
-        @sleep_interval ||= 10
+        @sleep_interval ||= 10 # In Seconds
 
         register_signal_handlers
 
@@ -55,7 +55,7 @@ namespace :cron_task do
           current_time = Time.now
           log_line "Starting iteration #{@iteration_count} at #{current_time} with params: #{@params}"
 
-          performer_klass = @performer_klass.constantize.new(@params)
+          performer_klass = @performer_klass.new(@params)
           performer_klass.perform
 
           @iteration_count += 1
@@ -77,8 +77,6 @@ namespace :cron_task do
         log_line("Ended at => #{Time.now} after #{@iteration_count} iterations")
       end
     end
-
-    # hepler methods
 
     # output logged lines
     #

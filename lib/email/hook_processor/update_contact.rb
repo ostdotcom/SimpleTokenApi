@@ -94,6 +94,8 @@ module Email
           error_with_data(
             'e_hp_uc_1',
             'API Call to Email Service Failed',
+            'API Call to Email Service Failed',
+            GlobalConstant::ErrorAction.default,
             update_contact_response
           )
         else

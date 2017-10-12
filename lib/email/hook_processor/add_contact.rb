@@ -64,6 +64,8 @@ module Email
           error_with_data(
             'e_hp_ac_1',
             'API Call to Email Service Failed',
+            'API Call to Email Service Failed',
+            GlobalConstant::ErrorAction.default,
             add_contact_response
           )
         else
@@ -77,6 +79,8 @@ module Email
               error_with_data(
                 'e_hp_ac_2',
                 "Couldn't create hook to send transactional email",
+                "Couldn't create hook to send transactional email",
+                GlobalConstant::ErrorAction.default,
                 r.to_json
               )
             end

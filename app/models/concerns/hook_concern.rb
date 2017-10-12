@@ -4,6 +4,19 @@ module HookConcern
 
   included do
 
+    # Any model including this concern should have following columns in the table
+    #
+    # execution_timestamp (Decimal) : Time after which this hook should be processed
+    # locked_at : Time when lock was acquired on this hook
+    # status : status for this hook
+    # failed_count : no. of times hook processing failed
+    # success_response : serialized Hash containing success response
+    # failed_response : serialized Hash containing last failure response
+
+    # Also implement 2 methods
+    # 1. batch_size_for_hooks_processor -> returning Integer mentioning batch size for one iteration of processor
+    # 2. retry_limit_for_failed_hooks -> returning Integer mentioning retry count (for Failed Hooks)
+
     enum status: {
       pending_status => 1,
       processed_status => 2,
@@ -44,21 +57,26 @@ module HookConcern
         update_all(lock_identifier: lock_identifier, locked_at: Time.now.to_i)
     }
 
-    scope :mark_processed, ->(ids) {
-      where(id: ids).update_all(status: statuses[processed_status])
-    }
-
     scope :fetch_locked_hooks, ->(lock_identifier) {
       where(lock_identifier: lock_identifier)
     }
 
-    scope :mark_ignored, ->(ids) {
-      where(id: ids).update_all(
-        status: statuses[ignored_status],
+    # Mark Hook as Processed
+    #
+    # * Author: Puneet
+    # * Date: 11/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @param [Hash] sucess_log - log to be written in success response column
+    #
+    def mark_processed(sucess_log)
+      update_attributes!(
         lock_identifier: nil,
-        locked_at: nil
+        locked_at: nil,
+        success_response: sucess_log,
+        status: self.class.processed_status
       )
-    }
+    end
 
     # Mark Hook as Failed Which would have to be retried Later
     #
@@ -88,28 +106,11 @@ module HookConcern
     #
     def mark_failed_to_be_ignored(failed_log)
       update_attributes!(
-        status: self.class.failed_status ,
+        status: self.class.ignored_status ,
         failed_count: failed_count + 1,
         lock_identifier: nil,
         locked_at: nil,
         failed_response: failed_log
-      )
-    end
-
-    # Mark Hook as Processed
-    #
-    # * Author: Puneet
-    # * Date: 11/11/2017
-    # * Reviewed By:
-    #
-    # @param [Hash] sucess_log - log to be written in success response column
-    #
-    def mark_processed(sucess_log)
-      update_attributes!(
-        lock_identifier: nil,
-        locked_at: nil,
-        success_response: sucess_log,
-        status: self.class.processed_status
       )
     end
 

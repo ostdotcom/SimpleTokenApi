@@ -89,7 +89,10 @@ module Email
         else
           error_with_data(
             'e_hc_stm_3',
-            'Invalid Email'
+            'Invalid Email',
+            'Invalid Email',
+            GlobalConstant::ErrorAction.default,
+            {}
           )
         end
 
@@ -126,7 +129,10 @@ module Email
       def pending_hook_exists_response
         error_with_data(
           'e_c_3',
-          'Pending Hook Already Exists'
+          'Pending Hook Already Exists',
+          'Pending Hook Already Exists',
+          GlobalConstant::ErrorAction.default,
+          {}
         )
       end
 

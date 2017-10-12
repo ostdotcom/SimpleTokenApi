@@ -79,7 +79,10 @@ module Email
       def validate_template_name
         GlobalConstant::PepoCampaigns.supported_templates.include?(@template_name) ? success : error_with_data(
           'e_hc_stm_3',
-          "un supported template: #{@template_name}"
+          "un supported template: #{@template_name}",
+          "un supported template: #{@template_name}",
+          GlobalConstant::ErrorAction.default,
+          {}
         )
       end
 
@@ -97,7 +100,10 @@ module Email
 
           return error_with_data(
             'e_hc_stm_4',
-            'mandatory template var double_opt_in_token missing'
+            'mandatory template var double_opt_in_token missing',
+            'mandatory template var double_opt_in_token missing',
+            GlobalConstant::ErrorAction.default,
+            {}
           ) if @template_vars[:double_opt_in_token].blank?
 
         end

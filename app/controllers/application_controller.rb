@@ -1,8 +1,9 @@
 class ApplicationController < ActionController::API
 
+  include ActionController::RequestForgeryProtection
+  protect_from_forgery with: :exception
+
   [
-    # TODO: Do we need it for cookie support?
-    #ActionController::Helpers, #This is added for cookies support
     ActionController::Cookies
   ].each do |mdl|
     include mdl

@@ -38,8 +38,8 @@ module UserManagement
       @aws_kms_key_id = GlobalConstant::Aws::Kms.get_key_id_for('kyc')
 
       @images.each do |k, v|
-        content_type = v[:content_type]
-        key = "i" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
+        content_type = v
+        key = "i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 

@@ -64,7 +64,7 @@ module AdminManagement
       # @return [Time]
       #
       def valid_upto
-        20.minute
+        1.hour
       end
 
       # Set Extened Cookie Value

@@ -78,5 +78,8 @@
 
 'UserManagement::GetUploadParams':
   :mandatory:
-    - :images
     - :user_id
+
+  :optional:
+    - :pdfs
+    - :images

@@ -17,10 +17,12 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
-      @images = @params[:images]
+      @images = @params[:images] || {}
+      @pdfs = @params[:pdfs] || {}
 
-      @aws_creds = nil
-      @aws_kms_key_id = nil
+      @aws_creds = GlobalConstant::Aws::Common.get_credentials_for('user')
+      @aws_kms_key_id = GlobalConstant::Aws::Kms.get_key_id_for('kyc')
+
       @upload_params = {}
     end
 
@@ -34,12 +36,18 @@ module UserManagement
     #
     def perform
 
-      @aws_creds = GlobalConstant::Aws::Common.get_credentials_for('user')
-      @aws_kms_key_id = GlobalConstant::Aws::Kms.get_key_id_for('kyc')
+      r = validate
+      return r unless r.success?
 
       @images.each do |k, v|
         content_type = v
         key = "i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
+        @upload_params[k] = get_upload_params_for(content_type, key)
+      end
+
+      @pdfs.each do |k, v|
+        content_type = v
+        key = "d/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 
@@ -48,6 +56,42 @@ module UserManagement
     end
 
     private
+
+    # Validate
+    #
+    # * Author: Kedar
+    # * Date: 13/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [Result::Base]
+    #
+    def validate
+      r = super
+      return r unless r.success?
+
+      image_content_types = []
+      @images.each do |_, v|
+        image_content_types << v.to_s.downcase
+      end
+
+      pdf_content_types = []
+      @pdfs.each do |_, v|
+        pdf_content_types << v.to_s.downcase
+      end
+
+      invalid_content_types = (image_content_types - ['image/jpeg', 'image/png', 'image/jpg']).any? ||
+        (pdf_content_types - ['application/pdf']).any?
+
+      return error_with_data(
+        'um_gup_1',
+        'invalid content types.',
+        'Only JPEG, PDF and PNG files are allowed.',
+        GlobalConstant::ErrorAction.default,
+        {}
+      ) if invalid_content_types
+
+      success
+    end
 
     # Perform
     #

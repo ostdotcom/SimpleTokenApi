@@ -88,7 +88,12 @@ module AdminManagement
         return unauthorized_access_response('am_vc_5') unless @admin.present? &&
           (@admin[:status] == GlobalConstant::Admin.active_status)
 
-        evaluated_token = Admin.cookie_token(@admin_id, @admin[:password], @created_ts, auth_level)
+        evaluated_token = Admin.get_cookie_token(
+            @admin_id,
+            @admin[:password],
+            @admin[:last_otp_at],
+            auth_level,
+            @created_ts)
         return unauthorized_access_response('am_vc_6') unless (evaluated_token == @token)
 
         success

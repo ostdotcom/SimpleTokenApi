@@ -8,6 +8,7 @@ class CreateAdmins < DbMigrationConnection
         t.column :email, :string, null: false
         t.column :password, :string, null: false
         t.column :admin_secret_id, :integer, limit: 8, null: false
+        t.column :last_otp_at, :integer, null: true, limit: 8
         t.column :status, :tinyint, limit: 1, null: false, default: 1
         t.timestamps
         t.timestamps

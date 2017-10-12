@@ -6,7 +6,6 @@ class CreateAdminSecrets < DbMigrationConnection
       create_table :admin_secrets do |t|
         t.column :login_salt, :blob, null: false #encrypted
         t.column :ga_secret, :blob, null: false #encrypted
-        t.column :last_otp_at, :integer, null: true, limit: 8
         t.timestamps
         t.timestamps
       end

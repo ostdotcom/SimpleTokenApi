@@ -146,9 +146,10 @@ module AdminManagement
       #
       def set_single_auth_cookie_value
 
-        @single_auth_cookie_value = Admin.cookie_value(
+        @single_auth_cookie_value = Admin.get_cookie_value(
             @admin.id,
             @admin.password,
+            @admin.last_otp_at,
             GlobalConstant::Cookie.single_auth_prefix
         )
 

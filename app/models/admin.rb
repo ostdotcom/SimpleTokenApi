@@ -56,7 +56,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     #create admin
     admin_obj = Admin.new(email: email, password: encrypted_password,
-      admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status)
+      admin_secret_id: admin_secrets_obj.id, last_otp_at: Time.now.to_i, status: GlobalConstant::Admin.active_status)
     admin_obj.save!(validate: false)
 
     puts url
@@ -86,14 +86,15 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   # @param [Integer] admin_id - admin id
   # @param [String] password - password
+  # @param [Timestamp] last_otp_at - last otp at
   # @param [String] auth_level - cookie auth level
   #
   # @return [String] cookie value
   #
-  def self.cookie_value(admin_id, password, auth_level)
+  def self.get_cookie_value(admin_id, password, last_otp_at, auth_level)
     # TODO: let's consider to use IP and user agent in cookie. And add last_otp_at
     current_ts = Time.now.to_i
-    token_e = cookie_token(admin_id, password, current_ts, auth_level)
+    token_e = get_cookie_token(admin_id, password, last_otp_at, auth_level, current_ts)
     "#{admin_id}:#{current_ts}:#{auth_level}:#{token_e}"
   end
 
@@ -105,15 +106,16 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   # @param [Integer] admin_id - admin id
   # @param [String] password - password
+  # @param [Timestamp] last_otp_at - last otp at
   # @param [Integer] current_ts - current timestamp
   # @param [String] auth_level - cookie auth level
   #
   # @return [String] cookie value
   #
-  def self.cookie_token(admin_id, password, current_ts, auth_level)
+  def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, current_ts)
     # TODO: let's consider to use IP and user agent in cookie. And add last_otp_at
     Digest::MD5.hexdigest(
-      "#{admin_id}:#{password}:#{current_ts}:#{auth_level}"
+      "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{auth_level}"
     )
   end
 

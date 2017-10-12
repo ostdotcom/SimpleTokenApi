@@ -75,9 +75,10 @@ module AdminManagement
       # @Sets @extended_cookie_value
       #
       def set_extended_cookie_value
-        @extended_cookie_value = Admin.cookie_value(
+        @extended_cookie_value = Admin.get_cookie_value(
             @admin_id,
             @admin[:password],
+            @admin[:last_otp_at],
             auth_level
         )
       end

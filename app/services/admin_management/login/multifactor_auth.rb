@@ -182,15 +182,15 @@ module AdminManagement
       # * Reviewed By: Sunil Khedar
       #
       # @return [Result::Base]
-      # Sets last_otp_at of admin secrets
       #
       def validate_otp
         rotp_obj = TimeBasedOtp.new(@ga_secret_d)
-        r = rotp_obj.verify_with_drift_and_prior(@otp, @admin_secret.last_otp_at)
+        r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
         return unauthorized_access_response('am_l_ma_7') unless r.success?
 
-        @admin_secret.last_otp_at = r.data[:verified_at_timestamp]
-        @admin_secret.save!(validate: false)
+        # Update last_otp_at
+        @admin.last_otp_at = r.data[:verified_at_timestamp]
+        @admin.save!(validate: false)
 
         success
       end
@@ -206,9 +206,10 @@ module AdminManagement
       # @return [Result::Base]
       #
       def set_double_auth_cookie_value
-        @double_auth_cookie_value = Admin.cookie_value(
+        @double_auth_cookie_value = Admin.get_cookie_value(
           @admin.id,
           @admin.password,
+          @admin.last_otp_at,
           GlobalConstant::Cookie.double_auth_prefix
         )
 

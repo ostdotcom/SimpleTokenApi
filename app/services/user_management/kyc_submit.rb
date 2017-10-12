@@ -93,7 +93,9 @@ module UserManagement
       r = super
       return r unless r.success?
 
+      # apply custom validations.
 
+      success
 
     end
 

@@ -114,8 +114,6 @@ module UserManagement
 
       @error_data[:country] = "City is required." unless @country.present?
 
-      @error_data[:postal_code] = "Invalid Postal Code." unless Util::CommonValidator.is_numeric?(@postal_code)
-
       @error_data[:ethereum_address] = "Invalid ethereum address." unless Util::CommonValidator.is_euthereum_address?(@ethereum_address)
 
       return error_with_data(

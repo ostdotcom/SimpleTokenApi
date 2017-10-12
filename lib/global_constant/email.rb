@@ -6,7 +6,7 @@ module GlobalConstant
     class << self
 
       def default_from
-        'notifier@simpletoken.org'
+        Rails.env.production? ? 'notifier@simpletoken.org' : 'notifier@stagingsimpletoken.org'
       end
 
       def default_to

@@ -9,7 +9,9 @@ class User::LoginController < User::BaseController
   # * Reviewed By: Sunil Khedar
   #
   def sign_up
-    service_response = UserManagement::SignUp.new(params).perform
+    service_response = UserManagement::SignUp.new(
+      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+    ).perform
 
     if service_response.success?
       cookie_value = service_response.data.delete(:cookie_value)
@@ -30,7 +32,9 @@ class User::LoginController < User::BaseController
   # * Reviewed By: Sunil Khedar
   #
   def login
-    service_response = UserManagement::Login.new(params).perform
+    service_response = UserManagement::Login.new(
+      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+    ).perform
 
     if service_response.success?
       cookie_value = service_response.data.delete(:cookie_value)

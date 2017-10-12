@@ -10,6 +10,7 @@ module UserManagement
     #
     # @param [String] email (mandatory) - this is the email entered
     # @param [String] password (mandatory) - this is the password entered
+    # @param [String] browser_user_agent (mandatory) - browser user agent
     #
     # @return [UserManagement::Login]
     #
@@ -18,6 +19,7 @@ module UserManagement
 
       @email = @params[:email]
       @password = @params[:password]
+      @browser_user_agent = @params[:browser_user_agent]
 
       @user_secret = nil
       @user = nil
@@ -117,7 +119,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def set_cookie_value
-      cookie_value = User.cookie_value(@user, @user_secret)
+      cookie_value = User.cookie_value(@user, @user_secret, @browser_user_agent)
 
       success_with_data(cookie_value: cookie_value)
     end

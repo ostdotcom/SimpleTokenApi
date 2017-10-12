@@ -39,17 +39,17 @@ class User < EstablishSimpleTokenUserDbConnection
 
 
 
-  def self.cookie_value(user, user_secret)
+  def self.cookie_value(user, user_secret, browser_user_agent)
     current_ts = Time.now.to_i
 
-    token_e = cookie_token(user.id, user.password, user_secret.id, current_ts)
+    token_e = cookie_token(user.id, user.password, user_secret.id, browser_user_agent, current_ts)
 
     "#{user.id}:#{current_ts}:d:#{token_e}"
   end
 
-  def self.cookie_token(user_id, password, user_secret_id, current_ts)
+  def self.cookie_token(user_id, password, user_secret_id, browser_user_agent, current_ts)
     Digest::MD5.hexdigest(
-      "#{user_id}:#{password}:#{user_secret_id}:#{current_ts}:d"
+      "#{user_id}:#{password}:#{user_secret_id}:#{browser_user_agent}:#{current_ts}:d"
     )
   end
 

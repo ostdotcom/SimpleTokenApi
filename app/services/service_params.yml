@@ -28,17 +28,20 @@
   :mandatory:
     - :email
     - :password
+    - :browser_user_agent
   :optional:
 
 'UserManagement::Login':
   :mandatory:
     - :email
     - :password
+    - :browser_user_agent
   :optional:
 
 'UserManagement::VerifyCookie':
   :mandatory:
     - :cookie_value
+    - :browser_user_agent
   :optional:
 
 'UserManagement::KycSubmit':

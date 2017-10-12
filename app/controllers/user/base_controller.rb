@@ -10,7 +10,8 @@ class User::BaseController < ApiController
   #
   def validate_cookie
     service_response = UserManagement::VerifyCookie.new(
-      cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym]
+      cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym],
+      browser_user_agent: request.env['HTTP_USER_AGENT'].to_s
     ).perform
 
     if service_response.success?

@@ -59,4 +59,15 @@ class User::LoginController < User::BaseController
     render_api_response(service_response)
   end
 
+  # Get logged in user details
+  #
+  # * Author: Kedar
+  # * Date: 13/10/2017
+  # * Reviewed By: Sunil
+  #
+  def get_upload_params
+    service_response = UserManagement::GetUploadParams.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

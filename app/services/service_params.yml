@@ -75,3 +75,8 @@
     - :skip_name
     - :user_id
   :optional:
+
+'UserManagement::GetUploadParams':
+  :mandatory:
+    - :images
+    - :user_id

@@ -51,6 +51,8 @@ module UserManagement
       @kyc_salt_d = nil
       @kyc_salt_e = nil
 
+      @error_data = {}
+
     end
 
     # Perform
@@ -82,9 +84,9 @@ module UserManagement
 
     # Validate
     #
-    # * Author: Aman
+    # * Author: Kedar
     # * Date: 10/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By:
     #
     # @return [Result::Base]
     #
@@ -94,6 +96,34 @@ module UserManagement
       return r unless r.success?
 
       # apply custom validations.
+      @error_data[:first_name] = "First Name is required." unless @first_name.present?
+
+      @error_data[:last_name] = "Last Name is required." unless @last_name.present?
+
+      begin
+        Date.parse(@birthdate)
+      rescue ArgumentError
+        @error_data[:birthdate] = "Invalid Birth Date."
+      end
+
+      @error_data[:street_address] = "Street Address is required." unless @street_address.present?
+
+      @error_data[:city] = "City is required." unless @city.present?
+
+      @error_data[:state] = "State is required." unless @state.present?
+
+      @error_data[:country] = "City is required." unless @country.present?
+
+      @error_data[:postal_code] = "Invalid Postal Code." unless Util::CommonValidator.is_numeric?(@postal_code)
+
+      return error_with_data(
+        'um_ks_1',
+        'Invalid Parameters.',
+        'Invalid Parameters.',
+        GlobalConstant::ErrorAction.default,
+        {},
+        @error_data
+      ) if @error_data.present?
 
       success
 
@@ -110,7 +140,7 @@ module UserManagement
     def fetch_user_data
 
       return error_with_data(
-        'um_ks_1',
+        'um_ks_2',
         'Kyc Already Added.',
         'Kyc Already Added.',
         GlobalConstant::ErrorAction.default,

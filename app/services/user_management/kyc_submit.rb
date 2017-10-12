@@ -77,6 +77,9 @@ module UserManagement
       r = create_user_extended_details
       return r unless r.success?
 
+      r = update_user
+      return r unless r.success?
+
       success_with_data(user_id: @user_id)
     end
 
@@ -117,12 +120,12 @@ module UserManagement
       @error_data[:ethereum_address] = "Invalid ethereum address." unless Util::CommonValidator.is_euthereum_address?(@ethereum_address)
 
       return error_with_data(
-        'um_ks_1',
-        'Invalid Parameters.',
-        'Invalid Parameters.',
-        GlobalConstant::ErrorAction.default,
-        {},
-        @error_data
+          'um_ks_1',
+          'Invalid Parameters.',
+          'Invalid Parameters.',
+          GlobalConstant::ErrorAction.default,
+          {},
+          @error_data
       ) if @error_data.present?
 
       success
@@ -140,11 +143,11 @@ module UserManagement
     def fetch_user_data
 
       return error_with_data(
-        'um_ks_2',
-        'Kyc Already Added.',
-        'Kyc Already Added.',
-        GlobalConstant::ErrorAction.default,
-        {}
+          'um_ks_2',
+          'Kyc Already Added.',
+          'Kyc Already Added.',
+          GlobalConstant::ErrorAction.default,
+          {}
       ) if UserExtendedDetail.where(user_id: @user_id).first.present?
 
       @user = User.where(id: @user_id).first
@@ -187,19 +190,19 @@ module UserManagement
       md5_user_extended_details_params = {user_id: @user_id}
 
       data_to_encrypt = {
-        first_name: @first_name,
-        last_name: @last_name,
-        kyc_salt: @kyc_salt_e,
-        birthdate: @birthdate,
-        street_address: @street_address,
-        city: @city,
-        state: @state,
-        country: @country,
-        postal_code: @postal_code,
-        ethereum_address: @ethereum_address,
-        estimated_participation_amount: @estimated_participation_amount,
-        passport_number: @passport_number,
-        passport_country: @passport_country
+          first_name: @first_name,
+          last_name: @last_name,
+          kyc_salt: @kyc_salt_e,
+          birthdate: @birthdate,
+          street_address: @street_address,
+          city: @city,
+          state: @state,
+          country: @country,
+          postal_code: @postal_code,
+          ethereum_address: @ethereum_address,
+          estimated_participation_amount: @estimated_participation_amount,
+          passport_number: @passport_number,
+          passport_country: @passport_country
       }
 
       data_to_encrypt.each do |key, value|
@@ -227,6 +230,17 @@ module UserManagement
       Md5UserExtendedDetail.create!(md5_user_extended_details_params)
 
       success
+    end
+
+    # Update User Kyc Submitted Property
+    #
+    # * Author: Aman
+    # * Date: 13/10/2017
+    # * Reviewed By:
+    #
+    def update_user
+      @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
+      @user.save! if @user.changed?
     end
 
     # Encryptor obj
@@ -311,11 +325,11 @@ module UserManagement
     #
     def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
       error_with_data(
-        err,
-        display_text,
-        display_text,
-        GlobalConstant::ErrorAction.default,
-        {}
+          err,
+          display_text,
+          display_text,
+          GlobalConstant::ErrorAction.default,
+          {}
       )
     end
 

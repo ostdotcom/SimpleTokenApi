@@ -48,21 +48,56 @@ class User < EstablishSimpleTokenUserDbConnection
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
 
-  ########################## Class Methods #########################
 
-
-
-  def self.cookie_value(user, user_secret, browser_user_agent)
-    current_ts = Time.now.to_i
-
-    token_e = cookie_token(user.id, user.password, user_secret.id, browser_user_agent, current_ts)
-
-    "#{user.id}:#{current_ts}:d:#{token_e}"
+  # Get encrypted password
+  #
+  # * Author: Aman
+  # * Date: 10/10/2017
+  # * Reviewed By: Sunil Khedar
+  #
+  # @param [String] password
+  # @param [String] salt
+  #
+  # @return [String] MD5 Encrypted password
+  #
+  def self.get_encrypted_password(password, salt)
+    Digest::MD5.hexdigest("#{password}::#{salt}")
   end
 
-  def self.cookie_token(user_id, password, user_secret_id, browser_user_agent, current_ts)
+  # Get cookie value
+  #
+  # * Author: Aman
+  # * Date: 10/10/2017
+  # * Reviewed By: Sunil Khedar
+  #
+  # @param [Integer] user_id - user id
+  # @param [String] password - password
+  # @param [String] browser_user_agent - user browser agent
+  #
+  # @return [String] cookie value
+  #
+  def self.get_cookie_value(user_id, password, browser_user_agent)
+    current_ts = Time.now.to_i
+    token_e = get_cookie_token(user_id, password, browser_user_agent, current_ts)
+    "#{user_id}:#{current_ts}:#{GlobalConstant::Cookie.double_auth_prefix}:#{token_e}"
+  end
+
+  # Get cookie token
+  #
+  # * Author: Aman
+  # * Date: 10/10/2017
+  # * Reviewed By: Sunil Khedar
+  #
+  # @param [Integer] user_id - user id
+  # @param [String] password - password
+  # @param [String] browser_user_agent - user browser agent
+  # @param [Integer] current_ts - current timestamp
+  #
+  # @return [String] cookie value
+  #
+  def self.get_cookie_token(user_id, password, browser_user_agent, current_ts)
     Digest::MD5.hexdigest(
-      "#{user_id}:#{password}:#{user_secret_id}:#{browser_user_agent}:#{current_ts}:d"
+      "#{user_id}:#{password}:#{browser_user_agent}:#{current_ts}:#{GlobalConstant::Cookie.double_auth_prefix}"
     )
   end
 

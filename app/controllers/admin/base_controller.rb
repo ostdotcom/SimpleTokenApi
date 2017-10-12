@@ -17,20 +17,21 @@ class Admin::BaseController < ApiController
     ).perform
 
     if service_response.success?
-
-      # Update Cookie
+      # Update Cookie, if required
+      extended_cookie_value = service_response.data[:extended_cookie_value]
       cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
-          value: service_response.data[:extended_cookie_value],
+          value: extended_cookie_value,
           expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
           domain: :all
-      } if service_response.data[:extended_cookie_value].present?
+      } if extended_cookie_value.present?
 
-      @admin_id = service_response.data[:admin_id]
+      params[:admin_id] = service_response.data[:admin_id]
 
       # Remove sensitive data
       service_response.data = {}
     else
       cookies.delete(GlobalConstant::Cookie.admin_cookie_name.to_sym, domain: :all)
+      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
 

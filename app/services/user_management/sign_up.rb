@@ -22,7 +22,6 @@ module UserManagement
       @browser_user_agent = @params[:browser_user_agent]
 
       @login_salt_hash = nil
-      @password_e = nil
       @user_secret = nil
       @user = nil
     end
@@ -44,9 +43,6 @@ module UserManagement
       return r unless r.success?
 
       r = generate_login_salt
-      return r unless r.success?
-
-      r = encrypt_password
       return r unless r.success?
 
       create_user
@@ -98,25 +94,6 @@ module UserManagement
       success
     end
 
-    # Encrypt password
-    #
-    # * Author: Kedar
-    # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
-    #
-    # Sets @password_e
-    #
-    # @return [Result::Base]
-    #
-    def encrypt_password
-      r = LocalCipher.new(@login_salt_hash[:plaintext]).encrypt(@password)
-      return r unless r.success?
-
-      @password_e = r.data[:ciphertext_blob]
-
-      success
-    end
-
     # Create user
     #
     # * Author: Kedar
@@ -131,9 +108,11 @@ module UserManagement
       # first insert into user_secrets and use it's id in users table
       @user_secret = UserSecret.create!(login_salt: @login_salt_hash[:ciphertext_blob])
 
+      password_e = User.get_encrypted_password(@password, @login_salt_hash[:plaintext])
+
       @user = User.create!(
         email: @email,
-        password: @password_e,
+        password: password_e,
         user_secret_id: @user_secret.id,
         status: GlobalConstant::User.active_status
       )
@@ -150,8 +129,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def set_cookie_value
-      cookie_value = User.cookie_value(@user, @user_secret, @browser_user_agent)
-
+      cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
       success_with_data(cookie_value: cookie_value)
     end
 

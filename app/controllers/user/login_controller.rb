@@ -1,6 +1,6 @@
 class User::LoginController < User::BaseController
 
-  before_action :validate_cookie, except: [:sign_up, :login]
+  before_action :validate_cookie, except: [:sign_up, :login, :user_info]
 
   # Sign up
   #
@@ -10,7 +10,7 @@ class User::LoginController < User::BaseController
   #
   def sign_up
     service_response = UserManagement::SignUp.new(
-      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+      params.merge(browser_user_agent: http_user_agent)
     ).perform
 
     if service_response.success?
@@ -25,7 +25,7 @@ class User::LoginController < User::BaseController
     render_api_response(service_response)
   end
 
-  # Sign up
+  # login
   #
   # * Author: Kedar
   # * Date: 11/10/2017
@@ -33,7 +33,7 @@ class User::LoginController < User::BaseController
   #
   def login
     service_response = UserManagement::Login.new(
-      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+      params.merge(browser_user_agent: http_user_agent)
     ).perform
 
     if service_response.success?
@@ -59,7 +59,7 @@ class User::LoginController < User::BaseController
   end
 
   def user_info
-    service_response = UserManagement::UserInfo.new(cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym]).perform
+    service_response = UserManagement::UserInfo.new(cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym], browser_user_agent: http_user_agent).perform
     render_api_response(service_response)
   end
 

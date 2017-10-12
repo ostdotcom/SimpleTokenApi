@@ -66,10 +66,12 @@
 'UserManagement::UserInfo':
   :mandatory:
     - :cookie_value
+    - :browser_user_agent
   :optional:
 
 'UserManagement::BtSubmit':
   :mandatory:
     - :bt_name
     - :skip_name
+    - :user_id
   :optional:

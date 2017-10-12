@@ -69,7 +69,7 @@ module UserManagement
       return unauthorized_access_response('um_l_1') unless @user.present?
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response('um_l_1') unless @user_secret.present?
+      return unauthorized_access_response('um_l_2') unless @user_secret.present?
 
       success
     end
@@ -100,12 +100,11 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_password
-      r = LocalCipher.new(@login_salt_d).decrypt(@user.password)
-      return r unless r.success?
 
-      (r.data[:plaintext] == @password) ?
-        success :
-        unauthorized_access_response('um_l_2')
+      evaluated_password_e = User.get_encrypted_password(@password, @login_salt_d)
+      return unauthorized_access_response('um_l_3') unless (evaluated_password_e == @user.password)
+
+      success
     end
 
     # Set cookie value
@@ -114,12 +113,10 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # Sets @cookie_value
-    #
     # @return [Result::Base]
     #
     def set_cookie_value
-      cookie_value = User.cookie_value(@user, @user_secret, @browser_user_agent)
+      cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
 
       success_with_data(cookie_value: cookie_value)
     end

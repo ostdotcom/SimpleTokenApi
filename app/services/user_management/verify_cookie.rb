@@ -19,6 +19,10 @@ module UserManagement
       @cookie_value = @params[:cookie_value]
       @browser_user_agent = @params[:browser_user_agent]
 
+      @user_id = nil
+      @created_ts = nil
+      @token = nil
+
       @user = nil
       @user_secret = nil
       @extended_cookie_value = nil
@@ -67,7 +71,7 @@ module UserManagement
       parts = @cookie_value.split(':')
       return unauthorized_access_response('um_vc_1') unless parts.length == 4
 
-      return unauthorized_access_response('um_vc_2') unless parts[2] == 'd'
+      return unauthorized_access_response('um_vc_2') unless parts[2] == GlobalConstant::Cookie.double_auth_prefix
 
       @user_id = parts[0].to_i
       return unauthorized_access_response('um_vc_3') unless @user_id > 0
@@ -94,20 +98,28 @@ module UserManagement
       # TODO: Cache user object
       @user = User.where(id: @user_id).first
       return unauthorized_access_response('um_vc_5') unless @user.present? &&
-        (@user.status == GlobalConstant::User.active_status)
+        (@user[:status] == GlobalConstant::User.active_status)
 
-      @user_secret = UserSecret.where(id: @user.user_secret_id).first
+      @user_secret = UserSecret.where(id: @user[:user_secret_id]).first
+      return unauthorized_access_response('um_vc_6') unless @user_secret.present?
 
-      evaluated_token = User.cookie_token(
-        @user_id,
-        @user.password,
-        @user.user_secret_id,
-        @browser_user_agent,
-        @created_ts
-      )
-      return unauthorized_access_response('um_vc_6') unless (evaluated_token == @token)
+      evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
+      return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)
 
       success
+    end
+
+    # Set Extened Cookie Value
+    #
+    # * Author: Kedar
+    # * Date: 10/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @Sets @extended_cookie_value
+    #
+    def set_extended_cookie_value
+      return if (@created_ts + 2.minute.to_i) >= Time.now.to_i
+      @extended_cookie_value = User.get_cookie_value(@user_id, @user[:password], @browser_user_agent)
     end
 
     # Unauthorized access response
@@ -125,24 +137,6 @@ module UserManagement
         display_text,
         GlobalConstant::ErrorAction.default,
         {}
-      )
-    end
-
-    # Set Extened Cookie Value
-    #
-    # * Author: Kedar
-    # * Date: 10/10/2017
-    # * Reviewed By:
-    #
-    # @Sets @extended_cookie_value
-    #
-    def set_extended_cookie_value
-      return if (@created_ts + 10.minute.to_i) >= Time.now.to_i
-
-      @extended_cookie_value = User.cookie_value(
-        @user,
-        @user_secret,
-        @browser_user_agent
       )
     end
 

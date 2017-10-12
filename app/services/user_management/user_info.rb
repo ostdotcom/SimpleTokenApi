@@ -15,6 +15,7 @@ module UserManagement
     def initialize(params)
       super
       @cookie_value = @params[:cookie_value]
+      @browser_user_agent = @params[:browser_user_agent]
 
       @user_state = "logged_out"
     end
@@ -55,7 +56,7 @@ module UserManagement
       user = User.where(id: user_id).first
       return if user.blank? || (user.status != GlobalConstant::User.active_status)
 
-      evaluated_token = User.cookie_token(user_id, user.password, user.user_secret_id, current_ts)
+      evaluated_token = User.get_cookie_token(user_id, user.password, @browser_user_agent, current_ts)
       return if (evaluated_token != token)
 
       @user_state = get_user_state(user)

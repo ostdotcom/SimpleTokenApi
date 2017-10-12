@@ -19,6 +19,7 @@ module UserManagement
 
       @bt_name = @params[:bt_name]
       @skip_name = @params[:skip_name]
+      @user_id = @params[:user_id]
 
       @user = nil
 
@@ -120,7 +121,7 @@ module UserManagement
     #
     def update_user
       @user.set_bt_done
-      @user.bt_name = @bt_name if @bt_name.present?
+      @user.bt_name = @bt_name unless @skip_name
       @user.save!
       success
     end

@@ -106,9 +106,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @param [Integer] admin_id - admin id
   # @param [String] password - password
   # @param [Timestamp] last_otp_at - last otp at
-  # @param [Integer] current_ts - current timestamp
   # @param [String] auth_level - cookie auth level
   # @param [String] browser_user_agent - browser user agent
+  # @param [Integer] current_ts - current timestamp
   #
   # @return [String] cookie value
   #

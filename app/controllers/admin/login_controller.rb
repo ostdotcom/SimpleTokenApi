@@ -14,7 +14,7 @@ class Admin::LoginController < Admin::BaseController
   def password_auth
 
     service_response = AdminManagement::Login::PasswordAuth.new(
-      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+      params.merge(browser_user_agent: http_user_agent)
     ).perform
 
     if service_response.success?
@@ -43,7 +43,7 @@ class Admin::LoginController < Admin::BaseController
     service_response = AdminManagement::Login::MultifactorAuth.new(
       params.merge({
                      single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
-                     browser_user_agent: request.env['HTTP_USER_AGENT'].to_s
+                     browser_user_agent: http_user_agent
                    })
     ).perform
 

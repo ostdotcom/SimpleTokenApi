@@ -7,6 +7,10 @@ module GlobalConstant
       200
     end
 
+    def self.unauthorized_access
+      401
+    end
+
     def self.forbidden
       403
     end
@@ -21,7 +25,9 @@ module GlobalConstant
 
     def self.allowed_http_codes
       [
-        ok
+        ok,
+        unauthorized_access,
+        not_found
       ]
     end
 

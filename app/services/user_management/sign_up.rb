@@ -77,6 +77,8 @@ module UserManagement
           {password: 'Password should be minimum 8 characters'}
       ) if @password.length < 8
 
+      success
+
     end
 
     # Check if email already registered

@@ -4,7 +4,10 @@ class CreateMd5UserExtendedDetails < DbMigrationConnection
     run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
 
       create_table :md5_user_extended_details do |t|
+        t.column :first_name, :string, null: true
+        t.column :last_name, :string, null: true
         t.column :user_id, :integer, limit: 8, null: false
+        t.column :kyc_salt, :blob, null: true
         t.column :user_extended_detail_id, :integer, limit: 8, null: false
         t.column :birthdate, :string, null: false
         t.column :street_address, :string, null: false

@@ -129,9 +129,9 @@ module UserManagement
       @user.send("set_"+GlobalConstant::User.token_sale_bt_done_property)
       @user.bt_name = @bt_name unless @skip_name
 
+      @has_changed = @user.properties_changed?
       if @user.changed?
         @user.save!
-        @has_changed = true
       end
 
       success

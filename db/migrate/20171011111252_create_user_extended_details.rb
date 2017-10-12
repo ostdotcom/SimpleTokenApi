@@ -6,6 +6,7 @@ class CreateUserExtendedDetails < DbMigrationConnection
       create_table :user_extended_details do |t|
         t.column :first_name, :string, null: false
         t.column :last_name, :string, null: false
+        t.column :kyc_salt, :blob, null: false
         t.column :user_id, :integer, null: false
         t.column :birthdate, :blob, null: false #encrypted
         t.column :street_address, :blob, null: false #encrypted

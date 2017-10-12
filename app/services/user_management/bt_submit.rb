@@ -34,7 +34,7 @@ module UserManagement
     #
     def perform
 
-      r = validate
+      r = validate_and_sanitize
       return r unless r.success?
 
       fetch_user
@@ -47,7 +47,7 @@ module UserManagement
 
     private
 
-    # Validate
+    # Validate and sanitize
     #
     # * Author: Aman
     # * Date: 12/10/2017
@@ -55,15 +55,15 @@ module UserManagement
     #
     # @return [Result::Base]
     #
-    def validate
+    def validate_and_sanitize
 
       validation_errors = {}
-
+      @skip_name = ActiveRecord::Type::Boolean.new.cast(@skip_name)
       # apply custom validations. if not skipped
       if !@skip_name
         @bt_name.to_s.strip!
         validation_errors[:bt_name] = "Branded Token Name is mandatory." if @bt_name.blank?
-        validation_errors[:bt_name] = "Branded Token Name is already taken." if User.where(bt_name: @bt_name).exists?
+        validation_errors[:bt_name] = "Branded Token Name is already taken." if User.where(bt_name: @bt_name).where.not(id: @user_id).exists?
       end
 
       return error_with_data(

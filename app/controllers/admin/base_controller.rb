@@ -23,7 +23,7 @@ class Admin::BaseController < ApiController
           value: service_response.data[:extended_cookie_value],
           expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
           domain: :all
-      }
+      } if service_response.data[:extended_cookie_value].present?
 
       @admin_id = service_response.data[:admin_id]
 

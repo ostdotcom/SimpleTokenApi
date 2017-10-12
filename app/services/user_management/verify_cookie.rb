@@ -18,6 +18,10 @@ module UserManagement
 
       @cookie_value = @params[:cookie_value]
       @browser_user_agent = @params[:browser_user_agent]
+
+      @user = nil
+      @user_secret = nil
+      @extended_cookie_value = nil
     end
 
     # Perform
@@ -38,7 +42,12 @@ module UserManagement
       r = validate_token
       return r unless r.success?
 
-      success_with_data(user_id: @user_id)
+      set_extended_cookie_value
+
+      success_with_data(
+        user_id: @user_id,
+        extended_cookie_value: @extended_cookie_value
+      )
 
     end
 
@@ -64,6 +73,8 @@ module UserManagement
       return unauthorized_access_response('um_vc_3') unless @user_id > 0
 
       @current_ts = parts[1].to_i
+      return unauthorized_access_response('um_vc_4') unless (@current_ts + 20.minute.to_i) >= Time.now.to_i
+
       @token = parts[3]
 
       success
@@ -75,22 +86,26 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
+    # Sets @user, @user_secret
+    #
     # @return [Result::Base]
     #
     def validate_token
       # TODO: Cache user object
-      user = User.where(id: @user_id).first
-      return unauthorized_access_response('um_vc_4') unless user.present? &&
-        (user.status == GlobalConstant::User.active_status)
+      @user = User.where(id: @user_id).first
+      return unauthorized_access_response('um_vc_5') unless @user.present? &&
+        (@user.status == GlobalConstant::User.active_status)
+
+      @user_secret = UserSecret.where(id: @user.user_secret_id).first
 
       evaluated_token = User.cookie_token(
         @user_id,
-        user.password,
-        user.user_secret_id,
+        @user.password,
+        @user.user_secret_id,
         @browser_user_agent,
         @current_ts
       )
-      return unauthorized_access_response('um_vc_5') unless (evaluated_token == @token)
+      return unauthorized_access_response('um_vc_6') unless (evaluated_token == @token)
 
       success
     end
@@ -110,6 +125,22 @@ module UserManagement
         display_text,
         GlobalConstant::ErrorAction.default,
         {}
+      )
+    end
+
+    # Set Extened Cookie Value
+    #
+    # * Author: Kedar
+    # * Date: 10/10/2017
+    # * Reviewed By:
+    #
+    # @Sets @extended_cookie_value
+    #
+    def set_extended_cookie_value
+      @extended_cookie_value = User.cookie_value(
+        @user,
+        @user_secret,
+        @browser_user_agent
       )
     end
 

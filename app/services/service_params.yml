@@ -2,32 +2,74 @@
   :mandatory:
     - :email
     - :password
+    - :browser_user_agent
   :optional:
 
 'AdminManagement::Login::MultifactorAuth':
   :mandatory:
-    - :step_1_cookie_value
+    - :single_auth_cookie_value
     - :otp
+    - :browser_user_agent
   :optional:
 
-'AdminManagement::VerifyCookie':
+'AdminManagement::VerifyCookie::SingleAuth':
   :mandatory:
     - :cookie_value
+    - :browser_user_agent
+  :optional:
+
+'AdminManagement::VerifyCookie::DoubleAuth':
+  :mandatory:
+    - :cookie_value
+    - :browser_user_agent
   :optional:
 
 'UserManagement::SignUp':
   :mandatory:
     - :email
     - :password
+    - :browser_user_agent
   :optional:
 
 'UserManagement::Login':
   :mandatory:
     - :email
     - :password
+    - :browser_user_agent
   :optional:
 
 'UserManagement::VerifyCookie':
   :mandatory:
     - :cookie_value
+    - :browser_user_agent
+  :optional:
+
+'UserManagement::KycSubmit':
+  :mandatory:
+    - :user_id
+    - :first_name
+    - :last_name
+    - :birthdate
+    - :street_address
+    - :city
+    - :state
+    - :country
+    - :postal_code
+    - :ethereum_address
+    - :estimated_participation_amount
+    - :passport_number
+    - :passport_country
+    - :passport_file
+    - :selfie_file
+  :optional:
+
+'UserManagement::UserInfo':
+  :mandatory:
+    - :cookie_value
+  :optional:
+
+'UserManagement::BtSubmit':
+  :mandatory:
+    - :bt_name
+    - :skip_name
   :optional:

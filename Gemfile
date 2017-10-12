@@ -26,6 +26,11 @@ gem 'http', '3.0.0'
 
 gem 'rotp', '3.3.0'
 
+gem 'sidekiq', '5.0.5'
+gem 'redis-namespace', '1.5.3'
+
+gem 'listen', '>= 3.0.5', '< 3.2'
+
 group :development, :test do
   # Use Puma as the app server
   gem 'puma', '~> 3.7'

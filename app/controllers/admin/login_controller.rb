@@ -1,7 +1,8 @@
-class Admin::LoginController < ApiController
+class Admin::LoginController < Admin::BaseController
 
   before_action :validate_cookie, except: [
-    :password_auth
+    :password_auth,
+    :multifactor_auth
   ]
 
   # Password auth
@@ -11,18 +12,24 @@ class Admin::LoginController < ApiController
   # * Reviewed By: Sunil Khedar
   #
   def password_auth
-    service_response = AdminManagement::Login::PasswordAuth.new(params).perform
+
+    service_response = AdminManagement::Login::PasswordAuth.new(
+      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+    ).perform
 
     if service_response.success?
-      cookie_value = service_response.data.delete(:step_1_cookie_value)
+      # Set cookie
       cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
-        value: cookie_value,
-        expires: GlobalConstant::Cookie.default_expiry.from_now,
+        value: service_response.data[:single_auth_cookie_value],
+        expires: GlobalConstant::Cookie.single_auth_expiry.from_now,
         domain: :all
       }
+      # Remove sensitive data
+      service_response.data = {}
     end
 
     render_api_response(service_response)
+
   end
 
   # Multifactor auth
@@ -32,40 +39,27 @@ class Admin::LoginController < ApiController
   # * Reviewed By: Sunil Khedar
   #
   def multifactor_auth
+
     service_response = AdminManagement::Login::MultifactorAuth.new(
-      params.merge(step_1_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym])
+      params.merge({
+                     single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
+                     browser_user_agent: request.env['HTTP_USER_AGENT'].to_s
+                   })
     ).perform
 
     if service_response.success?
-      cookie_value = service_response.data.delete(:step_2_cookie_value)
+      # Set cookie
       cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
-        value: cookie_value,
-        expires: GlobalConstant::Cookie.default_expiry.from_now,
+        value: service_response.data[:double_auth_cookie_value],
+        expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
         domain: :all
       }
+      # Remove sensitive data
+      service_response.data = {}
     end
 
     render_api_response(service_response)
-  end
 
-  private
-
-  # Validate cookie
-  #
-  # * Author: Kedar
-  # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
-  #
-  def validate_cookie
-    service_response = AdminManagement::VerifyCookie.new(
-      cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
-      action: params[:action],
-      controller: params[:controller]
-    ).perform
-
-    unless service_response.success?
-      render_api_response(service_response)
-    end
   end
 
 end

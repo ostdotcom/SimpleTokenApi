@@ -29,3 +29,9 @@ constants:
       version: 'v1'
     list_ids:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
+
+  redis:
+    url: <%= ENV['STA_REDIS_ENDPOINT'] %>
+
+  s3:
+    kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>

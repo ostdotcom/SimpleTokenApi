@@ -10,8 +10,9 @@ module AdminManagement
       # * Date: 10/10/2017
       # * Reviewed By: Sunil Khedar
       #
-      # @param [String] email (mandatory) - this is the email entered
-      # @param [String] password (mandatory) - this is the password entered
+      # @params [String] email (mandatory) - this is the email entered
+      # @params [String] password (mandatory) - this is the password entered
+      # @params [String] browser_user_agent (mandatory) - browser user agent
       #
       # @return [AdminManagement::Login::PasswordAuth]
       #
@@ -20,12 +21,12 @@ module AdminManagement
 
         @email = @params[:email]
         @password = @params[:password]
+        @browser_user_agent = @params[:browser_user_agent]
 
         @admin = nil
         @admin_secret = nil
         @login_salt_d = nil
-        @cookie_value = nil
-        @step_1_cookie_value = nil
+        @single_auth_cookie_value = nil
       end
 
       # Perform
@@ -37,6 +38,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def perform
+
         r = validate
         return r unless r.success?
 
@@ -52,10 +54,10 @@ module AdminManagement
         r = match_password_hash
         return r unless r.success?
 
-        r = set_step_1_cookie_value
+        r = set_single_auth_cookie_value
         return r unless r.success?
 
-        success_with_data(step_1_cookie_value: @step_1_cookie_value)
+        success_with_data(single_auth_cookie_value: @single_auth_cookie_value)
 
       end
 
@@ -89,7 +91,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin_secret
-        @admin_secret = AdminSecret.where(udid: @admin.udid).first
+        @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
         return incorrect_login_error('am_l_pa_2') unless @admin_secret.present?
 
         success
@@ -110,7 +112,7 @@ module AdminManagement
         return incorrect_login_error('am_l_pa_3') unless login_salt_e.present?
 
         r = Aws::Kms.new('login', 'admin').decrypt(login_salt_e)
-        return r unless r.success?
+        return incorrect_login_error('am_l_pa_4') unless r.success?
 
         @login_salt_d = r.data[:plaintext]
 
@@ -127,31 +129,35 @@ module AdminManagement
       # @return [Result::Base]
       #
       def match_password_hash
-        evaluated_password_e = ::Admin.get_encrypted_password(@password, @login_salt_d)
-        return incorrect_login_error('am_l_pa_4') unless (evaluated_password_e == @admin.password)
+
+        evaluated_password_e = Admin.get_encrypted_password(@password, @login_salt_d)
+        return incorrect_login_error('am_l_pa_5') unless (evaluated_password_e == @admin.password)
 
         success
       end
 
-      # Set step 1 cookie value
+      # Set single auth cookie value
       #
       # * Author: Kedar
       # * Date: 10/10/2017
       # * Reviewed By: Sunil Khedar
       #
-      # Sets @step_1_cookie_value
+      # Sets @single_auth_cookie_value
       #
       # @return [Result::Base]
       #
-      def set_step_1_cookie_value
-        current_ts = Time.now.to_i
-        token_e = Digest::MD5.hexdigest(
-          "#{@admin.id}:#{@admin.password}:#{@admin.udid}:#{current_ts}:s"
+      def set_single_auth_cookie_value
+
+        @single_auth_cookie_value = Admin.get_cookie_value(
+            @admin.id,
+            @admin.password,
+            @admin.last_otp_at,
+            @browser_user_agent,
+            GlobalConstant::Cookie.single_auth_prefix
         )
 
-        @step_1_cookie_value = "#{@admin.id}:#{current_ts}:s:#{token_e}"
-
         success
+
       end
 
       # Incorrect login error
@@ -165,8 +171,8 @@ module AdminManagement
       def incorrect_login_error(err_code)
         error_with_data(
           err_code,
-          'Email or password entered is incorrect.',
-          'Email or password entered is incorrect.',
+          'Email or password is incorrect.',
+          'Email or password is incorrect.',
           GlobalConstant::ErrorAction.default,
           {}
         )

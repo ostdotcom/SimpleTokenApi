@@ -8,7 +8,8 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @param [String] cookie_value (mandatory) - this is the admin cookie value
+    # @param [String] cookie_value (mandatory) - this is the user cookie value
+    # @param [String] browser_user_agent (mandatory) - browser user agent
     #
     # @return [UserManagement::VerifyCookie]
     #
@@ -16,6 +17,7 @@ module UserManagement
       super
 
       @cookie_value = @params[:cookie_value]
+      @browser_user_agent = @params[:browser_user_agent]
     end
 
     # Perform
@@ -24,7 +26,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @return [AdminManagement::VerifyCookie]
+    # @return [Result::Base]
     #
     def perform
       r = validate
@@ -76,11 +78,18 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_token
+      # TODO: Cache user object
       user = User.where(id: @user_id).first
       return unauthorized_access_response('um_vc_4') unless user.present? &&
         (user.status == GlobalConstant::User.active_status)
 
-      evaluated_token = User.cookie_token(@user_id, user.password, user.user_secret_id, @current_ts)
+      evaluated_token = User.cookie_token(
+        @user_id,
+        user.password,
+        user.user_secret_id,
+        @browser_user_agent,
+        @current_ts
+      )
       return unauthorized_access_response('um_vc_5') unless (evaluated_token == @token)
 
       success

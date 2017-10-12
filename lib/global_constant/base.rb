@@ -23,6 +23,14 @@ module GlobalConstant
       @pepo_campaigns ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
     end
 
+    def self.s3
+      @s3 ||= fetch_config.fetch('s3', {})
+    end
+
+    def self.redis_config
+      @redis_config ||= fetch_config.fetch('redis', {})
+    end
+
     private
 
     def self.fetch_config

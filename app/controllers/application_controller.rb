@@ -1,8 +1,9 @@
 class ApplicationController < ActionController::API
 
+  include ActionController::RequestForgeryProtection
+  protect_from_forgery with: :exception
+
   [
-    # TODO: Do we need it for cookie support?
-    #ActionController::Helpers, #This is added for cookies support
     ActionController::Cookies
   ].each do |mdl|
     include mdl
@@ -80,11 +81,12 @@ class ApplicationController < ActionController::API
     http_status_code = GlobalConstant::ErrorCode.ok unless GlobalConstant::ErrorCode.allowed_http_codes.include?(http_status_code)
 
     # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
-    unless service_response.success?
+    if !service_response.success? && !Rails.env.development?
       err = response_hash.delete(:err) || {}
       response_hash[:err] = {
         display_text: (err[:display_text] || 'Something went wrong.'),
-        display_heading: (err[:display_heading] || 'Error')
+        display_heading: (err[:display_heading] || 'Error'),
+        error_data: (err[:error_data] || {})
       }
 
       response_hash[:data] = {}

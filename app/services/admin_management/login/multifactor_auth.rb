@@ -12,6 +12,7 @@ module AdminManagement
       #
       # @params [String] single_auth_cookie_value (mandatory) - single auth cookie value
       # @params [String] otp (mandatory) - this is the Otp entered
+      # @params [String] browser_user_agent (mandatory) - browser user agent
       #
       # @return [AdminManagement::Login::MultifactorAuth]
       #
@@ -21,6 +22,7 @@ module AdminManagement
 
         @single_auth_cookie_value = @params[:single_auth_cookie_value].to_s
         @otp = @params[:otp].to_s
+        @browser_user_agent = @params[:browser_user_agent]
 
         @double_auth_cookie_value = nil
 
@@ -86,7 +88,8 @@ module AdminManagement
       def validate_single_auth_cookie
 
         service_response = AdminManagement::VerifyCookie::SingleAuth.new(
-          cookie_value: @single_auth_cookie_value
+          cookie_value: @single_auth_cookie_value,
+          browser_user_agent: @browser_user_agent
         ).perform
 
         return unauthorized_access_response('am_l_ma_1') unless service_response.success?
@@ -210,6 +213,7 @@ module AdminManagement
           @admin.id,
           @admin.password,
           @admin.last_otp_at,
+          @browser_user_agent,
           GlobalConstant::Cookie.double_auth_prefix
         )
 

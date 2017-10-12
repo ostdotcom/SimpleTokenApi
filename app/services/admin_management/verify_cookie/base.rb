@@ -11,6 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil Khedar
       #
       # @params [String] cookie_value (mandatory) - this is the admin cookie value
+      # @params [String] browser_user_agent (mandatory) - browser user agent
       #
       # @return [AdminManagement::VerifyCookie::Base]
       #
@@ -18,6 +19,7 @@ module AdminManagement
         super
 
         @cookie_value = @params[:cookie_value]
+        @browser_user_agent = @params[:browser_user_agent]
 
         @admin = nil
         @admin_id = nil
@@ -93,6 +95,7 @@ module AdminManagement
             @admin[:password],
             @admin[:last_otp_at],
             auth_level,
+            @browser_user_agent,
             @created_ts)
         return unauthorized_access_response('am_vc_6') unless (evaluated_token == @token)
 

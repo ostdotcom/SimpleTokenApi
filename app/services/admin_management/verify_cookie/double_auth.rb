@@ -11,6 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil Khedar
       #
       # @params [String] cookie_value (mandatory) - this is the admin cookie value
+      # @params [String] browser_user_agent (mandatory) - browser user agent
       #
       # @return [AdminManagement::VerifyCookie::DoubleAuth]
       #
@@ -79,6 +80,7 @@ module AdminManagement
             @admin_id,
             @admin[:password],
             @admin[:last_otp_at],
+            @browser_user_agent,
             auth_level
         )
       end

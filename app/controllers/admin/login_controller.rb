@@ -13,7 +13,9 @@ class Admin::LoginController < Admin::BaseController
   #
   def password_auth
 
-    service_response = AdminManagement::Login::PasswordAuth.new(params).perform
+    service_response = AdminManagement::Login::PasswordAuth.new(
+      params.merge(browser_user_agent: request.env['HTTP_USER_AGENT'].to_s)
+    ).perform
 
     if service_response.success?
       # Set cookie

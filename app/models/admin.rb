@@ -91,10 +91,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   # @return [String] cookie value
   #
-  def self.get_cookie_value(admin_id, password, last_otp_at, auth_level)
-    # TODO: let's consider to use IP and user agent in cookie. And add last_otp_at
+  def self.get_cookie_value(admin_id, password, last_otp_at, browser_user_agent, auth_level)
     current_ts = Time.now.to_i
-    token_e = get_cookie_token(admin_id, password, last_otp_at, auth_level, current_ts)
+    token_e = get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
     "#{admin_id}:#{current_ts}:#{auth_level}:#{token_e}"
   end
 
@@ -109,13 +108,14 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @param [Timestamp] last_otp_at - last otp at
   # @param [Integer] current_ts - current timestamp
   # @param [String] auth_level - cookie auth level
+  # @param [String] browser_user_agent - browser user agent
   #
   # @return [String] cookie value
   #
-  def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, current_ts)
+  def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
     # TODO: let's consider to use IP and user agent in cookie. And add last_otp_at
     Digest::MD5.hexdigest(
-      "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{auth_level}"
+      "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
     )
   end
 

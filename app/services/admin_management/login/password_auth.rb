@@ -12,6 +12,7 @@ module AdminManagement
       #
       # @params [String] email (mandatory) - this is the email entered
       # @params [String] password (mandatory) - this is the password entered
+      # @params [String] browser_user_agent (mandatory) - browser user agent
       #
       # @return [AdminManagement::Login::PasswordAuth]
       #
@@ -20,6 +21,7 @@ module AdminManagement
 
         @email = @params[:email]
         @password = @params[:password]
+        @browser_user_agent = @params[:browser_user_agent]
 
         @admin = nil
         @admin_secret = nil
@@ -150,6 +152,7 @@ module AdminManagement
             @admin.id,
             @admin.password,
             @admin.last_otp_at,
+            @browser_user_agent,
             GlobalConstant::Cookie.single_auth_prefix
         )
 

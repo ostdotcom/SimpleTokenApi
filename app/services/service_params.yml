@@ -2,22 +2,26 @@
   :mandatory:
     - :email
     - :password
+    - :browser_user_agent
   :optional:
 
 'AdminManagement::Login::MultifactorAuth':
   :mandatory:
     - :single_auth_cookie_value
     - :otp
+    - :browser_user_agent
   :optional:
 
 'AdminManagement::VerifyCookie::SingleAuth':
   :mandatory:
     - :cookie_value
+    - :browser_user_agent
   :optional:
 
 'AdminManagement::VerifyCookie::DoubleAuth':
   :mandatory:
     - :cookie_value
+    - :browser_user_agent
   :optional:
 
 'UserManagement::SignUp':

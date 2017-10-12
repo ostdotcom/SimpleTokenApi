@@ -1,12 +1,12 @@
-class BtSubmittedJob < ApplicationJob
+class TokenSaleOptinJob < ApplicationJob
 
-  queue_as GlobalConstant::Sidekiq.queue_name :que2
+  queue_as GlobalConstant::Sidekiq.queue_name :default_high_priority_queue
 
   # Perform
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def perform(params)
 
@@ -24,27 +24,28 @@ class BtSubmittedJob < ApplicationJob
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def init_params(params)
     @user_id = params[:user_id]
     @user = User.find(@user_id)
+    @double_opt_in_token = nil
   end
 
   # Create Double Opt In Token
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def create_double_opt_in_token
     db_row = TokenSaleDoubleOptInToken.find_or_initialize_by(user_id: @user_id)
-    if db_row.present?
-      @double_opt_in_token = db_row.token
-    else
+    if db_row.new_record?
       @double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
       db_row.token = @double_opt_in_token
-      db_row.save
+      db_row.save!
+    else
+      @double_opt_in_token = db_row.token if db_row.status == GlobalConstant::TokenSaleDoubleOptInToken.active_status
     end
   end
 
@@ -52,7 +53,7 @@ class BtSubmittedJob < ApplicationJob
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def send_token_sale_double_opt_in_mail
     Email::HookCreator::SendTransactionalMail.new(
@@ -62,7 +63,7 @@ class BtSubmittedJob < ApplicationJob
       template_vars: {
         double_opt_in_token: @double_opt_in_token
       }
-    ).perform
+    ).perform if @double_opt_in_token.present?
   end
 
 end

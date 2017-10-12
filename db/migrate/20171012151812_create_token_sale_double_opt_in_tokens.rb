@@ -8,7 +8,7 @@ class CreateTokenSaleDoubleOptInTokens < DbMigrationConnection
         t.column :status, :integer, limit: 4, default: 1
         t.timestamps
       end
-      add_index :token_sale_double_opt_in_tokens, [:user_id], name: 'uk_1'
+      add_index :token_sale_double_opt_in_tokens, :user_id, unique: true, name: 'uniq_user_id'
     end
   end
 

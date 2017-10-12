@@ -4,9 +4,12 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/login' do
     match 'sign-up' => :sign_up, via: :POST
     match 'login' => :login, via: :POST
+    match 'user-info' => :user_info, via: :GET
+  end
+
+  scope 'api/user', controller: 'user/token_sale' do
     match 'kyc-submit' => :kyc_submit, via: :POST
     match 'bt-submit' => :bt_submit, via: :POST
-    match 'user-info' => :user_info, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do

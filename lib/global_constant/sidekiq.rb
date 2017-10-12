@@ -20,9 +20,9 @@ module GlobalConstant
       #
       def queues_config
         @queues_config ||= {
-          que1: :sk_api_high_test,
-          que2: :sk_api_med_test,
-          default: :sk_api_default
+          default_high_priority_queue: :sk_api_high_task,
+          default_medium_priority_queue: :sk_api_med_task,
+          default_low_priority_queue: :sk_api_default
         }
       end
 

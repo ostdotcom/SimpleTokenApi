@@ -6,35 +6,29 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # @param [Integer] bt_name (mandatory) - user id
-    # @param [Boolean] skip_name (mandatory) - first name
+    # @param [Integer] user_id (mandatory) - user id
+    # @param [String] bt_name (mandatory) - Branded Token Name
+    # @param [Boolean] skip_name (mandatory) - skip this step
     #
     # @return [UserManagement::BtSubmit]
     #
     def initialize(params)
-
       super
 
       @user_id = @params[:user_id]
       @bt_name = @params[:bt_name]
       @skip_name = @params[:skip_name]
-      @user_id = @params[:user_id]
 
       @user = nil
-
-      @error_data = {}
-
-      @has_changed = false
-
     end
 
     # Perform
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -43,13 +37,10 @@ module UserManagement
       r = validate
       return r unless r.success?
 
-      r = fetch_user_data
-      return r unless r.success?
-
-      r = update_user
-      return r unless r.success?
-
-      enqueue_job if @has_changed
+      fetch_user
+      update_token_sale_bt_done
+      update_token_sale_kyc_double_optin_mail_sent
+      save_user
 
       success_with_data(user_id: @user_id)
     end
@@ -60,118 +51,82 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
     def validate
 
-      r = super
-      return r unless r.success?
-
-      @error_data[:skip_name] = "Invalid data" unless Util::CommonValidator.is_boolean?(@skip_name)
+      validation_errors = {}
 
       # apply custom validations. if not skipped
       if !@skip_name
-        @error_data[:bt_name] = "Branded Token Name is required." if @bt_name.blank?
-        @error_data[:bt_name] = "Branded Token Name is already taken." if User.where(bt_name: @bt_name).exists?
+        @bt_name.to_s.strip!
+        validation_errors[:bt_name] = "Branded Token Name is mandatory." if @bt_name.blank?
+        validation_errors[:bt_name] = "Branded Token Name is already taken." if User.where(bt_name: @bt_name).exists?
       end
 
       return error_with_data(
           'um_bs_1',
-          'Invalid Parameters.',
-          'Invalid Parameters.',
+          'Branded Token name error.',
+          '',
           GlobalConstant::ErrorAction.default,
           {},
-          @error_data
-      ) if @error_data.present?
+          validation_errors
+      ) if validation_errors.present?
 
       success
-
     end
 
-    # Fetch user data
+    # fetch user
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @user
     #
-    def fetch_user_data
+    def fetch_user
       @user = User.where(id: @user_id).first
-
-      unless @user.present? && (@user.status == GlobalConstant::User.active_status)
-        return unauthorized_access_response('um_bs_2')
-      end
-
-      return error_with_data(
-          'um_bs_3',
-          'Branded Tokens name cannot be updated',
-          'Branded Tokens name cannot be updated',
-          GlobalConstant::ErrorAction.default,
-          {},
-          {bt_name: 'Branded Tokens name cannot be updated'}
-      ) if @user.properties_array.include?(GlobalConstant::User.token_sale_bt_done_property)
-
-      success
     end
 
-
-    # Update User Data
+    # Update token sale bt done and add name if required
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    def update_user
-
+    def update_token_sale_bt_done
       @user.send("set_"+GlobalConstant::User.token_sale_bt_done_property)
       @user.bt_name = @bt_name unless @skip_name
-
-      @has_changed = @user.properties_changed?
-      if @user.changed?
-        @user.save!
-      end
-
-      success
-
     end
 
-    # Enqueue Bg Job
+    # Update token sale kyc double optin mail property and enqueue task
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    def update_token_sale_kyc_double_optin_mail_sent
+      if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
+        @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+        BgJob.enqueue(
+            TokenSaleOptinJob,
+            {
+                user_id: @user_id
+            }
+        )
+      end
+    end
+
+    # Save user
     #
     # * Author: Kedar
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    def enqueue_job
-      BgJob.enqueue(
-        BtSubmittedJob,
-        {
-          user_id: @user_id
-        }
-      )
-    end
-
-    # Unauthorized access response
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    # @param [String] err
-    # @param [String] display_text
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
+    def save_user
+      @user.save! if @user.changed?
     end
 
   end

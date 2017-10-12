@@ -48,7 +48,7 @@ module Aws
           e,
           'a_k_1',
           'exception in decrypt: ' + e.message,
-          'Something went wrong.',
+          'Something went wrong. Please try after sometime.',
           GlobalConstant::ErrorAction.default,
           {
             purpose: @purpose,
@@ -88,7 +88,7 @@ module Aws
           e,
           'a_k_2',
           'exception in encrypt: ' + e.message,
-          'Something went wrong.',
+          'Something went wrong. Please try after sometime.',
           GlobalConstant::ErrorAction.default,
           {
             purpose: @purpose,
@@ -125,7 +125,7 @@ module Aws
           e,
           'a_k_3',
           'exception in generate_data_key: ' + e.message,
-          'Something went wrong.',
+          'Something went wrong. Please try after sometime.',
           GlobalConstant::ErrorAction.default,
           {
             purpose: @purpose,

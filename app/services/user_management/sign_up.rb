@@ -53,32 +53,36 @@ module UserManagement
 
     private
 
+    # Validate and sanitize
+    #
+    # * Author: Kedar
+    # * Date: 11/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @return [Result::Base]
+    #
     def validate_and_sanitize
       @email.to_s.downcase.strip!
 
-      r = validate
-      return r unless r.success?
+      validation_errors = {}
+      if !Util::CommonValidator.is_valid_email?(@email)
+        validation_errors[:email] = "Please enter a valid email address"
+      end
+
+      if @password.length < 8
+        validation_errors[:password] = "Password should be minimum 8 characters"
+      end
 
       return error_with_data(
           'um_su_1',
-          'Invalid Email',
-          'Invalid Email',
+          'Registration Error',
+          'Please provide correct information',
           GlobalConstant::ErrorAction.default,
           {},
-          {email: "Invalid Email"}
-      ) if !Util::CommonValidator.is_valid_email?(@email)
-
-      return error_with_data(
-          'um_su_1',
-          'Password should be minimum 8 characters',
-          'Password should be minimum 8 characters',
-          GlobalConstant::ErrorAction.default,
-          {},
-          {password: 'Password should be minimum 8 characters'}
-      ) if @password.length < 8
+          validation_errors
+      ) if validation_errors.present?
 
       success
-
     end
 
     # Check if email already registered
@@ -93,9 +97,9 @@ module UserManagement
       user = User.where(email: @email).first
 
       return error_with_data(
-          'um_su_1',
-          'User is already registered.',
-          'User is already registered.',
+          'um_su_2',
+          'Registration Error',
+          'Email address is already registered',
           GlobalConstant::ErrorAction.default,
           {}
       ) if user.present?

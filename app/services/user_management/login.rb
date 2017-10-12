@@ -129,7 +129,7 @@ module UserManagement
     #
     # @return [Result::Base]
     #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
+    def unauthorized_access_response(err, display_text = 'Incorrect login details.')
       error_with_data(
         err,
         display_text,

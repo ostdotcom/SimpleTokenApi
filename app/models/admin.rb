@@ -18,7 +18,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   def self.add_admin(email, password)
 
-    email.to_s.downcase.strip!
+    email = email.to_s.downcase.strip
 
     return 'Admin email/password is blank' if password.blank? || email.blank?
     return 'Invalid email address' if !Util::CommonValidator.is_valid_email?(email)
@@ -36,7 +36,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
 
     #get cmk key and text
-    kms_login_client = Aws::Kms.new('login','admin')
+    kms_login_client = Aws::Kms.new('login', 'admin')
     resp = kms_login_client.generate_data_key
     return resp unless resp.success?
     ciphertext_blob = resp.data[:ciphertext_blob]
@@ -59,7 +59,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     #create admin
     admin_obj = Admin.new(email: email, password: encrypted_password,
-      admin_secret_id: admin_secrets_obj.id, last_otp_at: Time.now.to_i, status: GlobalConstant::Admin.active_status)
+                          admin_secret_id: admin_secrets_obj.id, last_otp_at: Time.now.to_i, status: GlobalConstant::Admin.active_status)
     admin_obj.save!(validate: false)
 
     puts url
@@ -118,7 +118,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
     # TODO: let's consider to use IP and user agent in cookie. And add last_otp_at
     Digest::MD5.hexdigest(
-      "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
+        "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
     )
   end
 

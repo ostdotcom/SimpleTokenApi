@@ -20,7 +20,7 @@ class CreateUserExtendedDetails < DbMigrationConnection
         t.column :passport_country, :blob, null: false #encrypted
         t.column :passport_url, :string, null: false
         t.column :selfie_url, :string, null: false
-        t.column :residence_proof_url, :string, null: false
+        t.column :residence_proof_url, :string, null: true
         t.timestamps
         t.timestamps
       end

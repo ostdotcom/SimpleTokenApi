@@ -62,7 +62,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_and_sanitize
-      @email.to_s.downcase.strip!
+      @email = @email.to_s.downcase.strip
 
       validation_errors = {}
       if !Util::CommonValidator.is_valid_email?(@email)

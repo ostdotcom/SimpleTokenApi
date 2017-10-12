@@ -61,7 +61,7 @@ module UserManagement
       @skip_name = ActiveRecord::Type::Boolean.new.cast(@skip_name)
       # apply custom validations. if not skipped
       if !@skip_name
-        @bt_name.to_s.strip!
+        @bt_name = @bt_name.to_s.strip
         validation_errors[:bt_name] = "Branded Token Name is mandatory." if @bt_name.blank?
         existing_bt_row = User.where(bt_name: @bt_name).first
         validation_errors[:bt_name] = "Branded Token Name is already taken." if existing_bt_row.present? && existing_bt_row.id != @user_id

@@ -21,7 +21,7 @@ module Crons
         @current_timestamp = Time.now.to_i
         @lock_identifier = @current_timestamp
 
-        @data_to_process = []
+        @hooks_to_be_processed = []
         @success_responses = {}
         @failed_hook_to_be_retried = {}
         @failed_hook_to_be_ignored = {}
@@ -35,12 +35,21 @@ module Crons
       # * Reviewed By:
       #
       def perform
+
         begin
+
+          # acquire lock and fetch the locked hooks
           fetch_hooks_to_be_processed
+
+          # Process these Hooks
           process_hooks
-          mark_synced_hooks
+
+          # Mark Hooks as processed
+          update_status_to_processed
+
         rescue StandardError => se
-          @data_to_process.each do |hook|
+
+          @hooks_to_be_processed.each do |hook|
             hook_id = hook.id
             # Skip if we already know that his hook was processed or failed
             next if @success_responses[hook_id].present? ||
@@ -50,14 +59,91 @@ module Crons
               exception: {message: se.message, trace: se.backtrace}
             }
           end
+
         ensure
+
+          # For hooks which failed, mark them as failed
           unlock_failed_hooks
+
+          # Notify Devs in case on Errors
           notify_devs
+
           success_with_data(processor_response)
+
         end
+
       end
 
       private
+
+      # Fetch records from DB which are to be processed in this iteration
+      #
+      # * Author: Puneet
+      # * Date: 11/11/2017
+      # * Reviewed By:
+      #
+      def fetch_hooks_to_be_processed
+        acquire_lock
+        fetch_locked_hooks
+      end
+
+      # method which process hooks and performs required operation
+      #
+      # * Author: Puneet
+      # * Date: 11/11/2017
+      # * Reviewed By:
+      #
+      def process_hooks
+        @hooks_to_be_processed.each do |hook|
+          begin
+            @hook = hook
+            process_hook
+          rescue StandardError => se
+            @failed_hook_to_be_retried[@hook.id] = {
+              exception: {
+                message: se.message,
+                trace: se.backtrace[0..10]
+              }
+            }
+          end
+        end
+      end
+
+      # for the hooks which failed, unlock those records so that thet can be reprocessed later
+      #
+      # * Author: Puneet
+      # * Date: 11/11/2017
+      # * Reviewed By:
+      #
+      def unlock_failed_hooks
+
+        @hooks_to_be_processed.each do |hook|
+
+          failed_hook_to_be_retried = @failed_hook_to_be_retried[hook.id]
+          hook.mark_failed_to_be_retried(failed_hook_to_be_retried) if failed_hook_to_be_retried.present?
+
+          failed_hook_to_be_ignored = @failed_hook_to_be_ignored[hook.id]
+          hook.mark_failed_to_be_ignored(failed_hook_to_be_ignored) if failed_hook_to_be_ignored.present?
+
+        end
+
+      end
+
+      # return data for logging
+      #
+      # * Author: Puneet
+      # * Date: 11/11/2017
+      # * Reviewed By:
+      #
+      def processor_response
+        {
+          @lock_identifier => {
+            failed_hook_ids_to_be_retried: @failed_hook_to_be_retried.keys,
+            failed_hook_ids_to_be_ignored: @failed_hook_to_be_ignored.keys,
+            synced_hook_ids: @success_responses.keys
+          }
+        }
+      end
 
       # find if this is an iteration to process failed logs or fresh ones. we default to false
       #
@@ -77,17 +163,6 @@ module Crons
       #
       def acquire_lock
         retry_failed_hooks? ? acquire_lock_on_failed_hooks : acquire_lock_on_fresh_hooks
-      end
-
-      # Fetch records from DB which are to be processed in this iteration
-      #
-      # * Author: Puneet
-      # * Date: 11/11/2017
-      # * Reviewed By:
-      #
-      def fetch_hooks_to_be_processed
-        acquire_lock
-        fetch_locked_hooks
       end
 
       # Acquire lock on Failed Hooks which have to be retired
@@ -117,65 +192,7 @@ module Crons
       # * Reviewed By:
       #
       def fetch_locked_hooks
-        @data_to_process = modal_klass.fetch_locked_hooks(@lock_identifier)
-      end
-
-      # method which process hooks and performs required operation
-      #
-      # * Author: Puneet
-      # * Date: 11/11/2017
-      # * Reviewed By:
-      #
-      def process_hooks
-        @data_to_process.each do |hook|
-          begin
-            @hook = hook
-            process_hook
-          rescue StandardError => se
-            @failed_hook_to_be_retried[@hook.id] = {
-              exception: {
-                message: se.message,
-                trace: se.backtrace[0..10]
-              }
-            }
-          end
-        end
-      end
-
-      # for the hooks which failed, unlock those records so that thet can be reprocessed later
-      #
-      # * Author: Puneet
-      # * Date: 11/11/2017
-      # * Reviewed By:
-      #
-      def unlock_failed_hooks
-
-        @data_to_process.each do |hook|
-
-          failed_hook_to_be_retried = @failed_hook_to_be_retried[hook.id]
-          hook.mark_failed_to_be_retried(failed_hook_to_be_retried) if failed_hook_to_be_retried.present?
-
-          failed_hook_to_be_ignored = @failed_hook_to_be_ignored[hook.id]
-          hook.mark_failed_to_be_ignored(failed_hook_to_be_ignored) if failed_hook_to_be_ignored.present?
-
-        end
-
-      end
-
-      # return data for logging
-      #
-      # * Author: Puneet
-      # * Date: 11/11/2017
-      # * Reviewed By:
-      #
-      def processor_response
-        {
-          @lock_identifier => {
-            failed_hook_ids_to_be_retried: @failed_hook_to_be_retried.keys,
-            failed_hook_ids_to_be_ignored: @failed_hook_to_be_ignored.keys,
-            synced_hook_ids: @success_responses.keys
-          }
-        }
+        @hooks_to_be_processed = modal_klass.fetch_locked_hooks(@lock_identifier)
       end
 
       # modal klass which has data about  hooks
@@ -206,7 +223,7 @@ module Crons
       # * Date: 11/11/2017
       # * Reviewed By:
       #
-      def mark_synced_hooks
+      def update_status_to_processed
         fail 'child class to implement'
       end
 

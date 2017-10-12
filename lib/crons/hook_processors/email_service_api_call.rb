@@ -99,8 +99,8 @@ module Crons
       # * Date: 11/11/2017
       # * Reviewed By:
       #
-      def mark_synced_hooks
-        @data_to_process.each do |hook|
+      def update_status_to_processed
+        @hooks_to_be_processed.each do |hook|
           response = @success_responses[hook.id]
           next if response.nil?
           hook.mark_processed(response)

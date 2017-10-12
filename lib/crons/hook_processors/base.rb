@@ -63,7 +63,7 @@ module Crons
         ensure
 
           # For hooks which failed, mark them as failed
-          unlock_failed_hooks
+          release_lock_and_update_status_for_non_processed_hooks
 
           # Notify Devs in case on Errors
           notify_devs
@@ -115,7 +115,7 @@ module Crons
       # * Date: 11/11/2017
       # * Reviewed By:
       #
-      def unlock_failed_hooks
+      def release_lock_and_update_status_for_non_processed_hooks
 
         @hooks_to_be_processed.each do |hook|
 
@@ -172,7 +172,7 @@ module Crons
       # * Reviewed By:
       #
       def acquire_lock_on_failed_hooks
-        modal_klass.lock_failed_hooks(@lock_identifier)
+        hook_model_klass.lock_failed_hooks(@lock_identifier)
       end
 
       # Acquire lock on Fresh Hooks which have to be executed
@@ -182,7 +182,7 @@ module Crons
       # * Reviewed By:
       #
       def acquire_lock_on_fresh_hooks
-        modal_klass.lock_fresh_hooks(@lock_identifier)
+        hook_model_klass.lock_fresh_hooks(@lock_identifier)
       end
 
       # query search_hooks table to fetch data for records locked with the given identifier
@@ -192,7 +192,7 @@ module Crons
       # * Reviewed By:
       #
       def fetch_locked_hooks
-        @hooks_to_be_processed = modal_klass.fetch_locked_hooks(@lock_identifier)
+        @hooks_to_be_processed = hook_model_klass.fetch_locked_hooks(@lock_identifier)
       end
 
       # modal klass which has data about  hooks
@@ -203,7 +203,7 @@ module Crons
       #
       # @return [Class] : returns a class
       #
-      def modal_klass
+      def hook_model_klass
         fail 'child class to return a model klass here'
       end
 

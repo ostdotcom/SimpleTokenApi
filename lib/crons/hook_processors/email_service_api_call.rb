@@ -39,7 +39,7 @@ module Crons
       #
       # @return [Class] : returns a class
       #
-      def modal_klass
+      def hook_model_klass
         @m_k ||= EmailServiceApiCallHook
       end
 
@@ -52,12 +52,15 @@ module Crons
       # @Sets @success_responses, @failed_hook_to_be_ignored & @failed_hook_to_be_retried
       #
       def process_hook
+
         klass = get_hook_processor_klass
         response = klass.new(@hook).perform
         if response.success?
           @success_responses[@hook.id] = response.data
         else
           response_data = response.data
+
+          # email sending failed due to hard bounce or soft bounce, we mark the hook as to_be_ignored and not to_be_retried.
           if response_data['error'] == 'VALIDATION_ERROR' &&
             response_data['error_message'].present? &&
             response_data['error_message']['subscription_status'].present?
@@ -65,7 +68,9 @@ module Crons
           else
             @failed_hook_to_be_retried[@hook.id] = response_data
           end
+
         end
+
       end
 
       # depending on event type returns approriate processor klass

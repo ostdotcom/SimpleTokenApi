@@ -104,6 +104,18 @@ module Util
       ].include?(email)
     end
 
+    # check if the addr is a valid address
+    #
+    # * Author: Kedar
+    # * Date: 12/10/2017
+    # * Reviewed By:
+    #
+    # @return [Boolean] returns a boolean
+    #
+    def self.is_euthereum_address?(addr)
+      !(/^(0x|0X)?[a-fA-F0-9]{40}$/.match(addr.to_s)).nil?
+    end
+
   end
 
 end

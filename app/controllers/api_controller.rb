@@ -3,9 +3,7 @@ class ApiController < ApplicationController
   # this is the top-most wrapper - to catch all the exceptions at any level
   prepend_around_action :handle_exceptions_gracefully
 
-  before_action :validate_cookie, except: [
-    :not_found
-  ]
+  before_action :validate_cookie
 
   private
 

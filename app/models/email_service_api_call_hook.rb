@@ -15,8 +15,8 @@ class EmailServiceApiCallHook < EstablishSimpleTokenEmailDbConnection
     # limit for number of records to be processed in one iteration of continuis cron
     #
     # * Author: Puneet
-    # * Date: 12/11/2017
-    # * Reviewed By:
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
     #
     # @return [Integer]
     #
@@ -27,8 +27,8 @@ class EmailServiceApiCallHook < EstablishSimpleTokenEmailDbConnection
     # retry count
     #
     # * Author: Puneet
-    # * Date: 12/11/2017
-    # * Reviewed By:
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
     #
     # @return [Integer]
     #

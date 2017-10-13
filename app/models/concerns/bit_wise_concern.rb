@@ -7,15 +7,12 @@ module BitWiseConcern
       send(column_name) || 0
     end
 
-    # before_save :validate_bit_values
-
+    # validate if model has implemented unique values only
     #
     # * Author: Aman
     # * Date: 11/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # validate if model has implemented unique values only
-    #TODO: optimize may be
     buffer = self.bit_wise_columns_config.inject([]) do |buffer, (_, values_hash)|
       buffer += values_hash.keys
     end
@@ -25,7 +22,7 @@ module BitWiseConcern
     #
     # * Author: Aman
     # * Date: 11/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param bit_value [Integer] : bit_value ex : 9
     # @return Array[Integer] : ex : [1,8]
@@ -40,9 +37,9 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # @return Hash : ex -> {1=>:at_mention, 2=>:text, 4=>:photo, 8=>:link, 16=>:video}
+      # @return Hash : ex -> {1=>:bit_1_property, 2=>:bit_2_property, 4=>:bit_3_property, 8=>:bit_4_property}
       #
       self.singleton_class.send(:define_method, "inverted_values_for_#{column_name}") {
         value_from_cache = instance_variable_get("@i_values_for_#{column_name}")
@@ -58,9 +55,9 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # @return Hash : ex -> {:at_mention=>1, :text=>2, :photo=>4, :link=>8, :video=>16}
+      # @return Hash : ex -> {::bit_1_property=>1, :bit_2_property=>2, :bit_3_property=>4, :bit_4_property=>8}
       #
       self.singleton_class.send(:define_method, "values_for_#{column_name}") {
         value_from_cache = instance_variable_get("@values_for_#{column_name}")
@@ -79,7 +76,7 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [Integer] : integer bit_value
       # @return [Hash] : has two keys set & unset and has an array against each of them
@@ -100,7 +97,7 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [Integer] : integer bit_value
       # @return [Array] : has an array of set values
@@ -116,7 +113,7 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [Array] : array of symobolizied keys representing bits which are to be set ex -> [:one, :four]
       # @return [Integer] : bit_value ex -> 5
@@ -130,9 +127,9 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # @return [Hash] : {:set=>[:at_mention, :text, :photo, :link, :video], :unset=>[:chat_initiated, :friend_joined]}
+      # @return [Hash] : {:set=>[:bit_1_property, :bit_2_property], :unset=>[:bit_3_property]}
       #
       define_method("get_bits_info_for_#{column_name}") {
         bit_value = fetch_value_from_ar_object(column_name)
@@ -143,9 +140,9 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # @return [Array] : [:at_mention, :text, :photo, :link, :video]
+      # @return [Array] : [:bit_1_property, :bit_2_property]
       #
       define_method("get_bits_set_for_#{column_name}") {
         bit_value = fetch_value_from_ar_object(column_name)
@@ -156,7 +153,7 @@ module BitWiseConcern
       #
       # * Author: Aman
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       define_method("unset_#{column_name}") {
         current_val = fetch_value_from_ar_object(column_name)
@@ -170,7 +167,7 @@ module BitWiseConcern
         #
         # * Author: Aman
         # * Date: 11/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         self.singleton_class.send(:define_method, attribute) {
           where("#{column_name} & #{value} > 0")
@@ -180,7 +177,7 @@ module BitWiseConcern
         #
         # * Author: Aman
         # * Date: 11/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         define_method("#{attribute}?") {
           value & fetch_value_from_ar_object(column_name) == value
@@ -190,7 +187,7 @@ module BitWiseConcern
         #
         # * Author: Aman
         # * Date: 11/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         define_method("set_#{attribute}") {
           current_val = fetch_value_from_ar_object(column_name)
@@ -202,7 +199,7 @@ module BitWiseConcern
         #
         # * Author: Aman
         # * Date: 11/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         define_method("unset_#{attribute}") {
           current_val = fetch_value_from_ar_object(column_name)
@@ -213,13 +210,6 @@ module BitWiseConcern
       end
 
     end
-
-    # def validate_bit_values
-    #   TODO: Not sure if this would be required
-    #   self.class.bit_wise_columns_config.each do |column_name, _|
-    #     bit_value = send(column_name)
-    #   end
-    # end
 
   end
 

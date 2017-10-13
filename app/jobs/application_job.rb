@@ -2,6 +2,12 @@ class ApplicationJob < ActiveJob::Base
 
   require 'benchmark'
 
+  # checks if time taken > threshold and logs
+  #
+  # * Author: Bala
+  # * Date: 13/10/2017
+  # * Reviewed By: Sunil
+  #
   around_perform do |job, block|
     begin
       Rails.logger.info "Worker started processing job (#{job.job_id})"
@@ -12,25 +18,21 @@ class ApplicationJob < ActiveJob::Base
       Rails.logger.info "Worker completed job (#{job.job_id})"
     rescue StandardError => se
       Rails.logger.info "Worker got exception in job #{job.job_id}) msg : #{se.message} trace : #{se.backtrace}"
+      # TODO: Why email is off?
       # ApplicationMailer.notify(
       #   body: {exception: {message: se.message, backtrace: se.backtrace}},
       #   data: job,
       #   subject: "Exception in #{self.class}"
       # ).deliver
-
       raise se
     end
   end
 
-  def monitor_execution_time?
-    @m_e_t ||= Rails.env != 'production'
-  end
-
   # checks if time taken > threshold and logs
   #
-  # * Author: Puneet
-  # * Date: 16/04/2016
-  # * Reviewed By:
+  # * Author: Bala
+  # * Date: 13/10/2017
+  # * Reviewed By: Sunil
   #
   def monitor_execution_time(job, execution_time)
     threshold_time = 0.04

@@ -64,8 +64,8 @@ module HookConcern
     # Mark Hook as Processed
     #
     # * Author: Puneet
-    # * Date: 11/11/2017
-    # * Reviewed By: Kedar
+    # * Date: 11/10/2017
+    # * Reviewed By: Sunil
     #
     # @param [Hash] sucess_log - log to be written in success response column
     #
@@ -81,8 +81,8 @@ module HookConcern
     # Mark Hook as Failed Which would have to be retried Later
     #
     # * Author: Puneet
-    # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Date: 11/10/2017
+    # * Reviewed By: Sunil
     #
     # @param [Hash] failed_log - log to be written in failed response column
     #
@@ -99,8 +99,8 @@ module HookConcern
     # Mark Hook as Failed Which wouldn't be retried later
     #
     # * Author: Puneet
-    # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Date: 11/10/2017
+    # * Reviewed By: Sunil
     #
     # @param [Hash] failed_log - log to be written in failed response column
     #

@@ -10,7 +10,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   # * Author: Aman
   # * Date: 11/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # @returns [Array<Symbol>] returns Array of properties bits set for user
   #
@@ -22,7 +22,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   # * Author: Aman
   # * Date: 11/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def self.properties_config
     @u_prop_con ||= {
@@ -37,7 +37,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   # * Author: Aman
   # * Date: 11/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
@@ -53,7 +53,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   # * Author: Aman
   # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   # @param [String] password
   # @param [String] salt
@@ -68,7 +68,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   # * Author: Aman
   # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   # @param [Integer] user_id - user id
   # @param [String] password - password
@@ -86,7 +86,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   # * Author: Aman
   # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   # @param [Integer] user_id - user id
   # @param [String] password - password

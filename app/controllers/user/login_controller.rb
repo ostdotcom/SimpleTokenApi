@@ -48,14 +48,36 @@ class User::LoginController < User::BaseController
     render_api_response(service_response)
   end
 
-  # Get logged in user details
+  # logout
   #
-  # * Author: Kedar
-  # * Date: 11/10/2017
-  # * Reviewed By: Sunil
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By:
   #
-  def user_info
-    service_response = UserManagement::UserInfo.new(cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym], browser_user_agent: http_user_agent).perform
+  def logout
+    clear_all_cookie_for_logout
+    redirect_to '/login/', status: GlobalConstant.ErrorCode.permanent_redirect and return
+  end
+
+  # Send Reset Password Link
+  #
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By:
+  #
+  def send_reset_password_link
+    service_response = UserManagement::SendResetPasswordLink.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Reset Password
+  #
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By:
+  #
+  def reset_password
+    service_response = UserManagement::ResetPassword.new(params).perform
     render_api_response(service_response)
   end
 

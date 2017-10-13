@@ -13,7 +13,6 @@ class CreateUsers < DbMigrationConnection
         t.column :properties, :tinyint, null: false, default: 0
         t.column :status, :tinyint, limit: 1, null: false, default: 1
         t.timestamps
-        t.timestamps
       end
 
       add_index :users, :email, unique: true, name: 'uniq_email'

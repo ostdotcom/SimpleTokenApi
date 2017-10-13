@@ -11,7 +11,6 @@ class CreateAdmins < DbMigrationConnection
         t.column :last_otp_at, :integer, null: true, limit: 8
         t.column :status, :tinyint, limit: 1, null: false, default: 1
         t.timestamps
-        t.timestamps
       end
 
       add_index :admins, :email, unique: true, name: 'uniq_email'

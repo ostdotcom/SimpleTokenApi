@@ -88,8 +88,7 @@ module Crons
               klass = Email::HookProcessor::AddContact
             when GlobalConstant::EmailServiceApiCallHook.update_contact_event_type
               klass = Email::HookProcessor::UpdateContact
-            when GlobalConstant::EmailServiceApiCallHook.send_double_opt_in_mail_event_type,
-              GlobalConstant::EmailServiceApiCallHook.send_welcome_mail_event_type
+            when GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type
               klass = Email::HookProcessor::SendTransactionalMail
             else
               raise "unhandled event_type: #{@hook.event_type}"

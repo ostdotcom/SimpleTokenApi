@@ -22,7 +22,6 @@ class CreateUserExtendedDetails < DbMigrationConnection
         t.column :selfie_file_path, :string, null: false
         t.column :residence_proof_file_path, :string, null: true
         t.timestamps
-        t.timestamps
       end
 
       add_index :user_extended_details, :user_id, unique: false, name: 'uniq_user_id'

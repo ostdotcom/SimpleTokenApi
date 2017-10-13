@@ -7,7 +7,6 @@ class CreateUserSecrets < DbMigrationConnection
       create_table :user_secrets do |t|
         t.column :login_salt, :blob, null: false #encrypted
         t.timestamps
-        t.timestamps
       end
 
     end

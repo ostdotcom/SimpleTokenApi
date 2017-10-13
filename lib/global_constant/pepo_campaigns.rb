@@ -86,9 +86,9 @@ module GlobalConstant
         'token_sale_double_opt'
       end
 
-      # double optin confirmation - sent when user status changes from pending to confirmed
-      def welcome_mail_template
-        'welcome_mail'
+      # reset password email - sent when user clicks on forgot password
+      def forgot_password_template
+        'forgot_password'
       end
 
       # All possible templates integrated with email service
@@ -102,7 +102,7 @@ module GlobalConstant
       def supported_templates
         [
           double_opt_in_template,
-          welcome_mail_template
+          forgot_password_template
         ]
       end
 

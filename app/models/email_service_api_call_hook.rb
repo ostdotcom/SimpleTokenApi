@@ -3,7 +3,7 @@ class EmailServiceApiCallHook < EstablishSimpleTokenEmailDbConnection
   enum event_type: {
     GlobalConstant::EmailServiceApiCallHook.add_contact_event_type => 1,
     GlobalConstant::EmailServiceApiCallHook.update_contact_event_type => 2,
-    GlobalConstant::EmailServiceApiCallHook.send_double_opt_in_mail_event_type => 3
+    GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type => 3
   }
 
   serialize :params, Hash

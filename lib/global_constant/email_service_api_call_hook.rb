@@ -15,8 +15,8 @@ module GlobalConstant
         'update_contact'
       end
 
-      def send_double_opt_in_mail_event_type
-        'send_double_opt_in_mail'
+      def send_transactional_mail_event_type
+        'send_transactional_mail'
       end
 
       ########## entity_types #############

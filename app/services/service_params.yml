@@ -90,10 +90,14 @@
     - :pdfs
     - :images
 
-'UserManagement::ChangePassword':
+'UserManagement::SendResetPasswordLink':
   :mandatory:
-    - :user_id
+    - :email
+  :optional:
+
+'UserManagement::ResetPassword':
+  :mandatory:
+    - :r_t
     - :password
-    - :new_password
-    - :browser_user_agent
+    - :confirm_password
   :optional:

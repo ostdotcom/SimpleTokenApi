@@ -7,7 +7,6 @@ class CreateAdminSecrets < DbMigrationConnection
         t.column :login_salt, :blob, null: false #encrypted
         t.column :ga_secret, :blob, null: false #encrypted
         t.timestamps
-        t.timestamps
       end
 
     end

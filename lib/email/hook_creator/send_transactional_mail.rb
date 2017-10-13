@@ -64,7 +64,7 @@ module Email
       # @return [String] event type that goes into hook table
       #
       def event_type
-        GlobalConstant::EmailServiceApiCallHook.send_double_opt_in_mail_event_type
+        GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type
       end
 
       # check if this template is supported currently
@@ -104,6 +104,16 @@ module Email
             GlobalConstant::ErrorAction.default,
             {}
           ) if @template_vars[:double_opt_in_token].blank?
+
+        elsif (GlobalConstant::PepoCampaigns.forgot_password_template == @template_name)
+
+          return error_with_data(
+              'e_hc_stm_5',
+              'mandatory template var reset_password_token missing',
+              'mandatory template var reset_password_token missing',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @template_vars[:reset_password_token].blank?
 
         end
 

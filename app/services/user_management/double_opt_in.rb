@@ -104,13 +104,13 @@ module UserManagement
     #
     def fetch_token_sale_double_opt_in_token
 
-      @token_sale_double_opt_in_token = TokenSaleDoubleOptInToken.where(id: @token_sale_double_opt_in_token_id).first
+      @token_sale_double_opt_in_token = TemporaryToken.where(id: @token_sale_double_opt_in_token_id).first
 
       return invalid_url_error('um_doi_2') if @token_sale_double_opt_in_token.blank?
 
       return invalid_url_error('um_doi_3') if @token_sale_double_opt_in_token.token != @token
 
-      if @token_sale_double_opt_in_token.status != GlobalConstant::TokenSaleDoubleOptInToken.active_status
+      if @token_sale_double_opt_in_token.status != GlobalConstant::TemporaryToken.active_status
         return invalid_url_error('um_doi_4')
       end
 
@@ -131,10 +131,10 @@ module UserManagement
     #
     def mark_token_as_used
 
-      row_updated_count = TokenSaleDoubleOptInToken.where(
+      row_updated_count = TemporaryToken.where(
         id: @token_sale_double_opt_in_token.id,
-        status: GlobalConstant::TokenSaleDoubleOptInToken.active_status
-      ).update_all(status: GlobalConstant::TokenSaleDoubleOptInToken.used_status)
+        status: GlobalConstant::TemporaryToken.active_status
+      ).update_all(status: GlobalConstant::TemporaryToken.used_status)
 
       # if row_updated_count == 0 means this token was already marked as used by some other concurrent request
       row_updated_count > 0 ? success : invalid_url_error('um_doi_6')

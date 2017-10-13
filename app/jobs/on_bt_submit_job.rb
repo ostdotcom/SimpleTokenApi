@@ -12,6 +12,8 @@ class OnBTSubmitJob < ApplicationJob
 
     init_params(params)
 
+    return unless @user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
+
     create_double_opt_in_token
 
     send_token_sale_double_opt_in_mail

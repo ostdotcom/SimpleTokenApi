@@ -44,4 +44,22 @@ class User::TokenSaleController < User::BaseController
     render_api_response(service_response)
   end
 
+  # Send Double Opt In again
+  #
+  # * Author: Aman
+  # * Date: 13/10/2017
+  # * Reviewed By: Sunil
+  #
+  def resend_double_opt_in
+    BgJob.enqueue(
+        OnBTSubmitJob,
+        {
+            user_id: params[:user_id]
+        }
+    )
+
+    r = Result::Base.success({message: "Verification Link Sent Successfully"})
+    render_api_response(r)
+  end
+
 end

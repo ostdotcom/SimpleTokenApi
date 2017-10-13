@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     match 'kyc-submit' => :kyc_submit, via: :POST
     match 'bt-submit' => :bt_submit, via: :POST
     match 'double-opt-in' => :double_opt_in, via: :POST
+    match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'upload-params' => :get_upload_params, via: :GET
     match 'logout' => :logout, via: :GET
   end

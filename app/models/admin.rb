@@ -116,7 +116,6 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @return [String] cookie value
   #
   def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
-    # TODO: let's consider to use IP and user agent in cookie. And add last_otp_at
     Digest::MD5.hexdigest(
         "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
     )

@@ -18,12 +18,11 @@ class ApplicationJob < ActiveJob::Base
       Rails.logger.info "Worker completed job (#{job.job_id})"
     rescue StandardError => se
       Rails.logger.info "Worker got exception in job #{job.job_id}) msg : #{se.message} trace : #{se.backtrace}"
-      # TODO: Why email is off?
-      # ApplicationMailer.notify(
-      #   body: {exception: {message: se.message, backtrace: se.backtrace}},
-      #   data: job,
-      #   subject: "Exception in #{self.class}"
-      # ).deliver
+      ApplicationMailer.notify(
+        body: {exception: {message: se.message, backtrace: se.backtrace}},
+        data: job,
+        subject: "Exception in #{self.class}"
+      ).deliver
       raise se
     end
   end

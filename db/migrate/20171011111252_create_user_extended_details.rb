@@ -18,9 +18,9 @@ class CreateUserExtendedDetails < DbMigrationConnection
         t.column :estimated_participation_amount, :blob, null: false #encrypted
         t.column :passport_number, :blob, null: false #encrypted
         t.column :nationality, :blob, null: false #encrypted
-        t.column :passport_file_path, :string, null: false
-        t.column :selfie_file_path, :string, null: false
-        t.column :residence_proof_file_path, :string, null: true
+        t.column :passport_file_path, :blob, null: false #encrypted
+        t.column :selfie_file_path, :blob, null: false #encrypted
+        t.column :residence_proof_file_path, :blob, null: true #encrypted
         t.timestamps
       end
 

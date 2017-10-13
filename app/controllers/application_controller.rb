@@ -14,8 +14,6 @@ class ApplicationController < ActionController::API
 
   before_action :sanitize_params
 
-  before_action :avoid_request_from_bot
-
   after_action :set_response_headers
 
   # Action not found handling. Also block "/"
@@ -52,26 +50,8 @@ class ApplicationController < ActionController::API
   # * Reviewed By: Sunil Khedar
   #
   def http_user_agent
-    request.env['HTTP_USER_AGENT'].to_s
-  end
-
-  # Block bot requests from consuming APIs
-  #
-  # * Author: Kedar
-  # * Date: 09/10/2017
-  # * Reviewed By: Sunil Khedar
-  #
-  def avoid_request_from_bot
-    res = http_user_agent.match(/\b(Baidu|Baiduspider|Gigabot|Googlebot|thefind|webmeup-crawler.com|libwww-perl|lwp-trivial|msnbot|SiteUptime|Slurp|ZIBB|wget|ia_archiver|ZyBorg|bingbot|AdsBot-Google|AhrefsBot|FatBot|shopstyle|pinterest.com|facebookexternalhit|Twitterbot|crawler.sistrix.net|PolyBot|rogerbot|Pingdom|Mediapartners-Google|bitlybot|BlapBot|Python|www.socialayer.com|Sogou|Scrapy|ShopWiki|Panopta|websitepulse|NewRelicPinger|Sailthru|JoeDog|SocialWire|CCBot|yacybot|Halebot|SNBot|SEOENGWorldBot|SeznamBot|libfetch|QuerySeekerSpider|A6-Indexer|PAYONE|GrapeshotCrawler|curl|ShowyouBot|NING|kraken|MaxPointCrawler|efcrawler|YisouSpider|BingPreview|MJ12bot)\b/i)
-    if res.present?
-      r = Result::Base.error({
-                               error: 'ac_2',
-                               error_message: 'Resource not found for Bot',
-                               http_code: GlobalConstant::ErrorCode.not_found
-                             })
-
-      render_api_response(r)
-    end
+    # NOTE: from STW we forward the user agent in new header as HTTP lib adds "Ruby, " to any user agent sent
+    (request.env['HTTP_STW_FORWARD_USER_AGENT'] || request.env['HTTP_USER_AGENT']).to_s
   end
 
   # Render API Response

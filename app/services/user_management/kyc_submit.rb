@@ -20,7 +20,7 @@ module UserManagement
     # @param [String] ethereum_address (mandatory) - ethereum address
     # @param [String] estimated_participation_amount (mandatory) - estimated participation amount
     # @param [String] passport_number (mandatory) - passport number
-    # @param [String] passport_country (mandatory) - passport country
+    # @param [String] nationality (mandatory) - passport country
     # @param [String] passport_file_path (mandatory) - passport file
     # @param [String] selfie_file_path (mandatory) - selfie file
     #
@@ -42,7 +42,7 @@ module UserManagement
       @ethereum_address = @params[:ethereum_address] # required and regex
       @estimated_participation_amount = @params[:estimated_participation_amount] # required and number
       @passport_number = @params[:passport_number] # required
-      @passport_country = @params[:passport_country] # required and one of allowed
+      @nationality = @params[:nationality] # required and one of allowed
       @passport_file_path = @params[:passport_file_path] # S3 Path of PassPort File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
@@ -81,7 +81,8 @@ module UserManagement
       r = update_user
       return r unless r.success?
 
-      success_with_data(user_id: @user_id)
+      success
+
     end
 
     private
@@ -143,14 +144,6 @@ module UserManagement
     #
     def fetch_user_data
 
-      return error_with_data(
-          'um_ks_2',
-          'Kyc Already Added.',
-          'Kyc Already Added.',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) if UserExtendedDetail.where(user_id: @user_id).first.present?
-
       @user = User.where(id: @user_id).first
 
       unless @user.present? && (@user.status == GlobalConstant::User.active_status)
@@ -197,7 +190,6 @@ module UserManagement
       data_to_encrypt = {
           first_name: @first_name,
           last_name: @last_name,
-          kyc_salt: @kyc_salt_e,
           birthdate: @birthdate,
           street_address: @street_address,
           city: @city,
@@ -207,7 +199,7 @@ module UserManagement
           ethereum_address: @ethereum_address,
           estimated_participation_amount: @estimated_participation_amount,
           passport_number: @passport_number,
-          passport_country: @passport_country,
+          nationality: @nationality,
           selfie_file_path: @selfie_file_path,
           passport_file_path: @passport_file_path,
           residence_proof_file_path: @residence_proof_file_path
@@ -220,6 +212,8 @@ module UserManagement
         user_extended_details_params[key.to_sym] = r.data[:ciphertext_blob]
         md5_user_extended_details_params[key.to_sym] = Digest::MD5.hexdigest(value.to_s.downcase)
       end
+
+      user_extended_details_params[:kyc_salt] = @kyc_salt_e
 
       ued = UserExtendedDetail.create!(user_extended_details_params)
 
@@ -237,9 +231,12 @@ module UserManagement
     # * Date: 13/10/2017
     # * Reviewed By:
     #
+    # @return [Result::Base]
+    #
     def update_user
       @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
       @user.save! if @user.changed?
+      success
     end
 
     # Encryptor obj

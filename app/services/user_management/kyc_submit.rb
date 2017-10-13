@@ -81,6 +81,8 @@ module UserManagement
       r = update_user
       return r unless r.success?
 
+      enqueue_job
+
       success
 
     end
@@ -253,6 +255,18 @@ module UserManagement
       @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
       @user.save! if @user.changed?
       success
+    end
+
+    def enqueue_job
+      return unless @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+
+      BgJob.enqueue(
+        KycSubmitJob,
+        {
+          user_id: @user_id,
+          is_re_submit: true
+        }
+      )
     end
 
     # Encryptor obj

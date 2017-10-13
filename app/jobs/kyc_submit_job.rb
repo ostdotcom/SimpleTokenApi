@@ -1,4 +1,4 @@
-class DoubleOptInJob < ApplicationJob
+class KycSubmitJob < ApplicationJob
 
   queue_as GlobalConstant::Sidekiq.queue_name :default_high_priority_queue
 
@@ -32,6 +32,8 @@ class DoubleOptInJob < ApplicationJob
   #
   def init_params(params)
     @user_id = params[:user_id]
+    @is_re_submit = params[:is_re_submit]
+
     @user = User.find(@user_id)
     @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
 
@@ -49,6 +51,8 @@ class DoubleOptInJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def create_email_service_api_call_hook
+    return if @is_re_submit
+
     Email::HookCreator::AddContact.new(
       email: @user.email,
       token_sale_phase: GlobalConstant::TokenSale.token_sale_phase_for
@@ -85,7 +89,35 @@ class DoubleOptInJob < ApplicationJob
   # @params [String] addresses (mandatory) - Customer address separated by comma
   #
   def call_cynopsis_api
-    Cynopsis::Customer.new().create(
+    @is_re_submit ? create_call_cynopsis_api : update_cynopsis_case
+    create_cynopsis_case
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def create_cynopsis_case
+    Cynopsis::Customer.new().create(cynopsis_params)
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def update_cynopsis_case
+    Cynopsis::Customer.new().update(cynopsis_params)
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def cynopsis_params
+    {
       rfrID: "ts2_#{@user_id}",
       first_name: @user_extended_detail.first_name,
       last_name: @user_extended_detail.last_name,
@@ -96,7 +128,7 @@ class DoubleOptInJob < ApplicationJob
       nationality: nationality_d,
       emails: [@user.email],
       addresses: address_d
-    )
+    }
   end
 
   # Decrypt kyc salt
@@ -208,7 +240,5 @@ class DoubleOptInJob < ApplicationJob
   def local_cipher_obj
     @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
   end
-
-
 
 end

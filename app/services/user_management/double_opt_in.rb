@@ -160,9 +160,10 @@ module UserManagement
     #
     def enqueue_job
       BgJob.enqueue(
-        DoubleOptInJob,
+        KycSubmitJob,
         {
-          user_id: @user_id
+          user_id: @user_id,
+          is_re_submit: false
         }
       )
     end

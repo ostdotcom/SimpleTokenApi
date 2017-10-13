@@ -8,12 +8,16 @@ class KycSubmitJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
+  # @param [Hash] params
+  #
   def perform(params)
 
     init_params(params)
 
     # Untill the user Does Double Opt in do nothing here
     return unless @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+
+    find_or_init_user_kyc_detail
 
     create_email_service_api_call_hook
 
@@ -22,6 +26,10 @@ class KycSubmitJob < ApplicationJob
     decrypt_kyc_salt
 
     call_cynopsis_api
+
+    set_duplicate_log
+
+    save_user_kyc_detail
 
   end
 
@@ -33,18 +41,42 @@ class KycSubmitJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
+  # @param [Hash] params
+  #
   def init_params(params)
     @user_id = params[:user_id]
     @is_re_submit = params[:is_re_submit]
 
     @user = User.find(@user_id)
     @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
+    @cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
+    @is_duplicate = false
 
     @run_role = 'admin'
     @run_purpose = 'kyc'
 
     @kyc_salt_e = @user_extended_detail.kyc_salt
     @kyc_salt_d = nil
+  end
+
+  # Find or init user kyc detail
+  #
+  # * Author: Kedar
+  # * Date: 13/10/2017
+  # * Reviewed By:
+  #
+  # Sets @user_kyc_detail
+  #
+  def find_or_init_user_kyc_detail
+    @user_kyc_detail = UserKycDetail.find_or_initialize_by(user_id: @user_id)
+    @user_kyc_detail.kyc_confirmed_at ||= Time.now.to_i
+    @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
+    @user_kyc_detail.is_duplicate = @is_duplicate.to_i
+    @user_kyc_detail.last_acted_by = nil
+    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
+    @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
+    @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
+    @user_kyc_detail.token_sale_participation_phase ||= GlobalConstant::TokenSale.token_sale_phase_for(@user_kyc_detail.kyc_confirmed_at)
   end
 
   # Create Hook to sync data in Email Service
@@ -99,10 +131,45 @@ class KycSubmitJob < ApplicationJob
       update_cynopsis_case :
       create_cynopsis_case
 
-    return unless document_upload_needed?(r)
+    set_cynopsis_status(r)
 
     upload_documents
 
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  # Sets @is_duplicate
+  #
+  def set_duplicate_log
+    # TODO implement the duplication checks.
+    @is_duplicate = false
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def save_user_kyc_detail
+    @user_kyc_detail.cynopsis_status = @cynopsis_status
+    @user_kyc_detail.is_duplicate = @is_duplicate.to_i
+    @user_kyc_detail.save!
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def upload_documents
+    return unless document_upload_needed?
+    upload_document(passport_file_path_d, 'PASSPORT')
+    upload_document(selfie_file_path_d, 'OTHERS', 'selfie')
+    upload_document(residence_proof_file_path_d, 'OTHERS', 'residence_proof') if residence_proof_file_path_d.present?
   end
 
   #
@@ -112,7 +179,7 @@ class KycSubmitJob < ApplicationJob
   #
   # @return [Boolean]
   #
-  def document_upload_needed?(r)
+  def document_upload_needed?
     # {
     #   :response => {
     #       "status" => "COMPLETED",
@@ -143,24 +210,7 @@ class KycSubmitJob < ApplicationJob
     #       "https://d1.cynopsis-solutions.com/artemis_simpletoken/default/check_status.json/?customer=19",
     #     "internet_search"=>nil}}
 
-    return true unless r.success?
-
-    response_hash = ((r.data || {})[:response] || {})
-    return true if response_hash['approval_status'].to_s == 'PENDING'
-
-    false
-
-  end
-
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def upload_documents
-    upload_document(passport_file_path_d, 'PASSPORT')
-    upload_document(selfie_file_path_d, 'OTHERS', 'selfie')
-    upload_document(residence_proof_file_path_d, 'OTHERS', 'residence_proof') if residence_proof_file_path_d.present?
+    @cynopsis_status == GlobalConstant::UserKycDetail.pending_cynopsis_status
   end
 
   #
@@ -209,6 +259,32 @@ class KycSubmitJob < ApplicationJob
   #
   def update_cynopsis_case
     Cynopsis::Customer.new().update(cynopsis_params)
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def set_cynopsis_status(r)
+    return unless r.success? # cynopsis status will remain unprocessed
+
+    response_hash = ((r.data || {})[:response] || {})
+
+    approval_status = response_hash['approval_status'].to_s
+
+    if approval_status == 'PENDING'
+      @cynopsis_status = GlobalConstant::UserKycDetail.pending_cynopsis_status
+    elsif approval_status == 'CLEARED'
+      @cynopsis_status = GlobalConstant::UserKycDetail.cleared_cynopsis_status
+    elsif approval_status == 'ACCEPTED'
+      @cynopsis_status = GlobalConstant::UserKycDetail.approved_cynopsis_status
+    elsif approval_status == 'REJECTED'
+      @cynopsis_status = GlobalConstant::UserKycDetail.rejected_cynopsis_status
+    else
+      @cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
+    end
+
   end
 
   #

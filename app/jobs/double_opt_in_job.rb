@@ -31,6 +31,7 @@ class DoubleOptInJob < ApplicationJob
   def init_params(params)
     @user_id = params[:user_id]
     @user = User.find(@user_id)
+    @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
   end
 
   # Create Hook to sync data in Email Service
@@ -51,8 +52,11 @@ class DoubleOptInJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
+  # Sets @user_extended_detail
+  #
   def associate_ued_with_user
-
+    @user.user_extended_detail_id = @user_extended_detail.id
+    @user.save!
   end
 
   #
@@ -74,7 +78,7 @@ class DoubleOptInJob < ApplicationJob
   #
   def call_cynopsis_api
     Cynopsis::Customer.new().create(
-      rfrID: user_id,
+      rfrID: "ts2_#{@user_id}",
       first_name: first_name,
       last_name: last_name,
       country_of_residence: country_of_residence,

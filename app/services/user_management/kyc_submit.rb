@@ -183,13 +183,15 @@ module UserManagement
     #
     def create_user_extended_details
 
-      user_extended_details_params = {user_id: @user_id}
+      user_extended_details_params = {
+        user_id: @user_id,
+        first_name: @first_name,
+        last_name: @last_name
+      }
 
-      md5_user_extended_details_params = {user_id: @user_id}
+      md5_user_extended_details_params = {user_id: @user_id, kyc_salt: @kyc_salt_e}
 
       data_to_encrypt = {
-          first_name: @first_name,
-          last_name: @last_name,
           birthdate: @birthdate,
           street_address: @street_address,
           city: @city,
@@ -205,19 +207,33 @@ module UserManagement
           residence_proof_file_path: @residence_proof_file_path
       }
 
+      data_to_md5 = {
+        birthdate: @birthdate,
+        street_address: @street_address,
+        city: @city,
+        state: @state,
+        country: @country,
+        postal_code: @postal_code,
+        ethereum_address: @ethereum_address,
+        estimated_participation_amount: @estimated_participation_amount,
+        passport_number: @passport_number,
+        nationality: @nationality
+      }
+
       data_to_encrypt.each do |key, value|
         next if value.blank?
         r = encryptor_obj.encrypt(value)
         return r unless r.success?
         user_extended_details_params[key.to_sym] = r.data[:ciphertext_blob]
+      end
+
+      data_to_md5.each do |key, value|
         md5_user_extended_details_params[key.to_sym] = Digest::MD5.hexdigest(value.to_s.downcase)
       end
 
-      user_extended_details_params[:kyc_salt] = @kyc_salt_e
+      user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)
 
-      ued = UserExtendedDetail.create!(user_extended_details_params)
-
-      md5_user_extended_details_params.merge!(user_extended_detail_id: ued.id)
+      md5_user_extended_details_params.merge!(user_extended_detail_id: user_extended_detail.id)
 
       Md5UserExtendedDetail.create!(md5_user_extended_details_params)
 

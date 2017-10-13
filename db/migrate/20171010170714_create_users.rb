@@ -8,6 +8,7 @@ class CreateUsers < DbMigrationConnection
         t.column :email, :string, null: false
         t.column :password, :string, null: false
         t.column :user_secret_id, :integer, limit: 8, null: false
+        t.column :user_extended_detail_id, :integer, limit: 8, null: true
         t.column :bt_name, :string, null: true
         t.column :properties, :tinyint, null: false, default: 0
         t.column :status, :tinyint, limit: 1, null: false, default: 1

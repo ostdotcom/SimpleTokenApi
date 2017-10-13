@@ -35,8 +35,9 @@ module Cynopsis
     #
     def create(params)
       params[:domain_name] = GlobalConstant::Cynopsis.domain_name
-      params.merge!(default_mandatory_customer_data)
-      return post_request('/default/individual_risk', params)
+      params.merge!(default_mandatory_api_params)
+
+      post_request('/default/individual_risk', params)
     end
 
     # Update individual customer
@@ -61,8 +62,9 @@ module Cynopsis
     def update(params)
       params[:domain_name] = GlobalConstant::Cynopsis.domain_name
       params[:re_assess] = true
-      params.merge!(default_mandatory_customer_data)
-      return put_request('/default/update_individual', params)
+      params.merge!(default_mandatory_api_params)
+
+      put_request('/default/update_individual', params)
     end
 
     # Check customer status
@@ -77,12 +79,13 @@ module Cynopsis
     #
     def check_status(params)
       params[:domain_name] = GlobalConstant::Cynopsis.domain_name
-      return get_request('/default/check_status.json', params)
+
+      get_request('/default/check_status.json', params)
     end
 
     private
 
-    # Append mandatory default customer data
+    # Append mandatory default api params
     #
     # * Author: Sunil Khedar
     # * Date: 10/10/2017
@@ -90,14 +93,14 @@ module Cynopsis
     #
     # @return [Hash]
     #
-    def default_mandatory_customer_data
-      params = {}
-      params[:ssic_code] = 'UNKNOWN'
-      params[:ssoc_code] = 'UNKNOWN'
-      params[:onboarding_mode] = 'NON FACE-TO-FACE'
-      params[:payment_mode] = 'UNKNOWN'
-      params[:product_service_complexity] = 'COMPLEX'
-      return params
+    def default_mandatory_api_params
+      {
+        ssic_code: 'UNKNOWN',
+        ssoc_code: 'UNKNOWN',
+        onboarding_mode: 'NON FACE-TO-FACE',
+        payment_mode: 'UNKNOWN',
+        product_service_complexity: 'COMPLEX'
+      }
     end
 
   end

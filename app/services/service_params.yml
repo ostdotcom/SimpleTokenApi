@@ -61,6 +61,7 @@
     - :nationality
     - :passport_file_path
     - :selfie_file_path
+
   :optional:
     - :residence_proof_file_path
 

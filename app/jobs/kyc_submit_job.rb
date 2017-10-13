@@ -89,8 +89,103 @@ class KycSubmitJob < ApplicationJob
   # @params [String] addresses (mandatory) - Customer address separated by comma
   #
   def call_cynopsis_api
-    @is_re_submit ? create_call_cynopsis_api : update_cynopsis_case
-    create_cynopsis_case
+
+    r = @is_re_submit ?
+      update_cynopsis_case :
+      create_cynopsis_case
+
+    return unless document_upload_needed?(r)
+
+    upload_documents
+
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By:
+  #
+  # @return [Boolean]
+  #
+  def document_upload_needed?(r)
+    # {
+    #   :response => {
+    #       "status" => "COMPLETED",
+    #       "own_list_search"=>[],
+    #       "approval_status"=>"CLEARED",
+    #       "control_list_search" => {
+    #             "is_hit"=>false,
+    #             "timeStamp"=>"2017-10-13 10:24:39.973199+00:00",
+    #             "scanResult" => {},
+    #             "indivscanID"=>nil,
+    #             "error"=>nil
+    #             },
+    #       "rfrID"=>"test13_1",
+    #       "internet_search"=>nil,
+    #       "screening_database_search"=>[]
+    #       }
+    # }
+
+
+    # {:response=>
+    #    {"status"=>"PENDING-L2",
+    #     "approval_status"=>"PENDING",
+    #     "rfrID"=>"test13_2",
+    #     "screening_database_search"=>
+    #       [{"surname"=>"bin Laden.", ...
+    #         },
+    #     "check_status_url"=>
+    #       "https://d1.cynopsis-solutions.com/artemis_simpletoken/default/check_status.json/?customer=19",
+    #     "internet_search"=>nil}}
+
+    return true unless r.success?
+
+    response_hash = ((r.data || {})[:response] || {})
+    return true if response_hash['approval_status'].to_s == 'PENDING'
+
+    false
+
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def upload_documents
+    upload_document(passport_file_path_d, 'PASSPORT')
+    upload_document(selfie_file_path_d, 'OTHERS', 'selfie')
+    upload_document(residence_proof_file_path_d, 'OTHERS', 'residence_proof') if residence_proof_file_path_d.present?
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def upload_document(s3_path, document_type, desc = nil)
+
+    url = Aws::S3Manager.new('kyc', 'admin').
+      get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
+
+    file_name = passport_file_path_d.split('/').last
+
+    local_file_path = "#{Rails.root}/tmp/#{file_name}"
+
+    system("wget -O #{local_file_path} #{url}")
+
+    upload_params = {
+      rfrID: cynopsis_params[:rfrID],
+      local_file_path: local_file_path,
+      document_type: document_type
+    }
+
+    upload_params[:please_mention] = desc if document_type == 'OTHERS'
+
+    Cynopsis::Document.new().upload(upload_params)
+
+    File.delete(local_file_path)
+
   end
 
   #
@@ -121,11 +216,11 @@ class KycSubmitJob < ApplicationJob
       rfrID: "ts2_#{@user_id}",
       first_name: @user_extended_detail.first_name,
       last_name: @user_extended_detail.last_name,
-      country_of_residence: country_of_residence_d,
-      date_of_birth: date_of_birth_d,
+      country_of_residence: country_of_residence_d.upcase,
+      date_of_birth: Date.parse(date_of_birth_d).strftime("%d/%m/%Y"),
       identification_type: 'PASSPORT',
       identification_number: passport_number_d,
-      nationality: nationality_d,
+      nationality: nationality_d.update,
       emails: [@user.email],
       addresses: address_d
     }
@@ -175,6 +270,35 @@ class KycSubmitJob < ApplicationJob
   #
   def passport_number_d
     local_cipher_obj.decrypt(@user_extended_detail.passport_number).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def passport_file_path_d
+    local_cipher_obj.decrypt(@user_extended_detail.passport_file_path).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def selfie_file_path_d
+    local_cipher_obj.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def residence_proof_file_path_d
+    @user_extended_detail.residence_proof_file_path.present? ?
+      local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
+      ''
   end
 
   #
@@ -242,3 +366,4 @@ class KycSubmitJob < ApplicationJob
   end
 
 end
+

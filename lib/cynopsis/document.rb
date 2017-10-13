@@ -31,7 +31,8 @@ module Cynopsis
       params[:file] = HTTP::FormData::File.new(params[:local_file_path])
       params[:filename] = params[:local_file_path].split('/').last
       params.delete(:local_file_path)
-      return upload_request('/default/individual_file_upload', params)
+
+      upload_request('/default/individual_file_upload', params)
     end
 
   end

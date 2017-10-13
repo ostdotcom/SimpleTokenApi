@@ -23,6 +23,7 @@ module UserManagement
     # @param [String] nationality (mandatory) - passport country
     # @param [String] passport_file_path (mandatory) - passport file
     # @param [String] selfie_file_path (mandatory) - selfie file
+    # @param [String] residence_proof_file_path (optional)
     #
     # @return [AdminManagement::KycSubmit]
     #
@@ -282,16 +283,6 @@ module UserManagement
     #
     def encryptor_obj
       @encryptor_obj ||= LocalCipher.new(@kyc_salt_d)
-    end
-
-    # S3 encryptor obj
-    #
-    # * Author: Aman
-    # * Date: 10/10/2017
-    # * Reviewed By: Kedar
-    #
-    def s3_encryptor_obj
-      @s3_encryptor_obj ||= Aws::S3Encryption.new(@kyc_salt_d, 'user')
     end
 
     # Unauthorized access response

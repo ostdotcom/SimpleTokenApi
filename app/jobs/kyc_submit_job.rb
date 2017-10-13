@@ -12,6 +12,9 @@ class KycSubmitJob < ApplicationJob
 
     init_params(params)
 
+    # Untill the user Does Double Opt in do nothing here
+    return unless @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+
     create_email_service_api_call_hook
 
     associate_ued_with_user

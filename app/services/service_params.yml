@@ -27,7 +27,7 @@
 'AdminManagement::Kyc::CheckDetails':
   :mandatory:
     - :admin_id
-    - :user_kyc_detail_id
+    - :case_id
   :optional:
 
 'UserManagement::SignUp':

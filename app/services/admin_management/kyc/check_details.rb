@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @param [Integer] admin_id (mandatory) - logged in admin
-      # @param [Integer] user_kyc_detail_id (mandatory)
+      # @param [Integer] case_id (mandatory)
       #
       # @return [AdminManagement::Kyc::CheckDetails]
       #
@@ -19,7 +19,7 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @user_kyc_detail_id = @params[:user_kyc_detail_id]
+        @user_kyc_detail_id = @params[:case_id]
 
         @user_kyc_detail = nil
         @user_extended_detail = nil

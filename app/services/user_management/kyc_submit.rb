@@ -257,6 +257,11 @@ module UserManagement
       success
     end
 
+    #
+    # * Author: Kedar
+    # * Date: 13/10/2017
+    # * Reviewed By:
+    #
     def enqueue_job
       return unless @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
 

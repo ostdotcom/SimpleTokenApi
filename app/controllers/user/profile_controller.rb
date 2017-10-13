@@ -11,5 +11,16 @@ class User::ProfileController < User::BaseController
     render_api_response(service_response)
   end
 
+  # logout
+  #
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def logout
+    clear_all_cookie_for_logout
+    r = Result::Base.success({})
+    render_api_response(r)
+  end
 
 end

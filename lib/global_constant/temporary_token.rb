@@ -40,7 +40,7 @@ module GlobalConstant
       end
 
       def double_opt_in_expiry_interval
-        1.week
+        15.days
       end
 
       ########## Kinds ###########

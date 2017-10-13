@@ -41,13 +41,14 @@ class TokenSaleOptinJob < ApplicationJob
   def create_double_opt_in_token
     db_row = TemporaryToken.find_or_initialize_by(user_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind)
     if db_row.new_record?
-      @double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
-      db_row.token = @double_opt_in_token
+      t_double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
+      db_row.token = t_double_opt_in_token
       db_row.save!
     else
-      @double_opt_in_token = db_row.token if db_row.status == GlobalConstant::TemporaryToken.active_status
+      t_double_opt_in_token = db_row.token if db_row.status == GlobalConstant::TemporaryToken.active_status
     end
-    @double_opt_in_token = "#{db_row.id.to_s}:#{@double_opt_in_token}"
+
+    @double_opt_in_token = "#{db_row.id.to_s}:#{t_double_opt_in_token}" if t_double_opt_in_token.present?
   end
 
   # Send token sale mail

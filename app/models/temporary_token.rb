@@ -12,7 +12,9 @@ class TemporaryToken < EstablishSimpleTokenEmailDbConnection
        }
 
   def is_expired?
-    expiry_interval = (self.kind == GlobalConstant::TemporaryToken.double_opt_in_kind) ? GlobalConstant::TemporaryToken.double_opt_in_expiry_interval : GlobalConstant::TemporaryToken.reset_token_expiry_interval
+    expiry_interval = (self.kind == GlobalConstant::TemporaryToken.double_opt_in_kind) ?
+        GlobalConstant::TemporaryToken.double_opt_in_expiry_interval :
+        GlobalConstant::TemporaryToken.reset_token_expiry_interval
     return (self.created_at.to_i + expiry_interval.to_i) < Time.now.to_i
   end
 

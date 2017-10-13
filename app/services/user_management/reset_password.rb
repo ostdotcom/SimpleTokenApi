@@ -6,7 +6,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param [String] r_t (mandatory) - token for reset
     # @param [String] password (mandatory) - this is the new password
@@ -33,7 +33,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -56,7 +56,7 @@ module UserManagement
       r = update_password
       return r unless r.success?
 
-      r = invalidate_reset_token
+      r = update_token_status
       return r unless r.success?
 
       success
@@ -69,7 +69,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @reset_token, @temporary_token_id
     #
@@ -84,18 +84,18 @@ module UserManagement
 
       return error_with_data(
           'um_cp_1',
-          'Invalid Parameters',
-          'Please provide valid passwords',
+          'Invalid password',
+          '',
           GlobalConstant::ErrorAction.default,
           {},
           validation_errors
       ) if validation_errors.present?
 
-      return invalid_url_error('um_rp_1') if @r_t.blank?
+      return invalid_url_error('um_rp_2') if @r_t.blank?
 
       splited_reset_token = @r_t.split(':')
 
-      return invalid_url_error('um_rp_2') if splited_reset_token.length != 2
+      return invalid_url_error('um_rp_3') if splited_reset_token.length != 2
 
       @reset_token = splited_reset_token[1].to_s
 
@@ -108,7 +108,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @temporary_token_obj
     #
@@ -120,19 +120,21 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
     def validate_reset_token
 
-      return invalid_url_error('um_rp_3') if @temporary_token_obj.blank?
+      return invalid_url_error('um_rp_4') if @temporary_token_obj.blank?
 
-      return invalid_url_error('um_rp_4') if @temporary_token_obj.token != @reset_token
+      return invalid_url_error('um_rp_5') if @temporary_token_obj.token != @reset_token
 
-      return invalid_url_error('um_rp_5') if @temporary_token_obj.status != GlobalConstant::TemporaryToken.active_status
+      return invalid_url_error('um_rp_6') if @temporary_token_obj.status != GlobalConstant::TemporaryToken.active_status
 
-      return invalid_url_error('um_rp_6')  if @temporary_token_obj.is_expired?
+      return invalid_url_error('um_rp_7')  if @temporary_token_obj.is_expired?
+
+      return invalid_url_error('um_rp_8') if @temporary_token_obj.kind != GlobalConstant::TemporaryToken.reset_password_kind
 
       success
 
@@ -142,7 +144,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @user, @user_secret
     #
@@ -150,10 +152,10 @@ module UserManagement
     #
     def fetch_user
       @user = User.where(id: @temporary_token_obj.user_id).first
-      return unauthorized_access_response('um_rp_7') unless @user.present?
+      return unauthorized_access_response('um_rp_9') unless @user.present?
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response('um_rp_8') unless @user_secret.present?
+      return unauthorized_access_response('um_rp_10') unless @user_secret.present?
 
       success
     end
@@ -162,7 +164,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @login_salt_d
     #
@@ -181,29 +183,37 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def update_password
       @user.password = User.get_encrypted_password(@password, @login_salt_d)
       @user.save!
     end
 
-    # Update password
+    # Update active tokens
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    def invalidate_reset_token
+    def update_token_status
       @temporary_token_obj.status = GlobalConstant::TemporaryToken.used_status
       @temporary_token_obj.save!
+
+      TemporaryToken.where(
+          user_id: @user.id,
+          kind: GlobalConstant::TemporaryToken.reset_password_kind,
+          status: GlobalConstant::TemporaryToken.active_status
+      ).update_all(
+          status: GlobalConstant::TemporaryToken.inactive_status
+      )
     end
 
     # Invalid User access response
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -221,7 +231,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #

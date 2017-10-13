@@ -1,6 +1,11 @@
 class User::LoginController < User::BaseController
 
-  before_action :validate_cookie, except: [:sign_up, :login, :user_info]
+  before_action :validate_cookie, except: [
+                                    :sign_up,
+                                    :login,
+                                    :send_reset_password_link,
+                                    :reset_password
+                                ]
 
   # Sign up
   #
@@ -48,22 +53,11 @@ class User::LoginController < User::BaseController
     render_api_response(service_response)
   end
 
-  # logout
-  #
-  # * Author: Aman
-  # * Date: 12/10/2017
-  # * Reviewed By:
-  #
-  def logout
-    clear_all_cookie_for_logout
-    redirect_to '/login/', status: GlobalConstant.ErrorCode.permanent_redirect and return
-  end
-
   # Send Reset Password Link
   #
   # * Author: Aman
   # * Date: 12/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def send_reset_password_link
     service_response = UserManagement::SendResetPasswordLink.new(params).perform
@@ -74,7 +68,7 @@ class User::LoginController < User::BaseController
   #
   # * Author: Aman
   # * Date: 12/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def reset_password
     service_response = UserManagement::ResetPassword.new(params).perform

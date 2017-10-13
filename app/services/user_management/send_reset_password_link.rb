@@ -6,7 +6,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param [String] email (mandatory) - this is the email entered
     #
@@ -26,7 +26,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -38,11 +38,9 @@ module UserManagement
       r = fetch_user
       return r unless r.success?
 
-      invalidate_active_reset_password_tokens
-
       create_reset_password_token
 
-      send__forgot_password_mail
+      send_forgot_password_mail
 
       success
     end
@@ -53,7 +51,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @user
     #
@@ -65,7 +63,7 @@ module UserManagement
       return error_with_data(
           'um_srpl_1',
           'User not present',
-          'Email is not registered',
+          '',
           GlobalConstant::ErrorAction.default,
           {},
           {email: "This user is not registered"}
@@ -74,21 +72,11 @@ module UserManagement
       success
     end
 
-    # Mark active reset password tokens to inactive
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    def invalidate_active_reset_password_tokens
-      TemporaryToken.where(user_id: @user_id, kind: GlobalConstant::TemporaryToken.reset_password_kind, status: GlobalConstant::TemporaryToken.active_status).update_all(status: GlobalConstant::TemporaryToken.inactive_status)
-    end
-
     # Create Double Opt In Token
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @reset_password_token
     #
@@ -102,9 +90,9 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    def send__forgot_password_mail
+    def send_forgot_password_mail
       Email::HookCreator::SendTransactionalMail.new(
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.forgot_password_template,

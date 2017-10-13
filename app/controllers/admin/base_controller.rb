@@ -1,7 +1,5 @@
 class Admin::BaseController < ApiController
 
-  before_action :validate_cookie
-
   private
 
   # Validate cookie

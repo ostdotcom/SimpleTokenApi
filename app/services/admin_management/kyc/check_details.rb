@@ -50,6 +50,8 @@ module AdminManagement
         return r unless r.success?
 
         set_api_response_data
+
+        success_with_data(@api_response_data)
       end
 
       private

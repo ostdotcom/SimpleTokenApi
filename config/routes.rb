@@ -25,6 +25,10 @@ Rails.application.routes.draw do
     match 'mfa' => :multifactor_auth, via: :POST
   end
 
+  scope 'api/admin/kyc', controller: 'admin/kyc' do
+    match 'check-details' => :check_details, via: :GET
+  end
+
   match '*permalink', to: 'application#not_found', via: :all
 
 end

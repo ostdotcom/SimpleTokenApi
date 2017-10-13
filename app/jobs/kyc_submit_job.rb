@@ -145,7 +145,7 @@ class KycSubmitJob < ApplicationJob
   # Sets @is_duplicate
   #
   def set_duplicate_log
-    # TODO implement the duplication checks.
+    # TODO implement the duplication checks.\
     @is_duplicate = false
   end
 

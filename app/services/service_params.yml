@@ -24,6 +24,12 @@
     - :browser_user_agent
   :optional:
 
+'AdminManagement::Kyc::CheckDetails':
+  :mandatory:
+    - :admin_id
+    - :user_kyc_detail_id
+  :optional:
+
 'UserManagement::SignUp':
   :mandatory:
     - :email

@@ -64,11 +64,11 @@
   :optional:
     - :residence_proof_file_path
 
-'UserManagement::UserInfo':
+'UserManagement::GetBasicDetail':
   :mandatory:
-    - :cookie_value
-    - :browser_user_agent
+    - :user_id
   :optional:
+    - :user_token_sale_state
 
 'UserManagement::BtSubmit':
   :mandatory:
@@ -80,7 +80,14 @@
 'UserManagement::GetUploadParams':
   :mandatory:
     - :user_id
-
   :optional:
     - :pdfs
     - :images
+
+'UserManagement::ChangePassword':
+  :mandatory:
+    - :user_id
+    - :password
+    - :new_password
+    - :browser_user_agent
+  :optional:

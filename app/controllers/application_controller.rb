@@ -116,4 +116,18 @@ class ApplicationController < ActionController::API
     response.headers["Content-Type"] = 'application/json; charset=utf-8'
   end
 
+  # Cookies to be cleared after user logout
+  #
+  # * Author:: Aman
+  # * Date:: 13/07/2017
+  # * Reviewed By: Sunil
+  #
+  def clear_all_cookie_for_logout
+    cookies_not_to_be_deleted = []
+    cookies.each do |key, _|
+      next if cookies_not_to_be_deleted.include?(key)
+      cookies.delete(key.to_sym, domain: :all)
+    end
+  end
+
 end

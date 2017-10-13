@@ -23,20 +23,20 @@ module GlobalConstant
 
       ### Property start ###
 
-      def token_sale_bt_done_property
-        'token_sale_bt_done'
-      end
-
-      def token_sale_double_optin_done_property
-        'token_sale_kyc_optin_done'
-      end
-
       def token_sale_kyc_submitted_property
         'token_sale_kyc_submitted'
       end
 
+      def token_sale_bt_done_property
+        'token_sale_bt_done'
+      end
+
       def token_sale_double_optin_mail_sent_property
         'token_sale_kyc_double_optin_mail_sent'
+      end
+
+      def token_sale_double_optin_done_property
+        'token_sale_kyc_optin_done'
       end
 
       ### Property stop ###

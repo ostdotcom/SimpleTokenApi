@@ -23,6 +23,10 @@ module GlobalConstant
       301
     end
 
+    def self.temporary_redirect
+      302
+    end
+
     def self.allowed_http_codes
       [
         ok,

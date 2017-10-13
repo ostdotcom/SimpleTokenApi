@@ -16,6 +16,8 @@ class DoubleOptInJob < ApplicationJob
 
     associate_ued_with_user
 
+    decrypt_kyc_salt
+
     call_cynopsis_api
 
   end
@@ -32,6 +34,12 @@ class DoubleOptInJob < ApplicationJob
     @user_id = params[:user_id]
     @user = User.find(@user_id)
     @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
+
+    @run_role = 'admin'
+    @run_purpose = 'kyc'
+
+    @kyc_salt_e = @user_extended_detail.kyc_salt
+    @kyc_salt_d = nil
   end
 
   # Create Hook to sync data in Email Service
@@ -79,16 +87,128 @@ class DoubleOptInJob < ApplicationJob
   def call_cynopsis_api
     Cynopsis::Customer.new().create(
       rfrID: "ts2_#{@user_id}",
-      first_name: first_name,
-      last_name: last_name,
-      country_of_residence: country_of_residence,
-      date_of_birth: date_of_birth,
-      identification_type: 'passport',
-      identification_number: passport_number,
-      nationality: nationality,
-      emails: [],
-      addresses: []
+      first_name: @user_extended_detail.first_name,
+      last_name: @user_extended_detail.last_name,
+      country_of_residence: country_of_residence_d,
+      date_of_birth: date_of_birth_d,
+      identification_type: 'PASSPORT',
+      identification_number: passport_number_d,
+      nationality: nationality_d,
+      emails: [@user.email],
+      addresses: address_d
     )
   end
+
+  # Decrypt kyc salt
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  # Sets @kyc_salt_d
+  #
+  def decrypt_kyc_salt
+
+    r = Aws::Kms.new(@run_purpose, @run_role).decrypt(@kyc_salt_e)
+    fail 'decryption of kyc salt failed.' unless r.success?
+
+    @kyc_salt_d = r.data[:plaintext]
+
+    success
+
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def country_of_residence_d
+    local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def date_of_birth_d
+    local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def passport_number_d
+    local_cipher_obj.decrypt(@user_extended_detail.passport_number).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def nationality_d
+    local_cipher_obj.decrypt(@user_extended_detail.nationality).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def address_d
+    [street_address_d, city_d, postal_code_d, state_d, country_of_residence_d].join(', ')
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def street_address_d
+    local_cipher_obj.decrypt(@user_extended_detail.street_address).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def city_d
+    local_cipher_obj.decrypt(@user_extended_detail.city).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def postal_code_d
+    local_cipher_obj.decrypt(@user_extended_detail.postal_code).data[:plaintext]
+  end
+
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def state_d
+    local_cipher_obj.decrypt(@user_extended_detail.state).data[:plaintext]
+  end
+
+  # local cipher obj
+  #
+  # * Author: Kedar, Puneet
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def local_cipher_obj
+    @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
+  end
+
+
 
 end

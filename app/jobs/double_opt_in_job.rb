@@ -40,7 +40,6 @@ class DoubleOptInJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def create_email_service_api_call_hook
-    #TODO: Handle token_sale_phase
     Email::HookCreator::AddContact.new(
       email: @user.email,
       token_sale_phase: GlobalConstant::TokenSale.token_sale_phase_for

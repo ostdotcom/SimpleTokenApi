@@ -74,6 +74,20 @@ module Email
 
       end
 
+      # Build attributes for email service
+      #
+      # * Author: Puneet
+      # * Date: 11/10/2017
+      # * Reviewed By:
+      #
+      # @return [Hash]
+      #
+      def attributes_hash
+        {
+          GlobalConstant::PepoCampaigns.token_sale_phase_attribute => @hook.params[:token_sale_phase]
+        }
+      end
+
       #
       # * Author: Puneet
       # * Date: 11/10/2017

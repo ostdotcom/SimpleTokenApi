@@ -12,12 +12,14 @@ module Email
       # * Date: 10/10/2017
       # * Reviewed By:
       #
+      # @params [String] token_sale_phase (mandatory) - token_sale_phase property for this contact
       # @params [String] custom_description (optional) - description which would be logged in email service hooks table
       #
       # @return [Email::HookCreator::AddContact] returns an object of Email::HookCreator::AddContact class
       #
       def initialize(params)
         super
+        @token_sale_phase = params[:token_sale_phase]
       end
 
       # Perform
@@ -52,8 +54,14 @@ module Email
           {}
         ) if @email.blank?
 
-        r = validate_email
-        return r unless r.success?
+
+        return error_with_data(
+          'e_hc_uc_2',
+          'mandatory param token_sale_phase missing',
+          'mandatory param token_sale_phase missing',
+          GlobalConstant::ErrorAction.default,
+          {}
+        ) if @token_sale_phase.blank?
 
         success
 
@@ -81,7 +89,9 @@ module Email
       #
       def handle_event
 
-        create_hook
+        create_hook(
+          token_sale_phase: @token_sale_phase
+        )
 
         success
 

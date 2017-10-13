@@ -25,6 +25,12 @@ module GlobalConstant
         config[:list_ids][:master_list]
       end
 
+      ########### User Custom Attributes #########
+
+      def token_sale_phase_attribute
+        'token_sale_phase'
+      end
+
       ########### User Setting : Keys ############
 
       def double_opt_in_status_user_setting

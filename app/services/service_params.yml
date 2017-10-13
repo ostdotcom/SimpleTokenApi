@@ -30,6 +30,14 @@
     - :case_id
   :optional:
 
+'AdminManagement::Kyc::GetDashboard':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :filters
+    - :sortings
+    - :page_number
+
 'UserManagement::SignUp':
   :mandatory:
     - :email

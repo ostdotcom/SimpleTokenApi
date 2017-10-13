@@ -27,6 +27,7 @@ Rails.application.routes.draw do
 
   scope 'api/admin/kyc', controller: 'admin/kyc' do
     match 'check-details' => :check_details, via: :GET
+    match 'dashboard' => :dashboard, via: :GET
   end
 
   match '*permalink', to: 'application#not_found', via: :all

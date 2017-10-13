@@ -11,4 +11,15 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Dashboard
+  #
+  # * Author: Kedar
+  # * Date: 14/10/2017
+  # * Reviewed By: Sunil Khedar
+  #
+  def dashboard
+    service_response = AdminManagement::Kyc::Dashboard.new(params)
+    render_api_response(service_response)
+  end
+
 end

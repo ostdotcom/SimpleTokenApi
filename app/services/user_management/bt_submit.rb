@@ -15,6 +15,7 @@ module UserManagement
     # @return [UserManagement::BtSubmit]
     #
     def initialize(params)
+
       super
 
       @user_id = @params[:user_id]
@@ -41,8 +42,6 @@ module UserManagement
       fetch_user
 
       update_token_sale_bt_done
-
-      save_user
 
       update_token_sale_kyc_double_optin_mail_sent
 
@@ -117,6 +116,7 @@ module UserManagement
       if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
         #TODO: Handle multiple concurrent requests for same bt update
         @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+        @user.save! if @user.changed?
         BgJob.enqueue(
           OnBTSubmitJob,
           {
@@ -124,16 +124,6 @@ module UserManagement
             }
         )
       end
-    end
-
-    # Save user
-    #
-    # * Author: Kedar
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    def save_user
-      @user.save! if @user.changed?
     end
 
   end

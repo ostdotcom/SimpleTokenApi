@@ -1,0 +1,2 @@
+class UserKycDuplicationLog < ApplicationRecord
+end

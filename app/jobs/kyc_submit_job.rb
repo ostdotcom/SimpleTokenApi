@@ -174,7 +174,7 @@ class KycSubmitJob < ApplicationJob
 
     local_file_path = "#{Rails.root}/tmp/#{file_name}"
 
-    system("wget -O #{local_file_path} #{url}")
+    system("wget -O #{local_file_path} '#{url}'")
 
     upload_params = {
       rfrID: cynopsis_params[:rfrID],
@@ -222,7 +222,7 @@ class KycSubmitJob < ApplicationJob
       date_of_birth: Date.parse(date_of_birth_d).strftime("%d/%m/%Y"),
       identification_type: 'PASSPORT',
       identification_number: passport_number_d,
-      nationality: nationality_d.update,
+      nationality: nationality_d.upcase,
       emails: [@user.email],
       addresses: address_d
     }
@@ -242,8 +242,6 @@ class KycSubmitJob < ApplicationJob
     fail 'decryption of kyc salt failed.' unless r.success?
 
     @kyc_salt_d = r.data[:plaintext]
-
-    success
 
   end
 

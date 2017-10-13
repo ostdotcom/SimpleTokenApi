@@ -28,8 +28,8 @@ class User < EstablishSimpleTokenUserDbConnection
     @u_prop_con ||= {
         GlobalConstant::User.token_sale_kyc_submitted_property => 1,
         GlobalConstant::User.token_sale_bt_done_property => 2,
-        GlobalConstant::User.token_sale_double_optin_mail_sent_property => 3,
-        GlobalConstant::User.token_sale_double_optin_done_property => 4
+        GlobalConstant::User.token_sale_double_optin_mail_sent_property => 4,
+        GlobalConstant::User.token_sale_double_optin_done_property => 8
     }
   end
 

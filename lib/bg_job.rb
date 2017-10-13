@@ -43,24 +43,22 @@ class BgJob
 
     perform_job_synchronously(klass, enqueue_params, q_name) if options[:fallback_run_sync]
 
-    unless Rails.env.development?
-
       Rails.logger.error { e }
 
-      # ApplicationMailer.notify(
-      #   body: {exception: {message: e.message, backtrace: e.backtrace}},
-      #   data: {
-      #     'enqueue_params' => enqueue_params,
-      #     'class_name' => klass,
-      #     'options' => options,
-      #   },
-      #   subject: 'Exception in Resque enqueue'
-      # ).deliver
+      ApplicationMailer.notify(
+        body: {exception: {message: e.message, backtrace: e.backtrace}},
+        data: {
+          'enqueue_params' => enqueue_params,
+          'class_name' => klass,
+          'options' => options,
+        },
+        subject: 'Exception in Resque enqueue'
+      ).deliver
 
       # send mail when redis down
       #w hy raise?? when fallback run sync
-      raise if !options[:safe] || !options[:fallback_run_sync]
-    end
+      # raise if !options[:safe] || !options[:fallback_run_sync]
+
   end
 
   # Perform the job synchronously

@@ -16,11 +16,12 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @param [String] email
   # @param [String] password
   #
-  def self.add_admin(email, password)
+  def self.add_admin(email, password, name)
 
     email = email.to_s.downcase.strip
+    name = name.to_s.strip
 
-    return 'Admin email/password is blank' if password.blank? || email.blank?
+    return 'Admin email/password is blank' if password.blank? || email.blank? || name.blank?
     return 'Invalid email address' if !Util::CommonValidator.is_valid_email?(email)
     return 'Admin email already present' if Admin.where(email: email).present?
 
@@ -29,7 +30,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     #get ga_secret qr code
     rotp_client = TimeBasedOtp.new(ga_secret)
-    r = rotp_client.provisioning_uri(email)
+    r = rotp_client.provisioning_uri(name)
     return r unless r.success?
     otpauth = r.data[:otpauth]
     escaped_otpauth = CGI.escape(otpauth)
@@ -58,7 +59,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_secrets_obj.save!(validate: false)
 
     #create admin
-    admin_obj = Admin.new(email: email, password: encrypted_password,
+    admin_obj = Admin.new(email: email, password: encrypted_password, name: name,
                           admin_secret_id: admin_secrets_obj.id, last_otp_at: Time.now.to_i, status: GlobalConstant::Admin.active_status)
     admin_obj.save!(validate: false)
 

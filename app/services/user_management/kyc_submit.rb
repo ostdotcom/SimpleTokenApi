@@ -55,6 +55,8 @@ module UserManagement
 
       @error_data = {}
 
+      @is_re_submit = nil
+
     end
 
     # Perform
@@ -189,10 +191,11 @@ module UserManagement
       user_extended_details_params = {
         user_id: @user_id,
         first_name: @first_name,
-        last_name: @last_name
+        last_name: @last_name,
+        kyc_salt: @kyc_salt_e
       }
 
-      md5_user_extended_details_params = {user_id: @user_id, kyc_salt: @kyc_salt_e}
+      md5_user_extended_details_params = {user_id: @user_id}
 
       data_to_encrypt = {
           birthdate: @birthdate,
@@ -253,9 +256,18 @@ module UserManagement
     # @return [Result::Base]
     #
     def update_user
-      @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
+
+      if @user.send("#{GlobalConstant::User.token_sale_kyc_submitted_property}?")
+        @is_re_submit = true
+      else
+        @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
+        @is_re_submit = false
+      end
+
       @user.save! if @user.changed?
+
       success
+
     end
 
     #
@@ -264,15 +276,15 @@ module UserManagement
     # * Reviewed By:
     #
     def enqueue_job
-      return unless @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
 
       BgJob.enqueue(
         KycSubmitJob,
         {
           user_id: @user_id,
-          is_re_submit: true
+          is_re_submit: @is_re_submit
         }
       )
+
     end
 
     # Encryptor obj

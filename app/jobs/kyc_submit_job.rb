@@ -51,12 +51,14 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def create_email_service_api_call_hook
+
     return if @is_re_submit
 
     Email::HookCreator::AddContact.new(
       email: @user.email,
       token_sale_phase: GlobalConstant::TokenSale.token_sale_phase_for
     ).perform
+
   end
 
   #

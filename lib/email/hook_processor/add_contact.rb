@@ -69,46 +69,8 @@ module Email
             add_contact_response
           )
         else
-          if @hook.params[:dont_send_double_opt_in_email]
-            success_with_data(add_contact_response)
-          else
-            r = create_hook_to_send_double_otp_in_mail
-            if r.success?
-              success_with_data(add_contact_response)
-            else
-              error_with_data(
-                'e_hp_ac_2',
-                "Couldn't create hook to send transactional email",
-                "Couldn't create hook to send transactional email",
-                GlobalConstant::ErrorAction.default,
-                r.to_json
-              )
-            end
-          end
+          success_with_data(add_contact_response)
         end
-
-      end
-
-      # Create transactional email template
-      #
-      # * Author: Puneet
-      # * Date: 10/10/2017
-      # * Reviewed By:
-      #
-      def create_hook_to_send_double_otp_in_mail
-
-        EmailServiceApiCallHook.create(
-          email: @hook.email,
-          event_type: GlobalConstant::EmailServiceApiCallHook.send_double_opt_in_mail_event_type,
-          custom_description: @hook.custom_description,
-          execution_timestamp: Time.now.to_i,
-          params: {
-            template_name: @hook.params[:template_name],
-            template_vars: {}
-          }
-        )
-
-        success
 
       end
 

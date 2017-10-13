@@ -21,7 +21,9 @@ Dir["#{my_rails_root}/lib/global_constant/*.rb"].each {|file| require file }
 Bundler.require(*Rails.groups)
 
 module SimpleTokenApi
+
   class Application < Rails::Application
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
 
@@ -63,6 +65,6 @@ module SimpleTokenApi
 
     #config.action_mailer.deliver_later_queue_name = 'sta_med_email_notification'
 
-
   end
+
 end

@@ -64,6 +64,12 @@
   :optional:
     - :residence_proof_file_path
 
+'UserManagement::DoubleOptIn':
+  :mandatory:
+    - :t
+  :optional:
+
+
 'UserManagement::GetBasicDetail':
   :mandatory:
     - :user_id

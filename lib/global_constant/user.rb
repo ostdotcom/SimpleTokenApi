@@ -41,6 +41,25 @@ module GlobalConstant
 
       ### Property stop ###
 
+      ### Token sale state related pages ####
+
+      def get_token_sale_state_page_names(key)
+        _page = token_sale_state_page_names[key.to_sym]
+        fail "Token sale state (#{key}) related page not defined." if _page.blank?
+        return _page
+      end
+
+      def token_sale_state_page_names
+        @token_sale_state_page_names ||= {
+            profile_page: 'profile_page',
+            verification_page: 'verification_page',
+            bt_page: 'bt_page',
+            kyc_page: 'kyc_page'
+        }
+      end
+
+      ### Token sale state related pages ####
+
     end
 
   end

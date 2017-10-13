@@ -71,12 +71,10 @@
     - :user_id
   :optional:
 
-
 'UserManagement::GetBasicDetail':
   :mandatory:
     - :user_id
   :optional:
-    - :user_token_sale_state
 
 'UserManagement::BtSubmit':
   :mandatory:

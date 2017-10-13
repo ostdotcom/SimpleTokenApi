@@ -26,7 +26,6 @@ module UserManagement
       @user = nil
       @user_secret = nil
       @extended_cookie_value = nil
-      @user_token_sale_state = nil
     end
 
     # Perform
@@ -47,14 +46,11 @@ module UserManagement
       r = validate_token
       return r unless r.success?
 
-      set_user_token_sale_state
-
       set_extended_cookie_value
 
       success_with_data(
           user_id: @user_id,
-          extended_cookie_value: @extended_cookie_value,
-          user_token_sale_state: @user_token_sale_state
+          extended_cookie_value: @extended_cookie_value
       )
 
     end
@@ -111,26 +107,6 @@ module UserManagement
       return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)
 
       success
-    end
-
-    # Set User Last State
-    #
-    # * Author: Aman
-    # * Date: 13/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @Sets @user_token_sale_state
-    #
-    def set_user_token_sale_state
-      @user_token_sale_state = if @user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
-                      GlobalConstant::User.token_sale_double_optin_done_property # "profile_page"
-                    elsif @user.properties_array.include?(GlobalConstant::User.token_sale_bt_done_property)
-                      GlobalConstant::User.token_sale_bt_done_property  # "do_double_opt_in_page"
-                    elsif @user.properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
-                      GlobalConstant::User.token_sale_kyc_submitted_property  # "bt_page"
-                    else
-                      nil # "kyc_page"
-                    end
     end
 
     # Set Extened Cookie Value

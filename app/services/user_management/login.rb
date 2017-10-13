@@ -118,7 +118,7 @@ module UserManagement
     def set_cookie_value
       cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
 
-      success_with_data(cookie_value: cookie_value)
+      success_with_data(cookie_value: cookie_value, user_token_sale_state: @user.get_token_sale_state_page_name)
     end
 
     # Unauthorized access response

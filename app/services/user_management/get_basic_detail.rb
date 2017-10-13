@@ -9,7 +9,6 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     # @param [Integer] user_id (mandatory) - this is the user id
-    # @param [String] user_token_sale_state (optional) - this is the user state
     #
     # @return [UserManagement::GetBasicDetail]
     #
@@ -17,7 +16,6 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
-      @user_token_sale_state = @params[:user_token_sale_state]
 
       @user = nil
     end
@@ -65,7 +63,7 @@ module UserManagement
       {
           id: @user.id,
           email: @user.email,
-          token_sale_state: @user_token_sale_state
+          user_token_sale_state: @user.get_token_sale_state_page_name
       }
     end
 

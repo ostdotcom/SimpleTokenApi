@@ -18,6 +18,26 @@ class User < EstablishSimpleTokenUserDbConnection
     @properties_array ||= User.get_bits_set_for_properties(properties)
   end
 
+  # Get Token Sale Landing Page
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  # @returns [String] returns page name according to user properties
+  #
+  def get_token_sale_state_page_name
+    if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+      GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+    elsif properties_array.include?(GlobalConstant::User.token_sale_bt_done_property)
+      GlobalConstant::User.get_token_sale_state_page_names("verification_page")
+    elsif properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+      GlobalConstant::User.get_token_sale_state_page_names("bt_page")
+    else
+      GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
+    end
+  end
+
   # properties config
   #
   # * Author: Aman

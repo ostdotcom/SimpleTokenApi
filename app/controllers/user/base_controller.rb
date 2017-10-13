@@ -24,7 +24,6 @@ class User::BaseController < ApiController
       } if extended_cookie_value.present?
 
       params[:user_id] = service_response.data[:user_id]
-      params[:user_token_sale_state] = service_response.data[:user_token_sale_state]
 
       # Remove sensitive data
       service_response.data = {}

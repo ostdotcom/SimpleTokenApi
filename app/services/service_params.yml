@@ -68,6 +68,7 @@
 'UserManagement::DoubleOptIn':
   :mandatory:
     - :t
+    - :user_id
   :optional:
 
 

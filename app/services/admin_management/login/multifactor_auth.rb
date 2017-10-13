@@ -189,7 +189,13 @@ module AdminManagement
       def validate_otp
         rotp_obj = TimeBasedOtp.new(@ga_secret_d)
         r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
-        return unauthorized_access_response('am_l_ma_7') unless r.success?
+        return error_with_data(
+            'am_l_ma_7',
+            'Invalid Otp',
+            '',
+            GlobalConstant::ErrorAction.default,
+            {otp: 'Invalid Otp'}
+        ) unless r.success?
 
         # Update last_otp_at
         @admin.last_otp_at = r.data[:verified_at_timestamp]
@@ -229,13 +235,15 @@ module AdminManagement
       # @return [Result::Base]
       #
       def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-        error_with_data(
+        r = error_with_data(
           err,
           display_text,
           display_text,
           GlobalConstant::ErrorAction.default,
           {}
         )
+        r.http_code = GlobalConstant::ErrorCode.unauthorized_access
+        r
       end
 
     end

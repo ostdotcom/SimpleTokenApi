@@ -1,4 +1,4 @@
-class TokenSaleOptinJob < ApplicationJob
+class OnBTSubmitJob < ApplicationJob
 
   queue_as GlobalConstant::Sidekiq.queue_name :default_high_priority_queue
 

@@ -112,8 +112,8 @@ module UserManagement
       if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
         @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
         BgJob.enqueue(
-            TokenSaleOptinJob,
-            {
+          OnBTSubmitJob,
+          {
                 user_id: @user_id
             }
         )

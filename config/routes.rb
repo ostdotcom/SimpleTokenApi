@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/token_sale' do
     match 'kyc-submit' => :kyc_submit, via: :POST
     match 'bt-submit' => :bt_submit, via: :POST
+    match 'double-opt-in' => :double_opt_in, via: :POST
     match 'upload-params' => :get_upload_params, via: :GET
   end
 

@@ -33,4 +33,15 @@ class User::TokenSaleController < User::BaseController
     render_api_response(service_response)
   end
 
+  # Double Opt In For an email
+  #
+  # * Author: Kedar
+  # * Date: 13/10/2017
+  # * Reviewed By:
+  #
+  def double_opt_in
+    service_response = UserManagement::DoubleOptIn.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

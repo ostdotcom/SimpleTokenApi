@@ -59,9 +59,10 @@
     - :estimated_participation_amount
     - :passport_number
     - :passport_country
-    - :passport_file
-    - :selfie_file
+    - :passport_file_path
+    - :selfie_file_path
   :optional:
+    - :residence_proof_file_path
 
 'UserManagement::UserInfo':
   :mandatory:

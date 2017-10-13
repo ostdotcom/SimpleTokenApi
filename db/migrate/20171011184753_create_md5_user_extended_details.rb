@@ -17,8 +17,10 @@ class CreateMd5UserExtendedDetails < DbMigrationConnection
         t.column :ethereum_address, :string, null: false
         t.column :estimated_participation_amount, :string, null: false
         t.column :passport_number, :string, null: false
-        t.column :passport_country, :string, null: false
-        t.timestamps
+        t.column :nationality, :string, null: false
+        t.column :passport_file_path, :string, null: false
+        t.column :selfie_file_path, :string, null: false
+        t.column :residence_proof_file_path, :string, null: true
         t.timestamps
       end
 

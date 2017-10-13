@@ -110,7 +110,8 @@ module UserManagement
         content_type: content_type,
         signature_expiration: Time.now + 1800,
         server_side_encryption: 'aws:kms',
-        server_side_encryption_aws_kms_key_id: GlobalConstant::Aws::Kms.get_key_id_for('kyc')
+        server_side_encryption_aws_kms_key_id: GlobalConstant::Aws::Kms.get_key_id_for('kyc'),
+        content_length_range: 0..(1024*1024*100)
       }
 
       credentials = Aws::Credentials.new(

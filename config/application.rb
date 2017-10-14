@@ -36,6 +36,11 @@ module SimpleTokenApi
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Local machine timezone
+    config.time_zone = YAML.load_file(open(Rails.root.to_s + '/config/time_zone.yml'))['rails_time_zones'][Rails.env.to_s]
+    # Local machine timezone
+    config.active_record.default_timezone = :local
+
     # Custom directories with classes and modules you want to be autoloadable.
     config.autoload_paths << "#{config.root}/lib/"
     config.eager_load_paths << "#{config.root}/lib/"

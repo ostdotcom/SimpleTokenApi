@@ -47,7 +47,7 @@ class User::TokenSaleController < User::BaseController
         }
     )
 
-    r = Result::Base.success({message: "Verification Link Sent Successfully"})
+    r = Result::Base.success()
     render_api_response(r)
   end
 

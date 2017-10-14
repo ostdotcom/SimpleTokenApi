@@ -1,2 +1,2 @@
-class UserKycActionLog < ApplicationRecord
+class UserKycActionLog < EstablishSimpleTokenLogDbConnection
 end

@@ -24,7 +24,7 @@ class CreateUserKycDetails < DbMigrationConnection
 
   def down
     run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
-      drop_table :user_kyc_details if EstablishSimpleTokenUserDbConnection.exists? :user_kyc_details
+      drop_table :user_kyc_details
     end
   end
 

@@ -1,2 +1,2 @@
-class UserKycDuplicationLog < ApplicationRecord
+class UserKycDuplicationLog < EstablishSimpleTokenLogDbConnection
 end

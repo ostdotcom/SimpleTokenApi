@@ -15,7 +15,7 @@ class CreateTemporaryTokens < DbMigrationConnection
 
   def down
     run_migration_for_db(EstablishSimpleTokenEmailDbConnection.config_key) do
-      drop_table :temporary_tokens if EstablishSimpleTokenEmailDbConnection.exists? :temporary_tokens
+      drop_table :temporary_tokens
     end
   end
 

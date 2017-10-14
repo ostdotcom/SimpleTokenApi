@@ -50,7 +50,8 @@ class ApplicationController < ActionController::API
   # * Reviewed By: Sunil Khedar
   #
   def http_user_agent
-    # NOTE: from STW we forward the user agent in new header as HTTP lib adds "Ruby, " to any user agent sent
+    # NOTE: from STW we forward the user agent in new header as HTTP lib adds "Ruby, " to any custom user agent sent
+    # User agent is required for cookie validation
     (request.env['HTTP_STW_FORWARD_USER_AGENT'] || request.env['HTTP_USER_AGENT']).to_s
   end
 
@@ -102,7 +103,7 @@ class ApplicationController < ActionController::API
   # * Date:: 13/07/2017
   # * Reviewed By: Sunil
   #
-  def clear_all_cookie_for_logout
+  def clear_all_cookie
     cookies_not_to_be_deleted = []
     cookies.each do |key, _|
       next if cookies_not_to_be_deleted.include?(key)

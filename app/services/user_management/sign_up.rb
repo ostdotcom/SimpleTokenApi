@@ -8,9 +8,9 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @param [String] email (mandatory) - this is the email entered
-    # @param [String] password (mandatory) - this is the password entered
-    # @param [String] browser_user_agent (mandatory) - browser user agent
+    # @params [String] email (mandatory) - this is the email entered
+    # @params [String] password (mandatory) - this is the password entered
+    # @params [String] browser_user_agent (mandatory) - browser user agent
     #
     # @return [UserManagement::SignUp]
     #
@@ -66,11 +66,11 @@ module UserManagement
 
       validation_errors = {}
       if !Util::CommonValidator.is_valid_email?(@email)
-        validation_errors[:email] = "Please enter a valid email address"
+        validation_errors[:email] = 'Please enter a valid email address'
       end
 
       if @password.length < 8
-        validation_errors[:password] = "Password should be minimum 8 characters"
+        validation_errors[:password] = 'Password should be minimum 8 characters'
       end
 
       return error_with_data(
@@ -81,6 +81,10 @@ module UserManagement
           {},
           validation_errors
       ) if validation_errors.present?
+
+      # NOTE: To be on safe side, check for generic errors as well
+      r = validate
+      return r unless r.success?
 
       success
     end

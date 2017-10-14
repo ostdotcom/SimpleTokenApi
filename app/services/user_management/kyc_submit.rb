@@ -8,22 +8,22 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Kedar
     #
-    # @param [Integer] user_id (mandatory) - user id
-    # @param [String] first_name (mandatory) - first name
-    # @param [String] last_name (mandatory) - last name
-    # @param [String] birthdate (mandatory) - birth date
-    # @param [String] street_address (mandatory) - street address
-    # @param [String] city (mandatory) - city
-    # @param [String] state (mandatory) - state
-    # @param [String] country (mandatory) - country
-    # @param [String] postal_code (mandatory) - postal code
-    # @param [String] ethereum_address (mandatory) - ethereum address
-    # @param [String] estimated_participation_amount (mandatory) - estimated participation amount
-    # @param [String] passport_number (mandatory) - passport number
-    # @param [String] nationality (mandatory) - passport country
-    # @param [String] passport_file_path (mandatory) - passport file
-    # @param [String] selfie_file_path (mandatory) - selfie file
-    # @param [String] residence_proof_file_path (optional)
+    # @params [Integer] user_id (mandatory) - user id
+    # @params [String] first_name (mandatory) - first name
+    # @params [String] last_name (mandatory) - last name
+    # @params [String] birthdate (mandatory) - birth date
+    # @params [String] street_address (mandatory) - street address
+    # @params [String] city (mandatory) - city
+    # @params [String] state (mandatory) - state
+    # @params [String] country (mandatory) - country
+    # @params [String] postal_code (mandatory) - postal code
+    # @params [String] ethereum_address (mandatory) - ethereum address
+    # @params [String] estimated_participation_amount (mandatory) - estimated participation amount
+    # @params [String] passport_number (mandatory) - passport number
+    # @params [String] nationality (mandatory) - passport country
+    # @params [String] passport_file_path (mandatory) - passport file
+    # @params [String] selfie_file_path (mandatory) - selfie file
+    # @params [String] residence_proof_file_path (optional)
     #
     # @return [AdminManagement::KycSubmit]
     #
@@ -102,29 +102,35 @@ module UserManagement
     #
     def validate
 
-      r = super
-      return r unless r.success?
-
       # apply custom validations.
-      @error_data[:first_name] = "First Name is required." unless @first_name.present?
+      @error_data[:first_name] = 'First Name is required.' unless @first_name.present?
 
-      @error_data[:last_name] = "Last Name is required." unless @last_name.present?
+      @error_data[:last_name] = 'Last Name is required.' unless @last_name.present?
 
       begin
         Date.parse(@birthdate)
       rescue ArgumentError
-        @error_data[:birthdate] = "Invalid Birth Date."
+        @error_data[:birthdate] = 'Invalid Birth Date.'
       end
 
-      @error_data[:street_address] = "Street Address is required." unless @street_address.present?
+      @error_data[:street_address] = 'Street Address is required.' unless @street_address.present?
 
-      @error_data[:city] = "City is required." unless @city.present?
+      @error_data[:city] = 'City is required.' unless @city.present?
 
-      @error_data[:state] = "State is required." unless @state.present?
+      @error_data[:state] = 'State is required.' unless @state.present?
 
-      @error_data[:country] = "City is required." unless @country.present?
+      # TODO: checkin available list
+      @error_data[:country] = 'Country is required.' unless @country.present?
 
-      @error_data[:ethereum_address] = "Invalid ethereum address." unless Util::CommonValidator.is_euthereum_address?(@ethereum_address)
+      @error_data[:ethereum_address] = 'Invalid ethereum address.' unless Util::CommonValidator.is_euthereum_address?(@ethereum_address)
+
+      # TODO: postal_code missing
+      # TODO: estimated_participation_amount missing
+      # TODO: passport_number missing
+      # TODO: nationality missing
+      # TODO: passport_file_path missing
+      # TODO: selfie_file_path missing
+      # TODO: residence_proof_file_path missing
 
       return error_with_data(
           'um_ks_1',
@@ -134,6 +140,10 @@ module UserManagement
           {},
           @error_data
       ) if @error_data.present?
+
+      # NOTE: To be on safe side, check for generic errors as well
+      r = super
+      return r unless r.success?
 
       success
 
@@ -150,12 +160,11 @@ module UserManagement
     def fetch_user_data
 
       @user = User.where(id: @user_id).first
-
-      unless @user.present? && (@user.status == GlobalConstant::User.active_status)
-        return unauthorized_access_response('um_ks_2')
-      end
+      return unauthorized_access_response('um_ks_1') unless @user.present? &&
+          (@user.status == GlobalConstant::User.active_status)
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
+      return unauthorized_access_response('um_ks_2') unless @user_secret.present?
 
       success
     end

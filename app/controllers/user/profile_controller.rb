@@ -18,7 +18,8 @@ class User::ProfileController < User::BaseController
   # * Reviewed By: Sunil
   #
   def logout
-    clear_all_cookie_for_logout
+    # Clear cookie
+    cookies.delete(GlobalConstant::Cookie.user_cookie_name.to_sym, domain: :all)
     r = Result::Base.success({})
     render_api_response(r)
   end

@@ -8,9 +8,9 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @param [String] email (mandatory) - this is the email entered
-    # @param [String] password (mandatory) - this is the password entered
-    # @param [String] browser_user_agent (mandatory) - browser user agent
+    # @params [String] email (mandatory) - this is the email entered
+    # @params [String] password (mandatory) - this is the password entered
+    # @params [String] browser_user_agent (mandatory) - browser user agent
     #
     # @return [UserManagement::Login]
     #
@@ -66,7 +66,8 @@ module UserManagement
     #
     def fetch_user
       @user = User.where(email: @email).first
-      return unauthorized_access_response('um_l_1') unless @user.present?
+      return unauthorized_access_response('um_l_1') unless @user.present? &&
+          (@user.status == GlobalConstant::User.active_status)
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_l_2') unless @user_secret.present?

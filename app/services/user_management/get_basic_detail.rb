@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] user_id (mandatory) - this is the user id
+    # @params [Integer] user_id (mandatory) - this is the user id
     #
     # @return [UserManagement::GetBasicDetail]
     #

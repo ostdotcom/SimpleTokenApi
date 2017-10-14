@@ -8,9 +8,9 @@ module UserManagement
     # * Date: 13/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [String] r_t (mandatory) - token for reset
-    # @param [String] password (mandatory) - this is the new password
-    # @param [String] confirm_password (mandatory) - this is the confirm password
+    # @params [String] r_t (mandatory) - token for reset
+    # @params [String] password (mandatory) - this is the new password
+    # @params [String] confirm_password (mandatory) - this is the confirm password
     #
     # @return [UserManagement::ResetPassword]
     #
@@ -79,8 +79,8 @@ module UserManagement
 
       validation_errors = {}
 
-      validation_errors[:password] = "Password should be minimum 8 characters" if @password.length < 8
-      validation_errors[:confirm_password] = "Passwords do not match" if @confirm_password != @password
+      validation_errors[:password] = 'Password should be minimum 8 characters' if @password.length < 8
+      validation_errors[:confirm_password] = 'Passwords do not match' if @confirm_password != @password
 
       return error_with_data(
           'um_cp_1',
@@ -92,6 +92,10 @@ module UserManagement
       ) if validation_errors.present?
 
       return invalid_url_error('um_rp_2') if @r_t.blank?
+
+      # NOTE: To be on safe side, check for generic errors as well
+      r = validate
+      return r unless r.success?
 
       splited_reset_token = @r_t.split(':')
 
@@ -152,7 +156,8 @@ module UserManagement
     #
     def fetch_user
       @user = User.where(id: @temporary_token_obj.user_id).first
-      return unauthorized_access_response('um_rp_9') unless @user.present?
+      return unauthorized_access_response('um_rp_9') unless @user.present? &&
+          (@user.status == GlobalConstant::User.active_status)
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_rp_10') unless @user_secret.present?

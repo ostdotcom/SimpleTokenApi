@@ -23,12 +23,15 @@ class User::BaseController < ApiController
           domain: :all
       } if extended_cookie_value.present?
 
+      # Set user id
       params[:user_id] = service_response.data[:user_id]
 
       # Remove sensitive data
       service_response.data = {}
     else
+      # Clear cookie
       cookies.delete(GlobalConstant::Cookie.user_cookie_name.to_sym, domain: :all)
+      # Set 401 header
       service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end

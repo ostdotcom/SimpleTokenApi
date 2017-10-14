@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [String] email (mandatory) - this is the email entered
+    # @params [String] email (mandatory) - this is the email entered
     #
     # @return [UserManagement::SendResetPasswordLink]
     #
@@ -66,8 +66,8 @@ module UserManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {email: "This user is not registered"}
-      ) unless @user.present?
+          {email: 'This user is not registered or is blocked'}
+      ) unless @user.present? && (@user.status == GlobalConstant::User.active_status)
 
       success
     end

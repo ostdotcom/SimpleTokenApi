@@ -19,6 +19,7 @@ class User::LoginController < User::BaseController
     ).perform
 
     if service_response.success?
+      # NOTE: delete cookie value from data
       cookie_value = service_response.data.delete(:cookie_value)
       cookies[GlobalConstant::Cookie.user_cookie_name.to_sym] = {
           value: cookie_value,

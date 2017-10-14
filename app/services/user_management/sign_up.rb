@@ -76,7 +76,7 @@ module UserManagement
       return error_with_data(
           'um_su_1',
           'Registration Error',
-          'Please provide correct information',
+          '',
           GlobalConstant::ErrorAction.default,
           {},
           validation_errors
@@ -105,6 +105,7 @@ module UserManagement
           'Registration Error',
           '',
           GlobalConstant::ErrorAction.default,
+          {},
           {email: 'Email address is already registered'}
       ) if user.present?
 

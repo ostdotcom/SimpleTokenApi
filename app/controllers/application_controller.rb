@@ -75,8 +75,8 @@ class ApplicationController < ActionController::API
     if !service_response.success? && !Rails.env.development?
       err = response_hash.delete(:err) || {}
       response_hash[:err] = {
-        display_text: (err[:display_text] || 'Something went wrong.'),
-        display_heading: (err[:display_heading] || 'Error'),
+        display_text: (err[:display_text].to_s),
+        display_heading: (err[:display_heading].to_s),
         error_data: (err[:error_data] || {})
       }
 

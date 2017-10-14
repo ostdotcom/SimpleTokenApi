@@ -47,7 +47,7 @@ class User::TokenSaleController < User::BaseController
         }
     )
 
-    r = Result::Base.success()
+    r = Result::Base.success({})
     render_api_response(r)
   end
 

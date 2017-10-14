@@ -361,8 +361,8 @@ module Result
                 code: hash[:error],
                 msg: hash[:error_message],
                 action: hash[:error_action] || GlobalConstant::ErrorAction.default,
-                display_text: hash[:error_display_text] || 'Something went wrong.',
-                display_heading: hash[:error_display_heading] || 'Error.',
+                display_text: hash[:error_display_text].to_s,
+                display_heading: hash[:error_display_heading].to_s,
                 error_data: hash[:error_data] || {}
             },
             data: hash[:data]

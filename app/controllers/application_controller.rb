@@ -50,9 +50,8 @@ class ApplicationController < ActionController::API
   # * Reviewed By: Sunil Khedar
   #
   def http_user_agent
-    # NOTE: from STW we forward the user agent in new header as HTTP lib adds "Ruby, " to any custom user agent sent
     # User agent is required for cookie validation
-    (request.env['HTTP_STW_FORWARD_USER_AGENT'] || request.env['HTTP_USER_AGENT']).to_s
+    request.env['HTTP_USER_AGENT'].to_s
   end
 
   # Render API Response

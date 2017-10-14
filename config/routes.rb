@@ -13,12 +13,12 @@ Rails.application.routes.draw do
     match 'bt-submit' => :bt_submit, via: :POST
     match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'upload-params' => :get_upload_params, via: :GET
-    match 'logout' => :logout, via: :GET
   end
 
   scope 'api/user', controller: 'user/profile' do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
+    match 'logout' => :logout, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do

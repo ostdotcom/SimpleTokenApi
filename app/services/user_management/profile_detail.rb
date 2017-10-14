@@ -41,6 +41,9 @@ module UserManagement
       r = validate_token
       return r unless r.success?
 
+      r = validate_user_token_sale_state
+      return r unless r.success?
+
       fetch_user_kyc_detail
 
       success_with_data(success_response_data)
@@ -79,11 +82,32 @@ module UserManagement
       success
     end
 
+    # Double opt in parameters
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
     def double_opt_in_params
       {
           user_id: @user.id,
           t: @token
       }
+    end
+
+    # Validate token
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_user_token_sale_state
+      return unauthorized_access_response('um_pd_3') if @user_token_sale_state != GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+      success
     end
 
     # Fetch User Kyc Detail
@@ -96,46 +120,6 @@ module UserManagement
     #
     def fetch_user_kyc_detail
       @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
-    end
-
-    # User detail
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    # @return [Hash] hash of user data
-    #
-    def user_data
-      {
-          id: @user.id,
-          email: @user.email,
-          bt_name: @user.bt_name,
-          user_token_sale_state: @user_token_sale_state
-      }
-    end
-
-    # User detail
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    # @return [Hash] hash of user data
-    #
-    def user_kyc_data
-      @user_kyc_detail.present? ?
-          {
-              user_id: @user.id,
-              kyc_status: kyc_status,
-              token_sale_participation_phase: token_sale_participation_phase
-          }
-      :
-          {
-              user_id: @user.id,
-              kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
-              token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
-          }
     end
 
     # User Kyc Status
@@ -196,6 +180,46 @@ module UserManagement
           user_kyc_data: user_kyc_data,
           token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
       }
+    end
+
+    # User detail
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By:
+    #
+    # @return [Hash] hash of user data
+    #
+    def user_data
+      {
+          id: @user.id,
+          email: @user.email,
+          bt_name: @user.bt_name,
+          user_token_sale_state: @user_token_sale_state
+      }
+    end
+
+    # User detail
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By:
+    #
+    # @return [Hash] hash of user data
+    #
+    def user_kyc_data
+      @user_kyc_detail.present? ?
+          {
+              user_id: @user.id,
+              kyc_status: kyc_status,
+              token_sale_participation_phase: token_sale_participation_phase
+          }
+      :
+          {
+              user_id: @user.id,
+              kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
+              token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
+          }
     end
 
   end

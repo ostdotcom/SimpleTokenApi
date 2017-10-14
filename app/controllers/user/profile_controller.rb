@@ -31,8 +31,7 @@ class User::ProfileController < User::BaseController
   def logout
     # Clear cookie
     cookies.delete(GlobalConstant::Cookie.user_cookie_name.to_sym, domain: :all)
-    r = Result::Base.success({})
-    render_api_response(r)
+    redirect_to "/login", status: GlobalConstant::ErrorCode.permanent_redirect and return
   end
 
 end

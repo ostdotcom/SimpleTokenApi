@@ -71,6 +71,8 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_token
+      return success if @token.blank?
+
       service_response = UserManagement::DoubleOptIn.new(double_opt_in_params).perform
       return unauthorized_access_response('um_pd_2') unless service_response.success?
       @user.reload

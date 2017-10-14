@@ -53,8 +53,7 @@ module UserManagement
       r = decrypt_login_salt
       return r unless r.success?
 
-      r = update_password
-      return r unless r.success?
+      update_password
 
       r = update_token_status
       return r unless r.success?
@@ -212,6 +211,7 @@ module UserManagement
       ).update_all(
           status: GlobalConstant::TemporaryToken.inactive_status
       )
+      success
     end
 
     # Invalid User access response

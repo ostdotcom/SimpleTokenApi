@@ -82,7 +82,7 @@ module UserManagement
     #
     def create_reset_password_token
       reset_token = Digest::MD5.hexdigest("#{@user.id}::#{@user.password}::#{Time.now.to_i}::reset_password::#{rand}")
-      db_row = TemporaryToken.create!(user_id: @user_id, kind: GlobalConstant::TemporaryToken.reset_password_kind, token: reset_token)
+      db_row = TemporaryToken.create!(user_id: @user.id, kind: GlobalConstant::TemporaryToken.reset_password_kind, token: reset_token)
       @reset_password_token = "#{db_row.id.to_s}:#{reset_token}"
     end
 

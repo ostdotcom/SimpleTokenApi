@@ -7,7 +7,7 @@ class Admin::KycController < Admin::BaseController
   # * Reviewed By: Sunil Khedar
   #
   def check_details
-    service_response = AdminManagement::Kyc::CheckDetails.new(params)
+    service_response = AdminManagement::Kyc::CheckDetails.new(params).perform
     render_api_response(service_response)
   end
 
@@ -18,7 +18,7 @@ class Admin::KycController < Admin::BaseController
   # * Reviewed By: Sunil Khedar
   #
   def dashboard
-    service_response = AdminManagement::Kyc::Dashboard.new(params)
+    service_response = AdminManagement::Kyc::Dashboard.new(params).perform
     render_api_response(service_response)
   end
 

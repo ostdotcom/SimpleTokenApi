@@ -131,18 +131,3 @@ module GlobalConstant
   end
 
 end
-
-
-
-# 1. Registeration Not Complete (Verify Account - Double Opt in) - Prority
-# 2. Verify Your KYC -  Prority
-# 3. KYC Check Failed - KYC Denied - When Synopsis rejects or Admin rejects ??
-# 4. Manually Triggered if documnets are mistach admin triggered
-# 5. Kyc pre phase 1 - KYC Approved if Admin Panel & Synopsis both say Ok (Till 10th)
-# 6. Kyc pre phase 2 - 11th to 14th
-# 7. Kyc pre phase 3 - Starting 15th
-# 8. Token Allocation Success
-# 9. Pre Registeration Not Completed - 24 hours left - To users who gave emails but did not complete KYC. - Prority
-
-
-

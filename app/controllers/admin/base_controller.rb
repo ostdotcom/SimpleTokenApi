@@ -11,7 +11,8 @@ class Admin::BaseController < ApiController
   def validate_cookie
 
     service_response = AdminManagement::VerifyCookie::DoubleAuth.new(
-      cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym]
+      cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
+      browser_user_agent: http_user_agent
     ).perform
 
     if service_response.success?

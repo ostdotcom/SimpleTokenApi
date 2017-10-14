@@ -30,7 +30,7 @@
     - :case_id
   :optional:
 
-'AdminManagement::Kyc::GetDashboard':
+'AdminManagement::Kyc::Dashboard':
   :mandatory:
     - :admin_id
   :optional:

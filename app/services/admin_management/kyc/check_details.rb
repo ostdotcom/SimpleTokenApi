@@ -65,7 +65,7 @@ module AdminManagement
       # Sets @user, @user_kyc_detail
       #
       def fetch_user_kyc_detail
-        @user_kyc_detail = UserKycDetail.where(user_kyc_detail_id: @user_kyc_detail_id).first
+        @user_kyc_detail = UserKycDetail.where(id: @user_kyc_detail_id).first
         return err_response('am_k_cd_1') if @user_kyc_detail.blank?
 
         @user = User.find(@user_kyc_detail.user_id)

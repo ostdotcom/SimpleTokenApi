@@ -87,7 +87,6 @@ module UserManagement
       enqueue_job
 
       success
-
     end
 
     private
@@ -103,9 +102,9 @@ module UserManagement
     def validate
 
       # apply custom validations.
-      @error_data[:first_name] = 'First Name is required.' unless @first_name.present?
+      @error_data[:first_name] = 'First Name is required.' if !@first_name.present?
 
-      @error_data[:last_name] = 'Last Name is required.' unless @last_name.present?
+      @error_data[:last_name] = 'Last Name is required.' if !@last_name.present?
 
       begin
         Date.parse(@birthdate)
@@ -113,24 +112,39 @@ module UserManagement
         @error_data[:birthdate] = 'Invalid Birth Date.'
       end
 
-      @error_data[:street_address] = 'Street Address is required.' unless @street_address.present?
+      @error_data[:street_address] = 'Street Address is required.' if !@street_address.present?
 
-      @error_data[:city] = 'City is required.' unless @city.present?
+      @error_data[:city] = 'City is required.' if !@city.present?
 
-      @error_data[:state] = 'State is required.' unless @state.present?
+      @error_data[:state] = 'State is required.' if !@state.present?
 
-      # TODO: checkin available list
-      @error_data[:country] = 'Country is required.' unless @country.present?
+      if !@country.present? || !GlobalConstant::Cynopsis.allowed_countries.include?(@country)
+        @error_data[:country] = 'Country is required.'
+      end
 
-      @error_data[:ethereum_address] = 'Invalid ethereum address.' unless Util::CommonValidator.is_euthereum_address?(@ethereum_address)
+      @error_data[:postal_code] = 'Postal Code is required.' if !@postal_code.present?
 
-      # TODO: postal_code missing
-      # TODO: estimated_participation_amount missing
-      # TODO: passport_number missing
-      # TODO: nationality missing
-      # TODO: passport_file_path missing
-      # TODO: selfie_file_path missing
-      # TODO: residence_proof_file_path missing
+      if !Util::CommonValidator.is_euthereum_address?(@ethereum_address)
+        @error_data[:ethereum_address] = 'Invalid ethereum address.'
+      end
+
+      if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
+        @error_data[:estimated_participation_amount] = 'Estimated partipation amount is required.'
+      end
+
+      @error_data[:passport_number] = 'Passport number is required.' if !@passport_number.present?
+
+      if !@nationality.present? || !GlobalConstant::Cynopsis.allowed_nationalities.include?(@nationality)
+        @error_data[:nationality] = 'Nationality is required.'
+      end
+
+      @error_data[:passport_file_path] = 'Passport image is required.' if !@passport_file_path.present?
+
+      @error_data[:selfie_file_path] = 'Selfie is required.' if !@selfie_file_path.present?
+
+      if GlobalConstant::Cynopsis.is_nationalities_chinese(@nationality) && !@residence_proof_file_path.present?
+        @error_data[:residence_proof_file_path] = 'Residence proof is required.'
+      end
 
       return error_with_data(
           'um_ks_1',
@@ -146,7 +160,6 @@ module UserManagement
       return r unless r.success?
 
       success
-
     end
 
     # Fetch user data
@@ -186,7 +199,6 @@ module UserManagement
       @kyc_salt_e = r.data[:ciphertext_blob]
 
       success
-
     end
 
     # Create user extended details
@@ -204,7 +216,9 @@ module UserManagement
         kyc_salt: @kyc_salt_e
       }
 
-      md5_user_extended_details_params = {user_id: @user_id}
+      md5_user_extended_details_params = {
+          user_id: @user_id
+      }
 
       data_to_encrypt = {
           birthdate: @birthdate,
@@ -217,8 +231,8 @@ module UserManagement
           estimated_participation_amount: @estimated_participation_amount,
           passport_number: @passport_number,
           nationality: @nationality,
-          selfie_file_path: @selfie_file_path,
           passport_file_path: @passport_file_path,
+          selfie_file_path: @selfie_file_path,
           residence_proof_file_path: @residence_proof_file_path
       }
 
@@ -243,7 +257,7 @@ module UserManagement
       end
 
       data_to_md5.each do |key, value|
-        md5_user_extended_details_params[key.to_sym] = Digest::MD5.hexdigest(value.to_s.downcase)
+        md5_user_extended_details_params[key.to_sym] = Digest::MD5.hexdigest(value.to_s.downcase.strip)
       end
 
       user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)
@@ -253,14 +267,23 @@ module UserManagement
       Md5UserExtendedDetail.create!(md5_user_extended_details_params)
 
       success
+    end
 
+    # Encryptor obj
+    #
+    # * Author: Aman
+    # * Date: 10/10/2017
+    # * Reviewed By: Kedar
+    #
+    def encryptor_obj
+      @encryptor_obj ||= LocalCipher.new(@kyc_salt_d)
     end
 
     # Update User Kyc Submitted Property
     #
     # * Author: Aman
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -276,9 +299,9 @@ module UserManagement
       @user.save! if @user.changed?
 
       success
-
     end
 
+    # Do remaining task in sidekiq
     #
     # * Author: Kedar
     # * Date: 13/10/2017
@@ -294,16 +317,6 @@ module UserManagement
         }
       )
 
-    end
-
-    # Encryptor obj
-    #
-    # * Author: Aman
-    # * Date: 10/10/2017
-    # * Reviewed By: Kedar
-    #
-    def encryptor_obj
-      @encryptor_obj ||= LocalCipher.new(@kyc_salt_d)
     end
 
     # Unauthorized access response

@@ -25,6 +25,10 @@ module GlobalConstant
         @allowed_nationalities ||= YAML.load_file(open(Rails.root.to_s + '/config/allowed_nationalities.yml'))[:nationalities]
       end
 
+      def is_nationalities_chinese(nationality)
+        nationality.upcase == 'CHINESE'
+      end
+
     end
 
   end

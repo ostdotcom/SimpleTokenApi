@@ -31,6 +31,15 @@ class ApiController < ApplicationController
 
     rescue => se
 
+      Rails.logger.error("Exception in API: #{se.message}")
+      ApplicationMailer.notify(
+          body: {exception: {message: se.message, backtrace: se.backtrace}},
+          data: {
+              'params' => params
+          },
+          subject: 'Exception in API'
+      ).deliver
+
       r = Result::Base.exception(
         se,
         {

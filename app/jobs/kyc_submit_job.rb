@@ -101,7 +101,7 @@ class KycSubmitJob < ApplicationJob
     # Update records
     if @user_kyc_detail.new_record?
       @user_kyc_detail.kyc_confirmed_at = Time.now.to_i
-      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(@user_kyc_detail.kyc_confirmed_at)
+      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
     end
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i

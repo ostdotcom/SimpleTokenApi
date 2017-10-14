@@ -39,7 +39,7 @@ class BgJob
     end
 
   rescue => e
-    Rails.logger.error { "Resque enqueue failed with params #{enqueue_params}. Exception: #{e.message}" }
+    Rails.logger.error("Resque enqueue failed with params #{enqueue_params}. Exception: #{e.message}")
 
     perform_job_synchronously(klass, enqueue_params, q_name) if options[:fallback_run_sync]
 
@@ -72,19 +72,21 @@ class BgJob
   #
   def self.perform_job_synchronously(klass, enqueue_params, q_name)
     job = klass.new
-    Rails.logger.info "Performing Job (#{job.class}) synchronously"
+    Rails.logger.info("Performing Job (#{job.class}) synchronously")
     job.queue_name = q_name
     job.perform(enqueue_params || {})
   rescue => e
-    # ApplicationMailer.notify(
-    #   body: {exception: {message: e.message, backtrace: e.backtrace}},
-    #   data: {
-    #     'enqueue_params' => enqueue_params,
-    #     'class_name' => klass,
-    #     'q_name' => q_name,
-    #   },
-    #   subject: 'Exception in perform_job_synchronously'
-    # ).deliver
+    Rails.logger.error("Resque perform_job_synchronously failed with params #{enqueue_params}. Exception: #{e.message}")
+
+    ApplicationMailer.notify(
+      body: {exception: {message: e.message, backtrace: e.backtrace}},
+      data: {
+        'enqueue_params' => enqueue_params,
+        'class_name' => klass,
+        'q_name' => q_name,
+      },
+      subject: 'Exception in perform_job_synchronously'
+    ).deliver
   end
 
 end

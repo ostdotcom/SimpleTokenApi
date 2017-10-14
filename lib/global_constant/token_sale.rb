@@ -5,6 +5,7 @@ module GlobalConstant
 
     class << self
 
+      # TODO: Change the dates and use ENV variables
       def st_token_sale_active_status
         GlobalConstant::Base.st_token_sale['active_status']
       end

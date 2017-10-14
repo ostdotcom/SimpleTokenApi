@@ -23,6 +23,7 @@ module Cynopsis
     # @params [String] rfrID (mandatory) - Customer reference id
     # @params [String] local_file_path (mandatory) - document local path
     # @params [String] document_type (mandatory) - document type
+    # @params [String] please_mention (mandatory) - when document type id "OTHERS", give unique name to it
     #
     # @return [Result::Base]
     #

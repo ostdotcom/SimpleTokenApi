@@ -55,8 +55,6 @@ module UserManagement
 
       @error_data = {}
 
-      @is_re_submit = nil
-
     end
 
     # Perform
@@ -71,18 +69,23 @@ module UserManagement
 
       r = validate_and_sanitize
       return r unless r.success?
+      Rails.logger.info('---- validate_and_sanitize done')
 
       r = fetch_user_data
       return r unless r.success?
+      Rails.logger.info('---- fetch_user_data done')
 
       r = generate_new_kyc_salt
       return r unless r.success?
+      Rails.logger.info('---- generate_new_kyc_salt done')
 
       r = create_user_extended_details
       return r unless r.success?
+      Rails.logger.info('---- create_user_extended_details done')
 
       r = update_user
       return r unless r.success?
+      Rails.logger.info('---- update_user done')
 
       enqueue_job
 
@@ -364,16 +367,8 @@ module UserManagement
     # @return [Result::Base]
     #
     def update_user
-
-      if @user.send("#{GlobalConstant::User.token_sale_kyc_submitted_property}?")
-        @is_re_submit = true
-      else
-        @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
-        @is_re_submit = false
-      end
-
+      @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
       @user.save! if @user.changed?
-
       success
     end
 
@@ -384,15 +379,17 @@ module UserManagement
     # * Reviewed By:
     #
     def enqueue_job
+      # Until the user Does Double Opt in do nothing here. In edit let it call.
+      if @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+        BgJob.enqueue(
+          KycSubmitJob,
+          {
+            user_id: @user_id
+          }
+        )
 
-      BgJob.enqueue(
-        KycSubmitJob,
-        {
-          user_id: @user_id,
-          is_re_submit: @is_re_submit
-        }
-      )
-
+        Rails.logger.info('---- enqueue_job done')
+      end
     end
 
     # Unauthorized access response

@@ -59,9 +59,10 @@ module Cynopsis
     #
     # @return [Result::Base]
     #
-    def update(params)
+    def update(params, re_assess = false)
       params[:domain_name] = GlobalConstant::Cynopsis.domain_name
-      params[:re_assess] = true
+      # Set new if you are sending the completely new data and want new scan
+      params[:re_assess] = re_assess
       params.merge!(default_mandatory_api_params)
 
       put_request('/default/update_individual', params)

@@ -6,9 +6,9 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # @param [String] t (mandatory)
+    # @params [String] t (mandatory)
     #
     # @return [UserManagement::DoubleOptIn]
     #
@@ -40,7 +40,7 @@ module UserManagement
       return r unless r.success?
 
       r = mark_token_as_used
-      # r is returned as error if token was marked used in some other concocurrent request
+      # r is returned as error if token was marked used in some other concurrent request
       # And we return success to user in this case
       return success unless r.success?
 
@@ -86,12 +86,9 @@ module UserManagement
     # Sets @user, @user_secret
     #
     def fetch_user_data
-
       #TODO: Cache this query
       @user = User.where(id: @user_id).first
-
       success
-
     end
 
     # Fetch DB row containing token info
@@ -118,6 +115,10 @@ module UserManagement
         return invalid_url_error('um_doi_5')
       end
 
+      if @token_sale_double_opt_in_token.kind != GlobalConstant::TemporaryToken.double_opt_in_kind
+        return invalid_url_error('um_doi_6')
+      end
+
       success
 
     end
@@ -126,19 +127,18 @@ module UserManagement
     #
     # * Author: Puneet
     # * Date: 13/10/2017
+    # * Reviewed By: Kedar
     #
     # @return [Result::Base]
     #
     def mark_token_as_used
-
       row_updated_count = TemporaryToken.where(
         id: @token_sale_double_opt_in_token.id,
         status: GlobalConstant::TemporaryToken.active_status
       ).update_all(status: GlobalConstant::TemporaryToken.used_status)
 
       # if row_updated_count == 0 means this token was already marked as used by some other concurrent request
-      row_updated_count > 0 ? success : invalid_url_error('um_doi_6')
-
+      row_updated_count > 0 ? success : invalid_url_error('um_doi_7')
     end
 
     # Save User
@@ -162,8 +162,7 @@ module UserManagement
       BgJob.enqueue(
         KycSubmitJob,
         {
-          user_id: @user_id,
-          is_re_submit: false
+          user_id: @user_id
         }
       )
     end

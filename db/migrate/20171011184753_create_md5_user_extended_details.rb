@@ -19,6 +19,7 @@ class CreateMd5UserExtendedDetails < DbMigrationConnection
         t.timestamps
       end
 
+      add_index :md5_user_extended_details, :user_extended_detail_id, unique: true, name: 'uniq_user_extended_detail_id'
     end
 
   end

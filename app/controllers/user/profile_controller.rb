@@ -11,6 +11,17 @@ class User::ProfileController < User::BaseController
     render_api_response(service_response)
   end
 
+  # Get profile info and validate double opt in token if present
+  #
+  # * Author: Aman
+  # * Date: 13/10/2017
+  # * Reviewed By:
+  #
+  def profile
+    service_response = UserManagement::ProfileDetail.new(params).perform
+    render_api_response(service_response)
+  end
+
   # logout
   #
   # * Author: Aman

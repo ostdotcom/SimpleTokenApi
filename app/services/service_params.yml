@@ -115,3 +115,9 @@
     - :password
     - :confirm_password
   :optional:
+
+'UserManagement::ProfileDetail':
+  :mandatory:
+    - :user_id
+  :optional:
+   - :t

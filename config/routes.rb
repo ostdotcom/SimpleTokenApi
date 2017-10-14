@@ -11,7 +11,6 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/token_sale' do
     match 'kyc-submit' => :kyc_submit, via: :POST
     match 'bt-submit' => :bt_submit, via: :POST
-    match 'double-opt-in' => :double_opt_in, via: :POST
     match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'upload-params' => :get_upload_params, via: :GET
     match 'logout' => :logout, via: :GET
@@ -19,6 +18,7 @@ Rails.application.routes.draw do
 
   scope 'api/user', controller: 'user/profile' do
     match 'basic-detail' => :basic_detail, via: :GET
+    match 'profile' => :profile, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do

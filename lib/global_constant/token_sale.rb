@@ -5,6 +5,10 @@ module GlobalConstant
 
     class << self
 
+      def st_token_sale_active_status
+        GlobalConstant::Base.st_token_sale['active_status']
+      end
+
       def pre_sale_start
         Date.parse('2017-11-01')
       end

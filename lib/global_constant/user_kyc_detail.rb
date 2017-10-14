@@ -49,6 +49,23 @@ module GlobalConstant
 
       ### Admin Status End ###
 
+      ### kyc_status starts###
+
+      def kyc_approved_status
+        'approved'
+      end
+
+      def kyc_denied_status
+        'denied'
+      end
+
+      def kyc_pending_status
+        'pending'
+      end
+
+      ### kyc_status ends###
+
+
     end
 
   end

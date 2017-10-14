@@ -35,3 +35,6 @@ constants:
 
   s3:
     kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>
+
+  st_token_sale:
+    active_status: <%= ENV['ST_TOKEN_SALE_ACTIVE_STATUS']%>

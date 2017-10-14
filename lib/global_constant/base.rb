@@ -31,6 +31,10 @@ module GlobalConstant
       @redis_config ||= fetch_config.fetch('redis', {})
     end
 
+    def self.st_token_sale
+      @st_token_sale ||= fetch_config.fetch('st_token_sale', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

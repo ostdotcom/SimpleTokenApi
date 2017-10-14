@@ -69,7 +69,7 @@ module UserManagement
     #
     def perform
 
-      r = validate
+      r = validate_and_sanitize
       return r unless r.success?
 
       r = fetch_user_data
@@ -95,57 +95,30 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 10/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
-    def validate
+    def validate_and_sanitize
 
-      # apply custom validations.
-      @error_data[:first_name] = 'First Name is required.' if !@first_name.present?
+      # Sanitize fields, validate and assign error
+      validate_first_name
+      validate_last_name
+      validate_birthdate
+      validate_street_address
+      validate_city
+      validate_state
+      validate_country
+      validate_postal_code
+      validate_ethereum_address
+      validate_estimated_participation_amount
+      validate_passport_number
+      validate_nationality
+      validate_passport_file_path
+      validate_selfie_file_path
+      validate_residence_proof_file_path
 
-      @error_data[:last_name] = 'Last Name is required.' if !@last_name.present?
-
-      begin
-        Date.parse(@birthdate)
-      rescue ArgumentError
-        @error_data[:birthdate] = 'Invalid Birth Date.'
-      end
-
-      @error_data[:street_address] = 'Street Address is required.' if !@street_address.present?
-
-      @error_data[:city] = 'City is required.' if !@city.present?
-
-      @error_data[:state] = 'State is required.' if !@state.present?
-
-      if !@country.present? || !GlobalConstant::Cynopsis.allowed_countries.include?(@country)
-        @error_data[:country] = 'Country is required.'
-      end
-
-      @error_data[:postal_code] = 'Postal Code is required.' if !@postal_code.present?
-
-      if !Util::CommonValidator.is_euthereum_address?(@ethereum_address)
-        @error_data[:ethereum_address] = 'Invalid ethereum address.'
-      end
-
-      if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
-        @error_data[:estimated_participation_amount] = 'Estimated partipation amount is required.'
-      end
-
-      @error_data[:passport_number] = 'Passport number is required.' if !@passport_number.present?
-
-      if !@nationality.present? || !GlobalConstant::Cynopsis.allowed_nationalities.include?(@nationality)
-        @error_data[:nationality] = 'Nationality is required.'
-      end
-
-      @error_data[:passport_file_path] = 'Passport image is required.' if !@passport_file_path.present?
-
-      @error_data[:selfie_file_path] = 'Selfie is required.' if !@selfie_file_path.present?
-
-      if GlobalConstant::Cynopsis.is_nationalities_chinese(@nationality) && !@residence_proof_file_path.present?
-        @error_data[:residence_proof_file_path] = 'Residence proof is required.'
-      end
-
+      # IF error, return
       return error_with_data(
           'um_ks_1',
           'Invalid Parameters.',
@@ -156,10 +129,113 @@ module UserManagement
       ) if @error_data.present?
 
       # NOTE: To be on safe side, check for generic errors as well
-      r = super
+      r = validate
       return r unless r.success?
 
+      # Check if user KYC is already approved
+      user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+      if user_kyc_detail.present? && user_kyc_detail.kyc_approved?
+        return unauthorized_access_response('um_ks_2', 'Your KYC is already approved.')
+      end
+
       success
+    end
+
+    # Field validation
+    #
+    # * Author: Kedar
+    # * Date: 10/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def validate_first_name
+      @first_name = @first_name.to_s.strip
+      @error_data[:first_name] = 'First Name is required.' if !@first_name.present?
+    end
+
+    def validate_last_name
+      @last_name = @last_name.to_s.strip
+      @error_data[:last_name] = 'Last Name is required.' if !@last_name.present?
+    end
+
+    def validate_birthdate
+      @birthdate = @birthdate.to_s.strip
+      begin
+        Date.parse(@birthdate)
+      rescue ArgumentError
+        @error_data[:birthdate] = 'Invalid Birth Date.'
+      end
+    end
+
+    def validate_street_address
+      @street_address = @street_address.to_s.strip
+      @error_data[:street_address] = 'Street Address is required.' if !@street_address.present?
+    end
+
+    def validate_city
+      @city = @city.to_s.strip
+      @error_data[:city] = 'City is required.' if !@city.present?
+    end
+
+    def validate_state
+      @state = @state.to_s.strip
+      @error_data[:state] = 'State is required.' if !@state.present?
+    end
+
+    def validate_country
+      @country = @country.to_s.strip
+      if !@country.present? || !GlobalConstant::Cynopsis.allowed_countries.include?(@country)
+        @error_data[:country] = 'Country is required.'
+      end
+    end
+
+    def validate_postal_code
+      @postal_code = @postal_code.to_s.strip
+      @error_data[:postal_code] = 'Postal Code is required.' if !@postal_code.present?
+    end
+
+    def validate_ethereum_address
+      @ethereum_address = @ethereum_address.to_s.strip
+      if !Util::CommonValidator.is_euthereum_address?(@ethereum_address)
+        @error_data[:ethereum_address] = 'Invalid ethereum address.'
+      end
+    end
+
+    def validate_estimated_participation_amount
+      @estimated_participation_amount = @estimated_participation_amount.to_s.strip
+      if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
+        @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'
+      end
+    end
+
+    def validate_passport_number
+      @passport_number = @passport_number.to_s.strip
+      @error_data[:passport_number] = 'Passport number is required.' if !@passport_number.present?
+    end
+
+    def validate_nationality
+      @nationality = @nationality.to_s.strip
+      if !@nationality.present? || !GlobalConstant::Cynopsis.allowed_nationalities.include?(@nationality)
+        @error_data[:nationality] = 'Nationality is required.'
+      end
+    end
+
+    def validate_passport_file_path
+      @passport_file_path = @passport_file_path.to_s.strip
+      @error_data[:passport_file_path] = 'Passport image is required.' if !@passport_file_path.present?
+    end
+
+    def validate_selfie_file_path
+      @selfie_file_path = @selfie_file_path.to_s.strip
+      @error_data[:selfie_file_path] = 'Selfie is required.' if !@selfie_file_path.present?
+    end
+
+    def validate_residence_proof_file_path
+      @residence_proof_file_path = @residence_proof_file_path.to_s.strip
+      if GlobalConstant::Cynopsis.is_nationalities_chinese(@nationality) && !@residence_proof_file_path.present?
+        @error_data[:residence_proof_file_path] = 'Residence proof is required.'
+      end
     end
 
     # Fetch user data
@@ -173,11 +249,11 @@ module UserManagement
     def fetch_user_data
 
       @user = User.where(id: @user_id).first
-      return unauthorized_access_response('um_ks_1') unless @user.present? &&
+      return unauthorized_access_response('um_ks_3') unless @user.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response('um_ks_2') unless @user_secret.present?
+      return unauthorized_access_response('um_ks_4') unless @user_secret.present?
 
       success
     end

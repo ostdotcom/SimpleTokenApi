@@ -21,10 +21,16 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
            GlobalConstant::TokenSale.open_sale_token_sale_phase => 3
        }
 
+  def cynonpsis_approved_statuses
+    [GlobalConstant::UserKycDetail.cleared_cynopsis_status, GlobalConstant::UserKycDetail.approved_cynopsis_status]
+  end
+
+  def admin_approved_statuses
+    [GlobalConstant::UserKycDetail.qualified_admin_status, GlobalConstant::UserKycDetail.whitelisted_admin_status]
+  end
+
   def kyc_approved?
-    (cynopsis_status == GlobalConstant::UserKycDetail.cleared_cynopsis_status || cynopsis_status == GlobalConstant::UserKycDetail.approved_cynopsis_status)
-    &&
-        (admin_status == GlobalConstant::UserKycDetail.qualified_admin_status || admin_status == whitelisted_admin_status)
+    cynonpsis_approved_statuses.include?(cynopsis_status) && admin_approved_statuses.include?(admin_status)
   end
 
   def kyc_denied?

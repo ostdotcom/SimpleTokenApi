@@ -54,6 +54,16 @@ class ApplicationController < ActionController::API
     request.env['HTTP_USER_AGENT'].to_s
   end
 
+  # Get Ip Address
+  #
+  # * Author: Aman
+  # * Date: 15/10/2017
+  # * Reviewed By:
+  #
+  def ip_address
+    request.remote_ip.to_s
+  end
+
   # Render API Response
   #
   # * Author: Kedar

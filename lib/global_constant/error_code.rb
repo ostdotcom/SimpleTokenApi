@@ -31,7 +31,8 @@ module GlobalConstant
       [
         ok,
         unauthorized_access,
-        not_found
+        not_found,
+        forbidden
       ]
     end
 

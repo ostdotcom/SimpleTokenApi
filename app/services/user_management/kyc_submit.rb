@@ -81,6 +81,10 @@ module UserManagement
       return r unless r.success?
       Rails.logger.info('---- fetch_user_data done')
 
+      r = check_recaptcha_before_verification
+      return r unless r.success?
+      Rails.logger.info('---- check_recaptcha_before_verification done')
+
       r = generate_new_kyc_salt
       return r unless r.success?
       Rails.logger.info('---- generate_new_kyc_salt done')
@@ -145,16 +149,6 @@ module UserManagement
       user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
       if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
         return unauthorized_access_response('um_ks_2', 'Your KYC is already approved/denied.')
-      end
-
-      # Check re-capcha on when verification is not yet done
-      if !user_kyc_detail.present?
-        r = Recaptcha::Verify.new({
-                                    'response' => @g_recaptcha_response.to_s,
-                                    'remoteip' => @remoteip.to_s
-                                }).perform
-        Rails.logger.info('---- Recaptcha::Verify done')
-        return r unless r.success?
       end
 
       success
@@ -277,6 +271,28 @@ module UserManagement
       success
     end
 
+    # Verify recaptcha
+    #
+    # * Author: Kedar
+    # * Date: 10/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def check_recaptcha_before_verification
+      # Check re-capcha on when verification is not yet done
+      if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+        r = Recaptcha::Verify.new({
+                                      'response' => @g_recaptcha_response.to_s,
+                                      'remoteip' => @remoteip.to_s
+                                  }).perform
+        Rails.logger.info('---- Recaptcha::Verify done')
+        return r unless r.success?
+      end
+
+      success
+    end
+
     # Generate new KYC salt
     #
     # * Author: Aman
@@ -305,10 +321,10 @@ module UserManagement
     def create_user_extended_details
 
       user_extended_details_params = {
-        user_id: @user_id,
-        first_name: @first_name,
-        last_name: @last_name,
-        kyc_salt: @kyc_salt_e
+          user_id: @user_id,
+          first_name: @first_name,
+          last_name: @last_name,
+          kyc_salt: @kyc_salt_e
       }
 
       md5_user_extended_details_params = {
@@ -332,16 +348,16 @@ module UserManagement
       }
 
       data_to_md5 = {
-        birthdate: @birthdate,
-        street_address: @street_address,
-        city: @city,
-        state: @state,
-        country: @country,
-        postal_code: @postal_code,
-        ethereum_address: @ethereum_address,
-        estimated_participation_amount: @estimated_participation_amount,
-        passport_number: @passport_number,
-        nationality: @nationality
+          birthdate: @birthdate,
+          street_address: @street_address,
+          city: @city,
+          state: @state,
+          country: @country,
+          postal_code: @postal_code,
+          ethereum_address: @ethereum_address,
+          estimated_participation_amount: @estimated_participation_amount,
+          passport_number: @passport_number,
+          nationality: @nationality
       }
 
       data_to_encrypt.each do |key, value|
@@ -398,10 +414,10 @@ module UserManagement
       # Until the user Does Double Opt in do nothing here. In edit let it call.
       if @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
         BgJob.enqueue(
-          KycSubmitJob,
-          {
-            user_id: @user_id
-          }
+            KycSubmitJob,
+            {
+                user_id: @user_id
+            }
         )
 
         Rails.logger.info('---- enqueue_job done')

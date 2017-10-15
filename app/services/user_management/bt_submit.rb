@@ -23,6 +23,7 @@ module UserManagement
       @skip_name = @params[:skip_name]
 
       @user = nil
+      @enqueue_task = false
 
     end
 
@@ -44,6 +45,10 @@ module UserManagement
       update_token_sale_bt_done
 
       update_token_sale_kyc_double_optin_mail_sent
+
+      save_user
+
+      enqueue_job if @enqueue_task
 
       success
 
@@ -114,16 +119,35 @@ module UserManagement
     #
     def update_token_sale_kyc_double_optin_mail_sent
       if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
+        @enqueue_task = true
         #TODO: Handle multiple concurrent requests for same bt update
         @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
-        @user.save! if @user.changed?
-        BgJob.enqueue(
+      end
+    end
+
+    # Save User
+    #
+    # * Author: Aman
+    # * Date: 15/10/2017
+    # * Reviewed By:
+    #
+    def save_user
+      @user.save! if @user.changed?
+    end
+
+    # Enqueue task
+    #
+    # * Author: Aman
+    # * Date: 15/10/2017
+    # * Reviewed By:
+    #
+    def enqueue_job
+      BgJob.enqueue(
           OnBTSubmitJob,
           {
-                user_id: @user_id
-            }
-        )
-      end
+              user_id: @user_id
+          }
+      )
     end
 
   end

@@ -72,7 +72,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def send_email
-          return if @double_opt_in_token.present?
+          return unless @double_opt_in_token.present?
           user = User.where(id: @user_kyc_detail.id).first
           Email::HookCreator::SendTransactionalMail.new(
               email: user.email,

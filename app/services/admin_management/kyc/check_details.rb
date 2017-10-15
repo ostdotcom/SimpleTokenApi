@@ -68,7 +68,7 @@ module AdminManagement
         @user_kyc_detail = UserKycDetail.where(id: @user_kyc_detail_id).first
         return err_response('am_k_cd_1') if @user_kyc_detail.blank?
 
-        @user = User.find(@user_kyc_detail.user_id)
+        @user = User.where(id: @user_kyc_detail.user_id).first
 
         success
       end

@@ -29,6 +29,11 @@ Rails.application.routes.draw do
   scope 'api/admin/kyc', controller: 'admin/kyc' do
     match 'check-details' => :check_details, via: :GET
     match 'dashboard' => :dashboard, via: :GET
+    match 'deny-kyc' => :deny_kyc,  via: :POST
+    match 'data-mismatch' => :data_mismatch,  via: :POST
+    match 'passport-issue' => :passport_issue,  via: :POST
+    match 'selfie-img-issue' => :selfie_image_issue,  via: :POST
+    match 'qualify' => :qualify,  via: :POST
   end
 
   match '*permalink', to: 'application#not_found', via: :all

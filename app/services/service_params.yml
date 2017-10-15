@@ -36,7 +36,13 @@
   :optional:
     - :filters
     - :sortings
-    - :page_number
+    - :offset
+    - :page_size
+
+'AdminManagement::Kyc::Action':
+  :mandatory:
+    - :admin_id
+  :optional:
 
 'UserManagement::SignUp':
   :mandatory:

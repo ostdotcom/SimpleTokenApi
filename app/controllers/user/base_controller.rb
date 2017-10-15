@@ -8,7 +8,7 @@ class User::BaseController < ApiController
   #
   # * Author: Kedar
   # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   def validate_cookie
     service_response = UserManagement::VerifyCookie.new(
@@ -43,13 +43,13 @@ class User::BaseController < ApiController
   #
   # * Author: Aman
   # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def handle_blacklisted_ip
     blacklisted_countries = ['china']
     return unless Util::GeoIpUtil.maxmind_file_exists?
     geo_ip_obj = Util::GeoIpUtil.new(ip_address: ip_address)
-    return unless  blacklisted_countries.include?(geo_ip_obj.get_country_name.to_s.downcase)
+    return unless blacklisted_countries.include?(geo_ip_obj.get_country_name.to_s.downcase)
 
     service_response = Result::Base.error(
         {

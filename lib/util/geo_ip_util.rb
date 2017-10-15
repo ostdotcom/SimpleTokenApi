@@ -6,7 +6,7 @@ module Util
     #
     # * Author: Aman
     # * Date: 15/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Boolean]
     #
@@ -18,7 +18,7 @@ module Util
     #
     # * Author: Aman
     # * Date: 15/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [String]
     #
@@ -43,9 +43,9 @@ module Util
     #
     # * Author: Aman
     # * Date: 15/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # @param [String] Ip address for which location details are to be fetched
+    # @params [String] Ip address for which location details are to be fetched
     #
     # @return [Hash]
     #

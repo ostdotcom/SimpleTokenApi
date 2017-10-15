@@ -15,7 +15,7 @@ class User < EstablishSimpleTokenUserDbConnection
   # @returns [Array<Symbol>] returns Array of properties bits set for user
   #
   def properties_array
-    @properties_array ||= User.get_bits_set_for_properties(properties)
+    @properties_array = User.get_bits_set_for_properties(properties)
   end
 
   # Get Token Sale Landing Page

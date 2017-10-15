@@ -4,7 +4,7 @@ module AdminManagement
 
     module AdminAction
 
-      class SelfieImageIssue < ServicesBase
+      class SelfieImageIssue < AdminManagement::Kyc::AdminAction::Base
 
         # Deny KYC by admin
         #
@@ -15,6 +15,8 @@ module AdminManagement
         # @param [Integer] admin_id (mandatory) - logged in admin
         #
         def initialize(params)
+          super
+
           @admin_id = @params[:admin_id]
           @api_response_data = {}
         end

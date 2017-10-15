@@ -39,9 +39,34 @@
     - :offset
     - :page_size
 
-'AdminManagement::Kyc::Action':
+'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
     - :admin_id
+    - :case_id
+  :optional:
+
+'AdminManagement::Kyc::AdminAction::DataMismatch':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+
+'AdminManagement::Kyc::AdminAction::PassportIssue':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+
+'AdminManagement::Kyc::AdminAction::SelfieImageIssue':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+
+'AdminManagement::Kyc::AdminAction::Qualify':
+  :mandatory:
+    - :admin_id
+    - :case_id
   :optional:
 
 'UserManagement::SignUp':

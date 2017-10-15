@@ -120,7 +120,8 @@ module AdminManagement
       def set_api_response_data
         @api_response_data = {
           user_detail: user_detail,
-          case_detail: case_detail
+          case_detail: case_detail,
+          is_case_closed: @user_kyc_detail.case_closed?
         }
       end
 

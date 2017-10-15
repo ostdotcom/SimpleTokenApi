@@ -4,7 +4,7 @@ module AdminManagement
 
     module AdminAction
 
-      class Qualify < AdminManagement::Kyc::AdminAction::Base
+      class Base < ServicesBase
 
         # Initialize
         #
@@ -19,26 +19,21 @@ module AdminManagement
         #
         def initialize(params)
           super
+
+          @admin_id = @params[:admin_id]
+          @case_id = @params[:case_id]
+          @api_response_data = {}
+          @user_kyc_detail = nil
         end
 
-        # Deny KYC by admin
+        # Perform
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
         # * Reviewed By:
         #
-        # return [Result::Base]
-        #
         def perform
 
-          r = validate_and_sanitize
-          return r unless r.success?
-
-          update_user_kyc_status
-
-          log_admin_action
-
-          success_with_data(@api_response_data)
         end
 
         private
@@ -52,17 +47,20 @@ module AdminManagement
         # return [Result::Base]
         #
         def validate_and_sanitize
-          super
-        end
+          r = validate
+          return r unless r.success?
 
-        # Change case's admin status
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By:
-        #
-        def update_user_kyc_status
-          UserKycDetail.where(id: @case_id).update_all(admin_status: GlobalConstant::UserKycDetail.qualified_admin_status)
+          @user_kyc_detail = UserKycDetail.where(id: @case_id).first
+
+          return error_with_data(
+              'am_k_aa_dk_1',
+              'Closed case can not be changed.',
+              'Closed case can not be changed.',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @user_kyc_detail.case_closed?
+
+          success
         end
 
         # log admin action
@@ -72,7 +70,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def log_admin_action
-
+          fail 'subclass to implement this method'
         end
 
       end

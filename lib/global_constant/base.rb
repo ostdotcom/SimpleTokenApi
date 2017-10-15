@@ -35,6 +35,10 @@ module GlobalConstant
       @st_token_sale ||= fetch_config.fetch('st_token_sale', {}).with_indifferent_access
     end
 
+    def self.recaptcha
+      @recaptcha ||= fetch_config.fetch('recaptcha', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

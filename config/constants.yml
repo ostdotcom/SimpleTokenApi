@@ -41,3 +41,7 @@ constants:
     pre_sale_register_start_date:  <%= ENV['ST_PRE_SALE_REGISTER_START_DATE'] %>
     pre_sale_two_register_start_date:  <%= ENV['ST_PRE_SALE_TWO_REGISTER_START_DATE'] %>
     public_sale_register_start_date:  <%= ENV['ST_PUBLIC_SALE_REGISTER_START_DATE'] %>
+
+  recaptcha:
+    site_key: <%= ENV['ST_RECAPTCHA_SITE_KEY'] %>
+    secret_key: <%= ENV['ST_RECAPTCHA_SECRET'] %>

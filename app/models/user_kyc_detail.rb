@@ -1,18 +1,18 @@
 class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   enum cynopsis_status: {
-           GlobalConstant::UserKycDetail.un_processed_cynopsis_status => 1,
-           GlobalConstant::UserKycDetail.cleared_cynopsis_status => 2,
-           GlobalConstant::UserKycDetail.pending_cynopsis_status => 3,
-           GlobalConstant::UserKycDetail.approved_cynopsis_status => 4,
-           GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5
+           GlobalConstant::UserKycDetail.un_processed_cynopsis_status => 1, # yello
+           GlobalConstant::UserKycDetail.cleared_cynopsis_status => 2, # green
+           GlobalConstant::UserKycDetail.pending_cynopsis_status => 3, # yello
+           GlobalConstant::UserKycDetail.approved_cynopsis_status => 4, # green
+           GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5 # red
        }
 
   enum admin_status: {
-           GlobalConstant::UserKycDetail.un_processed_admin_status => 1,
-           GlobalConstant::UserKycDetail.qualified_admin_status => 2,
-           GlobalConstant::UserKycDetail.denied_admin_status => 3,
-           GlobalConstant::UserKycDetail.whitelisted_admin_status => 4
+           GlobalConstant::UserKycDetail.un_processed_admin_status => 1, # yello
+           GlobalConstant::UserKycDetail.qualified_admin_status => 2, # green
+           GlobalConstant::UserKycDetail.denied_admin_status => 3, # red
+           GlobalConstant::UserKycDetail.whitelisted_admin_status => 4 # green
        }
 
   enum token_sale_participation_phase: {

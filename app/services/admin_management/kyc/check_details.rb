@@ -166,8 +166,8 @@ module AdminManagement
         {
           admin_status: @user_kyc_detail.admin_status,
           cynopsis_status: @user_kyc_detail.cynopsis_status,
-          is_re_submitted: @user_kyc_detail.is_re_submitted.to_i.to_b,
-          is_duplicate: @user_kyc_detail.is_duplicate.to_i.to_b,
+          is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
+          is_duplicate: @user_kyc_detail.is_duplicate.to_i,
           last_acted_by: last_acted_by
         }
       end
@@ -182,7 +182,7 @@ module AdminManagement
       #
       def last_acted_by
         (@user_kyc_detail.last_acted_by.to_i > 0) ?
-          Admin.where(@user_kyc_detail.last_acted_by).first.name :
+          Admin.where(id: @user_kyc_detail.last_acted_by).first.name :
           ''
       end
 

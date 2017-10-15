@@ -77,7 +77,7 @@ module UserManagement
       return unauthorized_access_response('um_vc_3') unless @user_id > 0
 
       @created_ts = parts[1].to_i
-      return unauthorized_access_response('um_vc_4') unless (@created_ts + 1.hour.to_i) >= Time.now.to_i
+      return unauthorized_access_response('um_vc_4') unless (@created_ts + GlobalConstant::Cookie.double_auth_expiry.to_i) >= Time.now.to_i
 
       @token = parts[3]
 

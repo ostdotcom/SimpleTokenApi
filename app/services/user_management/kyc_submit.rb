@@ -25,6 +25,9 @@ module UserManagement
     # @params [String] selfie_file_path (mandatory) - selfie file
     # @params [String] residence_proof_file_path (optional)
     #
+    # @params [String] g_recaptcha_response (optional)
+    # @params [String] remoteip (optional)
+    #
     # @return [AdminManagement::KycSubmit]
     #
     def initialize(params)
@@ -47,6 +50,9 @@ module UserManagement
       @passport_file_path = @params[:passport_file_path] # S3 Path of PassPort File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
+
+      @g_recaptcha_response = @params[:g_recaptcha_response]
+      @remoteip = @params[:remoteip]
 
       @user_secret = nil
       @user = nil
@@ -137,8 +143,18 @@ module UserManagement
 
       # Check if user KYC is already approved
       user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
-      if user_kyc_detail.present? && user_kyc_detail.kyc_approved?
-        return unauthorized_access_response('um_ks_2', 'Your KYC is already approved.')
+      if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
+        return unauthorized_access_response('um_ks_2', 'Your KYC is already approved/denied.')
+      end
+
+      # Check re-capcha on when verification is not yet done
+      if !user_kyc_detail.present?
+        r = Recaptcha::Verify.new({
+                                    'response' => @g_recaptcha_response.to_s,
+                                    'remoteip' => @remoteip.to_s
+                                }).perform
+        Rails.logger.info('---- Recaptcha::Verify done')
+        return r unless r.success?
       end
 
       success

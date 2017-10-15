@@ -7,9 +7,14 @@ class User::TokenSaleController < User::BaseController
   # * Reviewed By: Sunil
   #
   def kyc_submit
-    res = verify_recaptcha
-    render_api_response(res) and return unless res.success?
-    service_response = UserManagement::KycSubmit.new(params).perform
+    # res = verify_recaptcha
+    # render_api_response(res) and return unless res.success?
+    service_response = UserManagement::KycSubmit.new(
+        params.merge(
+            g_recaptcha_response: params['g-recaptcha-response'],
+            remoteip: request.remote_ip
+        )
+    ).perform
     render_api_response(service_response)
   end
 
@@ -53,19 +58,19 @@ class User::TokenSaleController < User::BaseController
     render_api_response(r)
   end
 
-  private
-
-  # verify captcha
+  # private
   #
-  # * Author: Aman
-  # * Date: 13/10/2017
-  # * Reviewed By: Sunil
-  #
-  def verify_recaptcha
-    r = Recaptcha::Verify.new({
-                                  'response' => params['g-recaptcha-response'],
-                                  'remoteip' => request.remote_ip
-                              }).perform
-  end
+  # # verify captcha
+  # #
+  # # * Author: Aman
+  # # * Date: 13/10/2017
+  # # * Reviewed By: Sunil
+  # #
+  # def verify_recaptcha
+  #   r = Recaptcha::Verify.new({
+  #                                 'response' => params['g-recaptcha-response'],
+  #                                 'remoteip' => request.remote_ip
+  #                             }).perform
+  # end
 
 end

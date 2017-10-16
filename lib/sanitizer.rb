@@ -12,7 +12,7 @@ module Sanitizer
     if passed_param.is_a? String
       # if the passed_param is a string, sanitize it directly to remove script tags etc
       passed_param = Sanitize.fragment(passed_param.to_s).gsub("`", "&#x60;")
-    elsif passed_param.is_a? Hash
+    elsif passed_param.is_a?(Hash) || passed_param.is_a?(ActionController::Parameters)
       # if the passed_param is a hash, sanitize the values.
       # we are not sanitizing keys, as not known keys will not be accessed - assumption
       passed_param.each do |key, val|

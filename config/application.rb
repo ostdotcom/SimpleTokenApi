@@ -53,6 +53,8 @@ module SimpleTokenApi
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
 
+    config.active_job.queue_adapter = :sidekiq
+
     require_relative('../lib/custom_log_formatter')
     config.log_level = :info
     config.log_formatter = CustomLogFormatter.new

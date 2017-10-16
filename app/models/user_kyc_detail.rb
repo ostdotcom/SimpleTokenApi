@@ -21,6 +21,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
            GlobalConstant::TokenSale.open_sale_token_sale_phase => 3
        }
 
+  enum is_duplicate: {GlobalConstant::UserKycDetail.false_status => 0, GlobalConstant::UserKycDetail.true_status => 1}
+
   def cynonpsis_approved_statuses
     [GlobalConstant::UserKycDetail.cleared_cynopsis_status, GlobalConstant::UserKycDetail.approved_cynopsis_status]
   end

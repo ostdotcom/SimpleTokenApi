@@ -69,6 +69,11 @@
     - :case_id
   :optional:
 
+'AdminManagement::Kyc::CheckDuplicates':
+  :mandatory:
+    - :user_id
+  :optional:
+
 'UserManagement::SignUp':
   :mandatory:
     - :email

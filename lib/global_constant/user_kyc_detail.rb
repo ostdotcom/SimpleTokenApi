@@ -65,6 +65,18 @@ module GlobalConstant
 
       ### kyc_status ends###
 
+      ### duplicate state###
+
+      def true_status
+        'true'
+      end
+
+      def false_status
+        'false'
+      end
+
+      ### duplicate state ends###
+
 
     end
 

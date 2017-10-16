@@ -105,7 +105,7 @@ class KycSubmitJob < ApplicationJob
     end
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
-    @user_kyc_detail.is_duplicate = @is_duplicate.to_i
+    @user_kyc_detail.is_duplicate = @is_duplicate ?  GlobalConstant::UserKycDetail.true_status : GlobalConstant::UserKycDetail.false_status
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.last_acted_by = nil
@@ -158,7 +158,9 @@ class KycSubmitJob < ApplicationJob
   #
   def check_duplicate_kyc_documents
     # TODO implement the duplication checks.
-    @is_duplicate = false
+    r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_id).perform
+    return r unless r.success?
+    @is_duplicate = r.data[:is_duplicate]
     save_duplicate_kyc_status
   end
 
@@ -170,8 +172,8 @@ class KycSubmitJob < ApplicationJob
   #
   def save_duplicate_kyc_status
     Rails.logger.info('-- save_duplicate_kyc_status')
-    @user_kyc_detail.is_duplicate = @is_duplicate.to_i
-    @user_kyc_detail.save!
+    @user_kyc_detail.is_duplicate = @is_duplicate ?  GlobalConstant::UserKycDetail.true_status : GlobalConstant::UserKycDetail.false_status
+    @user_kyc_detail.save! if @user_kyc_detail.changed?
   end
 
   ########################## Cynopsis handling ##########################

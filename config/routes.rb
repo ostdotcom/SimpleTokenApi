@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/profile' do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
-    match 'logout' => :logout, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do

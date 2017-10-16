@@ -23,7 +23,7 @@ module Util
     # @return [String]
     #
     def self.maxmind_db_data_file_path
-      @maxmind_db_data_file_path ||= "#{Rails.root}/../GeoLite2-City.mmdb"
+      @maxmind_db_data_file_path ||= GlobalConstant::LocalPath.geo_ip_file
     end
 
     # Initialize

@@ -36,6 +36,9 @@ constants:
   s3:
     kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>
 
+  local_path:
+    geo_ip_file: <%= ENV['STA_GEOIP_FILE_WITH_PATH'] %>
+
   st_token_sale:
     active_status: <%= ENV['ST_TOKEN_SALE_ACTIVE_STATUS']%>
     pre_sale_register_start_date:  <%= ENV['ST_PRE_SALE_REGISTER_START_DATE'] %>

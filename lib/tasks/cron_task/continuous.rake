@@ -27,7 +27,7 @@ namespace :cron_task do
     task :process_email_service_api_call_hooks do |task|
       @task_name = task
       @process_name = "#{task}_#{ENV['lock_key_suffix']}"
-      @sleep_interval = 120
+      @sleep_interval = 3
       execute_continuous_task
     end
 

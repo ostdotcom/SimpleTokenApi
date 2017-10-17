@@ -37,7 +37,7 @@ module UserManagement
       @user_id = @params[:user_id]
       @first_name = @params[:first_name] # required
       @last_name = @params[:last_name] # required
-      @birthdate = @params[:birthdate] # format - '02-FEB-2001'
+      @birthdate = @params[:birthdate] # format - 'dd/mm/yyyy'
       @street_address = @params[:street_address] # required
       @city = @params[:city] # required
       @state = @params[:state] # required
@@ -135,7 +135,7 @@ module UserManagement
       return error_with_data(
           'um_ks_1',
           'Invalid Parameters.',
-          'Invalid Parameters.',
+          'There were some errors in your KYC. Please correct and resubmit',
           GlobalConstant::ErrorAction.default,
           {},
           @error_data
@@ -173,9 +173,12 @@ module UserManagement
     end
 
     def validate_birthdate
-      @birthdate = @birthdate.to_s.strip
       begin
-        Date.parse(@birthdate)
+        @birthdate = @birthdate.to_s.strip
+        @birthdate =  DateTime.strptime(@birthdate, "%d/%m/%Y")
+        age = (Time.now - @birthdate)
+        @error_data[:birthdate] = 'Invalid Birth Date.' unless (age < 100.year && age > 1.day)
+        @birthdate = @birthdate.to_s(:db)
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'
       end

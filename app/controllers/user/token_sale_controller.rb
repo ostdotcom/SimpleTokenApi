@@ -16,7 +16,7 @@ class User::TokenSaleController < User::BaseController
     render_api_response(service_response)
   end
 
-  # Submit KYC
+  # branded token name submit
   #
   # * Author: Kedar
   # * Date: 11/10/2017
@@ -27,7 +27,7 @@ class User::TokenSaleController < User::BaseController
     render_api_response(service_response)
   end
 
-  # Get logged in user details
+  # Get upload file params
   #
   # * Author: Kedar
   # * Date: 13/10/2017

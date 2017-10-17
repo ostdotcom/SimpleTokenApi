@@ -46,7 +46,6 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- init_params @user_extended_detail: #{@user_extended_detail.id}")
 
     @cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
-    @is_duplicate = false
 
     @run_role = 'admin'
     @run_purpose = 'kyc'
@@ -69,7 +68,7 @@ class KycSubmitJob < ApplicationJob
 
     # Check if user KYC is already approved
     user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
-    if user_kyc_detail.present? && user_kyc_detail.kyc_approved?
+    if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
       fail "KYC is already approved for user id: #{@user_id}."
     end
 
@@ -105,7 +104,7 @@ class KycSubmitJob < ApplicationJob
     end
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
-    @user_kyc_detail.is_duplicate = @is_duplicate ?  GlobalConstant::UserKycDetail.true_status : GlobalConstant::UserKycDetail.false_status
+    @user_kyc_detail.duplicate_status = GlobalConstant::UserKycDetail.unprocessed_duplicate_status
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.last_acted_by = nil
@@ -154,27 +153,15 @@ class KycSubmitJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  # Sets @is_duplicate
   #
   def check_duplicate_kyc_documents
-    # TODO implement the duplication checks.
+    Rails.logger.info('-- check_duplicate_kyc_documents')
     r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_id).perform
     return r unless r.success?
-    @is_duplicate = r.data[:is_duplicate]
-    save_duplicate_kyc_status
+
+    @user_kyc_detail.reload
   end
 
-  # Save duplicate status
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def save_duplicate_kyc_status
-    Rails.logger.info('-- save_duplicate_kyc_status')
-    @user_kyc_detail.is_duplicate = @is_duplicate ?  GlobalConstant::UserKycDetail.true_status : GlobalConstant::UserKycDetail.false_status
-    @user_kyc_detail.save! if @user_kyc_detail.changed?
-  end
 
   ########################## Cynopsis handling ##########################
 

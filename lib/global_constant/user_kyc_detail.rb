@@ -67,12 +67,20 @@ module GlobalConstant
 
       ### duplicate state###
 
-      def true_status
-        'true'
+      def unprocessed_duplicate_status
+        'unprocessed'
       end
 
-      def false_status
-        'false'
+      def never_duplicate_status
+        'never'
+      end
+
+      def is_duplicate_status
+        'is'
+      end
+
+      def was_duplicate_status
+        'was'
       end
 
       ### duplicate state ends###

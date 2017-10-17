@@ -20,9 +20,9 @@ module UserManagement
 
     # Perform
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -54,9 +54,9 @@ module UserManagement
 
     # Validate
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -79,23 +79,24 @@ module UserManagement
 
     # Fetch user data
     #
-    # * Author: Aman
-    # * Date: 10/10/2017
-    # * Reviewed By: Kedar
+    # * Author: Kedar
+    # * Date: 13/10/2017
+    # * Reviewed By: Sunil
     #
-    # Sets @user, @user_secret
+    # Sets @user
     #
     def fetch_user_data
       #TODO: Cache this query
       @user = User.where(id: @user_id).first
+      return invalid_url_error('um_doi_2') if @user.blank?
       success
     end
 
     # Fetch DB row containing token info
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -103,20 +104,20 @@ module UserManagement
 
       @token_sale_double_opt_in_token = TemporaryToken.where(id: @token_sale_double_opt_in_token_id).first
 
-      return invalid_url_error('um_doi_2') if @token_sale_double_opt_in_token.blank?
+      return invalid_url_error('um_doi_3') if @token_sale_double_opt_in_token.blank?
 
-      return invalid_url_error('um_doi_3') if @token_sale_double_opt_in_token.token != @token
+      return invalid_url_error('um_doi_4') if @token_sale_double_opt_in_token.token != @token
 
       if @token_sale_double_opt_in_token.status != GlobalConstant::TemporaryToken.active_status
-        return invalid_url_error('um_doi_4')
-      end
-
-      if @token_sale_double_opt_in_token.user_id != @user_id
         return invalid_url_error('um_doi_5')
       end
 
-      if @token_sale_double_opt_in_token.kind != GlobalConstant::TemporaryToken.double_opt_in_kind
+      if @token_sale_double_opt_in_token.user_id != @user_id
         return invalid_url_error('um_doi_6')
+      end
+
+      if @token_sale_double_opt_in_token.kind != GlobalConstant::TemporaryToken.double_opt_in_kind
+        return invalid_url_error('um_doi_7')
       end
 
       success
@@ -125,9 +126,9 @@ module UserManagement
 
     # Mark Token as Used
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -138,14 +139,14 @@ module UserManagement
       ).update_all(status: GlobalConstant::TemporaryToken.used_status)
 
       # if row_updated_count == 0 means this token was already marked as used by some other concurrent request
-      row_updated_count > 0 ? success : invalid_url_error('um_doi_7')
+      row_updated_count > 0 ? success : invalid_url_error('um_doi_8')
     end
 
     # Save User
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By: Sunil
     #
     def save_user
       @user.send("set_#{GlobalConstant::User.token_sale_double_optin_done_property}")
@@ -154,9 +155,9 @@ module UserManagement
 
     # Enqueue Job
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By: Sunil
     #
     def enqueue_job
       BgJob.enqueue(
@@ -169,8 +170,9 @@ module UserManagement
 
     # Invalid Request Response
     #
-    # * Author: Puneet
+    # * Author: Kedar
     # * Date: 13/10/2017
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #

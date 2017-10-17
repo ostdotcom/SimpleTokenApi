@@ -6,7 +6,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
@@ -30,7 +30,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -58,7 +58,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # Sets @user, @user_secret
     #
@@ -79,7 +79,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -96,7 +96,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -112,7 +112,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -126,7 +126,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #

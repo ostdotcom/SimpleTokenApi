@@ -129,7 +129,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 15/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def save_user
       @user.save! if @user.changed?
@@ -139,7 +139,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 15/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def enqueue_job
       BgJob.enqueue(

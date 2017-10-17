@@ -6,7 +6,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param [Integer] user_id (mandatory) - this is the user id
     # @param [String] t (mandatory) - this is the double opt in token
@@ -28,7 +28,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -56,9 +56,9 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # Sets @user
+    # Sets @user, @user_token_sale_state
     #
     def fetch_user
       @user = User.where(id: @user_id).first
@@ -69,7 +69,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -89,7 +89,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -104,7 +104,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -117,7 +117,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @user
     #
@@ -125,58 +125,14 @@ module UserManagement
       @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
     end
 
-    # User Kyc Status
+    # Success response data
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # @return [String] status of kyc
+    # @return [Hash] final success data
     #
-    def kyc_status
-      case true
-        when @user_kyc_detail.kyc_approved?
-          GlobalConstant::UserKycDetail.kyc_approved_status
-        when @user_kyc_detail.kyc_denied?
-          GlobalConstant::UserKycDetail.kyc_denied_status
-        when @user_kyc_detail.kyc_pending?
-          GlobalConstant::UserKycDetail.kyc_pending_status
-        else
-          fail "Invalid kyc status"
-      end
-    end
-
-    # User type for token sale
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    # @return [String] token sale participation phase
-    #
-    def token_sale_participation_phase
-      @user_kyc_detail.token_sale_participation_phase
-    end
-
-    # Unauthorized access response
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {},
-          {user_token_sale_state: @user_token_sale_state}
-      )
-    end
-
     def success_response_data
       {
           user: user_data,
@@ -189,7 +145,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Hash] hash of user data
     #
@@ -206,7 +162,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 12/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Hash] hash of user data
     #
@@ -223,6 +179,58 @@ module UserManagement
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
               token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
           }
+    end
+
+    # User type for token sale
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [String] token sale participation phase
+    #
+    def token_sale_participation_phase
+      @user_kyc_detail.token_sale_participation_phase
+    end
+
+    # User Kyc Status
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [String] status of kyc
+    #
+    def kyc_status
+      case true
+        when @user_kyc_detail.kyc_approved?
+          GlobalConstant::UserKycDetail.kyc_approved_status
+        when @user_kyc_detail.kyc_denied?
+          GlobalConstant::UserKycDetail.kyc_denied_status
+        when @user_kyc_detail.kyc_pending?
+          GlobalConstant::UserKycDetail.kyc_pending_status
+        else
+          fail "Invalid kyc status"
+      end
+    end
+
+    # Unauthorized access response
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def unauthorized_access_response(err, display_text = 'Unauthorized access.')
+      error_with_data(
+          err,
+          display_text,
+          display_text,
+          GlobalConstant::ErrorAction.default,
+          {},
+          {user_token_sale_state: @user_token_sale_state}
+      )
     end
 
   end

@@ -6,7 +6,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @param [Integer] user_id (mandatory)
     # @param [Hash] images (mandatory)
@@ -20,9 +20,6 @@ module UserManagement
       @images = @params[:images] || {}
       @pdfs = @params[:pdfs] || {}
 
-      @aws_creds = GlobalConstant::Aws::Common.get_credentials_for('user')
-      @aws_kms_key_id = GlobalConstant::Aws::Kms.get_key_id_for('kyc')
-
       @upload_params = {}
     end
 
@@ -30,7 +27,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -61,7 +58,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -80,14 +77,14 @@ module UserManagement
       end
 
       invalid_content_types = (image_content_types - ['image/jpeg', 'image/png', 'image/jpg']).any? ||
-        (pdf_content_types - ['application/pdf']).any?
+          (pdf_content_types - ['application/pdf']).any?
 
       return error_with_data(
-        'um_gup_1',
-        'invalid content types.',
-        'Only JPEG, PDF and PNG files are allowed.',
-        GlobalConstant::ErrorAction.default,
-        {}
+          'um_gup_1',
+          'invalid content types.',
+          'Only JPEG, PDF and PNG files are allowed.',
+          GlobalConstant::ErrorAction.default,
+          {}
       ) if invalid_content_types
 
       success
@@ -97,7 +94,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By: Sunil Khedar
+    # * Reviewed By: Sunil
     #
     # @param [String] content_type
     # @param [String] key
@@ -105,26 +102,8 @@ module UserManagement
     # @return [Hash]
     #
     def get_upload_params_for(content_type, key)
-      post_policy = {
-        key: key,
-        content_type: content_type,
-        signature_expiration: Time.now + 1800,
-        server_side_encryption: 'aws:kms',
-        server_side_encryption_aws_kms_key_id: GlobalConstant::Aws::Kms.get_key_id_for('kyc'),
-        content_length_range: (1024*200)..(1024*1024*15) # allow max 15 MB and min 200 kb
-      }
 
-      credentials = Aws::Credentials.new(
-        @aws_creds['access_key'],
-        @aws_creds['secret_key']
-      )
-
-      post = Aws::S3::PresignedPost.new(
-        credentials,
-        GlobalConstant::Aws::Common.region,
-        GlobalConstant::Aws::Common.kyc_bucket,
-        post_policy
-      )
+      post = Aws::S3Manager.new('kyc', 'user').get_presigned_post_url_for(content_type, key, GlobalConstant::Aws::Common.kyc_bucket)
 
       {url: post.url, fields: post.fields}
     end

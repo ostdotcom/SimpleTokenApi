@@ -15,7 +15,7 @@ class User::ProfileController < User::BaseController
   #
   # * Author: Aman
   # * Date: 13/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def profile
     service_response = UserManagement::ProfileDetail.new(params).perform

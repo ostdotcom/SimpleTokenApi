@@ -30,7 +30,7 @@ module Util
     #
     # * Author: Aman
     # * Date: 15/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Set @maxmind_db_object
     #
@@ -55,6 +55,9 @@ module Util
         data = ret.found? ? ret.to_hash.deep_symbolize_keys! : {}
         data
       rescue => e
+        Rails.logger.error("location_details failed with exception: for #{@ip_address} - #{e.message}")
+        # Fail it for non production environments
+        fail "location_details failed with exception: for #{@ip_address} - #{e.message}" unless Rail.env.production?
         {}
       end
     end

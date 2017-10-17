@@ -69,6 +69,7 @@ Rails.application.configure do
   # config.log_formatter = ::Logger::Formatter.new
   #
 
+  config.action_mailer.perform_deliveries = false
   config.action_mailer.default_url_options = {host: 'stagingsimpletoken.org'}
   config.action_mailer.smtp_settings = {
     address: ENV['STA_SES_SMTP_ADDRESS'],

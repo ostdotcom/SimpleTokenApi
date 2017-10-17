@@ -201,7 +201,7 @@ module UserManagement
 
     def validate_country
       @country = @country.to_s.strip
-      if !@country.present? || !GlobalConstant::Cynopsis.allowed_countries.include?(@country)
+      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
         @error_data[:country] = 'Country is required.'
       end
     end
@@ -232,7 +232,7 @@ module UserManagement
 
     def validate_nationality
       @nationality = @nationality.to_s.strip
-      if !@nationality.present? || !GlobalConstant::Cynopsis.allowed_nationalities.include?(@nationality)
+      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
         @error_data[:nationality] = 'Nationality is required.'
       end
     end
@@ -249,7 +249,7 @@ module UserManagement
 
     def validate_residence_proof_file_path
       @residence_proof_file_path = @residence_proof_file_path.to_s.strip
-      if GlobalConstant::Cynopsis.is_nationalities_chinese(@nationality) && !@residence_proof_file_path.present?
+      if GlobalConstant::CountryNationality.is_nationality_chinese(@nationality) && !@residence_proof_file_path.present?
         @error_data[:residence_proof_file_path] = 'Residence proof is required.'
       end
     end

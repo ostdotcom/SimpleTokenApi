@@ -30,6 +30,7 @@ module AdminManagement
         @user_kycs = []
         @user_extended_detail_ids = []
         @user_extended_details = {}
+        @md5_user_extended_details = {}
         @admin_ids = []
         @admin_details = {}
 
@@ -117,7 +118,7 @@ module AdminManagement
       # * Date: 15/10/2017
       # * Reviewed By: Sunil
       #
-      # Sets @admin_details, @user_extended_details
+      # Sets @admin_details, @user_extended_details, @md5_user_extended_details
       #
       def fetch_user_details
         return if @user_kycs.blank?
@@ -128,6 +129,8 @@ module AdminManagement
         end
 
         @user_extended_details = UserExtendedDetail.where(id: @user_extended_detail_ids).index_by(&:id)
+        @md5_user_extended_details = Md5UserExtendedDetail.select('id, user_extended_detail_id, country, nationality').
+            where(user_extended_detail_id: @user_extended_detail_ids).index_by(&:user_extended_detail_id)
 
         if @admin_ids.present?
           @admin_details = Admin.select('id, name').where(id: @admin_ids.uniq).index_by(&:id)
@@ -147,17 +150,20 @@ module AdminManagement
 
         @user_kycs.each do |u_k|
           user_extended_detail = @user_extended_details[u_k.user_extended_detail_id]
+          md5_user_extended_detail = @md5_user_extended_details[u_k.user_extended_detail_id]
+          country_name = GlobalConstant::CountryNationality.country_name_for(md5_user_extended_detail.country)
+          nationality_name = GlobalConstant::CountryNationality.nationality_name_for(md5_user_extended_detail.nationality)
 
           @curr_page_data << {
               case_id: u_k.id,
               kyc_confirmed_at: Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M"),
               admin_status: u_k.admin_status,
               cynopsis_status: u_k.cynopsis_status,
-              is_duplicate: u_k.duplicate_status,
+              is_duplicate: u_k.show_duplicate_status.to_i,
               is_re_submitted: u_k.is_re_submitted.to_i,
               name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
-              country: user_extended_detail.country,
-              nationality: user_extended_detail.nationality,
+              country: country_name.titleize,
+              nationality: nationality_name.titleize,
               last_acted_by: last_acted_by(u_k.last_acted_by.to_i)
           }
         end

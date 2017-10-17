@@ -38,7 +38,7 @@ module AdminManagement
 
           log_admin_action
 
-          enqueue_job
+          send_email
 
           success_with_data(@api_response_data)
         end
@@ -67,24 +67,22 @@ module AdminManagement
           UserKycDetail.where(id: @case_id).update_all(admin_status: GlobalConstant::UserKycDetail.denied_admin_status)
         end
 
-        # log admin action
+        # Send email
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
         # * Reviewed By:
         #
-        def log_admin_action
+        def send_email
 
-        end
+          if @user_kyc_detail.kyc_denied?
+            Email::HookCreator::SendTransactionalMail.new(
+                email: @user.email,
+                template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
+                template_vars: {}
+            ).perform
+          end
 
-        # log admin action
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By:
-        #
-        def enqueue_job
-          # check and send email in async
         end
 
       end

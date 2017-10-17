@@ -60,6 +60,8 @@ module AdminManagement
               {}
           ) if @user_kyc_detail.case_closed?
 
+          @user = User.where(id: @user_kyc_detail.id).first
+
           success
         end
 
@@ -70,7 +72,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def log_admin_action
-          fail 'subclass to implement this method'
+
         end
 
       end

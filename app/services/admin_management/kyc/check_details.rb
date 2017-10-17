@@ -169,7 +169,7 @@ module AdminManagement
           admin_status: @user_kyc_detail.admin_status,
           cynopsis_status: @user_kyc_detail.cynopsis_status,
           is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
-          is_duplicate: @user_kyc_detail.duplicate_status,
+          is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
           last_acted_by: last_acted_by
         }
       end
@@ -215,7 +215,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def nationality_d
-        local_cipher_obj.decrypt(@user_extended_detail.nationality).data[:plaintext]
+        local_cipher_obj.decrypt(@user_extended_detail.nationality).data[:plaintext].titleize
       end
 
       # Decrypt street address
@@ -254,7 +254,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def country_d
-        local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext]
+        local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext].titleize
       end
 
       # Decrypt state

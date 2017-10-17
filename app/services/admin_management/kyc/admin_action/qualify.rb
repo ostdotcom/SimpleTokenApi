@@ -62,7 +62,8 @@ module AdminManagement
         # * Reviewed By:
         #
         def update_user_kyc_status
-          UserKycDetail.where(id: @case_id).update_all(admin_status: GlobalConstant::UserKycDetail.qualified_admin_status)
+          @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
+          @user_kyc_detail.save!
         end
 
         # log admin action
@@ -72,6 +73,24 @@ module AdminManagement
         # * Reviewed By:
         #
         def log_admin_action
+
+        end
+
+        # Send email
+        #
+        # * Author: Alpesh
+        # * Date: 15/10/2017
+        # * Reviewed By:
+        #
+        def send_email
+
+          if @user_kyc_detail.kyc_approved?
+            Email::HookCreator::SendTransactionalMail.new(
+                email: @user.email,
+                template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+                template_vars: {}
+            ).perform
+          end
 
         end
 

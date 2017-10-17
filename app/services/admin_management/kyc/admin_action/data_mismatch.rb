@@ -36,34 +36,12 @@ module AdminManagement
 
           log_admin_action
 
-          #send_email
+          send_email
 
           success_with_data(@api_response_data)
         end
 
         private
-
-        # Validate & sanitize
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By:
-        #
-        # return [Result::Base]
-        #
-        def validate_and_sanitize
-          super
-        end
-
-        # log admin action
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By:
-        #
-        def log_admin_action
-
-        end
 
         # Send email
         #
@@ -72,15 +50,13 @@ module AdminManagement
         # * Reviewed By:
         #
         def send_email
-          return unless @double_opt_in_token.present?
-          user = User.where(id: @user_kyc_detail.id).first
+
           Email::HookCreator::SendTransactionalMail.new(
-              email: user.email,
-              template_name: GlobalConstant::PepoCampaigns.double_opt_in_template,
-              template_vars: {
-                  double_opt_in_token: @double_opt_in_token
-              }
+              email: @user.email,
+              template_name: GlobalConstant::PepoCampaigns.kyc_data_mismatch_template,
+              template_vars: {}
           ).perform
+
         end
 
       end

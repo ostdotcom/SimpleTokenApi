@@ -169,7 +169,7 @@ module AdminManagement
           admin_status: @user_kyc_detail.admin_status,
           cynopsis_status: @user_kyc_detail.cynopsis_status,
           is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
-          is_duplicate: @user_kyc_detail.is_duplicate.to_i,
+          is_duplicate: @user_kyc_detail.duplicate_status,
           last_acted_by: last_acted_by
         }
       end

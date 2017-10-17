@@ -153,7 +153,7 @@ module AdminManagement
               kyc_confirmed_at: Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M"),
               admin_status: u_k.admin_status,
               cynopsis_status: u_k.cynopsis_status,
-              is_duplicate: u_k.is_duplicate.to_i,
+              is_duplicate: u_k.duplicate_status,
               is_re_submitted: u_k.is_re_submitted.to_i,
               name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
               country: user_extended_detail.country,

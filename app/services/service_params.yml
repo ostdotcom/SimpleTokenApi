@@ -39,6 +39,12 @@
     - :offset
     - :page_size
 
+'AdminManagement::Kyc::FetchDuplicates':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+
 'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
     - :admin_id

@@ -22,6 +22,17 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Fetch duplicate
+  #
+  # * Author: Kedar
+  # * Date: 14/10/2017
+  # * Reviewed By: Sunil
+  #
+  def fetch_duplicate
+    service_response = AdminManagement::Kyc::FetchDuplicates.new(params).perform
+    render_api_response(service_response)
+  end
+
   # Deny KYC by admin
   #
   # * Author: Alpesh

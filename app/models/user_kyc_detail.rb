@@ -61,4 +61,13 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   end
 
+  def never_duplicate?
+
+    [
+        GlobalConstant::UserKycDetail.unprocessed_duplicate_status,
+        GlobalConstant::UserKycDetail.never_duplicate_status
+    ].include?(duplicate_status)
+
+  end
+
 end

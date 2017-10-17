@@ -68,7 +68,7 @@ namespace :cron_task do
     #
     # * Author: Puneet
     # * Date: 10/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def log_line(line)
       puts "cron_task:lockable:#{@process_name} : #{line}"
@@ -78,7 +78,7 @@ namespace :cron_task do
     #
     # * Author: Puneet
     # * Date: 10/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def execute_lockable_task
       Rake::Task['cron_task:lockable:execute_task'].reenable

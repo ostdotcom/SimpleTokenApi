@@ -8,19 +8,17 @@ namespace :cron_task do
   #
   # * Author: Puneet
   # * Date: 10/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   task :validate_params do
     fail '@process_name blank' if @process_name.blank?
-    fail '@task_name blank' if @task_name.blank?
   end
 
-  #
   # a pre requisite task to execute_task which acquires file lock
   #
   # * Author: Puneet
   # * Date: 10/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   task :acquire_lock do
     log_line "Trying to acquire lock at => #{Time.now}"
@@ -34,16 +32,13 @@ namespace :cron_task do
     end
   end
 
-  #
   # a pre requisite task to execute_task which loads Rails Environment and sets some instance vars
   #
   # * Author: Puneet
   # * Date: 10/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   task :set_up_environment => :environment do
-
-
     # included this module to be able to register signal handlers
     include Util::SignalHandler
 
@@ -51,32 +46,16 @@ namespace :cron_task do
     log_line "============= Loading Env at #{@start_time}"
     @params = {}
     @params.merge!(@optional_params) if @optional_params.present?
-
   end
 
   # Get the lock file name
   #
   # * Author: Puneet
   # * Date: 10/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def lock_file_path
     @lock_file_path ||= "#{Rails.root.to_s}/log/#{@process_name}.lock"
-  end
-
-  # Get Performer Klass
-  #
-  # * Author: Puneet
-  # * Date: 10/10/2017
-  # * Reviewed By:
-  #
-  def get_performer_klass
-    case @task_name.to_s
-      when 'cron_task:continuous:process_email_service_api_call_hooks'
-        Crons::HookProcessors::EmailServiceApiCall
-      else
-        fail "unsupported #{@task_name}"
-    end
   end
 
 end

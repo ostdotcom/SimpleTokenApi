@@ -6,10 +6,10 @@ module Util
     #
     # * Author: Puneet
     # * Date: 10/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def register_signal_handlers
-      puts "\n\n\n\nAdding handler\n\n\n"
+      puts "*** Adding handler register_signal_handlers ***"
       @continue_running = true
       ['INT', 'QUIT', 'TERM'].each do |sig|
         Signal.trap(sig) { puts "\n\n\nTrapped - #{sig} "; @continue_running = false }

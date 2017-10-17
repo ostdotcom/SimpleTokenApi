@@ -8,8 +8,8 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] user_id (mandatory) - this is the user id
-    # @param [String] t (mandatory) - this is the double opt in token
+    # @params [Integer] user_id (mandatory) - this is the user id
+    # @params [String] t (mandatory) - this is the double opt in token
     #
     # @return [UserManagement::GetBasicDetail]
     #
@@ -137,8 +137,29 @@ module UserManagement
       {
           user: user_data,
           user_kyc_data: user_kyc_data,
-          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status,
+          foundation_ethereum_address: get_foundation_ethereum_address
       }
+    end
+
+    # get foundation ethereum address
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [String]
+    #
+    def get_foundation_ethereum_address
+      current_time = Time.now
+      if @user_kyc_detail.kyc_approved? &&
+          GlobalConstant::TokenSale.st_token_sale_active_status &&
+          current_time >= GlobalConstant::TokenSale.pre_sale_start_date &&
+          current_time <= GlobalConstant::TokenSale.public_sale_end_date
+        GlobalConstant::TokenSale.st_foundation_ethereum_address
+      else
+        ''
+      end
     end
 
     # User detail
@@ -173,7 +194,7 @@ module UserManagement
               kyc_status: kyc_status,
               token_sale_participation_phase: token_sale_participation_phase
           }
-      :
+          :
           {
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,

@@ -40,11 +40,18 @@ constants:
     geo_ip_file: <%= ENV['STA_GEOIP_FILE_WITH_PATH'] %>
 
   st_token_sale:
-    active_status: <%= ENV['ST_TOKEN_SALE_ACTIVE_STATUS']%>
-    pre_sale_register_start_date:  <%= ENV['ST_PRE_SALE_REGISTER_START_DATE'] %>
-    pre_sale_two_register_start_date:  <%= ENV['ST_PRE_SALE_TWO_REGISTER_START_DATE'] %>
-    public_sale_register_start_date:  <%= ENV['ST_PUBLIC_SALE_REGISTER_START_DATE'] %>
+    critical_details:
+      active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
+      foundation_ethereum_address: <%= ENV['STA_FOUNDATION_ETHEREUM_ADDRESS']%>
+    user_register_dates:
+      pre_sale_register_start_date:  <%= ENV['STA_PRE_SALE_REGISTER_START_DATE'] %>
+      pre_sale_two_register_start_date:  <%= ENV['STA_PRE_SALE_TWO_REGISTER_START_DATE'] %>
+      public_sale_register_start_date:  <%= ENV['STA_PUBLIC_SALE_REGISTER_START_DATE'] %>
+    sale_dates:
+      pre_sale_start_date: <%= ENV['STA_PRE_SALE_START_DATE'] %>
+      public_sale_start_date: <%= ENV['STA_PUBLIC_SALE_START_DATE'] %>
+      public_sale_end_date: <%= ENV['STA_PUBLIC_SALE_END_DATE'] %>
 
   recaptcha:
-    site_key: <%= ENV['ST_RECAPTCHA_SITE_KEY'] %>
-    secret_key: <%= ENV['ST_RECAPTCHA_SECRET'] %>
+    site_key: <%= ENV['STA_RECAPTCHA_SITE_KEY'] %>
+    secret_key: <%= ENV['STA_RECAPTCHA_SECRET'] %>

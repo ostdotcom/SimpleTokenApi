@@ -63,7 +63,8 @@ module UserManagement
       {
           id: @user.id,
           email: @user.email,
-          user_token_sale_state: @user.get_token_sale_state_page_name
+          user_token_sale_state: @user.get_token_sale_state_page_name,
+          bt_name: @user.bt_name.to_s
       }
     end
 

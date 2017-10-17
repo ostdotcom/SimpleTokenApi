@@ -4,7 +4,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Kedar
   # * Date: 14/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   def check_details
     service_response = AdminManagement::Kyc::CheckDetails.new(params).perform
@@ -15,7 +15,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Kedar
   # * Date: 14/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   def dashboard
     service_response = AdminManagement::Kyc::Dashboard.new(params).perform
@@ -26,7 +26,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def deny_kyc
     service_response = AdminManagement::Kyc::AdminAction::DenyKyc.new(params).perform

@@ -10,8 +10,8 @@ module AdminManagement
       # * Date: 14/10/2017
       # * Reviewed By: Sunil
       #
-      # @param [Integer] admin_id (mandatory) - logged in admin
-      # @param [Integer] case_id (mandatory)
+      # @params [Integer] admin_id (mandatory) - logged in admin
+      # @params [Integer] case_id (mandatory)
       #
       # @return [AdminManagement::Kyc::CheckDetails]
       #
@@ -69,6 +69,7 @@ module AdminManagement
         return err_response('am_k_cd_1') if @user_kyc_detail.blank?
 
         @user = User.where(id: @user_kyc_detail.user_id).first
+        return err_response('am_k_cd_2') if @user.blank?
 
         success
       end
@@ -83,7 +84,7 @@ module AdminManagement
       #
       def fetch_user_extended_detail
         @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
-        return err_response('am_k_cd_2') if @user_extended_detail.blank?
+        return err_response('am_k_cd_3') if @user_extended_detail.blank?
 
         @kyc_salt_e = @user_extended_detail.kyc_salt
 
@@ -101,7 +102,7 @@ module AdminManagement
       def decrypt_kyc_salt
 
         r = Aws::Kms.new('kyc', 'admin').decrypt(@kyc_salt_e)
-        return err_response('am_k_cd_3') unless r.success?
+        return err_response('am_k_cd_4') unless r.success?
 
         @kyc_salt_d = r.data[:plaintext]
 
@@ -138,7 +139,7 @@ module AdminManagement
           first_name: @user_extended_detail.first_name,
           last_name: @user_extended_detail.last_name,
           email: @user.email,
-          kyc_confirmed_at: Time.at(@user_kyc_detail.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M"),
+          submitted_at: Time.at(@user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M"),
 
           birthdate: birthdate_d,
           passport_number: passport_number_d,
@@ -150,7 +151,7 @@ module AdminManagement
           country: country_d,
 
           passport_file_url: passport_file_url,
-          self_file_url: self_file_url,
+          selfie_file_url: selfie_file_url,
           residence_proof_file_url: residence_proof_file_url
         }
       end
@@ -187,6 +188,7 @@ module AdminManagement
           ''
       end
 
+      # Decrypt date of birth
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -196,6 +198,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
       end
 
+      # Decrypt passport number
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -205,6 +208,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.passport_number).data[:plaintext]
       end
 
+      # Decrypt nationality
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -214,6 +218,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.nationality).data[:plaintext]
       end
 
+      # Decrypt street address
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -232,6 +237,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.city).data[:plaintext]
       end
 
+      # Decrypt postal code
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -241,6 +247,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.postal_code).data[:plaintext]
       end
 
+      # Decrypt country
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -250,6 +257,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext]
       end
 
+      # Decrypt state
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -259,45 +267,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.state).data[:plaintext]
       end
 
-      #
-      # * Author: Kedar, Puneet
-      # * Date: 12/10/2017
-      # * Reviewed By: Sunil
-      #
-      def passport_file_url
-        get_url(passport_file_path_d)
-      end
-
-      #
-      # * Author: Kedar, Puneet
-      # * Date: 12/10/2017
-      # * Reviewed By: Sunil
-      #
-      def self_file_url
-        get_url(selfie_file_path_d)
-      end
-
-      #
-      # * Author: Kedar, Puneet
-      # * Date: 12/10/2017
-      # * Reviewed By: Sunil
-      #
-      def residence_proof_file_url
-        get_url(residence_proof_file_path_d)
-      end
-
-      #
-      # * Author: Kedar, Puneet
-      # * Date: 12/10/2017
-      # * Reviewed By: Sunil
-      #
-      def get_url(s3_path)
-        return '' unless s3_path.present?
-
-        Aws::S3Manager.new('kyc', 'admin').
-          get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
-      end
-
+      # Decrypt passport url
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -307,6 +277,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.passport_file_path).data[:plaintext]
       end
 
+      # Decrypt selfie url
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -316,6 +287,7 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
       end
 
+      # Decrypt residence proof url
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
@@ -323,8 +295,8 @@ module AdminManagement
       #
       def residence_proof_file_path_d
         @user_extended_detail.residence_proof_file_path.present? ?
-          local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
-          ''
+            local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
+            ''
       end
 
       # local cipher obj
@@ -335,6 +307,49 @@ module AdminManagement
       #
       def local_cipher_obj
         @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
+      end
+
+      # get passport url
+      #
+      # * Author: Kedar, Puneet
+      # * Date: 12/10/2017
+      # * Reviewed By: Sunil
+      #
+      def passport_file_url
+        get_url(passport_file_path_d)
+      end
+
+      # get selfie url
+      #
+      # * Author: Kedar, Puneet
+      # * Date: 12/10/2017
+      # * Reviewed By: Sunil
+      #
+      def selfie_file_url
+        get_url(selfie_file_path_d)
+      end
+
+      # get residence url
+      #
+      # * Author: Kedar, Puneet
+      # * Date: 12/10/2017
+      # * Reviewed By: Sunil
+      #
+      def residence_proof_file_url
+        get_url(residence_proof_file_path_d)
+      end
+
+      # Get file urls
+      #
+      # * Author: Kedar, Puneet
+      # * Date: 12/10/2017
+      # * Reviewed By: Sunil
+      #
+      def get_url(s3_path)
+        return '' unless s3_path.present?
+
+        Aws::S3Manager.new('kyc', 'admin').
+          get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
       end
 
       # Error Response

@@ -10,10 +10,10 @@ module AdminManagement
       # * Date: 14/10/2017
       # * Reviewed By: Sunil
       #
-      # @param [Integer] admin_id (mandatory) - logged in admin
-      # @param [Hash] filters (optional)
-      # @param [Hash] sortings (optional)
-      # @param [Integer] page_number (optional)
+      # @params [Integer] admin_id (mandatory) - logged in admin
+      # @params [Hash] filters (optional)
+      # @params [Hash] sortings (optional)
+      # @params [Integer] page_number (optional)
       #
       # @return [AdminManagement::Kyc::Dashboard]
       #
@@ -21,10 +21,10 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @filters = @params[:filters] || {}
-        @sortings = @params[:sortings] || {sort_order: 'inc'}
-        @page_size = @params[:page_size] || 25
-        @offset = @params[:offset] || 0 #(@page_number.to_i - 1) * @page_size #
+        @filters = @params[:filters]
+        @sortings = @params[:sortings]
+        @page_size = @params[:page_size]
+        @offset = @params[:offset]
 
         @total_filtered_kycs = 0
         @user_kycs = []
@@ -46,7 +46,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def perform
-        r = validate
+        r = validate_and_sanitize
         return r unless r.success?
 
         fetch_user_kyc_details
@@ -61,21 +61,40 @@ module AdminManagement
 
       end
 
-
       private
+
+      # Validate and sanitize
+      #
+      # * Author: Alpesh
+      # * Date: 15/10/2017
+      # * Reviewed By: Sunil
+      #
+      def validate_and_sanitize
+        r = validate
+        return r unless r.success?
+
+        @filters = {} if @filters.blank? || !@filters.is_a?(Hash)
+        @sortings = {} if @sortings.blank? || !@sortings.is_a?(Hash)
+        @page_size = 25 if @page_size.to_i < 1 || @page_size.to_i > 25
+        @offset = 0 if @offset.to_i < 0
+
+        success
+      end
 
       # Fetch all users' kyc detail
       #
       # * Author: Alpesh
       # * Date: 15/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # Sets @user_kycs
+      # Sets @user_kycs, @total_filtered_kycs
       #
       def fetch_user_kyc_details
         ar_relation = UserKycDetail
 
-        if @sortings[:sort_order] == 'desc'
+        if @sortings[:sort_order] == 'inc'
+          ar_relation = ar_relation.order('id ASC')
+        else
           ar_relation = ar_relation.order('id DESC')
         end
 
@@ -96,11 +115,12 @@ module AdminManagement
       #
       # * Author: Alpesh
       # * Date: 15/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # Sets @user, @user_extended_details
+      # Sets @admin_details, @user_extended_details
       #
       def fetch_user_details
+        return if @user_kycs.blank?
 
         @user_kycs.each do |u_k|
           @user_extended_detail_ids << u_k.user_extended_detail_id
@@ -109,7 +129,9 @@ module AdminManagement
 
         @user_extended_details = UserExtendedDetail.where(id: @user_extended_detail_ids).index_by(&:id)
 
-        @admin_details = Admin.select("id, name").where(id: @admin_ids.uniq).index_by(&:id)
+        if @admin_ids.present?
+          @admin_details = Admin.select('id, name').where(id: @admin_ids.uniq).index_by(&:id)
+        end
 
       end
 
@@ -117,7 +139,7 @@ module AdminManagement
       #
       # * Author: Alpesh
       # * Date: 15/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # Sets @curr_page_data
       #
@@ -142,11 +164,23 @@ module AdminManagement
 
       end
 
+      # Last acted by
+      #
+      # * Author: Alpesh
+      # * Date: 15/10/2017
+      # * Reviewed By: Sunil
+      #
+      # @return [String]
+      #
+      def last_acted_by(last_acted_by_id)
+        (last_acted_by_id > 0) ? @admin_details[last_acted_by_id].name : ''
+      end
+
       # Set API response data
       #
       # * Author: Alpesh
       # * Date: 15/10/2017
-      # * Reviewed By:
+      # * Reviewed By: sunil
       #
       # Sets @api_response_data
       #
@@ -160,18 +194,6 @@ module AdminManagement
             }
         }
 
-      end
-
-      # Last acted by
-      #
-      # * Author: Alpesh
-      # * Date: 15/10/2017
-      # * Reviewed By:
-      #
-      # @return [String]
-      #
-      def last_acted_by(last_acted_by_id)
-        (last_acted_by_id > 0) ? @admin_details[last_acted_by_id].name : ''
       end
 
     end

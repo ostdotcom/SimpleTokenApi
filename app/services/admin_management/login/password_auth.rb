@@ -8,7 +8,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # @params [String] email (mandatory) - this is the email entered
       # @params [String] password (mandatory) - this is the password entered
@@ -33,7 +33,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base]
       #
@@ -67,7 +67,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # Sets @admin
       #
@@ -84,7 +84,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # Sets @admin_secret
       #
@@ -101,7 +101,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # Sets @login_salt_d
       #
@@ -124,7 +124,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base]
       #
@@ -140,7 +140,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # Sets @single_auth_cookie_value
       #
@@ -164,7 +164,7 @@ module AdminManagement
       #
       # * Author: Kedar
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil Khedar
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base]
       #

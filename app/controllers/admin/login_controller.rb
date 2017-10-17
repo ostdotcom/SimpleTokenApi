@@ -9,7 +9,7 @@ class Admin::LoginController < Admin::BaseController
   #
   # * Author: Kedar
   # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   def password_auth
 
@@ -36,7 +36,7 @@ class Admin::LoginController < Admin::BaseController
   #
   # * Author: Kedar
   # * Date: 10/10/2017
-  # * Reviewed By: Sunil Khedar
+  # * Reviewed By: Sunil
   #
   def multifactor_auth
 

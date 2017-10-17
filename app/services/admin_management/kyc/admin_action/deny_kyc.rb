@@ -10,10 +10,10 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
-        # @param [Integer] admin_id (mandatory) - logged in admin
-        # @param [Integer] case_id (mandatory)
+        # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] case_id (mandatory)
         #
         # @return [AdminManagement::Kyc::CheckDetails]
         #
@@ -25,7 +25,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #

@@ -51,7 +51,7 @@ module AdminManagement
 
         fetch_user_current_kyc_details
 
-        return success unless @user_kyc_details.never_duplicate_status?
+        return success unless @user_kyc_details.unprocessed_duplicate_status?
 
         fetch_existing_duplicate_data
         if @duplicate_log_ids.present?

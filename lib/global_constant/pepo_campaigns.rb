@@ -93,27 +93,27 @@ module GlobalConstant
 
       # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
       def kyc_data_mismatch_template
-        'kyc_data_mismatch_template'
+        'kyc_data_mismatch'
       end
 
       # passport_issue email - sent when user clicks on "passport issue" on admin panel
       def kyc_passport_issue_template
-        'kyc_passport_issue_template'
+        'kyc_passport_issue'
       end
 
       # selfie_image_issue email - sent when user clicks on "selfie image issue" on admin panel
       def kyc_selfie_image_issue_template
-        'kyc_selfie_image_issue_template'
+        'kyc_selfie_image_issue'
       end
 
       # kyc_approved email - sent when kyc is approved by cynopsis and admin both.
       def kyc_approved_template
-        'kyc_approved_template'
+        'kyc_approved'
       end
 
       # kyc_denied email - sent when kyc is denied by cynopsis and admin both.
       def kyc_denied_template
-        'kyc_denied_template'
+        'kyc_denied'
       end
 
       # All possible templates integrated with email service

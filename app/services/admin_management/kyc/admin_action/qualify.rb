@@ -88,7 +88,10 @@ module AdminManagement
             Email::HookCreator::SendTransactionalMail.new(
                 email: @user.email,
                 template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-                template_vars: {}
+                template_vars: {
+                    token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+                    is_sale_active: (Time.now >= GlobalConstant::TokenSale.public_sale_register_start_date)
+                }
             ).perform
           end
 

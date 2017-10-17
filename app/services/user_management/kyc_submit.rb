@@ -177,7 +177,7 @@ module UserManagement
         @birthdate = @birthdate.to_s.strip
         @birthdate =  DateTime.strptime(@birthdate, "%d/%m/%Y")
         age = (Time.now - @birthdate)
-        @error_data[:birthdate] = 'Invalid Birth Date.' unless (age < 100.year && age > 1.day)
+        @error_data[:birthdate] = 'Invalid Birth Date.' unless (age < 200.year && age >= 18.year)
         @birthdate = @birthdate.to_s(:db)
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'

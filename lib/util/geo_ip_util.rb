@@ -2,40 +2,15 @@ module Util
 
   class GeoIpUtil
 
-    # maxmind file present in local
-    #
-    # * Author: Aman
-    # * Date: 15/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Boolean]
-    #
-    def self.maxmind_file_exists?
-      File.exists?(maxmind_db_data_file_path)
-    end
-
-    # local path to Maxmind DB Data File
-    #
-    # * Author: Aman
-    # * Date: 15/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [String]
-    #
-    def self.maxmind_db_data_file_path
-      @maxmind_db_data_file_path ||= GlobalConstant::LocalPath.geo_ip_file
-    end
-
     # Initialize
     #
     # * Author: Aman
     # * Date: 15/10/2017
     # * Reviewed By: Sunil
     #
-    # Set @maxmind_db_object
+    # Set @ip_address
     #
     def initialize(params)
-      @maxmind_db_object = ::MaxMindDB.new(::Util::GeoIpUtil.maxmind_db_data_file_path)
       @ip_address = params[:ip_address]
     end
 
@@ -51,7 +26,8 @@ module Util
     #
     def location_details
       @location_details ||= begin
-        ret = @maxmind_db_object.lookup(@ip_address)
+        return {} unless GlobalConstant::GeoIp.maxmind_file_exists?
+        ret = GlobalConstant::GeoIp.maxmind_obj.lookup(@ip_address)
         data = ret.found? ? ret.to_hash.deep_symbolize_keys! : {}
         data
       rescue => e

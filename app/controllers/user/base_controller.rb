@@ -47,7 +47,6 @@ class User::BaseController < ApiController
   #
   def handle_blacklisted_ip
     blacklisted_countries = ['china']
-    return unless Util::GeoIpUtil.maxmind_file_exists?
     geo_ip_obj = Util::GeoIpUtil.new(ip_address: ip_address)
     return unless blacklisted_countries.include?(geo_ip_obj.get_country_name.to_s.downcase)
 

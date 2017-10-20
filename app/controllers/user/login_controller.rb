@@ -21,11 +21,11 @@ class User::LoginController < User::BaseController
     if service_response.success?
       # NOTE: delete cookie value from data
       cookie_value = service_response.data.delete(:cookie_value)
-      cookies[GlobalConstant::Cookie.user_cookie_name.to_sym] = {
-          value: cookie_value,
-          expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
-          domain: :all
-      }
+      set_cookie(
+          GlobalConstant::Cookie.user_cookie_name,
+          cookie_value,
+          GlobalConstant::Cookie.double_auth_expiry.from_now
+      )
     end
 
     render_api_response(service_response)
@@ -43,12 +43,13 @@ class User::LoginController < User::BaseController
     ).perform
 
     if service_response.success?
+      # NOTE: delete cookie value from data
       cookie_value = service_response.data.delete(:cookie_value)
-      cookies[GlobalConstant::Cookie.user_cookie_name.to_sym] = {
-        value: cookie_value,
-        expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
-        domain: :all
-      }
+      set_cookie(
+          GlobalConstant::Cookie.user_cookie_name,
+          cookie_value,
+          GlobalConstant::Cookie.double_auth_expiry.from_now
+      )
     end
 
     render_api_response(service_response)

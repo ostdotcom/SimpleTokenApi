@@ -19,11 +19,12 @@ class Admin::LoginController < Admin::BaseController
 
     if service_response.success?
       # Set cookie
-      cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
-        value: service_response.data[:single_auth_cookie_value],
-        expires: GlobalConstant::Cookie.single_auth_expiry.from_now,
-        domain: :all
-      }
+      set_cookie(
+          GlobalConstant::Cookie.admin_cookie_name,
+          service_response.data[:single_auth_cookie_value],
+          GlobalConstant::Cookie.single_auth_expiry.from_now
+      )
+
       # Remove sensitive data
       service_response.data = {}
     end
@@ -49,11 +50,11 @@ class Admin::LoginController < Admin::BaseController
 
     if service_response.success?
       # Set cookie
-      cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym] = {
-        value: service_response.data[:double_auth_cookie_value],
-        expires: GlobalConstant::Cookie.double_auth_expiry.from_now,
-        domain: :all
-      }
+      set_cookie(
+          GlobalConstant::Cookie.admin_cookie_name,
+          service_response.data[:double_auth_cookie_value],
+          GlobalConstant::Cookie.double_auth_expiry.from_now
+      )
       # Remove sensitive data
       service_response.data = {}
     end

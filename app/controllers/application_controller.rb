@@ -4,7 +4,7 @@ class ApplicationController < ActionController::API
   protect_from_forgery with: :exception
 
   [
-    ActionController::Cookies
+      ActionController::Cookies
   ].each do |mdl|
     include mdl
   end
@@ -24,9 +24,9 @@ class ApplicationController < ActionController::API
   #
   def not_found
     r = Result::Base.error({
-                             error: 'ac_1',
-                             error_message: 'Resource not found',
-                             http_code: GlobalConstant::ErrorCode.not_found
+                               error: 'ac_1',
+                               error_message: 'Resource not found',
+                               http_code: GlobalConstant::ErrorCode.not_found
                            })
     render_api_response(r)
   end
@@ -84,9 +84,9 @@ class ApplicationController < ActionController::API
     if !service_response.success? && !Rails.env.development?
       err = response_hash.delete(:err) || {}
       response_hash[:err] = {
-        display_text: (err[:display_text].to_s),
-        display_heading: (err[:display_heading].to_s),
-        error_data: (err[:error_data] || {})
+          display_text: (err[:display_text].to_s),
+          display_heading: (err[:display_heading].to_s),
+          error_data: (err[:error_data] || {})
       }
 
       response_hash[:data] = {}
@@ -106,18 +106,30 @@ class ApplicationController < ActionController::API
     response.headers["Content-Type"] = 'application/json; charset=utf-8'
   end
 
-  # Cookies to be cleared after user logout
+  # Delete the given cookie
   #
-  # * Author:: Aman
-  # * Date:: 13/07/2017
+  # * Author: Aman
+  # * Date: 15/10/2017
   # * Reviewed By: Sunil
   #
-  def clear_all_cookie
-    cookies_not_to_be_deleted = []
-    cookies.each do |key, _|
-      next if cookies_not_to_be_deleted.include?(key)
-      cookies.delete(key.to_sym, domain: :all)
-    end
+  def delete_cookie(cookie_name)
+    cookies.delete(cookie_name.to_sym, domain: :all, secure: !Rails.env.development?, same_site: :strict)
+  end
+
+  # Set the given cookie
+  #
+  # * Author: Aman
+  # * Date: 15/10/2017
+  # * Reviewed By: Sunil
+  #
+  def set_cookie(cookie_name, value, expires)
+    cookies[cookie_name.to_sym] = {
+        value: value,
+        expires: expires,
+        domain: :all,
+        secure: !Rails.env.development?,
+        same_site: :strict
+    }
   end
 
 end

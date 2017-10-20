@@ -127,6 +127,7 @@ class ApplicationController < ActionController::API
         value: value,
         expires: expires,
         domain: :all,
+        http_only: true,
         secure: !Rails.env.development?,
         same_site: :strict
     }

@@ -175,9 +175,10 @@ module UserManagement
     def validate_birthdate
       begin
         @birthdate = @birthdate.to_s.strip
-        @birthdate =  DateTime.strptime(@birthdate, "%d/%m/%Y")
-        age = (Time.now - @birthdate)
-        @error_data[:birthdate] = 'Invalid Birth Date.' unless (age < 200.year && age >= 18.year)
+        @birthdate =  Time.zone.strptime(@birthdate, "%d/%m/%Y")
+        age = (Time.zone.now.beginning_of_day - @birthdate)
+        @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
+        @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
         @birthdate = @birthdate.to_s(:db)
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'

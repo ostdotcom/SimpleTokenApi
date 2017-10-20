@@ -89,6 +89,18 @@ module Util
       email =~ REGEX_EMAIL
     end
 
+    # Is alpha numeric string
+    #
+    # * Author: Aman
+    # * Date: 20/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Boolean] returns a boolean
+    #
+    def self.is_alphanumeric?(name)
+      name =~ /\A[A-Z0-9]+\Z/i
+    end
+
     # Should Email be send to this email & this env
     #
     # * Author: Puneet

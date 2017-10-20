@@ -65,25 +65,38 @@ module GlobalConstant
 
       ### kyc_status ends###
 
-      ### duplicate state###
+      ### kyc duplicate state###
 
-      def unprocessed_duplicate_status
+      def unprocessed_kyc_duplicate_status
         'unprocessed'
       end
 
-      def never_duplicate_status
+      def never_kyc_duplicate_status
         'never'
       end
 
-      def is_duplicate_status
+      def is_kyc_duplicate_status
         'is'
       end
 
-      def was_duplicate_status
+      def was_kyc_duplicate_status
         'was'
       end
 
-      ### duplicate state ends###
+      ### kyc duplicate state ends###
+
+      ### email duplicate state###
+
+
+      def yes_email_duplicate_status
+        'yes'
+      end
+
+      def no_email_duplicate_status
+        'no'
+      end
+
+      ### email duplicate state ends###
 
 
     end

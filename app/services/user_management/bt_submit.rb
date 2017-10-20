@@ -74,13 +74,17 @@ module UserManagement
 
         if @bt_name.blank?
           validation_errors[:bt_name] = "Branded Token Name is mandatory."
+
         else
-          striped_bt_name = @bt_name.downcase.gsub(/\s+/, "")
-          if striped_bt_name == 'simpletoken'
-            validation_errors[:bt_name] = "Branded Token Name is already taken."
+          if !Util::CommonValidator.is_alphanumeric?(@bt_name)
+            validation_errors[:bt_name] = "Only A-Z and 0-9 characters are allowed"
           else
-            existing_bt_row = User.where('replace(bt_name, " " , "") = ?', striped_bt_name).first
-            validation_errors[:bt_name] = "Branded Token Name is already taken." if existing_bt_row.present? && existing_bt_row.id != @user_id
+            if @bt_name.downcase == 'simpletoken'
+              validation_errors[:bt_name] = "Branded Token Name is already taken."
+            else
+              existing_bt_row = User.where(bt_name: @bt_name).first
+              validation_errors[:bt_name] = "Branded Token Name is already taken." if existing_bt_row.present? && existing_bt_row.id != @user_id
+            end
           end
         end
 

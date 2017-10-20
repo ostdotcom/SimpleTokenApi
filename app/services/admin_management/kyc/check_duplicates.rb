@@ -51,18 +51,20 @@ module AdminManagement
 
         fetch_user_current_kyc_details
 
-        return success unless @user_kyc_details.unprocessed_duplicate_status?
+        return success unless @user_kyc_details.unprocessed_kyc_duplicate_status?
 
         fetch_existing_duplicate_data
         if @duplicate_log_ids.present?
           update_duplicate_logs_to_inactive
-          unset_duplicate_status_of_previous_users
+          unset_kyc_duplicate_status_of_previous_users
         end
 
         check_for_new_duplicates
         process_new_duplicate_data
         insert_new_dupliacte_logs
-        set_duplicate_status_of_users
+        set_kyc_duplicate_status_of_users
+
+        set_email_duplicate_status_of_users if !@user_kyc_details.yes_email_duplicate_status?
 
         success
       end
@@ -124,7 +126,7 @@ module AdminManagement
       # * Date: 15/10/2017
       # * Reviewed By: Sunil
       #
-      def unset_duplicate_status_of_previous_users
+      def unset_kyc_duplicate_status_of_previous_users
         dup_user_ids = []
         dup_user_ids += UserKycDuplicationLog.where(
             user1_id: @duplicate_user_ids, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user1_id)
@@ -135,7 +137,7 @@ module AdminManagement
 
         UserKycDetail.where(user_id: filtered_non_duplicate_user_ids).
             update_all(
-                duplicate_status: GlobalConstant::UserKycDetail.was_duplicate_status,
+                kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status,
                 updated_at: current_time
             ) if filtered_non_duplicate_user_ids.present?
       end
@@ -243,22 +245,48 @@ module AdminManagement
       # * Date: 15/10/2017
       # * Reviewed By: Sunil
       #
-      def set_duplicate_status_of_users
+      def set_kyc_duplicate_status_of_users
         if @new_duplicate_user_ids.present?
           @new_duplicate_user_ids << @user_id
           UserKycDetail.where(user_id: @new_duplicate_user_ids).
               update_all(
-                  duplicate_status: GlobalConstant::UserKycDetail.is_duplicate_status,
+                  kyc_duplicate_status: GlobalConstant::UserKycDetail.is_kyc_duplicate_status,
                   updated_at: current_time
               )
         else
-          duplicate_status = @user_kyc_inactive_duplicate_log_sql_values.present? ? GlobalConstant::UserKycDetail.was_duplicate_status : GlobalConstant::UserKycDetail.never_duplicate_status
+          kyc_duplicate_status = @user_kyc_inactive_duplicate_log_sql_values.present? ? GlobalConstant::UserKycDetail.was_kyc_duplicate_status : GlobalConstant::UserKycDetail.never_kyc_duplicate_status
           UserKycDetail.where(id: @user_kyc_details.id, user_extended_detail_id: @user_kyc_details.user_extended_detail_id).
               update_all(
-                  duplicate_status: duplicate_status,
+                  kyc_duplicate_status: kyc_duplicate_status,
                   updated_at: current_time
               )
         end
+      end
+
+      # Update email duplicate status
+      #
+      # * Author: aman
+      # * Date: 20/10/2017
+      # * Reviewed By: Sunil
+      #
+      def set_email_duplicate_status_of_users
+        duplicate_email_user_ids = []
+        # fetch as user1
+        duplicate_email_user_ids += UserEmailDuplicationLog.where(user1_id: @user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user2_id)
+
+        # fetch as user2
+        duplicate_email_user_ids += UserEmailDuplicationLog.where(user2_id: @user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
+
+        duplicate_email_user_ids_with_kyc_done = UserKycDetail.where(user_id: duplicate_email_user_ids).pluck(:user_id)
+
+        duplicate_email_user_ids_with_kyc_done << @user_id if duplicate_email_user_ids_with_kyc_done.present?
+
+        UserKycDetail.where(user_id: duplicate_email_user_ids_with_kyc_done, email_duplicate_status: GlobalConstant::UserKycDetail.no_email_duplicate_status).
+            update_all(
+                email_duplicate_status: GlobalConstant::UserKycDetail.yes_email_duplicate_status,
+                updated_at: current_time
+            ) if duplicate_email_user_ids_with_kyc_done.present?
+
       end
 
       # Duplicate types

@@ -229,7 +229,7 @@ module Email
         http.open_timeout = 5
         if uri.scheme == "https"
           http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         end
         http
       end

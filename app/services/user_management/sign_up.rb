@@ -47,6 +47,8 @@ module UserManagement
 
       create_user
 
+      enqueue_job
+
       set_cookie_value
 
     end
@@ -153,6 +155,21 @@ module UserManagement
           user_secret_id: @user_secret.id,
           status: GlobalConstant::User.active_status
       )
+    end
+
+    # Do remaining task in sidekiq
+    #
+    # * Author: Aman
+    # * Date: 20/10/2017
+    # * Reviewed By: Sunil
+    #
+    def enqueue_job
+        BgJob.enqueue(
+            NewUserRegisterJob,
+            {
+                user_id: @user.id
+            }
+        )
     end
 
     # Set cookie value

@@ -49,10 +49,6 @@ module SimpleTokenApi
     # Not Needed as of now
     config.middleware.delete Rack::Sendfile
 
-    # For Cookie storage.
-    config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore
-
     config.active_job.queue_adapter = :sidekiq
 
     require_relative('../lib/custom_log_formatter')

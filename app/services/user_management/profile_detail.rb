@@ -152,10 +152,10 @@ module UserManagement
     #
     def get_foundation_ethereum_address
       current_time = Time.now
-      if @user_kyc_detail.kyc_approved? &&
-          GlobalConstant::TokenSale.st_token_sale_active_status &&
+      if (@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? &&
+          GlobalConstant::TokenSale.st_token_sale_active_status  &&
           current_time >= GlobalConstant::TokenSale.pre_sale_start_date &&
-          current_time <= GlobalConstant::TokenSale.public_sale_end_date
+          current_time <= GlobalConstant::TokenSale.public_sale_end_date)
         GlobalConstant::TokenSale.st_foundation_ethereum_address
       else
         ''
@@ -194,7 +194,7 @@ module UserManagement
               kyc_status: kyc_status,
               token_sale_participation_phase: token_sale_participation_phase
           }
-          :
+      :
           {
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,

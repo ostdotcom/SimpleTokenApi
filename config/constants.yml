@@ -44,9 +44,7 @@ constants:
       active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
       foundation_ethereum_address: <%= ENV['STA_FOUNDATION_ETHEREUM_ADDRESS']%>
     user_register_dates:
-      pre_sale_register_start_date:  <%= ENV['STA_PRE_SALE_REGISTER_START_DATE'] %>
-      pre_sale_two_register_start_date:  <%= ENV['STA_PRE_SALE_TWO_REGISTER_START_DATE'] %>
-      public_sale_register_start_date:  <%= ENV['STA_PUBLIC_SALE_REGISTER_START_DATE'] %>
+      pre_sale_register_end_date:  <%= ENV['STA_PRE_SALE_REGISTER_END_DATE'] %>
     sale_dates:
       pre_sale_start_date: <%= ENV['STA_PRE_SALE_START_DATE'] %>
       public_sale_start_date: <%= ENV['STA_PUBLIC_SALE_START_DATE'] %>

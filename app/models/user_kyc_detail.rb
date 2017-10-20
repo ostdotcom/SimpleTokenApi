@@ -17,8 +17,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   enum token_sale_participation_phase: {
       GlobalConstant::TokenSale.pre_sale_token_sale_phase => 1,
-      GlobalConstant::TokenSale.pre_phase_two_token_sale_phase => 2,
-      GlobalConstant::TokenSale.open_sale_token_sale_phase => 3
+      GlobalConstant::TokenSale.open_sale_token_sale_phase => 2
   }
 
   enum duplicate_status: {

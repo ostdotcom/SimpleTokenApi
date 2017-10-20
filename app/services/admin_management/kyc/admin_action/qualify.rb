@@ -90,7 +90,7 @@ module AdminManagement
                 template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
                 template_vars: {
                     token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-                    is_sale_active: (Time.now >= GlobalConstant::TokenSale.public_sale_register_start_date)
+                    is_sale_active: (Time.now >= GlobalConstant::TokenSale.public_sale_start_date)
                 }
             ).perform
           end

@@ -5,8 +5,6 @@ class ApiController < ApplicationController
 
   before_action :validate_cookie
 
-  handle_me
-
   private
 
   # Validate cookie

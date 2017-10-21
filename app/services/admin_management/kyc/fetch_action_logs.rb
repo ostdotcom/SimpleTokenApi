@@ -95,7 +95,8 @@ module AdminManagement
             log_type: GlobalConstant::UserActivityLog.admin_log_type
         ).limit(@limit).offset(@offset).order('id DESC').all
         return if @logs_ars.blank?
-        admin_ids = @logs_ars.collect(&:admin_id)
+        admin_ids = @logs_ars.collect(&:admin_id).compact.uniq
+        return if admin_ids.blank?
         @admin_details = Admin.where(id: admin_ids).index_by(&:id)
       end
 
@@ -109,10 +110,10 @@ module AdminManagement
       #
       def api_response
         @logs_ars.each do |l_ar|
-          admin_detail = @admin_details[l_ar.admin_id]
+          admin_detail = (@admin_details.present? && l_ar.admin_id.present?) ? @admin_details[l_ar.admin_id] : {}
           @api_response[:curr_page_data] << {
               date_time: Time.at(l_ar.action_timestamp).strftime("%d/%m/%Y %H:%M"),
-              agent: "#{admin_detail.name}",
+              agent: admin_detail['name'].to_s,
               email_type: GlobalConstant::UserActivityLog.humanized_actions[l_ar.action] || l_ar.action
           }
         end

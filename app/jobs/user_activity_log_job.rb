@@ -30,7 +30,7 @@ class UserActivityLogJob < ApplicationJob
     @action_timestamp = params[:action_timestamp]
 
     @admin_id = params[:admin_id]
-    @extra_data = params[:extra_data] || {}
+    @extra_data = params[:extra_data]
   end
 
   # Get Log type

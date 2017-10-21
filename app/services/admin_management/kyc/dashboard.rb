@@ -74,8 +74,8 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        @filters = {} if @filters.blank? || !@filters.is_a?(Hash)
-        @sortings = {} if @sortings.blank? || !@sortings.is_a?(Hash)
+        @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
+        @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
         @page_size = 25 if @page_size.to_i < 1 || @page_size.to_i > 25
         @offset = 0 if @offset.to_i < 0
 
@@ -106,6 +106,7 @@ module AdminManagement
         if @filters[:cynopsis_status].present?
           ar_relation = ar_relation.where(cynopsis_status: @filters[:cynopsis_status])
         end
+
 
         @total_filtered_kycs = ar_relation.count
         @user_kycs = ar_relation.limit(@page_size).offset(@offset).all

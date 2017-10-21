@@ -38,6 +38,7 @@ module AdminManagement
         return r unless r.success?
 
         get_duplicate_kyc_data
+        get_duplicate_email_data
 
         success_with_data(@duplicate_kycs)
       end
@@ -77,7 +78,7 @@ module AdminManagement
       # Sets @duplicate_kycs
       #
       def get_duplicate_kyc_data
-        return if @user_kyc_detail.never_duplicate?
+        return if @user_kyc_detail.never_kyc_duplicate_status? || @user_kyc_detail.unprocessed_kyc_duplicate_status?
 
         duplicate_with_users = []
 
@@ -95,6 +96,36 @@ module AdminManagement
         end
 
         UserKycDetail.where(user_id: @duplicate_kycs.keys).each do |u_k_d|
+          @duplicate_kycs[u_k_d.user_id][:case_id] = u_k_d.id
+          @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
+          @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
+        end
+
+      end
+
+      # fetch duplicate email data if there are any
+      #
+      # * Author: Aman
+      # * Date: 21/10/2017
+      # * Reviewed By:
+      #
+      # Sets @duplicate_kycs
+      #
+      def get_duplicate_email_data
+        return if @user_kyc_detail.no_email_duplicate_status?
+
+        duplicate_email_user_ids = []
+
+        duplicate_email_user_ids += UserEmailDuplicationLog.where(user1_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user2_id)
+        duplicate_email_user_ids += UserEmailDuplicationLog.where(user2_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
+
+        UserKycDetail.where(user_id: duplicate_email_user_ids).all.each do |u_k_d|
+          @duplicate_kycs[u_k_d.user_id] ||= {
+              GlobalConstant::UserKycDuplicationLog.active_status.to_sym => [],
+              GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym => []
+          }
+
+          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << 'Email'
           @duplicate_kycs[u_k_d.user_id][:case_id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
           @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status

@@ -10,12 +10,12 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
-        # @param [Integer] admin_id (mandatory) - logged in admin
-        # @param [Integer] case_id (mandatory)
+        # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] case_id (mandatory)
         #
-        # @return [AdminManagement::Kyc::CheckDetails]
+        # @return [AdminManagement::Kyc::AdminAction::Base]
         #
         def initialize(params)
           super
@@ -26,23 +26,13 @@ module AdminManagement
           @user_kyc_detail = nil
         end
 
-        # Perform
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By:
-        #
-        def perform
-
-        end
-
         private
 
         # Validate & sanitize
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #
@@ -69,7 +59,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def log_admin_action
           BgJob.enqueue(

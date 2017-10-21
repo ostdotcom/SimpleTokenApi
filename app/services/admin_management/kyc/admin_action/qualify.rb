@@ -12,10 +12,10 @@ module AdminManagement
         # * Date: 15/10/2017
         # * Reviewed By:
         #
-        # @param [Integer] admin_id (mandatory) - logged in admin
-        # @param [Integer] case_id (mandatory)
+        # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] case_id (mandatory)
         #
-        # @return [AdminManagement::Kyc::CheckDetails]
+        # @return [AdminManagement::Kyc::AdminAction::Qualify]
         #
         def initialize(params)
           super
@@ -25,7 +25,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #
@@ -38,6 +38,8 @@ module AdminManagement
 
           log_admin_action
 
+          send_email
+
           success_with_data(@api_response_data)
         end
 
@@ -47,7 +49,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #
@@ -59,28 +61,18 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
           @user_kyc_detail.save!
         end
 
-        # log admin action
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By:
-        #
-        def log_admin_action
-
-        end
-
         # Send email
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def send_email
 
@@ -101,7 +93,7 @@ module AdminManagement
         #
         # * Author: Aman
         # * Date: 21/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def logging_action_type
           GlobalConstant::UserActivityLog.kyc_qualified_action

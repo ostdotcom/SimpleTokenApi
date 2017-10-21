@@ -163,19 +163,11 @@ module UserManagement
       BgJob.enqueue(
         KycSubmitJob,
         {
-          user_id: @user_id
+          user_id: @user_id,
+          action: GlobalConstant::UserActivityLog.double_opt_in_action,
+          action_timestamp: Time.now.to_i
         }
       )
-
-      BgJob.enqueue(
-          UserActivityLogJob,
-          {
-              user_id: @user_id,
-              action: GlobalConstant::UserActivityLog.double_opt_in_action,
-              action_timestamp: Time.now.to_i
-          }
-      )
-
     end
 
     # Invalid Request Response

@@ -4,28 +4,28 @@ module AdminManagement
 
     module AdminAction
 
-      class SelfieImageIssue < AdminManagement::Kyc::AdminAction::Base
+      class ResidencyImageIssue < AdminManagement::Kyc::AdminAction::Base
 
         # Deny KYC by admin
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
-        # @param [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] case_id (mandatory)
+        #
+        # @return [AdminManagement::Kyc::AdminAction::ResidencyImageIssue]
         #
         def initialize(params)
           super
-
-          @admin_id = @params[:admin_id]
-          @api_response_data = {}
         end
 
         # Deny KYC by admin
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #
@@ -47,7 +47,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def send_email
 
@@ -63,7 +63,7 @@ module AdminManagement
         #
         # * Author: Aman
         # * Date: 21/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def logging_action_type
           GlobalConstant::UserActivityLog.residency_issue_email_sent_action

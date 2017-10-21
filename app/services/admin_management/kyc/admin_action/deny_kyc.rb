@@ -15,7 +15,7 @@ module AdminManagement
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] case_id (mandatory)
         #
-        # @return [AdminManagement::Kyc::CheckDetails]
+        # @return [AdminManagement::Kyc::AdminAction::DenyKyc]
         #
         def initialize(params)
           super
@@ -49,7 +49,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #
@@ -61,20 +61,20 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def update_user_kyc_status
-          UserKycDetail.where(id: @case_id).update_all(admin_status: GlobalConstant::UserKycDetail.denied_admin_status)
+          @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.denied_admin_status
+          @user_kyc_detail.save!
         end
 
         # Send email
         #
         # * Author: Alpesh
         # * Date: 15/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def send_email
-
           if @user_kyc_detail.kyc_denied?
             Email::HookCreator::SendTransactionalMail.new(
                 email: @user.email,
@@ -82,14 +82,13 @@ module AdminManagement
                 template_vars: {}
             ).perform
           end
-
         end
 
         # user action log table action name
         #
         # * Author: Aman
         # * Date: 21/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         def logging_action_type
           GlobalConstant::UserActivityLog.kyc_denied_action

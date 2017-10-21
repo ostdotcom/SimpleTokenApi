@@ -16,6 +16,11 @@ class NewUserRegisterJob < ApplicationJob
 
     insert_email_dupliacte_logs if @duplicate_user_ids.present?
 
+    UserActivityLogJob.new().perform({
+                                         user_id: @user.id,
+                                         action: GlobalConstant::UserActivityLog.register_action,
+                                         action_timestamp: Time.now.to_i
+                                     })
   end
 
   private
@@ -24,7 +29,7 @@ class NewUserRegisterJob < ApplicationJob
   #
   # * Author: Aman
   # * Date: 20/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def init_params(params)
     @user_id = params[:user_id]

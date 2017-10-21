@@ -24,6 +24,12 @@ class KycSubmitJob < ApplicationJob
     check_duplicate_kyc_documents
 
     call_cynopsis_api
+
+    UserActivityLogJob.new().perform({
+                                         user_id: @user_id,
+                                         action: @action,
+                                         action_timestamp: @action_timestamp
+                                     })
   end
 
   private
@@ -40,6 +46,8 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- init_params params: #{params.inspect}")
 
     @user_id = params[:user_id]
+    @action = params[:action]
+    @action_timestamp = params[:action_timestamp]
 
     @user = User.find(@user_id)
     @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last

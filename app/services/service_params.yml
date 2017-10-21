@@ -69,6 +69,12 @@
     - :case_id
   :optional:
 
+'AdminManagement::Kyc::AdminAction::ResidencyImageIssue':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+
 'AdminManagement::Kyc::AdminAction::Qualify':
   :mandatory:
     - :admin_id

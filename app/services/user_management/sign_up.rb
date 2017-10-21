@@ -170,15 +170,6 @@ module UserManagement
                 user_id: @user.id
             }
         )
-
-        BgJob.enqueue(
-            UserActivityLogJob,
-            {
-                user_id: @user.id,
-                action: GlobalConstant::UserActivityLog.register_action,
-                action_timestamp: Time.now.to_i
-            }
-        )
     end
 
     # Set cookie value

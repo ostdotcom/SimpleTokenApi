@@ -412,7 +412,7 @@ module UserManagement
     #
     # * Author: Kedar
     # * Date: 13/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def enqueue_job
       # Until the user Does Double Opt in do nothing here. In edit let it call.
@@ -420,20 +420,11 @@ module UserManagement
         BgJob.enqueue(
             KycSubmitJob,
             {
-                user_id: @user_id
-            }
-        )
-
-        BgJob.enqueue(
-            UserActivityLogJob,
-            {
                 user_id: @user_id,
                 action: GlobalConstant::UserActivityLog.update_kyc_action,
                 action_timestamp: Time.now.to_i
             }
         )
-
-
         Rails.logger.info('---- enqueue_job done')
       end
     end

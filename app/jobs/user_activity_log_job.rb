@@ -6,7 +6,7 @@ class UserActivityLogJob < ApplicationJob
   #
   # * Author: Aman
   # * Date: 21/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def perform(params)
 
@@ -22,7 +22,7 @@ class UserActivityLogJob < ApplicationJob
   #
   # * Author: Aman
   # * Date: 21/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def init_params(params)
     @user_id = params[:user_id]
@@ -33,22 +33,11 @@ class UserActivityLogJob < ApplicationJob
     @extra_data = params[:extra_data]
   end
 
-  # Get Log type
-  #
-  # * Author: Aman
-  # * Date: 21/10/2017
-  # * Reviewed By:
-  #
-  def log_type
-    GlobalConstant::UserActivityLog.admin_actions.include?(@action) ? GlobalConstant::UserActivityLog.admin_log_type : GlobalConstant::UserActivityLog.developer_log_type
-  end
-
   # Create new user_action_log
   #
   # * Author: Aman
   # * Date: 21/10/2017
-  # * Reviewed By:
-  #
+  # * Reviewed By: Sunil
   #
   def create_log
     UserActivityLog.create!(
@@ -61,5 +50,14 @@ class UserActivityLogJob < ApplicationJob
     )
   end
 
+  # Get Log type
+  #
+  # * Author: Aman
+  # * Date: 21/10/2017
+  # * Reviewed By: Sunil
+  #
+  def log_type
+    GlobalConstant::UserActivityLog.admin_actions.include?(@action) ? GlobalConstant::UserActivityLog.admin_log_type : GlobalConstant::UserActivityLog.developer_log_type
+  end
 
 end

@@ -33,6 +33,7 @@ Rails.application.routes.draw do
     match 'data-mismatch' => :data_mismatch, via: :POST
     match 'passport-issue' => :passport_issue, via: :POST
     match 'selfie-img-issue' => :selfie_image_issue, via: :POST
+    match 'residency-img-issue' => :residency_image_issue, via: :POST
     match 'qualify' => :qualify, via: :POST
   end
 

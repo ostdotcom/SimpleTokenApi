@@ -51,6 +51,10 @@ module GlobalConstant
         'selfie_issue_email_sent'
       end
 
+      def residency_issue_email_sent_action
+        'residency_issue_email_sent'
+      end
+
       ########## actions ###########
 
       def admin_actions
@@ -62,7 +66,8 @@ module GlobalConstant
             kyc_qualified_action,
             data_mismatch_email_sent_action,
             passport_issue_email_sent_action,
-            selfie_issue_email_sent_action
+            selfie_issue_email_sent_action,
+            residency_issue_email_sent_action
         ]
       end
 

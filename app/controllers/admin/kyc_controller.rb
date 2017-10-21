@@ -77,6 +77,16 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Admin found residency improper
+  #
+  # * Author: Alpesh
+  # * Date: 15/10/2017
+  # * Reviewed By:
+  #
+  def residency_image_issue
+
+  end
+
   # Admin qualified kyc
   #
   # * Author: Alpesh

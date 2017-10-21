@@ -13,7 +13,8 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
            GlobalConstant::UserActivityLog.kyc_qualified_action => 5,
            GlobalConstant::UserActivityLog.data_mismatch_email_sent_action => 6,
            GlobalConstant::UserActivityLog.passport_issue_email_sent_action => 7,
-           GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8
+           GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8,
+           GlobalConstant::UserActivityLog.residency_issue_email_sent_action => 9
        }, _suffix: true
 
 

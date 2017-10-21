@@ -1,2 +1,0 @@
-class UserKycActionLog < EstablishSimpleTokenLogDbConnection
-end

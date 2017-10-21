@@ -106,6 +106,11 @@ module GlobalConstant
         'kyc_selfie_image_issue'
       end
 
+      # kyc_residence_image_issue email - sent when user clicks on "residence image issue" on admin panel
+      def kyc_residency_image_issue_template
+        'kyc_residency_image_issue'
+      end
+
       # kyc_approved email - sent when kyc is approved by cynopsis and admin both.
       def kyc_approved_template
         'kyc_approved'
@@ -128,7 +133,12 @@ module GlobalConstant
         [
           double_opt_in_template,
           forgot_password_template,
-          kyc_data_mismatch_template
+          kyc_data_mismatch_template,
+          kyc_passport_issue_template,
+          kyc_selfie_image_issue_template,
+          kyc_residency_image_issue_template,
+          kyc_approved_template,
+          kyc_denied_template
         ]
       end
 

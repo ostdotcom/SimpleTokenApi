@@ -60,7 +60,7 @@ module AdminManagement
               {}
           ) if @user_kyc_detail.case_closed?
 
-          @user = User.where(id: @user_kyc_detail.id).first
+          @user = User.where(id: @user_kyc_detail.user_id).first
 
           success
         end
@@ -72,7 +72,15 @@ module AdminManagement
         # * Reviewed By:
         #
         def log_admin_action
-
+          BgJob.enqueue(
+              UserActivityLogJob,
+              {
+                  user_id: @user_kyc_detail.user_id,
+                  admin_id: @admin_id,
+                  action: logging_action_type,
+                  action_timestamp: Time.now.to_i
+              }
+          )
         end
 
       end

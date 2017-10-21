@@ -175,7 +175,7 @@ module UserManagement
     def validate_birthdate
       begin
         @birthdate = @birthdate.to_s.strip
-        @birthdate =  Time.zone.strptime(@birthdate, "%d/%m/%Y")
+        @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
         age = (Time.zone.now.beginning_of_day - @birthdate)
         @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
         @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
@@ -423,6 +423,16 @@ module UserManagement
                 user_id: @user_id
             }
         )
+
+        BgJob.enqueue(
+            UserActivityLogJob,
+            {
+                user_id: @user_id,
+                action: GlobalConstant::UserActivityLog.update_kyc_action,
+                action_timestamp: Time.now.to_i
+            }
+        )
+
 
         Rails.logger.info('---- enqueue_job done')
       end

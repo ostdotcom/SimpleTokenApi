@@ -97,6 +97,16 @@ module AdminManagement
 
         end
 
+        # user action log table action name
+        #
+        # * Author: Aman
+        # * Date: 21/10/2017
+        # * Reviewed By:
+        #
+        def logging_action_type
+          GlobalConstant::UserActivityLog.kyc_qualified_action
+        end
+
       end
 
     end

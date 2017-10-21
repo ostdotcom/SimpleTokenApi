@@ -59,6 +59,16 @@ module AdminManagement
 
         end
 
+        # user action log table action name
+        #
+        # * Author: Aman
+        # * Date: 21/10/2017
+        # * Reviewed By:
+        #
+        def logging_action_type
+          GlobalConstant::UserActivityLog.passport_issue_email_sent_action
+        end
+
       end
 
     end

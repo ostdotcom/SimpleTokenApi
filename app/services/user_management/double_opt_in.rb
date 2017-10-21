@@ -166,6 +166,16 @@ module UserManagement
           user_id: @user_id
         }
       )
+
+      BgJob.enqueue(
+          UserActivityLogJob,
+          {
+              user_id: @user_id,
+              action: GlobalConstant::UserActivityLog.double_opt_in_action,
+              action_timestamp: Time.now.to_i
+          }
+      )
+
     end
 
     # Invalid Request Response

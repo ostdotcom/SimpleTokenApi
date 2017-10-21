@@ -1,9 +1,9 @@
 class UserActivityLog < EstablishSimpleTokenLogDbConnection
 
-  enum type: {
+  enum log_type: {
            GlobalConstant::UserActivityLog.admin_log_type => 1,
            GlobalConstant::UserActivityLog.developer_log_type => 2
-       }
+       }, _suffix: true
 
   enum action: {
            GlobalConstant::UserActivityLog.register_action => 1,
@@ -14,7 +14,7 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
            GlobalConstant::UserActivityLog.data_mismatch_email_sent_action => 6,
            GlobalConstant::UserActivityLog.passport_issue_email_sent_action => 7,
            GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8
-       }
+       }, _suffix: true
 
 
 end

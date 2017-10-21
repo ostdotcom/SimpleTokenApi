@@ -194,6 +194,7 @@ module AdminManagement
             'Invalid Otp',
             '',
             GlobalConstant::ErrorAction.default,
+            {},
             {otp: 'Invalid Otp'}
         ) unless r.success?
 

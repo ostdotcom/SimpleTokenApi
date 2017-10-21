@@ -92,7 +92,7 @@ class TimeBasedOtp
   # @return [Object] ROTP
   #
   def client
-    @client ||= ROTP::TOTP.new(@secret, issuer: "Simple Token")
+    @client ||= ROTP::TOTP.new(@secret, issuer: "Simple Token - #{Rails.env}")
   end
 
 end

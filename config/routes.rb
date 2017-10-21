@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     match 'selfie-img-issue' => :selfie_image_issue, via: :POST
     match 'residency-img-issue' => :residency_image_issue, via: :POST
     match 'qualify' => :qualify, via: :POST
+    match 'kyc-action-logs' => :kyc_action_logs, via: :GET
   end
 
   match '*permalink', to: 'application#not_found', via: :all

@@ -48,7 +48,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def data_mismatch
     service_response = AdminManagement::Kyc::AdminAction::DataMismatch.new(params).perform
@@ -59,7 +59,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def passport_issue
     service_response = AdminManagement::Kyc::AdminAction::PassportIssue.new(params).perform
@@ -70,7 +70,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def selfie_image_issue
     service_response = AdminManagement::Kyc::AdminAction::SelfieImageIssue.new(params).perform
@@ -80,21 +80,33 @@ class Admin::KycController < Admin::BaseController
   # Admin found residency improper
   #
   # * Author: Alpesh
-  # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Date: 21/10/2017
+  # * Reviewed By: Sunil
   #
   def residency_image_issue
-
+    service_response = AdminManagement::Kyc::AdminAction::ResidencyImageIssue.new(params).perform
+    render_api_response(service_response)
   end
 
   # Admin qualified kyc
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def qualify
     service_response = AdminManagement::Kyc::AdminAction::Qualify.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Fetch admin kyc action logs.
+  #
+  # * Author: Alpesh
+  # * Date: 21/10/2017
+  # * Reviewed By: Sunil
+  #
+  def kyc_action_logs
+    service_response = AdminManagement::Kyc::FetchActionLogs.new(params).perform
     render_api_response(service_response)
   end
 

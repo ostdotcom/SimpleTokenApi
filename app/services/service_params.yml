@@ -45,6 +45,14 @@
     - :case_id
   :optional:
 
+'AdminManagement::Kyc::FetchActionLogs':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+    - :limit
+    - :offset
+
 'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
     - :admin_id

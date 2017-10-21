@@ -71,6 +71,20 @@ module GlobalConstant
         ]
       end
 
+      def humanized_actions
+        {
+            register_action => 'User registered',
+            double_opt_in_action => 'User did double opt-in',
+            update_kyc_action => 'Updated KYC',
+            kyc_denied_action => 'KYC denied',
+            kyc_qualified_action => 'KYC approved',
+            data_mismatch_email_sent_action => 'KYC data mismatch email sent',
+            passport_issue_email_sent_action => 'KYC passport issue email sent',
+            selfie_issue_email_sent_action => 'KYC selfie issue email sent',
+            residency_issue_email_sent_action => 'KYC residency issue email sent',
+        }
+      end
+
     end
 
   end

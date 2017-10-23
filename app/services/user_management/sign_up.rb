@@ -11,6 +11,8 @@ module UserManagement
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
+    # @params [String] ip_address (mandatory) - ip_address
+    # @params [String] geoip_country (optional) - geoip_country
     # @params [Hash] utm_params (optional) - Utm Parameters for latest landing page if present
     #
     # @return [UserManagement::SignUp]
@@ -21,6 +23,8 @@ module UserManagement
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
+      @ip_address = @params[:ip_address]
+      @geoip_country = @params[:geoip_country]
       @utm_params = @params[:utm_params]
 
       @login_salt_hash = nil
@@ -170,7 +174,10 @@ module UserManagement
             NewUserRegisterJob,
             {
                 user_id: @user.id,
-                utm_params: @utm_params
+                utm_params: @utm_params,
+                ip_address: @ip_address,
+                browser_user_agent: @browser_user_agent,
+                geoip_country: @geoip_country
             }
         )
     end

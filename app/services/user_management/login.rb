@@ -11,6 +11,7 @@ module UserManagement
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
+    # @params [String] ip_address (mandatory) - ip_address
     #
     # @return [UserManagement::Login]
     #
@@ -20,6 +21,7 @@ module UserManagement
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
+      @ip_address = @params[:ip_address]
 
       @user_secret = nil
       @user = nil
@@ -47,6 +49,8 @@ module UserManagement
 
       r = validate_password
       return r unless r.success?
+
+      enqueue_job
 
       set_cookie_value
 
@@ -106,6 +110,28 @@ module UserManagement
       return unauthorized_access_response('um_l_3') unless (evaluated_password_e == @user.password)
 
       success
+    end
+
+    # Do remaining task in sidekiq
+    #
+    # * Author: Aman
+    # * Date: 23/10/2017
+    # * Reviewed By:
+    #
+    def enqueue_job
+      BgJob.enqueue(
+          UserActivityLogJob,
+          {
+              user_id: @user.id,
+              action:   GlobalConstant::UserActivityLog.login_action,
+              action_timestamp: Time.now.to_i,
+              extra_data: {
+                  browser_user_agent: @browser_user_agent,
+                  ip_address: @ip_address
+              }
+
+          }
+      )
     end
 
     # Set cookie value

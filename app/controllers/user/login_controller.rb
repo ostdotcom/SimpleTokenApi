@@ -17,7 +17,10 @@ class User::LoginController < User::BaseController
   #
   def sign_up
     service_response = UserManagement::SignUp.new(
-      params.merge(browser_user_agent: http_user_agent)
+        params.merge(
+            browser_user_agent: http_user_agent,
+            ip_address: ip_address
+        )
     ).perform
 
     if service_response.success?
@@ -41,7 +44,10 @@ class User::LoginController < User::BaseController
   #
   def login
     service_response = UserManagement::Login.new(
-      params.merge(browser_user_agent: http_user_agent)
+        params.merge(
+            browser_user_agent: http_user_agent,
+            ip_address: ip_address
+        )
     ).perform
 
     if service_response.success?

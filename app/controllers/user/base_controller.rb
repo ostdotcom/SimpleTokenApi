@@ -48,7 +48,9 @@ class User::BaseController < ApiController
   def handle_blacklisted_ip
     blacklisted_countries = ['china']
     geo_ip_obj = Util::GeoIpUtil.new(ip_address: ip_address)
-    return unless blacklisted_countries.include?(geo_ip_obj.get_country_name.to_s.downcase)
+    geoip_country = geo_ip_obj.get_country_name.to_s.downcase
+    params[:geoip_country] = geoip_country
+    return unless blacklisted_countries.include?(geoip_country)
 
     service_response = Result::Base.error(
         {

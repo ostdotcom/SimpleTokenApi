@@ -99,14 +99,17 @@
     - :email
     - :password
     - :browser_user_agent
+    - :ip_address
   :optional:
     - :utm_params
+    - :geoip_country
 
 'UserManagement::Login':
   :mandatory:
     - :email
     - :password
     - :browser_user_agent
+    - :ip_address
   :optional:
 
 'UserManagement::VerifyCookie':

@@ -55,6 +55,12 @@ module GlobalConstant
         'residency_issue_email_sent'
       end
 
+      ## developmer use action##
+
+      def login_action
+        'login'
+      end
+
       ########## actions ###########
 
       def admin_actions

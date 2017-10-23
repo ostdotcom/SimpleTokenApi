@@ -1,4 +1,5 @@
 class UserActivityLog < EstablishSimpleTokenLogDbConnection
+  serialize :data, Hash
 
   enum log_type: {
            GlobalConstant::UserActivityLog.admin_log_type => 1,
@@ -14,7 +15,8 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
            GlobalConstant::UserActivityLog.data_mismatch_email_sent_action => 6,
            GlobalConstant::UserActivityLog.passport_issue_email_sent_action => 7,
            GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8,
-           GlobalConstant::UserActivityLog.residency_issue_email_sent_action => 9
+           GlobalConstant::UserActivityLog.residency_issue_email_sent_action => 9,
+           GlobalConstant::UserActivityLog.login_action => 10
        }, _suffix: true
 
 

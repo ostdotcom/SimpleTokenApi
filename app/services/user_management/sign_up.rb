@@ -11,6 +11,7 @@ module UserManagement
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
+    # @params [Hash] utm_params (optional) - Utm Parameters for latest landing page if present
     #
     # @return [UserManagement::SignUp]
     #
@@ -20,6 +21,7 @@ module UserManagement
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
+      @utm_params = @params[:utm_params]
 
       @login_salt_hash = nil
       @user_secret = nil
@@ -167,7 +169,8 @@ module UserManagement
         BgJob.enqueue(
             NewUserRegisterJob,
             {
-                user_id: @user.id
+                user_id: @user.id,
+                utm_params: @utm_params
             }
         )
     end

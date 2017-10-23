@@ -1,5 +1,7 @@
 class User::LoginController < User::BaseController
 
+  prepend_before_action :merge_utm_to_params, only: [:sign_up]
+
   before_action :validate_cookie, except: [
                                     :sign_up,
                                     :login,

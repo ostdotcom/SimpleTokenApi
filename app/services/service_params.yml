@@ -100,6 +100,7 @@
     - :password
     - :browser_user_agent
   :optional:
+    - :utm_params
 
 'UserManagement::Login':
   :mandatory:
@@ -131,10 +132,10 @@
     - :nationality
     - :passport_file_path
     - :selfie_file_path
-  :optional:
-    - :residence_proof_file_path
     - :g_recaptcha_response
     - :remoteip
+  :optional:
+    - :residence_proof_file_path
 
 'UserManagement::DoubleOptIn':
   :mandatory:

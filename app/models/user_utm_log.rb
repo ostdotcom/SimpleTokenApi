@@ -1,0 +1,4 @@
+class UserUtmLog < EstablishSimpleTokenLogDbConnection
+
+
+end

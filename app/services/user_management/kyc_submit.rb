@@ -23,10 +23,12 @@ module UserManagement
     # @params [String] nationality (mandatory) - passport country
     # @params [String] passport_file_path (mandatory) - passport file
     # @params [String] selfie_file_path (mandatory) - selfie file
+    #
+    # @params [String] g_recaptcha_response (mandatory)
+    # @params [String] remoteip (mandatory)
+    #
     # @params [String] residence_proof_file_path (optional)
     #
-    # @params [String] g_recaptcha_response (optional)
-    # @params [String] remoteip (optional)
     #
     # @return [AdminManagement::KycSubmit]
     #
@@ -50,7 +52,6 @@ module UserManagement
       @passport_file_path = @params[:passport_file_path] # S3 Path of PassPort File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
-
       @g_recaptcha_response = @params[:g_recaptcha_response]
       @remoteip = @params[:remoteip]
 
@@ -77,13 +78,13 @@ module UserManagement
       return r unless r.success?
       Rails.logger.info('---- validate_and_sanitize done')
 
-      r = fetch_user_data
-      return r unless r.success?
-      Rails.logger.info('---- fetch_user_data done')
-
       r = check_recaptcha_before_verification
       return r unless r.success?
       Rails.logger.info('---- check_recaptcha_before_verification done')
+
+      r = fetch_user_data
+      return r unless r.success?
+      Rails.logger.info('---- fetch_user_data done')
 
       r = generate_new_kyc_salt
       return r unless r.success?
@@ -285,14 +286,12 @@ module UserManagement
     #
     def check_recaptcha_before_verification
       # Check re-capcha on when verification is not yet done
-      if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
-        r = Recaptcha::Verify.new({
-                                      'response' => @g_recaptcha_response.to_s,
-                                      'remoteip' => @remoteip.to_s
-                                  }).perform
-        Rails.logger.info('---- Recaptcha::Verify done')
-        return r unless r.success?
-      end
+      r = Recaptcha::Verify.new({
+                                    'response' => @g_recaptcha_response.to_s,
+                                    'remoteip' => @remoteip.to_s
+                                }).perform
+      Rails.logger.info('---- Recaptcha::Verify done')
+      return r unless r.success?
 
       success
     end

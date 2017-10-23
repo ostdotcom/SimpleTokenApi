@@ -12,6 +12,8 @@ class NewUserRegisterJob < ApplicationJob
 
     init_params(params)
 
+    create_user_utm_log
+
     fetch_duplicate_email_data
 
     insert_email_dupliacte_logs if @duplicate_user_ids.present?
@@ -34,8 +36,29 @@ class NewUserRegisterJob < ApplicationJob
   def init_params(params)
     @user_id = params[:user_id]
     @user = User.where(id: @user_id).first
+    @utm_params = params[:utm_params] || {}
     @duplicate_user_ids = []
   end
+
+  # Create User Utm Log
+  #
+  # * Author: Aman
+  # * Date: 23/10/2017
+  # * Reviewed By: Sunil
+  #
+  #
+  def create_user_utm_log
+    u_utm_log = UserUtmLog.new(user_id: @user_id)
+    u_utm_log.origin_page= @utm_params['origin_page'].to_s
+    u_utm_log.utm_type= @utm_params['utm_type'].to_s
+    u_utm_log.utm_medium= @utm_params['utm_medium'].to_s
+    u_utm_log.utm_source= @utm_params['utm_source'].to_s
+    u_utm_log.utm_term= @utm_params['utm_term'].to_s
+    u_utm_log.utm_content= @utm_params['utm_content'].to_s
+    u_utm_log.utm_campaign = @utm_params['utm_campaign'].to_s
+    u_utm_log.save!(validate: false)
+  end
+
 
   # Fetch users with similar emails
   #

@@ -66,6 +66,7 @@ module AdminManagement
               UserActivityLogJob,
               {
                   user_id: @user_kyc_detail.user_id,
+                  case_id: @case_id,
                   admin_id: @admin_id,
                   action: logging_action_type,
                   action_timestamp: Time.now.to_i

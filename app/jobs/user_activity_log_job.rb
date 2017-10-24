@@ -30,6 +30,7 @@ class UserActivityLogJob < ApplicationJob
     @action_timestamp = params[:action_timestamp]
 
     @admin_id = params[:admin_id]
+    @case_id = params[:case_id]
     @extra_data = params[:extra_data]
   end
 
@@ -48,6 +49,10 @@ class UserActivityLogJob < ApplicationJob
         action_timestamp: @action_timestamp,
         data: @extra_data
     )
+
+    if @case_id.to_i > 0 && @admin_id.to_i > 0
+      UserKycDetail.where(id: @case_id).update_all(last_acted_by: @admin_id)
+    end
   end
 
   # Get Log type

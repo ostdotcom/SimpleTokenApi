@@ -44,8 +44,8 @@ num_workers.times do |num|
     w.start = "/usr/local/rvm/wrappers/ruby-2.4.2@simple_token_api_gemset/ruby /usr/local/rvm/gems/ruby-2.4.2@simple_token_api_gemset/bin/sidekiq -d -C #{rails_root}/config/sidekiq.yml -P /mnt/god/#{w.name}.pid -e #{rails_env} -L #{rails_root}/log/sidekiq.log -r #{rails_root} #{queue_str}"
     w.stop = "/usr/local/rvm/wrappers/ruby-2.4.2@simple_token_api_gemset/ruby /usr/local/rvm/gems/ruby-2.4.2@simple_token_api_gemset/bin/sidekiqctl stop /mnt/god/#{w.name}.pid 20"
 
-    #w.uid = 'deployer'
-    #w.gid = 'deployer'
+    w.uid = 'deployer'
+    w.gid = 'deployer'
 
     # retart if memory gets too high
     w.transition(:up, :restart) do |on|

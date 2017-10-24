@@ -29,6 +29,8 @@
     - :admin_id
     - :case_id
   :optional:
+    - :filters
+    - :sortings
 
 'AdminManagement::Kyc::Dashboard':
   :mandatory:

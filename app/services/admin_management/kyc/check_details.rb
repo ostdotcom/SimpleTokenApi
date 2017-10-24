@@ -12,6 +12,8 @@ module AdminManagement
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
       # @params [Integer] case_id (mandatory)
+      # @params [Hash] filters (optional) - Dashboard filter to go back on same dash page
+      # @params [Hash] sortings (optional) - Dashboard sorting to go back on same dash page
       #
       # @return [AdminManagement::Kyc::CheckDetails]
       #
@@ -20,6 +22,8 @@ module AdminManagement
 
         @admin_id = @params[:admin_id]
         @user_kyc_detail_id = @params[:case_id]
+        @filters = @params[:filters]
+        @sortings = @params[:sortings]
 
         @user_kyc_detail = nil
         @user_extended_detail = nil
@@ -43,6 +47,8 @@ module AdminManagement
 
         r = fetch_user_kyc_detail
         return r unless r.success?
+
+        fetch_surround_kyc_ids
 
         r = fetch_user_extended_detail
         return r unless r.success?
@@ -73,6 +79,41 @@ module AdminManagement
         return err_response('am_k_cd_2') if @user.blank?
 
         success
+      end
+
+      # Fetch next and previous kyc ids
+      #
+      # * Author: Alpesh
+      # * Date: 24/10/2017
+      # * Reviewed By:
+      #
+      # Sets @next_kyc_id, @previous_kyc_id
+      #
+      def fetch_surround_kyc_ids
+        ar_relation = UserKycDetail
+
+        if @filters.present? && @filters[:admin_status].present? && UserKycDetail::admin_statuses[@filters[:admin_status]].present?
+          ar_relation = ar_relation.where(admin_status: @filters[:admin_status])
+        end
+
+        if @filters.present? && @filters[:cynopsis_status].present? && UserKycDetail::cynopsis_statuses[@filters[:cynopsis_status]].present?
+          ar_relation = ar_relation.where(cynopsis_status: @filters[:cynopsis_status])
+        end
+
+
+        if @sortings.present? && @sortings[:sort_order] == 'inc'
+          ar_relation = ar_relation.order('id ASC')
+          kyc_1 = ar_relation.where("id > ?", @user_kyc_detail_id).first
+          kyc_2 = ar_relation.where("id < ?", @user_kyc_detail_id).last
+          @next_kyc_id = kyc_1.id if kyc_1.present?
+          @previous_kyc_id = kyc_2.id if kyc_2.present?
+        else
+          ar_relation = ar_relation.order('id DESC')
+          kyc_1 = ar_relation.where("id > ?", @user_kyc_detail_id).last
+          kyc_2 = ar_relation.where("id < ?", @user_kyc_detail_id).first
+          @next_kyc_id = kyc_2.id if kyc_2.present?
+          @previous_kyc_id = kyc_1.id if kyc_1.present?
+        end
       end
 
       # Fetch user extended detail
@@ -129,6 +170,10 @@ module AdminManagement
         @api_response_data = {
             user_detail: user_detail,
             case_detail: case_detail,
+            meta: {
+                next_kyc_id: @next_kyc_id,
+                previous_kyc_id: @previous_kyc_id
+            },
             is_case_closed: @user_kyc_detail.case_closed?
         }
       end

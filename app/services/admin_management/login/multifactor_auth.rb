@@ -189,8 +189,6 @@ module AdminManagement
       def validate_otp
         rotp_obj = TimeBasedOtp.new(@ga_secret_d)
         r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
-        # r = success
-        # r.data[:verified_at_timestamp] = Time.now.to_i
         return error_with_data(
             'am_l_ma_7',
             'Invalid Otp',

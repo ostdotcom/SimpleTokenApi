@@ -52,6 +52,11 @@ export STA_FOUNDATION_ETHEREUM_ADDRESS='0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 export STA_COOKIE_SECRET_KEY='byfd#ss@#4nflkn%^!~wkk^^&71o{23dpi~@jwe$pi'
 
 
+##crons
+
+rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
+rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
+rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
 
 
 

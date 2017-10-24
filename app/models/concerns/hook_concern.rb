@@ -39,7 +39,7 @@ module HookConcern
     scope :failed_hooks_to_be_retried, -> {
       where('failed_count <= ?', retry_limit_for_failed_hooks).
         where(status: failed_status).
-        limit(retry_limit_for_failed_hooks)
+        limit(batch_size_for_hooks_processor)
     }
 
     scope :lock_fresh_hooks, ->(lock_identifier) {

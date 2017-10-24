@@ -26,6 +26,7 @@ module AdminManagement
         @kyc_salt_e = nil
         @kyc_salt_d = nil
         @api_response_data = {}
+        @user_geoip_data = {}
       end
 
       # Perform
@@ -88,6 +89,12 @@ module AdminManagement
 
         @kyc_salt_e = @user_extended_detail.kyc_salt
 
+        user_registration_data = UserActivityLog.where(user_id: @user.id, action: GlobalConstant::UserActivityLog.register_action).first
+        if user_registration_data.present? && user_registration_data.data.present?
+          @user_geoip_data[:country] = user_registration_data.data[:geoip_country]
+          @user_geoip_data[:ip_address] = user_registration_data.data[:ip_address]
+        end
+
         success
       end
 
@@ -120,9 +127,9 @@ module AdminManagement
       #
       def set_api_response_data
         @api_response_data = {
-          user_detail: user_detail,
-          case_detail: case_detail,
-          is_case_closed: @user_kyc_detail.case_closed?
+            user_detail: user_detail,
+            case_detail: case_detail,
+            is_case_closed: @user_kyc_detail.case_closed?
         }
       end
 
@@ -136,23 +143,24 @@ module AdminManagement
       #
       def user_detail
         {
-          first_name: @user_extended_detail.first_name,
-          last_name: @user_extended_detail.last_name,
-          email: @user.email,
-          submitted_at: Time.at(@user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M"),
+            first_name: @user_extended_detail.first_name,
+            last_name: @user_extended_detail.last_name,
+            email: @user.email,
+            submitted_at: Time.at(@user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M"),
 
-          birthdate: birthdate_d,
-          passport_number: passport_number_d,
-          nationality: nationality_d,
-          street_address: street_address_d,
-          city: city_d,
-          state: state_d,
-          postal_code: postal_code_d,
-          country: country_d,
+            birthdate: birthdate_d,
+            passport_number: passport_number_d,
+            nationality: nationality_d,
+            street_address: street_address_d,
+            city: city_d,
+            state: state_d,
+            postal_code: postal_code_d,
+            country: country_d,
+            geoip_data: @user_geoip_data,
 
-          passport_file_url: passport_file_url,
-          selfie_file_url: selfie_file_url,
-          residence_proof_file_url: residence_proof_file_url
+            passport_file_url: passport_file_url,
+            selfie_file_url: selfie_file_url,
+            residence_proof_file_url: residence_proof_file_url
         }
       end
 
@@ -166,11 +174,11 @@ module AdminManagement
       #
       def case_detail
         {
-          admin_status: @user_kyc_detail.admin_status,
-          cynopsis_status: @user_kyc_detail.cynopsis_status,
-          is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
-          is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
-          last_acted_by: last_acted_by
+            admin_status: @user_kyc_detail.admin_status,
+            cynopsis_status: @user_kyc_detail.cynopsis_status,
+            is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
+            is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
+            last_acted_by: last_acted_by
         }
       end
 
@@ -184,8 +192,8 @@ module AdminManagement
       #
       def last_acted_by
         (@user_kyc_detail.last_acted_by.to_i > 0) ?
-          Admin.where(id: @user_kyc_detail.last_acted_by).first.name :
-          ''
+            Admin.where(id: @user_kyc_detail.last_acted_by).first.name :
+            ''
       end
 
       # Decrypt date of birth
@@ -349,7 +357,7 @@ module AdminManagement
         return '' unless s3_path.present?
 
         Aws::S3Manager.new('kyc', 'admin').
-          get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
+            get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
       end
 
       # Error Response
@@ -362,11 +370,11 @@ module AdminManagement
       #
       def err_response(err, display_text = 'Invalid request.')
         error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
+            err,
+            display_text,
+            display_text,
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 

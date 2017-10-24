@@ -99,11 +99,11 @@ module AdminManagement
           ar_relation = ar_relation.order('id DESC')
         end
 
-        if @filters[:admin_status].present?
+        if @filters[:admin_status].present? && UserKycDetail::admin_statuses[@filters[:admin_status]].present?
           ar_relation = ar_relation.where(admin_status: @filters[:admin_status])
         end
 
-        if @filters[:cynopsis_status].present?
+        if @filters[:cynopsis_status].present? && UserKycDetail::cynopsis_statuses[@filters[:cynopsis_status]].present?
           ar_relation = ar_relation.where(cynopsis_status: @filters[:cynopsis_status])
         end
 

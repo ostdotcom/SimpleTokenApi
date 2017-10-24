@@ -56,3 +56,4 @@ constants:
 
   secret_encryptor:
     cookie_secret_key: <%= ENV['STA_COOKIE_SECRET_KEY'] %>
+    email_tokens_decriptor_key: <%= ENV['STA_EMAIL_TOKENS_DECRIPTOR_KEY'] %>

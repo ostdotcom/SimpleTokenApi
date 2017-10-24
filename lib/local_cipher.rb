@@ -27,11 +27,19 @@ class LocalCipher
   # @return [Result::Base]
   #
   def encrypt(plaintext)
-    ciphertext_blob = client.encrypt_and_sign(plaintext)
+    begin
+      ciphertext_blob = client.encrypt_and_sign(plaintext)
 
-    success_with_data(
-      ciphertext_blob: ciphertext_blob
-    )
+      success_with_data(
+          ciphertext_blob: ciphertext_blob
+      )
+    rescue Exception => e
+      error_with_data('lc_1',
+                      "LocalCipher could not encrypt text with message => #{e.message}",
+                      'Something Went Wrong.',
+                      GlobalConstant::ErrorAction.default,
+                      {})
+    end
   end
 
   # Decrypt
@@ -45,11 +53,19 @@ class LocalCipher
   # @return [Result::Base]
   #
   def decrypt(ciphertext_blob)
-    plaintext = client.decrypt_and_verify(ciphertext_blob)
+    begin
+      plaintext = client.decrypt_and_verify(ciphertext_blob)
 
-    success_with_data(
-      plaintext: plaintext
-    )
+      success_with_data(
+          plaintext: plaintext
+      )
+    rescue Exception => e
+      error_with_data('lc_2',
+                      "LocalCipher could not decrypt cipher with message => #{e.message}",
+                      'Something Went Wrong.',
+                      GlobalConstant::ErrorAction.default,
+                      {})
+    end
   end
 
   private

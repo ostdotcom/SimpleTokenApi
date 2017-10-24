@@ -50,7 +50,14 @@ class OnBTSubmitJob < ApplicationJob
       t_double_opt_in_token = db_row.token if db_row.status == GlobalConstant::TemporaryToken.active_status
     end
 
-    @double_opt_in_token = "#{db_row.id.to_s}:#{t_double_opt_in_token}" if t_double_opt_in_token.present?
+    if t_double_opt_in_token.present?
+      double_opt_in_token_str = "#{db_row.id.to_s}:#{t_double_opt_in_token}"
+      encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
+      r = encryptor_obj.encrypt(double_opt_in_token_str)
+      return unless r.success?
+      @double_opt_in_token = r.data[:ciphertext_blob]
+    end
+
   end
 
   # Send token sale mail
@@ -61,11 +68,11 @@ class OnBTSubmitJob < ApplicationJob
   #
   def send_token_sale_double_opt_in_mail
     Email::HookCreator::SendTransactionalMail.new(
-      email: @user.email,
-      template_name: GlobalConstant::PepoCampaigns.double_opt_in_template,
-      template_vars: {
-        double_opt_in_token: @double_opt_in_token
-      }
+        email: @user.email,
+        template_name: GlobalConstant::PepoCampaigns.double_opt_in_template,
+        template_vars: {
+            double_opt_in_token: @double_opt_in_token
+        }
     ).perform if @double_opt_in_token.present?
   end
 

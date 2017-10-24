@@ -9,6 +9,10 @@ module GlobalConstant
         GlobalConstant::Base.secret_encryptor['cookie_secret_key']
       end
 
+      def email_tokens_key
+        GlobalConstant::Base.secret_encryptor['email_tokens_decriptor_key']
+      end
+
     end
 
   end

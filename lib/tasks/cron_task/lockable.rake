@@ -28,6 +28,21 @@ namespace :cron_task do
       execute_lockable_task
     end
 
+    # Retry pending cynopsis users
+    #
+    # * Author: Aman
+    # * Date: 24/10/2017
+    # * Reviewed By: Sunil
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users >> /mnt/simpletoken-api/shared/log/fetch_status_of_pending_cynopsis_users.log"
+    task :fetch_status_of_pending_cynopsis_users do |task|
+      @process_name = task
+      @performer_klass = 'Crons::CynopsisProcessors::RetryPending'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

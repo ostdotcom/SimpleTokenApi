@@ -74,4 +74,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   end
 
+  def cynopsis_user_id
+    "ts_#{Rails.env[0]}_#{self.user_id}"
+  end
+
 end

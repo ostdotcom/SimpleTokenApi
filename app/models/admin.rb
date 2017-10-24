@@ -117,9 +117,11 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @return [String] cookie value
   #
   def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
-    Digest::MD5.hexdigest(
-        "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
-    )
+    string_to_sign = "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
+    key="#{admin_id}:#{current_ts}:#{last_otp_at}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
+    hkdf = HKDF.new(string_to_sign, :salt => key, :algorithm => 'SHA256')
+    val = hkdf.next_bytes(64)
+    val.each_byte.map { |b| b.to_s(16) }.join
   end
 
 end

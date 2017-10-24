@@ -49,6 +49,8 @@ export STA_PRE_SALE_REGISTER_END_DATE='2017-11-10 13:00:00 UTC'
 export STA_TOKEN_SALE_ACTIVE_STATUS=1
 export STA_FOUNDATION_ETHEREUM_ADDRESS='0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
+export STA_COOKIE_SECRET_KEY='byfd#ss@#4nflkn%^!~wkk^^&71o{23dpi~@jwe$pi'
+
 
 
 

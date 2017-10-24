@@ -98,6 +98,29 @@ module GlobalConstant
 
       ### email duplicate state ends###
 
+      # Get mapped cynopsis status from response status of cynopsis call
+      #
+      # * Author: Aman
+      # * Date: 24/10/2017
+      # * Reviewed By: Sunil
+      #
+      #return[String] returns mapping of cynopsis status
+      #
+      def get_cynopsis_status(approval_status)
+
+        if approval_status == 'PENDING'
+          pending_cynopsis_status
+        elsif approval_status == 'CLEARED'
+          cleared_cynopsis_status
+        elsif approval_status == 'ACCEPTED'
+          approved_cynopsis_status
+        elsif approval_status == 'REJECTED'
+          rejected_cynopsis_status
+        else
+          un_processed_cynopsis_status
+        end
+      end
+
 
     end
 

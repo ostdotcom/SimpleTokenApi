@@ -186,7 +186,7 @@ class KycSubmitJob < ApplicationJob
     return unless r.success? # cynopsis status will remain unprocessed
 
     response_hash = ((r.data || {})[:response] || {})
-    set_cynopsis_status(response_hash)
+    @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
     save_cynopsis_status
     upload_documents
   end
@@ -234,30 +234,6 @@ class KycSubmitJob < ApplicationJob
         emails: [@user.email],
         addresses: address_d
     }
-  end
-
-  # Set cynopsis response status
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  # Sets @cynopsis_status
-  #
-  def set_cynopsis_status(response_hash)
-    approval_status = response_hash['approval_status'].to_s
-
-    if approval_status == 'PENDING'
-      @cynopsis_status = GlobalConstant::UserKycDetail.pending_cynopsis_status
-    elsif approval_status == 'CLEARED'
-      @cynopsis_status = GlobalConstant::UserKycDetail.cleared_cynopsis_status
-    elsif approval_status == 'ACCEPTED'
-      @cynopsis_status = GlobalConstant::UserKycDetail.approved_cynopsis_status
-    elsif approval_status == 'REJECTED'
-      @cynopsis_status = GlobalConstant::UserKycDetail.rejected_cynopsis_status
-    else
-      @cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
-    end
   end
 
   # Save cynopsis response status
@@ -341,7 +317,7 @@ class KycSubmitJob < ApplicationJob
   # Rails.env[0] - (d/s/p)
   #
   def get_cynopsis_user_id
-    "ts_#{Rails.env[0]}_#{@user_id}"
+    @user_kyc_detail.cynopsis_user_id
   end
 
   # Get decrypted country

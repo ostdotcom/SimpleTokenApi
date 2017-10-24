@@ -1,10 +1,10 @@
 class User < EstablishSimpleTokenUserDbConnection
 
   enum status: {
-    GlobalConstant::User.active_status => 1,
-    GlobalConstant::User.inactive_status => 2,
-    GlobalConstant::User.deactived_status => 3
-  }
+           GlobalConstant::User.active_status => 1,
+           GlobalConstant::User.inactive_status => 2,
+           GlobalConstant::User.deactived_status => 3
+       }
 
   # Array of Properties symbols
   #
@@ -116,9 +116,11 @@ class User < EstablishSimpleTokenUserDbConnection
   # @return [String] cookie value
   #
   def self.get_cookie_token(user_id, password, browser_user_agent, current_ts)
-    Digest::MD5.hexdigest(
-      "#{user_id}:#{password}:#{browser_user_agent}:#{current_ts}:#{GlobalConstant::Cookie.double_auth_prefix}"
-    )
+    string_to_sign = "#{user_id}:#{password}:#{browser_user_agent}:#{current_ts}:#{GlobalConstant::Cookie.double_auth_prefix}"
+    key="#{user_id}:#{current_ts}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
+    hkdf = HKDF.new(string_to_sign, :salt => key, :algorithm => 'SHA256')
+    val = hkdf.next_bytes(64)
+    val.each_byte.map { |b| b.to_s(16) }.join
   end
 
 end

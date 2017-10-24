@@ -31,7 +31,7 @@ module AdminManagement
             GlobalConstant::UserKycDuplicationLog.address_duplicate_type => []
         }
 
-        @active_duplicate_extended_details_ids = []
+        @dup_user_kyc_detail_objects = {}
         @new_duplicate_user_ids = []
         @user_kyc_active_duplicate_log_sql_values = []
         @user_kyc_inactive_duplicate_log_sql_values = []
@@ -148,45 +148,46 @@ module AdminManagement
       # * Date: 15/10/2017
       # * Reviewed By: Sunil
       #
-      # Sets @active_duplicate_extended_details_ids, @new_duplicate_md5_data
+      # Sets @dup_user_kyc_detail_objects, @new_duplicate_md5_data
       #
       def check_for_new_duplicates
 
-        new_duplicate_extended_details_id = []
+         new_duplicate_user_ids = []
 
         # By Nationality with passport
         Md5UserExtendedDetail.where(nationality: @md5_user_extended_details.nationality, passport_number: @md5_user_extended_details.passport_number).all.each do |md5_obj|
           next if md5_obj.user_id == @user_id
           @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.passport_with_country_duplicate_type] << md5_obj
-          new_duplicate_extended_details_id << md5_obj.user_extended_detail_id
+          new_duplicate_user_ids << md5_obj.user_id
         end
 
         # By only passport if not in above list
         Md5UserExtendedDetail.where(passport_number: @md5_user_extended_details.passport_number).all.each do |md5_obj|
-          next if (md5_obj.user_id == @user_id) || (new_duplicate_extended_details_id.include?(md5_obj.user_extended_detail_id))
+          next if (md5_obj.user_id == @user_id) || (new_duplicate_user_ids.include?(md5_obj.user_id))
           @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.only_passport_duplicate_type] << md5_obj
-          new_duplicate_extended_details_id << md5_obj.user_extended_detail_id
+          new_duplicate_user_ids << md5_obj.user_id
         end
 
         # By Ethereum address
         Md5UserExtendedDetail.where(ethereum_address: @md5_user_extended_details.ethereum_address).all.each do |md5_obj|
           next if md5_obj.user_id == @user_id
           @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.ethereum_duplicate_type] << md5_obj
-          new_duplicate_extended_details_id << md5_obj.user_extended_detail_id
+          new_duplicate_user_ids << md5_obj.user_id
         end
 
         # By Address
         Md5UserExtendedDetail.where(street_address: @md5_user_extended_details.street_address, city: @md5_user_extended_details.city, state: @md5_user_extended_details.state).all.each do |md5_obj|
           next if md5_obj.user_id == @user_id
           @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.address_duplicate_type] << md5_obj
-          new_duplicate_extended_details_id << md5_obj.user_extended_detail_id
+          new_duplicate_user_ids << md5_obj.user_id
         end
 
-        return {} if new_duplicate_extended_details_id.blank?
+        return {} if new_duplicate_user_ids.blank?
 
-        new_duplicate_extended_details_id.uniq!
-        @active_duplicate_extended_details_ids = UserKycDetail.where(
-            user_extended_detail_id: new_duplicate_extended_details_id).pluck(:user_extended_detail_id)
+        new_duplicate_user_ids.uniq!
+
+        @dup_user_kyc_detail_objects = UserKycDetail.where(
+            user_id: new_duplicate_user_ids).select(:user_id, :user_extended_detail_id).all.index_by(&:user_id)
       end
 
       # Create bulk insert queries and set other user ids
@@ -198,12 +199,15 @@ module AdminManagement
       # Sets @user_kyc_active_duplicate_log_sql_values, user_kyc_inactive_duplicate_log_sql_values, @new_duplicate_user_ids
       #
       def process_new_duplicate_data
-        return {} if @active_duplicate_extended_details_ids.blank?
+        return {} if @dup_user_kyc_detail_objects.blank?
 
         @new_duplicate_md5_data.each do |duplicate_type, md5_objs|
 
           md5_objs.each do |md5_obj|
-            if @active_duplicate_extended_details_ids.include?(md5_obj.user_extended_detail_id)
+            dup_user_kyc_obj = @dup_user_kyc_detail_objects[md5_obj.user_id]
+            next if  dup_user_kyc_obj.blank?
+
+            if dup_user_kyc_obj.user_extended_detail_id == md5_obj.user_extended_detail_id
               @user_kyc_active_duplicate_log_sql_values << add_row_in_db_format(duplicate_type, md5_obj, GlobalConstant::UserKycDuplicationLog.active_status)
               @new_duplicate_user_ids << md5_obj.user_id
             else

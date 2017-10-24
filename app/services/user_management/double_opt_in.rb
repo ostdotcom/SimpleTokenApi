@@ -67,7 +67,7 @@ module UserManagement
 
       decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
       r = decryptor_obj.decrypt(@t)
-      return unless r.success?
+      return r unless r.success?
 
       decripted_t = r.data[:plaintext]
       splited_t = decripted_t.split(':')

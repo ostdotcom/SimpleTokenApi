@@ -40,6 +40,8 @@ class OnBTSubmitJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
+  # @return [Result::Base]
+  #
   def create_double_opt_in_token
     db_row = TemporaryToken.find_or_initialize_by(user_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind)
     if db_row.new_record?

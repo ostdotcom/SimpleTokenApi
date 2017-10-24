@@ -38,7 +38,8 @@ module UserManagement
       r = fetch_user
       return r unless r.success?
 
-      create_reset_password_token
+      r = create_reset_password_token
+      return r  unless r.success?
 
       send_forgot_password_mail
 
@@ -80,10 +81,20 @@ module UserManagement
     #
     # Sets @reset_password_token
     #
+    # @return [Result::Base]
+    #
     def create_reset_password_token
       reset_token = Digest::MD5.hexdigest("#{@user.id}::#{@user.password}::#{Time.now.to_i}::reset_password::#{rand}")
       db_row = TemporaryToken.create!(user_id: @user.id, kind: GlobalConstant::TemporaryToken.reset_password_kind, token: reset_token)
-      @reset_password_token = "#{db_row.id.to_s}:#{reset_token}"
+
+      reset_pass_token_str = "#{db_row.id.to_s}:#{reset_token}"
+      encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
+      r = encryptor_obj.encrypt(reset_pass_token_str)
+      return r unless r.success?
+
+      @reset_password_token = r.data[:ciphertext_blob]
+
+      success
     end
 
     # Send forgot password_mail

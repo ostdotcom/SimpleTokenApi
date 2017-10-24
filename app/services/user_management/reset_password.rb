@@ -96,7 +96,13 @@ module UserManagement
       r = validate
       return r unless r.success?
 
-      splited_reset_token = @r_t.split(':')
+      decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
+      r = decryptor_obj.decrypt(@r_t)
+      return r unless r.success?
+
+      decripted_t = r.data[:plaintext]
+
+      splited_reset_token = decripted_t.split(':')
 
       return invalid_url_error('um_rp_3') if splited_reset_token.length != 2
 

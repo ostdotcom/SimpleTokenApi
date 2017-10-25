@@ -110,7 +110,9 @@ class KycSubmitJob < ApplicationJob
       @user_kyc_detail.kyc_confirmed_at = Time.now.to_i
       @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
     end
+    @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status

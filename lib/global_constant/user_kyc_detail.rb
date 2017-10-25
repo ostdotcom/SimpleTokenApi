@@ -29,6 +29,15 @@ module GlobalConstant
 
       ### Cynopsis Status End ###
 
+      def cynonpsis_approved_statuses
+        [cleared_cynopsis_status, approved_cynopsis_status]
+      end
+
+      def admin_approved_statuses
+        [qualified_admin_status, whitelisted_admin_status]
+      end
+
+
       ### Admin Status Start ###
 
       def un_processed_admin_status
@@ -97,6 +106,51 @@ module GlobalConstant
       end
 
       ### email duplicate state ends###
+
+      ### whitelist status ####
+
+      def unprocessed_whitelist_status
+        'unprocessed'
+      end
+
+      def started_whitelist_status
+        'started'
+      end
+
+      def done_whitelist_status
+        'done'
+      end
+
+      def failed_whitelist_status
+        'failed'
+      end
+
+      ### whitelist status ####
+
+      ### admin action type ####
+
+      def no_admin_action_type
+        'no'
+      end
+
+      def data_mismatch_admin_action_type
+        'data_mismatch'
+      end
+
+      def passport_issue_admin_action_type
+        'passport_issue'
+      end
+
+      def selfie_issue_admin_action_type
+        'selfie_issue'
+      end
+
+      def residency_issue_admin_action_type
+        'residency_issue'
+      end
+
+      ### admin action type ####
+
 
       # Get mapped cynopsis status from response status of cynopsis call
       #

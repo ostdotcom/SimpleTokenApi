@@ -198,7 +198,11 @@ module UserManagement
 
     def validate_state
       @state = @state.to_s.strip
-      @error_data[:state] = 'State is required.' if !@state.present?
+      if !@state.present?
+        @error_data[:state] = 'State is required.'
+      elsif GlobalConstant::CountryNationality.disallowed_states[@state.downcase].present?
+        @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
+      end
     end
 
     def validate_country

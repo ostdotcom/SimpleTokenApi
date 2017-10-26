@@ -128,6 +128,31 @@ module GlobalConstant
       ### whitelist status ####
 
 
+      ### admin action type ####
+
+      def no_admin_action_type
+        'no'
+      end
+
+      def data_mismatch_admin_action_type
+        'data_mismatch'
+      end
+
+      def passport_issue_admin_action_type
+        'passport_issue'
+      end
+
+      def selfie_issue_admin_action_type
+        'selfie_issue'
+      end
+
+      def residency_issue_admin_action_type
+        'residency_issue'
+      end
+
+      ### admin action type ####
+
+
       # Get mapped cynopsis status from response status of cynopsis call
       #
       # * Author: Aman

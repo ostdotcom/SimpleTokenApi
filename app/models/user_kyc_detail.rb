@@ -28,15 +28,23 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
         }, _suffix: true
 
   enum email_duplicate_status: {
-             GlobalConstant::UserKycDetail.no_email_duplicate_status => 0,
-             GlobalConstant::UserKycDetail.yes_email_duplicate_status => 1
-         }, _suffix: true
+           GlobalConstant::UserKycDetail.no_email_duplicate_status => 0,
+           GlobalConstant::UserKycDetail.yes_email_duplicate_status => 1
+       }, _suffix: true
 
   enum whitelist_status: {
               GlobalConstant::UserKycDetail.unprocessed_whitelist_status => 0,
               GlobalConstant::UserKycDetail.started_whitelist_status => 1,
               GlobalConstant::UserKycDetail.done_whitelist_status => 2,
               GlobalConstant::UserKycDetail.failed_whitelist_status => 3
+          }, _suffix: true
+
+  enum admin_action_type: {
+              GlobalConstant::UserKycDetail.no_admin_action_type => 0,
+              GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
+              GlobalConstant::UserKycDetail.passport_issue_admin_action_type => 2,
+              GlobalConstant::UserKycDetail.selfie_issue_admin_action_type => 3,
+              GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
           }, _suffix: true
 
   scope :kyc_admin_and_cynopsis_approved, -> { where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses) }

@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     match 'residency-img-issue' => :residency_image_issue, via: :POST
     match 'qualify' => :qualify, via: :POST
     match 'kyc-action-logs' => :kyc_action_logs, via: :GET
+    match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
   end
 
   scope 'api/callback', controller: 'callback/ops' do

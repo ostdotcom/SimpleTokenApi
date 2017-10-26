@@ -32,7 +32,16 @@
     - :filters
     - :sortings
 
-'AdminManagement::Kyc::Dashboard':
+'AdminManagement::Kyc::Dashboard::Status':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :filters
+    - :sortings
+    - :offset
+    - :page_size
+
+'AdminManagement::Kyc::Dashboard::Whitelist':
   :mandatory:
     - :admin_id
   :optional:

@@ -29,7 +29,7 @@ module GlobalConstant
 
       ### Cynopsis Status End ###
 
-      def cynonpsis_approved_statuses
+      def cynopsis_approved_statuses
         [cleared_cynopsis_status, approved_cynopsis_status]
       end
 

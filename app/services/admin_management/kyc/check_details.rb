@@ -92,23 +92,32 @@ module AdminManagement
       def fetch_surround_kyc_ids
         ar_relation = UserKycDetail
 
-        if @filters.present? && @filters[:admin_status].present? && UserKycDetail::admin_statuses[@filters[:admin_status]].present?
-          ar_relation = ar_relation.where(admin_status: @filters[:admin_status])
-        end
+        if @filters.present?
+          query_hash = {}
 
-        if @filters.present? && @filters[:cynopsis_status].present? && UserKycDetail::cynopsis_statuses[@filters[:cynopsis_status]].present?
-          ar_relation = ar_relation.where(cynopsis_status: @filters[:cynopsis_status])
-        end
+          if !@filters[:whitelist_status].nil?
+            query_hash[:cynopsis_status] = GlobalConstant::UserKycDetail.cynopsis_approved_statuses
+            query_hash[:admin_status] = GlobalConstant::UserKycDetail.admin_approved_statuses
+          end
 
+          @filters.each do |fl_k, fl_v|
+            query_hash[fl_k.to_sym] = fl_v if fl_v.present? &&
+                (UserKycDetail::admin_statuses[fl_v].present? ||
+                    UserKycDetail::cynopsis_statuses[fl_v].present? ||
+                    UserKycDetail::whitelist_statuses[fl_v].present?
+                )
+          end
+
+          ar_relation = ar_relation.where(query_hash) if query_hash.present?
+
+        end
 
         if @sortings.present? && @sortings[:sort_order] == 'inc'
-          ar_relation = ar_relation.order('id ASC')
           kyc_1 = ar_relation.where("id > ?", @user_kyc_detail_id).first
           kyc_2 = ar_relation.where("id < ?", @user_kyc_detail_id).last
           @next_kyc_id = kyc_1.id if kyc_1.present?
           @previous_kyc_id = kyc_2.id if kyc_2.present?
         else
-          ar_relation = ar_relation.order('id DESC')
           kyc_1 = ar_relation.where("id > ?", @user_kyc_detail_id).last
           kyc_2 = ar_relation.where("id < ?", @user_kyc_detail_id).first
           @next_kyc_id = kyc_2.id if kyc_2.present?
@@ -221,6 +230,7 @@ module AdminManagement
         {
             admin_status: @user_kyc_detail.admin_status,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
+            whitelist_status: @user_kyc_detail.whitelist_status,
             is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
             last_acted_by: last_acted_by

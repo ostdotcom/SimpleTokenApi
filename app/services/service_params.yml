@@ -134,6 +134,7 @@
     - :user_id
     - :first_name
     - :last_name
+    - :gender
     - :birthdate
     - :street_address
     - :city

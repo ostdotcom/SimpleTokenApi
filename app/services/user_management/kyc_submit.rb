@@ -39,6 +39,7 @@ module UserManagement
       @user_id = @params[:user_id]
       @first_name = @params[:first_name] # required
       @last_name = @params[:last_name] # required
+      @gender = @params[:gender] # required
       @birthdate = @params[:birthdate] # format - 'dd/mm/yyyy'
       @street_address = @params[:street_address] # required
       @city = @params[:city] # required
@@ -118,11 +119,12 @@ module UserManagement
       # Sanitize fields, validate and assign error
       validate_first_name
       validate_last_name
+      validate_gender
       validate_birthdate
       validate_street_address
       validate_city
-      validate_state
       validate_country
+      validate_state
       validate_postal_code
       validate_ethereum_address
       validate_estimated_participation_amount
@@ -173,6 +175,12 @@ module UserManagement
       @error_data[:last_name] = 'Last Name is required.' if !@last_name.present?
     end
 
+    def validate_gender
+      if @gender.blank? || UserExtendedDetail.genders[@gender].blank?
+        @error_data[:gender] = 'Gender is invalid.'
+      end
+    end
+
     def validate_birthdate
       begin
         @birthdate = @birthdate.to_s.strip
@@ -196,15 +204,19 @@ module UserManagement
       @error_data[:city] = 'City is required.' if !@city.present?
     end
 
-    def validate_state
-      @state = @state.to_s.strip
-      @error_data[:state] = 'State is required.' if !@state.present?
-    end
-
     def validate_country
       @country = @country.to_s.strip
       if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
         @error_data[:country] = 'Country is required.'
+      end
+    end
+
+    def validate_state
+      @state = @state.to_s.strip
+      if !@state.present?
+        @error_data[:state] = 'State is required.'
+      elsif GlobalConstant::CountryNationality.disallowed_states[@country.downcase].present? && GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase].present?
+        @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
       end
     end
 
@@ -327,7 +339,8 @@ module UserManagement
           user_id: @user_id,
           first_name: @first_name,
           last_name: @last_name,
-          kyc_salt: @kyc_salt_e
+          kyc_salt: @kyc_salt_e,
+          gender: @gender
       }
 
       md5_user_extended_details_params = {

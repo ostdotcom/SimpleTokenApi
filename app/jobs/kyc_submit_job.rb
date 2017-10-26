@@ -228,6 +228,7 @@ class KycSubmitJob < ApplicationJob
         rfrID: get_cynopsis_user_id,
         first_name: @user_extended_detail.first_name,
         last_name: @user_extended_detail.last_name,
+        gender: @user_extended_detail.gender.upcase,
         country_of_residence: country_of_residence_d.upcase,
         date_of_birth: Date.parse(date_of_birth_d).strftime("%d/%m/%Y"),
         identification_type: 'PASSPORT',
@@ -236,6 +237,7 @@ class KycSubmitJob < ApplicationJob
         emails: [@user.email],
         addresses: address_d
     }
+
   end
 
   # Save cynopsis response status

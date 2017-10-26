@@ -3,6 +3,20 @@ module GlobalConstant
 
   class CountryNationality
 
+    def self.disallowed_states
+      {
+          'united states of america' => {
+              'newyork' => 'NY',
+              'new york' => 'NY',
+              'new york state' => 'NY',
+              'newyorkstate' => 'NY',
+              'new yorkstate' => 'NY',
+              'ny' => 'NY',
+              'nyc' => 'NY'
+          }
+      }
+    end
+
     def self.countries
       @countries ||= YAML.load_file(open(Rails.root.to_s + '/config/countries.yml'))[:countries]
     end

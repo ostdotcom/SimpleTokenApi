@@ -143,7 +143,7 @@ module WhitelistManagement
 
       notify_devs({transaction_hash: @transaction_hash}, "IMMEDIATE ATTENTION NEEDED. Invalid event contract data")
 
-      @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.true_attention_needed
+      @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
 
       return error_with_data(
@@ -186,7 +186,7 @@ module WhitelistManagement
         notify_devs(
             {transaction_hash: @transaction_hash, user_id: @user_id},
             "ATTENTION NEEDED.duplicate event success response")
-        @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.true_attention_needed
+        @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
       end
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
 

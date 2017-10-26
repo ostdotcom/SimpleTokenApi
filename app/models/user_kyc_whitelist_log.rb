@@ -6,8 +6,9 @@ class UserKycWhitelistLog < EstablishSimpleTokenLogDbConnection
            GlobalConstant::UserKycWhitelistLog.confirmed_status => 2
        }, _suffix: true
 
-  enum attention_needed: {
-           GlobalConstant::UserKycWhitelistLog.false_attention_needed=> 0,
-           GlobalConstant::UserKycWhitelistLog.true_attention_needed => 1
-       }, _prefix: true
+  enum is_attention_needed: {
+      GlobalConstant::UserKycDuplicationLog.attention_not_needed => 0,
+      GlobalConstant::UserKycDuplicationLog.attention_needed => 1
+  }
+  
 end

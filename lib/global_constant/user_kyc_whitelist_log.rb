@@ -21,17 +21,17 @@ module GlobalConstant
 
       ### Status End ###
 
-      ### Attention needed Start ###
+      ### is attention needed starts ####
 
-      def false_attention_needed
-        'false'
+      def attention_not_needed
+        0
       end
 
-      def true_attention_needed
-        'true'
+      def attention_needed
+        1
       end
 
-      ### Attention needed End ###
+      ### is attention needed ends ####
 
     end
 

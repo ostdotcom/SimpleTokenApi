@@ -47,12 +47,6 @@ module WhitelistManagement
 
         create_user_contract_event
 
-        @user_kyc_whitelist_log.event_response_count += 1
-
-        notify_devs(
-            {transaction_hash: @transaction_hash, user_id: @user_id},
-            "ATTENTION NEEDED.duplicate event success response") if @user_kyc_whitelist_log.event_response_count > 1
-
         r = verify_transaction_data
         return r unless r.success?
 
@@ -119,6 +113,23 @@ module WhitelistManagement
       success
     end
 
+    # create user_contract_event
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By:
+    #
+    #
+    def create_user_contract_event
+      UserContractEvent.create!({
+                                    user_id: @user_kyc_detail.user_id,
+                                    block_hash: @block_hash,
+                                    transaction_hash: @transaction_hash,
+                                    kind: GlobalConstant::UserContractEvent.whitelist_kind
+                                })
+      @user_kyc_whitelist_log.event_response_count += 1
+    end
+
     # Verify transaction contract data
     #
     # * Author: Aman
@@ -133,6 +144,8 @@ module WhitelistManagement
       notify_devs({transaction_hash: @transaction_hash}, "IMMEDIATE ATTENTION NEEDED. Invalid event contract data")
 
       @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.true_attention_needed
+      @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
+
       return error_with_data(
           'wm_re_2',
           'Invalid event contract data',
@@ -158,22 +171,6 @@ module WhitelistManagement
       local_cipher_obj.decrypt(user_extended_detail.ethereum_address).data[:plaintext]
     end
 
-    # create user_contract_event
-    #
-    # * Author: Aman
-    # * Date: 25/10/2017
-    # * Reviewed By:
-    #
-    #
-    def create_user_contract_event
-      UserContractEvent.create!({
-                                    user_id: @user_kyc_detail.user_id,
-                                    block_hash: @block_hash,
-                                    transaction_hash: @transaction_hash,
-                                    kind: GlobalConstant::UserContractEvent.whitelist_kind
-                                })
-    end
-
     # update update_user_kyc_whitelist obj
     #
     # * Author: Aman
@@ -185,9 +182,20 @@ module WhitelistManagement
 
       if @user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
         @user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.done_status
+      else
+        notify_devs(
+            {transaction_hash: @transaction_hash, user_id: @user_id},
+            "ATTENTION NEEDED.duplicate event success response")
+        @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.true_attention_needed
       end
-
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
+
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
+
+      if @user_kyc_detail.changed?
+        @user_kyc_detail.save!
+        #enqueue email to user
+      end
 
     end
 

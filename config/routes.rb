@@ -38,6 +38,10 @@ Rails.application.routes.draw do
     match 'kyc-action-logs' => :kyc_action_logs, via: :GET
   end
 
+  scope 'api/callback', controller: 'callback/ops' do
+    match 'whitelist-event' => :whitelist_event, via: :GET
+  end
+
   match '*permalink', to: 'application#not_found', via: :all
 
 end

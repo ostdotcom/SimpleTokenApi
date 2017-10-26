@@ -33,6 +33,13 @@ module Crons
               next
             end
 
+            response = r.data[:response]
+
+            unless response["success"]
+              handle_error({private_ops_api_response_error: response}, user_kyc_detail)
+              next
+            end
+
             transaction_hash = r.data[:response]["data"]["transaction_hash"]
 
             UserKycWhitelistLog.create!({

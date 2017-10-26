@@ -193,14 +193,34 @@ module WhitelistManagement
 
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
 
+      if @user_kyc_detail.whitelist_status_changed? && @user_kyc_detail.status == GlobalConstant::UserKycWhitelistLog.done_status
+        send_email
+      end
 
       if @user_kyc_detail.changed?
         @user_kyc_detail.save!
-        #enqueue email to user
       end
 
     end
 
+    # Send Email when kyc whitelist status is done
+    #
+    # * Author: Abhay
+    # * Date: 26/10/2017
+    # * Reviewed By:
+    #
+    def send_email
+      @user = User.where(id: @user_kyc_detail.user_id).first
+
+      Email::HookCreator::SendTransactionalMail.new(
+          email: @user.email,
+          template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+          template_vars: {
+              token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+              is_sale_active: (Time.now >= GlobalConstant::TokenSale.public_sale_start_date)
+          }
+      ).perform
+    end
 
     # notify devs if required
     #

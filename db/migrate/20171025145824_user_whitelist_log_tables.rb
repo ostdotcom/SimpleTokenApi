@@ -6,7 +6,7 @@ class UserWhitelistLogTables < DbMigrationConnection
         t.column :user_id, :integer, limit: 8, null: false
         t.column :transaction_hash, :string, limit: 127, null: false
         t.column :status, :tinyint, limit: 1, null: false
-        t.column :is_attention_needed, :tinyint, limit: 1, null: false
+        t.column :is_attention_needed, :tinyint, limit: 1, null: false, default: 0
         t.timestamps
       end
 

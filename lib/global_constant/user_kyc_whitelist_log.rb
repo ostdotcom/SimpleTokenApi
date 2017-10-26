@@ -11,23 +11,27 @@ module GlobalConstant
         'pending'
       end
 
-      def update_event_obtained_status
+      def done_status
         'update_event_obtained'
-      end
-
-      def attention_needed_status
-        'attention_needed'
       end
 
       def confirmed_status
         'confirmed'
       end
 
-      def failed_status
-        'failed'
+      ### Status End ###
+
+      ### Attention needed Start ###
+
+      def false_attention_needed
+        'false'
       end
 
-      ### Status End ###
+      def true_attention_needed
+        'true'
+      end
+
+      ### Attention needed End ###
 
     end
 

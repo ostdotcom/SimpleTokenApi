@@ -5,10 +5,6 @@ module GlobalConstant
 
     class << self
 
-      def whitelist_kind
-        "whitelist"
-      end
-
 
     end
 

@@ -21,7 +21,7 @@ module WhitelistManagement
 
       @transaction_hash, @block_hash, @ethereum_address, @user_phase = nil, nil, nil, nil
 
-      @user_kyc_whitelist_log, @user_id = nil, nil
+      @user_kyc_whitelist_log, @user_id, @user_kyc_detail = nil, nil, nil
 
     end
 
@@ -39,15 +39,22 @@ module WhitelistManagement
       (notify_devs({}) and return r) unless r.success?
 
       begin
+
         decrypt_token
 
         r = get_user_kyc_whitelist_log
         return r unless r.success?
 
+        create_user_contract_event
+
+        @user_kyc_whitelist_log.event_response_count += 1
+
+        notify_devs(
+            {transaction_hash: @transaction_hash, user_id: @user_id},
+            "ATTENTION NEEDED.duplicate event success response") if @user_kyc_whitelist_log.event_response_count > 1
+
         r = verify_transaction_data
         return r unless r.success?
-
-        create_user_contract_event
 
         update_user_kyc_whitelist
 
@@ -124,6 +131,8 @@ module WhitelistManagement
       return success if ((UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] == @user_phase.to_i) && (@ethereum_address.downcase == get_ethereum_address.downcase))
 
       notify_devs({transaction_hash: @transaction_hash}, "IMMEDIATE ATTENTION NEEDED. Invalid event contract data")
+
+      @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.true_attention_needed
       return error_with_data(
           'wm_re_2',
           'Invalid event contract data',
@@ -131,6 +140,7 @@ module WhitelistManagement
           GlobalConstant::ErrorAction.default,
           {}
       )
+
     end
 
     # Get Decrypted ethereum address of user
@@ -174,12 +184,7 @@ module WhitelistManagement
     def update_user_kyc_whitelist
 
       if @user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
-        @user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.update_event_obtained_status
-      else
-        @user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.attention_needed_status
-        notify_devs(
-            {transaction_hash: @transaction_hash, user_id: @user_id},
-            "ATTENTION NEEDED.duplicate event success response")
+        @user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.done_status
       end
 
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?

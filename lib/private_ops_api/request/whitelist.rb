@@ -26,7 +26,7 @@ module PrivateOpsApi
       # @return [Result::Base] returns an object of Result::Base class
       #
       def whitelist(token)
-        send_request_of_type('post', '/token-sale/whitelist', {token: token})
+        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type, 'post', '/token-sale/whitelist', {token: token})
       end
 
     end

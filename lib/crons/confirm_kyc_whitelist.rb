@@ -12,7 +12,7 @@ module Crons
     #
     # @return [Crons::ConfirmKycWhitelist]
     #
-    def initialize
+    def initialize(params)
     end
 
     # Perform
@@ -23,41 +23,44 @@ module Crons
     #
     def perform
       UserKycWhitelistLog
-        .kyc_whitelist_non_confirmed
-        .where("created_at < #{(Time.now - 5.minutes).to_s(:db)}")
-        .find_in_batches(batch_size: 100).each do |batched_records|
+          .kyc_whitelist_non_confirmed
+          .where("created_at < '#{(Time.now - 5.minutes).to_s(:db)}'")
+          .where(is_attention_needed: GlobalConstant::UserKycWhitelistLog.attention_not_needed)
+          .find_in_batches(batch_size: 100).each do |batched_records|
 
-          batched_records.each do |user_kyc_whitelist_log|
-            token = get_token({transaction_hash: user_kyc_whitelist_log.transaction_hash})
-            # check if the transaction is mined in a block
-            transaction_mined_response = PrivateOpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+        batched_records.each do |user_kyc_whitelist_log|
+          token = get_token({transaction_hash: user_kyc_whitelist_log.transaction_hash})
+          # check if the transaction is mined in a block
+          transaction_mined_response = PrivateOpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+          if user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
 
-            if user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
-
-              if not_mined?(transaction_mined_response)
-                handle_error(user_kyc_whitelist_log)
-                next
-              end
-
-              # this means it is confirmed
-              block_hash = transaction_mined_response.data[:response]['block_hash']
-              r = record_event(user_kyc_whitelist_log, block_hash)
-              if r.success?
-                mark_confirmed(user_kyc_whitelist_log)
-              else
-                next
-              end
-
-            elsif user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.done_status
-
-              if not_mined?(transaction_mined_response)
-                next
-              end
-
-              mark_confirmed(user_kyc_whitelist_log)
+            if not_mined?(transaction_mined_response)
+              handle_error(user_kyc_whitelist_log)
+              next
             end
 
+            # this means it is confirmed
+            block_hash = transaction_mined_response.data[:response]['block_hash']
+            r = record_event(user_kyc_whitelist_log, block_hash)
+            if r.success?
+              mark_confirmed(user_kyc_whitelist_log)
+            else
+              next
+            end
+
+          elsif user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.done_status
+
+            if not_mined?(transaction_mined_response)
+              next
+            end
+
+            mark_confirmed(user_kyc_whitelist_log)
+
+          else
+            fail("Unreachable Code")
           end
+
+        end
 
       end
 
@@ -101,20 +104,20 @@ module Crons
       user_kyc_detail = UserKycDetail.where(user_id: user_kyc_whitelist_log.user_id).first
 
       data = {
-        transaction_hash: user_kyc_whitelist_log.transaction_hash,
-        block_hash: block_hash,
-        event_data: {
-          address: get_ethereum_address(user_kyc_detail),
-          phase: UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
-        }
+          transaction_hash: user_kyc_whitelist_log.transaction_hash,
+          block_hash: block_hash,
+          event_data: {
+              address: get_ethereum_address(user_kyc_detail),
+              phase: UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
+          }
       }
 
       token = get_token(data)
 
-     WhitelistManagement::RecordEvent.new(token: token).perform
+      WhitelistManagement::RecordEvent.new(token: token).perform
     end
 
-    # Get etereum address
+    # Get ethereum address
     #
     # * Author: Kedar, Abhay
     # * Date: 26/10/2017

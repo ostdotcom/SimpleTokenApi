@@ -13,6 +13,10 @@ module GlobalConstant
         GlobalConstant::Base.public_ops['secret_key']
       end
 
+      def public_ops_api_type
+        'public_ops'
+      end
+
     end
 
   end

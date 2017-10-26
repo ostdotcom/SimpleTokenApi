@@ -25,7 +25,7 @@ module PrivateOpsApi
       # @return [Result::Base] returns an object of Result::Base class
       #
       def perform(token)
-        send_request_of_type('get', '/token-sale/whitelist', {token: token})
+        send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/transaction/get-info', {token: token})
       end
 
     end

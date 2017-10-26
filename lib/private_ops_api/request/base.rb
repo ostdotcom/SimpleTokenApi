@@ -27,10 +27,11 @@ module PrivateOpsApi
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def send_request_of_type(request_type, path, params)
+      def send_request_of_type(ops_api_type, request_type, path, params)
         begin
 
-          request_path = GlobalConstant::PrivateOpsApi.base_url + path
+          request_path = ((ops_api_type == GlobalConstant::PrivateOpsApi.private_ops_api_type) ?
+              GlobalConstant::PrivateOpsApi.base_url : GlobalConstant::PublicOpsApi.base_url) + path
 
           case request_type
             when 'get'

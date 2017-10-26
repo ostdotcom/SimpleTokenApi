@@ -5,13 +5,15 @@ module GlobalConstant
 
     def self.disallowed_states
       {
-          'newyork' => 'NY',
-          'new york' => 'NY',
-          'new york state' => 'NY',
-          'newyorkstate' => 'NY',
-          'new yorkstate' => 'NY',
-          'ny' => 'NY',
-          'nyc' => 'NY'
+          'united states of america' => {
+              'newyork' => 'NY',
+              'new york' => 'NY',
+              'new york state' => 'NY',
+              'newyorkstate' => 'NY',
+              'new yorkstate' => 'NY',
+              'ny' => 'NY',
+              'nyc' => 'NY'
+          }
       }
     end
 

@@ -123,8 +123,8 @@ module UserManagement
       validate_birthdate
       validate_street_address
       validate_city
-      validate_state
       validate_country
+      validate_state
       validate_postal_code
       validate_ethereum_address
       validate_estimated_participation_amount
@@ -204,19 +204,19 @@ module UserManagement
       @error_data[:city] = 'City is required.' if !@city.present?
     end
 
-    def validate_state
-      @state = @state.to_s.strip
-      if !@state.present?
-        @error_data[:state] = 'State is required.'
-      elsif GlobalConstant::CountryNationality.disallowed_states[@state.downcase].present?
-        @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
-      end
-    end
-
     def validate_country
       @country = @country.to_s.strip
       if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
         @error_data[:country] = 'Country is required.'
+      end
+    end
+
+    def validate_state
+      @state = @state.to_s.strip
+      if !@state.present?
+        @error_data[:state] = 'State is required.'
+      elsif GlobalConstant::CountryNationality.disallowed_states[@country.downcase].present? && GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase].present?
+        @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
       end
     end
 

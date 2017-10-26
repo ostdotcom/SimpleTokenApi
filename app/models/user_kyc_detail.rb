@@ -39,7 +39,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
       GlobalConstant::UserKycDetail.failed_whitelist_status => 3
   }, _suffix: true
 
-  enum kyc_prolem_email_sent: {
+  enum kyc_problem_email_sent: {
       GlobalConstant::UserKycDetail.no_kyc_problem_email_sent_status => 0,
       GlobalConstant::UserKycDetail.yes_kyc_problem_email_sent_status => 1
   }

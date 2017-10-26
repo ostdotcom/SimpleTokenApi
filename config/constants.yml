@@ -44,11 +44,11 @@ constants:
       active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
       foundation_ethereum_address: <%= ENV['STA_FOUNDATION_ETHEREUM_ADDRESS']%>
     user_register_dates:
-      pre_sale_register_end_date:  <%= ENV['STA_PRE_SALE_REGISTER_END_DATE'] %>
+      early_access_register_end_date:  <%= ENV['STA_EARLY_ACCESS_REGISTER_END_DATE'] %>
     sale_dates:
-      pre_sale_start_date: <%= ENV['STA_PRE_SALE_START_DATE'] %>
-      public_sale_start_date: <%= ENV['STA_PUBLIC_SALE_START_DATE'] %>
-      public_sale_end_date: <%= ENV['STA_PUBLIC_SALE_END_DATE'] %>
+      early_access_start_date: <%= ENV['STA_EARLY_ACCESS_START_DATE'] %>
+      general_access_start_date: <%= ENV['STA_GENERAL_ACCESS_START_DATE'] %>
+      general_access_end_date: <%= ENV['STA_GENERAL_ACCESS_END_DATE'] %>
 
   recaptcha:
     site_key: <%= ENV['STA_RECAPTCHA_SITE_KEY'] %>

@@ -35,7 +35,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-        return if Time.now >= GlobalConstant::TokenSale.public_sale_end_date
+        return if Time.now >= GlobalConstant::TokenSale.general_access_end_date
 
         UserKycDetail.where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
 
@@ -95,7 +95,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def send_aproved_email
-        is_sale_active = (Time.now >= GlobalConstant::TokenSale.public_sale_start_date)
+        is_sale_active = (Time.now >= GlobalConstant::TokenSale.general_access_start_date)
 
         @approved_user_ids.each do |user_id|
           user_kyc_detail = @user_kyc_details[user_id]

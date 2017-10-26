@@ -154,8 +154,8 @@ module UserManagement
       current_time = Time.now
       if (@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? &&
           GlobalConstant::TokenSale.st_token_sale_active_status  &&
-          current_time >= GlobalConstant::TokenSale.pre_sale_start_date &&
-          current_time <= GlobalConstant::TokenSale.public_sale_end_date)
+          current_time >= GlobalConstant::TokenSale.early_access_start_date &&
+          current_time <= GlobalConstant::TokenSale.general_access_end_date)
         GlobalConstant::TokenSale.st_foundation_ethereum_address
       else
         ''

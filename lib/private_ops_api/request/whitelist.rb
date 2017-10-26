@@ -1,5 +1,7 @@
 module PrivateOpsApi
+
   module Request
+
     class Whitelist < Base
 
       # Initialize
@@ -28,5 +30,7 @@ module PrivateOpsApi
       end
 
     end
+
   end
+
 end

@@ -182,6 +182,7 @@ module WhitelistManagement
 
       if @user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
         @user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.done_status
+
       else
         notify_devs(
             {transaction_hash: @transaction_hash, user_id: @user_id},
@@ -191,6 +192,7 @@ module WhitelistManagement
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
 
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
+
 
       if @user_kyc_detail.changed?
         @user_kyc_detail.save!

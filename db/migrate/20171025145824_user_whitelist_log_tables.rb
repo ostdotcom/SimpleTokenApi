@@ -4,7 +4,7 @@ class UserWhitelistLogTables < DbMigrationConnection
     run_migration_for_db(EstablishSimpleTokenLogDbConnection.config_key) do
       create_table :user_kyc_whitelist_logs do |t|
         t.column :user_id, :integer, limit: 8, null: false
-        t.column :transaction_hash, :string, limit: 255, null: false
+        t.column :transaction_hash, :string, limit: 127, null: false
         t.column :status, :tinyint, limit: 1, null: false
         t.column :is_attention_needed, :tinyint, limit: 1, null: false
         t.timestamps

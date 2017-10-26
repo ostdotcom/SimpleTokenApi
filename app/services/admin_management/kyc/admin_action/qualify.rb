@@ -38,8 +38,6 @@ module AdminManagement
 
           log_admin_action
 
-          send_email
-
           success_with_data(@api_response_data)
         end
 
@@ -66,27 +64,6 @@ module AdminManagement
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
           @user_kyc_detail.save!
-        end
-
-        # Send email
-        #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By: Sunil
-        #
-        def send_email
-
-          if @user_kyc_detail.kyc_approved?
-            Email::HookCreator::SendTransactionalMail.new(
-                email: @user.email,
-                template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-                template_vars: {
-                    token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-                    is_sale_active: (Time.now >= GlobalConstant::TokenSale.general_access_start_date)
-                }
-            ).perform
-          end
-
         end
 
         # user action log table action name

@@ -317,7 +317,7 @@ class KycSubmitJob < ApplicationJob
   # Rails.env[0] - (d/s/p)
   #
   def get_cynopsis_user_id
-    @user_kyc_detail.cynopsis_user_id
+    UserKycDetail.get_cynopsis_user_id(@user_id)
   end
 
   # Get decrypted country

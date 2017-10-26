@@ -39,14 +39,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
               GlobalConstant::UserKycDetail.failed_whitelist_status => 3
           }, _suffix: true
 
-  enum admin_action_type: {
-              GlobalConstant::UserKycDetail.no_admin_action_type => 0,
-              GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
-              GlobalConstant::UserKycDetail.passport_issue_admin_action_type => 2,
-              GlobalConstant::UserKycDetail.selfie_issue_admin_action_type => 3,
-              GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
-          }, _suffix: true
-
   scope :kyc_admin_and_cynopsis_approved, -> { where(cynopsis_status: GlobalConstant::UserKycDetail.cynonpsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses) }
   scope :whitelist_status_unprocessed, -> { where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status) }
 

@@ -21,16 +21,25 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
        }
 
   enum kyc_duplicate_status: {
-         GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status => 0,
-         GlobalConstant::UserKycDetail.never_kyc_duplicate_status => 1,
-         GlobalConstant::UserKycDetail.is_kyc_duplicate_status => 2,
-         GlobalConstant::UserKycDetail.was_kyc_duplicate_status => 3
-     }, _suffix: true
+          GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status => 0,
+          GlobalConstant::UserKycDetail.never_kyc_duplicate_status => 1,
+          GlobalConstant::UserKycDetail.is_kyc_duplicate_status => 2,
+          GlobalConstant::UserKycDetail.was_kyc_duplicate_status => 3
+      }, _suffix: true
 
   enum email_duplicate_status: {
-          GlobalConstant::UserKycDetail.no_email_duplicate_status => 0,
-          GlobalConstant::UserKycDetail.yes_email_duplicate_status => 1
-      }, _suffix: true
+           GlobalConstant::UserKycDetail.no_email_duplicate_status => 0,
+           GlobalConstant::UserKycDetail.yes_email_duplicate_status => 1
+       }, _suffix: true
+
+  enum admin_action_type: {
+              GlobalConstant::UserKycDetail.no_admin_action_type => 0,
+              GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
+              GlobalConstant::UserKycDetail.passport_issue_admin_action_type => 2,
+              GlobalConstant::UserKycDetail.selfie_issue_admin_action_type => 3,
+              GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
+          }, _suffix: true
+
 
   def cynonpsis_approved_statuses
     [GlobalConstant::UserKycDetail.cleared_cynopsis_status, GlobalConstant::UserKycDetail.approved_cynopsis_status]

@@ -84,8 +84,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   end
 
-  def cynopsis_user_id
-    "ts_#{Rails.env[0]}_#{self.user_id}"
+  def self.get_cynopsis_user_id(user_id)
+    "ts_#{Rails.env[0]}_#{user_id}"
   end
 
 end

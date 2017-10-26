@@ -33,6 +33,13 @@ module GlobalConstant
 
       ### is attention needed ends ####
 
+      def kyc_whitelist_confirmation_pending_statuses
+        [
+          pending_status,
+          done_status
+        ]
+      end
+
     end
 
   end

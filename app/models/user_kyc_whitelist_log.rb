@@ -10,5 +10,11 @@ class UserKycWhitelistLog < EstablishSimpleTokenLogDbConnection
       GlobalConstant::UserKycDuplicationLog.attention_not_needed => 0,
       GlobalConstant::UserKycDuplicationLog.attention_needed => 1
   }
-  
+
+  scope :kyc_whitelist_non_confirmed, -> {
+    where(
+      status: GlobalConstant::UserKycWhitelistLog.kyc_whitelist_confirmation_pending_statuses
+    )
+  }
+
 end

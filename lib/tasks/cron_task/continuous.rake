@@ -50,6 +50,23 @@ namespace :cron_task do
       execute_continuous_task
     end
 
+    # Process User KYC Whitelist Call hooks
+    #
+    # * Author: Aman
+    # * Date: 26/10/2017
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist lock_key_suffix=1"
+    desc "*/5 * * * * cd /mnt/simpletoken/current && rake RAILS_ENV=staging cron_task:continuous:confirm_kyc_whitelist lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"
+    task :confirm_kyc_whitelist do |task|
+      @sleep_interval = 10
+
+      @process_name = "#{task}_#{ENV['lock_key_suffix']}"
+      @performer_klass = 'Crons::ConfirmKycWhitelist'
+      @optional_params = {}
+      execute_continuous_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

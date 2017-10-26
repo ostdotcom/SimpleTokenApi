@@ -96,7 +96,6 @@ module GlobalConstant
 
       ### email duplicate state###
 
-
       def yes_email_duplicate_status
         'yes'
       end
@@ -106,6 +105,18 @@ module GlobalConstant
       end
 
       ### email duplicate state ends###
+
+      ### kyc problem email sent status ###
+
+      def yes_kyc_problem_email_sent_status
+        'yes'
+      end
+
+      def no_kyc_problem_email_sent_status
+        'no'
+      end
+
+      ### kyc problem email sent status ends ###
 
       ### whitelist status ####
 

@@ -70,6 +70,7 @@ module AdminManagement
         def update_kyc_details
           @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.residency_issue_admin_action_type
           @user_kyc_detail.last_acted_by  = @admin_id
+          @user_kyc_detail.kyc_prolem_email_sent = GlobalConstant::UserKycDetail.yes_kyc_problem_email_sent_status
           @user_kyc_detail.save! if @user_kyc_detail.changed?
         end
 

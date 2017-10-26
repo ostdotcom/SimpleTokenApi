@@ -127,7 +127,6 @@ module WhitelistManagement
                                     transaction_hash: @transaction_hash,
                                     kind: GlobalConstant::UserContractEvent.whitelist_kind
                                 })
-      @user_kyc_whitelist_log.event_response_count += 1
     end
 
     # Verify transaction contract data
@@ -192,8 +191,7 @@ module WhitelistManagement
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
 
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
-
-      if @user_kyc_detail.whitelist_status_changed? && @user_kyc_detail.status == GlobalConstant::UserKycWhitelistLog.done_status
+      if @user_kyc_detail.whitelist_status_changed? && @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
         send_email
       end
 

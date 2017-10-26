@@ -38,6 +38,8 @@ module AdminManagement
 
           send_email
 
+          update_kyc_details
+
           success_with_data(@api_response_data)
         end
 
@@ -57,6 +59,18 @@ module AdminManagement
               template_vars: {}
           ).perform
 
+        end
+
+        # Update Kyc Details
+        #
+        # * Author: Aman
+        # * Date: 25/10/2017
+        # * Reviewed By:
+        #
+        def update_kyc_details
+          @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.passport_issue_admin_action_type
+          @user_kyc_detail.last_acted_by = @admin_id
+          @user_kyc_detail.save! if @user_kyc_detail.changed?
         end
 
         # user action log table action name

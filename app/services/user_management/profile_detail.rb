@@ -192,12 +192,14 @@ module UserManagement
           {
               user_id: @user.id,
               kyc_status: kyc_status,
+              admin_action_type: @user_kyc_detail.admin_action_type,
               token_sale_participation_phase: token_sale_participation_phase
           }
       :
           {
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
+              admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
               token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
           }
     end

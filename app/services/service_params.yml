@@ -185,3 +185,8 @@
     - :user_id
   :optional:
    - :t
+
+'UserManagement::GetEthereumAddress':
+  :mandatory:
+    - :user_id
+  :optional:

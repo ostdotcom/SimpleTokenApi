@@ -236,6 +236,8 @@ module UserManagement
       @estimated_participation_amount = @estimated_participation_amount.to_s.strip
       if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
         @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'
+      else
+        @error_data[:estimated_participation_amount] = 'Estimated participation amount should be greater than 0' if @estimated_participation_amount.to_i <= 0
       end
     end
 

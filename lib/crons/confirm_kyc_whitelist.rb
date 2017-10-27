@@ -31,16 +31,22 @@ module Crons
         batched_records.each do |user_kyc_whitelist_log|
           token = get_token({transaction_hash: user_kyc_whitelist_log.transaction_hash})
           # check if the transaction is mined in a block
+          Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
           transaction_mined_response = PrivateOpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+
           if user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
 
+            Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - If Pending Status")
+
             if not_mined?(transaction_mined_response)
+              Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Block Not Mined")
               handle_error(user_kyc_whitelist_log)
               next
             end
 
             # this means it is confirmed
             block_hash = transaction_mined_response.data[:response]['block_hash']
+            Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - All success! Let's record event.")
             r = record_event(user_kyc_whitelist_log, block_hash)
             if r.success?
               mark_confirmed(user_kyc_whitelist_log)
@@ -50,6 +56,8 @@ module Crons
 
           elsif user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.done_status
 
+            Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - If Done Status")
+
             if not_mined?(transaction_mined_response)
               next
             end
@@ -57,7 +65,7 @@ module Crons
             mark_confirmed(user_kyc_whitelist_log)
 
           else
-            fail("Unreachable Code")
+            fail("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Unreachable Code")
           end
 
         end
@@ -141,6 +149,7 @@ module Crons
     # * Reviewed By:
     #
     def handle_error(user_kyc_whitelist_log)
+      Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Changing to is attention needed")
       user_kyc_whitelist_log.is_attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
       user_kyc_whitelist_log.save!
       # change flag to attention required
@@ -153,6 +162,7 @@ module Crons
     # * Reviewed By:
     #
     def mark_confirmed(user_kyc_whitelist_log)
+      Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Changing status to confirmed")
       user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.confirmed_status
       user_kyc_whitelist_log.save!
       # change flag to attention required

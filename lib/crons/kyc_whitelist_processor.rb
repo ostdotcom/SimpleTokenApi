@@ -26,6 +26,7 @@ module Crons
         u_k_detail_objs.each do |user_kyc_detail|
           begin
             token = get_token(user_kyc_detail)
+            Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Starting PrivateOps API Call ")
             r = PrivateOpsApi::Request::Whitelist.new.whitelist(token)
 
             unless r.success?
@@ -42,15 +43,17 @@ module Crons
 
             transaction_hash = r.data[:response]["data"]["transaction_hash"]
 
+            Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Create entry in UserKycWhitelistLog")
             UserKycWhitelistLog.create!({
-                                           user_id: user_kyc_detail.user_id,
-                                           transaction_hash: transaction_hash,
-                                           status: GlobalConstant::UserKycWhitelistLog.pending_status
-                                       })
+                                            user_id: user_kyc_detail.user_id,
+                                            transaction_hash: transaction_hash,
+                                            status: GlobalConstant::UserKycWhitelistLog.pending_status
+                                        })
 
             user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.started_whitelist_status
             user_kyc_detail.save!
           rescue => e
+            Rails.logger.info("Exception: #{e.inspect}")
             handle_error({exception: e}, user_kyc_detail)
           end
 
@@ -62,6 +65,7 @@ module Crons
 
     def handle_error(error_data, user_kyc_detail)
       notify_devs(error_data, user_kyc_detail.user_id)
+      Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
       user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
       user_kyc_detail.save!
     end

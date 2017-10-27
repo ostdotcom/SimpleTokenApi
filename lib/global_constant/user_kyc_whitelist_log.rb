@@ -24,19 +24,19 @@ module GlobalConstant
       ### is attention needed starts ####
 
       def attention_not_needed
-        0
+        'attention_not_needed'
       end
 
       def attention_needed
-        1
+        'attention_needed'
       end
 
       ### is attention needed ends ####
 
       def kyc_whitelist_confirmation_pending_statuses
         [
-          pending_status,
-          done_status
+            pending_status,
+            done_status
         ]
       end
 

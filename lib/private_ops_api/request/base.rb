@@ -1,10 +1,13 @@
 module PrivateOpsApi
+
   module Request
+
     class Base
 
       include Util::ResultHelper
 
       require 'http'
+      require 'openssl'
 
       # Initialize
       #
@@ -33,11 +36,15 @@ module PrivateOpsApi
           request_path = ((ops_api_type == GlobalConstant::PrivateOpsApi.private_ops_api_type) ?
               GlobalConstant::PrivateOpsApi.base_url : GlobalConstant::PublicOpsApi.base_url) + path
 
+          # It overrides verification of SSL certificates
+          ssl_context = OpenSSL::SSL::SSLContext.new
+          ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
           case request_type
             when 'get'
               response = HTTP.get(request_path, params: params)
             when 'post'
-              response = HTTP.post(request_path, json: params)
+              response = HTTP.post(request_path, json: params, ssl_context: ssl_context)
             else
               return error_with_data('poa_r_b_1',
                                      "Request type not implemented: #{request_type}",

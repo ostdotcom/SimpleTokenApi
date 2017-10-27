@@ -23,7 +23,7 @@ namespace :cron_task do
     # * Reviewed By: Sunil
     #
     desc "rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1"
-    desc "*/5 * * * * cd /mnt/simpletoken/current && rake RAILS_ENV=staging cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
     task :process_email_service_api_call_hooks do |task|
       @sleep_interval = 2
 
@@ -40,7 +40,7 @@ namespace :cron_task do
     # * Reviewed By:
     #
     desc "rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1"
-    desc "*/5 * * * * cd /mnt/simpletoken/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"
     task :process_kyc_whitelist_call_hooks do |task|
       @sleep_interval = 10
 

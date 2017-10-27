@@ -12,6 +12,7 @@ module Crons
     #
     # @return [Crons::ConfirmKycWhitelist]
     #
+    # TODO - if block hash blank then set is_attention_needed
     def initialize(params)
     end
 
@@ -33,6 +34,7 @@ module Crons
           # check if the transaction is mined in a block
           Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
           transaction_mined_response = PrivateOpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+          Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - transaction_mined_response: #{transaction_mined_response}")
 
           if user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
 
@@ -45,7 +47,7 @@ module Crons
             end
 
             # this means it is confirmed
-            block_hash = transaction_mined_response.data[:response]['block_hash']
+            block_hash = transaction_mined_response.data[:response]['data']['transaction_info']['block_hash']
             Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - All success! Let's record event.")
             r = record_event(user_kyc_whitelist_log, block_hash)
             if r.success?

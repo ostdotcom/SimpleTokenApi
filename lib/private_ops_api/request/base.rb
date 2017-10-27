@@ -42,7 +42,7 @@ module PrivateOpsApi
 
           case request_type
             when 'get'
-              response = HTTP.get(request_path, params: params)
+              response = HTTP.get(request_path, params: params, ssl_context: ssl_context)
             when 'post'
               response = HTTP.post(request_path, json: params, ssl_context: ssl_context)
             else

@@ -52,7 +52,7 @@ namespace :cron_task do
     # * Reviewed By:
     #
     desc "rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1"
-    desc "*/5 * * * * cd /mnt/simpletoken/current && rake RAILS_ENV=staging cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"
     task :confirm_kyc_whitelist do |task|
       @sleep_interval = 10
 

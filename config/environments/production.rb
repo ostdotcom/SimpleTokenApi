@@ -69,13 +69,7 @@ Rails.application.configure do
   # config.log_formatter = ::Logger::Formatter.new
   #
 
-  config.action_mailer.perform_deliveries = false
-  config.action_mailer.default_url_options = {host: 'simpletoken.org'}
-  config.action_mailer.smtp_settings = {
-    address: ENV['STA_SES_SMTP_ADDRESS'],
-    user_name: ENV['STA_SES_SMTP_USERNAME'],
-    password: ENV['STA_SES_SMTP_PW'],
-  }
+  config.action_mailer.delivery_method = :sendmail
 
   # Exception notification
   config.middleware.use ExceptionNotification::Rack,

@@ -8,8 +8,8 @@ module AdminManagement
 
         # Initialize
         #
-        # * Author: Kedar
-        # * Date: 14/10/2017
+        # * Author: Alpesh
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
@@ -17,7 +17,7 @@ module AdminManagement
         # @params [Hash] sortings (optional)
         # @params [Integer] page_number (optional)
         #
-        # @return [AdminManagement::Kyc::Dashboard::Status]
+        # @return [AdminManagement::Kyc::Dashboard::Base]
         #
         def initialize(params)
           super
@@ -29,25 +29,12 @@ module AdminManagement
           @offset = @params[:offset]
         end
 
-        # Perform
-        #
-        # * Author: Kedar
-        # * Date: 14/10/2017
-        # * Reviewed By: Sunil
-        #
-        # @return [Result::Base]
-        #
-        def perform
-          r = validate_and_sanitize
-          return r unless r.success?
-        end
-
         private
 
         # Validate and sanitize
         #
         # * Author: Alpesh
-        # * Date: 15/10/2017
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         def validate_and_sanitize
@@ -66,10 +53,10 @@ module AdminManagement
         # Fetch user other details
         #
         # * Author: Alpesh
-        # * Date: 15/10/2017
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
-        # Sets @admin_details, @user_extended_details, @md5_user_extended_details
+        # Sets @admin_details, @user_extended_details, @md5_user_extended_details, @admin_ids, @user_extended_detail_ids
         #
         def fetch_user_details
           return if @user_kycs.blank?
@@ -92,7 +79,7 @@ module AdminManagement
         # Last acted by
         #
         # * Author: Alpesh
-        # * Date: 15/10/2017
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         # @return [String]
@@ -104,7 +91,7 @@ module AdminManagement
         # Set API response data
         #
         # * Author: Alpesh
-        # * Date: 15/10/2017
+        # * Date: 24/10/2017
         # * Reviewed By: sunil
         #
         # Sets @api_response_data

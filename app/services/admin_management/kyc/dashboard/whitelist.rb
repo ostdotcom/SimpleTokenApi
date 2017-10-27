@@ -8,8 +8,8 @@ module AdminManagement
 
         # Initialize
         #
-        # * Author: Kedar
-        # * Date: 14/10/2017
+        # * Author: Alpesh
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
@@ -36,8 +36,8 @@ module AdminManagement
 
         # Perform
         #
-        # * Author: Kedar
-        # * Date: 14/10/2017
+        # * Author: Alpesh
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         # @return [Result::Base]
@@ -63,7 +63,7 @@ module AdminManagement
         # Fetch all users' kyc detail
         #
         # * Author: Alpesh
-        # * Date: 15/10/2017
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         # Sets @user_kycs, @total_filtered_kycs
@@ -83,11 +83,6 @@ module AdminManagement
           if @filters.present?
             query_hash = {}
 
-            if !@filters[:whitelist_status].nil?
-              query_hash[:cynopsis_status] = GlobalConstant::UserKycDetail.cynopsis_approved_statuses
-              query_hash[:admin_status] = GlobalConstant::UserKycDetail.admin_approved_statuses
-            end
-
             @filters.each do |fl_k, fl_v|
               query_hash[fl_k.to_sym] = fl_v if fl_v.present? && UserKycDetail::whitelist_statuses[fl_v].present?
             end
@@ -104,7 +99,7 @@ module AdminManagement
         # Set API response data
         #
         # * Author: Alpesh
-        # * Date: 15/10/2017
+        # * Date: 24/10/2017
         # * Reviewed By: Sunil
         #
         # Sets @curr_page_data

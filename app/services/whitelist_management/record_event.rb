@@ -8,7 +8,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param [String] token (mandatory) - encrypted token
     #
@@ -29,7 +29,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #

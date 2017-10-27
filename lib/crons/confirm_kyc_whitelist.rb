@@ -12,7 +12,6 @@ module Crons
     #
     # @return [Crons::ConfirmKycWhitelist]
     #
-    # TODO - if block hash blank then set is_attention_needed
     def initialize(params)
     end
 

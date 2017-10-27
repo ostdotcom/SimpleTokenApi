@@ -22,9 +22,9 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Dashboard
+  # Whitelist Dashboard
   #
-  # * Author: Kedar
+  # * Author: Alpesh
   # * Date: 14/10/2017
   # * Reviewed By: Sunil
   #

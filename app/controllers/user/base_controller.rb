@@ -46,7 +46,7 @@ class User::BaseController < ApiController
   # * Reviewed By: Sunil
   #
   def handle_blacklisted_ip
-    blacklisted_countries = ['china']
+    blacklisted_countries = GlobalConstant::GeoIp.blaclisted_ip_from_countries
     geo_ip_obj = Util::GeoIpUtil.new(ip_address: ip_address)
     geoip_country = geo_ip_obj.get_country_name.to_s.downcase
     params[:geoip_country] = geoip_country

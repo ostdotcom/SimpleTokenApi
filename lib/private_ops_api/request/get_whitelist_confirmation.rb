@@ -8,7 +8,7 @@ module PrivateOpsApi
       #
       # * Author: Kedar
       # * Date: 26/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [PrivateOpsApi::Request::GetWhitelistConfirmation]
       #
@@ -20,7 +20,7 @@ module PrivateOpsApi
       #
       # * Author: Kedar
       # * Date: 26/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

@@ -96,7 +96,7 @@ module AdminManagement
           query_hash = {}
 
           if !@filters[:whitelist_status].nil?
-            ar_relation = ar_relation.kyc_admin_and_cynopsis_approved.whitelist_status_unprocessed
+            ar_relation = ar_relation.kyc_admin_and_cynopsis_approved
           end
 
           @filters.each do |fl_k, fl_v|
@@ -226,21 +226,14 @@ module AdminManagement
       # @return [Hash]
       #
       def case_detail
-        case_det = {
+       {
             admin_status: @user_kyc_detail.admin_status,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
             is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
-            last_acted_by: last_acted_by
+            last_acted_by: last_acted_by,
+            whitelist_status: @user_kyc_detail.kyc_approved? ? @user_kyc_detail.whitelist_status : ''
         }
-        if GlobalConstant::UserKycDetail.admin_approved_statuses.include?(@user_kyc_detail.admin_status) &&
-            GlobalConstant::UserKycDetail.cynopsis_approved_statuses.include?(@user_kyc_detail.cynopsis_status)
-
-          case_det[:whitelist_status] = @user_kyc_detail.whitelist_status
-
-        end
-
-        case_det
       end
 
       # Last acted by

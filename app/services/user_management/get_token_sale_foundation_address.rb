@@ -105,7 +105,7 @@ module UserManagement
     # @return [Time]
     #
     def sale_start_time
-      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.pre_sale_token_sale_phase) ? GlobalConstant::TokenSale.pre_sale_start_date : GlobalConstant::TokenSale.public_sale_start_date
+      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ? GlobalConstant::TokenSale.early_access_start_date : GlobalConstant::TokenSale.general_access_start_date
     end
 
     # is sale active
@@ -117,7 +117,7 @@ module UserManagement
     # @return [Boolean]
     #
     def is_sale_active_for_user?
-      (GlobalConstant::TokenSale.st_token_sale_active_status && current_time <= GlobalConstant::TokenSale.public_sale_end_date && current_time >= sale_start_time)
+      (GlobalConstant::TokenSale.st_token_sale_active_status && current_time <= GlobalConstant::TokenSale.general_access_end_date && current_time >= sale_start_time)
     end
 
     # is ethereum address whitelist complete

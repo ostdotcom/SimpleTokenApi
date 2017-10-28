@@ -37,7 +37,7 @@ namespace :cron_task do
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     desc "rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1"
     desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"

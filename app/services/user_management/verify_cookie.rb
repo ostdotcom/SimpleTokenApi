@@ -24,7 +24,6 @@ module UserManagement
       @token = nil
 
       @user = nil
-      @user_secret = nil
       @extended_cookie_value = nil
     end
 
@@ -90,7 +89,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # Sets @user, @user_secret
+    # Sets @user
     #
     # @return [Result::Base]
     #
@@ -99,9 +98,6 @@ module UserManagement
       @user = User.where(id: @user_id).first
       return unauthorized_access_response('um_vc_5') unless @user.present? &&
           (@user[:status] == GlobalConstant::User.active_status)
-
-      @user_secret = UserSecret.where(id: @user[:user_secret_id]).first
-      return unauthorized_access_response('um_vc_6') unless @user_secret.present?
 
       evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
       return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)

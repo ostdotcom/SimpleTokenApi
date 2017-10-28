@@ -55,6 +55,8 @@ module GlobalConstant
       @public_ops ||= fetch_config.fetch('public_ops', {}).with_indifferent_access
     end
 
+    private
+
     def self.fetch_config
       @f_config ||= begin
         template = ERB.new File.new("#{Rails.root}/config/constants.yml").read

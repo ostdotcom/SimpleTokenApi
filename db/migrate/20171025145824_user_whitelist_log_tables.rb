@@ -11,8 +11,6 @@ class UserWhitelistLogTables < DbMigrationConnection
       end
 
       add_index :user_kyc_whitelist_logs, [:transaction_hash], unique: true, name: 'uni_transaction_hash'
-      # add_index :user_kyc_whitelist_logs, [:user_id], unique: true, name: 'uni_user_id'
-
     end
   end
 

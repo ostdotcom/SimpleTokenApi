@@ -4,6 +4,7 @@ namespace :devops do
   #
   # * Author: Abhay
   # * Date: 27/10/2017
+  # * Reviewed By: Sunil
   #
   # rake RAILS_ENV=development devops:echo_env_variables
   #

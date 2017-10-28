@@ -19,7 +19,7 @@ namespace :cron_task do
     #
     # * Author: Puneet
     # * Date: 10/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     desc "rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks"
     desc "*/15 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
@@ -49,7 +49,7 @@ namespace :cron_task do
     #
     # * Author: Aman
     # * Date: 26/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     desc "rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1"
     desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"

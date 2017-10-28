@@ -4,17 +4,39 @@ module Crons
 
     require 'csv'
 
+    # initialize
+    #
+    # * Author: Alpesh
+    # * Date: 27/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Crons::PosBonusApproval]
+    #
     def initialize
       @file_name = 'emailpos.csv'
       @local_file_path = "#{Rails.root}/tmp/#{@file_name}"
-      @campaign_list_id = GlobalConstant::PepoCampaigns.pos_list_id #2921
+      @pos_list_id = GlobalConstant::PepoCampaigns.pos_list_id #2921
     end
 
+    # Perform
+    #
+    # * Author: Alpesh
+    # * Date: 27/10/2017
+    # * Reviewed By: Sunil
+    #
     def perform
       download_file
       process_file
     end
 
+    private
+
+    # Download file
+    #
+    # * Author: Alpesh
+    # * Date: 27/10/2017
+    # * Reviewed By: Sunil
+    #
     def download_file
       url = Aws::S3Manager.new('kyc', 'admin')
       s_url = url.get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, "others/#{@file_name}")
@@ -22,25 +44,37 @@ module Crons
       fail "couldn't download file from #{url}" unless download_status
     end
 
+    # Process file
+    #
+    # * Author: Alpesh
+    # * Date: 27/10/2017
+    # * Reviewed By: Sunil
+    #
     def process_file
       batch_size = 100
       selected_emails = {}
       CSV.read(@local_file_path).each do |row|
+        email = row[0].to_s.strip.downcase
+        bonus_percent = row[1].to_s.strip.to_f
+        next if email.blank? || [0, 10].exclude?(bonus_percent)
 
-        selected_emails[row[0]] = row[1]
+        selected_emails[email] = bonus_percent
         if selected_emails.length == batch_size
-
           check_and_update_user_bonus(selected_emails)
           selected_emails = {}
-
         end
-
       end
 
       check_and_update_user_bonus(selected_emails)
 
     end
 
+    # Check and update user bonus
+    #
+    # * Author: Alpesh
+    # * Date: 27/10/2017
+    # * Reviewed By: Sunil
+    #
     def check_and_update_user_bonus(selected_emails)
 
       return if selected_emails.blank?
@@ -54,7 +88,7 @@ module Crons
 
         if pos_bonus_emails[email].blank?
           PosBonusEmail.create!(email: email, bonus_percentage: bonus_in_perc)
-          Email::Services::PepoCampaigns.new.add_contact(@campaign_list_id, email, {pos_approved: bonus_in_perc})
+          Email::Services::PepoCampaigns.new.add_contact(@pos_list_id, email, {pos_approved: bonus_in_perc})
         end
 
         u_obj = user_objs[email]

@@ -13,7 +13,7 @@ module PrivateOpsApi
       #
       # * Author: Aman
       # * Date: 25/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [PrivateOpsApi::Request::Base] returns an object of PrivateOpsApi::Request::Base class
       #
@@ -26,7 +26,7 @@ module PrivateOpsApi
       #
       # * Author: Aman
       # * Date: 25/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

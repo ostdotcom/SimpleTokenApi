@@ -145,7 +145,6 @@ module WhitelistManagement
     # @return [Result::Base]
     #
     def verify_transaction_data
-      # cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses
       return success if is_phase_valid? && is_ethereum_address_valid? && @user_kyc_detail.kyc_approved?
 
       @user_kyc_whitelist_log.is_attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed

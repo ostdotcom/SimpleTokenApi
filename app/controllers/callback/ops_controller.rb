@@ -22,7 +22,7 @@ class Callback::OpsController < Callback::BaseController
   #
   # * Author: Kedar
   # * Date: 28/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def decrypt_jwt
     begin
@@ -34,6 +34,15 @@ class Callback::OpsController < Callback::BaseController
       )[0]["data"]
     rescue => e
       # decoding failed
+      ApplicationMailer.notify(
+          body: {exception: {message: e.message, backtrace: e.backtrace}},
+          data: {
+              'decoded_token_data' => params[:decoded_token_data],
+              'token' => params[:token]
+          },
+          subject: 'Exception in decrypt_jwt'
+      ).deliver
+
       render_api_response(
         Result::Base.error({
                              error: 'c_oc_1',

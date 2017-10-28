@@ -26,6 +26,7 @@ gem 'aws-sdk-s3', '1.5.0'
 gem 'http', '3.0.0'
 
 gem 'rotp', '3.3.0'
+gem 'jwt', '2.1.0'
 
 gem 'sidekiq', '5.0.5'
 gem 'redis-namespace', '1.5.3'

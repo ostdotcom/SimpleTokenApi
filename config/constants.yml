@@ -29,6 +29,7 @@ constants:
       version: 'v1'
     list_ids:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
+      pos_list: <%= ENV['STA_CAMPAIGN_POS_LIST']%>
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>
@@ -44,11 +45,11 @@ constants:
       active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
       foundation_ethereum_address: <%= ENV['STA_FOUNDATION_ETHEREUM_ADDRESS']%>
     user_register_dates:
-      pre_sale_register_end_date:  <%= ENV['STA_PRE_SALE_REGISTER_END_DATE'] %>
+      early_access_register_end_date:  <%= ENV['STA_EARLY_ACCESS_REGISTER_END_DATE'] %>
     sale_dates:
-      pre_sale_start_date: <%= ENV['STA_PRE_SALE_START_DATE'] %>
-      public_sale_start_date: <%= ENV['STA_PUBLIC_SALE_START_DATE'] %>
-      public_sale_end_date: <%= ENV['STA_PUBLIC_SALE_END_DATE'] %>
+      early_access_start_date: <%= ENV['STA_EARLY_ACCESS_START_DATE'] %>
+      general_access_start_date: <%= ENV['STA_GENERAL_ACCESS_START_DATE'] %>
+      general_access_end_date: <%= ENV['STA_GENERAL_ACCESS_END_DATE'] %>
 
   recaptcha:
     site_key: <%= ENV['STA_RECAPTCHA_SITE_KEY'] %>
@@ -57,3 +58,11 @@ constants:
   secret_encryptor:
     cookie_secret_key: <%= ENV['STA_COOKIE_SECRET_KEY'] %>
     email_tokens_decriptor_key: <%= ENV['STA_EMAIL_TOKENS_DECRIPTOR_KEY'] %>
+
+  private_ops:
+    base_url: <%= ENV['STA_PRIVATE_OPS_API_BASE_URL'] %>
+    secret_key: <%= ENV['STA_PRIVATE_OPS_API_SECRET_KEY'] %>
+
+  public_ops:
+    base_url: <%= ENV['STA_PUBLIC_OPS_API_BASE_URL'] %>
+    secret_key: <%= ENV['STA_PUBLIC_OPS_API_SECRET_KEY'] %>

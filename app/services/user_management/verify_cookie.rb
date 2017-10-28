@@ -77,7 +77,7 @@ module UserManagement
       return unauthorized_access_response('um_vc_3') unless @user_id > 0
 
       @created_ts = parts[1].to_i
-      return unauthorized_access_response('um_vc_4') unless (@created_ts + GlobalConstant::Cookie.double_auth_expiry.to_i) >= Time.now.to_i
+      return unauthorized_access_response('um_vc_4') unless (@created_ts + GlobalConstant::Cookie.user_expiry.to_i) >= Time.now.to_i
 
       @token = parts[3]
 
@@ -118,7 +118,7 @@ module UserManagement
     # @Sets @extended_cookie_value
     #
     def set_extended_cookie_value
-      return if (@created_ts + 2.minute.to_i) >= Time.now.to_i
+      return if (@created_ts + 29.days.to_i) >= Time.now.to_i
       @extended_cookie_value = User.get_cookie_value(@user_id, @user[:password], @browser_user_agent)
     end
 

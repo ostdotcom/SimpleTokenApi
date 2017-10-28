@@ -32,7 +32,16 @@
     - :filters
     - :sortings
 
-'AdminManagement::Kyc::Dashboard':
+'AdminManagement::Kyc::Dashboard::Status':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :filters
+    - :sortings
+    - :offset
+    - :page_size
+
+'AdminManagement::Kyc::Dashboard::Whitelist':
   :mandatory:
     - :admin_id
   :optional:
@@ -186,7 +195,12 @@
   :optional:
    - :t
 
-'UserManagement::GetEthereumAddress':
+'WhitelistManagement::RecordEvent':
+  :mandatory:
+    - :decoded_token_data
+  :optional:
+
+'UserManagement::GetTokenSaleFoundationAddress':
   :mandatory:
     - :user_id
   :optional:

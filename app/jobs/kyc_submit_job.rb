@@ -110,6 +110,7 @@ class KycSubmitJob < ApplicationJob
       @user_kyc_detail.kyc_confirmed_at = Time.now.to_i
       @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
     end
     @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
@@ -132,8 +133,8 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info('-- create_email_service_api_call_hook')
 
     Email::HookCreator::AddContact.new(
-      email: @user.email,
-      token_sale_phase: @user_kyc_detail.token_sale_participation_phase
+        email: @user.email,
+        token_sale_phase: @user_kyc_detail.token_sale_participation_phase
     ).perform
   end
 
@@ -183,7 +184,11 @@ class KycSubmitJob < ApplicationJob
   def call_cynopsis_api
     r = @user_kyc_detail.cynopsis_user_id.blank? ? create_cynopsis_case : update_cynopsis_case
     Rails.logger.info("-- call_cynopsis_api r: #{r.inspect}")
-    return unless r.success? # cynopsis status will remain unprocessed
+
+    if !r.success? # cynopsis status will remain unprocessed
+      log_to_user_activity(r)
+      return
+    end
 
     response_hash = ((r.data || {})[:response] || {})
     @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
@@ -303,7 +308,11 @@ class KycSubmitJob < ApplicationJob
 
     upload_params[:please_mention] = desc if document_type == 'OTHERS'
 
-    Cynopsis::Document.new().upload(upload_params)
+    r = Cynopsis::Document.new().upload(upload_params)
+
+    if !r.success?
+      log_to_user_activity(r)
+    end
 
     File.delete(local_file_path)
     Rails.logger.info("-- upload_document: #{document_type} done")
@@ -390,8 +399,8 @@ class KycSubmitJob < ApplicationJob
   #
   def residence_proof_file_path_d
     @user_extended_detail.residence_proof_file_path.present? ?
-      local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
-      ''
+        local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
+        ''
   end
 
   # Get decrypted address
@@ -452,6 +461,23 @@ class KycSubmitJob < ApplicationJob
   #
   def local_cipher_obj
     @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
+  end
+
+  # Log to user activity
+  #
+  # * Author: Abhay
+  # * Date: 28/10/2017
+  # * Reviewed By: Sunil
+  #
+  def log_to_user_activity(response)
+    UserActivityLogJob.new().perform({
+                                         user_id: @user_kyc_detail.user_id,
+                                         action: GlobalConstant::UserActivityLog.cynopsis_api_error,
+                                         action_timestamp: Time.now.to_i,
+                                         extra_data: {
+                                             response: response.to_json
+                                         }
+                                     })
   end
 
 end

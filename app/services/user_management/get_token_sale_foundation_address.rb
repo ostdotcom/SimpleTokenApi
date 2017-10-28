@@ -1,6 +1,6 @@
 module UserManagement
 
-  class GetEthereumAddress < ServicesBase
+  class GetTokenSaleFoundationAddress < ServicesBase
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module UserManagement
     #
     # @params [Integer] user_id (mandatory) - this is the user id
     #
-    # @return [UserManagement::GetEthereumAddress]
+    # @return [UserManagement::GetTokenSaleFoundationAddress]
     #
     def initialize(params)
       super
@@ -78,7 +78,7 @@ module UserManagement
           'Sale is not active',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if !is_sale_active?
+      )  if !is_sale_active_for_user?
 
       success
     end
@@ -116,7 +116,7 @@ module UserManagement
     #
     # @return [Boolean]
     #
-    def is_sale_active?
+    def is_sale_active_for_user?
       (GlobalConstant::TokenSale.st_token_sale_active_status && current_time <= GlobalConstant::TokenSale.public_sale_end_date && current_time >= sale_start_time)
     end
 

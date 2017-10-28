@@ -267,7 +267,8 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- upload_documents")
     upload_document(passport_file_path_d, 'PASSPORT')
     upload_document(selfie_file_path_d, 'OTHERS', 'selfie')
-    upload_document(residence_proof_file_path_d, 'OTHERS', 'residence_proof') if residence_proof_file_path_d.present?
+    residence_proof_file = residence_proof_file_path_d
+    upload_document(residence_proof_file, 'OTHERS', 'residence_proof') if residence_proof_file.present?
   end
 
   # Check if document upload is required or not
@@ -294,7 +295,7 @@ class KycSubmitJob < ApplicationJob
     url = Aws::S3Manager.new(@run_purpose, @run_role).
         get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
 
-    file_name = passport_file_path_d.split('/').last
+    file_name = s3_path.split('/').last
 
     local_file_path = "#{Rails.root}/tmp/#{file_name}"
 

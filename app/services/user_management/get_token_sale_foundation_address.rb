@@ -1,6 +1,6 @@
 module UserManagement
 
-  class GetEthereumAddress < ServicesBase
+  class GetTokenSaleFoundationAddress < ServicesBase
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module UserManagement
     #
     # @params [Integer] user_id (mandatory) - this is the user id
     #
-    # @return [UserManagement::GetEthereumAddress]
+    # @return [UserManagement::GetTokenSaleFoundationAddress]
     #
     def initialize(params)
       super

@@ -200,7 +200,7 @@
     - :token
   :optional:
 
-'UserManagement::GetEthereumAddress':
+'UserManagement::GetTokenSaleFoundationAddress':
   :mandatory:
     - :user_id
   :optional:

@@ -30,7 +30,7 @@ module Crons
           token = get_token({transaction_hash: user_kyc_whitelist_log.transaction_hash})
           # check if the transaction is mined in a block
           Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
-          transaction_mined_response = PrivateOpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+          transaction_mined_response = OpsApi::Request::GetWhitelistConfirmation.new.perform(token)
           Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - transaction_mined_response: #{transaction_mined_response}")
 
           if user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status

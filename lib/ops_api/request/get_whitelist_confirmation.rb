@@ -1,4 +1,4 @@
-module PrivateOpsApi
+module OpsApi
 
   module Request
 
@@ -10,7 +10,7 @@ module PrivateOpsApi
       # * Date: 26/10/2017
       # * Reviewed By: Sunil
       #
-      # @return [PrivateOpsApi::Request::GetWhitelistConfirmation]
+      # @return [OpsApi::Request::GetWhitelistConfirmation]
       #
       def initialize
         super

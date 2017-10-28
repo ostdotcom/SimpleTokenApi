@@ -1,4 +1,4 @@
-module PrivateOpsApi
+module OpsApi
 
   module Request
 
@@ -15,7 +15,7 @@ module PrivateOpsApi
       # * Date: 25/10/2017
       # * Reviewed By: Sunil
       #
-      # @return [PrivateOpsApi::Request::Base] returns an object of PrivateOpsApi::Request::Base class
+      # @return [OpsApi::Request::Base]
       #
       def initialize
       end

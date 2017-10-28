@@ -25,7 +25,7 @@ module Crons
           begin
             token = get_token(user_kyc_detail)
             Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Starting PrivateOps API Call ")
-            r = PrivateOpsApi::Request::Whitelist.new.whitelist(token)
+            r = OpsApi::Request::Whitelist.new.whitelist(token)
 
             unless r.success?
               handle_error(user_kyc_detail, 'PrivateOpsApi Error', {private_ops_api_response: r})

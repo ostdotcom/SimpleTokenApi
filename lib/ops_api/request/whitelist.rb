@@ -1,4 +1,4 @@
-module PrivateOpsApi
+module OpsApi
 
   module Request
 
@@ -10,7 +10,7 @@ module PrivateOpsApi
       # * Date: 25/10/2017
       # * Reviewed By: Sunil
       #
-      # @return [PrivateOpsApi::Request::Whitelist] returns an object of PrivateOpsApi::Request::Whitelist class
+      # @return [OpsApi::Request::Whitelist]
       #
       def initialize
         super

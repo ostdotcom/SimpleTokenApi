@@ -137,29 +137,8 @@ module UserManagement
       {
           user: user_data,
           user_kyc_data: user_kyc_data,
-          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status,
-          foundation_ethereum_address: get_foundation_ethereum_address
+          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
       }
-    end
-
-    # get foundation ethereum address
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [String]
-    #
-    def get_foundation_ethereum_address
-      current_time = Time.now
-      if (@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? &&
-          GlobalConstant::TokenSale.st_token_sale_active_status  &&
-          current_time >= GlobalConstant::TokenSale.early_access_start_date &&
-          current_time <= GlobalConstant::TokenSale.general_access_end_date)
-        GlobalConstant::TokenSale.st_foundation_ethereum_address
-      else
-        ''
-      end
     end
 
     # User detail

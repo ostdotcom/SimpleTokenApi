@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/profile' do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
+    match 'token-sale-foundation-address' => :ethereum_address, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do

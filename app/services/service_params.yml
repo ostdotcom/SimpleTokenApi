@@ -199,3 +199,8 @@
   :mandatory:
     - :token
   :optional:
+
+'UserManagement::GetEthereumAddress':
+  :mandatory:
+    - :user_id
+  :optional:

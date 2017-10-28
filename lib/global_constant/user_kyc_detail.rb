@@ -34,7 +34,7 @@ module GlobalConstant
       end
 
       def admin_approved_statuses
-        [qualified_admin_status, whitelisted_admin_status]
+        [qualified_admin_status]
       end
 
 
@@ -50,10 +50,6 @@ module GlobalConstant
 
       def denied_admin_status
         'denied_admin_status'
-      end
-
-      def whitelisted_admin_status
-        'whitelisted_admin_status'
       end
 
       ### Admin Status End ###

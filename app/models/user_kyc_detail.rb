@@ -11,8 +11,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   enum admin_status: {
            GlobalConstant::UserKycDetail.un_processed_admin_status => 1, # yello
            GlobalConstant::UserKycDetail.qualified_admin_status => 2, # green
-           GlobalConstant::UserKycDetail.denied_admin_status => 3, # red
-           GlobalConstant::UserKycDetail.whitelisted_admin_status => 4 # green
+           GlobalConstant::UserKycDetail.denied_admin_status => 3 # red
        }
 
   enum token_sale_participation_phase: {
@@ -55,7 +54,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   def admin_approved_statuses
-    [GlobalConstant::UserKycDetail.qualified_admin_status, GlobalConstant::UserKycDetail.whitelisted_admin_status]
+    [GlobalConstant::UserKycDetail.qualified_admin_status]
   end
 
   def kyc_approved?

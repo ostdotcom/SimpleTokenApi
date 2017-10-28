@@ -9,7 +9,7 @@ module UserManagement
     # * Reviewed By:
     #
     # @param [Integer] user_id (mandatory)
-    # @param [String] ethereum_address (mandatory)
+    # @param [String] user_ethereum_address (mandatory)
     #
     # @return [UserManagement::CheckEthereumBalance]
     #

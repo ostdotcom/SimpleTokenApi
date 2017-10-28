@@ -168,6 +168,12 @@
     - :pdfs
     - :images
 
+'UserManagement::CheckEthereumBalance':
+  :mandatory:
+    - :user_id
+    - :user_ethereum_address
+  :optional:
+
 'UserManagement::SendResetPasswordLink':
   :mandatory:
     - :email

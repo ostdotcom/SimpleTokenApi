@@ -113,17 +113,15 @@ module Crons
       user_kyc_detail = UserKycDetail.where(user_id: user_kyc_whitelist_log.user_id).first
 
       data = {
-          transaction_hash: user_kyc_whitelist_log.transaction_hash,
-          block_hash: block_hash,
-          event_data: {
-              address: get_ethereum_address(user_kyc_detail),
-              phase: UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
-          }
+        transaction_hash: user_kyc_whitelist_log.transaction_hash,
+        block_hash: block_hash,
+        event_data: {
+          address: get_ethereum_address(user_kyc_detail),
+          phase: UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
+        }
       }
 
-      token = get_token(data)
-
-      WhitelistManagement::RecordEvent.new(token: token).perform
+      WhitelistManagement::RecordEvent.new(decoded_token_data: data).perform
     end
 
     # Get ethereum address

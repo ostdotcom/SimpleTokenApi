@@ -26,7 +26,7 @@ class User::ProfileController < User::BaseController
   #
   # * Author: Aman
   # * Date: 27/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def ethereum_address
     service_response = UserManagement::GetEthereumAddress.new(params).perform

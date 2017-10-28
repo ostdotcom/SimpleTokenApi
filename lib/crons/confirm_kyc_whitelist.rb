@@ -61,9 +61,17 @@ module Crons
 
             if not_mined?(transaction_mined_response)
               next
-            end
+            else
+              block_hash = transaction_mined_response.data[:response]['data']['transaction_info']['block_hash']
+              user_contract_event = UserContractEvent.where(transaction_hash: user_kyc_whitelist_log.transaction_hash).first
 
-            mark_confirmed(user_kyc_whitelist_log)
+              if user_contract_event.present? && (user_contract_event.block_hash == block_hash)
+                mark_confirmed(user_kyc_whitelist_log)
+              else
+                handle_error(user_kyc_whitelist_log)
+              end
+
+            end
 
           else
             fail("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Unreachable Code")

@@ -2,7 +2,7 @@ module OpsApi
 
   module Request
 
-    class Whitelist < Base
+    class Whitelist < OpsApi::Request::Base
 
       # Initialize
       #

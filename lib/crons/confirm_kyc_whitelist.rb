@@ -37,14 +37,14 @@ module Crons
 
             Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - If Pending Status")
 
-            if not_mined?(transaction_mined_response)
+            unless transaction_mined_response.success?
               Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Block Not Mined")
               handle_error(user_kyc_whitelist_log, 'Block Not Mined', {transaction_mined_response: transaction_mined_response.to_json})
               next
             end
 
             # this means it is confirmed
-            block_hash = transaction_mined_response.data[:response]['data']['transaction_info']['block_hash']
+            block_hash = transaction_mined_response.data['transaction_info']['block_hash']
             Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - All success! Let's record event.")
             r = record_event(user_kyc_whitelist_log, block_hash)
             if r.success?
@@ -57,13 +57,9 @@ module Crons
 
             Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - If Done Status")
 
-            if not_mined?(transaction_mined_response)
-              Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Block Not Mined")
-              handle_error(user_kyc_whitelist_log, 'Block Not Mined', {transaction_mined_response: transaction_mined_response.to_json})
-              next
-            else
+            if transaction_mined_response.success?
               # Block Hash Mismatch
-              block_hash = transaction_mined_response.data[:response]['data']['transaction_info']['block_hash']
+              block_hash = transaction_mined_response.data['transaction_info']['block_hash']
               user_contract_event = UserContractEvent.where(transaction_hash: user_kyc_whitelist_log.transaction_hash).first
 
               if user_contract_event.present? && (user_contract_event.block_hash == block_hash)
@@ -72,6 +68,10 @@ module Crons
                 handle_error(user_kyc_whitelist_log, 'Block Value Mismatch', {transaction_mined_response: transaction_mined_response.to_json})
               end
 
+            else
+              Rails.logger.info("user_kyc_whitelist_log - #{user_kyc_whitelist_log.id} - Block Not Mined")
+              handle_error(user_kyc_whitelist_log, 'Block Not Mined', {transaction_mined_response: transaction_mined_response.to_json})
+              next
             end
 
           else
@@ -95,18 +95,6 @@ module Crons
     def get_token(data)
       payload = {data: data}
       JWT.encode(payload, GlobalConstant::PublicOpsApi.secret_key, 'HS256')
-    end
-
-    # is not mined
-    #
-    # * Author: Kedar, Abhay
-    # * Date: 26/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Boolean]
-    #
-    def not_mined?(transaction_mined_response)
-      !transaction_mined_response.success? || !transaction_mined_response.data[:response]["success"]
     end
 
     # record event

@@ -55,16 +55,25 @@ module OpsApi
 
           case response.status
             when 200
-              return success_with_data(response: Oj.load(response.body.to_s))
+              parsed_response = Oj.load(response.body.to_s)
+              if parsed_response['success']
+                return success_with_data(parsed_response['data'])
+              else
+                return error_with_data('poa_r_b_2',
+                                       "Error in API call: #{response.status} - #{parsed_response['err']['msg']}",
+                                       'Something Went Wrong.',
+                                       GlobalConstant::ErrorAction.default,
+                                       {})
+              end
             else
-              return error_with_data('poa_r_b_2',
+              return error_with_data('poa_r_b_3',
                                      "Error in API call: #{response.status}",
                                      'Something Went Wrong.',
                                      GlobalConstant::ErrorAction.default,
                                      {})
           end
         rescue => e
-          return error_with_data('poa_r_b_3',
+          return error_with_data('poa_r_b_4',
                                  "Exception in API call: #{e.message}",
                                  'Something Went Wrong.',
                                  GlobalConstant::ErrorAction.default,

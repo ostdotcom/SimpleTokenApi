@@ -2,7 +2,7 @@ module OpsApi
 
   module Request
 
-    class GetWhitelistConfirmation < Base
+    class GetWhitelistConfirmation < OpsApi::Request::Base
 
       # Initialize
       #

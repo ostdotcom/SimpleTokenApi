@@ -2,8 +2,6 @@ module WhitelistManagement
 
   class RecordEvent < ServicesBase
 
-    require 'jwt'
-
     # Initialize
     #
     # * Author: Aman
@@ -21,7 +19,7 @@ module WhitelistManagement
 
       @transaction_hash, @block_hash, @ethereum_address, @user_phase = nil, nil, nil, nil
 
-      @user_kyc_whitelist_log, @user_id, @user_kyc_detail = nil, nil, nil
+      @user_kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
 
     end
 
@@ -34,15 +32,12 @@ module WhitelistManagement
     # @return [Result::Base]
     #
     def perform
-
-      r = validate
-      (notify_devs({}) and return r) unless r.success?
-
       begin
 
-        set_vars_from_token
+        r = validate_and_sanitize
+        return r unless r.success?
 
-        r = get_user_kyc_whitelist_log
+        r = get_user_kyc_related_details
         return r unless r.success?
 
         create_user_contract_event
@@ -50,7 +45,9 @@ module WhitelistManagement
         r = verify_transaction_data
         return r unless r.success?
 
-        update_user_kyc_whitelist
+        update_user_kyc_whitelist_log
+
+        update_user_kyc_detail
 
         success
       rescue => e
@@ -63,35 +60,46 @@ module WhitelistManagement
             {}
         )
       end
-
     end
 
     private
 
-    # Set vars from token
+    # Validate and sanitize
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets @transaction_hash, @block_hash, @ethereum_address, @user_phase
     #
-    def set_vars_from_token
+    # @return [Result::Base]
+    #
+    def validate_and_sanitize
+
+      r = validate
+      if !r.success?
+        notify_devs({decoded_token_data: @decoded_token_data})
+        return r
+      end
+
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
-      @ethereum_address = @decoded_token_data[:event_data][:address]
-      @user_phase = @decoded_token_data[:event_data][:phase]
+      event_data = (@decoded_token_data[:event_data] || {})
+      @ethereum_address = event_data[:address]
+      @user_phase = event_data[:phase]
+
+      success
     end
 
-    # get user kyc whitelist log and user details
+    # get user kyc related details
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    # Sets @user_kyc_whitelist_log, @user_id, @user_kyc_detail
+    # Sets @user_kyc_whitelist_log, @user_id, @user_kyc_detail, @user
     #
-    def get_user_kyc_whitelist_log
+    def get_user_kyc_related_details
       @user_kyc_whitelist_log = UserKycWhitelistLog.where(transaction_hash: @transaction_hash).first
 
       if @user_kyc_whitelist_log.blank?
@@ -108,6 +116,7 @@ module WhitelistManagement
 
       @user_id = @user_kyc_whitelist_log.user_id
       @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+      @user = User.where(id: @user_kyc_detail.user_id).first
 
       success
     end
@@ -116,8 +125,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
-    #
+    # * Reviewed By: Sunil
     #
     def create_user_contract_event
       UserContractEvent.create!({
@@ -132,22 +140,28 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
     def verify_transaction_data
-      return success if is_phase_valid? && is_ethereum_address_valid?
+      # cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses
+      return success if is_phase_valid? && is_ethereum_address_valid? && @user_kyc_detail.kyc_approved?
 
-      notify_devs({transaction_hash: @transaction_hash}, "IMMEDIATE ATTENTION NEEDED. Invalid event contract data")
-
-      @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
+      @user_kyc_whitelist_log.is_attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
+
+      if !@user_kyc_detail.kyc_approved?
+        error_type = "user_kyc_detail - #{@user_kyc_detail.id} is not approved"
+      else
+        error_type= "Invalid contract event data"
+      end
+      handle_error(@user_kyc_whitelist_log, error_type, {decoded_token_data: @decoded_token_data})
 
       error_with_data(
           'wm_re_2',
-          'Invalid event contract data',
-          'Invalid event contract data',
+          error_type,
+          error_type,
           GlobalConstant::ErrorAction.default,
           {}
       )
@@ -158,7 +172,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Boolean]
     #
@@ -170,55 +184,56 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Boolean]
     #
     def is_ethereum_address_valid?
       obtained_addr_md5 = Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
       actual_addr_md5 = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first.ethereum_address
-      obtained_addr_md5 == actual_addr_md5
+      return obtained_addr_md5 == actual_addr_md5
     end
 
     # update update_user_kyc_whitelist obj
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    #
-    def update_user_kyc_whitelist
+    def update_user_kyc_whitelist_log
 
       if @user_kyc_whitelist_log.status == GlobalConstant::UserKycWhitelistLog.pending_status
         @user_kyc_whitelist_log.status = GlobalConstant::UserKycWhitelistLog.done_status
-
       else
-        notify_devs(
-            {transaction_hash: @transaction_hash, user_id: @user_id},
-            "ATTENTION NEEDED.duplicate event success response")
-        @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
+        @user_kyc_whitelist_log.is_attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
+        handle_error(@user_kyc_whitelist_log, 'duplicate event success response', {decoded_token_data: @decoded_token_data})
       end
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
 
+    end
+
+    # update update user kyc details
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    def update_user_kyc_detail
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
       if @user_kyc_detail.whitelist_status_changed? && @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
-        send_email
+        send_kyc_approved_email
       end
 
-      if @user_kyc_detail.changed?
-        @user_kyc_detail.save!
-      end
-
+      @user_kyc_detail.save! if @user_kyc_detail.changed?
     end
 
     # Send Email when kyc whitelist status is done
     #
     # * Author: Abhay
     # * Date: 26/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
-    def send_email
-      @user = User.where(id: @user_kyc_detail.user_id).first
+    def send_kyc_approved_email
 
       Email::HookCreator::SendTransactionalMail.new(
           email: @user.email,
@@ -230,20 +245,39 @@ module WhitelistManagement
       ).perform
     end
 
+    # Handle error
+    #
+    # * Author: Abhay
+    # * Date: 28/10/2017
+    # * Reviewed By: Sunil
+    #
+    def handle_error(user_kyc_whitelist_log, error_type, error_data)
+      notify_devs({transaction_hash: @transaction_hash, user_id: @user_id}, error_type)
+      UserActivityLogJob.new().perform({
+                                           user_id: @user.id,
+                                           action: GlobalConstant::UserActivityLog.kyc_whitelist_attention_needed,
+                                           action_timestamp: Time.now.to_i,
+                                           extra_data: {
+                                               error_type: error_type,
+                                               user_kyc_whitelist_log_id: user_kyc_whitelist_log.id,
+                                               error_data: error_data
+                                           }
+                                       })
+    end
+
     # notify devs if required
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def notify_devs(error_data, subject='Error while WhitelistManagement::RecordEvent')
       ApplicationMailer.notify(
-          body: {token: @token},
+          body: {},
           data: {error_data: error_data},
           subject: subject
       ).deliver
     end
-
 
   end
 

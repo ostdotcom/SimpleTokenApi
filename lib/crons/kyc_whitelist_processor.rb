@@ -2,13 +2,11 @@ module Crons
 
   class KycWhitelistProcessor
 
-    require 'jwt'
-
     # initialize
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Crons::KycWhitelistProcessor]
     #
@@ -19,7 +17,7 @@ module Crons
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def perform
       UserKycDetail.kyc_admin_and_cynopsis_approved.whitelist_status_unprocessed.find_in_batches(batch_size: 10) do |u_k_detail_objs|
@@ -30,14 +28,14 @@ module Crons
             r = PrivateOpsApi::Request::Whitelist.new.whitelist(token)
 
             unless r.success?
-              handle_error({private_ops_api_response: r}, user_kyc_detail)
+              handle_error(user_kyc_detail, 'PrivateOpsApi Error', {private_ops_api_response: r})
               next
             end
 
             response = r.data[:response]
 
             unless response["success"]
-              handle_error({private_ops_api_response_error: response}, user_kyc_detail)
+              handle_error(user_kyc_detail, 'PrivateOpsApi Error Response', {private_ops_api_response_error: response})
               next
             end
 
@@ -54,7 +52,7 @@ module Crons
             user_kyc_detail.save!
           rescue => e
             Rails.logger.info("Exception: #{e.inspect}")
-            handle_error({exception: e}, user_kyc_detail)
+            handle_error(user_kyc_detail, "Exception - #{e.inspect}", {exception: e})
           end
 
         end
@@ -63,18 +61,35 @@ module Crons
 
     private
 
-    def handle_error(error_data, user_kyc_detail)
+    # Handle errors
+    #
+    # * Author: Abhay
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    def handle_error(user_kyc_detail, error_type, error_data)
       notify_devs(error_data, user_kyc_detail.user_id)
       Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
       user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
       user_kyc_detail.save!
+
+      UserActivityLogJob.new().perform({
+                                           user_id: user_kyc_detail.user_id,
+                                           action: GlobalConstant::UserActivityLog.kyc_whitelist_processor_error,
+                                           action_timestamp: Time.now.to_i,
+                                           extra_data: {
+                                               user_kyc_detail_id: user_kyc_detail.id,
+                                               error_type: error_type,
+                                               error_data: error_data
+                                           }
+                                       })
     end
 
     # Create encrypted Token for whitelisting parameter
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def get_token(user_kyc_detail)
       data = {
@@ -90,7 +105,7 @@ module Crons
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def get_ethereum_address(user_kyc_detail)
       user_extended_detail = UserExtendedDetail.where(id: user_kyc_detail.user_extended_detail_id).first
@@ -105,7 +120,7 @@ module Crons
     #
     # * Author: Aman
     # * Date: 25/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def notify_devs(error_data, user_id)
       ApplicationMailer.notify(

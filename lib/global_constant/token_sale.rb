@@ -14,27 +14,27 @@ module GlobalConstant
       end
 
       def early_access_register_end_date
-        #'2017-11-11 13:00:00'
         Time.zone.parse(GlobalConstant::Base.st_token_sale['user_register_dates']['early_access_register_end_date'])
       end
 
       def early_access_start_date
-        #'2017-11-14 00:00:00'
         Time.zone.parse(GlobalConstant::Base.st_token_sale['sale_dates']['early_access_start_date'])
       end
 
       def general_access_start_date
-        #'2017-11-15 00:00:00'
         Time.zone.parse(GlobalConstant::Base.st_token_sale['sale_dates']['general_access_start_date'])
       end
 
       def general_access_end_date
-        #'2017-11-19 00:00:00'
         Time.zone.parse(GlobalConstant::Base.st_token_sale['sale_dates']['general_access_end_date'])
       end
 
-      def is_sale_active?
-        (Time.now >= GlobalConstant::TokenSale.general_access_start_date)
+      def is_general_sale_interval?
+        (Time.now >= GlobalConstant::TokenSale.general_access_start_date) && (Time.now < GlobalConstant::TokenSale.general_access_end_date)
+      end
+
+      def is_general_sale_ended?
+        Time.now >= GlobalConstant::TokenSale.general_access_end_date
       end
 
       def early_access_token_sale_phase

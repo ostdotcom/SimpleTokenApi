@@ -10,9 +10,16 @@ namespace :devops do
   #
   task :echo_env_variables => :environment do
 
-    env_variables = GlobalConstant::Base.fetch_config
-    pp env_variables
+    # PP needed to print in new lines
+    pp fetch_env_variables
 
+  end
+
+  private
+
+  def fetch_env_variables
+    template = ERB.new File.new("#{Rails.root}/config/constants.yml").read
+    YAML.load(template.result(binding)).fetch('constants', {}) || {}
   end
 
 end

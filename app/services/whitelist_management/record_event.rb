@@ -233,13 +233,14 @@ module WhitelistManagement
     # * Reviewed By: Sunil
     #
     def send_kyc_approved_email
+      return if GlobalConstant::TokenSale.is_general_sale_ended?
 
       Email::HookCreator::SendTransactionalMail.new(
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
           template_vars: {
               token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-              is_sale_active: GlobalConstant::TokenSale.is_sale_active?
+              is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
           }
       ).perform
     end

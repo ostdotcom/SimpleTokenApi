@@ -117,7 +117,7 @@ module UserManagement
     # @return [Boolean]
     #
     def is_sale_active_for_user?
-      (GlobalConstant::TokenSale.st_token_sale_active_status && current_time <= GlobalConstant::TokenSale.general_access_end_date && current_time >= sale_start_time)
+      (GlobalConstant::TokenSale.st_token_sale_active_status && !GlobalConstant::TokenSale.is_general_sale_ended? && current_time >= sale_start_time)
     end
 
     # is ethereum address whitelist complete

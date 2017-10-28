@@ -10,14 +10,14 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [String] token (mandatory) - encrypted token
+    # @param [Hash] decoded_token_data (mandatory) - decoded token data
     #
     # @return [WhitelistManagement::RecordEvent]
     #
     def initialize(params)
       super
 
-      @token = @params[:token]
+      @decoded_token_data = @params[:decoded_token_data]
 
       @transaction_hash, @block_hash, @ethereum_address, @user_phase = nil, nil, nil, nil
 
@@ -40,7 +40,7 @@ module WhitelistManagement
 
       begin
 
-        decrypt_token
+        set_vars_from_token
 
         r = get_user_kyc_whitelist_log
         return r unless r.success?
@@ -68,7 +68,7 @@ module WhitelistManagement
 
     private
 
-    # decrypt token
+    # Set vars from token
     #
     # * Author: Aman
     # * Date: 25/10/2017
@@ -76,12 +76,11 @@ module WhitelistManagement
     #
     # Sets @transaction_hash, @block_hash, @ethereum_address, @user_phase
     #
-    def decrypt_token
-      decoded_data = JWT.decode(@token, GlobalConstant::PublicOpsApi.secret_key, true, {:algorithm => 'HS256'})[0]["data"]
-      @transaction_hash = decoded_data["transaction_hash"]
-      @block_hash = decoded_data["block_hash"]
-      @ethereum_address = decoded_data["event_data"]["address"]
-      @user_phase = decoded_data["event_data"]["phase"]
+    def set_vars_from_token
+      @transaction_hash = @decoded_token_data[:transaction_hash]
+      @block_hash = @decoded_token_data[:block_hash]
+      @ethereum_address = @decoded_token_data[:event_data][:address]
+      @user_phase = @decoded_token_data[:event_data][:phase]
     end
 
     # get user kyc whitelist log and user details

@@ -197,7 +197,7 @@
 
 'WhitelistManagement::RecordEvent':
   :mandatory:
-    - :token
+    - :decoded_token_data
   :optional:
 
 'UserManagement::GetTokenSaleFoundationAddress':

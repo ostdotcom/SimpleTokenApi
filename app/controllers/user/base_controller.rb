@@ -22,7 +22,7 @@ class User::BaseController < ApiController
       set_cookie(
           GlobalConstant::Cookie.user_cookie_name,
           extended_cookie_value,
-          GlobalConstant::Cookie.double_auth_expiry.from_now
+          GlobalConstant::Cookie.user_expiry.from_now
       ) if extended_cookie_value.present?
 
       # Set user id

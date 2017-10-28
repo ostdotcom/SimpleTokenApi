@@ -95,7 +95,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def send_aproved_email
-        is_sale_active = (Time.now >= GlobalConstant::TokenSale.general_access_start_date)
+        is_sale_active = GlobalConstant::TokenSale.is_sale_active?
 
         @approved_user_ids.each do |user_id|
           user_kyc_detail = @user_kyc_details[user_id]

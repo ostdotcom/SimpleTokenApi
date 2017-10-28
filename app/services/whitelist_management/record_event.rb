@@ -54,7 +54,7 @@ module WhitelistManagement
 
         success
       rescue => e
-        notify_devs({exception: e})
+        notify_devs({exception: e, backtrace: e.backtrace})
         return error_with_data(
             'wm_re_3',
             'exception',
@@ -225,7 +225,7 @@ module WhitelistManagement
           template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
           template_vars: {
               token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-              is_sale_active: (Time.now >= GlobalConstant::TokenSale.general_access_start_date)
+              is_sale_active: GlobalConstant::TokenSale.is_sale_active?
           }
       ).perform
     end

@@ -78,7 +78,7 @@ module UserManagement
           'Sale is not active',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if !is_sale_active?
+      )  if !is_sale_active_for_user?
 
       success
     end
@@ -116,7 +116,7 @@ module UserManagement
     #
     # @return [Boolean]
     #
-    def is_sale_active?
+    def is_sale_active_for_user?
       (GlobalConstant::TokenSale.st_token_sale_active_status && current_time <= GlobalConstant::TokenSale.public_sale_end_date && current_time >= sale_start_time)
     end
 

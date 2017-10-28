@@ -77,8 +77,7 @@ module AdminManagement
             ar_relation = ar_relation.order('id DESC')
           end
 
-          ar_relation = ar_relation.where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses)
-          ar_relation = ar_relation.where(admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)
+          ar_relation = ar_relation.kyc_admin_and_cynopsis_approved.whitelist_status_unprocessed
 
           if @filters.present?
             query_hash = {}

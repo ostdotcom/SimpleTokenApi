@@ -96,8 +96,7 @@ module AdminManagement
           query_hash = {}
 
           if !@filters[:whitelist_status].nil?
-            query_hash[:cynopsis_status] = GlobalConstant::UserKycDetail.cynopsis_approved_statuses
-            query_hash[:admin_status] = GlobalConstant::UserKycDetail.admin_approved_statuses
+            ar_relation = ar_relation.kyc_admin_and_cynopsis_approved.whitelist_status_unprocessed
           end
 
           @filters.each do |fl_k, fl_v|

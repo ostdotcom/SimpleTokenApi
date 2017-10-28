@@ -33,6 +33,10 @@ module GlobalConstant
         Time.zone.parse(GlobalConstant::Base.st_token_sale['sale_dates']['general_access_end_date'])
       end
 
+      def is_sale_active?
+        (Time.now >= GlobalConstant::TokenSale.general_access_start_date)
+      end
+
       def early_access_token_sale_phase
         'early_access'
       end

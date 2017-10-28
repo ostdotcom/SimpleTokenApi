@@ -137,14 +137,14 @@ module WhitelistManagement
     # @return [Result::Base]
     #
     def verify_transaction_data
-      return success if ((UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] == @user_phase.to_i) && (@ethereum_address.downcase == get_ethereum_address.downcase))
+      return success if is_phase_valid? && is_ethereum_address_valid?
 
       notify_devs({transaction_hash: @transaction_hash}, "IMMEDIATE ATTENTION NEEDED. Invalid event contract data")
 
       @user_kyc_whitelist_log.attention_needed = GlobalConstant::UserKycWhitelistLog.attention_needed
       @user_kyc_whitelist_log.save! if @user_kyc_whitelist_log.changed?
 
-      return error_with_data(
+      error_with_data(
           'wm_re_2',
           'Invalid event contract data',
           'Invalid event contract data',
@@ -154,19 +154,30 @@ module WhitelistManagement
 
     end
 
-    # Get Decrypted ethereum address of user
+    # Is phase valid
     #
     # * Author: Aman
     # * Date: 25/10/2017
     # * Reviewed By:
     #
-    def get_ethereum_address
-      user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
-      kyc_salt_e = user_extended_detail.kyc_salt
-      r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
-      kyc_salt_d = r.data[:plaintext]
-      local_cipher_obj = LocalCipher.new(kyc_salt_d)
-      local_cipher_obj.decrypt(user_extended_detail.ethereum_address).data[:plaintext]
+    # @return [Boolean]
+    #
+    def is_phase_valid?
+      UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] == @user_phase.to_i
+    end
+
+    # Is ethereum address valid
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By:
+    #
+    # @return [Boolean]
+    #
+    def is_ethereum_address_valid?
+      obtained_addr_md5 = Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
+      actual_addr_md5 = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first.ethereum_address
+      obtained_addr_md5 == actual_addr_md5
     end
 
     # update update_user_kyc_whitelist obj

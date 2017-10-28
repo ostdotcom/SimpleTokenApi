@@ -97,9 +97,9 @@ module UserManagement
     def token_purchase_data
       {
           total_dollars_sent: 4535680,
-          dollars_alloted_to_user: 332998,
           total_ethereum_sent: 1216,
-          token_alloted_to_user: 200,
+          simple_token_allotted_in_ethereum: 200,
+          simple_token_allotted_in_dollar:332998,
           token_to_ethereum_ratio: '1 Simple Token = 0.01 ETH'
       }
     end

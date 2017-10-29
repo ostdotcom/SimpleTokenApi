@@ -105,7 +105,7 @@ module UserManagement
       return err_response('um_ceb_3') unless r.success?
       kyc_salt_d = r.data[:plaintext]
 
-      r = LocalCipher.new(kyc_salt_d).decrypt(user_extended_detail.ethereum_address)
+      r = LocalCipher.new(kyc_salt_d).decrypt(user_extended_detail_obj.ethereum_address)
       return err_response('um_ceb_4') unless r.success?
 
       r

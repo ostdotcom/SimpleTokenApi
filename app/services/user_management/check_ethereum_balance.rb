@@ -45,15 +45,23 @@ module UserManagement
 
     private
 
+    # set user kyc detail
+    #
+    # * Author: Aman
+    # * Date: 28/10/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
     def fetch_user_kyc_details
       @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
     end
 
     # Validate
     #
-    # * Author: Kedar
-    # * Date: 13/10/2017
-    # * Reviewed By: Sunil
+    # * Author: aman
+    # * Date: 28/10/2017
+    # * Reviewed By:
     #
     # @return [Result::Base]
     #
@@ -67,45 +75,68 @@ module UserManagement
           {}
       ) if @user_kyc_detail.blank?
 
+      r = get_ethereum_address
+      return r unless r.success?
+
       return error_with_data(
           'um_ceb_2',
           'The ethereum address you entered is not registered',
           'The ethereum address you entered is not registered',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if get_ethereum_address != @user_ethereum_address
+      ) if r.data[:plaintext] != @user_ethereum_address
 
       success
     end
 
+    # get decrypted ethereum address
+    #
+    # * Author: Aman
+    # * Date: 29/10/2017
+    # * Reviewed By:
+    #
+    # sets @kyc_salt_d, @use_extended_detail_id
+    #
     def get_ethereum_address
-      'a'
+      user_extended_detail_obj = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+      kyc_salt_e = user_extended_detail_obj.kyc_salt
+
+      r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
+      return err_response('um_ceb_3') unless r.success?
+      kyc_salt_d = r.data[:plaintext]
+
+      r = LocalCipher.new(kyc_salt_d).decrypt(user_extended_detail.ethereum_address)
+      return err_response('um_ceb_4') unless r.success?
+
+      r
     end
+
 
     def api_response
-      if show_purchase_data?
-        {
-            purchase_details: token_purchase_data
-        }
-      else
-        {
-            purchase_details: {}
-        }
-      end
-    end
-
-    def token_purchase_data
       {
-          total_dollars_sent: 4535680,
-          total_ethereum_sent: 1216,
-          simple_token_allotted_in_ethereum: 200,
-          simple_token_allotted_in_dollar:332998,
-          token_to_ethereum_ratio: '1 Simple Token = 0.01 ETH'
+          purchase_details: {}
       }
     end
 
-    def show_purchase_data?
-      false
+    #TODO:: Ethereum balance integration
+    # def token_purchase_data
+    #   {
+    #       total_dollars_sent: 4535680,
+    #       total_ethereum_sent: 1216,
+    #       simple_token_allotted_in_ethereum: 200,
+    #       simple_token_allotted_in_dollar: 332998,
+    #       token_to_ethereum_ratio: '1 Simple Token = 0.01 ETH'
+    #   }
+    # end
+
+    def err_response(err, display_text = 'Something Went wrong')
+      error_with_data(
+          err,
+          display_text,
+          display_text,
+          GlobalConstant::ErrorAction.default,
+          {}
+      )
     end
 
   end

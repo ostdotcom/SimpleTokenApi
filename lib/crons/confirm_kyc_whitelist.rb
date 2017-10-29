@@ -14,7 +14,7 @@ module Crons
     #
     def initialize(params)
       @kyc_whitelist_log = nil
-      @block_mine_status, @block_hash, @transaction_hash, @transaction_data =  nil, nil, nil, nil
+      @block_mine_status, @block_hash, @transaction_hash, @event_data =  nil, nil, nil, {}
       @user_id = nil
     end
 
@@ -25,11 +25,11 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
-      KycWhitelistLog
-          .kyc_whitelist_non_confirmed
-          .where("created_at < '#{(Time.now - 5.minutes).to_s(:db)}'")
-          .where(is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed)
-          .find_in_batches(batch_size: 100).each do |batched_records|
+      KycWhitelistLog.
+          kyc_whitelist_non_confirmed.
+          where("created_at < '#{(Time.now - 5.minutes).to_s(:db)}'").
+          where(is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed).
+          find_in_batches(batch_size: 100).each do |batched_records|
 
         batched_records.each do |kyc_whitelist_log|
 
@@ -68,7 +68,7 @@ module Crons
     #
     def initialize_for_iteration(kyc_whitelist_log)
       @kyc_whitelist_log = kyc_whitelist_log
-      @block_mine_status, @block_hash, @transaction_hash, @transaction_data =  nil, nil, nil, nil
+      @block_mine_status, @block_hash, @transaction_hash, @event_data =  nil, nil, nil, {}
       @user_id = nil
     end
 
@@ -78,7 +78,7 @@ module Crons
     # * Date: 26/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @block_mine_status, @block_hash, @transaction_hash, @transaction_data
+    # Sets @block_mine_status, @block_hash, @transaction_hash, @event_data
     #
     # @return [Result::Base]
     #
@@ -90,12 +90,21 @@ module Crons
       # check if the transaction is mined in a block
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
       @block_mine_status = OpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@block_mine_status.inspect}")
 
       if @block_mine_status.success?
-        @block_hash = @block_mine_status.data[:transaction_info][:block_hash]
-        @transaction_hash = @block_mine_status.data[:transaction_info][:transaction_hash]
-        @transaction_data = @block_mine_status.data[:transaction_info][:transaction_data]
+        @block_hash = @block_mine_status.data[:block_hash]
+        @transaction_hash = @block_mine_status.data[:transaction_hash]
+        @transaction_event = @block_mine_status.data[:events_data].first
+        @transaction_event[:events].each do |var_obj|
+          case var_obj[:name]
+            when '_account'
+              @event_data[:address] = var_obj[:value]
+            when '_phase'
+              @event_data[:phase] = var_obj[:value]
+          end
+        end
 
         success
 
@@ -211,10 +220,7 @@ module Crons
       data = {
           transaction_hash: @transaction_hash,
           block_hash: @block_hash,
-          event_data: {
-              address: @transaction_data[:address],
-              phase: @transaction_data[:phase]
-          }
+          event_data: @event_data
       }
 
       WhitelistManagement::ProcessAndRecordEvent.new(decoded_token_data: data).perform
@@ -250,7 +256,7 @@ module Crons
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Changing to is attention needed")
 
       # change flag to attention required
-      @user_kyc_whitelist_log.is_attention_needed = GlobalConstant::KycWhitelistLog.attention_needed
+      @kyc_whitelist_log.is_attention_needed = GlobalConstant::KycWhitelistLog.attention_needed
       @kyc_whitelist_log.save!
 
       r = get_prospective_user_extended_detail_ids
@@ -385,6 +391,22 @@ module Crons
 
       success
 
+    end
+
+    # notify devs if required
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    def notify_devs(error_data, user_id)
+      ApplicationMailer.notify(
+          body: {user_id: user_id},
+          data: {
+              error_data: error_data
+          },
+          subject: 'Error while ConfirmKycWhitelist'
+      ).deliver
     end
 
   end

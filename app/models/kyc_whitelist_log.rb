@@ -1,4 +1,4 @@
-class KycWhitelistLog < EstablishSimpleTokenLogDbConnection
+class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
 
   enum status: {
       GlobalConstant::KycWhitelistLog.pending_status => 0,

@@ -50,7 +50,7 @@ module Crons
 
           rescue => e
             Rails.logger.info("Exception: #{e.inspect}")
-            handle_error(user_kyc_detail, "Exception - #{e.inspect}", {exception: e})
+            handle_whitelist_error("Exception - #{e.inspect}", {exception: e})
           end
 
         end
@@ -87,7 +87,7 @@ module Crons
     #
     def start_processing_whitelisting
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - started processing whilelisting")
-      @user_kyc_detail.status = GlobalConstant::UserKycDetail.started_whitelist_status
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.started_whitelist_status
       @user_kyc_detail.save!
     end
 
@@ -150,7 +150,7 @@ module Crons
     # @return [String] Ethereum Address
     #
     def get_ethereum_address
-      user_extended_detail = UserExtendedDetail.where(id: user_kyc_detail.user_extended_detail_id).first
+      user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       kyc_salt_e = user_extended_detail.kyc_salt
       r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
       kyc_salt_d = r.data[:plaintext]
@@ -167,7 +167,7 @@ module Crons
     # @return [Integer] pahse
     #
     def get_phase
-      UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
+      UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase]
     end
 
     # Handle whitelist errors

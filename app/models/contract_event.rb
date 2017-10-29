@@ -1,4 +1,4 @@
-class ContractEvent < EstablishSimpleTokenLogDbConnection
+class ContractEvent < EstablishSimpleTokenContractInteractionsDbConnection
 
   serialize :data, Hash
 

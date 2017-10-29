@@ -156,7 +156,7 @@ module WhitelistManagement
     #
     def validate_kyc_whitelist_log
 
-      if (@kyc_whitelist_log.ethereum_address != @ethereum_address) ||
+      if (@kyc_whitelist_log.ethereum_address.downcase != @ethereum_address.downcase) ||
         (@kyc_whitelist_log.phase != @phase)
 
         mark_as_attention_required

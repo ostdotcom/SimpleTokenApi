@@ -16,7 +16,6 @@ module UserManagement
       super
       @t = @params[:t]
       @user_id = @params[:user_id]
-      @user_bonus_pull = nil
     end
 
     # Perform
@@ -95,11 +94,6 @@ module UserManagement
       #TODO: Cache this query
       @user = User.where(id: @user_id).first
       return invalid_url_error('um_doi_2') if @user.blank?
-
-      if GlobalConstant::TokenSale.early_access_token_sale_phase == GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
-        @user_bonus_pull = PosBonusEmail.where(email: @user.email).first
-      end
-
       success
     end
 
@@ -161,7 +155,6 @@ module UserManagement
     #
     def save_user
       @user.send("set_#{GlobalConstant::User.token_sale_double_optin_done_property}")
-      @user.pos_bonus_percentage = @user_bonus_pull.bonus_percentage if @user_bonus_pull.present?
       @user.save!
     end
 
@@ -177,7 +170,7 @@ module UserManagement
           {
               user_id: @user_id,
               action: GlobalConstant::UserActivityLog.double_opt_in_action,
-              action_timestamp: Time.now.to_i
+              action_timestamp: Time.zone.now.to_i
           }
       )
     end

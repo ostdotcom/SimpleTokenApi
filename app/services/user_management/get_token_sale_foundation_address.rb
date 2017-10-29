@@ -70,7 +70,7 @@ module UserManagement
           'Unauthorized to purchase',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if !(@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? && ethereum_address_whitelist_done?)
+      )  if !(@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? && @user_kyc_detail.done_whitelist_status?)
 
       return error_with_data(
           'um_ea_2',
@@ -81,19 +81,6 @@ module UserManagement
       )  if !is_sale_active_for_user?
 
       success
-    end
-
-    # is ethereum address whitelist complete
-    #
-    # * Author: Aman
-    # * Date: 27/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Boolean]
-    #
-    def ethereum_address_whitelist_done?
-      #TODO[:ethereum whitelist status]
-      true
     end
 
     # Sale Start time for user

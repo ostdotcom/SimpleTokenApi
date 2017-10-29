@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     match 'bt-submit' => :bt_submit, via: :POST
     match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'upload-params' => :get_upload_params, via: :GET
+    match 'check-ethereum-balance' => :check_ethereum_balance, via: :GET
   end
 
   scope 'api/user', controller: 'user/profile' do
@@ -27,6 +28,7 @@ Rails.application.routes.draw do
   end
 
   scope 'api/admin/kyc', controller: 'admin/kyc' do
+    match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
     match 'check-details' => :check_details, via: :GET
     match 'dashboard' => :dashboard, via: :GET
     match 'fetch-duplicate' => :fetch_duplicate, via: :GET

@@ -9,6 +9,7 @@ export STA_DEFAULT_DB_HOST="127.0.0.1"
 
 export STA_DEFAULT_AWS_REGION="us-east-1"
 export STA_KYC_S3_BUCKET_NAME='kyc.stagingsimpletoken.org'
+export STA_EXTERNAL_DATA_S3_BUCKET_NAME='external-data.simpletoken.org'
 export STA_LOGIN_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_LOGIN_KMS_ID="eab8148d-fd9f-451d-9eb9-16c115645635"
 export STA_KYC_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
@@ -57,7 +58,7 @@ export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvaria
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1
 
-rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1
+rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
 

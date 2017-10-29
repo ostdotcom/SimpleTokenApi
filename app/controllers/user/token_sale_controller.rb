@@ -38,6 +38,17 @@ class User::TokenSaleController < User::BaseController
     render_api_response(service_response)
   end
 
+  # Get ethereum address and balance if sale is live
+  #
+  # * Author: Aman
+  # * Date: 28/10/2017
+  # * Reviewed By: Sunil
+  #
+  def check_ethereum_balance
+    service_response = UserManagement::CheckEthereumBalance.new(params).perform
+    render_api_response(service_response)
+  end
+
   # Send Double Opt In again
   #
   # * Author: Aman

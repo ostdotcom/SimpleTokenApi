@@ -107,9 +107,11 @@ class KycSubmitJob < ApplicationJob
 
     # Update records
     if @user_kyc_detail.new_record?
-      @user_kyc_detail.kyc_confirmed_at = Time.now.to_i
-      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
+      @user_kyc_detail.kyc_confirmed_at = @action_timestamp
+      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@action_timestamp))
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+      @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
     end
     @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
@@ -118,6 +120,16 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.save!
+  end
+
+  # Find POS bonus for percentage
+  #
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def get_pos_bonus_percentage
+    PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
   end
 
   # Create Hook to sync data in Email Service
@@ -132,8 +144,8 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info('-- create_email_service_api_call_hook')
 
     Email::HookCreator::AddContact.new(
-      email: @user.email,
-      token_sale_phase: @user_kyc_detail.token_sale_participation_phase
+        email: @user.email,
+        token_sale_phase: @user_kyc_detail.token_sale_participation_phase
     ).perform
   end
 
@@ -183,7 +195,11 @@ class KycSubmitJob < ApplicationJob
   def call_cynopsis_api
     r = @user_kyc_detail.cynopsis_user_id.blank? ? create_cynopsis_case : update_cynopsis_case
     Rails.logger.info("-- call_cynopsis_api r: #{r.inspect}")
-    return unless r.success? # cynopsis status will remain unprocessed
+
+    if !r.success? # cynopsis status will remain unprocessed
+      log_to_user_activity(r)
+      return
+    end
 
     response_hash = ((r.data || {})[:response] || {})
     @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
@@ -262,7 +278,8 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- upload_documents")
     upload_document(passport_file_path_d, 'PASSPORT')
     upload_document(selfie_file_path_d, 'OTHERS', 'selfie')
-    upload_document(residence_proof_file_path_d, 'OTHERS', 'residence_proof') if residence_proof_file_path_d.present?
+    residence_proof_file = residence_proof_file_path_d
+    upload_document(residence_proof_file, 'OTHERS', 'residence_proof') if residence_proof_file.present?
   end
 
   # Check if document upload is required or not
@@ -289,7 +306,7 @@ class KycSubmitJob < ApplicationJob
     url = Aws::S3Manager.new(@run_purpose, @run_role).
         get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
 
-    file_name = passport_file_path_d.split('/').last
+    file_name = s3_path.split('/').last
 
     local_file_path = "#{Rails.root}/tmp/#{file_name}"
 
@@ -303,7 +320,11 @@ class KycSubmitJob < ApplicationJob
 
     upload_params[:please_mention] = desc if document_type == 'OTHERS'
 
-    Cynopsis::Document.new().upload(upload_params)
+    r = Cynopsis::Document.new().upload(upload_params)
+
+    if !r.success?
+      log_to_user_activity(r)
+    end
 
     File.delete(local_file_path)
     Rails.logger.info("-- upload_document: #{document_type} done")
@@ -390,8 +411,8 @@ class KycSubmitJob < ApplicationJob
   #
   def residence_proof_file_path_d
     @user_extended_detail.residence_proof_file_path.present? ?
-      local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
-      ''
+        local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
+        ''
   end
 
   # Get decrypted address
@@ -452,6 +473,23 @@ class KycSubmitJob < ApplicationJob
   #
   def local_cipher_obj
     @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
+  end
+
+  # Log to user activity
+  #
+  # * Author: Abhay
+  # * Date: 28/10/2017
+  # * Reviewed By: Sunil
+  #
+  def log_to_user_activity(response)
+    UserActivityLogJob.new().perform({
+                                         user_id: @user_kyc_detail.user_id,
+                                         action: GlobalConstant::UserActivityLog.cynopsis_api_error,
+                                         action_timestamp: Time.now.to_i,
+                                         extra_data: {
+                                             response: response.to_json
+                                         }
+                                     })
   end
 
 end

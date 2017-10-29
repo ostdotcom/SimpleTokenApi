@@ -55,10 +55,22 @@ module GlobalConstant
         'residency_issue_email_sent'
       end
 
-      ## developmer use action##
+      ## developer use action##
 
       def login_action
         'login'
+      end
+
+      def kyc_whitelist_attention_needed
+        'kyc_whitelist_attention_needed'
+      end
+
+      def kyc_whitelist_processor_error
+        'kyc_whitelist_processor_error'
+      end
+
+      def cynopsis_api_error
+        'cynopsis_api_error'
       end
 
       ########## actions ###########
@@ -73,7 +85,10 @@ module GlobalConstant
             data_mismatch_email_sent_action,
             passport_issue_email_sent_action,
             selfie_issue_email_sent_action,
-            residency_issue_email_sent_action
+            residency_issue_email_sent_action,
+            kyc_whitelist_attention_needed,
+            kyc_whitelist_processor_error,
+            cynopsis_api_error
         ]
       end
 

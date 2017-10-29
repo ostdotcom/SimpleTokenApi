@@ -1,7 +1,5 @@
 class User::BaseController < ApiController
 
-  before_action :handle_blacklisted_ip
-
   private
 
   # Validate cookie
@@ -22,7 +20,7 @@ class User::BaseController < ApiController
       set_cookie(
           GlobalConstant::Cookie.user_cookie_name,
           extended_cookie_value,
-          GlobalConstant::Cookie.double_auth_expiry.from_now
+          GlobalConstant::Cookie.user_expiry.from_now
       ) if extended_cookie_value.present?
 
       # Set user id
@@ -37,35 +35,6 @@ class User::BaseController < ApiController
       service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
-  end
-
-  # Validate ip of request
-  #
-  # * Author: Aman
-  # * Date: 15/10/2017
-  # * Reviewed By: Sunil
-  #
-  def handle_blacklisted_ip
-    blacklisted_countries = ['china']
-    geo_ip_obj = Util::GeoIpUtil.new(ip_address: ip_address)
-    geoip_country = geo_ip_obj.get_country_name.to_s.downcase
-    params[:geoip_country] = geoip_country
-    return unless blacklisted_countries.include?(geoip_country)
-
-    service_response = Result::Base.error(
-        {
-            error: 'w_u_bc_1',
-            error_message: 'Unauthorised Ip',
-            error_data: {},
-            error_action: GlobalConstant::ErrorAction.default,
-            error_display_text: 'Unauthorised Ip',
-            error_display_heading: 'Error',
-            data: {}
-        }
-    )
-
-    service_response.http_code = GlobalConstant::ErrorCode.forbidden
-    render_api_response(service_response)
   end
 
   # Merge Utm Parameter in params

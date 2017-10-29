@@ -1,4 +1,5 @@
 namespace :cron_task do
+
   namespace :lockable do
 
     # sample code for one to user a continuous running cron
@@ -18,10 +19,10 @@ namespace :cron_task do
     #
     # * Author: Puneet
     # * Date: 10/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     desc "rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks"
-    desc "*/15 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
     task :retry_email_service_api_call_hooks do |task|
       @process_name = task
       @performer_klass = 'Crons::HookProcessors::EmailServiceApiCall'
@@ -40,6 +41,23 @@ namespace :cron_task do
     task :fetch_status_of_pending_cynopsis_users do |task|
       @process_name = task
       @performer_klass = 'Crons::CynopsisProcessors::RetryPending'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
+    # Process User KYC Whitelist Call hooks
+    #
+    # * Author: Aman
+    # * Date: 26/10/2017
+    # * Reviewed By: Kedar
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"
+    task :confirm_kyc_whitelist do |task|
+      @sleep_interval = 10
+
+      @process_name = "#{task}_#{ENV['lock_key_suffix']}"
+      @performer_klass = 'Crons::ConfirmKycWhitelist'
       @optional_params = {}
       execute_lockable_task
     end

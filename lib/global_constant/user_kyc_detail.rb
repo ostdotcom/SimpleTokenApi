@@ -29,6 +29,15 @@ module GlobalConstant
 
       ### Cynopsis Status End ###
 
+      def cynopsis_approved_statuses
+        [cleared_cynopsis_status, approved_cynopsis_status]
+      end
+
+      def admin_approved_statuses
+        [qualified_admin_status]
+      end
+
+
       ### Admin Status Start ###
 
       def un_processed_admin_status
@@ -41,10 +50,6 @@ module GlobalConstant
 
       def denied_admin_status
         'denied_admin_status'
-      end
-
-      def whitelisted_admin_status
-        'whitelisted_admin_status'
       end
 
       ### Admin Status End ###
@@ -87,7 +92,6 @@ module GlobalConstant
 
       ### email duplicate state###
 
-
       def yes_email_duplicate_status
         'yes'
       end
@@ -97,6 +101,27 @@ module GlobalConstant
       end
 
       ### email duplicate state ends###
+
+      ### whitelist status ####
+
+      def unprocessed_whitelist_status
+        'unprocessed'
+      end
+
+      def started_whitelist_status
+        'started'
+      end
+
+      def done_whitelist_status
+        'done'
+      end
+
+      def failed_whitelist_status
+        'failed'
+      end
+
+      ### whitelist status ####
+
 
       ### admin action type ####
 

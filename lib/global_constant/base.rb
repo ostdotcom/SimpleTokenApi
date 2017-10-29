@@ -47,6 +47,14 @@ module GlobalConstant
       @secret_encryptor_key ||= fetch_config.fetch('secret_encryptor', {}).with_indifferent_access
     end
 
+    def self.private_ops
+      @private_ops ||= fetch_config.fetch('private_ops', {}).with_indifferent_access
+    end
+
+    def self.public_ops
+      @public_ops ||= fetch_config.fetch('public_ops', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

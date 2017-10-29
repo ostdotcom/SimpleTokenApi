@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/profile' do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
-    match 'token-sale-foundation-address' => :ethereum_address, via: :GET
+    match 'token-sale-foundation-address' => :token_sale_foundation_address, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do
@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   end
 
   scope 'api/admin/kyc', controller: 'admin/kyc' do
+    match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
     match 'check-details' => :check_details, via: :GET
     match 'dashboard' => :dashboard, via: :GET
     match 'fetch-duplicate' => :fetch_duplicate, via: :GET
@@ -38,6 +39,11 @@ Rails.application.routes.draw do
     match 'residency-img-issue' => :residency_image_issue, via: :POST
     match 'qualify' => :qualify, via: :POST
     match 'kyc-action-logs' => :kyc_action_logs, via: :GET
+    match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
+  end
+
+  scope 'api/callback', controller: 'callback/ops' do
+    match 'whitelist-event' => :whitelist_event, via: :GET
   end
 
   match '*permalink', to: 'application#not_found', via: :all

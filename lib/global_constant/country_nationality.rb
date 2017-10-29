@@ -13,6 +13,12 @@ module GlobalConstant
               'new yorkstate' => 'NY',
               'ny' => 'NY',
               'nyc' => 'NY'
+          },
+          'ukraine' => {
+              'crimea' => 'Crimea'
+          },
+          'russia' => {
+              'crimea' => 'Crimea'
           }
       }
     end

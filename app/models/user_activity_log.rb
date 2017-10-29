@@ -16,7 +16,10 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
            GlobalConstant::UserActivityLog.passport_issue_email_sent_action => 7,
            GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8,
            GlobalConstant::UserActivityLog.residency_issue_email_sent_action => 9,
-           GlobalConstant::UserActivityLog.login_action => 10
+           GlobalConstant::UserActivityLog.login_action => 10,
+           GlobalConstant::UserActivityLog.kyc_whitelist_attention_needed => 11,
+           GlobalConstant::UserActivityLog.kyc_whitelist_processor_error => 12,
+           GlobalConstant::UserActivityLog.cynopsis_api_error => 13
        }, _suffix: true
 
 

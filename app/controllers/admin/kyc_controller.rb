@@ -18,7 +18,34 @@ class Admin::KycController < Admin::BaseController
   # * Reviewed By: Sunil
   #
   def dashboard
-    service_response = AdminManagement::Kyc::Dashboard.new(params).perform
+    service_response = AdminManagement::Kyc::Dashboard::Status.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Run Pos Bonus Approval process in resque
+  #
+  # * Author: Aman
+  # * Date: 29/10/2017
+  # * Reviewed By: Sunil
+  #
+  def run_pos_bonus_process
+    BgJob.enqueue(
+        PosBonusApproval,
+        {}
+    )
+
+    r = Result::Base.success({})
+    render_api_response(r)
+  end
+
+  # Whitelist Dashboard
+  #
+  # * Author: Alpesh
+  # * Date: 14/10/2017
+  # * Reviewed By: Sunil
+  #
+  def whitelist_dashboard
+    service_response = AdminManagement::Kyc::Dashboard::Whitelist.new(params).perform
     render_api_response(service_response)
   end
 

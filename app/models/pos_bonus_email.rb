@@ -1,0 +1,3 @@
+class PosBonusEmail < EstablishSimpleTokenLogDbConnection
+
+end

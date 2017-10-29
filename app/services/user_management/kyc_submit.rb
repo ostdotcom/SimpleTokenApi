@@ -176,7 +176,7 @@ module UserManagement
     end
 
     def validate_gender
-      if @gender.blank? || UserExtendedDetail.genders[@gender].blank?
+      if @gender.blank? || UserExtendedDetail.genders[@gender.downcase].blank?
         @error_data[:gender] = 'Gender is invalid.'
       end
     end

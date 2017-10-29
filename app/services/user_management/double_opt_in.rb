@@ -139,8 +139,8 @@ module UserManagement
     #
     def mark_token_as_used
       row_updated_count = TemporaryToken.where(
-        id: @token_sale_double_opt_in_token.id,
-        status: GlobalConstant::TemporaryToken.active_status
+          id: @token_sale_double_opt_in_token.id,
+          status: GlobalConstant::TemporaryToken.active_status
       ).update_all(status: GlobalConstant::TemporaryToken.used_status)
 
       # if row_updated_count == 0 means this token was already marked as used by some other concurrent request
@@ -166,12 +166,12 @@ module UserManagement
     #
     def enqueue_job
       BgJob.enqueue(
-        KycSubmitJob,
-        {
-          user_id: @user_id,
-          action: GlobalConstant::UserActivityLog.double_opt_in_action,
-          action_timestamp: Time.now.to_i
-        }
+          KycSubmitJob,
+          {
+              user_id: @user_id,
+              action: GlobalConstant::UserActivityLog.double_opt_in_action,
+              action_timestamp: Time.zone.now.to_i
+          }
       )
     end
 
@@ -185,11 +185,11 @@ module UserManagement
     #
     def invalid_url_error(code)
       error_with_data(
-        code,
-        'Invalid URL',
-        'Invalid URL',
-        GlobalConstant::ErrorAction.default,
-        {}
+          code,
+          'Invalid URL',
+          'Invalid URL',
+          GlobalConstant::ErrorAction.default,
+          {}
       )
     end
 

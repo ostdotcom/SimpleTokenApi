@@ -1,6 +1,6 @@
 module UserManagement
 
-  class GetEthereumAddress < ServicesBase
+  class GetTokenSaleFoundationAddress < ServicesBase
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module UserManagement
     #
     # @params [Integer] user_id (mandatory) - this is the user id
     #
-    # @return [UserManagement::GetEthereumAddress]
+    # @return [UserManagement::GetTokenSaleFoundationAddress]
     #
     def initialize(params)
       super
@@ -78,7 +78,7 @@ module UserManagement
           'Sale is not active',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if !is_sale_active?
+      )  if !is_sale_active_for_user?
 
       success
     end
@@ -105,7 +105,7 @@ module UserManagement
     # @return [Time]
     #
     def sale_start_time
-      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.pre_sale_token_sale_phase) ? GlobalConstant::TokenSale.pre_sale_start_date : GlobalConstant::TokenSale.public_sale_start_date
+      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ? GlobalConstant::TokenSale.early_access_start_date : GlobalConstant::TokenSale.general_access_start_date
     end
 
     # is sale active
@@ -116,8 +116,8 @@ module UserManagement
     #
     # @return [Boolean]
     #
-    def is_sale_active?
-      (GlobalConstant::TokenSale.st_token_sale_active_status && current_time <= GlobalConstant::TokenSale.public_sale_end_date && current_time >= sale_start_time)
+    def is_sale_active_for_user?
+      (GlobalConstant::TokenSale.st_token_sale_active_status && !GlobalConstant::TokenSale.is_general_sale_ended? && current_time >= sale_start_time)
     end
 
     # is ethereum address whitelist complete

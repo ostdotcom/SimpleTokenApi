@@ -22,10 +22,10 @@ module Crons
       # * Date: 24/10/2017
       # * Reviewed By: Sunil
       #
-      # Sets @approved_user_ids, @denied_user_ids, @user_kyc_details, @users
+      # Sets @denied_user_ids
       #
       def reset_data
-        @approved_user_ids, @denied_user_ids, @user_kyc_details, @users = [], [], {}, {}
+         @denied_user_ids = []
       end
 
       # public method to update status of pending cynopsis state users
@@ -35,7 +35,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-        return if Time.now >= GlobalConstant::TokenSale.public_sale_end_date
+        return if GlobalConstant::TokenSale.is_general_sale_ended?
 
         UserKycDetail.where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
 
@@ -43,12 +43,9 @@ module Crons
             process_user_kyc_details(user_kyc_detail)
           end
 
-          next if @user_kyc_details.blank?
-          all_user_ids = @approved_user_ids + @denied_user_ids
-          @users = User.where(id: all_user_ids).select(:email, :id).all.index_by(&:id)
+          next if @denied_user_ids.blank?
 
-          send_aproved_email if @approved_user_ids.present?
-          send_denied_email if @denied_user_ids.present?
+          send_denied_email
 
           reset_data
         end
@@ -76,44 +73,13 @@ module Crons
         if user_kyc_detail.changed?
           user_kyc_detail.save!
 
-          if user_kyc_detail.kyc_approved?
-            @approved_user_ids << user_kyc_detail.user_id
-            @user_kyc_details[user_kyc_detail.user_id] = user_kyc_detail
-          elsif user_kyc_detail.kyc_denied?
+          if user_kyc_detail.kyc_denied?
             @denied_user_ids << user_kyc_detail.user_id
-            @user_kyc_details[user_kyc_detail.user_id] = user_kyc_detail
           end
 
         end
 
       end
-
-      # Send approved email
-      #
-      # * Author: Aman
-      # * Date: 24/10/2017
-      # * Reviewed By: Sunil
-      #
-      def send_aproved_email
-        is_sale_active = (Time.now >= GlobalConstant::TokenSale.public_sale_start_date)
-
-        @approved_user_ids.each do |user_id|
-          user_kyc_detail = @user_kyc_details[user_id]
-          user = @users[user_id]
-
-          Email::HookCreator::SendTransactionalMail.new(
-              email: user.email,
-              template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-              template_vars: {
-                  token_sale_participation_phase: user_kyc_detail.token_sale_participation_phase,
-                  is_sale_active: is_sale_active
-              }
-          ).perform
-
-        end
-
-      end
-
 
       # Send denied email
       #
@@ -122,9 +88,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def send_denied_email
-
-        @denied_user_ids.each do |user_id|
-          user = @users[user_id]
+        User.where(id: @denied_user_ids).select(:email, :id).each do |user|
 
           Email::HookCreator::SendTransactionalMail.new(
               email: user.email,

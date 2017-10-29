@@ -11,7 +11,7 @@ class Callback::OpsController < Callback::BaseController
   # * Reviewed By: Sunil
   #
   def whitelist_event
-    service_response = WhitelistManagement::RecordEvent.new(params).perform
+    service_response = WhitelistManagement::ProcessAndRecordEvent.new(params).perform
     render_api_response(service_response)
 
   end

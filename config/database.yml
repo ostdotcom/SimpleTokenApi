@@ -28,3 +28,7 @@ simple_token_email_<%= Rails.env%>:
 simple_token_log_<%= Rails.env%>:
   <<: *default
   database: simple_token_log_<%= Rails.env%>
+
+simple_token_contract_interactions_<%= Rails.env%>:
+  <<: *default
+  database: simple_token_contract_interactions_<%= Rails.env%>

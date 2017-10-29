@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module GlobalConstant
 
-  class UserContractEvent
+  class ContractEvent
 
     class << self
 

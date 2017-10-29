@@ -57,7 +57,7 @@ module OpsApi
             when 200
               parsed_response = Oj.load(response.body.to_s)
               if parsed_response['success']
-                return success_with_data(parsed_response['data'])
+                return success_with_data(HashWithIndifferentAccess.new(parsed_response['data']))
               else
                 return error_with_data('poa_r_b_2',
                                        "Error in API call: #{response.status} - #{parsed_response['err']['msg']}",

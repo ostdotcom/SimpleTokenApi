@@ -195,7 +195,7 @@
   :optional:
    - :t
 
-'WhitelistManagement::RecordEvent':
+'WhitelistManagement::ProcessAndRecordEvent':
   :mandatory:
     - :decoded_token_data
   :optional:

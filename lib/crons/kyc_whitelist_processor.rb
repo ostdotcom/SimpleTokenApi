@@ -2,6 +2,8 @@ module Crons
 
   class KycWhitelistProcessor
 
+    include Util::ResultHelper
+
     # initialize
     #
     # * Author: Aman
@@ -11,6 +13,9 @@ module Crons
     # @return [Crons::KycWhitelistProcessor]
     #
     def initialize(params)
+      @api_data = {}
+      @user_kyc_detail = nil
+      @transaction_hash = nil
     end
 
     # public method to process hooks
@@ -20,61 +25,175 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
-      UserKycDetail.kyc_admin_and_cynopsis_approved.whitelist_status_unprocessed.find_in_batches(batch_size: 10) do |u_k_detail_objs|
+      UserKycDetail.
+        kyc_admin_and_cynopsis_approved. # records which are approved by both admin and cynopsis
+        whitelist_status_unprocessed. # records which are not yet processed for whitelisting
+        find_in_batches(batch_size: 10) do |u_k_detail_objs|
+
         u_k_detail_objs.each do |user_kyc_detail|
           begin
-            token = get_token(user_kyc_detail)
-            Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Starting PrivateOps API Call ")
-            r = OpsApi::Request::Whitelist.new.whitelist(token)
 
-            unless r.success?
-              handle_error(user_kyc_detail, 'PrivateOpsApi Error', {private_ops_api_response: r})
-              next
-            end
+            init_iteration_params(user_kyc_detail)
 
-            transaction_hash = r.data["transaction_hash"]
+            # acquire lock over user_kyc_detail
+            start_processing_whitelisting
 
-            Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Create entry in UserKycWhitelistLog")
-            UserKycWhitelistLog.create!({
-                                            user_id: user_kyc_detail.user_id,
-                                            transaction_hash: transaction_hash,
-                                            status: GlobalConstant::UserKycWhitelistLog.pending_status
-                                        })
+            construct_api_data
 
-            user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.started_whitelist_status
-            user_kyc_detail.save!
+            # make the API call to private ops API for whitelisting
+            r = make_whitelist_api_call
+
+            # move to next record in case of api failures
+            next unless r.success?
+
+            create_kyc_whitelist_log
+
           rescue => e
             Rails.logger.info("Exception: #{e.inspect}")
             handle_error(user_kyc_detail, "Exception - #{e.inspect}", {exception: e})
           end
 
         end
+
       end
+
     end
 
     private
 
-    # Handle errors
+    # init iteration params
+    #
+    # * Author: Kedar, Alpesh
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @params [UserKycDetail]
+    #
+    # Sets @api_data, @user_kyc_detail
+    #
+    def init_iteration_params(user_kyc_detail)
+      @api_data = {}
+      @user_kyc_detail = user_kyc_detail
+      @transaction_hash = nil
+    end
+
+    # start processing whitelisting
+    #
+    # * Author: Kedar, Alpesh
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @params [UserKycDetail]
+    #
+    def start_processing_whitelisting
+      Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - started processing whilelisting")
+      @user_kyc_detail.status = GlobalConstant::UserKycDetail.started_whitelist_status
+      @user_kyc_detail.save!
+    end
+
+    # Construct API data
+    #
+    # * Author: Kedar, Alpesh
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    # Sets @api_data
+    #
+    def construct_api_data
+      @api_data = {address: get_ethereum_address, phase: get_phase}
+    end
+
+    # Make API call
+    #
+    # * Author: Kedar, Alpesh
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def make_whitelist_api_call
+      Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
+      r = OpsApi::Request::Whitelist.new.whitelist(get_token({address: @api_data[:address], phase: @api_data[:phase]}))
+
+      if r.success?
+        @transaction_hash = r.data[:transaction_hash]
+      else
+        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r})
+      end
+
+      r
+    end
+
+    # Create Kyc whitelist log
+    #
+    # * Author: Kedar, Alpesh
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    def create_kyc_whitelist_log
+      KycWhitelistLog.create!({
+                                ethereum_address: @api_data[:address],
+                                phase: @api_data[:phase],
+                                transaction_hash: @transaction_hash,
+                                status: GlobalConstant::KycWhitelistLog.pending_status,
+                                is_attention_needed: 0
+                              })
+      Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Creating entry in KycWhitelistLog")
+    end
+
+    # Get Decrypted ethereum address of user
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [String] Ethereum Address
+    #
+    def get_ethereum_address
+      user_extended_detail = UserExtendedDetail.where(id: user_kyc_detail.user_extended_detail_id).first
+      kyc_salt_e = user_extended_detail.kyc_salt
+      r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
+      kyc_salt_d = r.data[:plaintext]
+      local_cipher_obj = LocalCipher.new(kyc_salt_d)
+      local_cipher_obj.decrypt(user_extended_detail.ethereum_address).data[:plaintext]
+    end
+
+    # Get phase
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Integer] pahse
+    #
+    def get_phase
+      UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
+    end
+
+    # Handle whitelist errors
     #
     # * Author: Abhay
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    def handle_error(user_kyc_detail, error_type, error_data)
-      notify_devs(error_data, user_kyc_detail.user_id)
-      Rails.logger.info("user_kyc_detail - #{user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
-      user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
-      user_kyc_detail.save!
+    # @params [String] error_type
+    # @params [Hash] error_data
+    #
+    def handle_whitelist_error(error_type, error_data)
+      notify_devs(error_data, @user_kyc_detail.user_id)
+      Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
+      @user_kyc_detail.save!
 
       UserActivityLogJob.new().perform({
-                                           user_id: user_kyc_detail.user_id,
-                                           action: GlobalConstant::UserActivityLog.kyc_whitelist_processor_error,
-                                           action_timestamp: Time.now.to_i,
-                                           extra_data: {
-                                               user_kyc_detail_id: user_kyc_detail.id,
-                                               error_type: error_type,
-                                               error_data: error_data
-                                           }
+                                         user_id: @user_kyc_detail.user_id,
+                                         action: GlobalConstant::UserActivityLog.kyc_whitelist_processor_error,
+                                         action_timestamp: Time.now.to_i,
+                                         extra_data: {
+                                           user_kyc_detail_id: @user_kyc_detail.id,
+                                           error_type: error_type,
+                                           error_data: error_data
+                                         }
                                        })
     end
 
@@ -84,29 +203,9 @@ module Crons
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    def get_token(user_kyc_detail)
-      data = {
-          address: get_ethereum_address(user_kyc_detail),
-          phase: UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase]
-      }
-
+    def get_token(data)
       payload = {data: data}
       JWT.encode(payload, GlobalConstant::PrivateOpsApi.secret_key, 'HS256')
-    end
-
-    # Get Decrypted ethereum address of user
-    #
-    # * Author: Aman
-    # * Date: 25/10/2017
-    # * Reviewed By: Sunil
-    #
-    def get_ethereum_address(user_kyc_detail)
-      user_extended_detail = UserExtendedDetail.where(id: user_kyc_detail.user_extended_detail_id).first
-      kyc_salt_e = user_extended_detail.kyc_salt
-      r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
-      kyc_salt_d = r.data[:plaintext]
-      local_cipher_obj = LocalCipher.new(kyc_salt_d)
-      local_cipher_obj.decrypt(user_extended_detail.ethereum_address).data[:plaintext]
     end
 
     # notify devs if required
@@ -117,11 +216,11 @@ module Crons
     #
     def notify_devs(error_data, user_id)
       ApplicationMailer.notify(
-          body: {user_id: user_id},
-          data: {
-              error_data: error_data
-          },
-          subject: 'Error while KycWhitelistProcessor'
+        body: {user_id: user_id},
+        data: {
+          error_data: error_data
+        },
+        subject: 'Error while KycWhitelistProcessor'
       ).deliver
     end
 

@@ -25,6 +25,10 @@ module GlobalConstant
           GlobalConstant::Base.s3['kyc_bucket']
         end
 
+        def external_data_bucket
+          GlobalConstant::Base.s3['external_data_bucket']
+        end
+
         private
 
         def user_access_credentials

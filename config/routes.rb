@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   end
 
   scope 'api/admin/kyc', controller: 'admin/kyc' do
+    match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
     match 'check-details' => :check_details, via: :GET
     match 'dashboard' => :dashboard, via: :GET
     match 'fetch-duplicate' => :fetch_duplicate, via: :GET

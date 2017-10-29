@@ -107,10 +107,11 @@ class KycSubmitJob < ApplicationJob
 
     # Update records
     if @user_kyc_detail.new_record?
-      @user_kyc_detail.kyc_confirmed_at = Time.now.to_i
-      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
+      @user_kyc_detail.kyc_confirmed_at = @action_timestamp
+      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@action_timestamp))
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+      @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
     end
     @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
@@ -119,6 +120,16 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.save!
+  end
+
+  # Find POS bonus for percentage
+  #
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def get_pos_bonus_percentage
+    PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
   end
 
   # Create Hook to sync data in Email Service

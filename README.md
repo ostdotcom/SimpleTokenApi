@@ -58,7 +58,7 @@ export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvaria
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1
 
-rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist lock_key_suffix=1
+rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
 

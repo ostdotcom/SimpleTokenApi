@@ -42,7 +42,7 @@ class User::TokenSaleController < User::BaseController
   #
   # * Author: Aman
   # * Date: 28/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def check_ethereum_balance
     service_response = UserManagement::CheckEthereumBalance.new(params).perform

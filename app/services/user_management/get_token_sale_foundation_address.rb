@@ -70,7 +70,7 @@ module UserManagement
           'Unauthorized to purchase',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if !(@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? && @user_kyc_detail.done_whitelist_status? )
+      )  if !(@user_kyc_detail.present? && @user_kyc_detail.kyc_approved? && @user_kyc_detail.done_whitelist_status?)
 
       return error_with_data(
           'um_ea_2',

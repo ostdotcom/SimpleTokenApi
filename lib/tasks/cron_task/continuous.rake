@@ -39,15 +39,32 @@ namespace :cron_task do
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    desc "rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1"
-    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"
+    desc "rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"
     task :process_kyc_whitelist_call_hooks do |task|
       @sleep_interval = 10
 
-      @process_name = "#{task}_#{ENV['lock_key_suffix']}"
+      @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
       @performer_klass = 'Crons::KycWhitelistProcessor'
       @optional_params = {}
       execute_continuous_task
+    end
+
+    # Process User KYC Whitelist Call hooks
+    #
+    # * Author: Aman
+    # * Date: 26/10/2017
+    # * Reviewed By: Kedar
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:confirm_kyc_whitelist >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"
+    task :confirm_kyc_whitelist do |task|
+      @sleep_interval = 60
+
+      @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
+      @performer_klass = 'Crons::ConfirmKycWhitelist'
+      @optional_params = {}
+      execute_lockable_task
     end
 
     private

@@ -45,21 +45,6 @@ namespace :cron_task do
       execute_lockable_task
     end
 
-    # Process User KYC Whitelist Call hooks
-    #
-    # * Author: Aman
-    # * Date: 26/10/2017
-    # * Reviewed By: Kedar
-    #
-    desc "rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist"
-    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:lockable:confirm_kyc_whitelist >> /mnt/simpletoken-api/shared/log/confirm_kyc_whitelist.log"
-    task :confirm_kyc_whitelist do |task|
-      @process_name = task
-      @performer_klass = 'Crons::ConfirmKycWhitelist'
-      @optional_params = {}
-      execute_lockable_task
-    end
-
     private
 
     # task which running a continuing instance of perform method in performer klass

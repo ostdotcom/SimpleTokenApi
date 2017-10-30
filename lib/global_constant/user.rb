@@ -5,18 +5,6 @@ module GlobalConstant
 
     class << self
 
-      ### Gender Start ###
-
-      def gender_male
-        'male'
-      end
-
-      def gender_female
-        'female'
-      end
-
-      ### Gender End ###
-
       ### Status Start ###
 
       def active_status

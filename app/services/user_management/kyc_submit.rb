@@ -39,7 +39,6 @@ module UserManagement
       @user_id = @params[:user_id]
       @first_name = @params[:first_name] # required
       @last_name = @params[:last_name] # required
-      @gender = @params[:gender] # required
       @birthdate = @params[:birthdate] # format - 'dd/mm/yyyy'
       @street_address = @params[:street_address] # required
       @city = @params[:city] # required
@@ -119,7 +118,6 @@ module UserManagement
       # Sanitize fields, validate and assign error
       validate_first_name
       validate_last_name
-      validate_gender
       validate_birthdate
       validate_street_address
       validate_city
@@ -173,12 +171,6 @@ module UserManagement
     def validate_last_name
       @last_name = @last_name.to_s.strip
       @error_data[:last_name] = 'Last Name is required.' if !@last_name.present?
-    end
-
-    def validate_gender
-      if @gender.blank? || UserExtendedDetail.genders[@gender.downcase].blank?
-        @error_data[:gender] = 'Gender is invalid.'
-      end
     end
 
     def validate_birthdate
@@ -341,8 +333,7 @@ module UserManagement
           user_id: @user_id,
           first_name: @first_name,
           last_name: @last_name,
-          kyc_salt: @kyc_salt_e,
-          gender: @gender
+          kyc_salt: @kyc_salt_e
       }
 
       md5_user_extended_details_params = {

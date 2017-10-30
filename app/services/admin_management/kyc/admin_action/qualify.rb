@@ -75,16 +75,12 @@ module AdminManagement
         # return [Bool] true/false
         #
         def is_duplicate_kyc_approved_user?
-          other_kyc_approved_user_ids = []
-
-          UserKycDuplicationLog.active_ethereum_duplicates.
-              where("user1_id = ? OR user2_id = ?", @user_kyc_detail.user_id, @user_kyc_detail.user_id).each do |ukdl|
-            other_kyc_approved_user_ids << ukdl.user1_id if ukdl.user1_id != @user_kyc_detail.user_id
-            other_kyc_approved_user_ids << ukdl.user2_id if ukdl.user2_id != @user_kyc_detail.user_id
-          end
-          return false if other_kyc_approved_user_ids.blank?
-
-          UserKycDetail.where(user_id: other_kyc_approved_user_ids).kyc_admin_and_cynopsis_approved.exists?
+          u_e_d = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+          hashed_ethereurm_address = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.ethereum_address)
+          user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_ethereurm_address).pluck(:user_extended_detail_id)
+          user_extended_detail_ids.delete(@user_kyc_detail.user_extended_detail_id)
+          return false if user_extended_detail_ids.blank?
+          UserKycDetail.where(user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
         end
 
         # Change case's admin status

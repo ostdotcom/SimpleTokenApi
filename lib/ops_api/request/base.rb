@@ -59,7 +59,7 @@ module OpsApi
               if parsed_response['success']
                 return success_with_data(HashWithIndifferentAccess.new(parsed_response['data']))
               else
-                return error_with_data('poa_r_b_2',
+                return error_with_data(parsed_response['err']['code']+':st(poa_r_b_2)',
                                        "Error in API call: #{response.status} - #{parsed_response['err']['msg']}",
                                        'Something Went Wrong.',
                                        GlobalConstant::ErrorAction.default,

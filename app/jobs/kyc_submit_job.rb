@@ -246,9 +246,7 @@ class KycSubmitJob < ApplicationJob
         date_of_birth: Date.parse(date_of_birth_d).strftime("%d/%m/%Y"),
         identification_type: 'PASSPORT',
         identification_number: passport_number_d,
-        nationality: nationality_d.upcase,
-        emails: [@user.email],
-        addresses: address_d
+        nationality: nationality_d.upcase
     }
 
   end
@@ -412,56 +410,6 @@ class KycSubmitJob < ApplicationJob
     @user_extended_detail.residence_proof_file_path.present? ?
         local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
         ''
-  end
-
-  # Get decrypted address
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def address_d
-    [street_address_d, city_d, state_d, country_of_residence_d, postal_code_d].join(', ')
-  end
-
-  # Get decrypted street address
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def street_address_d
-    local_cipher_obj.decrypt(@user_extended_detail.street_address).data[:plaintext]
-  end
-
-  # Get decrypted city
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def city_d
-    local_cipher_obj.decrypt(@user_extended_detail.city).data[:plaintext]
-  end
-
-  # Get decrypted state
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def state_d
-    local_cipher_obj.decrypt(@user_extended_detail.state).data[:plaintext]
-  end
-
-  # Get decrypted postal code
-  #
-  # * Author: Kedar, Puneet
-  # * Date: 12/10/2017
-  # * Reviewed By: Sunil
-  #
-  def postal_code_d
-    local_cipher_obj.decrypt(@user_extended_detail.postal_code).data[:plaintext]
   end
 
   # local cipher obj

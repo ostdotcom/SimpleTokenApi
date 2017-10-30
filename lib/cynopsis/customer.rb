@@ -28,8 +28,6 @@ module Cynopsis
     # @params [String] identification_type (mandatory) - Customer identification type
     # @params [String] identification_number (mandatory) - Customer identification number
     # @params [String] nationality (mandatory) - Customer nationality
-    # @params [Array] emails (mandatory) - Customer email addresses
-    # @params [String] addresses (mandatory) - Customer address separated by comma
     #
     # @return [Result::Base]
     #
@@ -54,8 +52,6 @@ module Cynopsis
     # @params [String] identification_type (mandatory) - Customer identification type
     # @params [String] identification_number (mandatory) - Customer identification number
     # @params [String] nationality (mandatory) - Customer nationality
-    # @params [Array] emails (mandatory) - Customer email addresses
-    # @params [String] addresses (mandatory) - Customer address separated by comma
     #
     # @return [Result::Base]
     #

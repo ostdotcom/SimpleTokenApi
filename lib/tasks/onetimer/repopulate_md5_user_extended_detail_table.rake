@@ -2,7 +2,7 @@ namespace :onetimer do
 
   # rake RAILS_ENV=development onetimer:repopulate_md5_user_extended_detail_table user_ids=13,18,11001,11071,2,11041,11056,11060
   task :repopulate_md5_user_extended_detail_table => :environment do
-    @user_ids = ENV['user_ids'].split(',').map(&:to_i)
+    @user_ids = ENV['user_ids'].present? ? ENV['user_ids'].split(',').map(&:to_i) : []
     initialize
     perform
   end

@@ -22,7 +22,7 @@ namespace :cron_task do
     # * Reviewed By: Kedar
     #
     desc "rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks"
-    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks >> /mnt/simpletoken-api/shared/log/process_email_service_api_call_hooks.log"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks >> /mnt/simpletoken-api/shared/log/retry_email_service_api_call_hooks.log"
     task :retry_email_service_api_call_hooks do |task|
       @process_name = task
       @performer_klass = 'Crons::HookProcessors::EmailServiceApiCall'

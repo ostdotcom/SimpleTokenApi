@@ -117,8 +117,8 @@ module AdminManagement
           @next_kyc_id = kyc_1.id if kyc_1.present?
           @previous_kyc_id = kyc_2.id if kyc_2.present?
         else
-          kyc_1 = ar_relation.where("id > ?", @user_kyc_detail_id).last
-          kyc_2 = ar_relation.where("id < ?", @user_kyc_detail_id).first
+          kyc_1 = ar_relation.where("id > ?", @user_kyc_detail_id).first
+          kyc_2 = ar_relation.where("id < ?", @user_kyc_detail_id).last
           @next_kyc_id = kyc_2.id if kyc_2.present?
           @previous_kyc_id = kyc_1.id if kyc_1.present?
         end

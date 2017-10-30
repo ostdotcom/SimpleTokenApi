@@ -88,6 +88,7 @@ module Crons
     def start_processing_whitelisting
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - started processing whilelisting")
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.started_whitelist_status
+      @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
     end
 
@@ -183,6 +184,7 @@ module Crons
       notify_devs(error_data, @user_kyc_detail.user_id)
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
+      @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
 
       UserActivityLogJob.new().perform({

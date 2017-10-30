@@ -349,6 +349,7 @@ module WhitelistManagement
         send_kyc_approved_email
       end
 
+      @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save! if @user_kyc_detail.changed?
     end
 

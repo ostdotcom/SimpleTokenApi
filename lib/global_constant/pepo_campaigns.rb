@@ -19,6 +19,10 @@ module GlobalConstant
         config[:api][:base_url]
       end
 
+      def version
+        config[:api][:version]
+      end
+
       ########### List Ids ############
 
       def master_list_id

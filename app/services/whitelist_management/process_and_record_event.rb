@@ -219,7 +219,7 @@ module WhitelistManagement
     #
     def get_prospective_user_extended_detail_ids
       prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
-          ethereum_address: Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
+          ethereum_address: Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
       ).pluck(:user_extended_detail_id)
 
       if prospective_user_extended_detail_ids.blank?
@@ -374,25 +374,6 @@ module WhitelistManagement
     #
     def is_phase_valid?
       UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] == @phase.to_i
-    end
-
-    # Is ethereum address valid
-    #
-    # * Author: Aman
-    # * Date: 25/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Boolean]
-    #
-    def is_ethereum_address_valid?
-      sha256_params = {
-          string: @ethereum_address.to_s.downcase.strip,
-          salt: GlobalConstant::SecretEncryptor.user_extended_detail_secret_key
-      }
-      obtained_addr_md5 = Sha256.new(sha256_params).perform
-      actual_addr_md5 = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first.ethereum_address
-
-      obtained_addr_md5 == actual_addr_md5
     end
 
     # Send Email when kyc whitelist status is done

@@ -376,11 +376,7 @@ module UserManagement
       end
 
       data_to_md5.each do |key, value|
-        sha256_params = {
-            string: value.to_s.downcase.strip,
-            salt: GlobalConstant::SecretEncryptor.user_extended_detail_secret_key
-        }
-        md5_user_extended_details_params[key.to_sym] = Sha256.new(sha256_params).perform
+        md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.get_hashed_value(value)
       end
 
       user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)

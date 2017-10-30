@@ -288,7 +288,7 @@ module Crons
     #
     def get_prospective_user_extended_detail_ids
       prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
-        ethereum_address: Digest::MD5.hexdigest(@kyc_whitelist_log.ethereum_address.to_s.downcase.strip)
+        ethereum_address: Md5UserExtendedDetail.get_hashed_value(@kyc_whitelist_log.ethereum_address)
       ).pluck(:user_extended_detail_id)
 
       if prospective_user_extended_detail_ids.blank?

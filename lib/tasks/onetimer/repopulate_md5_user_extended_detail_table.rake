@@ -1,8 +1,9 @@
 namespace :onetimer do
 
-  # rake RAILS_ENV=development onetimer:repopulate_md5_user_extended_detail_table user_id=0
+  # rake RAILS_ENV=development onetimer:repopulate_md5_user_extended_detail_table user_ids=13,18,11001,11071,2,11041,11056,11060
   task :repopulate_md5_user_extended_detail_table => :environment do
-    initialize(ENV)
+    @user_ids = ENV['user_ids'].split(',').map(&:to_i)
+    initialize
     perform
   end
 
@@ -12,8 +13,7 @@ namespace :onetimer do
   # * Date: 30/10/2017
   # * Reviewed By: Abhay
   #
-  def initialize(env_variables)
-    @user_id = ENV['user_id'].to_i
+  def initialize
     @run_role = 'admin'
     @run_purpose = 'kyc'
     @result = {success: [], failure: []}
@@ -27,8 +27,8 @@ namespace :onetimer do
   #
   def perform
     ar_query = UserExtendedDetail
-    if @user_id > 0
-      ar_query = UserExtendedDetail.where(user_id: @user_id)
+    if @user_ids.present?
+      ar_query = ar_query.where(user_id: @user_ids)
     end
 
     ar_query.find_in_batches(batch_size: 50) do |batches|

@@ -54,7 +54,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user_kyc_details
-      @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
     end
 
     # Validate

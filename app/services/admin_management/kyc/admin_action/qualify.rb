@@ -52,7 +52,39 @@ module AdminManagement
         # return [Result::Base]
         #
         def validate_and_sanitize
-          super
+          r = super
+          return r unless r.success?
+
+          return success unless is_duplicate_kyc_approved_user?
+
+          error_with_data(
+              'am_k_aa_qf_1',
+              'Duplicate Kyc User for approval.',
+              'Duplicate Kyc User for approval.',
+              GlobalConstant::ErrorAction.default,
+              {}
+          )
+        end
+
+        # Check if Duplicate KYC Approved User
+        #
+        # * Author: Abhay
+        # * Date: 30/10/2017
+        # * Reviewed By:
+        #
+        # return [Bool] true/false
+        #
+        def is_duplicate_kyc_approved_user?
+          other_kyc_approved_user_ids = []
+
+          UserKycDuplicationLog.active_ethereum_duplicates.
+              where("user1_id = ? OR user2_id = ?", @user_kyc_detail.user_id, @user_kyc_detail.user_id).each do |ukdl|
+            other_kyc_approved_user_ids << ukdl.user1_id if ukdl.user1_id != @user_kyc_detail.user_id
+            other_kyc_approved_user_ids << ukdl.user2_id if ukdl.user2_id != @user_kyc_detail.user_id
+          end
+          return false if other_kyc_approved_user_ids.blank?
+
+          UserKycDetail.where(user_id: other_kyc_approved_user_ids).kyc_admin_and_cynopsis_approved.exists?
         end
 
         # Change case's admin status

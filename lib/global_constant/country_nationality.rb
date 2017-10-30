@@ -56,7 +56,11 @@ module GlobalConstant
     def self.generate_md5_map_for(arr_list)
       md5_map = {}
       arr_list.each do |value|
-        md5_value = Digest::MD5.hexdigest(value.to_s.downcase.strip)
+        sha256_params = {
+            string: value.to_s.strip,
+            salt: GlobalConstant::SecretEncryptor.user_extended_detail_secret_key
+        }
+        md5_value = Sha256.new(sha256_params).perform
         md5_map[md5_value] = value
       end
       md5_map

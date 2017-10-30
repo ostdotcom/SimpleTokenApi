@@ -149,7 +149,7 @@ module UserManagement
       return r unless r.success?
 
       # Check if user KYC is already approved
-      user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+      user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
       if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
         return unauthorized_access_response('um_ks_2', 'Your KYC is already approved/denied.')
       end
@@ -279,8 +279,7 @@ module UserManagement
     # Sets @user, @user_secret
     #
     def fetch_user_data
-
-      @user = User.where(id: @user_id).first
+      @user = User.get_from_memcache(@user_id)
       return unauthorized_access_response('um_ks_3') unless @user.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
@@ -386,7 +385,11 @@ module UserManagement
       end
 
       data_to_md5.each do |key, value|
-        md5_user_extended_details_params[key.to_sym] = Digest::MD5.hexdigest(value.to_s.downcase.strip)
+        sha256_params = {
+            string: value.to_s.downcase.strip,
+            salt: GlobalConstant::SecretEncryptor.user_extended_detail_secret_key
+        }
+        md5_user_extended_details_params[key.to_sym] = Sha256.new(sha256_params).perform
       end
 
       user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)

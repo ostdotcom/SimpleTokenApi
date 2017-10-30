@@ -1,2 +1,3 @@
 class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
+
 end

@@ -48,7 +48,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user
-      @user = User.where(id: @user_id).first
+      @user = User.get_from_memcache(@user_id)
     end
 
     # User detail

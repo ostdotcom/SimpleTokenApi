@@ -51,7 +51,7 @@ module UserManagement
     # Sets @user_kyc_detail
     #
     def fetch_user_kyc_detail
-      @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
     end
 
     # Validation for purchase

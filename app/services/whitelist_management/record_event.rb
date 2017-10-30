@@ -115,8 +115,8 @@ module WhitelistManagement
       end
 
       @user_id = @user_kyc_whitelist_log.user_id
-      @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
-      @user = User.where(id: @user_kyc_detail.user_id).first
+      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+      @user = User.get_user_details_from_memcache(@user_kyc_detail.user_id)
 
       success
     end
@@ -188,9 +188,14 @@ module WhitelistManagement
     # @return [Boolean]
     #
     def is_ethereum_address_valid?
-      obtained_addr_md5 = Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
+      sha256_params = {
+          string: @ethereum_address.to_s.downcase.strip,
+          salt: GlobalConstant::SecretEncryptor.user_extended_detail_secret_key
+      }
+      obtained_addr_md5 = Sha256.new(sha256_params).perform
       actual_addr_md5 = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first.ethereum_address
-      return obtained_addr_md5 == actual_addr_md5
+
+      obtained_addr_md5 == actual_addr_md5
     end
 
     # update update_user_kyc_whitelist obj

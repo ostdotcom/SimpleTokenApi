@@ -94,8 +94,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_token
-      # TODO: Cache user object
-      @user = User.where(id: @user_id).first
+      @user = User.get_user_details_from_memcache(@user_id)
       return unauthorized_access_response('um_vc_5') unless @user.present? &&
           (@user[:status] == GlobalConstant::User.active_status)
 

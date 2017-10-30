@@ -24,7 +24,7 @@ module Email
       require "open-uri"
       require "openssl"
 
-      attr_accessor :api_key, :api_secret
+      attr_accessor :api_key, :api_secret, :version
 
       # Initialize
       #
@@ -36,6 +36,7 @@ module Email
         @api_key = GlobalConstant::PepoCampaigns.api_key
         @api_secret = GlobalConstant::PepoCampaigns.api_secret
         @api_base_url = GlobalConstant::PepoCampaigns.base_url
+        @version = GlobalConstant::PepoCampaigns.version
       end
 
       # Create a List
@@ -49,13 +50,14 @@ module Email
       #   Hash, response data from server
       #
       def create_list(name, source, opt_in_type)
-        endpoint = "/api/v1/list/create/"
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/list/create/"
         custom_params = {
-          "name" => name,
-          "source" => source,
-          "opt_in_type" => opt_in_type
+            "name" => name,
+            "source" => source,
+            "opt_in_type" => opt_in_type
         }
+
+        base_params = base_params(endpoint, custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
         result = http.post(uri.path, base_params.merge(custom_params).to_query)
@@ -74,13 +76,13 @@ module Email
       #   Hash, response data from server
       #
       def add_contact(list_id, email, attributes = {}, user_status = {})
-        endpoint = "/api/v1/list/#{list_id}/add-contact/"
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/list/#{list_id}/add-contact/"
         custom_params = {
-          'email' => email,
-          'attributes' => attributes,
-          'user_status' => user_status
+            'email' => email,
+            'attributes' => attributes,
+            'user_status' => user_status
         }
+        base_params = base_params(endpoint, custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
         result = http.post(uri.path, base_params.merge(custom_params).to_query)
@@ -99,13 +101,13 @@ module Email
       #   Hash, response data from server
       #
       def update_contact(list_id, email, attributes = {}, user_status = {})
-        endpoint = "/api/v1/list/#{list_id}/update-contact/"
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/list/#{list_id}/update-contact/"
         custom_params = {
-          "email" => email,
-          'attributes' => attributes,
-          'user_status' => user_status
+            "email" => email,
+            'attributes' => attributes,
+            'user_status' => user_status
         }
+        base_params = base_params(endpoint, custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
         result = http.post(uri.path, base_params.merge(custom_params).to_query)
@@ -122,11 +124,11 @@ module Email
       #   Hash, response data from server
       #
       def remove_contact(list_id, email)
-        endpoint = "/api/v1/list/#{list_id}/remove-contact/"
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/list/#{list_id}/remove-contact/"
         custom_params = {
-          "email" => email
+            "email" => email
         }
+        base_params = base_params(endpoint, custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
         result = http.post(uri.path, base_params.merge(custom_params).to_query)
@@ -143,12 +145,12 @@ module Email
       #   Hash, response data from server
       #
       def change_user_status(email, type)
-        endpoint = '/api/v1/user/change-status/'
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/user/change-status/"
         custom_params = {
-          'email' => email,
-          'type' => type
+            'email' => email,
+            'type' => type
         }
+        base_params = base_params(endpoint,custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
         result = http.post(uri.path, base_params.merge(custom_params).to_query)
@@ -156,11 +158,11 @@ module Email
       end
 
       def fetch_users_info(emails)
-        endpoint = '/api/v1/user/info/'
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/user/info/"
         custom_params = {
-          'emails' => emails.join(',')
+            'emails' => emails.join(',')
         }
+        base_params = base_params(endpoint, custom_params)
         raw_url = get_api_url(endpoint) + "?#{base_params.merge(custom_params).to_query}"
         result = URI.parse(raw_url).read
         JSON.parse(result)
@@ -177,30 +179,31 @@ module Email
       #   Hash, response data from server
       #
       def send_transactional_email(email, template, email_vars)
-        endpoint = "/api/v1/send/"
-        base_params = base_params(endpoint)
-        params = {
-          "email" => email,
-          "template" => template,
-          "email_vars" => email_vars.to_json
+        endpoint = "/api/#{version}/send/"
+        custom_params = {
+            "email" => email,
+            "template" => template,
+            "email_vars" => email_vars.to_json
         }
+
+        base_params = base_params(endpoint, custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
-        result = http.post(uri.path, base_params.merge(params).to_query)
+        result = http.post(uri.path, base_params.merge(custom_params).to_query)
         JSON.parse(result.body)
       end
 
       def get_send_info(send_id)
-        endpoint = "/api/v1/get-send/"
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/get-send/"
         custom_params = {"send_id" => send_id}
+        base_params = base_params(endpoint, custom_params)
         raw_url = get_api_url(endpoint) + "?#{base_params.merge(custom_params).to_query}"
         result = URI.parse(raw_url).read
         JSON.parse(result)
       end
 
       def fetch_custom_attributes
-        endpoint = "/api/v1/custom-attributes/"
+        endpoint = "/api/#{version}/custom-attributes/"
         base_params = base_params(endpoint)
         raw_url = get_api_url(endpoint) +"?#{base_params.to_query}"
         result = URI.parse(raw_url).read
@@ -208,13 +211,13 @@ module Email
       end
 
       def create_custom_attribute(name, type, options={})
-        endpoint = "/api/v1/custom-attribute/create/"
-        base_params = base_params(endpoint)
+        endpoint = "/api/#{version}/custom-attribute/create/"
         custom_params = {
-          "name" => name,
-          "type" => type,
-          "fallback" => options[:fallback]
+            "name" => name,
+            "type" => type,
+            "fallback" => options[:fallback]
         }
+        base_params = base_params(endpoint, custom_params)
         uri = post_api_uri(endpoint)
         http = setup_request(uri)
         result = http.post(uri.path, base_params.merge(custom_params).to_query)
@@ -234,9 +237,10 @@ module Email
         http
       end
 
-      def base_params(endpoint)
+      def base_params(endpoint, custom_params={})
         request_time = DateTime.now.to_s
-        str = endpoint + '::' + request_time
+        query_param = custom_params.merge("request-time" => request_time).to_query.gsub(/^&/, '')
+        str = "#{endpoint}?#{query_param}"
         signature = generate_signature(api_secret, str)
         {"request-time" => request_time, "signature" => signature, "api-key" => api_key}
       end

@@ -75,41 +75,29 @@ module UserManagement
           {}
       ) if @user_kyc_detail.blank? || @user_kyc_detail.kyc_denied?
 
-      r = get_ethereum_address
-      return r unless r.success?
-
-      return error_with_data(
+      error_with_data(
           'um_ceb_2',
           'The ethereum address you entered is not registered',
           'The ethereum address you entered is not registered',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if r.data[:plaintext] != @user_ethereum_address
+      ) unless is_valid_ethereum_address?
 
       success
     end
 
-    # get decrypted ethereum address
+    # validate ethereum address
     #
     # * Author: Aman
     # * Date: 29/10/2017
     # * Reviewed By: Sunil
     #
-    # sets @kyc_salt_d, @use_extended_detail_id
+    # returns[Boolean]
     #
-    def get_ethereum_address
-      # TODO: Critical, use md5 way to get ethereum address. Create index on md5 ethereum_address
-      user_extended_detail_obj = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
-      kyc_salt_e = user_extended_detail_obj.kyc_salt
-
-      r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
-      return err_response('um_ceb_3') unless r.success?
-      kyc_salt_d = r.data[:plaintext]
-
-      r = LocalCipher.new(kyc_salt_d).decrypt(user_extended_detail_obj.ethereum_address)
-      return err_response('um_ceb_4') unless r.success?
-
-      r
+    def is_valid_ethereum_address?
+      md5_ethereurm_address = Digest::MD5.hexdigest(user_ethereum_address.to_s.downcase.strip)
+      user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: md5_ethereurm_address).pluck(:user_extended_detail_id)
+      user_extended_detail_ids.include?(@user_kyc_detail.user_extended_detail_id)
     end
 
     # Final API response
@@ -136,24 +124,6 @@ module UserManagement
     #       token_to_ethereum_ratio: '1 Simple Token = 0.01 ETH'
     #   }
     # end
-
-    # Error message generator
-    #
-    # * Author: Aman
-    # * Date: 29/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    def err_response(err, display_text = 'Something Went wrong')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
-    end
 
   end
 

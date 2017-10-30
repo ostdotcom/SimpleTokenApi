@@ -20,7 +20,7 @@ class ApplicationJob < ActiveJob::Base
       Rails.logger.info "Worker got exception in job #{job.job_id}) msg : #{se.message} trace : #{se.backtrace}"
       ApplicationMailer.notify(
         body: {exception: {message: se.message, backtrace: se.backtrace}},
-        data: job,
+        data: job.arguments,
         subject: "Exception in #{self.class}"
       ).deliver
       raise se

@@ -4,7 +4,7 @@ module GlobalConstant
   class Cache
 
     def self.memcached_instances
-      @memcached_instances = Base.memcache_config['instances']
+      @memcached_instances = Base.memcache_config['instances'].to_s.split(',').map(&:strip)
     end
 
     def self.default_ttl

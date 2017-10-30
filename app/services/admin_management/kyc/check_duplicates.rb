@@ -135,11 +135,14 @@ module AdminManagement
 
         filtered_non_duplicate_user_ids = @duplicate_user_ids - dup_user_ids
 
-        UserKycDetail.where(user_id: filtered_non_duplicate_user_ids).
-            update_all(
-                kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status,
-                updated_at: current_time
-            ) if filtered_non_duplicate_user_ids.present?
+        if filtered_non_duplicate_user_ids.present?
+          UserKycDetail.where(user_id: filtered_non_duplicate_user_ids).
+              update_all(
+                  kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status,
+                  updated_at: current_time
+              )
+          UserKycDetail.bulk_flush(filtered_non_duplicate_user_ids)
+        end
       end
 
       # Check for new duplicates
@@ -152,7 +155,7 @@ module AdminManagement
       #
       def check_for_new_duplicates
 
-         new_duplicate_user_ids = []
+        new_duplicate_user_ids = []
 
         # By Nationality with passport
         Md5UserExtendedDetail.where(nationality: @md5_user_extended_details.nationality, passport_number: @md5_user_extended_details.passport_number).all.each do |md5_obj|
@@ -205,7 +208,7 @@ module AdminManagement
 
           md5_objs.each do |md5_obj|
             dup_user_kyc_obj = @dup_user_kyc_detail_objects[md5_obj.user_id]
-            next if  dup_user_kyc_obj.blank?
+            next if dup_user_kyc_obj.blank?
 
             if dup_user_kyc_obj.user_extended_detail_id == md5_obj.user_extended_detail_id
               @user_kyc_active_duplicate_log_sql_values << add_row_in_db_format(duplicate_type, md5_obj, GlobalConstant::UserKycDuplicationLog.active_status)
@@ -257,6 +260,7 @@ module AdminManagement
                   kyc_duplicate_status: GlobalConstant::UserKycDetail.is_kyc_duplicate_status,
                   updated_at: current_time
               )
+          UserKycDetail.bulk_flush(@new_duplicate_user_ids)
         else
           kyc_duplicate_status = @user_kyc_inactive_duplicate_log_sql_values.present? ? GlobalConstant::UserKycDetail.was_kyc_duplicate_status : GlobalConstant::UserKycDetail.never_kyc_duplicate_status
           UserKycDetail.where(id: @user_kyc_details.id, user_extended_detail_id: @user_kyc_details.user_extended_detail_id).
@@ -264,6 +268,7 @@ module AdminManagement
                   kyc_duplicate_status: kyc_duplicate_status,
                   updated_at: current_time
               )
+          UserKycDetail.bulk_flush([@user_kyc_details.user_id])
         end
       end
 
@@ -285,11 +290,14 @@ module AdminManagement
 
         duplicate_email_user_ids_with_kyc_done << @user_id if duplicate_email_user_ids_with_kyc_done.present?
 
-        UserKycDetail.where(user_id: duplicate_email_user_ids_with_kyc_done, email_duplicate_status: GlobalConstant::UserKycDetail.no_email_duplicate_status).
-            update_all(
-                email_duplicate_status: GlobalConstant::UserKycDetail.yes_email_duplicate_status,
-                updated_at: current_time
-            ) if duplicate_email_user_ids_with_kyc_done.present?
+        if duplicate_email_user_ids_with_kyc_done.present?
+          UserKycDetail.where(user_id: duplicate_email_user_ids_with_kyc_done, email_duplicate_status: GlobalConstant::UserKycDetail.no_email_duplicate_status).
+              update_all(
+                  email_duplicate_status: GlobalConstant::UserKycDetail.yes_email_duplicate_status,
+                  updated_at: current_time
+              )
+          UserKycDetail.bulk_flush(duplicate_email_user_ids_with_kyc_done)
+        end
 
       end
 

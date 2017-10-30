@@ -12,7 +12,6 @@ gem 'oj', '3.3.8'
 gem 'rake', '12.1.0'
 gem 'maxminddb','0.1.14'
 
-#gem 'memcached', '1.8.0'
 gem 'dalli', '2.7.6'
 
 gem 'sanitize', '4.5.0'

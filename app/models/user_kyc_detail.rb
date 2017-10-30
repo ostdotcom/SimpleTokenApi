@@ -49,6 +49,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   scope :kyc_admin_and_cynopsis_approved, -> { where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses) }
   scope :whitelist_status_unprocessed, -> { where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status) }
 
+  after_commit :memcache_flush
+
   def kyc_approved?
     GlobalConstant::UserKycDetail.cynopsis_approved_statuses.include?(cynopsis_status) && GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
@@ -85,6 +87,60 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   def self.get_cynopsis_user_id(user_id)
     "ts_#{Rails.env[0]}_#{user_id}"
+  end
+
+  # Get Key Object
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('user.user_kyc_details')
+  end
+
+  # Get/Set Memcache data for UserKycDetail
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
+  # @param [Integer] user_id - user id
+  #
+  # @return [AR] UserKycDetail object
+  #
+  def self.get_from_memcache(user_id)
+    memcache_key_object = UserKycDetail.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {user_id: user_id}, memcache_key_object.expiry) do
+      UserKycDetail.where(user_id: user_id).first
+    end
+  end
+
+  # Bulk Flush Memcache
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
+  def self.bulk_flush(user_ids)
+    user_ids.each do |uid|
+      user_details_memcache_key = UserKycDetail.get_memcache_key_object.key_template % {user_id: uid}
+      Memcache.delete(user_details_memcache_key)
+    end
+  end
+
+  private
+
+  # Flush Memcache
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
+  def memcache_flush
+    bulk_flush([self.user_id])
   end
 
 end

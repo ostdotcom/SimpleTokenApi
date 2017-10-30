@@ -108,13 +108,13 @@ module WhitelistManagement
     #
     def create_user_contract_event
       ContractEvent.create!({
-                              block_hash: @block_hash,
-                              transaction_hash: @transaction_hash,
-                              kind: GlobalConstant::ContractEvent.whitelist_kind,
-                              data: {
-                                address: @ethereum_address,
-                                phase: @phase
-                              }
+                                block_hash: @block_hash,
+                                transaction_hash: @transaction_hash,
+                                kind: GlobalConstant::ContractEvent.whitelist_kind,
+                                data: {
+                                    address: @ethereum_address,
+                                    phase: @phase
+                                }
                             })
     end
 
@@ -135,11 +135,11 @@ module WhitelistManagement
         notify_devs({transaction_hash: @transaction_hash}, "IMMEDIATE ATTENTION NEEDED. transaction_hash not found")
 
         return error_with_data(
-          'wm_pare_2',
-          'transaction_hash not found',
-          'transaction_hash not found',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_2',
+            'transaction_hash not found',
+            'transaction_hash not found',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -157,52 +157,52 @@ module WhitelistManagement
     def validate_kyc_whitelist_log
 
       if (@kyc_whitelist_log.ethereum_address.downcase != @ethereum_address.downcase) ||
-        (@kyc_whitelist_log.phase != @phase)
+          (@kyc_whitelist_log.phase != @phase)
 
         mark_as_attention_required
 
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. ethereum address or phase mismatch"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. ethereum address or phase mismatch"
         )
 
         return error_with_data(
-          'wm_pare_3',
-          'ethereum address or phase mismatch',
-          'ethereum address or phase mismatch',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_3',
+            'ethereum address or phase mismatch',
+            'ethereum address or phase mismatch',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
 
       end
 
       if @kyc_whitelist_log.is_attention_needed == 1
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. already found is_attention_needed = 1"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. already found is_attention_needed = 1"
         )
 
         return error_with_data(
-          'wm_pare_4',
-          'already found is_attention_needed = 1',
-          'already found is_attention_needed = 1',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_4',
+            'already found is_attention_needed = 1',
+            'already found is_attention_needed = 1',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if @kyc_whitelist_log.status != GlobalConstant::KycWhitelistLog.pending_status
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. kyc_whitelist_log status not pending, still record event called."
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. kyc_whitelist_log status not pending, still record event called."
         )
 
         return error_with_data(
-          'wm_pare_5',
-          'kyc_whitelist_log status not pending, still record event called.',
-          'kyc_whitelist_log status not pending, still record event called.',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_5',
+            'kyc_whitelist_log status not pending, still record event called.',
+            'kyc_whitelist_log status not pending, still record event called.',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -219,21 +219,21 @@ module WhitelistManagement
     #
     def get_prospective_user_extended_detail_ids
       prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
-        ethereum_address: Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
+          ethereum_address: Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
       ).pluck(:user_extended_detail_id)
 
       if prospective_user_extended_detail_ids.blank?
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. no user_extended_detail_id found, still record event called."
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. no user_extended_detail_id found, still record event called."
         )
 
         return error_with_data(
-          'wm_pare_6',
-          'kyc_whitelist_log status not pending, still record event called.',
-          'kyc_whitelist_log status not pending, still record event called.',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_6',
+            'kyc_whitelist_log status not pending, still record event called.',
+            'kyc_whitelist_log status not pending, still record event called.',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
       success_with_data(prospective_user_extended_detail_ids: prospective_user_extended_detail_ids)
@@ -254,35 +254,35 @@ module WhitelistManagement
     def fetch_user_kyc_detail(prospective_user_extended_detail_ids)
       user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(
           user_extended_detail_id: prospective_user_extended_detail_ids
-        ).all
+      ).all
 
       if user_kyc_details.blank?
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
         )
 
         return error_with_data(
-          'wm_pare_7',
-          'no approved user_kyc_detail records found for same address.',
-          'no approved user_kyc_detail records found for same address',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_7',
+            'no approved user_kyc_detail records found for same address.',
+            'no approved user_kyc_detail records found for same address',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if user_kyc_details.count > 1
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
         )
 
         return error_with_data(
-          'wm_pare_8',
-          'multiple approved user_kyc_detail records found for same address.',
-          'multiple approved user_kyc_detail records found for same address',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_8',
+            'multiple approved user_kyc_detail records found for same address.',
+            'multiple approved user_kyc_detail records found for same address',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -290,36 +290,36 @@ module WhitelistManagement
 
       if @user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
         )
 
         return error_with_data(
-          'wm_pare_9',
-          'invalid whitelist status',
-          'invalid whitelist status',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_9',
+            'invalid whitelist status',
+            'invalid whitelist status',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] != @phase
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. phase mismatch"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. phase mismatch"
         )
 
         return error_with_data(
-          'wm_pare_10',
-          'phase mismatch',
-          'phase mismatch',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_10',
+            'phase mismatch',
+            'phase mismatch',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       @user_id = @user_kyc_detail.user_id
-      @user = User.where(id: @user_kyc_detail.user_id).first
+      @user = User.get_from_memcache(@user_kyc_detail.user_id)
 
       success
 
@@ -345,7 +345,7 @@ module WhitelistManagement
     def update_user_kyc_detail
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
       if @user_kyc_detail.whitelist_status_changed? &&
-        @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
+          @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
         send_kyc_approved_email
       end
 
@@ -385,9 +385,14 @@ module WhitelistManagement
     # @return [Boolean]
     #
     def is_ethereum_address_valid?
-      obtained_addr_md5 = Digest::MD5.hexdigest(@ethereum_address.to_s.downcase.strip)
+      sha256_params = {
+          string: @ethereum_address.to_s.downcase.strip,
+          salt: GlobalConstant::SecretEncryptor.user_extended_detail_secret_key
+      }
+      obtained_addr_md5 = Sha256.new(sha256_params).perform
       actual_addr_md5 = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first.ethereum_address
-      return obtained_addr_md5 == actual_addr_md5
+
+      obtained_addr_md5 == actual_addr_md5
     end
 
     # Send Email when kyc whitelist status is done

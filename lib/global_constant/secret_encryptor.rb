@@ -13,6 +13,10 @@ module GlobalConstant
         GlobalConstant::Base.secret_encryptor['email_tokens_decriptor_key']
       end
 
+      def user_extended_detail_secret_key
+        GlobalConstant::Base.secret_encryptor['user_extended_detail_secret_key']
+      end
+
     end
 
   end

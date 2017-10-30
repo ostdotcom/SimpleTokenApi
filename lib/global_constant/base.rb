@@ -55,6 +55,10 @@ module GlobalConstant
       @public_ops ||= fetch_config.fetch('public_ops', {}).with_indifferent_access
     end
 
+    def self.environment_name
+      Rails.env
+    end
+
     private
 
     def self.fetch_config

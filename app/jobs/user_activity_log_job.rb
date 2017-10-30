@@ -52,6 +52,7 @@ class UserActivityLogJob < ApplicationJob
 
     if @case_id.to_i > 0 && @admin_id.to_i > 0
       UserKycDetail.where(id: @case_id).update_all(last_acted_by: @admin_id)
+      UserKycDetail.bulk_flush([@user_id])
     end
   end
 

@@ -91,8 +91,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user_data
-      #TODO: Cache this query
-      @user = User.where(id: @user_id).first
+      @user = User.get_from_memcache(@user_id)
       return invalid_url_error('um_doi_2') if @user.blank?
       success
     end

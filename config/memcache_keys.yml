@@ -1,4 +1,7 @@
-hello:
-  world:
-    key_template: 'hello_%{user_id}'
-    expiry_in_hours: 7100
+user:
+  user_details:
+    key_template: 'u_det_%{id}'
+    expiry_in_hours: 3600
+  user_kyc_details:
+    key_template: 'u_kyc_det_%{user_id}'
+    expiry_in_hours: 3600

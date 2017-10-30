@@ -61,7 +61,7 @@ module UserManagement
     # Sets @user, @user_token_sale_state
     #
     def fetch_user
-      @user = User.where(id: @user_id).first
+      @user = User.get_from_memcache(@user_id)
       @user_token_sale_state = @user.get_token_sale_state_page_name
     end
 
@@ -122,7 +122,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user_kyc_detail
-      @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
     end
 
     # Success response data

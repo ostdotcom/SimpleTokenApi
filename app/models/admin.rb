@@ -119,9 +119,11 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
     string_to_sign = "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
     key="#{admin_id}:#{current_ts}:#{last_otp_at}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
-    hkdf = HKDF.new(string_to_sign, :salt => key, :algorithm => 'SHA256')
-    val = hkdf.next_bytes(64)
-    val.each_byte.map { |b| b.to_s(16) }.join
+    sha256_params = {
+        string: string_to_sign,
+        salt: key
+    }
+    Sha256.new(sha256_params).perform
   end
 
 end

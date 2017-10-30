@@ -2,6 +2,12 @@ class MemcacheKey
 
   attr_reader :key_template, :expiry
 
+  # Initialize
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
   def initialize(entity)
     buffer = self.class.config_for_entity(entity)
     @key_template = buffer[:key_template]
@@ -10,10 +16,24 @@ class MemcacheKey
 
   private
 
+  # All Config for entity
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
   def self.config_for_entity(entity)
     config_for_all_keys[entity.to_sym]
   end
 
+  # Set Config for all entities
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By: Kedar
+  #
+  # Sets @memcache_config
+  #
   def self.config_for_all_keys
     @memcache_config ||= begin
       memcache_config = YAML.load_file(GlobalConstant::Cache.keys_config_file)

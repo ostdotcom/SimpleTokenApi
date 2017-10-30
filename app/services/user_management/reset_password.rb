@@ -160,7 +160,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.where(id: @temporary_token_obj.user_id).first
+      @user = User.get_from_memcache(@temporary_token_obj.user_id)
       return unauthorized_access_response('um_rp_9') unless @user.present? &&
           (@user.status == GlobalConstant::User.active_status)
 

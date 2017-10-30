@@ -6,6 +6,8 @@ class User < EstablishSimpleTokenUserDbConnection
            GlobalConstant::User.deactived_status => 3
        }
 
+  after_commit :memcache_flush
+
   # Array of Properties symbols
   #
   # * Author: Aman
@@ -118,9 +120,53 @@ class User < EstablishSimpleTokenUserDbConnection
   def self.get_cookie_token(user_id, password, browser_user_agent, current_ts)
     string_to_sign = "#{user_id}:#{password}:#{browser_user_agent}:#{current_ts}:#{GlobalConstant::Cookie.double_auth_prefix}"
     key="#{user_id}:#{current_ts}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
-    hkdf = HKDF.new(string_to_sign, :salt => key, :algorithm => 'SHA256')
-    val = hkdf.next_bytes(64)
-    val.each_byte.map { |b| b.to_s(16) }.join
+    sha256_params = {
+        string: string_to_sign,
+        salt: key
+    }
+    Sha256.new(sha256_params).perform
+  end
+
+  # Get Key Object
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('user.user_details')
+  end
+
+  # Get/Set Memcache data for User
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By:
+  #
+  # @param [Integer] user_id - user id
+  #
+  # @return [AR] User object
+  #
+  def self.get_from_memcache(user_id)
+    memcache_key_object = User.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {id: user_id}, memcache_key_object.expiry) do
+      User.where(id: user_id).first
+    end
+  end
+
+  private
+
+  # Flush Memcache
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By:
+  #
+  def memcache_flush
+    user_details_memcache_key = User.get_memcache_key_object.key_template % {id: self.id}
+    Memcache.delete(user_details_memcache_key)
   end
 
 end

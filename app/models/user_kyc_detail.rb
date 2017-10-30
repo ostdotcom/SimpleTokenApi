@@ -140,7 +140,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   # * Reviewed By: Kedar
   #
   def memcache_flush
-    bulk_flush([self.user_id])
+    UserKycDetail.bulk_flush([self.user_id])
   end
 
 end

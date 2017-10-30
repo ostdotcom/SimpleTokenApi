@@ -95,7 +95,7 @@ module UserManagement
     # returns[Boolean]
     #
     def is_valid_ethereum_address?
-      md5_ethereurm_address = Digest::MD5.hexdigest(user_ethereum_address.to_s.downcase.strip)
+      md5_ethereurm_address = Digest::MD5.hexdigest(@user_ethereum_address.to_s.downcase.strip)
       user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: md5_ethereurm_address).pluck(:user_extended_detail_id)
       user_extended_detail_ids.include?(@user_kyc_detail.user_extended_detail_id)
     end

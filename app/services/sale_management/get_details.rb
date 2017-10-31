@@ -41,7 +41,7 @@ module SaleManagement
     # Sets[@sale_ended_before_time]
     #
     def fetch_details
-      @sale_ended_before_time = SaleGlobalVariable.sale_ended.first.to_i
+      @sale_ended_before_time = SaleGlobalVariable.sale_ended.first.variable_data.to_i
     end
 
     # Set memcache

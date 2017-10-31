@@ -5,3 +5,8 @@ user:
   user_kyc_details:
     key_template: 'u_kyc_det_%{user_id}'
     expiry_in_hours: 3600
+
+token_sale:
+  sale_details:
+    key_template: 'sale_details'
+    expiry_in_hours: 3600

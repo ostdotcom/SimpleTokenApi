@@ -57,8 +57,10 @@ module SimpleTokenApi
 
     memcache_instance = GlobalConstant::Cache.memcached_instances
 
+    # NOTE: We are handling environment specific namespace in MemcacheKey file
+    # so let it be st_Rails.env
     memcache_options = {
-      namespace: "sta_#{Rails.env}",
+      namespace: "st_#{Rails.env}",
       expires_in: 1.day,
       compress: false,
       down_retry_delay: 5,

@@ -39,8 +39,9 @@ class MemcacheKey
       memcache_config = YAML.load_file(GlobalConstant::Cache.keys_config_file)
       memcache_config.inject({}) do |formatted_memcache_config, (group, group_config)|
         group_config.each do |entity, config|
+          prefix = config['used_in_shared_env'] ? 'shared' : 'sta'
           formatted_memcache_config["#{group}.#{entity}".to_sym] = {
-              key_template: "#{GlobalConstant::Base.environment_name}_#{config['key_template']}",
+              key_template: "#{prefix}_#{GlobalConstant::Base.environment_name}_#{config['key_template']}",
               expiry: config['expiry_in_hours'].to_f.hours.to_i
           }
         end

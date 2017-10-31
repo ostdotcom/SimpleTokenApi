@@ -1,12 +1,13 @@
 user:
   user_details:
     key_template: 'u_det_%{id}'
-    expiry_in_hours: 3600
+    expiry_in_hours: 24
   user_kyc_details:
     key_template: 'u_kyc_det_%{user_id}'
-    expiry_in_hours: 3600
+    expiry_in_hours: 24
 
 token_sale:
   sale_details:
     key_template: 'token_sale_start_end_details'
-    expiry_in_hours: 3600
+    expiry_in_hours: 24
+    used_in_shared_env: true

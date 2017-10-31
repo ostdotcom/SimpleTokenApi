@@ -22,10 +22,12 @@ module OpsApi
       # * Date: 26/10/2017
       # * Reviewed By: Sunil
       #
+      # @param [String] transaction_hash (mandatory)
+      #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def perform(token)
-        send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/transaction/get-info', {token: token})
+      def perform(params)
+        send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/transaction/get-info', params)
       end
 
     end

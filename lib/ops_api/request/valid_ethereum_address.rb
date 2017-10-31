@@ -22,10 +22,12 @@ module OpsApi
       # * Date: 31/10/2017
       # * Reviewed By: Sunil
       #
+      # @param [String] address (mandatory)
+      #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def perform(address)
-        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type, 'get', '/address/check', {address: address})
+      def perform(params)
+        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type, 'get', '/address/check', params)
       end
 
     end

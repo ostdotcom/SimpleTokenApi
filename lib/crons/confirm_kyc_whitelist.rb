@@ -83,13 +83,9 @@ module Crons
     # @return [Result::Base]
     #
     def check_block_mine_status
-      data = {transaction_hash: @kyc_whitelist_log.transaction_hash}
-      payload = {data: data}
-      token = JWT.encode(payload, GlobalConstant::PublicOpsApi.secret_key, 'HS256')
-
       # check if the transaction is mined in a block
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
-      @block_mine_status = OpsApi::Request::GetWhitelistConfirmation.new.perform(token)
+      @block_mine_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @kyc_whitelist_log.transaction_hash})
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@block_mine_status.inspect}")
 

@@ -22,11 +22,13 @@ module OpsApi
       # * Date: 25/10/2017
       # * Reviewed By: Sunil
       #
+      # @param [String] address (mandatory)
+      # @param [Integer] phase (mandatory)
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def whitelist(token)
-        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type, 'post', '/token-sale/whitelist', {token: token})
+      def whitelist(params)
+        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type, 'post', '/token-sale/whitelist', params)
       end
 
     end

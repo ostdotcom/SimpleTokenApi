@@ -114,7 +114,7 @@ module Crons
     #
     def make_whitelist_api_call
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
-      r = OpsApi::Request::Whitelist.new.whitelist(get_token({address: @api_data[:address], phase: @api_data[:phase]}))
+      r = OpsApi::Request::Whitelist.new.whitelist({address: @api_data[:address], phase: @api_data[:phase]})
 
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
@@ -197,17 +197,6 @@ module Crons
                                            error_data: error_data
                                          }
                                        })
-    end
-
-    # Create encrypted Token for whitelisting parameter
-    #
-    # * Author: Aman
-    # * Date: 25/10/2017
-    # * Reviewed By: Sunil
-    #
-    def get_token(data)
-      payload = {data: data}
-      JWT.encode(payload, GlobalConstant::PrivateOpsApi.secret_key, 'HS256')
     end
 
     # notify devs if required

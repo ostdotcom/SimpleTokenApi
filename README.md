@@ -49,7 +49,7 @@ export STA_COOKIE_SECRET_KEY='byfd#ss@#4nflkn%^!~wkk^^&71o{23dpi~@jwe$pi'
 export STA_EMAIL_TOKENS_DECRIPTOR_KEY='3d3w6fs0983ab6b1e37d1c1fs64hm8g9'
 export STA_USER_EXTENDED_DETAIL_SECRET_KEY='sha256isstrongerandlessvunerablethanmd5'
 
-export STA_PRIVATE_OPS_API_BASE_URL='http://172.16.0.181:3000'
+export STA_PRIVATE_OPS_API_BASE_URL='http://172.16.0.179:3000'
 export STA_PRIVATE_OPS_API_SECRET_KEY='1somethingsarebetterkeptinenvironemntvariables'
 export STA_PUBLIC_OPS_API_BASE_URL='http://172.16.0.179:3001'
 export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvariables'

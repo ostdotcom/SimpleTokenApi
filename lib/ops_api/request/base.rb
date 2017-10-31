@@ -40,11 +40,13 @@ module OpsApi
           ssl_context = OpenSSL::SSL::SSLContext.new
           ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
+          parameterized_token = {token: get_jwt_token(ops_api_type, params)}
+
           case request_type
             when 'get'
-              response = HTTP.get(request_path, params: params, ssl_context: ssl_context)
+              response = HTTP.get(request_path, params: parameterized_token, ssl_context: ssl_context)
             when 'post'
-              response = HTTP.post(request_path, json: params, ssl_context: ssl_context)
+              response = HTTP.post(request_path, json: parameterized_token, ssl_context: ssl_context)
             else
               return error_with_data('poa_r_b_1',
                                      "Request type not implemented: #{request_type}",
@@ -81,6 +83,26 @@ module OpsApi
                                  GlobalConstant::ErrorAction.default,
                                  {})
         end
+      end
+
+      # Create encrypted Token for whitelisting parameter
+      #
+      # * Author: Abhay
+      # * Date: 31/10/2017
+      # * Reviewed By: Kedar
+      #
+      # @params [String] private ops/ public ops
+      # @params [Hash] data
+      #
+      # @return [String] Encoded token
+      #
+      def get_jwt_token(ops_api_type, data)
+        payload = {data: data}
+        secret_key = (ops_api_type == GlobalConstant::PrivateOpsApi.private_ops_api_type) ?
+            GlobalConstant::PrivateOpsApi.secret_key :
+            GlobalConstant::PublicOpsApi.secret_key
+
+        JWT.encode(payload, secret_key, 'HS256')
       end
 
     end

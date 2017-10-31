@@ -8,11 +8,11 @@ module GlobalConstant
       ########## variable kinds ###########
 
       def sale_ended_variable_kind
-        'sale_ended'
+        'sale_ended_variable_kind'
       end
 
       def last_block_processed_variable_kind
-        'last_block_processed'
+        'last_block_processed_variable_kind'
       end
 
       ########## variable kinds ###########

@@ -213,3 +213,9 @@
 'SaleManagement::GetDetails':
   :mandatory:
   :optional:
+
+
+'UserManagement::CheckEthereumAddress':
+  :mandatory:
+    - :ethereum_address
+  :optional:

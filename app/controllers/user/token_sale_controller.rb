@@ -80,4 +80,15 @@ class User::TokenSaleController < User::BaseController
     render_api_response(r)
   end
 
+  # Check if ethereum address is valid
+  #
+  # * Author: Abhay
+  # * Date: 31/10/2017
+  # * Reviewed By: Sunil
+  #
+  def check_ethereum_address
+    service_response = UserManagement::CheckEthereumAddress.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

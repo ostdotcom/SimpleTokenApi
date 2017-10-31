@@ -218,9 +218,9 @@ module UserManagement
     end
 
     def validate_ethereum_address
-      @ethereum_address = @ethereum_address.to_s.strip
-      @ethereum_address = '0x' + @ethereum_address if (!@ethereum_address.start_with?('0x') && !@ethereum_address.start_with?('0X'))
-      unless Util::CommonValidator.is_euthereum_address?(@ethereum_address)
+      @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
+
+      unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
         @error_data[:ethereum_address] = 'Invalid ethereum address.'
       end
     end

@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'upload-params' => :get_upload_params, via: :GET
     match 'check-ethereum-balance' => :check_ethereum_balance, via: :GET
+    match 'check-ethereum-address' => :check_ethereum_address, via: :GET
   end
 
   scope 'api/user', controller: 'user/profile' do

@@ -40,8 +40,8 @@ module Util
     #
     def self.is_boolean?(object)
       [
-        true,
-        false
+          true,
+          false
       ].include?(object)
     end
 
@@ -112,7 +112,7 @@ module Util
     def self.is_email_send_allowed?(email)
       return false unless is_valid_email?(email)
       Rails.env.production? || [
-        ''
+          ''
       ].include?(email)
     end
 
@@ -124,8 +124,24 @@ module Util
     #
     # @return [Boolean] returns a boolean
     #
-    def self.is_euthereum_address?(addr)
+    def self.is_ethereum_address?(addr)
       !(/^(0x|0X)?[a-fA-F0-9]{40}$/.match(addr.to_s)).nil?
+    end
+
+    # Sanitize Ethereum Address
+    #
+    # * Author: Abhay
+    # * Date: 31/10/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [String] returns sanitized ethereum address
+    #
+    def self.sanitize_ethereum_address(address)
+      ethereum_address = address.to_s.strip
+      if (!ethereum_address.start_with?('0x') && !ethereum_address.start_with?('0X'))
+        ethereum_address = '0x' + ethereum_address
+      end
+      ethereum_address
     end
 
   end

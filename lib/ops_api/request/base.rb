@@ -59,11 +59,13 @@ module OpsApi
               if parsed_response['success']
                 return success_with_data(HashWithIndifferentAccess.new(parsed_response['data']))
               else
+                # web3_js_error = true is required because when API is down or any exception is raised or response is not 200
+                # front end doesn't need to see invalid ethereum address
                 return error_with_data(parsed_response['err']['code']+':st(poa_r_b_2)',
                                        "Error in API call: #{response.status} - #{parsed_response['err']['msg']}",
                                        'Something Went Wrong.',
                                        GlobalConstant::ErrorAction.default,
-                                       {})
+                                       {web3_js_error: true})
               end
             else
               return error_with_data('poa_r_b_3',

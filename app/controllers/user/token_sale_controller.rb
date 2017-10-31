@@ -6,7 +6,7 @@ class User::TokenSaleController < User::BaseController
   #
   # * Author: Aman
   # * Date: 31/10/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def sale_details
     service_response = SaleManagement::GetDetails.new(params).perform

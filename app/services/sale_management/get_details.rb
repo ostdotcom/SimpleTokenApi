@@ -6,7 +6,7 @@ module SaleManagement
     #
     # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [SaleManagement::GetDetails]
     #
@@ -20,7 +20,7 @@ module SaleManagement
     #
     # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -36,7 +36,7 @@ module SaleManagement
     #
     # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets[@sale_ended_before_time]
     #
@@ -48,7 +48,7 @@ module SaleManagement
     #
     # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets memcache data
     #
@@ -61,7 +61,7 @@ module SaleManagement
     #
     # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # Sets[@sale_ended_before_time]
     #

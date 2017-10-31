@@ -30,7 +30,7 @@ module UserManagement
     #
     def perform
 
-      validate_and_sanitize
+      r = validate_and_sanitize
       return r unless r.success?
 
       r = make_api_call_and_validate_ethereum_address

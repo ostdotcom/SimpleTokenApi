@@ -95,6 +95,7 @@ module UserManagement
     # returns[Boolean]
     #
     def is_valid_ethereum_address?
+      @user_ethereum_address = '0x' + @user_ethereum_address if (!@user_ethereum_address.start_with?('0x') && !@user_ethereum_address.start_with?('0X'))
       hashed_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@user_ethereum_address)
       user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_ethereurm_address).pluck(:user_extended_detail_id)
       user_extended_detail_ids.include?(@user_kyc_detail.user_extended_detail_id)

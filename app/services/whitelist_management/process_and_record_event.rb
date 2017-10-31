@@ -383,7 +383,7 @@ module WhitelistManagement
     # * Reviewed By: Sunil
     #
     def send_kyc_approved_email
-      return if GlobalConstant::TokenSale.is_general_sale_ended?
+      return if GlobalConstant::TokenSale.is_sale_ended?
 
       Email::HookCreator::SendTransactionalMail.new(
           email: @user.email,

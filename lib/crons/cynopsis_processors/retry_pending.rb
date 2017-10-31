@@ -35,7 +35,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-        return if GlobalConstant::TokenSale.is_general_sale_ended?
+        return if GlobalConstant::TokenSale.is_sale_ended?
 
         UserKycDetail.where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
 

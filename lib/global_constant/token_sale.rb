@@ -37,6 +37,14 @@ module GlobalConstant
         Time.now >= GlobalConstant::TokenSale.general_access_end_date
       end
 
+      def is_sale_ended_before_time?
+        SaleGlobalVariable.sale_ended_before_time_flag[:sale_ended_before_time].to_i == 1
+      end
+
+      def is_sale_ended?
+        is_general_sale_ended? || is_sale_ended_before_time?
+      end
+
       def early_access_token_sale_phase
         'early_access'
       end

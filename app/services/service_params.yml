@@ -209,3 +209,7 @@
   :mandatory:
     - :user_id
   :optional:
+
+'SaleManagement::GetDetails':
+  :mandatory:
+  :optional:

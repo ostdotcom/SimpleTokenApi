@@ -75,7 +75,7 @@ module UserManagement
           {}
       ) if @user_kyc_detail.blank? || @user_kyc_detail.kyc_denied?
 
-      error_with_data(
+      return error_with_data(
           'um_ceb_2',
           'The ethereum address you entered is not registered',
           'The ethereum address you entered is not registered',

@@ -125,6 +125,8 @@ module Crons
 
         end
 
+        User.where(id: @denied_user_ids).update_all(bt_name: nil, updated_at: Time.now.to_s(:db))
+        User.bulk_flush(@denied_user_ids)
       end
 
       # Send approved email

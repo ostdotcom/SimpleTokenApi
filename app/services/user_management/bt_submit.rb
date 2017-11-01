@@ -83,11 +83,18 @@ module UserManagement
               validation_errors[:bt_name] = "Branded Token Name is already taken."
             else
               existing_bt_row = User.where(bt_name: @bt_name).first
-              validation_errors[:bt_name] = "Branded Token Name is already taken." if existing_bt_row.present? && existing_bt_row.id != @user_id
+              if existing_bt_row.present? && existing_bt_row.id != @user_id
+                validation_errors[:bt_name] = "Branded Token Name is already taken."
+              else
+                user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+                if user_kyc_detail.present? && user_kyc_detail.kyc_denied?
+                  validation_errors[:bt_name] = "Your KYC is denied. Token Name cannot be reserved"
+                end
+              end
+
             end
           end
         end
-
       end
 
       return error_with_data(

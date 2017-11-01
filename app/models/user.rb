@@ -156,6 +156,19 @@ class User < EstablishSimpleTokenUserDbConnection
     end
   end
 
+  # Bulk Flush Memcache
+  #
+  # * Author: Aman
+  # * Date: 01/11/2017
+  # * Reviewed By:
+  #
+  def self.bulk_flush(user_ids)
+    user_ids.each do |uid|
+      user_memcache_key = User.get_memcache_key_object.key_template % {id: uid}
+      Memcache.delete(user_memcache_key)
+    end
+  end
+
   private
 
   # Flush Memcache

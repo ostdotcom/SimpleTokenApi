@@ -36,6 +36,8 @@ module AdminManagement
 
           update_user_kyc_status
 
+          remove_reserved_branded_token
+
           log_admin_action
 
           send_email
@@ -66,6 +68,19 @@ module AdminManagement
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.denied_admin_status
           @user_kyc_detail.save!
+        end
+
+        # remove branded token reserved for user
+        #
+        # * Author: Aman
+        # * Date: 01/11/2017
+        # * Reviewed By:
+        #
+        def remove_reserved_branded_token
+          return unless @user_kyc_detail.kyc_denied?
+
+          @user.bt_name = nil
+          @user.save! if @user.changed?
         end
 
         # Send email

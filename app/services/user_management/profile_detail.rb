@@ -183,8 +183,24 @@ module UserManagement
               admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
               token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now),
               whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
-              pos_bonus_percentage: nil
+              pos_bonus_percentage: expected_pos_percentage
           }
+    end
+
+    # Pos bonus percentage for user
+    #
+    # * Author: Aman
+    # * Date: 01/11/2017
+    # * Reviewed By:
+    #
+    # @return [Integer] bonus percent approved for user
+    #
+    def expected_pos_percentage
+      return nil if (GlobalConstant::TokenSale.token_sale_phase_for(Time.now) !=
+          GlobalConstant::TokenSale.early_access_token_sale_phase)
+
+      PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
+
     end
 
     # User type for token sale

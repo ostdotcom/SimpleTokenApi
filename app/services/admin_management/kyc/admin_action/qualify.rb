@@ -36,6 +36,9 @@ module AdminManagement
 
           update_user_kyc_status
 
+          # TODO AFTER WHITELISTING - remove this.
+          send_email
+
           log_admin_action
 
           success_with_data(@api_response_data)
@@ -70,14 +73,21 @@ module AdminManagement
         #
         # * Author: Abhay
         # * Date: 30/10/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Bool] true/false
         #
         def is_duplicate_kyc_approved_user?
           u_e_d = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+
           hashed_ethereurm_address = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.ethereum_address)
-          user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_ethereurm_address).pluck(:user_extended_detail_id)
+          hashed_nationality = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.nationality)
+          hashed_passport_number = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.passport_number)
+
+          user_extended_detail_ids = Md5UserExtendedDetail.
+              where('(ethereum_address = ?) or (passport_number = ? && nationality = ?)', hashed_ethereurm_address, hashed_passport_number, hashed_nationality).
+              pluck(:user_extended_detail_id)
+
           user_extended_detail_ids.delete(@user_kyc_detail.user_extended_detail_id)
           return false if user_extended_detail_ids.blank?
           UserKycDetail.where(user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
@@ -92,6 +102,29 @@ module AdminManagement
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
           @user_kyc_detail.save!
+        end
+
+        # Send email
+        #
+        # * Author: Aman
+        # * Date: 31/10/2017
+        # * Reviewed By:
+        #
+        # TODO AFTER WHITELISTING - remove this.
+        #
+        def send_email
+
+          return unless @user_kyc_detail.kyc_approved?
+
+          Email::HookCreator::SendTransactionalMail.new(
+              email: @user.email,
+              template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+              template_vars: {
+                  token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+                  is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
+              }
+          ).perform
+
         end
 
         # user action log table action name

@@ -25,7 +25,10 @@ module Crons
       # Sets @denied_user_ids
       #
       def reset_data
-         @denied_user_ids = []
+        @denied_user_ids = []
+        @approved_user_ids = []
+        @users = {}
+        @user_kyc_details = {}
       end
 
       # public method to update status of pending cynopsis state users
@@ -43,9 +46,11 @@ module Crons
             process_user_kyc_details(user_kyc_detail)
           end
 
-          next if @denied_user_ids.blank?
+          get_users
 
           send_denied_email
+
+          send_approved_email
 
           reset_data
         end
@@ -73,11 +78,30 @@ module Crons
         if user_kyc_detail.changed?
           user_kyc_detail.save!
 
-          if user_kyc_detail.kyc_denied?
+          if user_kyc_detail.kyc_approved?
+            @approved_user_ids << user_kyc_detail.user_id
+          elsif user_kyc_detail.kyc_denied?
             @denied_user_ids << user_kyc_detail.user_id
           end
+          @user_kyc_details[user_kyc_detail.user_id] = user_kyc_detail
 
         end
+
+      end
+
+      # collect all users
+      #
+      # * Author: Aman
+      # * Date: 24/10/2017
+      # * Reviewed By: Sunil
+      #
+      # Sets @users
+      #
+      def get_users
+
+        return if (@denied_user_ids+@approved_user_ids).blank?
+
+        @users = User.where(id: (@denied_user_ids+@approved_user_ids)).select(:email, :id).index_by(&:id)
 
       end
 
@@ -88,12 +112,41 @@ module Crons
       # * Reviewed By: Sunil
       #
       def send_denied_email
-        User.where(id: @denied_user_ids).select(:email, :id).each do |user|
+        return if @denied_user_ids.blank?
 
+        @denied_user_ids.each do |user_id|
+
+          user = @users[user_id]
           Email::HookCreator::SendTransactionalMail.new(
               email: user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
               template_vars: {}
+          ).perform
+
+        end
+
+      end
+
+      # Send approved email
+      #
+      # * Author: Aman
+      # * Date: 24/10/2017
+      # * Reviewed By: Sunil
+      #
+      def send_approved_email
+        # TODO AFTER WHITELISTING - remove this.
+        return if @approved_user_ids.blank?
+
+        @approved_user_ids.each do |user_id|
+
+          user = @users[user_id]
+          Email::HookCreator::SendTransactionalMail.new(
+              email: user.email,
+              template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+              template_vars: {
+                  token_sale_participation_phase: @user_kyc_details[user_id].token_sale_participation_phase,
+                  is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
+              }
           ).perform
 
         end

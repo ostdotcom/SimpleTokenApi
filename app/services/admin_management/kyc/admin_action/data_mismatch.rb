@@ -82,6 +82,10 @@ module AdminManagement
               {}
           ) if @email_temp_vars.blank?
 
+          @extra_data = {
+              error_fields: @email_temp_vars.map{|e_f_k, _| e_f_k.to_s.humanize}
+          }
+
           success
 
         end

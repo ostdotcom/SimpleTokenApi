@@ -24,6 +24,7 @@ module AdminManagement
           @case_id = @params[:case_id]
           @api_response_data = {}
           @user_kyc_detail = nil
+          @extra_data = nil
         end
 
         private
@@ -69,7 +70,8 @@ module AdminManagement
                   case_id: @case_id,
                   admin_id: @admin_id,
                   action: logging_action_type,
-                  action_timestamp: Time.now.to_i
+                  action_timestamp: Time.now.to_i,
+                  extra_data: @extra_data
               }
           )
         end

@@ -33,7 +33,7 @@ class User::LoginController < User::BaseController
       set_cookie(
           GlobalConstant::Cookie.user_cookie_name,
           cookie_value,
-          GlobalConstant::Cookie.double_auth_expiry.from_now
+          GlobalConstant::Cookie.user_expiry.from_now
       )
     end
 
@@ -60,7 +60,7 @@ class User::LoginController < User::BaseController
       set_cookie(
           GlobalConstant::Cookie.user_cookie_name,
           cookie_value,
-          GlobalConstant::Cookie.double_auth_expiry.from_now
+          GlobalConstant::Cookie.user_expiry.from_now
       )
     end
 

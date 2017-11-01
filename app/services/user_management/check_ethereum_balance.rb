@@ -73,10 +73,18 @@ module UserManagement
           'Invalid User',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if @user_kyc_detail.blank? || @user_kyc_detail.kyc_denied?
+      ) if @user_kyc_detail.blank?
 
       return error_with_data(
           'um_ceb_2',
+          'Your KYC verification has failed',
+          'Your KYC verification has failed',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @user_kyc_detail.kyc_denied?
+
+      return error_with_data(
+          'um_ceb_3',
           'The ethereum address you entered is not registered',
           'The ethereum address you entered is not registered',
           GlobalConstant::ErrorAction.default,

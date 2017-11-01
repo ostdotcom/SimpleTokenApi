@@ -139,17 +139,27 @@ module Crons
         # TODO AFTER WHITELISTING - remove this.
         return if @approved_user_ids.blank?
 
+        user_emails = []
+        @approved_user_ids.each do |user_id|
+          user_emails << @users[user_id].email
+        end
+
+        emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(GlobalConstant::PepoCampaigns.kyc_approved_template, user_emails)
+
         @approved_user_ids.each do |user_id|
 
           user = @users[user_id]
-          Email::HookCreator::SendTransactionalMail.new(
-              email: user.email,
-              template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-              template_vars: {
-                  token_sale_participation_phase: @user_kyc_details[user_id].token_sale_participation_phase,
-                  is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
-              }
-          ).perform
+
+          if emails_hook_info.blank? || emails_hook_info[user.email].blank?
+            Email::HookCreator::SendTransactionalMail.new(
+                email: user.email,
+                template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+                template_vars: {
+                    token_sale_participation_phase: @user_kyc_details[user_id].token_sale_participation_phase,
+                    is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
+                }
+            ).perform
+          end
 
         end
 
@@ -157,5 +167,7 @@ module Crons
 
 
     end
+
   end
+
 end

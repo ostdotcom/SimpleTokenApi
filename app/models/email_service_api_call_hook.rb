@@ -1,9 +1,9 @@
 class EmailServiceApiCallHook < EstablishSimpleTokenEmailDbConnection
 
   enum event_type: {
-    GlobalConstant::EmailServiceApiCallHook.add_contact_event_type => 1,
-    GlobalConstant::EmailServiceApiCallHook.update_contact_event_type => 2,
-    GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type => 3
+      GlobalConstant::EmailServiceApiCallHook.add_contact_event_type => 1,
+      GlobalConstant::EmailServiceApiCallHook.update_contact_event_type => 2,
+      GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type => 3
   }
 
   serialize :params, Hash
@@ -34,6 +34,30 @@ class EmailServiceApiCallHook < EstablishSimpleTokenEmailDbConnection
     #
     def retry_limit_for_failed_hooks
       3
+    end
+
+    # Get Processed Emails Sent Details
+    #
+    # * Author: Abhay
+    # * Date: 01/11/2017
+    # * Reviewed By:
+    #
+    # @param [String] template (mandatory) - template name
+    # @param [Array] emails (mandatory) - Email Array
+    #
+    # @return [Hash]
+    #
+    def get_emails_hook_info(template, emails)
+      emails_hook_info = {}
+      return emails_hook_info if template.blank? || emails.blank?
+
+      EmailServiceApiCallHook.where(email: emails, event_type: GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type).
+          all.each do |h|
+        next if h.params[:template_name] != template
+        emails_hook_info[h.email] = true
+      end
+
+      emails_hook_info
     end
 
   end

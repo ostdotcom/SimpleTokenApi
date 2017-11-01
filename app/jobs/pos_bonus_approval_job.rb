@@ -1,4 +1,4 @@
-class PosBonusApproval < ApplicationJob
+class PosBonusApprovalJob < ApplicationJob
 
   queue_as GlobalConstant::Sidekiq.queue_name :default_medium_priority_queue
 
@@ -26,10 +26,11 @@ class PosBonusApproval < ApplicationJob
   # * Date: 27/10/2017
   # * Reviewed By: Sunil
   #
-  # @return [PosBonusApproval]
+  # @return [PosBonusApprovalJob]
   #
   def init_params(params)
-    @file_name = 'emailpos.csv'
+    @add_to_pepo_campaign_needed = params[:add_to_pepo_campaign_needed].to_i.to_b
+    @file_name = params[:pos_file_name]
     @local_file_path = "#{Rails.root}/tmp/#{@file_name}"
 
     @new_rows, @updated_rows, @error_skipped_rows, @kyc_updated_count = 0, 0, 0, 0
@@ -122,7 +123,12 @@ class PosBonusApproval < ApplicationJob
           @updated_rows += 1
           pos_obj.bonus_percentage = bonus_percentage
           pos_obj.save!
-          Email::Services::PepoCampaigns.new.add_contact(GlobalConstant::PepoCampaigns.pos_list_id, email, {pos_approved: bonus_percentage})
+
+          if @add_to_pepo_campaign_needed
+            Email::Services::PepoCampaigns.new.
+              add_contact(GlobalConstant::PepoCampaigns.pos_list_id, email, {pos_approved: bonus_percentage})
+          end
+
         end
 
         updated_emails << email

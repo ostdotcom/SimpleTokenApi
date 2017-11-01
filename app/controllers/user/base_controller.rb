@@ -17,11 +17,11 @@ class User::BaseController < ApiController
     if service_response.success?
       # Update Cookie, if required
       extended_cookie_value = service_response.data[:extended_cookie_value]
-      set_cookie(
-          GlobalConstant::Cookie.user_cookie_name,
-          extended_cookie_value,
-          GlobalConstant::Cookie.user_expiry.from_now
-      ) if extended_cookie_value.present?
+      # set_cookie(
+      #     GlobalConstant::Cookie.user_cookie_name,
+      #     extended_cookie_value,
+      #     GlobalConstant::Cookie.user_expiry.from_now
+      # ) if extended_cookie_value.present?
 
       # Set user id
       params[:user_id] = service_response.data[:user_id]

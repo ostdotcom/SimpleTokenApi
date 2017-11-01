@@ -85,8 +85,8 @@ module UserManagement
 
       return error_with_data(
           'um_ceb_3',
-          'The ethereum address you entered is not registered',
-          'The ethereum address you entered is not registered',
+          'This in not the ETH address you submitted',
+          'This in not the ETH address you submitted',
           GlobalConstant::ErrorAction.default,
           {}
       ) unless is_valid_ethereum_address?

@@ -232,7 +232,8 @@ module AdminManagement
             is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
             last_acted_by: last_acted_by,
-            whitelist_status: @user_kyc_detail.kyc_approved? ? @user_kyc_detail.whitelist_status : ''
+            whitelist_status: @user_kyc_detail.kyc_approved? ? @user_kyc_detail.whitelist_status : '',
+            last_issue_email_sent: @user_kyc_detail.admin_action_type
         }
       end
 

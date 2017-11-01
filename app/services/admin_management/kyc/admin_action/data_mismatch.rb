@@ -18,7 +18,17 @@ module AdminManagement
         # @return [AdminManagement::Kyc::AdminAction::DataMismatch]
         #
         def initialize(params)
+
           super
+
+          @first_name = @params[:first_name]
+          @last_name = @params[:last_name]
+          @birthdate = @params[:birthdate]
+          @passport_number = @params[:passport_number]
+          @nationality = @params[:nationality]
+
+          @email_temp_vars = {}
+
         end
 
         # Deny KYC by admin
@@ -45,6 +55,37 @@ module AdminManagement
 
         private
 
+        # Validate & sanitize
+        #
+        # * Author: Alpesh
+        # * Date: 15/10/2017
+        # * Reviewed By: Sunil
+        #
+        # return [Result::Base]
+        #
+        def validate_and_sanitize
+
+          r = super
+          return r unless r.success?
+
+          @email_temp_vars[:first_name] = @first_name if @first_name.present?
+          @email_temp_vars[:last_name] = @last_name if @last_name.present?
+          @email_temp_vars[:birthdate] = @birthdate if @birthdate.present?
+          @email_temp_vars[:passport_number] = @passport_number if @passport_number.present?
+          @email_temp_vars[:nationality] = @nationality if @nationality.present?
+
+          return error_with_data(
+              'am_k_aa_dm_1',
+              'Please mention the reason of data mismatch.',
+              'Please mention the reason of data mismatch.',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @email_temp_vars.blank?
+
+          success
+
+        end
+
         # Send email
         #
         # * Author: Alpesh
@@ -56,7 +97,7 @@ module AdminManagement
           Email::HookCreator::SendTransactionalMail.new(
               email: @user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_data_mismatch_template,
-              template_vars: {}
+              template_vars: @email_temp_vars
           ).perform
 
         end

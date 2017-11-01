@@ -75,6 +75,12 @@
     - :admin_id
     - :case_id
   :optional:
+    - :first_name
+    - :last_name
+    - :birthdate
+    - :passport_number
+    - :nationality
+
 
 'AdminManagement::Kyc::AdminAction::PassportIssue':
   :mandatory:

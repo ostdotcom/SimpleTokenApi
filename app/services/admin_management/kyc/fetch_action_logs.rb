@@ -111,10 +111,12 @@ module AdminManagement
       def api_response
         @logs_ars.each do |l_ar|
           admin_detail = (@admin_details.present? && l_ar.admin_id.present?) ? @admin_details[l_ar.admin_id] : {}
+          activity_data = GlobalConstant::UserActivityLog.humanized_actions[l_ar.action] || l_ar.action
+          activity_data += " ( #{l_ar.data[:error_fields].join(', ')} ) " if l_ar.data.present? && l_ar.data[:error_fields].present?
           @api_response[:curr_page_data] << {
               date_time: Time.at(l_ar.action_timestamp).strftime("%d/%m/%Y %H:%M"),
               agent: admin_detail['name'].to_s,
-              email_type: GlobalConstant::UserActivityLog.humanized_actions[l_ar.action] || l_ar.action
+              activity: activity_data
           }
         end
 

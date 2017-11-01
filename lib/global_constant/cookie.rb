@@ -22,7 +22,11 @@ module GlobalConstant
       end
 
       def user_expiry
-        1.minute
+        5.minutes
+      end
+
+      def user_rotation
+        2.minutes
       end
 
       def single_auth_expiry

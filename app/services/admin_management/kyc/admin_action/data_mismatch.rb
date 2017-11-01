@@ -14,6 +14,11 @@ module AdminManagement
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] case_id (mandatory)
+        # @params [String] first_name (optional)
+        # @params [String] last_name (optional)
+        # @params [String] birthdate (optional)
+        # @params [String] passport_number (optional)
+        # @params [String] nationality (optional)
         #
         # @return [AdminManagement::Kyc::AdminAction::DataMismatch]
         #

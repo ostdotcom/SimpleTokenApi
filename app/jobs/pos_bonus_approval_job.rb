@@ -29,7 +29,7 @@ class PosBonusApprovalJob < ApplicationJob
   # @return [PosBonusApprovalJob]
   #
   def init_params(params)
-    @add_to_pepo_campaign_needed = params[:add_to_pepo_campaign_needed].to_i.to_b
+    @add_to_pepo_campaign_needed = params[:add_to_pepo_campaign_needed].to_i == 1
     @file_name = params[:pos_file_name]
     @local_file_path = "#{Rails.root}/tmp/#{@file_name}"
 

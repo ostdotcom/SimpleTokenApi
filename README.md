@@ -12,8 +12,12 @@ export STA_KYC_S3_BUCKET_NAME='kyc.stagingsimpletoken.org'
 export STA_EXTERNAL_DATA_S3_BUCKET_NAME='external-data.simpletoken.org'
 export STA_LOGIN_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_LOGIN_KMS_ID="eab8148d-fd9f-451d-9eb9-16c115645635"
+
 export STA_KYC_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_KYC_KMS_ID="5734c3ab-c4ae-4424-a464-2253a4754296"
+
+export STA_ENTITY_ASSOCIATION_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
+export STA_ENTITY_ASSOCIATION_KMS_ID="c9faf079-68b0-4186-8231-eb331fcd365d"
 
 export STA_USER_AWS_ACCESS_KEY="AKIAJUDRALNURKAVS5IQ"
 export STA_USER_AWS_SECRET_KEY="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"

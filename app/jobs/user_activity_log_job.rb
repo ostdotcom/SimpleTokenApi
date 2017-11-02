@@ -12,6 +12,8 @@ class UserActivityLogJob < ApplicationJob
 
     init_params(params)
 
+    set_encrypted_data
+
     create_log
 
   end
@@ -34,6 +36,8 @@ class UserActivityLogJob < ApplicationJob
     # NOTE: Called from two places, one time it's hash with indifferent access and another is normal hash
     # so following line is required and can't be changed. Talk to Sunil, before you touch it.
     @extra_data = params[:extra_data].present? ? params[:extra_data].to_hash : nil
+
+    @e_extra_data = nil
   end
 
   # Create new user_action_log
@@ -49,8 +53,33 @@ class UserActivityLogJob < ApplicationJob
         log_type: log_type,
         action: @action,
         action_timestamp: @action_timestamp,
-        data: @extra_data
+        e_data: @e_extra_data
     )
+  end
+
+  # set encrypted data if present
+  #
+  # * Author: Aman
+  # * Date: 02/11/2017
+  # * Reviewed By:
+  #
+  # Sets @e_extra_data
+  #
+  # Note: In case of an error, the log entry should still be there will nil data
+  #
+  def set_encrypted_extra_data
+    return if @extra_data.blank?
+
+    kms_login_client = Aws::Kms.new('entity_association', 'entity_association')
+    r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
+    return unless r.success?
+
+    d_salt = r.data[:plaintext]
+
+    r = LocalCipher.new(d_salt).encrypt(@extra_data)
+    return unless r.success?
+
+    @e_extra_data = r.data[:ciphertext_blob]
   end
 
   # Get Log type

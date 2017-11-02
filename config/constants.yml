@@ -6,6 +6,9 @@ constants:
     kyc:
       arn: <%= ENV['STA_KYC_KMS_ARN']%>
       id: <%= ENV['STA_KYC_KMS_ID']%>
+    entity_association:
+      arn: <%= ENV['STA_ENTITY_ASSOCIATION_KMS_ARN']%>
+      id: <%= ENV['STA_ENTITY_ASSOCIATION_KMS_ID']%>
 
   cynopsis:
     base_url: <%= ENV['STA_CYNOPSIS_BASE_URL']%>

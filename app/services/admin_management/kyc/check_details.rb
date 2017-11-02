@@ -140,8 +140,9 @@ module AdminManagement
 
         user_registration_data = UserActivityLog.where(user_id: @user.id, action: GlobalConstant::UserActivityLog.register_action).first
         if user_registration_data.present? && user_registration_data.data.present?
-          @user_geoip_data[:country] = user_registration_data.data[:geoip_country]
-          @user_geoip_data[:ip_address] = user_registration_data.data[:ip_address]
+          decrypted_data = user_registration_data.decrypted_extra_data
+          @user_geoip_data[:country] = decrypted_data[:geoip_country]
+          @user_geoip_data[:ip_address] = decrypted_data[:ip_address]
         end
 
         success

@@ -1,7 +1,7 @@
 class GeneralSalts < DbMigrationConnection
 
   def up
-    run_migration_for_db(EstablishSimpleTokenApiDbConnection.config_key) do
+    run_migration_for_db(EstablishSimpleTokenLogDbConnection.config_key) do
       create_table :general_salts do |t|
         t.column :salt_type, :tinyint, null: false, limit: 4
         t.column :salt, :blob, null: false
@@ -14,7 +14,7 @@ class GeneralSalts < DbMigrationConnection
   end
 
   def down
-    run_migration_for_db(EstablishSimpleTokenApiDbConnection.config_key) do
+    run_migration_for_db(EstablishSimpleTokenLogDbConnection.config_key) do
       drop_table :general_salts
     end
   end

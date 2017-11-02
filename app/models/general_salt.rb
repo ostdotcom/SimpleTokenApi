@@ -1,4 +1,4 @@
-class GeneralSalt < EstablishSimpleTokenApiDbConnection
+class GeneralSalt < EstablishSimpleTokenLogDbConnection
 
   enum salt_type: {
               GlobalConstant::GeneralSalt.user_activity_logging_salt_type => 1

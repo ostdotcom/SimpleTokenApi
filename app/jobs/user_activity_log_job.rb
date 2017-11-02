@@ -33,7 +33,7 @@ class UserActivityLogJob < ApplicationJob
     @case_id = params[:case_id]
     # NOTE: Called from two places, one time it's hash with indifferent access and another is normal hash
     # so following line is required and can't be changed. Talk to Sunil, before you touch it.
-    @extra_data = params[:extra_data].present? ? params[:extra_data].to_hash : nil
+    @extra_data = params[:extra_data].present? ? params[:extra_data].deep_symbolize_keys : nil
   end
 
   # Create new user_action_log

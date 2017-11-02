@@ -4,9 +4,9 @@ namespace :onetimer do
   task :generate_estimated_participation_amount_report => :environment do
 
     amount_array = []
-    failed_user_ids = []
+    failed_ued_ids = []
 
-    UserKycDetail.all.find_in_batches(batch_size: 100) do |batched_records|
+    UserKycDetail.select("id, user_extended_detail_id").all.find_in_batches(batch_size: 100) do |batched_records|
 
       ued_ids = []
 
@@ -14,13 +14,13 @@ namespace :onetimer do
         ued_ids << record.user_extended_detail_id
       end
 
-      UserExtendedDetail.where(id: ued_ids).each do |ued|
+      UserExtendedDetail.select("id, kyc_salt, estimated_participation_amount").where(id: ued_ids).each do |ued|
 
         kyc_salt_e = ued.kyc_salt
 
         r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
         unless r.success?
-          failed_user_ids << ued.user_id
+          failed_ued_ids << ued.id
           next
         end
 
@@ -33,9 +33,11 @@ namespace :onetimer do
 
     end
 
-    amount_array.shuffle.each do |amount|
-      puts amount
-    end
+    puts "failed_ued_ids => #{failed_ued_ids.inspect}"
+
+    sleep(2)
+
+    puts amount_array.shuffle
 
   end
 

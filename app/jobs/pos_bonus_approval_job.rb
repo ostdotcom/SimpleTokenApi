@@ -29,7 +29,6 @@ class PosBonusApprovalJob < ApplicationJob
   # @return [PosBonusApprovalJob]
   #
   def init_params(params)
-    @add_to_pepo_campaign_needed = params[:add_to_pepo_campaign_needed].to_i == 1
     @file_name = params[:pos_file_name]
     @local_file_path = "#{Rails.root}/tmp/#{@file_name}"
 
@@ -114,7 +113,9 @@ class PosBonusApprovalJob < ApplicationJob
           # Always create new entry
           @new_rows += 1
           PosBonusEmail.create!(email: email, bonus_percentage: bonus_percentage)
+
           Email::Services::PepoCampaigns.new.add_contact(GlobalConstant::PepoCampaigns.pos_list_id, email, {pos_approved: bonus_percentage})
+
         else
           # Only update if bonus percent in table is 0 (means: rejected POS is now approved by admin)
           # Else don't do anything automatically. Handle other cases manually
@@ -124,10 +125,8 @@ class PosBonusApprovalJob < ApplicationJob
           pos_obj.bonus_percentage = bonus_percentage
           pos_obj.save!
 
-          if @add_to_pepo_campaign_needed
-            Email::Services::PepoCampaigns.new.
-              add_contact(GlobalConstant::PepoCampaigns.pos_list_id, email, {pos_approved: bonus_percentage})
-          end
+          Email::Services::PepoCampaigns.new.
+            add_contact(GlobalConstant::PepoCampaigns.pos_list_id, email, {pos_approved: bonus_percentage})
 
         end
 

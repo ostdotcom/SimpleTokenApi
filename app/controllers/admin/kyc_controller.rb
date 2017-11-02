@@ -32,7 +32,6 @@ class Admin::KycController < Admin::BaseController
     BgJob.enqueue(
       PosBonusApprovalJob,
       {
-        add_to_pepo_campaign_needed: 1,
         pos_file_name: 'mark_pos_with_email.csv'
       }
     )

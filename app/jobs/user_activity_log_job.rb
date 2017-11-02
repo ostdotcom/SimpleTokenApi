@@ -12,7 +12,7 @@ class UserActivityLogJob < ApplicationJob
 
     init_params(params)
 
-    set_encrypted_data
+    set_encrypted_extra_data
 
     create_log
 

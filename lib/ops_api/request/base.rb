@@ -44,9 +44,11 @@ module OpsApi
 
           case request_type
             when 'get'
-              response = HTTP.get(request_path, params: parameterized_token, ssl_context: ssl_context)
+              response = HTTP.timeout(:write => 1, :connect => 1, :read => 1)
+                             .get(request_path, params: parameterized_token, ssl_context: ssl_context)
             when 'post'
-              response = HTTP.post(request_path, json: parameterized_token, ssl_context: ssl_context)
+              response = HTTP.timeout(:write => 1, :connect => 1, :read => 1)
+                             .post(request_path, json: parameterized_token, ssl_context: ssl_context)
             else
               return error_with_data('poa_r_b_1',
                                      "Request type not implemented: #{request_type}",

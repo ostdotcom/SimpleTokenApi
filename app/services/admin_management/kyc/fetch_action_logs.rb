@@ -110,7 +110,7 @@ module AdminManagement
       #
       def api_response
         @logs_ars.each do |l_ar|
-          data_hash = l_ar.e_data.present? ? LocalCipher.new(activity_log_decyption_salt).decrypt(l_ar.e_data) : {}
+          data_hash = l_ar.e_data.present? ? LocalCipher.new(activity_log_decyption_salt).decrypt(l_ar.e_data).data[:plaintext] : {}
 
           admin_detail = (@admin_details.present? && l_ar.admin_id.present?) ? @admin_details[l_ar.admin_id] : {}
           activity_data = GlobalConstant::UserActivityLog.humanized_actions[l_ar.action] || l_ar.action

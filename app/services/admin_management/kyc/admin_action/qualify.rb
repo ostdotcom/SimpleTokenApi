@@ -39,7 +39,7 @@ module AdminManagement
           # TODO AFTER WHITELISTING - remove this.
           send_email
 
-          log_admin_action
+          #Dont log admin action on approved by admin
 
           success_with_data(@api_response_data)
         end
@@ -101,7 +101,9 @@ module AdminManagement
         #
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
-          @user_kyc_detail.save!
+          @user_kyc_detail.last_acted_by = @admin_id
+          # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
+          @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
         end
 
         # Send email
@@ -129,16 +131,6 @@ module AdminManagement
             ).perform
           end
 
-        end
-
-        # user action log table action name
-        #
-        # * Author: Aman
-        # * Date: 21/10/2017
-        # * Reviewed By: Sunil
-        #
-        def logging_action_type
-          GlobalConstant::UserActivityLog.kyc_qualified_action
         end
 
       end

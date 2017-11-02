@@ -31,7 +31,9 @@ class UserActivityLogJob < ApplicationJob
 
     @admin_id = params[:admin_id]
     @case_id = params[:case_id]
-    @extra_data = params[:extra_data]
+    # NOTE: Called from two places, one time it's hash with indifferent access and another is normal hash
+    # so following line is required and can't be changed. Talk to Sunil, before you touch it.
+    @extra_data = params[:extra_data].present? ? params[:extra_data].to_hash : nil
   end
 
   # Create new user_action_log
@@ -49,11 +51,6 @@ class UserActivityLogJob < ApplicationJob
         action_timestamp: @action_timestamp,
         data: @extra_data
     )
-
-    if @case_id.to_i > 0 && @admin_id.to_i > 0
-      UserKycDetail.where(id: @case_id).update_all(last_acted_by: @admin_id)
-      UserKycDetail.bulk_flush([@user_id])
-    end
   end
 
   # Get Log type

@@ -76,7 +76,7 @@ module Crons
         user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
 
         if user_kyc_detail.changed?
-          user_kyc_detail.save!
+          user_kyc_detail.save!(touch: false)
 
           if user_kyc_detail.kyc_approved?
             @approved_user_ids << user_kyc_detail.user_id

@@ -29,7 +29,6 @@ constants:
       version: 'v2'
     list_ids:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
-      pos_list: <%= ENV['STA_CAMPAIGN_POS_LIST']%>
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>

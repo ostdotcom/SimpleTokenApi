@@ -29,10 +29,6 @@ module GlobalConstant
         config[:list_ids][:master_list]
       end
 
-      def pos_list_id
-        config[:list_ids][:pos_list]
-      end
-
       ########### User Custom Attributes #########
 
       def token_sale_phase_attribute

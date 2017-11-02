@@ -83,7 +83,13 @@ class User < EstablishSimpleTokenUserDbConnection
   # @return [String] MD5 Encrypted password
   #
   def self.get_encrypted_password(password, salt)
-    Digest::MD5.hexdigest("#{password}::#{salt}")
+    begin
+      Digest::MD5.hexdigest("#{password}::#{salt}")
+    rescue Encoding::CompatibilityError => e
+      p = password.to_s.force_encoding("UTF-8")
+      s = salt.to_s.force_encoding("UTF-8")
+      Digest::MD5.hexdigest("#{p}::#{s}")
+    end
   end
 
   # Get cookie value

@@ -33,7 +33,7 @@ namespace :onetimer do
 
     end
 
-    puts amount_array.inspect
+    puts amount_array.shuffle.inspect
 
   end
 

@@ -10,12 +10,12 @@ namespace :onetimer do
   #
   # * Author: Aman
   # * Date: 02/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # Sets @d_salt
   #
   def get_salt_for_user_activity_logging
-    kms_login_client = Aws::Kms.new('entity_association', 'entity_association')
+    kms_login_client = Aws::Kms.new('entity_association', 'general_access')
     r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
     @d_salt = r.data[:plaintext]
   end
@@ -24,7 +24,7 @@ namespace :onetimer do
   #
   # * Author: Aman
   # * Date: 02/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def encrypt_data_in_db
     # UserActivityLog.where(id: 17).all.each do |obj|
@@ -40,7 +40,7 @@ namespace :onetimer do
   #
   # * Author: Aman
   # * Date: 02/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # Returns[Result::Base] Data Encrypted with salt if present.
   #

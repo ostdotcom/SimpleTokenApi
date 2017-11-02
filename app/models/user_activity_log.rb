@@ -26,13 +26,13 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
   #
   # * Author: Aman
   # * Date: 02/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # Returns[Hash] Data decrypted with salt. Error Handling should be done by individual callers
   #
   def decrypted_extra_data
     return {} if e_data.blank?
-    kms_login_client = Aws::Kms.new('entity_association', 'entity_association')
+    kms_login_client = Aws::Kms.new('entity_association', 'general_access')
     r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
     r = LocalCipher.new(r.data[:plaintext]).decrypt(e_data)
     r.data[:plaintext]

@@ -129,13 +129,13 @@ module AdminManagement
       #
       # * Author: Aman
       # * Date: 02/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [String] salt for user activity
       #
       def activity_log_decyption_salt
         @activity_log_decyption_salt ||= begin
-          kms_login_client = Aws::Kms.new('entity_association', 'entity_association')
+          kms_login_client = Aws::Kms.new('entity_association', 'general_access')
           r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
           r.data[:plaintext]
         end

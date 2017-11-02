@@ -40,6 +40,31 @@ class UserActivityLogJob < ApplicationJob
     @e_extra_data = nil
   end
 
+  # set encrypted data if present
+  #
+  # * Author: Aman
+  # * Date: 02/11/2017
+  # * Reviewed By: Sunil
+  #
+  # Sets @e_extra_data
+  #
+  # Note: In case of an error, the log entry should still be there will nil data
+  #
+  def set_encrypted_extra_data
+    return if @extra_data.blank?
+
+    kms_login_client = Aws::Kms.new('entity_association', 'general_access')
+    r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
+    return unless r.success?
+
+    d_salt = r.data[:plaintext]
+
+    r = LocalCipher.new(d_salt).encrypt(@extra_data)
+    return unless r.success?
+
+    @e_extra_data = r.data[:ciphertext_blob]
+  end
+
   # Create new user_action_log
   #
   # * Author: Aman
@@ -55,31 +80,6 @@ class UserActivityLogJob < ApplicationJob
         action_timestamp: @action_timestamp,
         e_data: @e_extra_data
     )
-  end
-
-  # set encrypted data if present
-  #
-  # * Author: Aman
-  # * Date: 02/11/2017
-  # * Reviewed By:
-  #
-  # Sets @e_extra_data
-  #
-  # Note: In case of an error, the log entry should still be there will nil data
-  #
-  def set_encrypted_extra_data
-    return if @extra_data.blank?
-
-    kms_login_client = Aws::Kms.new('entity_association', 'entity_association')
-    r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
-    return unless r.success?
-
-    d_salt = r.data[:plaintext]
-
-    r = LocalCipher.new(d_salt).encrypt(@extra_data)
-    return unless r.success?
-
-    @e_extra_data = r.data[:ciphertext_blob]
   end
 
   # Get Log type

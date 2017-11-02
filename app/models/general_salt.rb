@@ -9,12 +9,12 @@ class GeneralSalt < EstablishSimpleTokenApiDbConnection
   #
   # * Author: Aman
   # * Date: 02/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # Returns[String] Encrypted salt for User activity logging
   #
   def self.get_user_activity_logging_salt_type
-    GeneralSalt.user_activity_logging_salt_type.first.salt
+    @get_user_activity_logging_salt_type ||= GeneralSalt.user_activity_logging_salt_type.first.salt
   end
 
 end

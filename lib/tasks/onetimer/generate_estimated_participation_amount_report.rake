@@ -1,7 +1,7 @@
 namespace :onetimer do
 
-  # rake RAILS_ENV=development onetimer:libgenerate_estimated_participation_amount_report
-  task :libgenerate_estimated_participation_amount_report => :environment do
+  # rake RAILS_ENV=development onetimer:generate_estimated_participation_amount_report
+  task :generate_estimated_participation_amount_report => :environment do
 
     amount_array = []
     failed_user_ids = []
@@ -27,13 +27,15 @@ namespace :onetimer do
         kyc_salt_d = r.data[:plaintext]
 
         amount_array << LocalCipher.new(kyc_salt_d)
-          .decrypt(@user_extended_detail.estimated_participation_amount).data[:plaintext].to_f
+          .decrypt(ued.estimated_participation_amount).data[:plaintext].to_f
 
       end
 
     end
 
-    puts amount_array.shuffle.inspect
+    amount_array.shuffle.each do |amount|
+      puts amount
+    end
 
   end
 

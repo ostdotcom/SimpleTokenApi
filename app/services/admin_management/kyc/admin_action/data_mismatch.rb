@@ -14,11 +14,7 @@ module AdminManagement
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] case_id (mandatory)
-        # @params [String] email_temp_vars[:first_name] (optional)
-        # @params [String] email_temp_vars[:last_name] (optional)
-        # @params [String] email_temp_vars[:birthdate] (optional)
-        # @params [String] email_temp_vars[:passport_number] (optional)
-        # @params [String] email_temp_vars[:nationality] (optional)
+        # @params [Hash] email_temp_vars (mandatory)
         #
         # @return [AdminManagement::Kyc::AdminAction::DataMismatch]
         #
@@ -73,8 +69,10 @@ module AdminManagement
               {}
           ) if @email_temp_vars.blank?
 
+          error_fields = []
+          @email_temp_vars.each{|e_f_k, _| error_fields << e_f_k.to_s.humanize}
           @extra_data = {
-              error_fields: @email_temp_vars.map{|e_f_k, _| e_f_k.to_s.humanize}
+              error_fields: error_fields
           }
 
           success

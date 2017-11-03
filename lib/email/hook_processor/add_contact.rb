@@ -8,7 +8,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [EmailServiceApiCallHook] hook (mandatory) - db record of EmailServiceApiCallHook table
       #
@@ -22,7 +22,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -36,7 +36,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -50,7 +50,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -78,20 +78,25 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Hash]
       #
       def attributes_hash
-        {
-          GlobalConstant::PepoCampaigns.token_sale_phase_attribute => @hook.params[:token_sale_phase]
-        }
+        #TODO: Added temp check to smooth transition of old hooks
+        if @hook.params[:token_sale_phase].present?
+          {
+            GlobalConstant::PepoCampaigns.token_sale_phase_attribute => @hook.params[:token_sale_phase]
+          }
+        else
+          @hook.params[:custom_attributes] || {}
+        end
       end
 
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Suil
       #
       # @return [String]
       #
@@ -102,7 +107,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [String]
       #

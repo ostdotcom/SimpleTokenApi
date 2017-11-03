@@ -14,6 +14,8 @@ class NewUserRegisterJob < ApplicationJob
 
     create_user_utm_log
 
+    create_email_service_api_call_hook
+
     fetch_duplicate_email_data
 
     insert_email_dupliacte_logs if @duplicate_user_ids.present?
@@ -68,6 +70,22 @@ class NewUserRegisterJob < ApplicationJob
     u_utm_log.save!(validate: false)
   end
 
+  # Create Hook to sync data in Email Service
+  #
+  # * Author: Puneet
+  # * Date: 03/11/2017
+  # * Reviewed By: Sunil
+  #
+  def create_email_service_api_call_hook
+
+    Email::HookCreator::AddContact.new(
+      email: @user.email,
+      custom_attributes: {
+        GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value
+      }
+    ).perform
+
+  end
 
   # Fetch users with similar emails
   #

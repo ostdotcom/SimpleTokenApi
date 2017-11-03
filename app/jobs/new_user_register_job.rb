@@ -18,7 +18,7 @@ class NewUserRegisterJob < ApplicationJob
 
     fetch_duplicate_email_data
 
-    insert_email_dupliacte_logs if @duplicate_user_ids.present?
+    create_email_duplicate_logs if @duplicate_user_ids.present?
 
     UserActivityLogJob.new().perform({
                                          user_id: @user.id,
@@ -112,7 +112,7 @@ class NewUserRegisterJob < ApplicationJob
   # * Date: 20/10/2017
   # * Reviewed By: Sunil
   #
-  def insert_email_dupliacte_logs
+  def create_email_duplicate_logs
     current_time = Time.now.to_s(:db)
     status_int = ::UserEmailDuplicationLog.statuses[GlobalConstant::UserEmailDuplicationLog.active_status]
     sql_data = []

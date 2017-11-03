@@ -22,6 +22,9 @@ module AdminManagement
 
           @admin_id = @params[:admin_id]
           @case_id = @params[:case_id]
+
+          @email_temp_vars = @params[:email_temp_vars] || {}
+
           @api_response_data = {}
           @user_kyc_detail = nil
           @extra_data = nil

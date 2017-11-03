@@ -14,25 +14,17 @@ module AdminManagement
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] case_id (mandatory)
-        # @params [String] first_name (optional)
-        # @params [String] last_name (optional)
-        # @params [String] birthdate (optional)
-        # @params [String] passport_number (optional)
-        # @params [String] nationality (optional)
+        # @params [String] email_temp_vars[:first_name] (optional)
+        # @params [String] email_temp_vars[:last_name] (optional)
+        # @params [String] email_temp_vars[:birthdate] (optional)
+        # @params [String] email_temp_vars[:passport_number] (optional)
+        # @params [String] email_temp_vars[:nationality] (optional)
         #
         # @return [AdminManagement::Kyc::AdminAction::DataMismatch]
         #
         def initialize(params)
 
           super
-
-          @first_name = @params[:first_name]
-          @last_name = @params[:last_name]
-          @birthdate = @params[:birthdate]
-          @passport_number = @params[:passport_number]
-          @nationality = @params[:nationality]
-
-          @email_temp_vars = {}
 
         end
 
@@ -72,12 +64,6 @@ module AdminManagement
 
           r = super
           return r unless r.success?
-
-          @email_temp_vars[:first_name] = @first_name if @first_name.present?
-          @email_temp_vars[:last_name] = @last_name if @last_name.present?
-          @email_temp_vars[:birthdate] = @birthdate if @birthdate.present?
-          @email_temp_vars[:passport_number] = @passport_number if @passport_number.present?
-          @email_temp_vars[:nationality] = @nationality if @nationality.present?
 
           return error_with_data(
               'am_k_aa_dm_1',

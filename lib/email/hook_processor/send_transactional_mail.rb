@@ -8,7 +8,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [EmailServiceApiCallHook] hook (mandatory) - db record of EmailServiceApiCallHook table
       #
@@ -22,7 +22,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -36,7 +36,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -48,7 +48,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

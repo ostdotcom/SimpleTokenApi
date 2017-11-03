@@ -14,9 +14,11 @@ class NewUserRegisterJob < ApplicationJob
 
     create_user_utm_log
 
+    create_email_service_api_call_hook
+
     fetch_duplicate_email_data
 
-    insert_email_dupliacte_logs if @duplicate_user_ids.present?
+    create_email_duplicate_logs if @duplicate_user_ids.present?
 
     UserActivityLogJob.new().perform({
                                          user_id: @user.id,
@@ -68,6 +70,22 @@ class NewUserRegisterJob < ApplicationJob
     u_utm_log.save!(validate: false)
   end
 
+  # Create Hook to sync data in Email Service
+  #
+  # * Author: Puneet
+  # * Date: 03/11/2017
+  # * Reviewed By: Sunil
+  #
+  def create_email_service_api_call_hook
+
+    Email::HookCreator::AddContact.new(
+      email: @user.email,
+      custom_attributes: {
+        GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value
+      }
+    ).perform
+
+  end
 
   # Fetch users with similar emails
   #
@@ -94,7 +112,7 @@ class NewUserRegisterJob < ApplicationJob
   # * Date: 20/10/2017
   # * Reviewed By: Sunil
   #
-  def insert_email_dupliacte_logs
+  def create_email_duplicate_logs
     current_time = Time.now.to_s(:db)
     status_int = ::UserEmailDuplicationLog.statuses[GlobalConstant::UserEmailDuplicationLog.active_status]
     sql_data = []

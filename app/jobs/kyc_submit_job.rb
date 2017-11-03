@@ -145,8 +145,13 @@ class KycSubmitJob < ApplicationJob
 
     Email::HookCreator::AddContact.new(
         email: @user.email,
-        token_sale_phase: @user_kyc_detail.token_sale_participation_phase
+        custom_attributes: {
+          GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value,
+          GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_attribute => GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_value,
+          GlobalConstant::PepoCampaigns.token_sale_phase_attribute => @user_kyc_detail.token_sale_participation_phase
+        }
     ).perform
+
   end
 
   # Decrypt kyc salt

@@ -16,10 +16,22 @@ namespace :onetimer do
           custom_attributes[GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_attribute] = GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_value
         end
 
-        Email::HookCreator::AddContact.new(
-          email: user.email,
-          custom_attributes: custom_attributes
-        ).perform
+        add_update_contact_params = [
+          GlobalConstant::PepoCampaigns.master_list_id,
+          user.email,
+          custom_attributes,
+          {
+            GlobalConstant::PepoCampaigns.double_opt_in_status_user_setting => GlobalConstant::PepoCampaigns.verified_value
+          }
+        ]
+
+        puts "#{user.email} -> #{custom_attributes}"
+
+        r = Email::Services::PepoCampaigns.new.add_contact(
+          *add_update_contact_params
+        )
+
+        puts "#{user.email} -> #{r}"
 
       end
 

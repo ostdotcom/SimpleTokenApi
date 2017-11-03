@@ -104,17 +104,6 @@ module Email
         GlobalConstant::PepoCampaigns.verified_value
       end
 
-      #
-      # * Author: Puneet
-      # * Date: 11/10/2017
-      # * Reviewed By: Sunil
-      #
-      # @return [String]
-      #
-      def blacklist_status_setting_value
-        GlobalConstant::PepoCampaigns.unblacklisted_value
-      end
-
     end
 
   end

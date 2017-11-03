@@ -57,10 +57,6 @@ module GlobalConstant
         'double_opt_in_status'
       end
 
-      def blacklist_status_user_setting
-        'blacklist_status'
-      end
-
       def subscribe_status_user_setting
         'subscribe_status'
       end

@@ -95,7 +95,7 @@ module AdminManagement
 
             if reviewed_only
               ar_relation = ar_relation.where("admin_action_type > 0")
-            else
+            elsif query_hash[:admin_status].present?
               ar_relation = ar_relation.where(admin_action_type: 0)
             end
 

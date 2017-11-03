@@ -85,7 +85,7 @@ module AdminManagement
                       UserKycDetail::cynopsis_statuses[fl_v].present?)
 
                 query_hash[fl_k.to_sym] = fl_v
-              elsif fl_v == "#{GlobalConstant::UserKycDetail.cleared_cynopsis_status}_#{GlobalConstant::UserKycDetail.approved_cynopsis_status}"
+              elsif fl_v == "#{GlobalConstant::UserKycDetail.cleared_cynopsis_status}:#{GlobalConstant::UserKycDetail.approved_cynopsis_status}"
                 query_hash[fl_k.to_sym] = [GlobalConstant::UserKycDetail.cleared_cynopsis_status, GlobalConstant::UserKycDetail.approved_cynopsis_status]
               elsif fl_v == GlobalConstant::UserKycDetail.reviewed_admin_status
                 ar_relation = ar_relation.where("admin_action_type > 0")

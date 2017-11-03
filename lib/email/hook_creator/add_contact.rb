@@ -10,23 +10,23 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
-      # @params [String] token_sale_phase (mandatory) - token_sale_phase property for this contact
+      # @params [Hash] custom_attributes (optional) - attribute which are to be set for this email
       # @params [String] custom_description (optional) - description which would be logged in email service hooks table
       #
       # @return [Email::HookCreator::AddContact] returns an object of Email::HookCreator::AddContact class
       #
       def initialize(params)
         super
-        @token_sale_phase = params[:token_sale_phase]
+        @custom_attributes = params[:custom_attributes] || {}
       end
 
       # Perform
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -40,7 +40,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -54,16 +54,18 @@ module Email
           {}
         ) if @email.blank?
 
+        return success if @custom_attributes.blank?
 
-        return error_with_data(
+        unsupported_keys = @custom_attributes.keys - GlobalConstant::PepoCampaigns.allowed_custom_attributes
+
+        unsupported_keys.blank? ? success :
+          error_with_data(
           'e_hc_uc_2',
-          'mandatory param token_sale_phase missing',
-          'mandatory param token_sale_phase missing',
+          'unsupported attributes',
+          "unsupported attributes: #{unsupported_keys}",
           GlobalConstant::ErrorAction.default,
           {}
-        ) if @token_sale_phase.blank?
-
-        success
+        )
 
       end
 
@@ -71,7 +73,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [String] event type that goes into hook table
       #
@@ -83,14 +85,14 @@ module Email
       #
       # * Author: Puneet
       # * Date: 10/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
       def handle_event
 
         create_hook(
-          token_sale_phase: @token_sale_phase
+          custom_attributes: @custom_attributes
         )
 
         success

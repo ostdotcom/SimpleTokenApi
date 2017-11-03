@@ -39,8 +39,12 @@ module GlobalConstant
       nationality_md5_map[md5_nationality] || ''
     end
 
-    def self.is_nationality_chinese(nationality)
-      nationality.upcase == 'CHINESE'
+    def self.is_residence_proof_mandatory?(nationality)
+      residency_proof_mandatory_for_countries.include?(nationality.upcase)
+    end
+
+    def self.residency_proof_mandatory_for_countries
+      ['CHINESE','NEW ZEALANDER']
     end
 
     private

@@ -67,6 +67,7 @@ module Crons
       # Sets @approved_user_ids, @denied_user_ids, @user_kyc_details
       #
       def process_user_kyc_details(user_kyc_detail)
+        is_already_kyc_denied_by_admin = user_kyc_detail.kyc_denied?
 
         r = Cynopsis::Customer.new().check_status({rfrID: user_kyc_detail.cynopsis_user_id})
         Rails.logger.info("-- call_cynopsis_check_status_api response: #{r.inspect}")
@@ -81,7 +82,7 @@ module Crons
           if user_kyc_detail.kyc_approved?
             @approved_user_ids << user_kyc_detail.user_id
           elsif user_kyc_detail.kyc_denied?
-            @denied_user_ids << user_kyc_detail.user_id
+            @denied_user_ids << user_kyc_detail.user_id if !is_already_kyc_denied_by_admin
           end
           @user_kyc_details[user_kyc_detail.user_id] = user_kyc_detail
 

@@ -1,10 +1,9 @@
 class ApplicationController < ActionController::API
 
-  # SUNIL:: Let it be the first line here
-  before_action :add_debug_params
-
   include ActionController::RequestForgeryProtection
   protect_from_forgery with: :exception
+
+  include CsrfTokenConcern
 
   [
       ActionController::Cookies
@@ -134,17 +133,6 @@ class ApplicationController < ActionController::API
         secure: !Rails.env.development?,
         same_site: :strict
     }
-  end
-
-  # Add debug data in params
-  #
-  # * Author: Abhay
-  # * Date: 04/11/2017
-  # * Reviewed By: Sunil
-  #
-  def add_debug_params
-    params[:debug_request_time] = Time.now
-    params[:debug_user_agent] = http_user_agent
   end
 
 end

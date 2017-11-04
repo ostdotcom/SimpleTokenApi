@@ -18,6 +18,7 @@ module OpsApi
       # @return [OpsApi::Request::Base]
       #
       def initialize
+        @timeouts = {write: 60, connect: 60, read: 60}
       end
 
       private
@@ -44,10 +45,10 @@ module OpsApi
 
           case request_type
             when 'get'
-              response = HTTP.timeout(:write => 10, :connect => 10, :read => 10)
+              response = HTTP.timeout(@timeouts)
                              .get(request_path, params: parameterized_token, ssl_context: ssl_context)
             when 'post'
-              response = HTTP.timeout(:write => 10, :connect => 10, :read => 10)
+              response = HTTP.timeout(@timeouts)
                              .post(request_path, json: parameterized_token, ssl_context: ssl_context)
             else
               return error_with_data('poa_r_b_1',

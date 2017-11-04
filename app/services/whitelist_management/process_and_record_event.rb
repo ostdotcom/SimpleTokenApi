@@ -381,7 +381,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 04/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     #
     def send_kyc_approved_mail
@@ -402,7 +402,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 04/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     #returns [Hash] variable data for transactional email
     #
@@ -417,7 +417,7 @@ module WhitelistManagement
     #
     # * Author: Aman
     # * Date: 04/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     #
     def send_kyc_approved_email_via_hooks

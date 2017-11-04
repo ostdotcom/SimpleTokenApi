@@ -57,7 +57,7 @@ module Crons
       # * Date: 24/10/2017
       # * Reviewed By: Sunil
       #
-      # Sets @approved_user_ids, @denied_user_ids, @user_kyc_details
+      # Sets @denied_user_ids
       #
       def process_user_kyc_details(user_kyc_detail)
 

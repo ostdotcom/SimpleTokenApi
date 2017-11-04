@@ -44,10 +44,10 @@ module OpsApi
 
           case request_type
             when 'get'
-              response = HTTP.timeout(:write => 1, :connect => 1, :read => 1)
+              response = HTTP.timeout(:write => 10, :connect => 10, :read => 10)
                              .get(request_path, params: parameterized_token, ssl_context: ssl_context)
             when 'post'
-              response = HTTP.timeout(:write => 1, :connect => 1, :read => 1)
+              response = HTTP.timeout(:write => 10, :connect => 10, :read => 10)
                              .post(request_path, json: parameterized_token, ssl_context: ssl_context)
             else
               return error_with_data('poa_r_b_1',

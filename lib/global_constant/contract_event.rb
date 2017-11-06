@@ -9,6 +9,10 @@ module GlobalConstant
         'whitelist_kind'
       end
 
+      def transfer_kind
+        'transfer_kind'
+      end
+
 
     end
 

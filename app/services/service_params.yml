@@ -214,8 +214,14 @@
   :mandatory:
   :optional:
 
-
 'UserManagement::CheckEthereumAddress':
   :mandatory:
     - :ethereum_address
+  :optional:
+
+'ContractEventManagement::Transfer':
+  :mandatory:
+    - :transacton_hash
+    - :block_hash
+    - :events_variable
   :optional:

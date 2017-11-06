@@ -39,7 +39,7 @@ module BonusApproval
       CSV.read(@local_file_path).each do |row|
         email = row[0].to_s.strip.downcase
         alt_token_name = row[1].to_s.strip
-        alternate_token_id = alternate_tokens[alt_token_name].try(:id).to_i
+        alternate_token_id = alternate_tokens[alt_token_name.downcase].try(:id).to_i
 
         if email.blank? || (alternate_token_id == 0)
           @error_skipped_rows += 1
@@ -71,7 +71,13 @@ module BonusApproval
     # * Reviewed By: Sunil
     #
     def alternate_tokens
-      @alternate_tokens ||= AlternateToken.where(status: GlobalConstant::AlternateToken.active_status).all.index_by(&:token_name)
+      @alternate_tokens ||= begin
+        data = {}
+        AlternateToken.where(status: GlobalConstant::AlternateToken.active_status).all.each do |obj|
+          data[obj.token_name.downcase] = obj
+        end
+        data
+      end
     end
 
     # Check and update user bonus

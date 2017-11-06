@@ -112,6 +112,7 @@ class KycSubmitJob < ApplicationJob
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
+      @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
     end
     @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
@@ -130,6 +131,16 @@ class KycSubmitJob < ApplicationJob
   #
   def get_pos_bonus_percentage
     PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
+  end
+
+  # Find Alternate Token Id for bonus
+  #
+  # * Author: Aman
+  # * Date: 12/10/2017
+  # * Reviewed By: Sunil
+  #
+  def get_alternate_token_id_for_bonus
+    AlternateTokenBonusEmail.where(email: @user.email).first.try(:alternate_token_id)
   end
 
   # Create Hook to sync data in Email Service

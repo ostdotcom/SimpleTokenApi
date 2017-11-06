@@ -174,7 +174,8 @@ module UserManagement
               admin_action_type: @user_kyc_detail.admin_action_type,
               token_sale_participation_phase: token_sale_participation_phase,
               whitelist_status: @user_kyc_detail.whitelist_status,
-              pos_bonus_percentage: @user_kyc_detail.pos_bonus_percentage
+              pos_bonus_percentage: @user_kyc_detail.pos_bonus_percentage,
+              alternate_token_name_for_bonus: get_alternate_token_name(@user_kyc_detail.alternate_token_id_for_bonus)
           }
       :
           {
@@ -183,7 +184,8 @@ module UserManagement
               admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
               token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now),
               whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
-              pos_bonus_percentage: expected_pos_percentage
+              pos_bonus_percentage: expected_pos_percentage,
+              alternate_token_name_for_bonus: expected_alt_token_name_for_bonus
           }
     end
 
@@ -191,7 +193,7 @@ module UserManagement
     #
     # * Author: Aman
     # * Date: 01/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Integer] bonus percent approved for user
     #
@@ -201,6 +203,34 @@ module UserManagement
 
       PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
 
+    end
+
+    # Alternate Token name bonus for user
+    #
+    # * Author: Aman
+    # * Date: 01/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [String] alternate token name bonus applied for user account
+    #
+    def expected_alt_token_name_for_bonus
+      return nil if (GlobalConstant::TokenSale.token_sale_phase_for(Time.now) !=
+          GlobalConstant::TokenSale.early_access_token_sale_phase)
+
+      alt_t_obj = AlternateTokenBonusEmail.where(email: @user.email).first
+      alt_t_obj.present? ? get_alternate_token_name(alt_t_obj.alternate_token_id) : nil
+    end
+
+    # Get token name
+    #
+    # * Author: Aman
+    # * Date: 01/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [String] get alternate token name
+    #
+    def get_alternate_token_name(alternate_token_id)
+      alternate_token_id.to_i > 0 ? AlternateToken.get_from_memcache(alternate_token_id).token_name : nil
     end
 
     # User type for token sale

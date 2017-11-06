@@ -30,10 +30,28 @@ class Admin::KycController < Admin::BaseController
   #
   def run_pos_bonus_process
     BgJob.enqueue(
-      PosBonusApprovalJob,
+        BonusApproval::PosBonusApprovalJob,
       {
-        pos_file_name: 'mark_pos_with_email.csv'
+          bonus_file_name: 'mark_pos_with_email.csv'
       }
+    )
+
+    r = Result::Base.success({})
+    render_api_response(r)
+  end
+
+  # Run Alt token Approval process in resque
+  #
+  # * Author: Aman
+  # * Date: 06/11/2017
+  # * Reviewed By: Sunil
+  #
+  def run_alt_token_bonus_process
+    BgJob.enqueue(
+        BonusApproval::AltTokenBonusApprovalJob,
+        {
+            bonus_file_name: 'mark_alternate_token_with_email.csv'
+        }
     )
 
     r = Result::Base.success({})

@@ -1,0 +1,3 @@
+class AlternateTokenBonusEmail < EstablishSimpleTokenLogDbConnection
+
+end

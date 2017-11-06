@@ -138,7 +138,7 @@ module UserManagement
           user: user_data,
           user_kyc_data: user_kyc_data,
           token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
-      }
+      }.merge(SaleGlobalVariable.sale_ended_before_time_flag.symbolize_keys)
     end
 
     # User detail

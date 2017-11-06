@@ -34,6 +34,7 @@ module BonusApproval
     def process_file
 
       csv_data, count = {}, 0
+      emails_max_bonus_percent = {}
       CSV.read(@local_file_path).each do |row|
         email = row[0].to_s.strip.downcase
         bonus_percentage = row[1].to_s.strip.to_f
@@ -47,14 +48,17 @@ module BonusApproval
         csv_data[bonus_percentage] << email
         count +=1
 
+        emails_max_bonus_percent[email] = bonus_percentage if emails_max_bonus_percent[email].to_i <= bonus_percentage
+
         if count >= BATCH_SIZE
-          check_and_update_user_bonus(csv_data)
+          check_and_update_user_bonus(csv_data, emails_max_bonus_percent)
           csv_data = {}
+          emails_max_bonus_percent = {}
           count = 0
         end
       end
 
-      check_and_update_user_bonus(csv_data) if count > 0
+      check_and_update_user_bonus(csv_data, emails_max_bonus_percent) if count > 0
       File.delete(@local_file_path)
     end
 
@@ -64,14 +68,18 @@ module BonusApproval
     # * Date: 27/10/2017
     # * Reviewed By: Sunil
     #
-    def check_and_update_user_bonus(csv_data)
+    def check_and_update_user_bonus(csv_data, emails_max_bonus_percent)
 
       csv_data.each do |bonus_percentage, emails|
         updated_emails = []
         pos_bonus_objs = PosBonusEmail.where(email: emails).all.index_by(&:email)
 
+        emails.uniq!
+
         emails.each do |email|
           pos_obj = pos_bonus_objs[email]
+
+          next if emails_max_bonus_percent[email] != bonus_percentage
 
           if pos_obj.blank?
             # Always create new entry

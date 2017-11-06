@@ -92,7 +92,10 @@ module BonusApproval
         updated_emails = []
         alternate_token_bonus_objs = AlternateTokenBonusEmail.where(email: emails).all.index_by(&:email)
 
+        emails.uniq!
+
         emails.each do |email|
+
           alternate_token_obj = alternate_token_bonus_objs[email]
 
           next if emails_last_token_id[email] != alternate_token_id

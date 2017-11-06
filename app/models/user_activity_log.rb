@@ -1,5 +1,4 @@
 class UserActivityLog < EstablishSimpleTokenLogDbConnection
-  serialize :data, Hash
 
   enum log_type: {
              GlobalConstant::UserActivityLog.admin_log_type => 1,

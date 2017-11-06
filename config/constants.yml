@@ -6,6 +6,9 @@ constants:
     kyc:
       arn: <%= ENV['STA_KYC_KMS_ARN']%>
       id: <%= ENV['STA_KYC_KMS_ID']%>
+    entity_association:
+      arn: <%= ENV['STA_ENTITY_ASSOC_ARN']%>
+      id: <%= ENV['STA_ENTITY_ASSOC_ID']%>
 
   cynopsis:
     base_url: <%= ENV['STA_CYNOPSIS_BASE_URL']%>
@@ -29,7 +32,6 @@ constants:
       version: 'v2'
     list_ids:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
-      pos_list: <%= ENV['STA_CAMPAIGN_POS_LIST']%>
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>

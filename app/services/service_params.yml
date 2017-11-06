@@ -74,6 +74,7 @@
   :mandatory:
     - :admin_id
     - :case_id
+    - :email_temp_vars
   :optional:
 
 'AdminManagement::Kyc::AdminAction::PassportIssue':
@@ -81,18 +82,21 @@
     - :admin_id
     - :case_id
   :optional:
+    - :email_temp_vars
 
 'AdminManagement::Kyc::AdminAction::SelfieImageIssue':
   :mandatory:
     - :admin_id
     - :case_id
   :optional:
+    - :email_temp_vars
 
 'AdminManagement::Kyc::AdminAction::ResidencyImageIssue':
   :mandatory:
     - :admin_id
     - :case_id
   :optional:
+    - :email_temp_vars
 
 'AdminManagement::Kyc::AdminAction::Qualify':
   :mandatory:

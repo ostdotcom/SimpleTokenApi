@@ -14,6 +14,8 @@ module OpsApi
       #
       def initialize
         super
+
+        @timeouts = {write: 1, connect: 1, read: 1}
       end
 
       # Perform

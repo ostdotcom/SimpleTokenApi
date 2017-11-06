@@ -12,6 +12,8 @@ module GlobalConstant
             user_access_credentials
           elsif role == 'admin'
             admin_access_credentials
+          elsif role == 'general_access'
+            general_access_credentials
           else
             fail 'invalid role'
           end
@@ -36,6 +38,10 @@ module GlobalConstant
         end
 
         def admin_access_credentials
+          GlobalConstant::Base.aws['admin']
+        end
+
+        def general_access_credentials
           GlobalConstant::Base.aws['admin']
         end
 

@@ -67,7 +67,8 @@ module AdminManagement
         #
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.denied_admin_status
-          @user_kyc_detail.save!
+          @user_kyc_detail.last_acted_by = @admin_id
+          @user_kyc_detail.save! if @user_kyc_detail.changed?
         end
 
         # remove branded token reserved for user

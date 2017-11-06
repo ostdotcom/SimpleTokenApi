@@ -12,8 +12,12 @@ export STA_KYC_S3_BUCKET_NAME='kyc.stagingsimpletoken.org'
 export STA_EXTERNAL_DATA_S3_BUCKET_NAME='external-data.simpletoken.org'
 export STA_LOGIN_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_LOGIN_KMS_ID="eab8148d-fd9f-451d-9eb9-16c115645635"
+
 export STA_KYC_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_KYC_KMS_ID="5734c3ab-c4ae-4424-a464-2253a4754296"
+
+export STA_ENTITY_ASSOC_ARN="arn:aws:kms:us-east-1:604850698061:key"
+export STA_ENTITY_ASSOC_ID="c9faf079-68b0-4186-8231-eb331fcd365d"
 
 export STA_USER_AWS_ACCESS_KEY="AKIAJUDRALNURKAVS5IQ"
 export STA_USER_AWS_SECRET_KEY="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"
@@ -30,7 +34,6 @@ export STA_CAMPAIGN_CLIENT_KEY="0455fbd02e9512168211903ff25094d8"
 export STA_CAMPAIGN_CLIENT_SECRET="4c1b4ec0983ab6b1e37d1c1fc31de5e6"
 export STA_CAMPAIGN_BASE_URL="https://pepocampaigns.com/"
 export STA_CAMPAIGN_MASTER_LIST="2334"
-export STA_CAMPAIGN_POS_LIST="2926"
 
 export STA_GEOIP_FILE_WITH_PATH='../GeoIP2-City.mmdb'
 

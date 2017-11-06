@@ -118,7 +118,7 @@ module Crons
       def notify_devs
         ApplicationMailer.notify(
           body: {
-            to_be_retired: @failed_hook_to_be_retried
+            to_be_retried: @failed_hook_to_be_retried
           },
           data: {
             process_failed: @process_failed

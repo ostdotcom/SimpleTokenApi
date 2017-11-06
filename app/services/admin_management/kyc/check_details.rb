@@ -139,9 +139,10 @@ module AdminManagement
         @kyc_salt_e = @user_extended_detail.kyc_salt
 
         user_registration_data = UserActivityLog.where(user_id: @user.id, action: GlobalConstant::UserActivityLog.register_action).first
-        if user_registration_data.present? && user_registration_data.data.present?
-          @user_geoip_data[:country] = user_registration_data.data[:geoip_country]
-          @user_geoip_data[:ip_address] = user_registration_data.data[:ip_address]
+        if user_registration_data.present? && user_registration_data.e_data.present?
+          decrypted_data = user_registration_data.decrypted_extra_data
+          @user_geoip_data[:country] = decrypted_data[:geoip_country]
+          @user_geoip_data[:ip_address] = decrypted_data[:ip_address]
         end
 
         success
@@ -232,7 +233,8 @@ module AdminManagement
             is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
             last_acted_by: last_acted_by,
-            whitelist_status: @user_kyc_detail.kyc_approved? ? @user_kyc_detail.whitelist_status : ''
+            whitelist_status: @user_kyc_detail.kyc_approved? ? @user_kyc_detail.whitelist_status : '',
+            last_issue_email_sent: @user_kyc_detail.admin_action_type
         }
       end
 

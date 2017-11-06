@@ -30,8 +30,10 @@ class Admin::KycController < Admin::BaseController
   #
   def run_pos_bonus_process
     BgJob.enqueue(
-        PosBonusApproval,
-        {}
+      PosBonusApprovalJob,
+      {
+        pos_file_name: 'mark_pos_with_email.csv'
+      }
     )
 
     r = Result::Base.success({})

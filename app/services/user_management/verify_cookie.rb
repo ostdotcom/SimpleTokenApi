@@ -113,7 +113,7 @@ module UserManagement
     # @Sets @extended_cookie_value
     #
     def set_extended_cookie_value
-      return if (@created_ts + 29.days.to_i) >= Time.now.to_i
+      #return if (@created_ts + 29.days.to_i) >= Time.now.to_i
       @extended_cookie_value = User.get_cookie_value(@user_id, @user[:password], @browser_user_agent)
     end
 

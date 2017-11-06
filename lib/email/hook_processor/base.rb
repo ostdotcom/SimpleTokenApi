@@ -10,7 +10,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [EmailServiceApiCallHook] hook (mandatory) - db record of EmailServiceApiCallHook table
       #
@@ -24,7 +24,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -43,7 +43,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -55,7 +55,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -67,7 +67,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Array]
       #
@@ -84,7 +84,7 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Hash]
       #
@@ -96,14 +96,13 @@ module Email
       #
       # * Author: Puneet
       # * Date: 11/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [Hash]
       #
       def user_settings_hash
         {
           GlobalConstant::PepoCampaigns.double_opt_in_status_user_setting => double_opt_in_status_setting_value,
-          GlobalConstant::PepoCampaigns.blacklist_status_user_setting => blacklist_status_setting_value,
           GlobalConstant::PepoCampaigns.subscribe_status_user_setting => GlobalConstant::PepoCampaigns.subscribed_value
         }
       end

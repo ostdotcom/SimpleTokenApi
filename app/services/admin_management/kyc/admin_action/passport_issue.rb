@@ -56,7 +56,7 @@ module AdminManagement
           Email::HookCreator::SendTransactionalMail.new(
               email: @user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_passport_issue_template,
-              template_vars: {}
+              template_vars: @email_temp_vars
           ).perform
 
         end

@@ -29,24 +29,32 @@ module GlobalConstant
         config[:list_ids][:master_list]
       end
 
-      def pos_list_id
-        config[:list_ids][:pos_list]
-      end
-
       ########### User Custom Attributes #########
 
       def token_sale_phase_attribute
         'token_sale_phase'
       end
 
+      def token_sale_registered_attribute
+        'token_sale_registered'
+      end
+
+      def token_sale_kyc_confirmed_attribute
+        'token_sale_kyc_confirmed'
+      end
+
+      def allowed_custom_attributes
+        [
+          token_sale_registered_attribute,
+          token_sale_phase_attribute,
+          token_sale_kyc_confirmed_attribute
+        ]
+      end
+
       ########### User Setting : Keys ############
 
       def double_opt_in_status_user_setting
         'double_opt_in_status'
-      end
-
-      def blacklist_status_user_setting
-        'blacklist_status'
       end
 
       def subscribe_status_user_setting
@@ -88,6 +96,18 @@ module GlobalConstant
       end
 
       ########### Transaction Email Templates ############
+
+      ################ Custom Attribute Values ################
+
+      def token_sale_registered_value
+        1
+      end
+
+      def token_sale_kyc_confirmed_value
+        1
+      end
+
+      ############# Custom Attribute Values ################
 
       # double optin email - sent when user is adding email for the first time
       def double_opt_in_template

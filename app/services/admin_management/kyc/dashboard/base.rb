@@ -43,7 +43,7 @@ module AdminManagement
 
           @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
           @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
-          @page_size = 25 if @page_size.to_i < 1 || @page_size.to_i > 25
+          @page_size = 50 if @page_size.to_i < 1 || @page_size.to_i > 50
           @offset = 0 if @offset.to_i <= 0
 
           success

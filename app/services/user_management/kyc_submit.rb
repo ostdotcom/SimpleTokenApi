@@ -258,7 +258,7 @@ module UserManagement
 
     def validate_residence_proof_file_path
       @residence_proof_file_path = @residence_proof_file_path.to_s.strip
-      if GlobalConstant::CountryNationality.is_nationality_chinese(@nationality) && !@residence_proof_file_path.present?
+      if GlobalConstant::CountryNationality.is_residence_proof_mandatory?(@nationality) && !@residence_proof_file_path.present?
         @error_data[:residence_proof_file_path] = 'Residence proof is required.'
       end
     end

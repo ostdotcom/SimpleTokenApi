@@ -110,15 +110,35 @@ module AdminManagement
       #
       def api_response
         @logs_ars.each do |l_ar|
+          data_hash = l_ar.e_data.present? ? LocalCipher.new(activity_log_decyption_salt).decrypt(l_ar.e_data).data[:plaintext] : {}
+
           admin_detail = (@admin_details.present? && l_ar.admin_id.present?) ? @admin_details[l_ar.admin_id] : {}
+          activity_data = GlobalConstant::UserActivityLog.humanized_actions[l_ar.action] || l_ar.action
+          activity_data += " ( #{data_hash[:error_fields].join(', ')} ) " if data_hash[:error_fields].present?
           @api_response[:curr_page_data] << {
               date_time: Time.at(l_ar.action_timestamp).strftime("%d/%m/%Y %H:%M"),
               agent: admin_detail['name'].to_s,
-              email_type: GlobalConstant::UserActivityLog.humanized_actions[l_ar.action] || l_ar.action
+              activity: activity_data
           }
         end
 
         success_with_data(@api_response)
+      end
+
+      # Decrypted user activity salt
+      #
+      # * Author: Aman
+      # * Date: 02/11/2017
+      # * Reviewed By: Sunil
+      #
+      # @return [String] salt for user activity
+      #
+      def activity_log_decyption_salt
+        @activity_log_decyption_salt ||= begin
+          kms_login_client = Aws::Kms.new('entity_association', 'general_access')
+          r = kms_login_client.decrypt(GeneralSalt.get_user_activity_logging_salt_type)
+          r.data[:plaintext]
+        end
       end
 
     end

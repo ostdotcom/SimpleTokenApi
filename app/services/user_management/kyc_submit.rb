@@ -236,7 +236,7 @@ module UserManagement
 
     def validate_passport_number
       @passport_number = @passport_number.to_s.strip
-      @error_data[:passport_number] = 'Passport number is required.' if !@passport_number.present?
+      @error_data[:passport_number] = 'Identification document number is required.' if !@passport_number.present?
     end
 
     def validate_nationality
@@ -248,7 +248,7 @@ module UserManagement
 
     def validate_passport_file_path
       @passport_file_path = @passport_file_path.to_s.strip
-      @error_data[:passport_file_path] = 'Passport image is required.' if !@passport_file_path.present?
+      @error_data[:passport_file_path] = 'Identification document image is required.' if !@passport_file_path.present?
     end
 
     def validate_selfie_file_path

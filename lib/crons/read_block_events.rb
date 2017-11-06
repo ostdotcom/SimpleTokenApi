@@ -19,7 +19,7 @@ module Crons
     #
     def initialize
       @last_processed_block_number = 0
-      @current_block_number = @last_processed_block_number + 1
+      @current_block_number = 1
 
       @block_data_response = {}
       @keep_processing = true
@@ -32,19 +32,23 @@ module Crons
     end
 
     # Perform
+    # How to handle execptions.What if one transaction cannot be processed
+    #
     #
     # * Author:Aman
     # * Date: 31/10/2017
     # * Reviewed By:
     #
     def perform
-      @last_processed_block_number = #
+      @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
 
       while (@keep_processing)
-        @start_timestamp = Time.now.to_i
+        set_data_for_current_iteration
+
         get_block_data
         r = process_response
         return r unless r.success?
+
         process_transactions
         update_last_processed_block_number
         sleep(compute_sleep_interval)
@@ -52,8 +56,18 @@ module Crons
 
     end
 
+    def set_data_for_current_iteration
+      @current_block_number = @last_processed_block_number + 1
+      @start_timestamp = Time.now.to_i
+      @block_data_response = {}
+      @highest_block_number = nil
+      @current_block_hash, @block_execution_timestamp, @transactions = nil, nil, []
+      @transaction_hash = nil
+    end
+
     def update_last_processed_block_number
-      #
+      SaleGlobalVariable.last_block_processed.update_all(variable_data: @current_block_number)
+      @last_processed_block_number = @current_block_number
     end
 
     def compute_sleep_interval

@@ -12,10 +12,8 @@ export STA_KYC_S3_BUCKET_NAME='kyc.stagingsimpletoken.org'
 export STA_EXTERNAL_DATA_S3_BUCKET_NAME='external-data.simpletoken.org'
 export STA_LOGIN_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_LOGIN_KMS_ID="eab8148d-fd9f-451d-9eb9-16c115645635"
-
 export STA_KYC_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_KYC_KMS_ID="5734c3ab-c4ae-4424-a464-2253a4754296"
-
 export STA_ENTITY_ASSOC_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_ENTITY_ASSOC_ID="c9faf079-68b0-4186-8231-eb331fcd365d"
 
@@ -24,7 +22,8 @@ export STA_USER_AWS_SECRET_KEY="qS0sJZCPQ5t2WnpJymxyGQjX62Wf13kjs80MYhML"
 export STA_ADMIN_AWS_ACCESS_KEY="AKIAIAKMZNBD6IWWGNNQ"
 export STA_ADMIN_AWS_SECRET_KEY="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"
 
-export STA_REDIS_ENDPOINT=''
+export STA_REDIS_ENDPOINT=""
+export STA_MEMCACHED_INSTANCES="127.0.0.1:11211,127.0.0.1:11210"
 
 export STA_CYNOPSIS_DOMAIN_NAME='SIMPLETOKEN'
 export STA_CYNOPSIS_TOKEN='11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234'
@@ -56,8 +55,6 @@ export STA_PRIVATE_OPS_API_BASE_URL='http://172.16.0.179:3000'
 export STA_PRIVATE_OPS_API_SECRET_KEY='1somethingsarebetterkeptinenvironemntvariables'
 export STA_PUBLIC_OPS_API_BASE_URL='http://172.16.0.179:3001'
 export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvariables'
-
-export STA_MEMCACHED_INSTANCES='127.0.0.1:11211,127.0.0.1:11210'
 
 ##crons
 

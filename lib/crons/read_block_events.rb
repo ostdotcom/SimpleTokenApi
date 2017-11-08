@@ -5,8 +5,7 @@ module Crons
     include Util::ResultHelper
 
     SMART_CONTRACT_EVENTS = {
-        '516567571' => ['purchase'],
-        '9890227' => ['finalize', 'transfer']
+        '0x863114266ef59b535bd1d5ee2651d9a577d5b9fb' => ['transfer', 'finalize']
     }
 
     # initialize
@@ -72,43 +71,6 @@ module Crons
       @highest_block_number = nil
       @current_block_hash, @block_execution_timestamp, @transactions = nil, nil, []
       @transaction_hash = nil
-    end
-
-    # Updates last procssed block number
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # Sets [@last_processed_block_number]
-    #
-    def update_last_processed_block_number
-      SaleGlobalVariable.last_block_processed.update_all(variable_data: @current_block_number)
-      @last_processed_block_number = @current_block_number
-    end
-
-    # Compute Sleep Interval for next iteration
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # Returns[Integer] sleep interval in seconds
-    #
-    def compute_sleep_interval
-      sleep_time = 15
-      blocks_trail_count = @highest_block_number - @current_block_number
-
-      if (blocks_trail_count < 6)
-        sleep_time = 25
-      elsif (blocks_trail_count > 6)
-        sleep_time = 1
-      else
-        sleep_time = 15 - (Time.now.to_i - @start_timestamp)
-        sleep_time > 0 ? sleep_time : 1
-      end
-
-      sleep_time
     end
 
     # Get block from public node
@@ -198,26 +160,6 @@ module Crons
           next unless r.success?
           process_event(event)
         end
-
-      end
-    end
-
-    # Process an event in a transaction
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    def process_event(event)
-      process_event_param = {
-          transacton_hash: @transacton_hash,
-          block_hash: @block_hash,
-          events_variable: event[:events]
-      }
-
-      case event[:name]
-        when 'Transfer'
-          ContractEventManagement::Transfer.new(process_event_param).perform
       end
     end
 
@@ -252,6 +194,62 @@ module Crons
           GlobalConstant::ErrorAction.default,
           {}
       )
+    end
+
+    # Process an event in a transaction
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    def process_event(event)
+      process_event_param = {
+          transacton_hash: @transacton_hash,
+          block_hash: @block_hash,
+          events_variable: event[:events]
+      }
+
+      case event[:name]
+        when 'Transfer'
+          ContractEventManagement::Transfer.new(process_event_param).perform
+      end
+    end
+
+    # Updates last procssed block number
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Sets [@last_processed_block_number]
+    #
+    def update_last_processed_block_number
+      SaleGlobalVariable.last_block_processed.update_all(variable_data: @current_block_number)
+      @last_processed_block_number = @current_block_number
+    end
+
+    # Compute Sleep Interval for next iteration
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Returns[Integer] sleep interval in seconds
+    #
+    def compute_sleep_interval
+      sleep_time = 15
+      blocks_trail_count = @highest_block_number - @current_block_number
+
+      if (blocks_trail_count < 6)
+        sleep_time = 25
+      elsif (blocks_trail_count > 6)
+        sleep_time = 1
+      else
+        sleep_time = 15 - (Time.now.to_i - @start_timestamp)
+        sleep_time > 0 ? sleep_time : 1
+      end
+
+      sleep_time
     end
 
     # Notify devs in case of an error condition

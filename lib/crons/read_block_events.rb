@@ -46,7 +46,7 @@ module Crons
         set_data_for_current_iteration
 
         get_block_data
-        r = process_response
+        r = validate_response
         return r unless r.success?
 
         process_transactions
@@ -56,6 +56,15 @@ module Crons
 
     end
 
+    # Set Data for current iteration
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Sets [@current_block_number, @start_timestamp, @block_data_response, @highest_block_number,
+    # @current_block_hash, @block_execution_timestamp, @transactions, @transaction_hash]
+    #
     def set_data_for_current_iteration
       @current_block_number = @last_processed_block_number + 1
       @start_timestamp = Time.now.to_i
@@ -65,11 +74,27 @@ module Crons
       @transaction_hash = nil
     end
 
+    # Updates last procssed block number
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Sets [@last_processed_block_number]
+    #
     def update_last_processed_block_number
       SaleGlobalVariable.last_block_processed.update_all(variable_data: @current_block_number)
       @last_processed_block_number = @current_block_number
     end
 
+    # Compute Sleep Interval for next iteration
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Returns[Integer] sleep interval in seconds
+    #
     def compute_sleep_interval
       sleep_time = 15
       blocks_trail_count = @highest_block_number - @current_block_number
@@ -86,19 +111,44 @@ module Crons
       sleep_time
     end
 
+    # Get block from public node
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Sets [@block_data_response]
+    #
     def get_block_data
       Rails.logger.info("read_block_events block number: #{@current_block_number} - Making API call ReadBlockEvents")
       @block_data_response = OpsApi::Request::GetBlockInfo.new.perform(get_token)
       Rails.logger.info("read_block_events --- block number: #{@current_block_number} --- block_fetched_response: #{@block_data.inspect}")
     end
 
+    # Gives the token for public ops call
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Returns [String] token for get_block_data parameter
+    #
     def get_token
       data = {block_number: @current_block_number}
       payload = {data: data}
       JWT.encode(payload, GlobalConstant::PublicOpsApi.secret_key, 'HS256')
     end
 
-    def process_response
+    # Validates Block data
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    # Sets [@transactions, @current_block_hash, @block_execution_timestamp, @highest_block_number]
+    #
+    def validate_response
       if @block_data_response.success?
         meta = @block_data_response.data[:meta]
         @transactions = @block_data_response.data[:transactions]
@@ -131,7 +181,14 @@ module Crons
       end
     end
 
-
+    # Process all transactions in a block
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Sets [@transaction_hash]
+    #
     def process_transactions
       @transactions.each do |transaction|
         @transaction_hash = transaction[:transaction_hash]
@@ -145,6 +202,12 @@ module Crons
       end
     end
 
+    # Process an event in a transaction
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
     def process_event(event)
       process_event_param = {
           transacton_hash: @transacton_hash,
@@ -158,7 +221,14 @@ module Crons
       end
     end
 
-
+    # Validate event in a transaction
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base] checks if event received is correct
+    #
     def validate_event(event)
       valid_events = SMART_CONTRACT_EVENTS[event[:address]]
 
@@ -184,6 +254,12 @@ module Crons
       )
     end
 
+    # Notify devs in case of an error condition
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
     def notify_devs(error_data)
       ApplicationMailer.notify(
           body: {current_block_number: @current_block_number},

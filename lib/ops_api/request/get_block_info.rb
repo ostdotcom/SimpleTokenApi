@@ -6,11 +6,11 @@ module OpsApi
 
       # Initialize
       #
-      # * Author: Kedar
-      # * Date: 26/10/2017
-      # * Reviewed By: Sunil
+      # * Author: Aman
+      # * Date: 31/10/2017
+      # * Reviewed By:
       #
-      # @return [OpsApi::Request::GetWhitelistConfirmation]
+      # @return [OpsApi::Request::GetBlockInfo]
       #
       def initialize
         super
@@ -18,9 +18,9 @@ module OpsApi
 
       # Perform
       #
-      # * Author: Kedar
-      # * Date: 26/10/2017
-      # * Reviewed By: Sunil
+      # * Author: Aman
+      # * Date: 31/10/2017
+      # * Reviewed By:
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

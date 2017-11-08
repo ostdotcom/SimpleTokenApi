@@ -2,8 +2,16 @@ module ContractEventManagement
 
   class Base < ServicesBase
 
+    # initialize
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # @return [ContractEventManagement::Base]
+    #
     def initialize(params)
-      @transacton_hash = params[:transacton_hash]
+      @transaction_hash = params[:transaction_hash]
       @block_hash = params[:block_hash]
       @events_variable = params[:events_variable]
 
@@ -11,6 +19,12 @@ module ContractEventManagement
       @phase = nil
     end
 
+    # Perform
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
     def perform
       r = validate
       return r unless r.success?
@@ -21,6 +35,14 @@ module ContractEventManagement
       success
     end
 
+    # Sanitize event_variables in an event
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # Sets [@phase, @address]
+    #
     def sanitize_event_variables
       @events_variable.each do |var_obj|
 
@@ -33,6 +55,12 @@ module ContractEventManagement
       end
     end
 
+    # create an entry in contract event
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
     def create_contract_event
       ContractEvent.create!({
                                 block_hash: @block_hash,
@@ -45,6 +73,14 @@ module ContractEventManagement
                             })
     end
 
+    # Event kind for contract event row
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # @return [Exception]
+    #
     def event_kind
       fail 'Event kind not specified for contract_events'
     end

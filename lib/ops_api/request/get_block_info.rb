@@ -24,8 +24,8 @@ module OpsApi
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def perform(token)
-        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type, 'get', '/address/check', {token: token})
+      def perform(params)
+        send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/block/get-info', params)
       end
 
     end

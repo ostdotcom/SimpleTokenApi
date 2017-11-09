@@ -23,12 +23,20 @@ module GlobalConstant
 
       ## Status Start ###
 
-      def unprocessed_status
-        'unprocessed'
+      def recorded_status
+        'recorded'
       end
 
       def processed_status
         'processed'
+      end
+
+      def failed_status
+        'failed'
+      end
+
+      def duplicate_status
+        'duplicate'
       end
 
       ## Status End ###

@@ -31,7 +31,7 @@ module ContractEventManagement
 
       # validate_ethereum_address
 
-      create_token_purchase_entry
+      create_purchase_log_entry
 
       mark_contract_event_as_processed
       success
@@ -45,8 +45,8 @@ module ContractEventManagement
     #
     # @return [Result::Base]
     #
-    def create_payment_details_entry
-      TokenPurchase.create!({
+    def create_purchase_log_entry
+      PurchaseLog.create!({
                                 ethereum_address: @ethereum_address,
                                 ether_value: @ether_value,
                                 usd_value: (@ether_value * ETHER_TO_USD_CONVERSION_RATE),

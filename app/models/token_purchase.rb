@@ -1,4 +1,0 @@
-class TokenPurchase < EstablishSimpleTokenContractInteractionsDbConnection
-
-
-end

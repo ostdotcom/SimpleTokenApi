@@ -46,7 +46,8 @@ module Crons
     # * Reviewed By:
     #
     def perform
-      @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
+      # @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
+      @last_processed_block_number = 21009
 
       while (@keep_processing)
         set_data_for_current_iteration
@@ -60,6 +61,7 @@ module Crons
           process_transactions
           update_last_processed_block_number
         end
+        @keep_processing = false
         sleep(compute_sleep_interval)
       end
 
@@ -93,22 +95,22 @@ module Crons
     #
     def get_block_data
       Rails.logger.info("read_block_events block number: #{@current_block_number} - Making API call ReadBlockEvents")
-      @block_data_response = OpsApi::Request::GetBlockInfo.new.perform(get_token)
+      @block_data_response = OpsApi::Request::GetBlockInfo.new.perform(public_api_request_params)
       Rails.logger.info("read_block_events --- block number: #{@current_block_number} --- block_fetched_response: #{@block_data.inspect}")
     end
 
-    # Gives the token for public ops call
+    # Gives the required params for public ops call
     #
     # * Author:Aman
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # Returns [String] token for get_block_data parameter
+    # Returns [Hash] data for get_block_data parameter
     #
-    def get_token
-      data = {block_number: @current_block_number}
-      payload = {data: data}
-      JWT.encode(payload, GlobalConstant::PublicOpsApi.secret_key, 'HS256')
+    def public_api_request_params
+      {
+          block_number: @current_block_number
+      }
     end
 
     # Validates Block data
@@ -124,6 +126,8 @@ module Crons
       if @block_data_response.success?
         meta = @block_data_response.data[:meta]
         @transactions = @block_data_response.data[:transactions]
+
+        binding.pry
 
         if (meta[:current_block][:block_number] != @current_block_number)
           notify_devs(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))

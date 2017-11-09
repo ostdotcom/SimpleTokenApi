@@ -25,7 +25,7 @@ module OpsApi
       # @return [Result::Base] returns an object of Result::Base class
       #
       def perform(params)
-        send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/block/get-info', params)
+        send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/block/get-transactions', params)
       end
 
     end

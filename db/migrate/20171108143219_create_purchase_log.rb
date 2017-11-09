@@ -4,9 +4,9 @@ class CreatePurchaseLog < DbMigrationConnection
     run_migration_for_db(EstablishSimpleTokenContractInteractionsDbConnection.config_key) do
       create_table :purchase_logs do |t|
         t.column :ethereum_address, :string, limit: 255, null: false
-        t.column :ether_value, :string, limit: 100, null: false
-        t.column :usd_value, :decimal, null: false
-        t.column :simple_token_value, :bigint, null: false
+        t.column :ether_value, :decimal, precision: 30, scale: 0, null: false
+        t.column :usd_value, :decimal, precision: 15, scale: 2, null: false
+        t.column :simple_token_value, :decimal, precision: 30, scale: 0, null: false
         t.column :block_creation_timestamp, :integer, null: false
         t.column :pst_day_start_timestamp, :integer, null: false
         t.timestamps

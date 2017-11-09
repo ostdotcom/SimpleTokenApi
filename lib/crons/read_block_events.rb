@@ -253,7 +253,7 @@ module Crons
                                                      kind: event_kind,
                                                      status: contract_event_status,
                                                      block_creation_timestamp: @block_creation_timestamp,
-                                                     data: event[:events]
+                                                     data: (event[:events] || {}).deep_symbolize_keys
                                                  })
       contract_event_obj
     end

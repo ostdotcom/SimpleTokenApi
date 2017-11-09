@@ -14,7 +14,7 @@ module Crons
     #
     def initialize(params)
       @kyc_whitelist_log = nil
-      @block_mine_status, @block_hash, @transaction_hash, @event_data =  nil, nil, nil, {}
+      @block_mine_status, @block_hash, @transaction_hash =  nil, nil, nil
       @user_id = nil
     end
 
@@ -68,7 +68,7 @@ module Crons
     #
     def initialize_for_iteration(kyc_whitelist_log)
       @kyc_whitelist_log = kyc_whitelist_log
-      @block_mine_status, @block_hash, @transaction_hash, @event_data =  nil, nil, nil, {}
+      @block_mine_status, @block_hash, @transaction_hash =  nil, nil, nil
       @user_id = nil
     end
 
@@ -78,7 +78,7 @@ module Crons
     # * Date: 26/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @block_mine_status, @block_hash, @transaction_hash, @event_data
+    # Sets @block_mine_status, @block_hash, @transaction_hash
     #
     # @return [Result::Base]
     #
@@ -93,17 +93,7 @@ module Crons
         @block_hash = @block_mine_status.data[:block_hash]
         @transaction_hash = @block_mine_status.data[:transaction_hash]
         @transaction_event = @block_mine_status.data[:events_data].first
-        @transaction_event[:events].each do |var_obj|
-          case var_obj[:name]
-            when '_account'
-              @event_data[:address] = var_obj[:value]
-            when '_phase'
-              @event_data[:phase] = var_obj[:value]
-          end
-        end
-
         success
-
       else
 
         handle_error('Block Not Mined')
@@ -217,7 +207,7 @@ module Crons
       data = {
           transaction_hash: @transaction_hash,
           block_hash: @block_hash,
-          event_data: @event_data
+          event_data: (@transaction_event[:events] || {}).deep_symbolize_keys
       }
 
       WhitelistManagement::ProcessAndRecordEvent.new(decoded_token_data: data).perform

@@ -91,7 +91,7 @@ module ContractEventManagement
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # Sets [@phase, @address]
+    # Sets [@ethereum_address, @wei_value, @usd_value, @simple_token_value]
     #
     def sanitize_event_data
       # todo: test with big numbers

@@ -96,9 +96,17 @@ module WhitelistManagement
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
       @block_creation_timestamp = @decoded_token_data[:block_creation_timestamp] || Time.now.to_i
-      event_data = (@decoded_token_data[:event_data] || {})
-      @ethereum_address = event_data[:address]
-      @phase = event_data[:phase].to_i
+      @event_data = (@decoded_token_data[:event_data] || {})
+
+      @event_data.each do |var_obj|
+        case var_obj[:name]
+          when '_account'
+            @ethereum_address = var_obj[:value]
+          when '_phase'
+            @phase = var_obj[:value].to_i
+        end
+      end
+
 
       success
     end
@@ -130,10 +138,7 @@ module WhitelistManagement
                                 block_creation_timestamp: @block_creation_timestamp,
                                 kind: GlobalConstant::ContractEvent.whitelist_kind,
                                 status: contract_event_status,
-                                data: {
-                                    address: @ethereum_address,
-                                    phase: @phase
-                                }
+                                data: @event_data
                             })
     end
 

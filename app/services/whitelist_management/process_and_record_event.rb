@@ -136,7 +136,7 @@ module WhitelistManagement
                                 block_number: @block_number,
                                 kind: GlobalConstant::ContractEvent.whitelist_kind,
                                 status: contract_event_status,
-                                data: @event_data
+                                data: {event_data: @event_data}
                             })
     end
 

@@ -11,7 +11,8 @@ module ContractEventManagement
     # @return [ContractEventManagement::Base]
     #
     def initialize(params)
-      @contract_event_obj = params[:contract_event_obj]
+      super
+      @contract_event_obj = @params[:contract_event_obj]
     end
 
     # mark contract event as processed
@@ -21,7 +22,7 @@ module ContractEventManagement
     # * Reviewed By:
     #
     def mark_contract_event_as_processed
-      @contract_event_obj.status == GlobalConstant::ContractEvent.processed_status
+      @contract_event_obj.status = GlobalConstant::ContractEvent.processed_status
       @contract_event_obj.save!
     end
 
@@ -32,7 +33,7 @@ module ContractEventManagement
     # * Reviewed By:
     #
     def mark_contract_event_as_failed
-      @contract_event_obj.status == GlobalConstant::ContractEvent.failed_status
+      @contract_event_obj.status = GlobalConstant::ContractEvent.failed_status
       @contract_event_obj.save!
     end
 

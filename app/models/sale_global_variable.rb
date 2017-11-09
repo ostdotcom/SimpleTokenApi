@@ -11,7 +11,7 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
   scope :sale_ended, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind) }
   scope :last_block_processed, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind) }
   scope :last_block_verified_for_tokens_sold, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind) }
-  scope :pre_sale_data, -> { where(variable_kind: [GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind, GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind]) }
+  scope :pre_sale_data_kinds, -> { where(variable_kind: [GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind, GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind]) }
 
   after_commit :sale_variables_memcache_flush
 
@@ -26,7 +26,7 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
   def self.pre_sale_data
     memcache_key_object = MemcacheKey.new('token_sale.pre_sale')
     Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
-      objs = SaleGlobalVariable.pre_sale_data.all.index_by(&:kind)
+      objs = SaleGlobalVariable.pre_sale_data_kinds.all.index_by(&:variable_kind)
       pre_sale_st_token_in_wei_value = objs[GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind].variable_data.to_i
       pre_sale_eth_in_wei_value = objs[GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind].variable_data.to_f
       pre_sale_usd_value = GlobalConstant::ConversionRate.eth_in_wei_to_usd(pre_sale_eth_in_wei_value)

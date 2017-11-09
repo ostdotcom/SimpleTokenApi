@@ -63,7 +63,7 @@ module Crons
     # * Reviewed By:
     #
     def verify_token_count
-      return if @last_verified_block_number_for_tokens_count + 60 < @current_block_number
+      return if (@last_verified_block_number_for_tokens_count + 60 > @current_block_number) || @total_token_sold_count.nil?
       total_tokens_in_wei_sold_in_db = PurchaseLog.select('sum(st_wei_value) as total_tokens_in_wei_sold').first.total_tokens_in_wei_sold.to_i
       pre_sale_st_tokens_in_wei_sold = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
 
@@ -155,7 +155,7 @@ module Crons
 
         @current_block_hash = meta[:current_block][:block_hash]
         @block_creation_timestamp = meta[:current_block][:timestamp].to_i
-        @highest_block_number = meta[:highest_block_number].to_i
+        @highest_block_number = meta[:hightest_block].to_i
 
         success
       else
@@ -202,7 +202,7 @@ module Crons
     def set_total_token_sold_count(contract_event_obj)
       return unless contract_event_obj.kind == GlobalConstant::ContractEvent.transfer_kind
 
-      contract_event_obj.data.each do |var_obj|
+      contract_event_obj.data[:event_data].each do |var_obj|
         if var_obj[:name] == '_totalSold'
           @total_token_sold_count = var_obj[:value].to_i
           return
@@ -218,10 +218,10 @@ module Crons
     #
     def get_event_kind(event_name)
       # todo: downcase and check
-      case event_name.downcase
-        when 'transfer'
+      case event_name
+        when 'TokensPurchased'
           GlobalConstant::ContractEvent.transfer_kind
-        when 'finalize'
+        when 'Finalize'
           GlobalConstant::ContractEvent.finalize_kind
         else
           fail 'Invalid Event Kind'
@@ -245,18 +245,20 @@ module Crons
       contract_event_status = GlobalConstant::ContractEvent.recorded_status
 
       if contract_event_obj.present?
-        return contract_event_obj if contract_event_obj.block_hash.downcase == @block_hash.downcase
+        return contract_event_obj if contract_event_obj.block_hash.downcase == @current_block_hash.downcase
         contract_event_status = GlobalConstant::ContractEvent.duplicate_status
         notify_dev({transaction_hash: transaction_hash, event_kind: event_kind, event: event, msg: 'duplicate event'})
       end
 
+      data = {event_data: event[:events]}.deep_symbolize_keys
+
       contract_event_obj = ContractEvent.create!({
-                                                     block_hash: @block_hash,
+                                                     block_hash: @current_block_hash,
                                                      transaction_hash: transaction_hash,
                                                      kind: event_kind,
                                                      status: contract_event_status,
                                                      block_number: @current_block_number,
-                                                     data: (event[:events] || {}).deep_symbolize_keys
+                                                     data: data
                                                  })
       contract_event_obj
     end
@@ -271,11 +273,10 @@ module Crons
     # @return [Result::Base] checks if event received is correct
     #
     def validate_event(event)
-      # todo: downcase and check??
+
       valid_events = SMART_CONTRACT_EVENTS[event[:address]]
 
-      # todo: downcase and check??
-      return success if valid_events.present? && valid_events.includes?(event[:name])
+      return success if valid_events.present? && valid_events.include?(event[:name])
 
       notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event address"))
       return error_with_data(

@@ -13,7 +13,7 @@ module ContractEventManagement
     def initialize(params)
       super
 
-      @block_creation_timestamp = params[:block_creation_timestamp]
+      @block_creation_timestamp = @params[:block_creation_timestamp]
 
       @ethereum_address, @ether_value, @usd_value, @st_wei_value = nil, nil, nil, nil
     end
@@ -39,7 +39,8 @@ module ContractEventManagement
 
         mark_contract_event_as_processed
         success
-      rescue => e
+
+      rescue Exception => e
         mark_contract_event_as_failed
         return exception_with_data(
             e,
@@ -93,8 +94,7 @@ module ContractEventManagement
     # Sets [@ethereum_address, @ether_wei_value, @usd_value, @st_wei_value]
     #
     def sanitize_event_data
-      # todo: test with big numbers
-      @contract_event_obj.data.each do |var_obj|
+      @contract_event_obj.data[:event_data].each do |var_obj|
 
         case var_obj[:name]
           when '_beneficiary'

@@ -38,7 +38,7 @@ module GlobalConstant
       # return [Deciaml] Converts eth in wei to usd
       #
       def wei_to_basic_unit(wei_count)
-        ((wei_count * 1.00)/ether_to_wei_conversion_rate).to_f
+        ((wei_count.to_i * 1.00)/ether_to_wei_conversion_rate).to_f
       end
 
       # Converts eth in wei to usd

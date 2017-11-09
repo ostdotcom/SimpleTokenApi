@@ -81,7 +81,7 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase
+    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_creation_timestamp
     #
     # @return [Result::Base]
     #
@@ -95,7 +95,7 @@ module WhitelistManagement
 
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
-      @block_creation_timestamp = @decoded_token_data[:block_creation_timestamp] || Time.now.to_i
+      @block_creation_timestamp = @decoded_token_data[:block_creation_timestamp].to_i
       @event_data = (@decoded_token_data[:event_data] || {})
 
       @event_data.each do |var_obj|

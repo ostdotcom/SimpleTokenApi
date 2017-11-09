@@ -136,8 +136,8 @@ module UserManagement
 
       {
           total_dollars_sent: stat_data.total_usd_value.to_f.round(2),
-          total_ethereum_sent: ((stat_data.total_ether_wei_value * 1.00)/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2),
-          simple_token_sent: (stat_data.total_simple_token_wei_value/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).to_i
+          total_ethereum_sent: GlobalConstant::ConversionRate.wei_to_basic_unit(stat_data.total_ether_wei_value).round(2),
+          simple_token_sent: GlobalConstant::ConversionRate.wei_to_basic_unit(stat_data.total_simple_token_wei_value).to_i
       }
     end
 

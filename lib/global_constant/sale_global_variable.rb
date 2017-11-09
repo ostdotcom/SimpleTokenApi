@@ -19,6 +19,14 @@ module GlobalConstant
         'last_block_verified_for_tokens_sold_variable_kind'
       end
 
+      def pre_sale_tokens_sold_variable_kind
+        'pre_sale_tokens_sold_variable_kind'
+      end
+
+      def pre_sale_eth_received_variable_kind
+        'pre_sale_eth_received_variable_kind'
+      end
+
       ########## variable kinds ###########
 
     end

@@ -65,12 +65,18 @@ module Crons
     def verify_token_count
       return if @last_verified_block_number_for_tokens_count + 60 < @current_block_number
       total_tokens_in_wei_sold_in_db = PurchaseLog.select('sum(st_wei_value) as total_tokens_in_wei_sold').first.total_tokens_in_wei_sold.to_i
+      pre_sale_st_tokens_in_wei_sold = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
 
       ApplicationMailer.notify(
           body: {},
-          data: {current_block_number: @current_block_number, total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db, total_token_sold_count_in_event: @total_token_sold_count},
+          data: {
+              current_block_number: @current_block_number,
+              total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db,
+              total_token_sold_count_in_event: @total_token_sold_count,
+              pre_sale_st_tokens_in_wei_sold: pre_sale_st_tokens_in_wei_sold
+          },
           subject: 'Data Mismatch For total tokens sold'
-      ).deliver if @total_token_sold_count != total_tokens_in_wei_sold_in_db
+      ).deliver if @total_token_sold_count != (total_tokens_in_wei_sold_in_db + pre_sale_st_tokens_in_wei_sold)
 
       SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number)
       @last_verified_block_number_for_tokens_count = @current_block_number

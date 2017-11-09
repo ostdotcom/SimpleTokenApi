@@ -5,6 +5,9 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
   def self.sale_details
     memcache_key_object = MemcacheKey.new('token_sale.sale_details')
     Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
+
+      # sale_ended_before_time can be cached and used here
+
       return {sale_details: {}} unless GlobalConstant::TokenSale.is_early_access_sale_started?
 
       pre_sale_data = SaleGlobalVariable.pre_sale_data

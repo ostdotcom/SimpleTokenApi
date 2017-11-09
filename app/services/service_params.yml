@@ -50,6 +50,13 @@
     - :offset
     - :page_size
 
+'AdminManagement::Kyc::Dashboard::Sale':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :offset
+    - :page_size
+
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
     - :admin_id

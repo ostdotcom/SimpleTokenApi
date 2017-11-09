@@ -2,7 +2,9 @@ module ContractEventManagement
 
   class Transfer < Base
 
-    ETHER_TO_USD_CONVERSION_RATE = 300
+    # with 2 digit precision
+    ETHER_TO_USD_CONVERSION_RATE = 300.00
+
     # initialize
     #
     # * Author:Aman
@@ -62,7 +64,7 @@ module ContractEventManagement
     def create_purchase_log_entry
       PurchaseLog.create!({
                               ethereum_address: @ethereum_address,
-                              ether_value: @ether_value.to_s,
+                              ether_value: @wei_value,
                               usd_value: @usd_value,
                               simple_token_value: @simple_token_value,
                               block_creation_timestamp: @contract_event_obj.block_creation_timestamp,
@@ -99,12 +101,25 @@ module ContractEventManagement
           when '_beneficiary'
             @ethereum_address = var_obj[:value].to_s
           when '_cost'
-            @ether_value = var_obj[:value].to_f
-            @usd_value = @ether_value * ETHER_TO_USD_CONVERSION_RATE
+            @wei_value = var_obj[:value].to_i
+            @usd_value = ((@wei_value * 1.00 * ETHER_TO_USD_CONVERSION_RATE)/ether_to_wei_conversion_rate).round(2)
           when '_tokens'
             @simple_token_value = var_obj[:value].to_i
         end
       end
+
+    end
+
+    # Conversion rate for ether to wei
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # return [Integer] conversion rate for ether to wei
+    #
+    def ether_to_wei_conversion_rate
+      @ether_to_wei_conversion_rate ||= (10 ** 18)
     end
 
   end

@@ -45,12 +45,10 @@ module Crons
         if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
           process_transactions
           update_last_processed_block_number
+          verify_token_count if blocks_trail_count == MIN_BLOCK_DIFFERENCE
         end
 
-        if blocks_trail_count == MIN_BLOCK_DIFFERENCE
-          verify_token_count
-          return
-        end
+        return if blocks_trail_count <= MIN_BLOCK_DIFFERENCE
 
       end
 
@@ -217,11 +215,10 @@ module Crons
     # * Reviewed By:
     #
     def get_event_kind(event_name)
-      # todo: downcase and check
       case event_name
         when 'TokensPurchased'
           GlobalConstant::ContractEvent.transfer_kind
-        when 'Finalize'
+        when 'Finalized'
           GlobalConstant::ContractEvent.finalize_kind
         else
           fail 'Invalid Event Kind'

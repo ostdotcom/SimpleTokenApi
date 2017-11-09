@@ -2,9 +2,6 @@ module ContractEventManagement
 
   class Transfer < Base
 
-    # with 2 digit precision
-    ETHER_TO_USD_CONVERSION_RATE = 300.00
-
     # initialize
     #
     # * Author:Aman
@@ -102,24 +99,12 @@ module ContractEventManagement
             @ethereum_address = var_obj[:value].to_s
           when '_cost'
             @wei_value = var_obj[:value].to_i
-            @usd_value = ((@wei_value * 1.00 * ETHER_TO_USD_CONVERSION_RATE)/ether_to_wei_conversion_rate).round(2)
+            @usd_value = ((@wei_value * 1.00 * GlobalConstant::ConversionRate.usd_to_ether_conversion_rate)/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2)
           when '_tokens'
             @simple_token_value = var_obj[:value].to_i
         end
       end
 
-    end
-
-    # Conversion rate for ether to wei
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # return [Integer] conversion rate for ether to wei
-    #
-    def ether_to_wei_conversion_rate
-      @ether_to_wei_conversion_rate ||= (10 ** 18)
     end
 
   end

@@ -203,14 +203,11 @@ module Crons
       return unless contract_event_obj.kind == GlobalConstant::ContractEvent.transfer_kind
 
       contract_event_obj.data.each do |var_obj|
-
-        # todo: _last_token_sold_count var name in event
-        if var_obj[:name] == '_last_token_sold_count'
+        if var_obj[:name] == '_totalSold'
           @total_token_sold_count = var_obj[:value].to_i
           return
         end
       end
-
     end
 
     # get user_contract_event kind

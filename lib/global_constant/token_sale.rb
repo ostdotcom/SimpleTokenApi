@@ -29,6 +29,10 @@ module GlobalConstant
         Time.zone.parse(GlobalConstant::Base.st_token_sale['sale_dates']['general_access_end_date'])
       end
 
+      def is_early_access_sale_started?
+        Time.now >= GlobalConstant::TokenSale.early_access_start_date
+      end
+
       def is_general_sale_interval?
         (Time.now >= GlobalConstant::TokenSale.general_access_start_date) && (Time.now < GlobalConstant::TokenSale.general_access_end_date)
       end
@@ -38,7 +42,7 @@ module GlobalConstant
       end
 
       def is_sale_ended_before_time?
-        ::SaleGlobalVariable.sale_ended_before_time_flag[:sale_ended_before_time].to_i == 1
+        ::PurchaseLog.sale_details[:sale_details][:sale_ended_before_time].to_i == 1
       end
 
       def is_sale_ended?

@@ -20,6 +20,8 @@ module Crons
     #
     def initialize
       @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
+      @last_verified_block_number_for_tokens_count = SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.first.try(:variable_data).to_i
+      @total_token_sold_count = nil
     end
 
     # Perform
@@ -43,12 +45,35 @@ module Crons
         if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
           process_transactions
           update_last_processed_block_number
-        else
+        end
+
+        if blocks_trail_count == MIN_BLOCK_DIFFERENCE
+          verify_token_count
           return
         end
 
       end
 
+    end
+
+    # Verify if token sold count matches with our data after 60 blocks approx 15 mins
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    def verify_token_count
+      return if @last_verified_block_number_for_tokens_count + 60 < @current_block_number
+      total_tokens_sold_in_db = PurchaseLog.select('sum(simple_token_value) as total_tokens_sold').first.token_sold_count.to_i
+
+      ApplicationMailer.notify(
+          body: {},
+          data: {current_block_number: @current_block_number, total_tokens_sold_in_db: total_tokens_sold, total_token_sold_count_in_event: @total_token_sold_count},
+          subject: 'Data Mismatch For total tokens sold'
+      ).deliver if @total_token_sold_count != total_tokens_sold_in_db
+
+      SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number)
+      @last_verified_block_number_for_tokens_count = @current_block_number
     end
 
     # Set Data for current iteration
@@ -156,8 +181,30 @@ module Crons
           return if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
 
           process_event(contract_event_obj)
+          set_total_token_sold_count(contract_event_obj)
         end
       end
+    end
+
+    # Set total token sold_count
+    #
+    # * Author:Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    #
+    def set_total_token_sold_count(contract_event_obj)
+      return unless contract_event_obj.kind == GlobalConstant::ContractEvent.transfer_kind
+
+      contract_event_obj.data.each do |var_obj|
+
+        # todo: _last_token_sold_count var name in event
+        if var_obj[:name] == '_last_token_sold_count'
+          @total_token_sold_count = var_obj[:value].to_i
+          return
+        end
+      end
+
     end
 
     # get user_contract_event kind
@@ -201,13 +248,13 @@ module Crons
       end
 
       contract_event_obj = ContractEvent.create!({
-                                block_hash: @block_hash,
-                                transaction_hash: transaction_hash,
-                                kind: event_kind,
-                                status: contract_event_status,
-                                block_creation_timestamp: @block_creation_timestamp,
-                                data: event[:events]
-                            })
+                                                     block_hash: @block_hash,
+                                                     transaction_hash: transaction_hash,
+                                                     kind: event_kind,
+                                                     status: contract_event_status,
+                                                     block_creation_timestamp: @block_creation_timestamp,
+                                                     data: event[:events]
+                                                 })
       contract_event_obj
     end
 

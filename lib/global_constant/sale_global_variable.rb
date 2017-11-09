@@ -15,6 +15,10 @@ module GlobalConstant
         'last_block_processed_variable_kind'
       end
 
+      def last_block_verified_for_tokens_sold_variable_kind
+        'last_block_verified_for_tokens_sold_variable_kind'
+      end
+
       ########## variable kinds ###########
 
     end

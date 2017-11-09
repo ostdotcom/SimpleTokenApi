@@ -2,11 +2,13 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
 
   enum variable_kind: {
            GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind => 1,
-           GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind => 2
+           GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind => 2,
+           GlobalConstant::SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind => 3
        }
 
   scope :sale_ended, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind) }
   scope :last_block_processed, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind) }
+  scope :last_block_verified_for_tokens_sold, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind) }
 
   after_commit :sale_ended_memcache_flush
 

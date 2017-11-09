@@ -118,8 +118,6 @@ module WhitelistManagement
     # * Reviewed By: Sunil
     #
     def create_user_contract_event
-      # todo: data to unprocessed data
-
       contract_event_obj = ContractEvent.where(
           transaction_hash: @transaction_hash,
           kind: GlobalConstant::ContractEvent.whitelist_kind

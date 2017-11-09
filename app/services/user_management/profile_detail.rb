@@ -150,6 +150,7 @@ module UserManagement
     # @return [Hash] hash of sale stats
     #
     def sale_stats
+      # can rely on check in purchase log and fetch data everytime from there ever on 14th for general access users
       if Time.now >= sale_start_time
         PurchaseLog.sale_details
       else

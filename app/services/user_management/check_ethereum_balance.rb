@@ -119,7 +119,7 @@ module UserManagement
     #
     def api_response
       {
-          purchase_details: token_purchase_data
+          purchase_details: user_purchase_data
       }
     end
 
@@ -153,8 +153,16 @@ module UserManagement
       (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ? GlobalConstant::TokenSale.early_access_start_date : GlobalConstant::TokenSale.general_access_start_date
     end
 
-    def token_purchase_data
-      (!GlobalConstant::TokenSale.is_sale_ended? && (Time.now >= sale_start_time)) ? get_user_sale_detail : {}
+    # purchase data for user
+    #
+    # * Author: Aman
+    # * Date: 09/11/2017
+    # * Reviewed By:
+    #
+    # @return [Hash] sale stat for user
+    #
+    def user_purchase_data
+      Time.now >= sale_start_time ? get_user_sale_detail : {}
     end
 
   end

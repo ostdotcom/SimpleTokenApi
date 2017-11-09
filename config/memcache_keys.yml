@@ -13,6 +13,10 @@ alternate_token:
 
 token_sale:
   sale_details:
-    key_template: 'token_sale_start_end_details'
-    expiry_in_hours: 24
+    key_template: 'token_sale_stats'
+    expiry_in_hours: 0.05
     used_in_shared_env: true
+
+  pre_sale:
+    key_template: 'token_sale_pre_sale'
+    expiry_in_hours: 24

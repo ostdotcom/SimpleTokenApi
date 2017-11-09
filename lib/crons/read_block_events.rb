@@ -24,17 +24,9 @@ module Crons
     # @return [Crons::ReadBlockEvents]
     #
     def initialize
-      @last_processed_block_number = 0
-      @current_block_number = 1
+      @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
 
-      @block_data_response = {}
       @keep_processing = true
-      @sleep_interval = BLOCK_CREATION_AVERAGE_WAIT_TIME # in seconds
-      @start_time = nil
-      @highest_block_number = nil
-
-      @current_block_hash, @block_creation_timestamp, @transactions = nil, nil, []
-      @transaction_hash = nil
     end
 
     # Perform
@@ -46,14 +38,14 @@ module Crons
     # * Reviewed By:
     #
     def perform
-      # @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
-      @last_processed_block_number = 21009
+
+      # todo: @keep_processing only if needed to stop else remove
 
       while (@keep_processing)
         set_data_for_current_iteration
 
         get_block_data
-        # todo: Invalid response structure.. events will be filtered and sent?
+
         r = validate_response
         return r unless r.success?
 
@@ -61,7 +53,8 @@ module Crons
           process_transactions
           update_last_processed_block_number
         end
-        @keep_processing = false
+
+        # todo: sleep to be handled from continuos cron service
         sleep(compute_sleep_interval)
       end
 
@@ -81,8 +74,8 @@ module Crons
       @start_timestamp = Time.now.to_i
       @block_data_response = {}
       @highest_block_number = nil
-      @current_block_hash, @block_creation_timestamp, @transactions = nil, nil, []
-      @transaction_hash = nil
+      @current_block_hash, @block_creation_timestamp,  = nil, nil
+      @transactions, @transaction_hash = nil, []
     end
 
     # Get block from public node
@@ -96,7 +89,7 @@ module Crons
     def get_block_data
       Rails.logger.info("read_block_events block number: #{@current_block_number} - Making API call ReadBlockEvents")
       @block_data_response = OpsApi::Request::GetBlockInfo.new.perform(public_api_request_params)
-      Rails.logger.info("read_block_events --- block number: #{@current_block_number} --- block_fetched_response: #{@block_data.inspect}")
+      Rails.logger.info("read_block_events --- block number: #{@current_block_number} --- block_fetched_response: #{@block_data_response.inspect}")
     end
 
     # Gives the required params for public ops call
@@ -128,7 +121,7 @@ module Crons
         @transactions = @block_data_response.data[:transactions]
 
 
-        if (meta[:current_block][:block_number] != @current_block_number)
+        if (meta[:current_block][:block_number].to_i != @current_block_number)
           notify_dev(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))
           return error_with_data(
               'c_rbe_1',
@@ -140,8 +133,8 @@ module Crons
         end
 
         @current_block_hash = meta[:current_block][:block_hash]
-        @block_creation_timestamp = meta[:current_block][:timestamp]
-        @highest_block_number = meta[:highest_block_number]
+        @block_creation_timestamp = meta[:current_block][:timestamp].to_i
+        @highest_block_number = meta[:highest_block_number].to_i
 
         success
       else
@@ -185,8 +178,10 @@ module Crons
     # @return [Result::Base] checks if event received is correct
     #
     def validate_event(event)
+      # todo: downcase and check??
       valid_events = SMART_CONTRACT_EVENTS[event[:address]]
 
+      # todo: downcase and check??
       return success if valid_events.present? && valid_events.includes?(event[:name])
 
       notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event address"))
@@ -197,7 +192,6 @@ module Crons
           GlobalConstant::ErrorAction.default,
           {}
       )
-
     end
 
     # Process an event in a transaction
@@ -221,6 +215,17 @@ module Crons
           # skip event processing
       end
 
+    end
+
+    def get_event_kind(event_name)
+      case event_name.downcase
+        when 'transfer'
+          GlobalConstant::ContractEvent.transfer_kind
+        when 'finalize'
+          GlobalConstant::ContractEvent.finalize_kind
+        else
+          fail 'Invalid Event Kind'
+      end
     end
 
     # create user_contract_event
@@ -253,18 +258,6 @@ module Crons
                                 data: event_data
                             })
 
-    end
-
-
-    def get_event_kind(event_name)
-      case event_name.downcase
-        when 'transfer'
-          GlobalConstant::ContractEvent.transfer_kind
-        when 'finalize'
-          GlobalConstant::ContractEvent.finalize_kind
-        else
-          fail 'Invalid Event Kind'
-      end
     end
 
     # Updates last procssed block number

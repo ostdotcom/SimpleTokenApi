@@ -14,7 +14,7 @@ module ContractEventManagement
     def initialize(params)
       super
 
-      @ethereum_address, @ether_value, @simple_token_value, @block_creation_timestamp = nil, nil, nil, nil
+      @ethereum_address, @ether_value, @usd_value, @simple_token_value = nil, nil, nil, nil
     end
 
     # Perform
@@ -63,7 +63,7 @@ module ContractEventManagement
       PurchaseLog.create!({
                               ethereum_address: @ethereum_address,
                               ether_value: @ether_value.to_s,
-                              usd_value: (@ether_value * ETHER_TO_USD_CONVERSION_RATE),
+                              usd_value: @usd_value,
                               simple_token_value: @simple_token_value,
                               block_creation_timestamp: @contract_event_obj.block_creation_timestamp,
                               pst_day_start_timestamp: get_pst_rounded_purchase_date
@@ -92,14 +92,17 @@ module ContractEventManagement
     # Sets [@phase, @address]
     #
     def sanitize_event_data
+      # todo: test with big numbers
       @contract_event_obj.data.each do |var_obj|
 
         case var_obj[:name]
-          when '_account'
-            @address = var_obj[:value]
-            @ethereum_address = nil
-          # when '_phase'
-          #   @phase = var_obj[:value]
+          when '_beneficiary'
+            @ethereum_address = var_obj[:value].to_s
+          when '_cost'
+            @ether_value = var_obj[:value].to_f
+            @usd_value = @ether_value * ETHER_TO_USD_CONVERSION_RATE
+          when '_tokens'
+            @simple_token_value = var_obj[:value].to_i
         end
       end
     end

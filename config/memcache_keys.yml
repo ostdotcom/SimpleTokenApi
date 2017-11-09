@@ -20,3 +20,8 @@ token_sale:
   pre_sale:
     key_template: 'token_sale_pre_sale'
     expiry_in_hours: 24
+
+  total_sale:
+    key_template: 'token_sale_total_sale_details'
+    expiry_in_hours: 0.05
+    used_in_shared_env: true

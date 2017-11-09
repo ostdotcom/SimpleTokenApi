@@ -10,11 +10,6 @@ module Crons
 
     MIN_BLOCK_DIFFERENCE = 6
 
-    #IN seconds
-    BLOCK_CREATION_AVERAGE_WAIT_TIME = 15
-    BLOCK_CREATION_MAX_WAIT_TIME = 25
-    MIN_SLEEP_TIME = 1
-
     # initialize
     #
     # * Author:Aman
@@ -25,8 +20,6 @@ module Crons
     #
     def initialize
       @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
-
-      @keep_processing = true
     end
 
     # Perform
@@ -39,9 +32,7 @@ module Crons
     #
     def perform
 
-      # todo: @keep_processing only if needed to stop else remove
-
-      while (@keep_processing)
+      while true
         set_data_for_current_iteration
 
         get_block_data
@@ -52,10 +43,10 @@ module Crons
         if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
           process_transactions
           update_last_processed_block_number
+        else
+          return
         end
 
-        # todo: sleep to be handled from continuos cron service
-        sleep(compute_sleep_interval)
       end
 
     end
@@ -66,16 +57,15 @@ module Crons
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # Sets [@current_block_number, @start_timestamp, @block_data_response, @highest_block_number,
-    # @current_block_hash, @block_creation_timestamp, @transactions, @transaction_hash]
+    # Sets [@current_block_number, @block_data_response, @highest_block_number,
+    # @current_block_hash, @block_creation_timestamp, @transactions]
     #
     def set_data_for_current_iteration
       @current_block_number = @last_processed_block_number + 1
-      @start_timestamp = Time.now.to_i
       @block_data_response = {}
       @highest_block_number = nil
-      @current_block_hash, @block_creation_timestamp,  = nil, nil
-      @transactions, @transaction_hash = nil, []
+      @current_block_hash, @block_creation_timestamp, = nil, nil
+      @transactions = nil
     end
 
     # Get block from public node
@@ -155,19 +145,72 @@ module Crons
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # Sets [@transaction_hash]
     #
     def process_transactions
       @transactions.each do |transaction|
-        @transaction_hash = transaction[:transaction_hash]
-
         transaction[:events_data].each do |event|
           r = validate_event(event)
           next unless r.success?
-          process_event(event)
+
+          contract_event_obj = create_contract_event(transaction[:transaction_hash], event)
+          return if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
+
+          process_event(contract_event_obj)
         end
       end
     end
+
+    # get user_contract_event kind
+    #
+    # * Author: Aman
+    # * Date: 09/11/2017
+    # * Reviewed By:
+    #
+    def get_event_kind(event_name)
+      # todo: downcase and check
+      case event_name.downcase
+        when 'transfer'
+          GlobalConstant::ContractEvent.transfer_kind
+        when 'finalize'
+          GlobalConstant::ContractEvent.finalize_kind
+        else
+          fail 'Invalid Event Kind'
+      end
+    end
+
+    # create user_contract_event
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    def create_contract_event(transaction_hash, event)
+      event_kind = get_event_kind(event[:name])
+
+      contract_event_obj = ContractEvent.where(
+          transaction_hash: transaction_hash,
+          kind: event_kind
+      ).first
+
+      contract_event_status = GlobalConstant::ContractEvent.recorded_status
+
+      if contract_event_obj.present?
+        return contract_event_obj if contract_event_obj.block_hash.downcase == @block_hash.downcase
+        contract_event_status = GlobalConstant::ContractEvent.duplicate_status
+        notify_dev({transaction_hash: transaction_hash, event_kind: event_kind, event: event, msg: 'duplicate event'})
+      end
+
+      contract_event_obj = ContractEvent.create!({
+                                block_hash: @block_hash,
+                                transaction_hash: transaction_hash,
+                                kind: event_kind,
+                                status: contract_event_status,
+                                block_creation_timestamp: @block_creation_timestamp,
+                                data: event[:events]
+                            })
+      contract_event_obj
+    end
+
 
     # Validate event in a transaction
     #
@@ -200,13 +243,8 @@ module Crons
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    def process_event(event)
-      event_kind = get_event_kind(event[:name])
-      contract_event_obj = create_contract_event(event_kind, event_data)
-
-      return if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
-
-      case event_kind
+    def process_event(contract_event_obj)
+      case contract_event_obj.kind
         when GlobalConstant::ContractEvent.transfer_kind
           ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj).perform
         when GlobalConstant::ContractEvent.finalize_kind
@@ -214,50 +252,6 @@ module Crons
         else
           # skip event processing
       end
-
-    end
-
-    def get_event_kind(event_name)
-      case event_name.downcase
-        when 'transfer'
-          GlobalConstant::ContractEvent.transfer_kind
-        when 'finalize'
-          GlobalConstant::ContractEvent.finalize_kind
-        else
-          fail 'Invalid Event Kind'
-      end
-    end
-
-    # create user_contract_event
-    #
-    # * Author: Aman
-    # * Date: 25/10/2017
-    # * Reviewed By: Sunil
-    #
-    def create_contract_event(event_kind, event_data)
-
-      contract_event_obj = ContractEvent.where(
-          transaction_hash: @transaction_hash,
-          kind: event_kind
-      ).first
-
-      contract_event_status = GlobalConstant::ContractEvent.recorded_status
-
-      if contract_event_obj.present?
-        return contract_event_obj if contract_event_obj.block_hash.downcase == @block_hash.downcase
-        contract_event_status = GlobalConstant::ContractEvent.duplicate_status
-        notify_dev({transaction_hash: @transaction_hash, event_kind: event_kind, event_data: event_data, msg: 'duplicate event'})
-      end
-
-      ContractEvent.create!({
-                                block_hash: @block_hash,
-                                transaction_hash: @transaction_hash,
-                                kind: event_kind,
-                                status: contract_event_status,
-                                block_creation_timestamp: @block_creation_timestamp,
-                                data: event_data
-                            })
-
     end
 
     # Updates last procssed block number
@@ -273,28 +267,14 @@ module Crons
       @last_processed_block_number = @current_block_number
     end
 
-    # Compute Sleep Interval for next iteration
+    # No of blocks block processor is trailing by
     #
     # * Author:Aman
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # Returns[Integer] sleep interval in seconds
+    # @return [Boolean]
     #
-    def compute_sleep_interval
-
-      if (blocks_trail_count < MIN_BLOCK_DIFFERENCE)
-        sleep_time = BLOCK_CREATION_MAX_WAIT_TIME
-      elsif (blocks_trail_count > MIN_BLOCK_DIFFERENCE)
-        sleep_time = MIN_SLEEP_TIME
-      else # block difference is exactly equal to min needed
-        sleep_time = BLOCK_CREATION_AVERAGE_WAIT_TIME - (Time.now.to_i - @start_timestamp)
-        sleep_time > MIN_SLEEP_TIME ? sleep_time : MIN_SLEEP_TIME
-      end
-
-      sleep_time
-    end
-
     def blocks_trail_count
       @highest_block_number - @current_block_number
     end

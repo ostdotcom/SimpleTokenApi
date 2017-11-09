@@ -32,7 +32,7 @@ module ContractEventManagement
         r = validate
         return r unless r.success?
 
-        #validate ethereum address??
+        # todo: validate ethereum address??
 
         sanitize_event_data
 

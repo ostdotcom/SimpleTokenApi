@@ -64,13 +64,13 @@ module Crons
     #
     def verify_token_count
       return if @last_verified_block_number_for_tokens_count + 60 < @current_block_number
-      total_tokens_sold_in_db = PurchaseLog.select('sum(simple_token_value) as total_tokens_sold').first.token_sold_count.to_i
+      total_tokens_in_wei_sold_in_db = PurchaseLog.select('sum(st_wei_value) as total_tokens_in_wei_sold').first.total_tokens_in_wei_sold.to_i
 
       ApplicationMailer.notify(
           body: {},
-          data: {current_block_number: @current_block_number, total_tokens_sold_in_db: total_tokens_sold, total_token_sold_count_in_event: @total_token_sold_count},
+          data: {current_block_number: @current_block_number, total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db, total_token_sold_count_in_event: @total_token_sold_count},
           subject: 'Data Mismatch For total tokens sold'
-      ).deliver if @total_token_sold_count != total_tokens_sold_in_db
+      ).deliver if @total_token_sold_count != total_tokens_in_wei_sold_in_db
 
       SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number)
       @last_verified_block_number_for_tokens_count = @current_block_number
@@ -89,7 +89,7 @@ module Crons
       @current_block_number = @last_processed_block_number + 1
       @block_data_response = {}
       @highest_block_number = nil
-      @current_block_hash, @block_creation_timestamp, = nil, nil
+      @current_block_hash, @block_creation_timestamp = nil, nil
       @transactions = nil
     end
 
@@ -128,7 +128,7 @@ module Crons
     # * Reviewed By:
     #
     # @return [Result::Base]
-    # Sets [@transactions, @current_block_hash, @block_creation_timestamp, @highest_block_number]
+    # Sets [@transactions, @current_block_hash, @block_creation_timestamp, @block_number, @highest_block_number]
     #
     def validate_response
       if @block_data_response.success?
@@ -252,7 +252,7 @@ module Crons
                                                      transaction_hash: transaction_hash,
                                                      kind: event_kind,
                                                      status: contract_event_status,
-                                                     block_creation_timestamp: @block_creation_timestamp,
+                                                     block_number: @current_block_number,
                                                      data: (event[:events] || {}).deep_symbolize_keys
                                                  })
       contract_event_obj
@@ -293,7 +293,7 @@ module Crons
     def process_event(contract_event_obj)
       case contract_event_obj.kind
         when GlobalConstant::ContractEvent.transfer_kind
-          ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj).perform
+          ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp).perform
         when GlobalConstant::ContractEvent.finalize_kind
           ContractEventManagement::Finalize.new(contract_event_obj: contract_event_obj).perform
         else

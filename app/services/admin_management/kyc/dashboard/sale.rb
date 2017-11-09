@@ -82,7 +82,7 @@ module AdminManagement
           @total_filtered_kycs = PurchaseLog.group("pst_day_start_timestamp").count
 
           PurchaseLog
-              .select("pst_day_start_timestamp, sum(ether_value) as total_ether_value, sum(simple_token_value) as total_simple_token_value, sum(usd_value) as total_usd_value")
+              .select("pst_day_start_timestamp, sum(ether_wei_value) as total_ether_value, sum(st_wei_value) as total_simple_token_value, sum(usd_value) as total_usd_value")
               .limit(@page_size).offset(@offset)
               .group("pst_day_start_timestamp")
               .order("pst_day_start_timestamp DESC")

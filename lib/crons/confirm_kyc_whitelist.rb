@@ -14,7 +14,7 @@ module Crons
     #
     def initialize(params)
       @kyc_whitelist_log = nil
-      @block_mine_status, @block_hash, @block_creation_timestamp, @transaction_hash =  nil, nil, nil, nil
+      @block_mine_status, @block_hash, @block_number, @transaction_hash =  nil, nil, nil, nil
       @user_id = nil
     end
 
@@ -68,7 +68,7 @@ module Crons
     #
     def initialize_for_iteration(kyc_whitelist_log)
       @kyc_whitelist_log = kyc_whitelist_log
-      @block_mine_status, @block_hash, @block_creation_timestamp, @transaction_hash =  nil, nil, nil, nil
+      @block_mine_status, @block_hash, @block_number, @transaction_hash =  nil, nil, nil, nil
       @user_id = nil
     end
 
@@ -78,7 +78,7 @@ module Crons
     # * Date: 26/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @block_mine_status, @block_hash, @block_creation_timestamp, @transaction_hash
+    # Sets @block_mine_status, @block_hash, @block_number, @transaction_hash
     #
     # @return [Result::Base]
     #
@@ -92,7 +92,7 @@ module Crons
       if @block_mine_status.success?
         @block_hash = @block_mine_status.data[:block_hash]
         @transaction_hash = @block_mine_status.data[:transaction_hash]
-        @block_creation_timestamp = @block_mine_status.data[:block_creation_timestamp].to_i
+        @block_number = @block_mine_status.data[:block_number].to_i
         @transaction_event = @block_mine_status.data[:events_data].first
         success
       else
@@ -208,7 +208,7 @@ module Crons
       data = {
           transaction_hash: @transaction_hash,
           block_hash: @block_hash,
-          block_creation_timestamp: @block_creation_timestamp,
+          block_number: @block_number,
           event_data: (@transaction_event[:events] || {}).deep_symbolize_keys
       }
 

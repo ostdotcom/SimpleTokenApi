@@ -13,7 +13,9 @@ module ContractEventManagement
     def initialize(params)
       super
 
-      @ethereum_address, @ether_value, @usd_value, @simple_token_value = nil, nil, nil, nil
+      @block_creation_timestamp = params[:block_creation_timestamp]
+
+      @ethereum_address, @ether_value, @usd_value, @st_wei_value = nil, nil, nil, nil
     end
 
     # Perform
@@ -61,10 +63,10 @@ module ContractEventManagement
     def create_purchase_log_entry
       PurchaseLog.create!({
                               ethereum_address: @ethereum_address,
-                              ether_value: @wei_value,
+                              ether_wei_value: @ether_wei_value,
                               usd_value: @usd_value,
-                              simple_token_value: @simple_token_value,
-                              block_creation_timestamp: @contract_event_obj.block_creation_timestamp,
+                              st_wei_value: @st_wei_value,
+                              block_creation_timestamp: @block_creation_timestamp,
                               pst_day_start_timestamp: get_pst_rounded_purchase_date
 
                           })
@@ -79,7 +81,7 @@ module ContractEventManagement
     # @return [Date] purchase date in pactific time zone
     #
     def get_pst_rounded_purchase_date
-      Time.at(@contract_event_obj.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').beginning_of_day.to_i
+      Time.at(@block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').beginning_of_day.to_i
     end
 
     # Sanitize event_variables in an event
@@ -88,7 +90,7 @@ module ContractEventManagement
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # Sets [@ethereum_address, @wei_value, @usd_value, @simple_token_value]
+    # Sets [@ethereum_address, @ether_wei_value, @usd_value, @st_wei_value]
     #
     def sanitize_event_data
       # todo: test with big numbers
@@ -98,10 +100,10 @@ module ContractEventManagement
           when '_beneficiary'
             @ethereum_address = var_obj[:value].to_s
           when '_cost'
-            @wei_value = var_obj[:value].to_i
-            @usd_value = ((@wei_value * 1.00 * GlobalConstant::ConversionRate.usd_to_ether_conversion_rate)/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2)
+            @ether_wei_value = var_obj[:value].to_i
+            @usd_value = ((@ether_wei_value * 1.00 * GlobalConstant::ConversionRate.usd_to_ether_conversion_rate)/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2)
           when '_tokens'
-            @simple_token_value = var_obj[:value].to_i
+            @st_wei_value = var_obj[:value].to_i
         end
       end
 

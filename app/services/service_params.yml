@@ -233,6 +233,7 @@
 'ContractEventManagement::Transfer':
   :mandatory:
     - :contract_event_obj
+    - :block_creation_timestamp
   :optional:
 
 'ContractEventManagement::Finalize':

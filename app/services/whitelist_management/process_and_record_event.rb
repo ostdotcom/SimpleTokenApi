@@ -21,7 +21,7 @@ module WhitelistManagement
 
       @kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
 
-      @block_creation_timestamp = nil
+      @block_number = nil
     end
 
     # Perform
@@ -81,7 +81,7 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_creation_timestamp
+    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_number
     #
     # @return [Result::Base]
     #
@@ -95,7 +95,7 @@ module WhitelistManagement
 
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
-      @block_creation_timestamp = @decoded_token_data[:block_creation_timestamp].to_i
+      @block_number = @decoded_token_data[:block_number].to_i
       @event_data = (@decoded_token_data[:event_data] || {})
 
       @event_data.each do |var_obj|
@@ -135,7 +135,7 @@ module WhitelistManagement
       ContractEvent.create!({
                                 block_hash: @block_hash,
                                 transaction_hash: @transaction_hash,
-                                block_creation_timestamp: @block_creation_timestamp,
+                                block_number: @block_number,
                                 kind: GlobalConstant::ContractEvent.whitelist_kind,
                                 status: contract_event_status,
                                 data: @event_data

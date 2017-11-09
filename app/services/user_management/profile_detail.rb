@@ -137,8 +137,26 @@ module UserManagement
       {
           user: user_data,
           user_kyc_data: user_kyc_data,
-          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status,
+          purchase_details: sale_stats
       }.merge(SaleGlobalVariable.sale_ended_before_time_flag.symbolize_keys)
+    end
+
+    # Sale stats
+    #
+    # * Author: Aman
+    # * Date: 10/11/2017
+    # * Reviewed By:
+    #
+    # @return [Hash] hash of sale stats
+    #
+    def sale_stats
+      if GlobalConstant::TokenSale.is_general_sale_interval? || GlobalConstant::TokenSale.is_general_sale_ended?
+        # todo: symbolized_keys can be used? .. check dependency and sale_ended_before_time_flag cache in use
+        PurchaseLog.total_purchase_details
+      else
+        {}
+      end
     end
 
     # User detail

@@ -14,7 +14,7 @@ module ContractEventManagement
     def initialize(params)
       super
 
-      @address = nil
+      @ethereum_address, @ether_value, @simple_token_value, @block_creation_timestamp = nil, nil, nil, nil
     end
 
     # Perform
@@ -29,6 +29,8 @@ module ContractEventManagement
       begin
         r = validate
         return r unless r.success?
+
+        #validate ethereum address??
 
         sanitize_event_data
 
@@ -60,10 +62,12 @@ module ContractEventManagement
     def create_purchase_log_entry
       PurchaseLog.create!({
                               ethereum_address: @ethereum_address,
-                              ether_value: @ether_value,
+                              ether_value: @ether_value.to_s,
                               usd_value: (@ether_value * ETHER_TO_USD_CONVERSION_RATE),
                               simple_token_value: @simple_token_value,
-                              purchase_date: get_purchase_date
+                              block_creation_timestamp: @contract_event_obj.block_creation_timestamp,
+                              pst_day_start_timestamp: get_pst_rounded_purchase_date
+
                           })
     end
 
@@ -75,8 +79,8 @@ module ContractEventManagement
     #
     # @return [Date] purchase date in pactific time zone
     #
-    def get_purchase_date
-      Time.at(@block_execution_timestamp).in_time_zone('Pacific Time (US & Canada)').to_date
+    def get_pst_rounded_purchase_date
+      Time.at(@contract_event_obj.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').beginning_of_day.to_i
     end
 
     # Sanitize event_variables in an event
@@ -88,41 +92,16 @@ module ContractEventManagement
     # Sets [@phase, @address]
     #
     def sanitize_event_data
-      @event_data.each do |var_obj|
+      @contract_event_obj.data.each do |var_obj|
 
         case var_obj[:name]
           when '_account'
             @address = var_obj[:value]
+            @ethereum_address = nil
           # when '_phase'
           #   @phase = var_obj[:value]
         end
       end
-    end
-
-    # Event kind for contract event row
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # @return [String]
-    #
-    def event_kind
-      GlobalConstant::ContractEvent.transfer_kind
-    end
-
-    # Data for contract event row
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # @return [Hash] Data for contract event obj
-    #
-    def data_for_contract_event
-      {
-          address: @address
-      }
     end
 
   end

@@ -33,7 +33,7 @@ module Crons
       @start_time = nil
       @highest_block_number = nil
 
-      @current_block_hash, @block_execution_timestamp, @transactions = nil, nil, []
+      @current_block_hash, @block_creation_timestamp, @transactions = nil, nil, []
       @transaction_hash = nil
     end
 
@@ -74,14 +74,14 @@ module Crons
     # * Reviewed By:
     #
     # Sets [@current_block_number, @start_timestamp, @block_data_response, @highest_block_number,
-    # @current_block_hash, @block_execution_timestamp, @transactions, @transaction_hash]
+    # @current_block_hash, @block_creation_timestamp, @transactions, @transaction_hash]
     #
     def set_data_for_current_iteration
       @current_block_number = @last_processed_block_number + 1
       @start_timestamp = Time.now.to_i
       @block_data_response = {}
       @highest_block_number = nil
-      @current_block_hash, @block_execution_timestamp, @transactions = nil, nil, []
+      @current_block_hash, @block_creation_timestamp, @transactions = nil, nil, []
       @transaction_hash = nil
     end
 
@@ -120,7 +120,7 @@ module Crons
     # * Reviewed By:
     #
     # @return [Result::Base]
-    # Sets [@transactions, @current_block_hash, @block_execution_timestamp, @highest_block_number]
+    # Sets [@transactions, @current_block_hash, @block_creation_timestamp, @highest_block_number]
     #
     def validate_response
       if @block_data_response.success?
@@ -140,7 +140,7 @@ module Crons
         end
 
         @current_block_hash = meta[:current_block][:block_hash]
-        @block_execution_timestamp = meta[:current_block][:timestamp]
+        @block_creation_timestamp = meta[:current_block][:timestamp]
         @highest_block_number = meta[:highest_block_number]
 
         success
@@ -249,7 +249,7 @@ module Crons
                                 transaction_hash: @transaction_hash,
                                 kind: event_kind,
                                 status: contract_event_status,
-                                block_creation_timestamp: @block_execution_timestamp,
+                                block_creation_timestamp: @block_creation_timestamp,
                                 data: event_data
                             })
 

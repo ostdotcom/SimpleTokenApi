@@ -20,6 +20,8 @@ module WhitelistManagement
       @transaction_hash, @block_hash, @ethereum_address, @phase = nil, nil, nil, nil
 
       @kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
+
+      @block_creation_timestamp = nil
     end
 
     # Perform

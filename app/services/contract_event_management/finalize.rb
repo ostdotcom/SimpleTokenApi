@@ -8,7 +8,7 @@ module ContractEventManagement
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    # @return [ContractEventManagement::Transfer]
+    # @return [ContractEventManagement::Finalize]
     #
     def initialize(params)
       super
@@ -55,30 +55,6 @@ module ContractEventManagement
       sale_variable_obj = SaleGlobalVariable.sale_ended.first
       sale_variable_obj.variable_data = 1
       sale_variable_obj.save!
-    end
-
-    # Event kind for contract event row
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # @return [String]
-    #
-    def event_kind
-      GlobalConstant::ContractEvent.finalize_kind
-    end
-
-    # Data for contract event row
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # @return [Hash] Data for contract event obj
-    #
-    def data_for_contract_event
-      {}
     end
 
   end

@@ -7,7 +7,7 @@ class CreatePurchaseLog < DbMigrationConnection
         t.column :ether_value, :string, limit: 100, null: false
         t.column :usd_value, :decimal, null: false
         t.column :simple_token_value, :bigint, null: false
-        t.column :block_timestamp, :integer, null: false
+        t.column :block_creation_timestamp, :integer, null: false
         t.column :pst_day_start_timestamp, :integer, null: false
         t.timestamps
       end

@@ -189,24 +189,15 @@ module Crons
 
       return success if valid_events.present? && valid_events.includes?(event[:name])
 
-      if valid_events.blank?
-        notify_dev({transaction: transaction}.merge!(msg: "invalid event address"))
-        return error_with_data(
-            'c_rbe_3',
-            'invalid event address',
-            'invalid event address',
-            GlobalConstant::ErrorAction.default,
-            {}
-        )
-      end
-
+      notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event address"))
       return error_with_data(
-          'c_rbe_4',
-          'event is not needed',
-          'event is not needed',
+          'c_rbe_3',
+          'invalid event address',
+          'invalid event address',
           GlobalConstant::ErrorAction.default,
           {}
       )
+
     end
 
     # Process an event in a transaction
@@ -226,6 +217,8 @@ module Crons
           ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj).perform
         when GlobalConstant::ContractEvent.finalize_kind
           ContractEventManagement::Finalize.new(contract_event_obj: contract_event_obj).perform
+        else
+          # skip event processing
       end
 
     end

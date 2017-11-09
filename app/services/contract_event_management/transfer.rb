@@ -26,15 +26,27 @@ module ContractEventManagement
     # @return [Result::Base]
     #
     def perform
-      r = validate_and_fetch_contract_event
-      return r unless r.success?
+      begin
+        r = validate
+        return r unless r.success?
 
-      # validate_ethereum_address
+        sanitize_event_data
 
-      create_purchase_log_entry
+        create_purchase_log_entry
 
-      mark_contract_event_as_processed
-      success
+        mark_contract_event_as_processed
+        success
+      rescue => e
+        mark_contract_event_as_failed
+        return exception_with_data(
+            e,
+            'cem_t_1',
+            'exception in transfer event management: ' + e.message,
+            'Something went wrong.',
+            GlobalConstant::ErrorAction.default,
+            {contract_event_obj_id: @contract_event_obj.id}
+        )
+      end
     end
 
     # Create entry in payment details for ethereum
@@ -47,12 +59,12 @@ module ContractEventManagement
     #
     def create_purchase_log_entry
       PurchaseLog.create!({
-                                ethereum_address: @ethereum_address,
-                                ether_value: @ether_value,
-                                usd_value: (@ether_value * ETHER_TO_USD_CONVERSION_RATE),
-                                simple_token_value: @simple_token_value,
-                                purchase_date: get_purchase_date
-                            } )
+                              ethereum_address: @ethereum_address,
+                              ether_value: @ether_value,
+                              usd_value: (@ether_value * ETHER_TO_USD_CONVERSION_RATE),
+                              simple_token_value: @simple_token_value,
+                              purchase_date: get_purchase_date
+                          })
     end
 
     # get rounded purchase date

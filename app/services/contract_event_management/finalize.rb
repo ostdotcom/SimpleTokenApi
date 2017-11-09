@@ -23,15 +23,25 @@ module ContractEventManagement
     # @return [Result::Base]
     #
     def perform
-      r = validate_and_fetch_contract_event
-      return r unless r.success?
+      begin
+        r = validate
+        return r unless r.success?
 
-      # validate_ethereum_address
+        update_token_sale_ended_data
 
-      update_token_sale_ended_data
-
-      mark_contract_event_as_processed
-      success
+        mark_contract_event_as_processed
+        success
+      rescue => e
+        mark_contract_event_as_failed
+        return exception_with_data(
+            e,
+            'cem_f_1',
+            'exception in Finalize event management: ' + e.message,
+            'Something went wrong.',
+            GlobalConstant::ErrorAction.default,
+            {contract_event_obj_id: @contract_event_obj.id}
+        )
+      end
     end
 
     # Update token sale ended variable

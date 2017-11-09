@@ -218,8 +218,17 @@
   :mandatory:
   :optional:
 
-
 'UserManagement::CheckEthereumAddress':
   :mandatory:
     - :ethereum_address
+  :optional:
+
+'ContractEventManagement::Transfer':
+  :mandatory:
+    - :contract_event_obj
+  :optional:
+
+'ContractEventManagement::Finalize':
+  :mandatory:
+    - :contract_event_obj
   :optional:

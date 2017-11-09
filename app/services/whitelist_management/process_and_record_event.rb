@@ -93,6 +93,7 @@ module WhitelistManagement
 
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
+      @block_creation_timestamp = @decoded_token_data[:block_creation_timestamp] || Time.now.to_i
       event_data = (@decoded_token_data[:event_data] || {})
       @ethereum_address = event_data[:address]
       @phase = event_data[:phase].to_i
@@ -107,10 +108,26 @@ module WhitelistManagement
     # * Reviewed By: Sunil
     #
     def create_user_contract_event
+      # todo: data to unprocessed data
+
+      contract_event_obj = ContractEvent.where(
+          transaction_hash: @transaction_hash,
+          kind: GlobalConstant::ContractEvent.whitelist_kind
+      ).first
+
+      contract_event_status = GlobalConstant::ContractEvent.processed_status
+
+      if contract_event_obj.present?
+        return if contract_event_obj.block_hash.downcase == @block_hash.downcase
+        contract_event_status = GlobalConstant::ContractEvent.duplicate_status
+      end
+
       ContractEvent.create!({
                                 block_hash: @block_hash,
                                 transaction_hash: @transaction_hash,
+                                block_creation_timestamp: @block_creation_timestamp,
                                 kind: GlobalConstant::ContractEvent.whitelist_kind,
+                                status: contract_event_status,
                                 data: {
                                     address: @ethereum_address,
                                     phase: @phase

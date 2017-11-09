@@ -183,7 +183,8 @@ module Crons
 
       # Block Hash Mismatch
       contract_event = ContractEvent.where(
-        transaction_hash: @transaction_hash
+        transaction_hash: @transaction_hash,
+        kind: GlobalConstant::ContractEvent.whitelist_kind
       ).first
 
       if contract_event.present? && (contract_event.block_hash == @block_hash)

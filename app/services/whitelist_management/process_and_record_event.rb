@@ -107,10 +107,13 @@ module WhitelistManagement
     # * Reviewed By: Sunil
     #
     def create_user_contract_event
+      # todo: Will not work for multiple callbacks... DO WE NEED UNIQUE INDEX?
+
       ContractEvent.create!({
                                 block_hash: @block_hash,
                                 transaction_hash: @transaction_hash,
                                 kind: GlobalConstant::ContractEvent.whitelist_kind,
+                                status: GlobalConstant::ContractEvent.processed_status,
                                 data: {
                                     address: @ethereum_address,
                                     phase: @phase

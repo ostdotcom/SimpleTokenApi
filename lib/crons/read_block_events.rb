@@ -5,8 +5,15 @@ module Crons
     include Util::ResultHelper
 
     SMART_CONTRACT_EVENTS = {
-        '0x863114266ef59b535bd1d5ee2651d9a577d5b9fb' => ['transfer', 'finalize']
+        '0xEc9859B0B3B4652aD5e264776a79E544b76bc447' => ['TokensPurchased', 'Finalized']
     }
+
+    MIN_BLOCK_DIFFERENCE = 6
+
+    #IN seconds
+    BLOCK_CREATION_AVERAGE_WAIT_TIME = 15
+    BLOCK_CREATION_MAX_WAIT_TIME = 25
+    MIN_SLEEP_TIME = 1
 
     # initialize
     #
@@ -22,7 +29,7 @@ module Crons
 
       @block_data_response = {}
       @keep_processing = true
-      @sleep_interval = 15 # in seconds
+      @sleep_interval = BLOCK_CREATION_AVERAGE_WAIT_TIME # in seconds
       @start_time = nil
       @highest_block_number = nil
 
@@ -45,11 +52,14 @@ module Crons
         set_data_for_current_iteration
 
         get_block_data
+        # todo: Invalid response structure.. events will be filtered and sent?
         r = validate_response
         return r unless r.success?
 
-        process_transactions
-        update_last_processed_block_number
+        if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
+          process_transactions
+          update_last_processed_block_number
+        end
         sleep(compute_sleep_interval)
       end
 
@@ -134,7 +144,7 @@ module Crons
       else
         notify_devs(@block_data_response)
         error_with_data(
-            'c_rbe_1',
+            'c_rbe_2',
             'error while fetching block',
             'error while fetching block',
             GlobalConstant::ErrorAction.default,
@@ -179,7 +189,7 @@ module Crons
       if valid_events.blank?
         notify_devs({transaction: transaction}.merge!(msg: "invalid event address"))
         return error_with_data(
-            'c_rbe_1',
+            'c_rbe_3',
             'invalid event address',
             'invalid event address',
             GlobalConstant::ErrorAction.default,
@@ -188,7 +198,7 @@ module Crons
       end
 
       return error_with_data(
-          'c_rbe_1',
+          'c_rbe_4',
           'event is not needed',
           'event is not needed',
           GlobalConstant::ErrorAction.default,
@@ -203,15 +213,32 @@ module Crons
     # * Reviewed By:
     #
     def process_event(event)
+      event_kind = get_event_kind(event[:name])
+
       process_event_param = {
           transacton_hash: @transacton_hash,
           block_hash: @block_hash,
-          events_variable: event[:events]
+          block_execution_timestamp: @block_execution_timestamp,
+          event_data: event[:events]
       }
 
-      case event[:name]
-        when 'Transfer'
+      case event_kind
+        when GlobalConstant::ContractEvent.transfer_kind
           ContractEventManagement::Transfer.new(process_event_param).perform
+        when GlobalConstant::ContractEvent.finalize_kind
+          ContractEventManagement::Finalize.new(process_event_param).perform
+      end
+
+    end
+
+    def get_event_kind(event_name)
+      case event_name.downcase
+        when 'transfer'
+          GlobalConstant::ContractEvent.transfer_kind
+        when 'finalize'
+          GlobalConstant::ContractEvent.finalize_kind
+        else
+          fail 'Invalid Event Kind'
       end
     end
 
@@ -237,19 +264,21 @@ module Crons
     # Returns[Integer] sleep interval in seconds
     #
     def compute_sleep_interval
-      sleep_time = 15
-      blocks_trail_count = @highest_block_number - @current_block_number
 
-      if (blocks_trail_count < 6)
-        sleep_time = 25
-      elsif (blocks_trail_count > 6)
-        sleep_time = 1
-      else
-        sleep_time = 15 - (Time.now.to_i - @start_timestamp)
-        sleep_time > 0 ? sleep_time : 1
+      if (blocks_trail_count < MIN_BLOCK_DIFFERENCE)
+        sleep_time = BLOCK_CREATION_MAX_WAIT_TIME
+      elsif (blocks_trail_count > MIN_BLOCK_DIFFERENCE)
+        sleep_time = MIN_SLEEP_TIME
+      else # block difference is exactly equal to min needed
+        sleep_time = BLOCK_CREATION_AVERAGE_WAIT_TIME - (Time.now.to_i - @start_timestamp)
+        sleep_time > MIN_SLEEP_TIME ? sleep_time : MIN_SLEEP_TIME
       end
 
       sleep_time
+    end
+
+    def blocks_trail_count
+      @highest_block_number - @current_block_number
     end
 
     # Notify devs in case of an error condition

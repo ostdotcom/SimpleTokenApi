@@ -227,5 +227,6 @@
   :mandatory:
     - :transacton_hash
     - :block_hash
-    - :events_variable
+    - :event_data
+    - :block_execution_timestamp
   :optional:

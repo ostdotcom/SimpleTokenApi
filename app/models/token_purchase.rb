@@ -1,0 +1,4 @@
+class TokenPurchase < EstablishSimpleTokenContractInteractionsDbConnection
+
+
+end

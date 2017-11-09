@@ -93,6 +93,7 @@ module WhitelistManagement
 
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
+      @block_creation_timestamp = @decoded_token_data[:block_creation_timestamp] || Time.now.to_i
       event_data = (@decoded_token_data[:event_data] || {})
       @ethereum_address = event_data[:address]
       @phase = event_data[:phase].to_i
@@ -124,6 +125,7 @@ module WhitelistManagement
       ContractEvent.create!({
                                 block_hash: @block_hash,
                                 transaction_hash: @transaction_hash,
+                                block_creation_timestamp: @block_creation_timestamp,
                                 kind: GlobalConstant::ContractEvent.whitelist_kind,
                                 status: contract_event_status,
                                 data: {

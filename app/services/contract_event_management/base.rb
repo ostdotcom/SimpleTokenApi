@@ -11,10 +11,12 @@ module ContractEventManagement
     # @return [ContractEventManagement::Base]
     #
     def initialize(params)
-      @transaction_hash = params[:transaction_hash].to_s.downcase
-      @block_hash = params[:block_hash].to_s.downcase
-      @event_data = params[:event_data]
-      @block_execution_timestamp = params[:block_execution_timestamp]
+      @contract_event_obj = params[:contract_event_obj]
+
+      @transaction_hash = @contract_event_obj.transaction_hash.to_s
+      @block_hash = @contract_event_obj.block_hash.to_s
+      @event_data = @contract_event_obj.data
+      @block_execution_timestamp = @contract_event_obj.block_execution_timestamp
 
       @contract_event_obj = nil
     end

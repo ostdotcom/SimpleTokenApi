@@ -225,8 +225,10 @@
 
 'ContractEventManagement::Transfer':
   :mandatory:
-    - :transacton_hash
-    - :block_hash
-    - :event_data
-    - :block_execution_timestamp
+    - :contract_event_obj
+  :optional:
+
+'ContractEventManagement::Finalize':
+  :mandatory:
+    - :contract_event_obj
   :optional:

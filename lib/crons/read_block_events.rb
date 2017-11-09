@@ -127,10 +127,9 @@ module Crons
         meta = @block_data_response.data[:meta]
         @transactions = @block_data_response.data[:transactions]
 
-        binding.pry
 
         if (meta[:current_block][:block_number] != @current_block_number)
-          notify_devs(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))
+          notify_dev(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))
           return error_with_data(
               'c_rbe_1',
               'invalid block returned',
@@ -146,7 +145,7 @@ module Crons
 
         success
       else
-        notify_devs(@block_data_response)
+        notify_dev(@block_data_response)
         error_with_data(
             'c_rbe_2',
             'error while fetching block',
@@ -191,7 +190,7 @@ module Crons
       return success if valid_events.present? && valid_events.includes?(event[:name])
 
       if valid_events.blank?
-        notify_devs({transaction: transaction}.merge!(msg: "invalid event address"))
+        notify_dev({transaction: transaction}.merge!(msg: "invalid event address"))
         return error_with_data(
             'c_rbe_3',
             'invalid event address',
@@ -218,22 +217,51 @@ module Crons
     #
     def process_event(event)
       event_kind = get_event_kind(event[:name])
+      contract_event_obj = create_contract_event(event_kind, event_data)
 
-      process_event_param = {
-          transacton_hash: @transacton_hash,
-          block_hash: @block_hash,
-          block_execution_timestamp: @block_execution_timestamp,
-          event_data: event[:events]
-      }
+      return if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
 
       case event_kind
         when GlobalConstant::ContractEvent.transfer_kind
-          ContractEventManagement::Transfer.new(process_event_param).perform
+          ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj).perform
         when GlobalConstant::ContractEvent.finalize_kind
-          ContractEventManagement::Finalize.new(process_event_param).perform
+          ContractEventManagement::Finalize.new(contract_event_obj: contract_event_obj).perform
       end
 
     end
+
+    # create user_contract_event
+    #
+    # * Author: Aman
+    # * Date: 25/10/2017
+    # * Reviewed By: Sunil
+    #
+    def create_contract_event(event_kind, event_data)
+
+      contract_event_obj = ContractEvent.where(
+          transaction_hash: @transaction_hash,
+          kind: event_kind
+      ).first
+
+      contract_event_status = GlobalConstant::ContractEvent.recorded_status
+
+      if contract_event_obj.present?
+        return contract_event_obj if contract_event_obj.block_hash.downcase == @block_hash.downcase
+        contract_event_status = GlobalConstant::ContractEvent.duplicate_status
+        notify_dev({transaction_hash: @transaction_hash, event_kind: event_kind, event_data: event_data, msg: 'duplicate event'})
+      end
+
+      ContractEvent.create!({
+                                block_hash: @block_hash,
+                                transaction_hash: @transaction_hash,
+                                kind: event_kind,
+                                status: contract_event_status,
+                                block_creation_timestamp: @block_execution_timestamp,
+                                data: event_data
+                            })
+
+    end
+
 
     def get_event_kind(event_name)
       case event_name.downcase
@@ -291,7 +319,7 @@ module Crons
     # * Date: 31/10/2017
     # * Reviewed By:
     #
-    def notify_devs(error_data)
+    def notify_dev(error_data)
       ApplicationMailer.notify(
           body: {current_block_number: @current_block_number},
           data: {error_data: error_data},

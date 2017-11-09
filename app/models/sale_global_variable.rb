@@ -26,7 +26,7 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
   def self.sale_ended_before_time_flag
     memcache_key_object = MemcacheKey.new('token_sale.sale_details')
     Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
-      {"sale_ended_before_time" => SaleGlobalVariable.sale_ended.first.variable_data.to_i}
+      {sale_ended_before_time: SaleGlobalVariable.sale_ended.first.variable_data.to_i}
     end
   end
 

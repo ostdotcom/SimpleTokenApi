@@ -132,7 +132,9 @@ module UserManagement
     # @return [Boolean]
     #
     def get_user_sale_detail
-      stat_data = PurchaseLog.where(ethereum_address: @user_ethereum_address).select(' sum(ether_wei_value) as total_ether_wei_value, sum(usd_value) as total_usd_value, sum(st_wei_value) as total_simple_token_wei_value').first
+      stat_data = PurchaseLog.where(
+        ethereum_address: @user_ethereum_address).
+        select(' sum(ether_wei_value) as total_ether_wei_value, sum(usd_value) as total_usd_value, sum(st_wei_value) as total_simple_token_wei_value').first
 
       {
           total_dollars_sent: stat_data.total_usd_value.to_f.round(2),
@@ -150,7 +152,9 @@ module UserManagement
     # @return [Time]
     #
     def sale_start_time
-      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ? GlobalConstant::TokenSale.early_access_start_date : GlobalConstant::TokenSale.general_access_start_date
+      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ?
+        GlobalConstant::TokenSale.early_access_start_date :
+        GlobalConstant::TokenSale.general_access_start_date
     end
 
     # purchase data for user

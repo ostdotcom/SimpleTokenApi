@@ -8,15 +8,16 @@ module Crons
 
     # initialize
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     # @return [Crons::ReadBlockEvents]
     #
     def initialize
       @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
-      @last_verified_block_number_for_tokens_count = SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.first.try(:variable_data).to_i
+      @last_verified_block_number_for_total = SaleGlobalVariable.
+        last_block_verified_for_tokens_sold_variable_kind.first.try(:variable_data).to_i
       @total_token_sold_count = nil
     end
 
@@ -24,24 +25,28 @@ module Crons
     # How to handle execptions.What if one transaction cannot be processed
     #
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     def perform
 
       while true
         set_data_for_current_iteration
 
-        get_block_data
+        get_block_transactions
 
         r = validate_response
         return r unless r.success?
 
         if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
+
           process_transactions
+
           update_last_processed_block_number
+
           verify_token_count if blocks_trail_count == MIN_BLOCK_DIFFERENCE
+
         end
 
         return if blocks_trail_count <= MIN_BLOCK_DIFFERENCE
@@ -50,40 +55,16 @@ module Crons
 
     end
 
-    # Verify if token sold count matches with our data after 60 blocks approx 15 mins
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    def verify_token_count
-      return if (@last_verified_block_number_for_tokens_count + 60 > @current_block_number) || @total_token_sold_count.nil?
-      total_tokens_in_wei_sold_in_db = PurchaseLog.select('sum(st_wei_value) as total_tokens_in_wei_sold').first.total_tokens_in_wei_sold.to_i
-      pre_sale_st_tokens_in_wei_sold = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
-
-      ApplicationMailer.notify(
-          body: {},
-          data: {
-              current_block_number: @current_block_number,
-              total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db,
-              total_token_sold_count_in_event: @total_token_sold_count,
-              pre_sale_st_tokens_in_wei_sold: pre_sale_st_tokens_in_wei_sold
-          },
-          subject: 'Data Mismatch For total tokens sold'
-      ).deliver if @total_token_sold_count != (total_tokens_in_wei_sold_in_db + pre_sale_st_tokens_in_wei_sold)
-
-      SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number.to_s)
-      @last_verified_block_number_for_tokens_count = @current_block_number
-    end
+    private
 
     # Set Data for current iteration
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
-    # Sets [@current_block_number, @block_data_response, @highest_block_number,
-    # @current_block_hash, @block_creation_timestamp, @transactions]
+    # Sets @current_block_number, @block_data_response, @highest_block_number,
+    # @current_block_hash, @block_creation_timestamp, @transactions
     #
     def set_data_for_current_iteration
       @current_block_number = @last_processed_block_number + 1
@@ -95,114 +76,111 @@ module Crons
 
     # Get block from public node
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     # Sets [@block_data_response]
     #
-    def get_block_data
+    def get_block_transactions
       Rails.logger.info("read_block_events block number: #{@current_block_number} - Making API call ReadBlockEvents")
       @block_data_response = OpsApi::Request::GetBlockInfo.new.perform(public_api_request_params)
       Rails.logger.info("read_block_events --- block number: #{@current_block_number} --- block_fetched_response: #{@block_data_response.inspect}")
     end
 
-    # Gives the required params for public ops call
-    #
-    # * Author:Aman
-    # * Date: 31/10/2017
-    # * Reviewed By:
-    #
-    # Returns [Hash] data for get_block_data parameter
-    #
-    def public_api_request_params
-      {
-          block_number: @current_block_number
-      }
-    end
-
     # Validates Block data
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     # @return [Result::Base]
     # Sets [@transactions, @current_block_hash, @block_creation_timestamp, @block_number, @highest_block_number]
     #
     def validate_response
-      if @block_data_response.success?
-        meta = @block_data_response.data[:meta]
-        @transactions = @block_data_response.data[:transactions]
 
-
-        if (meta[:current_block][:block_number].to_i != @current_block_number)
-          notify_dev(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))
-          return error_with_data(
-              'c_rbe_1',
-              'invalid block returned',
-              'invalid block returned',
-              GlobalConstant::ErrorAction.default,
-              {}
-          )
-        end
-
-        @current_block_hash = meta[:current_block][:block_hash]
-        @block_creation_timestamp = meta[:current_block][:timestamp].to_i
-        @highest_block_number = meta[:hightest_block].to_i
-
-        success
-      else
-        notify_dev(@block_data_response)
-        error_with_data(
-            'c_rbe_2',
-            'error while fetching block',
-            'error while fetching block',
-            GlobalConstant::ErrorAction.default,
-            {}
+      unless @block_data_response.success?
+        notify_dev(@block_data_response.merge(msg: "Error while fetching block"))
+        return error_with_data(
+          'c_rbe_2',
+          'error while fetching block',
+          'error while fetching block',
+          GlobalConstant::ErrorAction.default,
+          {}
         )
       end
+
+      meta = @block_data_response.data[:meta]
+      @transactions = @block_data_response.data[:transactions]
+
+
+      if (meta[:current_block][:block_number].to_i != @current_block_number)
+        notify_dev(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))
+        return error_with_data(
+          'c_rbe_1',
+          'invalid block returned',
+          'invalid block returned',
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      @current_block_hash = meta[:current_block][:block_hash]
+      @block_creation_timestamp = meta[:current_block][:timestamp].to_i
+      @highest_block_number = meta[:hightest_block].to_i
+
+      success
+    end
+
+    # No of blocks block processor is trailing by
+    #
+    # * Author: Aman
+    # * Date: 31/10/2017
+    # * Reviewed By:
+    #
+    # @return [Boolean]
+    #
+    def blocks_trail_count
+      @highest_block_number - @current_block_number
     end
 
     # Process all transactions in a block
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     #
     def process_transactions
       @transactions.each do |transaction|
         transaction[:events_data].each do |event|
+
           r = validate_event(event)
           next unless r.success?
 
           contract_event_obj = create_contract_event(transaction[:transaction_hash], event)
-          return if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
+          next if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
 
           process_event(contract_event_obj)
-          set_total_token_sold_count(contract_event_obj)
+
         end
+
       end
+
     end
 
-    # Set total token sold_count
+    # Gives the required params for public ops call
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
+    # Returns [Hash] data for get_block_transactions parameter
     #
-    def set_total_token_sold_count(contract_event_obj)
-      return unless contract_event_obj.kind == GlobalConstant::ContractEvent.transfer_kind &&
-          GlobalConstant::StFoundationContract.token_sale_contract_address == contract_event_obj.contract_address
-
-      contract_event_obj.data[:event_data].each do |var_obj|
-        if var_obj[:name] == '_totalSold'
-          @total_token_sold_count = var_obj[:value].to_i
-          return
-        end
-      end
+    def public_api_request_params
+      {
+          block_number: @current_block_number
+      }
     end
 
     # create user_contract_event
@@ -246,9 +224,9 @@ module Crons
 
     # Validate event in a transaction
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     # @return [Result::Base] checks if event received is correct
     #
@@ -257,7 +235,7 @@ module Crons
       return success if ContractEvent.kinds[event[:name]].present?
 
       notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event"))
-      return error_with_data(
+      error_with_data(
           'c_rbe_3',
           'invalid event',
           'invalid event',
@@ -268,29 +246,46 @@ module Crons
 
     # Process an event in a transaction
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     def process_event(contract_event_obj)
 
-      if GlobalConstant::StFoundationContract.token_sale_contract_address == contract_event_obj.contract_address
-        case contract_event_obj.kind
-          when GlobalConstant::ContractEvent.transfer_kind
-            ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp).perform
-          when GlobalConstant::ContractEvent.finalized_kind
-            ContractEventManagement::Finalize.new(contract_event_obj: contract_event_obj).perform
-        end
+      # skip processing for others
+      return unless GlobalConstant::StFoundationContract.token_sale_contract_address ==
+        contract_event_obj.contract_address
+
+      case contract_event_obj.kind
+        when GlobalConstant::ContractEvent.transfer_kind
+          ContractEventManagement::Transfer.new(
+            contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp
+          ).perform
+
+          contract_event_obj.data[:event_data].each do |var_obj|
+            if var_obj[:name] == '_totalSold'
+              @total_token_sold_count = var_obj[:value].to_i
+              break
+            end
+          end
+
+        when GlobalConstant::ContractEvent.finalized_kind
+          ContractEventManagement::Finalize.new(
+            contract_event_obj: contract_event_obj
+          ).perform
+
+        else
+          # nothing to do
+
       end
-      #   skip processing for others
 
     end
 
     # Updates last procssed block number
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     # Sets [@last_processed_block_number]
     #
@@ -299,23 +294,40 @@ module Crons
       @last_processed_block_number = @current_block_number
     end
 
-    # No of blocks block processor is trailing by
+    # Verify if token sold count matches with our data after 60 blocks approx 15 mins
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
-    # @return [Boolean]
-    #
-    def blocks_trail_count
-      @highest_block_number - @current_block_number
+    def verify_token_count
+      return if (@last_verified_block_number_for_total + 60 > @current_block_number) ||
+        @total_token_sold_count.nil?
+
+      total_tokens_in_wei_sold_in_db = PurchaseLog.select('sum(st_wei_value) as total_tokens_in_wei_sold').
+        first.total_tokens_in_wei_sold.to_i
+      pre_sale_st_tokens_in_wei_sold = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
+
+      ApplicationMailer.notify(
+        body: {},
+        data: {
+          current_block_number: @current_block_number,
+          total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db,
+          total_token_sold_count_in_event: @total_token_sold_count,
+          pre_sale_st_tokens_in_wei_sold: pre_sale_st_tokens_in_wei_sold
+        },
+        subject: 'Data Mismatch For total tokens sold'
+      ).deliver if @total_token_sold_count != (total_tokens_in_wei_sold_in_db + pre_sale_st_tokens_in_wei_sold)
+
+      SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number.to_s)
+      @last_verified_block_number_for_total = @current_block_number
     end
 
     # Notify devs in case of an error condition
     #
-    # * Author:Aman
+    # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By:
+    # * Reviewed By: Kedar
     #
     def notify_dev(error_data)
       ApplicationMailer.notify(

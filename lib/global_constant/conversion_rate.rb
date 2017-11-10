@@ -9,7 +9,7 @@ module GlobalConstant
       #
       # * Author:Aman
       # * Date: 09/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Kedar
       #
       # return [Integer] conversion rate for ether to wei
       #
@@ -21,11 +21,12 @@ module GlobalConstant
       #
       # * Author:Aman
       # * Date: 09/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Kedar
       #
       # return [Integer] conversion rate for ether to wei
       #
       def ether_to_usd_conversion_rate
+        # TODO - change this after confirming.
         300.00
       end
 
@@ -33,7 +34,7 @@ module GlobalConstant
       #
       # * Author:Aman
       # * Date: 09/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Kedar
       #
       # return [Deciaml] Converts eth in wei to usd
       #
@@ -45,7 +46,7 @@ module GlobalConstant
       #
       # * Author:Aman
       # * Date: 09/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Kedar
       #
       # return [Deciaml] Converts eth in wei to usd
       #

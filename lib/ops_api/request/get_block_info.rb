@@ -8,7 +8,7 @@ module OpsApi
       #
       # * Author: Aman
       # * Date: 31/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Kedar
       #
       # @return [OpsApi::Request::GetBlockInfo]
       #
@@ -20,7 +20,7 @@ module OpsApi
       #
       # * Author: Aman
       # * Date: 31/10/2017
-      # * Reviewed By:
+      # * Reviewed By: Kedar
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

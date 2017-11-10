@@ -14,7 +14,7 @@ alternate_token:
 token_sale:
   sale_details:
     key_template: 'token_sale_stats'
-    expiry_in_hours: 0.05
+    expiry_in_hours: 0.02
     used_in_shared_env: true
 
   pre_sale:

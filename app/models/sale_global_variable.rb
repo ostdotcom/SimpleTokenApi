@@ -9,9 +9,18 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
        }
 
   scope :sale_ended, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind) }
-  scope :last_block_processed, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind) }
-  scope :last_block_verified_for_tokens_sold, -> { where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind) }
-  scope :pre_sale_data_kinds, -> { where(variable_kind: [GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind, GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind]) }
+  scope :last_block_processed, -> {
+    where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind)
+  }
+  scope :last_block_verified_for_tokens_sold, -> {
+    where(variable_kind: GlobalConstant::SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind)
+  }
+  scope :pre_sale_data_kinds, -> {
+    where(variable_kind: [
+      GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind,
+      GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind
+    ])
+  }
 
   after_commit :sale_variables_memcache_flush
 
@@ -54,6 +63,12 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
     end
   end
 
+  # Sale variables memcache flush
+  #
+  # * Author: Aman
+  # * Date: 10/11/2017
+  # * Reviewed By:
+  #
   def sale_variables_memcache_flush
     memcache_key = nil
     case self.variable_kind

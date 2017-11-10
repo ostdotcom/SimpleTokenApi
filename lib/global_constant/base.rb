@@ -35,6 +35,10 @@ module GlobalConstant
       @st_token_sale ||= fetch_config.fetch('st_token_sale', {}).with_indifferent_access
     end
 
+    def self.st_foundation_contracts
+      @st_token_sale ||= fetch_config.fetch('st_foundation_contracts', {}).with_indifferent_access
+    end
+
     def self.local_path
       @local_path ||= fetch_config.fetch('local_path', {}).with_indifferent_access
     end

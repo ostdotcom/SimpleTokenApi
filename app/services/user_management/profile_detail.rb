@@ -138,7 +138,36 @@ module UserManagement
           user: user_data,
           user_kyc_data: user_kyc_data,
           token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
-      }
+      }.merge(sale_stats)
+    end
+
+    # Sale stats
+    #
+    # * Author: Aman
+    # * Date: 10/11/2017
+    # * Reviewed By:
+    #
+    # @return [Hash] hash of sale stats
+    #
+    def sale_stats
+      # can rely on check in purchase log and fetch data everytime from there ever on 14th for general access users
+      if Time.now >= sale_start_time
+        PurchaseLog.sale_details
+      else
+        {sale_details: {}}
+      end
+    end
+
+    # Sale Start time for user
+    #
+    # * Author: Aman
+    # * Date: 09/11/2017
+    # * Reviewed By:
+    #
+    # @return [Time]
+    #
+    def sale_start_time
+      (token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase) ? GlobalConstant::TokenSale.early_access_start_date : GlobalConstant::TokenSale.general_access_start_date
     end
 
     # User detail
@@ -172,7 +201,7 @@ module UserManagement
               user_id: @user.id,
               kyc_status: kyc_status,
               admin_action_type: @user_kyc_detail.admin_action_type,
-              token_sale_participation_phase: token_sale_participation_phase,
+              token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status,
               pos_bonus_percentage: @user_kyc_detail.pos_bonus_percentage,
               alternate_token_name_for_bonus: get_alternate_token_name(@user_kyc_detail.alternate_token_id_for_bonus)
@@ -182,7 +211,7 @@ module UserManagement
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
               admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
-              token_sale_participation_phase: GlobalConstant::TokenSale.token_sale_phase_for(Time.now),
+              token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
               pos_bonus_percentage: expected_pos_percentage,
               alternate_token_name_for_bonus: expected_alt_token_name_for_bonus
@@ -241,8 +270,8 @@ module UserManagement
     #
     # @return [String] token sale participation phase
     #
-    def token_sale_participation_phase
-      @user_kyc_detail.token_sale_participation_phase
+    def token_sale_participation_phase_for_user
+      @token_sale_participation_phase_for_user ||= @user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
     end
 
     # User Kyc Status

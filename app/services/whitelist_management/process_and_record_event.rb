@@ -346,7 +346,7 @@ module WhitelistManagement
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
       if @user_kyc_detail.whitelist_status_changed? &&
           @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
-        send_kyc_approved_email
+        send_kyc_approved_mail
       end
 
       @user_kyc_detail.record_timestamps = false

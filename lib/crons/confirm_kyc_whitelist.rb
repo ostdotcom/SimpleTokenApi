@@ -175,7 +175,8 @@ module Crons
       # Block Hash Mismatch
       contract_event = ContractEvent.where(
           transaction_hash: @transaction_hash,
-          kind: GlobalConstant::ContractEvent.whitelist_kind
+          kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
+          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address
       ).first
 
       if contract_event.present? && (contract_event.block_hash == @block_hash)

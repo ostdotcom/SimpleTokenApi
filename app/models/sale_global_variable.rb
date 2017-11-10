@@ -39,10 +39,26 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
     end
   end
 
+  # fetch pre sale data
+  #
+  # * Author: Aman
+  # * Date: 10/11/2017
+  # * Reviewed By:
+  #
+  # returns[Hash] with pre sale data
+  #
+  def self.sale_ended_flag
+    memcache_key_object = MemcacheKey.new('token_sale.sale_ended')
+    Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
+      SaleGlobalVariable.sale_ended.first.variable_data.to_i
+    end
+  end
+
   def sale_variables_memcache_flush
     memcache_key = nil
     case self.variable_kind
       when GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind
+        Memcache.delete(MemcacheKey.new('token_sale.sale_ended').key_template)
         memcache_key = MemcacheKey.new('token_sale.sale_details').key_template
       when GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind
         memcache_key = MemcacheKey.new('token_sale.pre_sale').key_template

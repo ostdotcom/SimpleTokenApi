@@ -21,7 +21,7 @@ module WhitelistManagement
 
       @kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
 
-      @block_number = nil
+      @block_number, @event_data = nil, nil
     end
 
     # Perform
@@ -81,7 +81,7 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_number
+    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_number, @event_data
     #
     # @return [Result::Base]
     #
@@ -96,7 +96,10 @@ module WhitelistManagement
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
       @block_number = @decoded_token_data[:block_number].to_i
-      @event_data = ((@decoded_token_data[:events_data] || []).first || {})[:events] || []
+
+      (@decoded_token_data[:events_data] || []).each do |e|
+        @event_data = e[:events] if (GlobalConstant::StFoundationContract.token_sale_contract_address == e[:address]) && (e[:name] == GlobalConstant::ContractEvent.whitelist_updated_kind)
+      end
 
       @event_data.each do |var_obj|
         case var_obj[:name]
@@ -106,7 +109,6 @@ module WhitelistManagement
             @phase = var_obj[:value].to_i
         end
       end
-
 
       success
     end
@@ -120,7 +122,8 @@ module WhitelistManagement
     def create_user_contract_event
       contract_event_obj = ContractEvent.where(
           transaction_hash: @transaction_hash,
-          kind: GlobalConstant::ContractEvent.whitelist_kind
+          kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
+          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address
       ).first
 
       contract_event_status = GlobalConstant::ContractEvent.processed_status
@@ -134,7 +137,8 @@ module WhitelistManagement
                                 block_hash: @block_hash,
                                 transaction_hash: @transaction_hash,
                                 block_number: @block_number,
-                                kind: GlobalConstant::ContractEvent.whitelist_kind,
+                                kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
+                                contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address,
                                 status: contract_event_status,
                                 data: {event_data: @event_data}
                             })

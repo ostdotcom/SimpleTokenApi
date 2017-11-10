@@ -4,10 +4,6 @@ module Crons
 
     include Util::ResultHelper
 
-    SMART_CONTRACT_EVENTS = {
-        '0xEc9859B0B3B4652aD5e264776a79E544b76bc447' => ['TokensPurchased', 'Finalized']
-    }
-
     MIN_BLOCK_DIFFERENCE = 6
 
     # initialize
@@ -198,30 +194,14 @@ module Crons
     #
     #
     def set_total_token_sold_count(contract_event_obj)
-      return unless contract_event_obj.kind == GlobalConstant::ContractEvent.transfer_kind
+      return unless contract_event_obj.kind == GlobalConstant::ContractEvent.transfer_kind &&
+          GlobalConstant::StFoundationContract.token_sale_contract_address == contract_event_obj.contract_address
 
       contract_event_obj.data[:event_data].each do |var_obj|
         if var_obj[:name] == '_totalSold'
           @total_token_sold_count = var_obj[:value].to_i
           return
         end
-      end
-    end
-
-    # get user_contract_event kind
-    #
-    # * Author: Aman
-    # * Date: 09/11/2017
-    # * Reviewed By:
-    #
-    def get_event_kind(event_name)
-      case event_name
-        when 'TokensPurchased'
-          GlobalConstant::ContractEvent.transfer_kind
-        when 'Finalized'
-          GlobalConstant::ContractEvent.finalize_kind
-        else
-          fail 'Invalid Event Kind'
       end
     end
 
@@ -232,11 +212,13 @@ module Crons
     # * Reviewed By: Sunil
     #
     def create_contract_event(transaction_hash, event)
-      event_kind = get_event_kind(event[:name])
+      event_kind = event[:name]
+      contract_address = event[:address]
 
       contract_event_obj = ContractEvent.where(
           transaction_hash: transaction_hash,
-          kind: event_kind
+          kind: event_kind,
+          contract_address: contract_address
       ).first
 
       contract_event_status = GlobalConstant::ContractEvent.recorded_status
@@ -253,6 +235,7 @@ module Crons
                                                      block_hash: @current_block_hash,
                                                      transaction_hash: transaction_hash,
                                                      kind: event_kind,
+                                                     contract_address: contract_address,
                                                      status: contract_event_status,
                                                      block_number: @current_block_number,
                                                      data: data
@@ -271,15 +254,13 @@ module Crons
     #
     def validate_event(event)
 
-      valid_events = SMART_CONTRACT_EVENTS[event[:address]]
+      return success if ContractEvent.kinds[event[:name]].present?
 
-      return success if valid_events.present? && valid_events.include?(event[:name])
-
-      notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event address"))
+      notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event"))
       return error_with_data(
           'c_rbe_3',
-          'invalid event address',
-          'invalid event address',
+          'invalid event',
+          'invalid event',
           GlobalConstant::ErrorAction.default,
           {}
       )
@@ -292,14 +273,17 @@ module Crons
     # * Reviewed By:
     #
     def process_event(contract_event_obj)
-      case contract_event_obj.kind
-        when GlobalConstant::ContractEvent.transfer_kind
-          ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp).perform
-        when GlobalConstant::ContractEvent.finalize_kind
-          ContractEventManagement::Finalize.new(contract_event_obj: contract_event_obj).perform
-        else
-          # skip event processing
+
+      if GlobalConstant::StFoundationContract.token_sale_contract_address == contract_event_obj.contract_address
+        case contract_event_obj.kind
+          when GlobalConstant::ContractEvent.transfer_kind
+            ContractEventManagement::Transfer.new(contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp).perform
+          when GlobalConstant::ContractEvent.finalized_kind
+            ContractEventManagement::Finalize.new(contract_event_obj: contract_event_obj).perform
+        end
       end
+      #   skip processing for others
+
     end
 
     # Updates last procssed block number

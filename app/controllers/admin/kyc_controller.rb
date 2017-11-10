@@ -73,7 +73,7 @@ class Admin::KycController < Admin::BaseController
   #
   # * Author: Alpesh
   # * Date: 09/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   def sale_dashboard
     service_response = AdminManagement::Kyc::Dashboard::Sale.new(params).perform

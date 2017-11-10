@@ -53,7 +53,7 @@ module ContractEventManagement
     #
     def update_token_sale_ended_data
       sale_variable_obj = SaleGlobalVariable.sale_ended.first
-      sale_variable_obj.variable_data = 1
+      sale_variable_obj.variable_data = '1'
       sale_variable_obj.save!
     end
 

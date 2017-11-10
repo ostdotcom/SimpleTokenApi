@@ -76,7 +76,7 @@ module Crons
           subject: 'Data Mismatch For total tokens sold'
       ).deliver if @total_token_sold_count != (total_tokens_in_wei_sold_in_db + pre_sale_st_tokens_in_wei_sold)
 
-      SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number)
+      SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number.to_s)
       @last_verified_block_number_for_tokens_count = @current_block_number
     end
 
@@ -311,7 +311,7 @@ module Crons
     # Sets [@last_processed_block_number]
     #
     def update_last_processed_block_number
-      SaleGlobalVariable.last_block_processed.update_all(variable_data: @current_block_number)
+      SaleGlobalVariable.last_block_processed.update_all(variable_data: @current_block_number.to_s)
       @last_processed_block_number = @current_block_number
     end
 

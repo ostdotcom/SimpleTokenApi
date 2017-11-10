@@ -193,16 +193,19 @@ module Crons
       event_kind = event[:name]
       contract_address = event[:address]
 
-      contract_event_obj = ContractEvent.where(
+      contract_event_objs = ContractEvent.where(
           transaction_hash: transaction_hash,
           kind: event_kind,
           contract_address: contract_address
-      ).first
+      ).all
 
       contract_event_status = GlobalConstant::ContractEvent.recorded_status
 
-      if contract_event_obj.present?
-        return contract_event_obj if contract_event_obj.block_hash.downcase == @current_block_hash.downcase
+      if contract_event_objs.present?
+        contract_event_objs.each do |contract_event_obj|
+          return contract_event_obj if contract_event_obj.block_hash.downcase == @current_block_hash.downcase
+        end
+
         contract_event_status = GlobalConstant::ContractEvent.duplicate_status
         notify_dev({transaction_hash: transaction_hash, event_kind: event_kind, event: event, msg: 'duplicate event'})
       end
@@ -254,12 +257,12 @@ module Crons
 
       # skip processing for others
       return unless GlobalConstant::StFoundationContract.token_sale_contract_address ==
-        contract_event_obj.contract_address
+          contract_event_obj.contract_address
 
       case contract_event_obj.kind
         when GlobalConstant::ContractEvent.transfer_kind
           ContractEventManagement::Transfer.new(
-            contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp
+              contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp
           ).perform
 
           contract_event_obj.data[:event_data].each do |var_obj|
@@ -271,7 +274,7 @@ module Crons
 
         when GlobalConstant::ContractEvent.finalized_kind
           ContractEventManagement::Finalize.new(
-            contract_event_obj: contract_event_obj
+              contract_event_obj: contract_event_obj
           ).perform
 
         else
@@ -302,21 +305,21 @@ module Crons
     #
     def verify_token_count
       return if (@last_verified_block_number_for_total + 60 > @current_block_number) ||
-        @total_token_sold_count.nil?
+          @total_token_sold_count.nil?
 
       total_tokens_in_wei_sold_in_db = PurchaseLog.select('sum(st_wei_value) as total_tokens_in_wei_sold').
-        first.total_tokens_in_wei_sold.to_i
+          first.total_tokens_in_wei_sold.to_i
       pre_sale_st_tokens_in_wei_sold = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
 
       ApplicationMailer.notify(
-        body: {},
-        data: {
-          current_block_number: @current_block_number,
-          total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db,
-          total_token_sold_count_in_event: @total_token_sold_count,
-          pre_sale_st_tokens_in_wei_sold: pre_sale_st_tokens_in_wei_sold
-        },
-        subject: 'Data Mismatch For total tokens sold'
+          body: {},
+          data: {
+              current_block_number: @current_block_number,
+              total_tokens_sold_in_db: total_tokens_in_wei_sold_in_db,
+              total_token_sold_count_in_event: @total_token_sold_count,
+              pre_sale_st_tokens_in_wei_sold: pre_sale_st_tokens_in_wei_sold
+          },
+          subject: 'Data Mismatch For total tokens sold'
       ).deliver if @total_token_sold_count != (total_tokens_in_wei_sold_in_db + pre_sale_st_tokens_in_wei_sold)
 
       SaleGlobalVariable.last_block_verified_for_tokens_sold_variable_kind.update_all(variable_data: @current_block_number.to_s)

@@ -62,8 +62,9 @@ module Crons
 
           # email sending failed due to hard bounce or soft bounce, we mark the hook as to_be_ignored and not to_be_retried.
           if response_data['error'] == 'VALIDATION_ERROR' &&
-            response_data['error_message'].present? &&
-            response_data['error_message']['subscription_status'].present?
+              response_data['error_message'].present? &&
+              response_data['error_message'].is_a?(Hash) &&
+              response_data['error_message']['subscription_status'].present?
             @failed_hook_to_be_ignored[@hook.id] = response_data
           else
             @failed_hook_to_be_retried[@hook.id] = response_data

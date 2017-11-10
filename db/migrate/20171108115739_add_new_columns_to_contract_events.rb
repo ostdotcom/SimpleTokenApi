@@ -1,4 +1,4 @@
-class AddStatusInContractEvent < DbMigrationConnection
+class AddNewColumnsToContractEvents < DbMigrationConnection
 
   def up
     run_migration_for_db(EstablishSimpleTokenContractInteractionsDbConnection.config_key) do

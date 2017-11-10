@@ -21,7 +21,7 @@ module WhitelistManagement
 
       @kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
 
-      @block_number, @event_data = nil, nil
+      @block_number, @event_data, @contract_address = nil, nil, nil
     end
 
     # Perform
@@ -81,7 +81,7 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_number, @event_data
+    # Sets @transaction_hash, @block_hash, @ethereum_address, @phase, @block_number, @event_data, @contract_address
     #
     # @return [Result::Base]
     #
@@ -98,8 +98,22 @@ module WhitelistManagement
       @block_number = @decoded_token_data[:block_number].to_i
 
       (@decoded_token_data[:events_data] || []).each do |e|
-        @event_data = e[:events] if (GlobalConstant::StFoundationContract.token_sale_contract_address == e[:address]) && (e[:name] == GlobalConstant::ContractEvent.whitelist_updated_kind)
+        if (GlobalConstant::StFoundationContract.token_sale_contract_address == e[:address]) &&
+          (e[:name] == GlobalConstant::ContractEvent.whitelist_updated_kind)
+
+          @contract_address = GlobalConstant::StFoundationContract.token_sale_contract_address
+          @event_data = e[:events]
+
+        end
       end
+
+      return error_with_data(
+        'wm_pare_2',
+        'invalid event data',
+        'invalid event data',
+        GlobalConstant::ErrorAction.default,
+        {}
+      ) unless @event_data.present?
 
       @event_data.each do |var_obj|
         case var_obj[:name]
@@ -123,7 +137,7 @@ module WhitelistManagement
       contract_event_obj = ContractEvent.where(
           transaction_hash: @transaction_hash,
           kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
-          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address
+          contract_address: @contract_address
       ).first
 
       contract_event_status = GlobalConstant::ContractEvent.processed_status
@@ -138,7 +152,7 @@ module WhitelistManagement
                                 transaction_hash: @transaction_hash,
                                 block_number: @block_number,
                                 kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
-                                contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address,
+                                contract_address:@contract_address,
                                 status: contract_event_status,
                                 data: {event_data: @event_data}
                             })

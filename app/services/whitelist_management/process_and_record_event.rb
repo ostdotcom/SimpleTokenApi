@@ -96,7 +96,7 @@ module WhitelistManagement
       @transaction_hash = @decoded_token_data[:transaction_hash]
       @block_hash = @decoded_token_data[:block_hash]
       @block_number = @decoded_token_data[:block_number].to_i
-      @event_data = (@decoded_token_data[:event_data] || {})
+      @event_data = ((@decoded_token_data[:events_data] || []).first || {})[:events] || []
 
       @event_data.each do |var_obj|
         case var_obj[:name]

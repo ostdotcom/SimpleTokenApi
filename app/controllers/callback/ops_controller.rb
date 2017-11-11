@@ -7,13 +7,14 @@ class Callback::OpsController < Callback::BaseController
   # Whitelist event callback
   #
   # * Author: Aman
-  # * Date: 25/10/2017
-  # * Reviewed By: Sunil
+  # * Date: 11/11/2017
+  # * Reviewed By:
   #
   def whitelist_event
-    service_response = WhitelistManagement::ProcessAndRecordEvent.new(params).perform
-    render_api_response(service_response)
+    BgJob.enqueue(WhitelistCallbackJob, {decoded_token_data: params[:decoded_token_data]})
 
+    r = Result::Base.success({})
+    render_api_response(r)
   end
 
   private

@@ -31,10 +31,8 @@ class User < EstablishSimpleTokenUserDbConnection
   def get_token_sale_state_page_name
     if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
       GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-    elsif properties_array.include?(GlobalConstant::User.token_sale_bt_done_property)
-      GlobalConstant::User.get_token_sale_state_page_names("verification_page")
     elsif properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
-      GlobalConstant::User.get_token_sale_state_page_names("bt_page")
+      GlobalConstant::User.get_token_sale_state_page_names("verification_page")
     else
       GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
     end

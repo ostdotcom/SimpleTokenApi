@@ -6,7 +6,7 @@ class CreateContractEventsTable < DbMigrationConnection
         t.column :kind, :string, limit: 100, null: false
         t.column :transaction_hash, :string, limit: 255, null: false
         t.column :block_hash, :string, limit: 255, null: false
-        t.column :data, :text, limit: 255, null: false
+        t.column :data, :text, null: false
         t.timestamps
       end
     end

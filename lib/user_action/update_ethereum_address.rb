@@ -271,13 +271,17 @@ module UserAction
       inactive_dup_user_extended_details_ids -= active_dup_user_extended_details_ids
       # Mark inactive user_extended_details_ids as was_kyc_duplicate_status
       # Active user_kyc_details will already be is_kyc_duplicate_status
-      UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
-        update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+      if inactive_dup_user_extended_details_ids.present?
+        UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
+          update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+      end
 
       never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
       # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
-      UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
-        update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+      if never_dup_user_extended_details_ids.present?
+        UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
+          update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+      end
 
       # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids
       UserKycDuplicationLog.where("user_extended_details1_id = ? OR user_extended_details2_id = ?",

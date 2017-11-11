@@ -23,6 +23,7 @@ module UserAction
       @case_id = params[:case_id]
       @ethereum_address = params[:ethereum_address]
       @admin_email = params[:admin_email]
+      @old_md5_ethereum_address, @old_encrypted_u_e_d_ethereum_address  = nil, nil
 
     end
 
@@ -175,11 +176,13 @@ module UserAction
     #
     # @return [Result::Base]
     #
-    # Sets @kyc_salt_d
+    # Sets @kyc_salt_d, @old_encrypted_u_e_d_ethereum_address
     #
     def update_user_extended_details
 
       user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+
+      @old_encrypted_u_e_d_ethereum_address = user_extended_detail.ethereum_address
 
       r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
       return r unless r.success?
@@ -202,9 +205,12 @@ module UserAction
     #
     # @return [Result::Base]
     #
+    # Sets @old_md5_ethereum_address
+    #
     def update_user_md5_extended_details
 
       md5_user_extended_detail = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
+      @old_md5_ethereum_address = md5_user_extended_detail.ethereum_address
       md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
       md5_user_extended_detail.save!
 
@@ -314,7 +320,8 @@ module UserAction
           action_timestamp: Time.now.to_i,
           extra_data: {
             case_id: @case_id,
-            user_id: @user_kyc_detail.user_id
+            old_encrypted_u_e_d_ethereum_address: @old_encrypted_u_e_d_ethereum_address,
+            old_md5_ethereum_address: @old_md5_ethereum_address
           }
         }
       )

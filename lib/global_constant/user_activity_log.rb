@@ -59,9 +59,9 @@ module GlobalConstant
         'update_ethereum_address'
       end
 
-      # def open_case
-      #   'open_case'
-      # end
+      def open_case
+        'open_case'
+      end
 
       ## developer use action##
 
@@ -97,8 +97,8 @@ module GlobalConstant
             kyc_whitelist_attention_needed,
             kyc_whitelist_processor_error,
             cynopsis_api_error,
-            update_ethereum_address
-            #open_case
+            update_ethereum_address,
+            open_case
         ]
       end
 

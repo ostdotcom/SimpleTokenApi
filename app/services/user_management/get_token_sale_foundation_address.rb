@@ -131,7 +131,7 @@ module UserManagement
     #
     def success_response_data
       {
-          foundation_ethereum_address: GlobalConstant::TokenSale.st_foundation_ethereum_address
+          foundation_ethereum_address: GlobalConstant::StFoundationContract.token_sale_contract_address
       }
     end
 

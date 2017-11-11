@@ -55,6 +55,14 @@ module GlobalConstant
         'residency_issue_email_sent'
       end
 
+      def update_ethereum_address
+        'update_ethereum_address'
+      end
+
+      # def open_case
+      #   'open_case'
+      # end
+
       ## developer use action##
 
       def login_action
@@ -88,7 +96,9 @@ module GlobalConstant
             residency_issue_email_sent_action,
             kyc_whitelist_attention_needed,
             kyc_whitelist_processor_error,
-            cynopsis_api_error
+            cynopsis_api_error,
+            update_ethereum_address
+            #open_case
         ]
       end
 

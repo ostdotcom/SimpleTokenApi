@@ -15,12 +15,13 @@ module UserAction
     #
     # @return [UserManagement::OpenCase]
     #
-    # Sets @case_id, @admin_email
+    # Sets @case_id, @admin_email, @user_email
     #
     def initialize(params)
 
       @case_id = params[:case_id]
       @admin_email = params[:admin_email]
+      @user_email = params[:user_email]
 
     end
 
@@ -62,22 +63,13 @@ module UserAction
     def validate_and_sanitize
 
       @case_id = @case_id.to_i
+      @user_email = @user_email.to_s.strip
+
       if @case_id < 1 || @admin_email.blank?
         return error_with_data(
           'ua_oc_1',
           'Case ID, admin email is mandatory!',
           'Case ID, admin email is mandatory!',
-          GlobalConstant::ErrorAction.default,
-          {}
-        )
-      end
-
-      @user_kyc_detail = UserKycDetail.where(id: @case_id).first
-      if @user_kyc_detail.blank?
-        return error_with_data(
-          'ua_oc_2',
-          'Invalid Case ID!',
-          'Invalid Case ID!',
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -89,6 +81,28 @@ module UserAction
           'ua_uea_3',
           "Invalid Active Admin Email - #{@admin_email}",
           "Invalid Active Admin Email - #{@admin_email}",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
+                     status: GlobalConstant::User.active_status).exists?
+        return error_with_data(
+          'ua_uea_8',
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      @user_kyc_detail = UserKycDetail.where(id: @case_id).first
+      if @user_kyc_detail.blank?
+        return error_with_data(
+          'ua_oc_2',
+          'Invalid Case ID!',
+          'Invalid Case ID!',
           GlobalConstant::ErrorAction.default,
           {}
         )

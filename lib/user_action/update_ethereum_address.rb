@@ -156,11 +156,12 @@ module UserAction
         )
       end
 
-      if !User.where(id: @user_kyc_detail.user_id, email: @user_email).exists?
+      if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
+                     status: GlobalConstant::User.active_status).exists?
         return error_with_data(
           'ua_uea_8',
-          "User Email: #{@user_email} is Invalid!",
-          "User Email: #{@user_email} is Invalid!",
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          "User Email: #{@user_email} is Invalid or Not Active!",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -307,8 +308,7 @@ module UserAction
       @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
       @user_kyc_detail.save!
       # Perform Check duplicates again for current user id
-      r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id,
-                                                    status: GlobalConstant::User.active_status).perform
+      r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id).perform
       return r unless r.success?
 
       UserKycDetail.bulk_flush(user_ids)

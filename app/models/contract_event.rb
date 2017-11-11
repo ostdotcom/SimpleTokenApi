@@ -60,7 +60,11 @@ class ContractEvent < EstablishSimpleTokenContractInteractionsDbConnection
 
        GlobalConstant::ContractEvent.wallet_changed_kind => 28,
 
-       GlobalConstant::ContractEvent.whitelist_updated_kind => 29
+       GlobalConstant::ContractEvent.whitelist_updated_kind => 29,
+
+       GlobalConstant::ContractEvent.processable_allocation_added_kind => 30,
+
+       GlobalConstant::ContractEvent.processable_allocation_processed_kind => 31
 
    }, _suffix: true
 

@@ -124,6 +124,14 @@ module GlobalConstant
         'WhitelistUpdated'
       end
 
+      def processable_allocation_added_kind
+        'ProcessableAllocationAdded'
+      end
+
+      def processable_allocation_processed_kind
+        'ProcessableAllocationProcessed'
+      end
+
 
       ### Kind End ###
 

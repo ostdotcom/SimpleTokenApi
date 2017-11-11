@@ -77,11 +77,11 @@ module UserAction
       @admin_email = @admin_email.to_s.strip
       @user_email = @user_email.to_s.strip
 
-      if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank?
+      if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(
           'ua_uea_1',
-          'Ethereum Address, Case ID, admin email is mandatory!',
-          'Ethereum Address, Case ID, admin email is mandatory!',
+          'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
+          'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
           GlobalConstant::ErrorAction.default,
           {}
         )

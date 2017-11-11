@@ -63,13 +63,14 @@ module UserAction
     def validate_and_sanitize
 
       @case_id = @case_id.to_i
+      @admin_email = @admin_email.to_s.strip
       @user_email = @user_email.to_s.strip
 
-      if @case_id < 1 || @admin_email.blank?
+      if @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(
           'ua_oc_1',
-          'Case ID, admin email is mandatory!',
-          'Case ID, admin email is mandatory!',
+          'Case ID, Admin Email, User Email is mandatory!',
+          'Case ID, Admin Email, User Email is mandatory!',
           GlobalConstant::ErrorAction.default,
           {}
         )

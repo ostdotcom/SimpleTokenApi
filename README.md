@@ -55,7 +55,7 @@ export STA_PRIVATE_OPS_API_SECRET_KEY='1somethingsarebetterkeptinenvironemntvari
 export STA_PUBLIC_OPS_API_BASE_URL='http://127.0.0.1:3001'
 export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvariables'
 
-export STA_TOKEN_SALE_CONTRACT='0xEc9859B0B3B4652aD5e264776a79E544b76bc447'
+export STA_TOKEN_SALE_CONTRACT_ADDRESS='0xEc9859B0B3B4652aD5e264776a79E544b76bc447'
 
 ##crons
 
@@ -65,6 +65,8 @@ rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks
 rake RAILS_ENV=development cron_task:lockable:confirm_kyc_whitelist
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
+
+rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
 
 
 

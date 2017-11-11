@@ -46,7 +46,7 @@ constants:
   st_token_sale:
     critical_details:
       active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
-      token_sale_ethereum_address: '<%= ENV['STA_TOKEN_SALE_CONTRACT']%>'
+      token_sale_ethereum_address: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS']%>'
     user_register_dates:
       early_access_register_end_date:  <%= ENV['STA_EARLY_ACCESS_REGISTER_END_DATE'] %>
     sale_dates:
@@ -55,7 +55,7 @@ constants:
       general_access_end_date: <%= ENV['STA_GENERAL_ACCESS_END_DATE'] %>
 
   st_foundation_contracts:
-    token_sale: '<%= ENV['STA_TOKEN_SALE_CONTRACT'] %>'
+    token_sale: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS'] %>'
 
   recaptcha:
     site_key: <%= ENV['STA_RECAPTCHA_SITE_KEY'] %>

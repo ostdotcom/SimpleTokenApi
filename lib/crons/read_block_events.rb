@@ -14,7 +14,7 @@ module Crons
     #
     # @return [Crons::ReadBlockEvents]
     #
-    def initialize
+    def initialize(params)
       @last_processed_block_number = SaleGlobalVariable.last_block_processed.first.try(:variable_data).to_i
       @last_verified_block_number_for_total = SaleGlobalVariable.
         last_block_verified_for_tokens_sold_variable_kind.first.try(:variable_data).to_i
@@ -100,7 +100,7 @@ module Crons
     def validate_response
 
       unless @block_data_response.success?
-        notify_dev(@block_data_response.merge(msg: "Error while fetching block"))
+        notify_dev(@block_data_response.data.merge(msg: "Error while fetching block"))
         return error_with_data(
           'c_rbe_2',
           'error while fetching block',
@@ -115,7 +115,7 @@ module Crons
 
 
       if (meta[:current_block][:block_number].to_i != @current_block_number)
-        notify_dev(@block_data_response.merge(msg: "Urgent::Block returned is invalid"))
+        notify_dev(@block_data_response.data.merge(msg: "Urgent::Block returned is invalid"))
         return error_with_data(
           'c_rbe_1',
           'invalid block returned',
@@ -260,7 +260,7 @@ module Crons
           contract_event_obj.contract_address
 
       case contract_event_obj.kind
-        when GlobalConstant::ContractEvent.transfer_kind
+        when GlobalConstant::ContractEvent.tokens_purchased_kind
           ContractEventManagement::Transfer.new(
               contract_event_obj: contract_event_obj, block_creation_timestamp: @block_creation_timestamp
           ).perform

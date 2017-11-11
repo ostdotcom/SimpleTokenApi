@@ -26,12 +26,14 @@ class Callback::OpsController < Callback::BaseController
   #
   def decrypt_jwt
     begin
-      params[:decoded_token_data] = JWT.decode(
+      decoded_token_data = JWT.decode(
         params[:token],
         GlobalConstant::PublicOpsApi.secret_key,
         true,
         {:algorithm => 'HS256'}
       )[0]["data"]
+
+      params[:decoded_token_data] = HashWithIndifferentAccess.new(decoded_token_data)
     rescue => e
       # decoding failed
       ApplicationMailer.notify(

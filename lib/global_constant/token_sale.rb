@@ -9,10 +9,6 @@ module GlobalConstant
         GlobalConstant::Base.st_token_sale['critical_details']['active_status']
       end
 
-      def st_foundation_ethereum_address
-        GlobalConstant::Base.st_token_sale['critical_details']['foundation_ethereum_address']
-      end
-
       def early_access_register_end_date
         Time.zone.parse(GlobalConstant::Base.st_token_sale['user_register_dates']['early_access_register_end_date'])
       end

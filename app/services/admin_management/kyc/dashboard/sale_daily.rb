@@ -87,9 +87,10 @@ module AdminManagement
               .order("pst_day_start_timestamp DESC")
               .each do |p_l|
 
-            total_ethereum = GlobalConstant::ConversionRate.wei_to_basic_unit(p_l.total_ether_value)
-            total_tokens_sold = GlobalConstant::ConversionRate.wei_to_basic_unit(p_l.total_simple_token_value)
-            total_dollars_value = p_l.total_usd_value
+            total_ethereum = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_ether_value)
+            total_tokens_sold = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_simple_token_value)
+            total_dollars_value = p_l.total_usd_value.to_f.round(2)
+
             @curr_page_data << {
                 day_timestamp: Time.at(p_l.pst_day_start_timestamp).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y"),
                 total_ethereum: total_ethereum,

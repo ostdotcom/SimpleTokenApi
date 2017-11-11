@@ -112,7 +112,7 @@ module AdminManagement
               meta: {
                   page_offset: @offset,
                   page_size: @page_size,
-                  total_filtered_recs: @total_filtered_kycs.length
+                  total_filtered_recs: @total_filtered_kycs
               },
               curr_page_data: @curr_page_data
           }

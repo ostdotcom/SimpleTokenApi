@@ -119,20 +119,55 @@ module UserManagement
     #
     def api_response
       {
-          purchase_details: {}
+          purchase_details: user_purchase_data
       }
     end
 
-    #TODO:: Ethereum balance integration
-    # def token_purchase_data
-    #   {
-    #       total_dollars_sent: 4535680,
-    #       total_ethereum_sent: 1216,
-    #       simple_token_allotted_in_ethereum: 200,
-    #       simple_token_allotted_in_dollar: 332998,
-    #       token_to_ethereum_ratio: '1 Simple Token = 0.01 ETH'
-    #   }
-    # end
+    # purchase data for user
+    #
+    # * Author: Aman
+    # * Date: 09/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Hash] sale data for user
+    #
+    def user_purchase_data
+      Time.now >= sale_start_time_for_user ? get_user_sale_detail : {}
+    end
+
+    # Get user purchase data
+    #
+    # * Author: Aman
+    # * Date: 09/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Hash] sale data for user
+    #
+    def get_user_sale_detail
+      stat_data = PurchaseLog.where(
+        ethereum_address: @user_ethereum_address).
+        select(' sum(ether_wei_value) as total_ether_wei_value, sum(usd_value) as total_usd_value, sum(st_wei_value) as total_simple_token_wei_value').first
+
+      {
+          total_dollars_sent: stat_data.total_usd_value.to_f.round(2),
+          total_ethereum_sent: GlobalConstant::ConversionRate.wei_to_basic_unit(stat_data.total_ether_wei_value).to_s,
+          simple_token_sent: GlobalConstant::ConversionRate.wei_to_basic_unit(stat_data.total_simple_token_wei_value).to_s
+      }
+    end
+
+    # Sale Start time for user
+    #
+    # * Author: Aman
+    # * Date: 09/11/2017
+    # * Reviewed By:
+    #
+    # @return [Time]
+    #
+    def sale_start_time_for_user
+      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ?
+        GlobalConstant::TokenSale.early_access_start_date :
+        GlobalConstant::TokenSale.general_access_start_date
+    end
 
   end
 

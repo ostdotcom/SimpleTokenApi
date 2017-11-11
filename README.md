@@ -56,6 +56,8 @@ export STA_PRIVATE_OPS_API_SECRET_KEY='1somethingsarebetterkeptinenvironemntvari
 export STA_PUBLIC_OPS_API_BASE_URL='http://172.16.0.179:3001'
 export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvariables'
 
+export STA_TOKEN_SALE_CONTRACT='0xEc9859B0B3B4652aD5e264776a79E544b76bc447'
+
 ##crons
 
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1

@@ -50,6 +50,13 @@
     - :offset
     - :page_size
 
+'AdminManagement::Kyc::Dashboard::Sale':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :offset
+    - :page_size
+
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
     - :admin_id
@@ -218,8 +225,18 @@
   :mandatory:
   :optional:
 
-
 'UserManagement::CheckEthereumAddress':
   :mandatory:
     - :ethereum_address
+  :optional:
+
+'ContractEventManagement::Transfer':
+  :mandatory:
+    - :contract_event_obj
+    - :block_creation_timestamp
+  :optional:
+
+'ContractEventManagement::Finalize':
+  :mandatory:
+    - :contract_event_obj
   :optional:

@@ -14,7 +14,7 @@ module Crons
     #
     def initialize(params)
       @kyc_whitelist_log = nil
-      @block_mine_status, @block_hash, @transaction_hash, @event_data =  nil, nil, nil, {}
+      @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data =  nil, nil, nil, nil, nil
       @user_id = nil
     end
 
@@ -27,7 +27,7 @@ module Crons
     def perform
       KycWhitelistLog.
           kyc_whitelist_non_confirmed.
-          where("created_at < '#{(Time.now - 5.minutes).to_s(:db)}'").
+          where("created_at < '#{(Time.now - 10.minutes).to_s(:db)}'").
           where(is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed).
           find_in_batches(batch_size: 100).each do |batched_records|
 
@@ -35,7 +35,7 @@ module Crons
 
           initialize_for_iteration(kyc_whitelist_log)
 
-          r = check_block_mine_status
+          r = get_tx_info
           next unless r.success?
 
           if pending_status?
@@ -68,7 +68,7 @@ module Crons
     #
     def initialize_for_iteration(kyc_whitelist_log)
       @kyc_whitelist_log = kyc_whitelist_log
-      @block_mine_status, @block_hash, @transaction_hash, @event_data =  nil, nil, nil, {}
+      @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data =  nil, nil, nil, nil, nil
       @user_id = nil
     end
 
@@ -78,32 +78,27 @@ module Crons
     # * Date: 26/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @block_mine_status, @block_hash, @transaction_hash, @event_data
+    # Sets @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data
     #
     # @return [Result::Base]
     #
-    def check_block_mine_status
+    def get_tx_info
       # check if the transaction is mined in a block
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
-      @block_mine_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @kyc_whitelist_log.transaction_hash})
+      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform(
+        {transaction_hash: @kyc_whitelist_log.transaction_hash}
+      )
 
-      Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@block_mine_status.inspect}")
+      Rails.logger.info(
+        "user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@tx_info_status.inspect}"
+      )
 
-      if @block_mine_status.success?
-        @block_hash = @block_mine_status.data[:block_hash]
-        @transaction_hash = @block_mine_status.data[:transaction_hash]
-        @transaction_event = @block_mine_status.data[:events_data].first
-        @transaction_event[:events].each do |var_obj|
-          case var_obj[:name]
-            when '_account'
-              @event_data[:address] = var_obj[:value]
-            when '_phase'
-              @event_data[:phase] = var_obj[:value]
-          end
-        end
-
+      if @tx_info_status.success?
+        @block_hash = @tx_info_status.data[:block_hash]
+        @transaction_hash = @tx_info_status.data[:transaction_hash]
+        @block_number = @tx_info_status.data[:block_number].to_i
+        @events_data = @tx_info_status.data[:events_data]
         success
-
       else
 
         handle_error('Block Not Mined')
@@ -183,7 +178,9 @@ module Crons
 
       # Block Hash Mismatch
       contract_event = ContractEvent.where(
-        transaction_hash: @transaction_hash
+          transaction_hash: @transaction_hash,
+          kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
+          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address
       ).first
 
       if contract_event.present? && (contract_event.block_hash == @block_hash)
@@ -216,8 +213,9 @@ module Crons
       data = {
           transaction_hash: @transaction_hash,
           block_hash: @block_hash,
-          event_data: @event_data
-      }
+          block_number: @block_number,
+          events_data: @events_data
+      }.deep_symbolize_keys
 
       WhitelistManagement::ProcessAndRecordEvent.new(decoded_token_data: data).perform
     end
@@ -248,7 +246,7 @@ module Crons
     def handle_error(error_type)
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - #{error_type}")
 
-      error_data = {transaction_mined_response: @block_mine_status.to_json}
+      error_data = {transaction_mined_response: @tx_info_status.to_json}
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Changing to is attention needed")
 
       # change flag to attention required

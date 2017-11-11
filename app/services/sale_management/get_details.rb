@@ -23,8 +23,7 @@ module SaleManagement
     # @return [Result::Base]
     #
     def perform
-      data = SaleGlobalVariable.sale_ended_before_time_flag
-      success_with_data(data)
+      success_with_data(PurchaseLog.sale_details)
     end
 
   end

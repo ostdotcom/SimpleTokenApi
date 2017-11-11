@@ -81,6 +81,8 @@ module AdminManagement
 
           @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollars_value: 0}
 
+          total_ether_value_in_wei, total_st_value_in_wei = 0 , 0
+
           PurchaseLog
               .select("pst_day_start_timestamp, sum(ether_wei_value) as total_ether_value, sum(st_wei_value) as total_simple_token_value, sum(usd_value) as total_usd_value")
               .group("pst_day_start_timestamp")
@@ -97,12 +99,14 @@ module AdminManagement
                 total_tokens_sold: total_tokens_sold,
                 total_dollars_value: total_dollars_value
             }
-            @all_time_data[:total_ethereum] += total_ethereum
-            @all_time_data[:total_tokens_sold] += total_tokens_sold
-            @all_time_data[:total_dollars_value] += total_dollars_value
 
+            total_ether_value_in_wei += p_l.total_ether_value
+            total_st_value_in_wei += p_l.total_simple_token_value
+            @all_time_data[:total_dollars_value] += total_dollars_value
           end
 
+          @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei)
+          @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei)
         end
 
         # Set API response data

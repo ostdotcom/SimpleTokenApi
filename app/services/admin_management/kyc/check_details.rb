@@ -100,11 +100,20 @@ module AdminManagement
           end
 
           @filters.each do |fl_k, fl_v|
-            query_hash[fl_k.to_sym] = fl_v if fl_v.present? &&
+            if fl_v.present? &&
                 (UserKycDetail::admin_statuses[fl_v].present? ||
                     UserKycDetail::cynopsis_statuses[fl_v].present? ||
+                    UserKycDetail::admin_action_types[fl_v].present? ||
                     UserKycDetail::whitelist_statuses[fl_v].present?
                 )
+
+              query_hash[fl_k.to_sym] = fl_v
+            elsif fl_v == "#{GlobalConstant::UserKycDetail.cleared_cynopsis_status}:#{GlobalConstant::UserKycDetail.approved_cynopsis_status}"
+              query_hash[fl_k.to_sym] = [GlobalConstant::UserKycDetail.cleared_cynopsis_status, GlobalConstant::UserKycDetail.approved_cynopsis_status]
+            elsif fl_k == 'admin_action_type' && fl_v == 'any'
+              ar_relation = ar_relation.where("admin_action_type > 0")
+            end
+
           end
 
           ar_relation = ar_relation.where(query_hash) if query_hash.present?

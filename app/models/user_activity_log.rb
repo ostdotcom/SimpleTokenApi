@@ -18,7 +18,8 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
              GlobalConstant::UserActivityLog.login_action => 10,
              GlobalConstant::UserActivityLog.kyc_whitelist_attention_needed => 11,
              GlobalConstant::UserActivityLog.kyc_whitelist_processor_error => 12,
-             GlobalConstant::UserActivityLog.cynopsis_api_error => 13
+             GlobalConstant::UserActivityLog.cynopsis_api_error => 13,
+             GlobalConstant::UserActivityLog.update_ethereum_address => 14
          }, _suffix: true
 
   # decrypt data if present

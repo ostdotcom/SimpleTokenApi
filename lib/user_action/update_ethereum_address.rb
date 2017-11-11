@@ -1,0 +1,327 @@
+module UserAction
+
+  class UpdateEthereumAddress
+
+    include ::Util::ResultHelper
+
+    # Initialize
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @param [Integer] case_id (mandatory)
+    # @param [String] ethereum_address (mandatory)
+    # @param [String] admin_email (mandatory)
+    #
+    # @return [UserManagement::UpdateEthereumAddress]
+    #
+    # Sets @case_id, @ethereum_address, @admin_email
+    #
+    def initialize(params)
+
+      @case_id = params[:case_id]
+      @ethereum_address = params[:ethereum_address]
+      @admin_email = params[:admin_email]
+
+    end
+
+    # Perform
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [Result::Base]
+    #
+    def perform
+
+      r = validate_and_sanitize
+      return r unless r.success?
+
+      r = update_user_extended_details
+      return r unless r.success?
+
+      r = update_user_md5_extended_details
+      return r unless r.success?
+
+      r = handle_duplicate_logs
+      return r unless r.success?
+
+      r = log_activity
+      return r unless r.success?
+
+      success
+    end
+
+    private
+
+    # Validate and Sanitize
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [Result::Base]
+    #
+    # Sets @user_kyc_detail, @admin
+    #
+    def validate_and_sanitize
+
+      @ethereum_address = @ethereum_address.to_s.strip
+      @case_id = @case_id.to_i
+      @admin_email = @admin_email.to_s.strip
+
+      if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank?
+        return error_with_data(
+          'ua_uea_1',
+          'Ethereum Address, Case ID, admin email is mandatory!',
+          'Ethereum Address, Case ID, admin email is mandatory!',
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      # add 0x in the beginning if not present
+      @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
+
+      # regex check
+      if !Util::CommonValidator.is_ethereum_address?(@ethereum_address)
+        return error_with_data(
+          'ua_uea_2',
+          'Invalid Ethereum Address format!',
+          'Invalid Ethereum Address format!',
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      # check with the private geth for address validation
+      r = UserManagement::CheckEthereumAddress.new(ethereum_address: @ethereum_address).perform
+      if !r.success?
+        return error_with_data(
+          'ua_uea_3',
+          'Invalid Ethereum Address!',
+          'Invalid Ethereum Address!',
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      @user_kyc_detail = UserKycDetail.where(id: @case_id).first
+
+      if @user_kyc_detail.blank?
+        return error_with_data(
+          'ua_uea_4',
+          "Invalid Case ID - #{@case_id}",
+          "Invalid Case ID - #{@case_id}",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if @user_kyc_detail.case_closed?
+        return error_with_data(
+          'ua_uea_5',
+          "Case ID - #{@case_id} should be open.",
+          "Case ID - #{@case_id} should be open.",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      @admin = Admin.where(email: @admin_email, status: GlobalConstant::Admin.active_status).first
+      if @admin.blank?
+        return error_with_data(
+          'ua_uea_6',
+          "Invalid Active Admin Email - #{@admin_email}",
+          "Invalid Active Admin Email - #{@admin_email}",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if is_duplicate_ethereum_address?
+        return error_with_data(
+          'ua_uea_7',
+          "Duplicate ethereum Address Given!",
+          "Duplicate ethereum Address Given!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      success
+    end
+
+    # Check if Duplicate Ethereum Address
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # return [Bool] true/false
+    #
+    def is_duplicate_ethereum_address?
+      hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
+      Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).exists?
+    end
+
+    # Update User encrypted Ethereum address in Extended Details
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [Result::Base]
+    #
+    # Sets @kyc_salt_d
+    #
+    def update_user_extended_details
+
+      user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+
+      r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
+      return r unless r.success?
+
+      @kyc_salt_d = r.data[:plaintext]
+      r = encryptor_obj.encrypt(@ethereum_address)
+      return r unless r.success?
+
+      user_extended_detail.ethereum_address = r.data[:ciphertext_blob]
+      user_extended_detail.save!
+
+      success
+    end
+
+    # Update User hashed Ethereum Address in MD5 Extended Details
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [Result::Base]
+    #
+    def update_user_md5_extended_details
+
+      md5_user_extended_detail = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
+      md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
+      md5_user_extended_detail.save!
+
+      success
+    end
+
+    # Get Encryptor Object
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [LocalCipher]
+    #
+    # Sets @local_cipher_obj
+    #
+    def encryptor_obj
+      @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
+    end
+
+    # Handle Duplicate Logs
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [Result::Base]
+    #
+    def handle_duplicate_logs
+      all_non_current_user_dup_user_extended_details_ids = []
+
+      # Fetch all user_extended_details corresponding to current user_extended_details1_id
+      all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
+        user_extended_details1_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details2_id)
+
+      # Fetch all user_extended_details corresponding to current user_extended_details2_id
+      all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
+        user_extended_details2_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details1_id)
+
+      # Initiailize
+      active_dup_user_extended_details_ids, inactive_dup_user_extended_details_ids, user_ids = [], [], []
+      # Fetch active, inactive user_extended_details_ids
+      UserKycDuplicationLog.where("user_extended_details1_id = ? OR user_extended_details2_id = ?", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids).
+        where(status: [GlobalConstant::UserKycDuplicationLog.active_status, GlobalConstant::UserKycDuplicationLog.inactive_status]).
+        select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
+
+        next if (ukdl.user_extended_details1_id == @user_kyc_detail.user_extended_detail_id) || (ukdl.user_extended_details2_id == @user_kyc_detail.user_extended_detail_id)
+
+        if ukdl.status == GlobalConstant::UserKycDuplicationLog.active_status
+          active_dup_user_extended_details_ids << ukdl.user_extended_details1_id
+          active_dup_user_extended_details_ids << ukdl.user_extended_details2_id
+        else
+          inactive_dup_user_extended_details_ids << ukdl.user_extended_details1_id
+          inactive_dup_user_extended_details_ids << ukdl.user_extended_details2_id
+        end
+        user_ids << ukdl.user1_id
+        user_ids << ukdl.user2_id
+      end
+
+      active_dup_user_extended_details_ids.uniq!
+      inactive_dup_user_extended_details_ids.uniq!
+      user_ids.uniq!
+
+      inactive_dup_user_extended_details_ids -= active_dup_user_extended_details_ids
+      # Mark inactive user_extended_details_ids as was_kyc_duplicate_status
+      # Active user_kyc_details will already be is_kyc_duplicate_status
+      UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
+        update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+
+      never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
+      # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
+      UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
+        update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+
+      # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids
+      UserKycDuplicationLog.where("user_extended_details1_id= ? OR user_extended_details2_id = ?",
+                                  @user_kyc_detail.user_extended_detail_id, @user_kyc_detail.user_extended_detail_id).delete_all
+
+      # Mark current user as unprocessed
+      @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
+      @user_kyc_detail.save!
+      # Perform Check duplicates again for current user id
+      r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id).perform
+      return r unless r.success?
+
+      UserKycDetail.bulk_flush(user_ids)
+
+      success
+    end
+
+    # Log to UserActivityLog Table
+    #
+    # * Author: Abhay
+    # * Date: 10/11/2017
+    # * Reviewed By: Kedar
+    #
+    # @return [Result::Base]
+    #
+    def log_activity
+
+      BgJob.enqueue(
+        UserActivityLogJob,
+        {
+          user_id: @user_kyc_detail.user_id,
+          admin_id: @admin.id,
+          action: GlobalConstant::UserActivityLog.update_ethereum_address,
+          action_timestamp: Time.now.to_i,
+          extra_data: {
+            case_id: @case_id,
+            user_id: @user_kyc_detail.user_id
+          }
+        }
+      )
+
+      success
+    end
+
+  end
+
+end

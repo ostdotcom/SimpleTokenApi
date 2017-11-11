@@ -75,8 +75,19 @@ class Admin::KycController < Admin::BaseController
   # * Date: 09/11/2017
   # * Reviewed By: Sunil
   #
-  def sale_dashboard
-    service_response = AdminManagement::Kyc::Dashboard::Sale.new(params).perform
+  def sale_all_dashboard
+    service_response = AdminManagement::Kyc::Dashboard::SaleAll.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Whitelist Dashboard
+  #
+  # * Author: Alpesh
+  # * Date: 09/11/2017
+  # * Reviewed By: Sunil
+  #
+  def sale_daily_dashboard
+    service_response = AdminManagement::Kyc::Dashboard::SaleDaily.new(params).perform
     render_api_response(service_response)
   end
 

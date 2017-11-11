@@ -10,7 +10,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 09/11/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] page_size (optional)
@@ -33,7 +33,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 09/11/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # @return [Result::Base]
         #
@@ -55,7 +55,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 09/11/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # return [Result::Base]
         #
@@ -73,7 +73,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 09/11/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # Sets @curr_page_data
         #
@@ -108,7 +108,7 @@ module AdminManagement
         #
         # * Author: Alpesh
         # * Date: 09/11/2017
-        # * Reviewed By:
+        # * Reviewed By: Sunil
         #
         # Sets @api_response_data
         #

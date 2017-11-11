@@ -223,7 +223,7 @@
     - :decoded_token_data
   :optional:
 
-'UserManagement::GetTokenSaleFoundationAddress':
+'UserManagement::GetTokenSaleAddress':
   :mandatory:
     - :user_id
   :optional:

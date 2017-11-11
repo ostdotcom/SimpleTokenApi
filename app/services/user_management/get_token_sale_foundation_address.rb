@@ -1,6 +1,6 @@
 module UserManagement
 
-  class GetTokenSaleFoundationAddress < ServicesBase
+  class GetTokenSaleAddress < ServicesBase
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module UserManagement
     #
     # @params [Integer] user_id (mandatory) - this is the user id
     #
-    # @return [UserManagement::GetTokenSaleFoundationAddress]
+    # @return [UserManagement::GetTokenSaleAddress]
     #
     def initialize(params)
       super
@@ -131,7 +131,7 @@ module UserManagement
     #
     def success_response_data
       {
-          foundation_ethereum_address: GlobalConstant::StFoundationContract.token_sale_contract_address
+          token_sale_ethereum_address: GlobalConstant::TokenSale.st_token_sale_ethereum_address
       }
     end
 

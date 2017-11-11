@@ -8,7 +8,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By:
     #
     # @param [Integer] case_id (mandatory)
     # @param [String] admin_email (mandatory)
@@ -29,7 +29,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By:
     #
     # @return [Result::Base]
     #
@@ -54,7 +54,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By: Kedar
+    # * Reviewed By:
     #
     # @return [Result::Base]
     #
@@ -79,20 +79,9 @@ module UserAction
       @admin = Admin.where(email: @admin_email, status: GlobalConstant::Admin.active_status).first
       if @admin.blank?
         return error_with_data(
-          'ua_uea_3',
+          'ua_uea_2',
           "Invalid Active Admin Email - #{@admin_email}",
           "Invalid Active Admin Email - #{@admin_email}",
-          GlobalConstant::ErrorAction.default,
-          {}
-        )
-      end
-
-      if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
-                     status: GlobalConstant::User.active_status).exists?
-        return error_with_data(
-          'ua_uea_8',
-          "User Email: #{@user_email} is Invalid or Not Active!",
-          "User Email: #{@user_email} is Invalid or Not Active!",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -101,7 +90,7 @@ module UserAction
       @user_kyc_detail = UserKycDetail.where(id: @case_id).first
       if @user_kyc_detail.blank?
         return error_with_data(
-          'ua_oc_2',
+          'ua_oc_3',
           'Invalid Case ID!',
           'Invalid Case ID!',
           GlobalConstant::ErrorAction.default,
@@ -109,11 +98,22 @@ module UserAction
         )
       end
 
-      if !@user_kyc_detail.case_closed?
+      if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
+                     status: GlobalConstant::User.active_status).exists?
         return error_with_data(
           'ua_uea_4',
-          "Case ID - #{@case_id} can be opened only if it's closed.",
-          "Case ID - #{@case_id} can be opened only if it's closed.",
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if !@user_kyc_detail.case_closed?
+        return error_with_data(
+          'ua_uea_5',
+          "Case ID - #{@case_id} should be closed.",
+          "Case ID - #{@case_id} should be closed.",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -122,7 +122,7 @@ module UserAction
       @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       if @user_extended_detail.blank?
         return error_with_data(
-          'ua_uea_5',
+          'ua_uea_6',
           'Invalid User Extended Details!',
           'Invalid User Extended Details!',
           GlobalConstant::ErrorAction.default,
@@ -135,7 +135,7 @@ module UserAction
 
       if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
         return error_with_data(
-          'ua_uea_6',
+          'ua_uea_7',
           "User already bought SimpleToken. His case can't be opened",
           "User already bought SimpleToken. His case can't be opened",
           GlobalConstant::ErrorAction.default,
@@ -214,7 +214,8 @@ module UserAction
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.save!
 
-      # Handle kyc_whitelist_log - DELETE?
+      # TODO Handle kyc_whitelist_log - DELETE OLD ENTRY ?
+
       success
     end
 

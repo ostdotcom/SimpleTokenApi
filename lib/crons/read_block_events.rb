@@ -161,7 +161,7 @@ module Crons
           contract_event_obj = create_contract_event(transaction[:transaction_hash], event)
           next if contract_event_obj.status != GlobalConstant::ContractEvent.recorded_status
 
-          process_event(contract_event_obj)
+          # process_event(contract_event_obj)
 
         end
 

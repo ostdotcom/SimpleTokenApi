@@ -13,17 +13,20 @@ module UserAction
     # @param [Integer] case_id (mandatory)
     # @param [String] ethereum_address (mandatory)
     # @param [String] admin_email (mandatory)
+    # @param [String] user_email (mandatory)
     #
     # @return [UserManagement::UpdateEthereumAddress]
     #
-    # Sets @case_id, @ethereum_address, @admin_email
+    # Sets @case_id, @ethereum_address, @admin_email, @user_email
     #
     def initialize(params)
 
       @case_id = params[:case_id]
       @ethereum_address = params[:ethereum_address]
       @admin_email = params[:admin_email]
-      @old_md5_ethereum_address, @old_encrypted_u_e_d_ethereum_address  = nil, nil
+      @user_email = params[:user_email]
+
+      @old_md5_ethereum_address, @old_encrypted_u_e_d_ethereum_address = nil, nil
 
     end
 
@@ -72,6 +75,7 @@ module UserAction
       @ethereum_address = @ethereum_address.to_s.strip
       @case_id = @case_id.to_i
       @admin_email = @admin_email.to_s.strip
+      @user_email = @user_email.to_s.strip
 
       if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank?
         return error_with_data(
@@ -147,6 +151,16 @@ module UserAction
           'ua_uea_7',
           "Duplicate ethereum Address Given!",
           "Duplicate ethereum Address Given!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if !User.where(id: @user_kyc_detail.user_id, email: @user_email).exists?
+        return error_with_data(
+          'ua_uea_8',
+          "User Email: #{@user_email} is Invalid!",
+          "User Email: #{@user_email} is Invalid!",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -293,7 +307,8 @@ module UserAction
       @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
       @user_kyc_detail.save!
       # Perform Check duplicates again for current user id
-      r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id).perform
+      r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id,
+                                                    status: GlobalConstant::User.active_status).perform
       return r unless r.success?
 
       UserKycDetail.bulk_flush(user_ids)

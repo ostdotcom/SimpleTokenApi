@@ -113,6 +113,8 @@ module GlobalConstant
             passport_issue_email_sent_action => 'KYC passport issue email sent',
             selfie_issue_email_sent_action => 'KYC selfie issue email sent',
             residency_issue_email_sent_action => 'KYC residency issue email sent',
+            update_ethereum_address => "Ethereum Address Updated",
+            open_case => "Case is Opened Again"
         }
       end
 

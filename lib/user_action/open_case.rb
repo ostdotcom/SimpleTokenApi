@@ -214,7 +214,8 @@ module UserAction
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.save!
 
-      # TODO Handle kyc_whitelist_log - DELETE OLD ENTRY ?
+      # TODO Handle kyc_whitelist_log - LOG and DELETE OLD ENTRY ?
+      # Because kyc_whitelist_processor creates the entry
 
       success
     end

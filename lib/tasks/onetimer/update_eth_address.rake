@@ -6,7 +6,7 @@ namespace :onetimer do
   # * Date: 10/11/2017
   # * Reviewed By: Kedar
   #
-  # rake RAILS_ENV=development onetimer:update_eth_address case_id=2 ethereum_address='0x' admin_email='sunil@pepo.com'
+  # rake RAILS_ENV=development onetimer:update_eth_address case_id=2 ethereum_address=0x admin_email=sunil@pepo.com
   #
   task :update_eth_address => :environment do
 

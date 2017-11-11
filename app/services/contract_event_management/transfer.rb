@@ -56,9 +56,9 @@ module ContractEventManagement
             @ethereum_address = var_obj[:value].to_s
           when '_cost'
             @ether_wei_value = var_obj[:value].to_i
-            @usd_value = GlobalConstant::ConversionRate.eth_in_wei_to_usd(@ether_wei_value)
           when '_tokens'
             @st_wei_value = var_obj[:value].to_i
+            @usd_value = GlobalConstant::ConversionRate.st_in_wei_to_usd(@st_wei_value).round(2)
         end
 
       end

@@ -4,7 +4,7 @@ module AdminManagement
 
     module Dashboard
 
-      class Sale < ServicesBase
+      class SaleAll < ServicesBase
 
         # Initialize
         #
@@ -79,20 +79,19 @@ module AdminManagement
         #
         def fetch_purchase_data
 
-          @total_filtered_kycs = PurchaseLog.group("pst_day_start_timestamp").count
+          @total_filtered_kycs = PurchaseLog.count
 
           PurchaseLog
-              .select("pst_day_start_timestamp, sum(ether_wei_value) as total_ether_value, sum(st_wei_value) as total_simple_token_value, sum(usd_value) as total_usd_value")
               .limit(@page_size).offset(@offset)
-              .group("pst_day_start_timestamp")
               .order("pst_day_start_timestamp DESC")
               .each do |p_l|
 
             @curr_page_data << {
-                day_timestamp: Time.at(p_l.pst_day_start_timestamp).strftime("%d/%m/%Y"),
-                total_etherium: p_l.total_ether_value,
-                total_tokens_sold: p_l.total_simple_token_value,
-                total_dollers_value: p_l.total_usd_value
+                day_timestamp: Time.at(p_l.created_at).strftime("%d/%m/%Y %H:%M"),
+                ethereum_address: p_l.ethereum_address,
+                ethereum_value: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.ether_wei_value),
+                tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.st_wei_value),
+                usd_value: p_l.usd_value.to_f.round(2)
             }
 
           end
@@ -110,12 +109,12 @@ module AdminManagement
         def set_api_response_data
 
           @api_response_data = {
-              curr_page_data: @curr_page_data,
               meta: {
                   page_offset: @offset,
                   page_size: @page_size,
-                  total_filtered_recs: @total_filtered_kycs.length
-              }
+                  total_filtered_recs: @total_filtered_kycs
+              },
+              curr_page_data: @curr_page_data
           }
 
         end

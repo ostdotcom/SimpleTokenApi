@@ -268,7 +268,7 @@ module UserAction
       # Initiailize
       active_dup_user_extended_details_ids, inactive_dup_user_extended_details_ids, user_ids = [], [], []
       # Fetch active, inactive user_extended_details_ids
-      UserKycDuplicationLog.where("user_extended_details1_id = ? OR user_extended_details2_id = ?", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids).
+      UserKycDuplicationLog.where("user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids).
         where(status: [GlobalConstant::UserKycDuplicationLog.active_status, GlobalConstant::UserKycDuplicationLog.inactive_status]).
         select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
 
@@ -283,7 +283,7 @@ module UserAction
         end
         user_ids << ukdl.user1_id
         user_ids << ukdl.user2_id
-      end
+      end if all_non_current_user_dup_user_extended_details_ids.present?
 
       active_dup_user_extended_details_ids.uniq!
       inactive_dup_user_extended_details_ids.uniq!
@@ -292,16 +292,20 @@ module UserAction
       inactive_dup_user_extended_details_ids -= active_dup_user_extended_details_ids
       # Mark inactive user_extended_details_ids as was_kyc_duplicate_status
       # Active user_kyc_details will already be is_kyc_duplicate_status
-      UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
-        update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+      if inactive_dup_user_extended_details_ids.present?
+        UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
+          update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+      end
 
       never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
       # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
-      UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
-        update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+      if never_dup_user_extended_details_ids.present?
+        UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
+          update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+      end
 
       # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids
-      UserKycDuplicationLog.where("user_extended_details1_id= ? OR user_extended_details2_id = ?",
+      UserKycDuplicationLog.where("user_extended_details1_id = ? OR user_extended_details2_id = ?",
                                   @user_kyc_detail.user_extended_detail_id, @user_kyc_detail.user_extended_detail_id).delete_all
 
       # Mark current user as unprocessed

@@ -37,8 +37,8 @@ class SaleGlobalVariable < EstablishSimpleTokenContractInteractionsDbConnection
     Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
       objs = SaleGlobalVariable.pre_sale_data_kinds.all.index_by(&:variable_kind)
       pre_sale_st_token_in_wei_value = objs[GlobalConstant::SaleGlobalVariable.pre_sale_tokens_sold_variable_kind].variable_data.to_i
-      pre_sale_eth_in_wei_value = objs[GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind].variable_data.to_f
-      pre_sale_usd_value = GlobalConstant::ConversionRate.eth_in_wei_to_usd(pre_sale_eth_in_wei_value)
+      pre_sale_eth_in_wei_value = objs[GlobalConstant::SaleGlobalVariable.pre_sale_eth_received_variable_kind].variable_data.to_i
+      pre_sale_usd_value = GlobalConstant::ConversionRate.st_in_wei_to_usd(pre_sale_st_token_in_wei_value).round(2)
 
       {
           pre_sale_st_token_in_wei_value: pre_sale_st_token_in_wei_value,

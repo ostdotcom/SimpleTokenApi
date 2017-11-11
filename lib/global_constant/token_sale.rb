@@ -9,8 +9,8 @@ module GlobalConstant
         GlobalConstant::Base.st_token_sale['critical_details']['active_status']
       end
 
-      def st_foundation_ethereum_address
-        GlobalConstant::Base.st_token_sale['critical_details']['foundation_ethereum_address']
+      def st_token_sale_ethereum_address
+        GlobalConstant::Base.st_token_sale['critical_details']['token_sale_ethereum_address']
       end
 
       def early_access_register_end_date

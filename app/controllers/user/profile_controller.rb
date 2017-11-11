@@ -28,8 +28,8 @@ class User::ProfileController < User::BaseController
   # * Date: 27/10/2017
   # * Reviewed By: Sunil
   #
-  def token_sale_foundation_address
-    service_response = UserManagement::GetTokenSaleFoundationAddress.new(params).perform
+  def get_token_sale_address
+    service_response = UserManagement::GetTokenSaleAddress.new(params).perform
     render_api_response(service_response)
   end
 

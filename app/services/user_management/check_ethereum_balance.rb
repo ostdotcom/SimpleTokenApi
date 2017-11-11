@@ -150,8 +150,8 @@ module UserManagement
 
       {
           total_dollars_sent: stat_data.total_usd_value.to_f.round(2),
-          total_ethereum_sent: GlobalConstant::ConversionRate.wei_to_basic_unit(stat_data.total_ether_wei_value).to_s,
-          simple_token_sent: GlobalConstant::ConversionRate.wei_to_basic_unit(stat_data.total_simple_token_wei_value).to_s
+          total_ethereum_sent: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_ether_wei_value),
+          simple_token_sent: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_simple_token_wei_value)
       }
     end
 

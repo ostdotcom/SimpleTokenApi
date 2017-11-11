@@ -50,7 +50,14 @@
     - :offset
     - :page_size
 
-'AdminManagement::Kyc::Dashboard::Sale':
+'AdminManagement::Kyc::Dashboard::SaleAll':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :offset
+    - :page_size
+
+'AdminManagement::Kyc::Dashboard::SaleDaily':
   :mandatory:
     - :admin_id
   :optional:
@@ -216,7 +223,7 @@
     - :decoded_token_data
   :optional:
 
-'UserManagement::GetTokenSaleFoundationAddress':
+'UserManagement::GetTokenSaleAddress':
   :mandatory:
     - :user_id
   :optional:

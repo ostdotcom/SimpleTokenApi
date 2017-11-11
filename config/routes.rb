@@ -24,7 +24,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/profile' do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
-    match 'token-sale-foundation-address' => :token_sale_foundation_address, via: :GET
+    match 'get-token-sale-address' => :get_token_sale_address, via: :GET
   end
 
   scope 'api/admin', controller: 'admin/login' do
@@ -46,7 +46,8 @@ Rails.application.routes.draw do
     match 'qualify' => :qualify, via: :POST
     match 'kyc-action-logs' => :kyc_action_logs, via: :GET
     match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
-    match 'sale-dashboard' => :sale_dashboard, via: :GET
+    match 'sale-daily-dashboard' => :sale_daily_dashboard, via: :GET
+    match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
   end
 
   scope 'api/callback', controller: 'callback/ops' do

@@ -67,6 +67,23 @@ namespace :cron_task do
       execute_lockable_task
     end
 
+    # Read and process blocks on ether net
+    #
+    # * Author: Aman
+    # * Date: 06/11/2017
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:read_blocks_on_ethernet >> /mnt/simpletoken-api/shared/log/read_blocks_on_ethernet.log"
+    task :read_blocks_on_ethernet do |task|
+      @sleep_interval = 15
+
+      @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
+      @performer_klass = 'Crons::ReadBlockEvents'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

@@ -9,8 +9,8 @@ class CreateSaleGlobalVariables < DbMigrationConnection
       end
 
       execute "INSERT INTO sale_global_variables (variable_kind, variable_data, created_at, updated_at) VALUES
-            ('#{SaleGlobalVariable.variable_kinds[GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind]}', 0, '#{Time.now.to_s(:db)}', '#{Time.now.to_s(:db)}'),
-            ('#{SaleGlobalVariable.variable_kinds[GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind]}', 0, '#{Time.now.to_s(:db)}', '#{Time.now.to_s(:db)}');"
+            ('#{SaleGlobalVariable.variable_kinds[GlobalConstant::SaleGlobalVariable.sale_ended_variable_kind]}', '0', '#{Time.now.to_s(:db)}', '#{Time.now.to_s(:db)}'),
+            ('#{SaleGlobalVariable.variable_kinds[GlobalConstant::SaleGlobalVariable.last_block_processed_variable_kind]}', '0', '#{Time.now.to_s(:db)}', '#{Time.now.to_s(:db)}');"
 
     end
 

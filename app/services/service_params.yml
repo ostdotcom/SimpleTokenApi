@@ -64,6 +64,13 @@
     - :offset
     - :page_size
 
+'AdminManagement::Kyc::Dashboard::ContractEvents':
+  :mandatory:
+    - :admin_id
+  :optional:
+    - :offset
+    - :page_size
+
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
     - :admin_id

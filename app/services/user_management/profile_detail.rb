@@ -150,11 +150,7 @@ module UserManagement
     #
     def sale_stats
       # can rely on check in purchase log and fetch data everytime from there ever on 14th for general access users
-      if Time.now >= sale_start_time_for_user
-        PurchaseLog.sale_details
-      else
-        {sale_details: {}}
-      end
+      PurchaseLog.sale_details
     end
 
     # Sale Start time for user

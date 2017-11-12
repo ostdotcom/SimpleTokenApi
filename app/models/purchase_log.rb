@@ -10,7 +10,15 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
     memcache_key_object = MemcacheKey.new('token_sale.sale_details')
     Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
 
-      return {sale_details: {}} unless GlobalConstant::TokenSale.is_early_access_sale_started?
+      return {
+          sale_details: {
+              total_st_token_sold: '0',
+              total_eth_raised: '0',
+              total_usd_value: 0,
+              sale_ended_before_time: SaleGlobalVariable.sale_ended_flag,
+              token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+          }
+      } unless GlobalConstant::TokenSale.is_early_access_sale_started?
 
       pre_sale_data = SaleGlobalVariable.pre_sale_data
 

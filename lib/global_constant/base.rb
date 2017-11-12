@@ -20,7 +20,7 @@ module GlobalConstant
     end
 
     def self.pepo_campaigns_config
-      @pepo_campaigns ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
+      @pepo_campaigns_config ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
     end
 
     def self.s3

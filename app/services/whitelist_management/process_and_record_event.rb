@@ -423,28 +423,29 @@ module WhitelistManagement
     # * Date: 04/11/2017
     # * Reviewed By: Sunil
     #
-    #
     def send_kyc_approved_mail
 
       return if GlobalConstant::TokenSale.is_sale_ended?
 
-      emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
+      emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(
+        GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
 
       return if emails_hook_info.present? && emails_hook_info[@user.email].present?
 
-      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(@user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
+      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
+        @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
 
-      send_kyc_approved_email_via_hooks if send_mail_response['error'].present?
+      send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 
     end
 
-    # KYC approved email transavtionsl var data
+    # KYC approved email transactional var data
     #
     # * Author: Aman
     # * Date: 04/11/2017
     # * Reviewed By: Sunil
     #
-    #returns [Hash] variable data for transactional email
+    # @return [Hash] variable data for transactional email
     #
     def kyc_approved_template_vars
       {
@@ -459,8 +460,7 @@ module WhitelistManagement
     # * Date: 04/11/2017
     # * Reviewed By: Sunil
     #
-    #
-    def send_kyc_approved_email_via_hooks
+    def send_kyc_approved_mail_via_hooks
 
       Email::HookCreator::SendTransactionalMail.new(
           email: @user.email,

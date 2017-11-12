@@ -386,7 +386,7 @@ module WhitelistManagement
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
       if @user_kyc_detail.whitelist_status_changed? &&
           @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
-        send_kyc_approved_email
+        send_kyc_approved_mail
       end
 
       @user_kyc_detail.record_timestamps = false
@@ -416,29 +416,57 @@ module WhitelistManagement
       UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] == @phase.to_i
     end
 
-    # Send Email when kyc whitelist status is done
+    # Send Email when kyc whitelist status is done without creating hooks if email was not previously sent
+    # Note: In case of error use hooks to send email
     #
-    # * Author: Abhay
-    # * Date: 26/10/2017
+    # * Author: Aman
+    # * Date: 04/11/2017
     # * Reviewed By: Sunil
     #
-    # TODO AFTER WHITELISTING::Uncomment after contracts is deployed
     #
-    def send_kyc_approved_email
-      # return if GlobalConstant::TokenSale.is_sale_ended?
-      #
-      # emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
-      #
-      # if emails_hook_info.blank? || emails_hook_info[@user.email].blank?
-      #   Email::HookCreator::SendTransactionalMail.new(
-      #       email: @user.email,
-      #       template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-      #       template_vars: {
-      #           token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-      #           is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
-      #       }
-      #   ).perform
-      # end
+    def send_kyc_approved_mail
+
+      return if GlobalConstant::TokenSale.is_sale_ended?
+
+      emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
+
+      return if emails_hook_info.present? && emails_hook_info[@user.email].present?
+
+      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(@user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
+
+      send_kyc_approved_email_via_hooks if send_mail_response['error'].present?
+
+    end
+
+    # KYC approved email transavtionsl var data
+    #
+    # * Author: Aman
+    # * Date: 04/11/2017
+    # * Reviewed By: Sunil
+    #
+    #returns [Hash] variable data for transactional email
+    #
+    def kyc_approved_template_vars
+      {
+          token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+          is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
+      }
+    end
+
+    # Send Email via hook processor
+    #
+    # * Author: Aman
+    # * Date: 04/11/2017
+    # * Reviewed By: Sunil
+    #
+    #
+    def send_kyc_approved_email_via_hooks
+
+      Email::HookCreator::SendTransactionalMail.new(
+          email: @user.email,
+          template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+          template_vars: kyc_approved_template_vars
+      ).perform
     end
 
     # Handle error

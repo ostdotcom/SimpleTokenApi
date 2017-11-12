@@ -36,9 +36,6 @@ module AdminManagement
 
           update_user_kyc_status
 
-          # TODO AFTER WHITELISTING - remove this.
-          send_email
-
           #Dont log admin action on approved by admin
 
           success_with_data(@api_response_data)
@@ -104,33 +101,6 @@ module AdminManagement
           @user_kyc_detail.last_acted_by = @admin_id
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
           @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
-        end
-
-        # Send email
-        #
-        # * Author: Aman
-        # * Date: 31/10/2017
-        # * Reviewed By:
-        #
-        # TODO AFTER WHITELISTING - remove this.
-        #
-        def send_email
-
-          return unless @user_kyc_detail.kyc_approved?
-
-          emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
-
-          if emails_hook_info.blank? || emails_hook_info[@user.email].blank?
-            Email::HookCreator::SendTransactionalMail.new(
-                email: @user.email,
-                template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-                template_vars: {
-                    token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-                    is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
-                }
-            ).perform
-          end
-
         end
 
       end

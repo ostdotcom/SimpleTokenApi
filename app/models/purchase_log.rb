@@ -21,19 +21,20 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
       total_st_wei_value = stat_obj.total_st_wei_value.to_i
 
       total_st_wei_value += pre_sale_data[:pre_sale_st_token_in_wei_value]
-      total_st_token_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_wei_value)
+      total_st_token_sold = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_wei_value)
 
       total_ether_wei_value += pre_sale_data[:pre_sale_eth_in_wei_value]
-      total_eth_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_wei_value)
+      total_eth_raised = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_wei_value)
 
       total_usd_value += pre_sale_data[:pre_sale_usd_value]
 
       {
           sale_details: {
-              total_st_token_value: total_st_token_value,
-              total_eth_value: total_eth_value,
+              total_st_token_sold: total_st_token_sold,
+              total_eth_raised: total_eth_raised,
               total_usd_value: total_usd_value.round(2),
-              sale_ended_before_time: SaleGlobalVariable.sale_ended_flag
+              sale_ended_before_time: SaleGlobalVariable.sale_ended_flag,
+              token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
           }
       }
     end

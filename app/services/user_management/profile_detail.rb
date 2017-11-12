@@ -136,8 +136,7 @@ module UserManagement
     def success_response_data
       {
           user: user_data,
-          user_kyc_data: user_kyc_data,
-          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+          user_kyc_data: user_kyc_data
       }.merge(sale_stats)
     end
 

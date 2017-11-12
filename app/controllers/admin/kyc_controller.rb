@@ -69,7 +69,7 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Whitelist Dashboard
+  # Sale All Dashboard
   #
   # * Author: Alpesh
   # * Date: 09/11/2017
@@ -80,7 +80,7 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Whitelist Dashboard
+  # Sale Day wise Dashboard
   #
   # * Author: Alpesh
   # * Date: 09/11/2017
@@ -88,6 +88,17 @@ class Admin::KycController < Admin::BaseController
   #
   def sale_daily_dashboard
     service_response = AdminManagement::Kyc::Dashboard::SaleDaily.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Contract Events Dashboard
+  #
+  # * Author: Alpesh
+  # * Date: 10/11/2017
+  # * Reviewed By:
+  #
+  def contract_events_dashboard
+    service_response = AdminManagement::Kyc::Dashboard::ContractEvents.new(params).perform
     render_api_response(service_response)
   end
 

@@ -48,6 +48,7 @@ Rails.application.routes.draw do
     match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
     match 'sale-daily-dashboard' => :sale_daily_dashboard, via: :GET
     match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
+    match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
   end
 
   scope 'api/callback', controller: 'callback/ops' do

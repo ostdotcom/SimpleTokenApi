@@ -56,6 +56,8 @@ module Crons
         end
 
       rescue StandardError => e
+        puts e.inspect
+        Rails.logger.error(e)
         return
       end
 
@@ -243,7 +245,7 @@ module Crons
 
       return success if ContractEvent.kinds[event[:name]].present?
 
-      notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event"))
+      notify_dev({transaction: @transactions, event: event}.merge!(msg: "invalid event"))
       error_with_data(
           'c_rbe_3',
           'invalid event',

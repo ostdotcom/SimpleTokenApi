@@ -149,9 +149,9 @@ module UserManagement
         select(' sum(ether_wei_value) as total_ether_wei_value, sum(usd_value) as total_usd_value, sum(st_wei_value) as total_simple_token_wei_value').first
 
       {
-          total_dollars_sent: stat_data.total_usd_value.to_f.round(2),
-          total_ethereum_sent: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_ether_wei_value),
-          simple_token_sent: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_simple_token_wei_value)
+          total_dollars_sent_by_user: stat_data.total_usd_value.to_f.round(2),
+          total_ethereum_sent_by_user: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_ether_wei_value),
+          total_simple_token_allotted_to_user: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_simple_token_wei_value)
       }
     end
 

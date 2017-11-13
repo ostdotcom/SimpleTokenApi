@@ -108,7 +108,7 @@ class KycSubmitJob < ApplicationJob
     # Update records
     if @user_kyc_detail.new_record?
       @user_kyc_detail.kyc_confirmed_at = @action_timestamp
-      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@action_timestamp))
+      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage

@@ -53,7 +53,6 @@ module GlobalConstant
         @token_sale_state_page_names ||= {
             profile_page: 'profile_page',
             verification_page: 'verification_page',
-            bt_page: 'bt_page',
             kyc_page: 'kyc_page'
         }
       end

@@ -124,6 +124,50 @@ module GlobalConstant
         'WhitelistUpdated'
       end
 
+      def processable_allocation_added_kind
+        'ProcessableAllocationAdded'
+      end
+
+      def processable_allocation_processed_kind
+        'ProcessableAllocationProcessed'
+      end
+
+      def confirmation_kind
+        'Confirmation'
+      end
+
+      def revocation_kind
+        'Revocation'
+      end
+
+      def submission_kind
+        'Submission'
+      end
+
+      def execution_kind
+        'Execution'
+      end
+
+      def execution_failure_kind
+        'ExecutionFailure'
+      end
+
+      def deposit_kind
+        'Deposit'
+      end
+
+      def owner_addition_kind
+        'OwnerAddition'
+      end
+
+      def owner_removal_kind
+        'OwnerRemoval'
+      end
+
+      def requirement_change_kind
+        'RequirementChange'
+      end
+
 
       ### Kind End ###
 

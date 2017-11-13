@@ -20,7 +20,7 @@ module GlobalConstant
     end
 
     def self.pepo_campaigns_config
-      @pepo_campaigns ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
+      @pepo_campaigns_config ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
     end
 
     def self.s3
@@ -36,7 +36,7 @@ module GlobalConstant
     end
 
     def self.st_foundation_contracts
-      @st_token_sale ||= fetch_config.fetch('st_foundation_contracts', {}).with_indifferent_access
+      @st_foundation_contracts ||= fetch_config.fetch('st_foundation_contracts', {}).with_indifferent_access
     end
 
     def self.local_path

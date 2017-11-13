@@ -409,6 +409,7 @@ module UserManagement
     #
     def update_user
       @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
+      @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
       @user.save! if @user.changed?
       success
     end
@@ -420,8 +421,17 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def enqueue_job
-      # Until the user Does Double Opt in do nothing here. In edit let it call.
-      if @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+      if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+
+        BgJob.enqueue(
+            OnBTSubmitJob,
+            {
+                user_id: @user_id
+            }
+        )
+        Rails.logger.info('---- enqueue_job OnBTSubmitJob done')
+      else
+
         BgJob.enqueue(
             KycSubmitJob,
             {
@@ -430,7 +440,7 @@ module UserManagement
                 action_timestamp: Time.now.to_i
             }
         )
-        Rails.logger.info('---- enqueue_job done')
+        Rails.logger.info('---- enqueue_job KycSubmitJob done')
       end
     end
 

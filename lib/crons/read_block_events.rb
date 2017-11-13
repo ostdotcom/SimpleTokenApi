@@ -31,26 +31,34 @@ module Crons
     #
     def perform
 
-      while true
-        set_data_for_current_iteration
+      begin
 
-        get_block_transactions
+        while true
+          set_data_for_current_iteration
 
-        r = validate_response
-        return r unless r.success?
+          get_block_transactions
 
-        if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
+          r = validate_response
+          return r unless r.success?
 
-          process_transactions
+          if blocks_trail_count >= MIN_BLOCK_DIFFERENCE
 
-          update_last_processed_block_number
+            process_transactions
 
-          verify_token_count if blocks_trail_count == MIN_BLOCK_DIFFERENCE
+            update_last_processed_block_number
+
+            verify_token_count if blocks_trail_count == MIN_BLOCK_DIFFERENCE
+
+          end
+
+          return if blocks_trail_count <= MIN_BLOCK_DIFFERENCE
 
         end
 
-        return if blocks_trail_count <= MIN_BLOCK_DIFFERENCE
-
+      rescue StandardError => e
+        puts e.inspect
+        Rails.logger.error(e)
+        return
       end
 
     end
@@ -237,7 +245,7 @@ module Crons
 
       return success if ContractEvent.kinds[event[:name]].present?
 
-      notify_dev({transaction: transaction, event: event}.merge!(msg: "invalid event"))
+      notify_dev({transaction: @transactions, event: event}.merge!(msg: "invalid event"))
       error_with_data(
           'c_rbe_3',
           'invalid event',

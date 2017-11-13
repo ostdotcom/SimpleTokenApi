@@ -64,7 +64,7 @@ namespace :cron_task do
       @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
       @performer_klass = 'Crons::ConfirmKycWhitelist'
       @optional_params = {}
-      execute_lockable_task
+      execute_continuous_task
     end
 
     # Read and process blocks on ether net
@@ -81,7 +81,7 @@ namespace :cron_task do
       @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
       @performer_klass = 'Crons::ReadBlockEvents'
       @optional_params = {}
-      execute_lockable_task
+      execute_continuous_task
     end
 
     private

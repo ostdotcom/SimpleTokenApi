@@ -4,13 +4,15 @@ namespace :onetimer do
 
   task :check_whitelist_status => :environment do
 
-    failed_checks = []
+    failed_checks = {}
     phase_mismatch_entries = []
 
     KycWhitelistLog.all.each do |kwl|
 
       r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: kwl.ethereum_address)
-      failed_checks << kwl.id unless r.success?
+      unless r.success?
+        failed_checks[kwl.id] = r
+      end
 
       next
 

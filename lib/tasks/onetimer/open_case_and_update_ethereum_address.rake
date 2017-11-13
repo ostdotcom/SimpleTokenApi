@@ -4,7 +4,7 @@ namespace :onetimer do
   #
   # * Author: Abhay
   # * Date: 11/11/2017
-  # * Reviewed By:
+  # * Reviewed By: Sunil
   #
   # rake RAILS_ENV=development onetimer:open_case_and_update_ethereum_address case_id=6 ethereum_address=0x admin_email=abhay@pepo.com user_email=aman+11@pepo.com
   #
@@ -17,7 +17,7 @@ namespace :onetimer do
       case_id: ENV['case_id'],
       admin_email: ENV['admin_email'],
       user_email: ENV['user_email'],
-      ethereum_address = ENV['ethereum_address']
+      ethereum_address: ENV['ethereum_address']
     ).perform
 
     p "=== Response ==="

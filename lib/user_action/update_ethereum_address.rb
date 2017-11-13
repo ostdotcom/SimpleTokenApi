@@ -77,8 +77,8 @@ module UserAction
 
       @ethereum_address = @ethereum_address.to_s.strip
       @case_id = @case_id.to_i
-      @admin_email = @admin_email.to_s.strip
-      @user_email = @user_email.to_s.strip
+      @admin_email = @admin_email.to_s.strip.downcase
+      @user_email = @user_email.to_s.strip.downcase
 
       if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(
@@ -355,7 +355,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 13/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -379,6 +379,8 @@ module UserAction
           {}
         )
       end
+
+      p "ethereum address updated successfully"
 
       success
     end

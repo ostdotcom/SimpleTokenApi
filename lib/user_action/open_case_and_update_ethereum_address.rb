@@ -77,8 +77,8 @@ module UserAction
     def validate_and_sanitize
 
       @case_id = @case_id.to_i
-      @admin_email = @admin_email.to_s.strip
-      @user_email = @user_email.to_s.strip
+      @admin_email = @admin_email.to_s.downcase.strip
+      @user_email = @user_email.to_s.downcase.strip
 
       if @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(

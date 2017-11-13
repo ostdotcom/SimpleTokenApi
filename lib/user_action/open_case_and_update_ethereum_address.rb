@@ -8,18 +8,17 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param [Integer] case_id (mandatory)
     # @param [String] admin_email (mandatory)
     # @param [String] user_email (mandatory)
     # @param [String] ethereum_address (mandatory)
+    # @param [Integer] open_case_only (optional) Value: 1/0
     #
     # @return [UserManagement::OpenCaseAndUpdateEthereumAddress]
     #
-    # Sets @case_id, @admin_email, @user_email, @ethereum_address
-    #
-    # Ethereum Address Update Service Call
+    # Sets @case_id, @admin_email, @user_email, @new_ethereum_address, @open_case_only, @kyc_whitelist_log
     #
     def initialize(params)
 
@@ -27,6 +26,9 @@ module UserAction
       @admin_email = params[:admin_email]
       @user_email = params[:user_email]
       @new_ethereum_address = params[:ethereum_address]
+      @open_case_only = (params[:open_case_only].to_i == 1)
+
+      @kyc_whitelist_log = nil
 
     end
 
@@ -34,7 +36,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -43,12 +45,15 @@ module UserAction
       r = validate_and_sanitize
       return r unless r.success?
 
-      r = unwhitelist_user
+      r = un_whitelist_user
       return r unless r.success?
 
       # Because Ethereum Address will also be updated
-      # Let 0 whitelisting gets recorded/processed to confirmed before updating ethereum address
-      sleep(600)
+      # Let 0 whitelisting kyc_whitelist_log status changed to confirmed status before updating ethereum address
+      sleep(660)
+
+      r = verify_if_un_whitelisted
+      return r unless r.success?
 
       r = open_case
       return r unless r.success?
@@ -56,12 +61,9 @@ module UserAction
       r = log_activity
       return r unless r.success?
 
-      UserAction::UpdateEthereumAddress.new(
-        case_id: @case_id,
-        ethereum_address: @new_ethereum_address,
-        admin_email: @admin_email,
-        user_email: @user_email
-      ).perform
+      return success if @open_case_only
+
+      update_ethereum_address
     end
 
     # Validate and Sanitize
@@ -171,8 +173,6 @@ module UserAction
 
       KycWhitelistLog.where(ethereum_address: @ethereum_address).all.each do |kwl|
 
-        # is_latest new column
-
         if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
           return error_with_data(
             'ua_oc_9',
@@ -202,7 +202,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -237,31 +237,33 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
-    def unwhitelist_user
+    # Sets @kyc_whitelist_log
+    #
+    def un_whitelist_user
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
       r = OpsApi::Request::Whitelist.new.whitelist({address: api_data[:address], phase: api_data[:phase]})
       Rails.logger.info("Whitelist API Response: #{r.inspect}")
       return r unless r.success?
 
-      KycWhitelistLog.create!({
-                                ethereum_address: api_data[:address],
-                                phase: api_data[:phase],
-                                transaction_hash: r.data[:transaction_hash],
-                                status: GlobalConstant::KycWhitelistLog.pending_status,
-                                is_attention_needed: 0
-                              })
-
+      @kyc_whitelist_log = KycWhitelistLog.create!({
+                                                     ethereum_address: api_data[:address],
+                                                     phase: api_data[:phase],
+                                                     transaction_hash: r.data[:transaction_hash],
+                                                     status: GlobalConstant::KycWhitelistLog.pending_status,
+                                                     is_attention_needed: 0
+                                                   })
+      success
     end
 
     # Open Case DB Changes
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def open_case
 
@@ -277,7 +279,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Hash]
     #
@@ -289,7 +291,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [LocalCipher]
     #
@@ -303,7 +305,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -318,11 +320,79 @@ module UserAction
           action_timestamp: Time.now.to_i,
           extra_data: {
             case_id: @case_id,
+            user_extended_detail_id: @user_extended_detail.id
           }
         }
       )
 
       success
+    end
+
+    # Check if user is un_whitelisted
+    #
+    # * Author: Abhay
+    # * Date: 11/11/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def verify_if_un_whitelisted
+
+      kwl = KycWhitelistLog.where(id: @kyc_whitelist_log.id, status: GlobalConstant::KycWhitelistLog.confirmed_status,
+                                  is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed).first
+      if kwl.blank?
+        return error_with_data(
+          'ua_oc_12',
+          "KycWhitelistLog: #{kwl.id} is still not confirmed or it's marked is_attention_needed!",
+          "KycWhitelistLog: #{kwl.id} is still not confirmed or it's marked is_attention_needed!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: @ethereum_address)
+      return r unless r.success?
+
+      _phase = r.data['phase']
+
+      if !Util::CommonValidator.is_numeric?(_phase) || r.data['phase'].to_i != 0
+        return error_with_data(
+          'ua_oc_13',
+          "Invalid Phase: #{_phase} for KycWhitelistLog: #{kwl.id}",
+          "Invalid Phase: #{_phase} for KycWhitelistLog: #{kwl.id}",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
+        return error_with_data(
+          'ua_oc_14',
+          "User already bought SimpleToken. His case can't be opened",
+          "User already bought SimpleToken. His case can't be opened",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      success
+    end
+
+    # Update Ethereum Address
+    #
+    # * Author: Abhay
+    # * Date: 11/11/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def update_ethereum_address
+      UserAction::UpdateEthereumAddress.new(
+        case_id: @case_id,
+        ethereum_address: @new_ethereum_address,
+        admin_email: @admin_email,
+        user_email: @user_email
+      ).perform
     end
 
   end

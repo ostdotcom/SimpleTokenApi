@@ -131,11 +131,12 @@ module AdminManagement
             purchase_logs.each do |p_l|
               current_day = get_day(p_l.block_creation_timestamp)
               daywise_data[current_day] ||= {
-                  day_timestamp: Time.at(p_l.block_creation_timestamp).strftime("%d/%m/%Y"),
+                  day_start_time: Time.at(GlobalConstant::TokenSale.early_access_start_date.to_i + current_day.days)
+                                      .in_time_zone("UTC").strftime("%d/%m/%Y %H:%M:%S"),
                   total_ethereum_units: 0,
                   total_tokens_sold_units: 0,
                   total_dollar_value: 0,
-                  day_no: current_day
+                  day_no: current_day,
               }
               daywise_data[current_day][:total_ethereum_units] += p_l.ether_wei_value
               daywise_data[current_day][:total_tokens_sold_units] += p_l.st_wei_value
@@ -155,6 +156,7 @@ module AdminManagement
                 total_ethereum: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_ethereum_units]),
                 total_tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_tokens_sold_units]),
                 total_dollar_value: data[:total_dollar_value].round(2),
+                day_start_time: data[:day_start_time],
                 day_no: data[:day_no]
             }
           end

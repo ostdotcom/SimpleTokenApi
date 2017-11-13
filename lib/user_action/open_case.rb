@@ -143,9 +143,7 @@ module UserAction
         )
       end
 
-      kyc_whitelist_logs = KycWhitelistLog.where(ethereum_address: @ethereum_address).all
-
-      kyc_whitelist_logs.each do |kwl|
+      KycWhitelistLog.where(ethereum_address: @ethereum_address).all.each do |kwl|
 
         if kwl.present? && (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
           return error_with_data(
@@ -166,6 +164,7 @@ module UserAction
             {}
           )
         end
+
       end
 
       success

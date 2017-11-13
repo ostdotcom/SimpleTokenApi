@@ -27,7 +27,7 @@ module Crons
     def perform
       KycWhitelistLog.
           kyc_whitelist_non_confirmed.
-          where("created_at < '#{(Time.now - 10.minutes).to_s(:db)}'").
+          where("created_at < '#{(Time.now - 5.minutes).to_s(:db)}'").
           where(is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed).
           find_in_batches(batch_size: 100).each do |batched_records|
 

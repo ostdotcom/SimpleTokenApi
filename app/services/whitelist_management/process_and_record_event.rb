@@ -120,7 +120,16 @@ module WhitelistManagement
           when '_account'
             @ethereum_address = var_obj[:value]
           when '_phase'
-            @phase = var_obj[:value].to_i
+            _phase = var_obj[:value]
+            return error_with_data(
+              'wm_pare_2.1',
+              "invalid phase value: #{_phase}",
+              "invalid phase value: #{_phase}",
+              GlobalConstant::ErrorAction.default,
+              {}
+            ) unless Util::CommonValidator.is_numeric?(_phase)
+
+            @phase = _phase.to_i
         end
       end
 
@@ -343,7 +352,8 @@ module WhitelistManagement
         )
       end
 
-      if UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] != @phase
+      # Skip this validation for phase 0
+      if (@phase != 0) && (UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] != @phase)
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
             "IMMEDIATE ATTENTION NEEDED. phase mismatch"
@@ -402,18 +412,6 @@ module WhitelistManagement
     def mark_as_attention_required
       @kyc_whitelist_log.is_attention_needed = GlobalConstant::KycWhitelistLog.attention_needed
       @kyc_whitelist_log.save! if @kyc_whitelist_log.changed?
-    end
-
-    # Is phase valid
-    #
-    # * Author: Aman
-    # * Date: 25/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Boolean]
-    #
-    def is_phase_valid?
-      UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase] == @phase.to_i
     end
 
     # Send Email when kyc whitelist status is done without creating hooks if email was not previously sent

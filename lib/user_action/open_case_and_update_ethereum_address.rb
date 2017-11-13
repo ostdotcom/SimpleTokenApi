@@ -1,6 +1,6 @@
 module UserAction
 
-  class OpenCase
+  class OpenCaseAndUpdateEthereumAddress
 
     include ::Util::ResultHelper
 
@@ -12,16 +12,21 @@ module UserAction
     #
     # @param [Integer] case_id (mandatory)
     # @param [String] admin_email (mandatory)
+    # @param [String] user_email (mandatory)
+    # @param [String] ethereum_address (mandatory)
     #
-    # @return [UserManagement::OpenCase]
+    # @return [UserManagement::OpenCaseAndUpdateEthereumAddress]
     #
-    # Sets @case_id, @admin_email, @user_email
+    # Sets @case_id, @admin_email, @user_email, @ethereum_address
+    #
+    # Ethereum Address Update Service Call
     #
     def initialize(params)
 
       @case_id = params[:case_id]
       @admin_email = params[:admin_email]
       @user_email = params[:user_email]
+      @new_ethereum_address = params[:ethereum_address]
 
     end
 
@@ -38,8 +43,12 @@ module UserAction
       r = validate_and_sanitize
       return r unless r.success?
 
-      r = make_whitelist_api_call_for_phase_zero
+      r = unwhitelist_user
       return r unless r.success?
+
+      # Because Ethereum Address will also be updated
+      # Let 0 whitelisting gets recorded/processed to confirmed before updating ethereum address
+      sleep(600)
 
       r = open_case
       return r unless r.success?
@@ -47,7 +56,12 @@ module UserAction
       r = log_activity
       return r unless r.success?
 
-      success
+      UserAction::UpdateEthereumAddress.new(
+        case_id: @case_id,
+        ethereum_address: @new_ethereum_address,
+        admin_email: @admin_email,
+        user_email: @user_email
+      ).perform
     end
 
     # Validate and Sanitize
@@ -119,10 +133,22 @@ module UserAction
         )
       end
 
+      if [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+          GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
+
+        return error_with_data(
+          'ua_oc_6',
+          "Whitelist is in progress. Let it be completed to done!",
+          "Whitelist is in progress. Let it be completed to done!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
       @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       if @user_extended_detail.blank?
         return error_with_data(
-          'ua_oc_6',
+          'ua_oc_7',
           'Invalid User Extended Details!',
           'Invalid User Extended Details!',
           GlobalConstant::ErrorAction.default,
@@ -135,7 +161,7 @@ module UserAction
 
       if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
         return error_with_data(
-          'ua_oc_7',
+          'ua_oc_8',
           "User already bought SimpleToken. His case can't be opened",
           "User already bought SimpleToken. His case can't be opened",
           GlobalConstant::ErrorAction.default,
@@ -145,9 +171,11 @@ module UserAction
 
       KycWhitelistLog.where(ethereum_address: @ethereum_address).all.each do |kwl|
 
-        if kwl.present? && (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
+        # is_latest new column
+
+        if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
           return error_with_data(
-            'ua_oc_8',
+            'ua_oc_9',
             "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
             "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
             GlobalConstant::ErrorAction.default,
@@ -157,7 +185,7 @@ module UserAction
 
         if kwl.updated_at >= (Time.now - 10.minutes)
           return error_with_data(
-            'ua_oc_9',
+            'ua_oc_10',
             "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
             "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
             GlobalConstant::ErrorAction.default,
@@ -186,7 +214,7 @@ module UserAction
 
       unless r.success?
         return error_with_data(
-          'ua_uea_5',
+          'ua_oc_11',
           'Error decrypting Kyc salt!',
           'Error decrypting Kyc salt!',
           GlobalConstant::ErrorAction.default,
@@ -213,13 +241,20 @@ module UserAction
     #
     # @return [Result::Base]
     #
-    def make_whitelist_api_call_with_phase_zero
+    def unwhitelist_user
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
-
       r = OpsApi::Request::Whitelist.new.whitelist({address: api_data[:address], phase: api_data[:phase]})
       Rails.logger.info("Whitelist API Response: #{r.inspect}")
+      return r unless r.success?
 
-      r
+      KycWhitelistLog.create!({
+                                ethereum_address: api_data[:address],
+                                phase: api_data[:phase],
+                                transaction_hash: r.data[:transaction_hash],
+                                status: GlobalConstant::KycWhitelistLog.pending_status,
+                                is_attention_needed: 0
+                              })
+
     end
 
     # Open Case DB Changes
@@ -232,6 +267,7 @@ module UserAction
 
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+      @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
 
       success

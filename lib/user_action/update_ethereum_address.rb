@@ -55,6 +55,9 @@ module UserAction
       r = log_activity
       return r unless r.success?
 
+      r = verify_updated_ethereum_address
+      return r unless r.success?
+
       success
     end
 
@@ -344,6 +347,38 @@ module UserAction
           }
         }
       )
+
+      success
+    end
+
+    # Verify updated ethereum address
+    #
+    # * Author: Abhay
+    # * Date: 13/11/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def verify_updated_ethereum_address
+
+      user_kyc_detail = UserKycDetail.where(id: @case_id).first
+      @user_extended_detail = UserExtendedDetail.where(id: user_kyc_detail.user_extended_detail_id).first
+
+      r = encryptor_obj.decrypt(@user_extended_detail.ethereum_address)
+      return r unless r.success?
+
+      decrypted_ethereum_address = r.data[:plaintext]
+      p "Decrypted ethereum address: #{decrypted_ethereum_address}"
+
+      if decrypted_ethereum_address != @ethereum_address
+        return error_with_data(
+          'ua_uea_9',
+          "Decrypted Ethereum Address is not matching with updated ethereum address",
+          "Decrypted Ethereum Address is not matching with updated ethereum address",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
 
       success
     end

@@ -136,8 +136,7 @@ module UserManagement
     def success_response_data
       {
           user: user_data,
-          user_kyc_data: user_kyc_data,
-          token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+          user_kyc_data: user_kyc_data
       }.merge(sale_stats)
     end
 
@@ -151,11 +150,7 @@ module UserManagement
     #
     def sale_stats
       # can rely on check in purchase log and fetch data everytime from there ever on 14th for general access users
-      if Time.now >= sale_start_time_for_user
-        PurchaseLog.sale_details
-      else
-        {sale_details: {}}
-      end
+      PurchaseLog.sale_details
     end
 
     # Sale Start time for user

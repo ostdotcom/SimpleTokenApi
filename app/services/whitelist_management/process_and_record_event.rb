@@ -393,6 +393,10 @@ module WhitelistManagement
     # * Reviewed By: Sunil
     #
     def update_user_kyc_detail
+      # phase with 0 value can come in callback event for unwhitelisting .
+      # whitelisting can't be confirmed if @phase = 0
+      return if @phase == 0
+
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
       if @user_kyc_detail.whitelist_status_changed? &&
           @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status

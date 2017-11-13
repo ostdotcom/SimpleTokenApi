@@ -79,7 +79,7 @@ module UserAction
       @admin = Admin.where(email: @admin_email, status: GlobalConstant::Admin.active_status).first
       if @admin.blank?
         return error_with_data(
-          'ua_uea_2',
+          'ua_oc_2',
           "Invalid Active Admin Email - #{@admin_email}",
           "Invalid Active Admin Email - #{@admin_email}",
           GlobalConstant::ErrorAction.default,
@@ -101,7 +101,7 @@ module UserAction
       if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
                      status: GlobalConstant::User.active_status).exists?
         return error_with_data(
-          'ua_uea_4',
+          'ua_oc_4',
           "User Email: #{@user_email} is Invalid or Not Active!",
           "User Email: #{@user_email} is Invalid or Not Active!",
           GlobalConstant::ErrorAction.default,
@@ -111,7 +111,7 @@ module UserAction
 
       if !@user_kyc_detail.case_closed?
         return error_with_data(
-          'ua_uea_5',
+          'ua_oc_5',
           "Case ID - #{@case_id} should be closed.",
           "Case ID - #{@case_id} should be closed.",
           GlobalConstant::ErrorAction.default,
@@ -122,7 +122,7 @@ module UserAction
       @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       if @user_extended_detail.blank?
         return error_with_data(
-          'ua_uea_6',
+          'ua_oc_6',
           'Invalid User Extended Details!',
           'Invalid User Extended Details!',
           GlobalConstant::ErrorAction.default,
@@ -135,7 +135,7 @@ module UserAction
 
       if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
         return error_with_data(
-          'ua_uea_7',
+          'ua_oc_7',
           "User already bought SimpleToken. His case can't be opened",
           "User already bought SimpleToken. His case can't be opened",
           GlobalConstant::ErrorAction.default,
@@ -143,9 +143,30 @@ module UserAction
         )
       end
 
-      # TODO::Any kyc_whitelist_logs checks
+      kyc_whitelist_logs = KycWhitelistLog.where(ethereum_address: @ethereum_address).all
 
-      # TODO:: Time Checks
+      kyc_whitelist_logs.each do |kwl|
+
+        if kwl.present? && (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
+          return error_with_data(
+            'ua_oc_8',
+            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+            GlobalConstant::ErrorAction.default,
+            {}
+          )
+        end
+
+        if kwl.updated_at >= (Time.now - 10.minutes)
+          return error_with_data(
+            'ua_oc_9',
+            "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
+            "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
+            GlobalConstant::ErrorAction.default,
+            {}
+          )
+        end
+      end
 
       success
     end
@@ -193,7 +214,7 @@ module UserAction
     #
     # @return [Result::Base]
     #
-    def make_whitelist_api_call_for_phase_zero
+    def make_whitelist_api_call_with_phase_zero
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
 
       r = OpsApi::Request::Whitelist.new.whitelist({address: api_data[:address], phase: api_data[:phase]})
@@ -213,9 +234,6 @@ module UserAction
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.save!
-
-      # TODO Handle kyc_whitelist_log - LOG and DELETE OLD ENTRY ?
-      # Because kyc_whitelist_processor creates the entry
 
       success
     end

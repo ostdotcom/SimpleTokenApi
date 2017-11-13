@@ -380,7 +380,8 @@ module UserAction
         )
       end
 
-      p "ethereum address updated successfully"
+      p "######  NEW ETHEREUM ADDRESS: #{decrypted_ethereum_address}  ######"
+      p "updated ethereum address is matching successfully"
 
       success
     end

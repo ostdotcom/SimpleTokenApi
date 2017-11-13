@@ -50,6 +50,7 @@ module UserAction
 
       # Because Ethereum Address will also be updated
       # Let 0 whitelisting kyc_whitelist_log status changed to confirmed status before updating ethereum address
+      p "Wait! Sleeping for 11 minutes"
       sleep(660)
 
       r = verify_if_un_whitelisted
@@ -228,7 +229,8 @@ module UserAction
       return r unless r.success?
 
       @ethereum_address = r.data[:plaintext]
-      p "eth address: #{@ethereum_address}"
+
+      p "######  OLD ETHEREUM ADDRESS: #{@ethereum_address}  ######"
 
       success
     end

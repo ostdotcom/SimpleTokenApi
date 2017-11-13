@@ -1,5 +1,7 @@
 class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
 
+  scope :of_ethereum_address, ->(ethereum_address) { where(ethereum_address: ethereum_address) }
+
   # Total Sales Stats
   #
   # * Author: Aman

@@ -59,9 +59,9 @@ module GlobalConstant
         'update_ethereum_address'
       end
 
-      # def open_case
-      #   'open_case'
-      # end
+      def open_case
+        'open_case'
+      end
 
       ## developer use action##
 
@@ -97,8 +97,8 @@ module GlobalConstant
             kyc_whitelist_attention_needed,
             kyc_whitelist_processor_error,
             cynopsis_api_error,
-            update_ethereum_address
-            #open_case
+            update_ethereum_address,
+            open_case
         ]
       end
 
@@ -113,6 +113,8 @@ module GlobalConstant
             passport_issue_email_sent_action => 'KYC passport issue email sent',
             selfie_issue_email_sent_action => 'KYC selfie issue email sent',
             residency_issue_email_sent_action => 'KYC residency issue email sent',
+            update_ethereum_address => "Ethereum Address Updated",
+            open_case => "Case is Opened Again"
         }
       end
 

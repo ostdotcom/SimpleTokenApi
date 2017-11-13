@@ -83,12 +83,12 @@ module AdminManagement
 
           PurchaseLog
               .limit(@page_size).offset(@offset)
-              .order("pst_day_start_timestamp DESC")
+              .order("block_creation_timestamp DESC")
               .each do |p_l|
 
             @curr_page_data << {
-                day_timestamp: Time.at(p_l.created_at).strftime("%d/%m/%Y %H:%M"),
-                ethereum_address: p_l.ethereum_address,
+                day_timestamp: Time.at(p_l.block_creation_timestamp).strftime("%d/%m/%Y %H:%M"),
+                ethereum_address: "#{p_l.ethereum_address[0, 7]}...",
                 ethereum_value: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.ether_wei_value),
                 tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.st_wei_value),
                 usd_value: p_l.usd_value.to_f.round(2)

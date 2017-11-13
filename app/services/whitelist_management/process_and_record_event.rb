@@ -337,14 +337,29 @@ module WhitelistManagement
 
       @user_kyc_detail = user_kyc_details.first
 
-      if @user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
+      if (@phase == 0 && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+                             GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status))
         notify_devs(
-            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-            "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
+          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+          "IMMEDIATE ATTENTION NEEDED. if phase is 0 then whitelist status should be done or failed only"
+        )
+        return error_with_data(
+          'wm_pare_9',
+          'if phase is 0 then whitelist status should be done or failed only',
+          'if phase is 0 then whitelist status should be done or failed only',
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      if @phase > 0 && @user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
+        notify_devs(
+          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+          "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
         )
 
         return error_with_data(
-            'wm_pare_9',
+            'wm_pare_10',
             'invalid whitelist status',
             'invalid whitelist status',
             GlobalConstant::ErrorAction.default,
@@ -360,7 +375,7 @@ module WhitelistManagement
         )
 
         return error_with_data(
-            'wm_pare_10',
+            'wm_pare_11',
             'phase mismatch',
             'phase mismatch',
             GlobalConstant::ErrorAction.default,

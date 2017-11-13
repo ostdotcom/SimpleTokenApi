@@ -180,7 +180,8 @@ module Crons
       contract_event = ContractEvent.where(
           transaction_hash: @transaction_hash,
           kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
-          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address
+          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address,
+          block_hash: @block_hash
       ).first
 
       if contract_event.present? && (contract_event.block_hash == @block_hash)
@@ -321,7 +322,7 @@ module Crons
 
       if user_kyc_details.blank?
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+          {transaction_hash: @transaction_hash},
           "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
         )
 
@@ -336,7 +337,7 @@ module Crons
 
       if user_kyc_details.count > 1
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+          {transaction_hash: @transaction_hash},
           "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
         )
 
@@ -353,7 +354,7 @@ module Crons
 
       if user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+          {transaction_hash: @transaction_hash},
           "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
         )
 
@@ -361,21 +362,6 @@ module Crons
           'l_c_ckw_7',
           'invalid whitelist status',
           'invalid whitelist status',
-          GlobalConstant::ErrorAction.default,
-          {}
-        )
-      end
-
-      if UserKycDetail.token_sale_participation_phases[user_kyc_detail.token_sale_participation_phase] != @phase
-        notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. phase mismatch"
-        )
-
-        return error_with_data(
-          'l_c_ckw_8',
-          'phase mismatch',
-          'phase mismatch',
           GlobalConstant::ErrorAction.default,
           {}
         )

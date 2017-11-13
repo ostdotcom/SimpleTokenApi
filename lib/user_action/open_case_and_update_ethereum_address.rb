@@ -70,7 +70,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -332,7 +332,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #
@@ -343,8 +343,8 @@ module UserAction
       if kwl.blank?
         return error_with_data(
           'ua_oc_12',
-          "KycWhitelistLog: #{kwl.id} is still not confirmed or it's marked is_attention_needed!",
-          "KycWhitelistLog: #{kwl.id} is still not confirmed or it's marked is_attention_needed!",
+          "KycWhitelistLog: #{@kyc_whitelist_log.id} is still not confirmed or it's marked is_attention_needed!",
+          "KycWhitelistLog: #{@kyc_whitelist_log.id} is still not confirmed or it's marked is_attention_needed!",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -382,7 +382,7 @@ module UserAction
     #
     # * Author: Abhay
     # * Date: 11/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @return [Result::Base]
     #

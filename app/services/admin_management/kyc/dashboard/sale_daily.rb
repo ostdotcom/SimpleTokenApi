@@ -24,6 +24,7 @@ module AdminManagement
           @admin_id = @params[:admin_id]
           @page_size = @params[:page_size]
           @offset = @params[:offset]
+          @tab_type = @params[:tab_type]
 
           @curr_page_data = []
           @all_time_data = {}
@@ -42,7 +43,7 @@ module AdminManagement
           r = validate_and_sanitize
           return r unless r.success?
 
-          fetch_day_wise_purchase_data
+          @tab_type=='date' ? fetch_purchase_data : fetch_day_wise_purchase_data
 
           set_api_response_data
 
@@ -79,7 +80,7 @@ module AdminManagement
         #
         def fetch_purchase_data
 
-          @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollars_value: 0}
+          @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollar_value: 0}
 
           total_ether_value_in_wei, total_st_value_in_wei = 0 , 0
 
@@ -89,24 +90,24 @@ module AdminManagement
               .order("pst_day_start_timestamp DESC")
               .each do |p_l|
 
-            total_ethereum = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_ether_value)
-            total_tokens_sold = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_simple_token_value)
-            total_dollars_value = p_l.total_usd_value.to_f.round(2)
+            total_ethereum = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_ether_value).to_f.round(2)
+            total_tokens_sold = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_simple_token_value).to_f.round(2)
+            total_dollar_value = p_l.total_usd_value.to_f.round(2)
 
             @curr_page_data << {
-                day_timestamp: Time.at(p_l.pst_day_start_timestamp).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y"),
+                date: Time.at(p_l.pst_day_start_timestamp).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y"),
                 total_ethereum: total_ethereum,
                 total_tokens_sold: total_tokens_sold,
-                total_dollars_value: total_dollars_value
+                total_dollar_value: total_dollar_value
             }
 
             total_ether_value_in_wei += p_l.total_ether_value
             total_st_value_in_wei += p_l.total_simple_token_value
-            @all_time_data[:total_dollars_value] += total_dollars_value
+            @all_time_data[:total_dollar_value] += total_dollar_value
           end
 
-          @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei)
-          @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei)
+          @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei).to_f.round(2)
+          @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei).to_f.round(2)
         end
 
         # Set API response data
@@ -153,16 +154,16 @@ module AdminManagement
             next if data.blank?
             @curr_page_data << {
                 day_timestamp: data[:day_timestamp],
-                total_ethereum: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_ethereum_units]),
-                total_tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_tokens_sold_units]),
+                total_ethereum: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_ethereum_units]).to_f.round(2),
+                total_tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_tokens_sold_units]).to_f.round(2),
                 total_dollar_value: data[:total_dollar_value].round(2),
                 day_start_time: data[:day_start_time],
                 day_no: data[:day_no]
             }
           end
 
-          @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei)
-          @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei)
+          @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei).to_f.round(2)
+          @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei).to_f.round(2)
           @all_time_data[:total_dollar_value] = @all_time_data[:total_dollar_value].round(2)
 
         end

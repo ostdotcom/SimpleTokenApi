@@ -38,6 +38,15 @@ module Crons
           r = get_tx_info
           next unless r.success?
 
+          r = query_contract
+          unless r.success?
+            notify_devs(
+              {ethereum_address: @kyc_whitelist_log.ethereum_address},
+              "IMMEDIATE ATTENTION NEEDED. Does not exist in contract OR phase mis match."
+            )
+            next
+          end
+
           if pending_status?
 
             r = process_pending_status_record
@@ -199,6 +208,31 @@ module Crons
       end
 
       success
+    end
+
+    # query contract
+    #
+    # * Author: Kedar
+    # * Date: 13/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def query_contract
+      r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: @kyc_whitelist_log.ethereum_address)
+      return r unless r.success?
+
+      if r.data['phase'].to_i == @kyc_whitelist_log.phase
+        success
+      else
+        error_with_data(
+          'l_c_ckw_3.1',
+          'phase mismatch',
+          'phase mismatch',
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
     end
 
     # record event

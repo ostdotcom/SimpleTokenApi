@@ -244,7 +244,7 @@ module WhitelistManagement
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
             "IMMEDIATE ATTENTION NEEDED. kyc_whitelist_log status not pending, still record event called."
-        )
+        ) if (@kyc_whitelist_log.created_at + 2.minutes) < Time.now
 
         return error_with_data(
             'wm_pare_5',

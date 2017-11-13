@@ -13,16 +13,20 @@ module UserAction
     # @param [Integer] case_id (mandatory)
     # @param [String] ethereum_address (mandatory)
     # @param [String] admin_email (mandatory)
+    # @param [String] user_email (mandatory)
     #
     # @return [UserManagement::UpdateEthereumAddress]
     #
-    # Sets @case_id, @ethereum_address, @admin_email
+    # Sets @case_id, @ethereum_address, @admin_email, @user_email
     #
     def initialize(params)
 
       @case_id = params[:case_id]
       @ethereum_address = params[:ethereum_address]
       @admin_email = params[:admin_email]
+      @user_email = params[:user_email]
+
+      @old_md5_ethereum_address, @old_encrypted_u_e_d_ethereum_address = nil, nil
 
     end
 
@@ -51,6 +55,9 @@ module UserAction
       r = log_activity
       return r unless r.success?
 
+      r = verify_updated_ethereum_address
+      return r unless r.success?
+
       success
     end
 
@@ -70,13 +77,14 @@ module UserAction
 
       @ethereum_address = @ethereum_address.to_s.strip
       @case_id = @case_id.to_i
-      @admin_email = @admin_email.to_s.strip
+      @admin_email = @admin_email.to_s.strip.downcase
+      @user_email = @user_email.to_s.strip.downcase
 
-      if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank?
+      if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(
           'ua_uea_1',
-          'Ethereum Address, Case ID, admin email is mandatory!',
-          'Ethereum Address, Case ID, admin email is mandatory!',
+          'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
+          'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -151,6 +159,17 @@ module UserAction
         )
       end
 
+      if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
+                     status: GlobalConstant::User.active_status).exists?
+        return error_with_data(
+          'ua_uea_8',
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          "User Email: #{@user_email} is Invalid or Not Active!",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
       success
     end
 
@@ -175,11 +194,13 @@ module UserAction
     #
     # @return [Result::Base]
     #
-    # Sets @kyc_salt_d
+    # Sets @kyc_salt_d, @old_encrypted_u_e_d_ethereum_address
     #
     def update_user_extended_details
 
       user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+
+      @old_encrypted_u_e_d_ethereum_address = user_extended_detail.ethereum_address
 
       r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
       return r unless r.success?
@@ -202,9 +223,12 @@ module UserAction
     #
     # @return [Result::Base]
     #
+    # Sets @old_md5_ethereum_address
+    #
     def update_user_md5_extended_details
 
       md5_user_extended_detail = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
+      @old_md5_ethereum_address = md5_user_extended_detail.ethereum_address
       md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
       md5_user_extended_detail.save!
 
@@ -318,10 +342,46 @@ module UserAction
           action_timestamp: Time.now.to_i,
           extra_data: {
             case_id: @case_id,
-            user_id: @user_kyc_detail.user_id
+            old_encrypted_u_e_d_ethereum_address: @old_encrypted_u_e_d_ethereum_address,
+            old_md5_ethereum_address: @old_md5_ethereum_address
           }
         }
       )
+
+      success
+    end
+
+    # Verify updated ethereum address
+    #
+    # * Author: Abhay
+    # * Date: 13/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def verify_updated_ethereum_address
+
+      user_kyc_detail = UserKycDetail.where(id: @case_id).first
+      @user_extended_detail = UserExtendedDetail.where(id: user_kyc_detail.user_extended_detail_id).first
+
+      r = encryptor_obj.decrypt(@user_extended_detail.ethereum_address)
+      return r unless r.success?
+
+      decrypted_ethereum_address = r.data[:plaintext]
+      p "Decrypted ethereum address: #{decrypted_ethereum_address}"
+
+      if decrypted_ethereum_address != @ethereum_address
+        return error_with_data(
+          'ua_uea_9',
+          "Decrypted Ethereum Address is not matching with updated ethereum address",
+          "Decrypted Ethereum Address is not matching with updated ethereum address",
+          GlobalConstant::ErrorAction.default,
+          {}
+        )
+      end
+
+      p "######  NEW ETHEREUM ADDRESS: #{decrypted_ethereum_address}  ######"
+      p "updated ethereum address is matching successfully"
 
       success
     end

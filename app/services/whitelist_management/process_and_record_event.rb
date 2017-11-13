@@ -430,7 +430,8 @@ module WhitelistManagement
 
       return if emails_hook_info.present? && emails_hook_info[@user.email].present?
 
-      return if (KycWhitelistLog.where(ethereum_address: @ethereum_address).count > 1)
+      return if (KycWhitelistLog.where(ethereum_address: @ethereum_address, status:
+        [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
       send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
         @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)

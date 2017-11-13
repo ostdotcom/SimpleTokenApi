@@ -1,27 +1,27 @@
 user:
   user_details:
     key_template: 'u_det_%{id}'
-    expiry_in_hours: 24
+    expiry_in_seconds: 86400
   user_kyc_details:
     key_template: 'u_kyc_det_%{user_id}'
-    expiry_in_hours: 24
+    expiry_in_seconds: 86400
 
 alternate_token:
   alternate_token_details:
     key_template: 'alternate_token_details_%{id}'
-    expiry_in_hours: 24
+    expiry_in_seconds: 86400
 
 token_sale:
   sale_details:
     key_template: 'token_sale_stats'
-    expiry_in_hours: 0.02
+    expiry_in_seconds: 90
     used_in_shared_env: true
 
   pre_sale:
     key_template: 'token_sale_pre_sale'
-    expiry_in_hours: 24
+    expiry_in_seconds: 86400
 
   sale_ended:
     key_template: 'token_sale_sale_ended'
-    expiry_in_hours: 24
+    expiry_in_seconds: 86400
 

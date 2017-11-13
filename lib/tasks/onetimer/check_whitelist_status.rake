@@ -12,6 +12,8 @@ namespace :onetimer do
       r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: kwl.ethereum_address)
       failed_checks << kwl.id unless r.success?
 
+      next
+
       phase_mismatch_entries << kwl.id if r.data['phase'] != kwl.phase
 
     end

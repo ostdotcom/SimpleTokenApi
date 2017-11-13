@@ -8,7 +8,7 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
   #
   def self.sale_details
     memcache_key_object = MemcacheKey.new('token_sale.sale_details')
-    Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
+    Memcache.get_set_memcached(memcache_key_object.key_template, get_sale_details_cache_expiry(memcache_key_object.expiry)) do
 
       return {sale_details: {}} unless GlobalConstant::TokenSale.is_early_access_sale_started?
 
@@ -38,6 +38,27 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
       }
     end
 
+  end
+
+  def self.get_sale_details_cache_expiry(expiry_time)
+    current_time = Time.now.to_i
+    if current_time < GlobalConstant::TokenSale.early_access_start_date.to_i
+
+      [(GlobalConstant::TokenSale.early_access_start_date.to_i - current_time)+1, expiry_time].min
+
+    elsif current_time < GlobalConstant::TokenSale.general_access_start_date.to_i
+
+      [(GlobalConstant::TokenSale.general_access_start_date.to_i - current_time)+1, expiry_time].min
+
+    elsif current_time < GlobalConstant::TokenSale.general_access_end_date.to_i
+
+      [(GlobalConstant::TokenSale.general_access_end_date.to_i - current_time)+1, expiry_time].min
+
+    else
+
+      expiry_time
+
+    end
   end
 
 end

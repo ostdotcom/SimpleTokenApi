@@ -42,7 +42,7 @@ class MemcacheKey
           prefix = config['used_in_shared_env'] ? 'shared' : 'sta'
           formatted_memcache_config["#{group}.#{entity}".to_sym] = {
               key_template: "#{prefix}_#{GlobalConstant::Base.environment_name}_#{config['key_template']}",
-              expiry: config['expiry_in_hours'].to_f.hours.to_i
+              expiry: config['expiry_in_seconds'].to_i
           }
         end
         formatted_memcache_config

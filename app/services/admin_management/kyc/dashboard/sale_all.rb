@@ -83,7 +83,7 @@ module AdminManagement
 
           PurchaseLog
               .limit(@page_size).offset(@offset)
-              .order("pst_day_start_timestamp DESC")
+              .order("block_creation_timestamp DESC")
               .each do |p_l|
 
             @curr_page_data << {

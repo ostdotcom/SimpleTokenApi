@@ -51,7 +51,7 @@ module UserAction
       # Because Ethereum Address will also be updated
       # Let 0 whitelisting kyc_whitelist_log status changed to confirmed status before updating ethereum address
       p "Wait! Sleeping for 11 minutes"
-      sleep(660)
+      sleep(420)
 
       r = verify_if_un_whitelisted
       return r unless r.success?

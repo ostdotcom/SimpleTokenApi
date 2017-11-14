@@ -81,12 +81,13 @@ module AdminManagement
 
           @total_filtered_recs = ContractEvent.count
 
-          ContractEvent.order("id DESC").each do |c_e|
+          ContractEvent.order("block_number DESC").each do |c_e|
 
             @curr_page_data << {
-                day_time: Time.at(c_e.created_at).strftime("%d/%m/%Y %H:%M:%S"),
+                block_number: c_e.block_number,
                 event_name: c_e.kind,
-                contract_address: c_e.contract_address
+                contract_address: c_e.contract_address,
+                processed_event_data: c_e.processed_event_data
             }
 
           end

@@ -92,4 +92,25 @@ class ContractEvent < EstablishSimpleTokenContractInteractionsDbConnection
             GlobalConstant::ContractEvent.failed_status => 2,
             GlobalConstant::ContractEvent.duplicate_status => 3
         }, _suffix: true
+
+
+  def processed_event_data
+    processed_event_data = {}
+
+    # --- Sample event data.
+    # :event_data:
+    #     - :name: _account
+    #       :type: address
+    #       :value: '0x01fcafdd251181039d7e28a00ed4d95eb47f4183'
+    #     - :name: _phase
+    #       :type: uint8
+    #       :value: '1'
+
+    self[:data][:event_data].each do |e|
+      processed_event_data[e[:name]] = e[:value]
+    end
+
+    processed_event_data
+  end
+
 end

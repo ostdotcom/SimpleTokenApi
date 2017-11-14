@@ -124,7 +124,7 @@ module AdminManagement
 
           daywise_data = {}
 
-          total_ether_value_in_wei, total_st_value_in_wei, max_day = 0 , 0, 0
+          total_ether_value_in_wei, total_st_value_in_wei = 0 , 0
           PurchaseLog
               .select("id, ether_wei_value, st_wei_value, usd_value, block_creation_timestamp")
               .find_in_batches(batch_size: 1000) do |purchase_logs|
@@ -145,11 +145,10 @@ module AdminManagement
               @all_time_data[:total_dollar_value] += p_l.usd_value.to_f
               total_ether_value_in_wei += p_l.ether_wei_value
               total_st_value_in_wei += p_l.st_wei_value
-              max_day = [max_day, current_day].max
             end
           end
 
-          for i in (max_day).downto(0)
+          daywise_data.keys.sort.reverse.each do |i|
             data = daywise_data[i]
             next if data.blank?
             @curr_page_data << {

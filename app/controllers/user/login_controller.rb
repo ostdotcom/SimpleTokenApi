@@ -21,6 +21,7 @@ class User::LoginController < User::BaseController
 
     service_response = UserManagement::SignUp.new(
         params.merge(
+            g_recaptcha_response: params['g-recaptcha-response'],
             browser_user_agent: http_user_agent,
             ip_address: ip_address,
             geoip_country: geoip_country
@@ -49,6 +50,7 @@ class User::LoginController < User::BaseController
   def login
     service_response = UserManagement::Login.new(
         params.merge(
+            g_recaptcha_response: params['g-recaptcha-response'],
             browser_user_agent: http_user_agent,
             ip_address: ip_address
         )

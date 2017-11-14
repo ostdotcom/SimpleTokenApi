@@ -25,6 +25,8 @@ module UserManagement
       @browser_user_agent = @params[:browser_user_agent]
       @ip_address = @params[:ip_address]
       @geoip_country = @params[:geoip_country]
+      @g_recaptcha_response = @params[:g_recaptcha_response]
+
       @utm_params = @params[:utm_params]
 
       @login_salt_hash = nil
@@ -42,8 +44,14 @@ module UserManagement
     #
     def perform
 
+
       r = validate_and_sanitize
       return r unless r.success?
+
+      Rails.logger.info('---- check_recaptcha_before_verification started')
+      r = check_recaptcha_before_verification
+      return r unless r.success?
+      Rails.logger.info('---- check_recaptcha_before_verification done')
 
       r = check_if_email_already_registered
       return r unless r.success?
@@ -92,6 +100,26 @@ module UserManagement
 
       # NOTE: To be on safe side, check for generic errors as well
       r = validate
+      return r unless r.success?
+
+      success
+    end
+
+    # Verify recaptcha
+    #
+    # * Author: Kedar
+    # * Date: 10/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def check_recaptcha_before_verification
+      # Check re-capcha on when verification is not yet done
+      r = Recaptcha::Verify.new({
+                                    'response' => @g_recaptcha_response.to_s,
+                                    'remoteip' => @ip_address.to_s
+                                }).perform
+      Rails.logger.info('---- Recaptcha::Verify done')
       return r unless r.success?
 
       success

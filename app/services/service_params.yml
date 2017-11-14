@@ -137,6 +137,7 @@
     - :password
     - :browser_user_agent
     - :ip_address
+    - :g_recaptcha_response
   :optional:
     - :utm_params
     - :geoip_country
@@ -147,6 +148,7 @@
     - :password
     - :browser_user_agent
     - :ip_address
+    - :g_recaptcha_response
   :optional:
 
 'UserManagement::VerifyCookie':

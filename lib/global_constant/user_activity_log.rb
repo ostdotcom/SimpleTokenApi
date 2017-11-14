@@ -63,6 +63,10 @@ module GlobalConstant
         'open_case'
       end
 
+      def phase_changed_to_early_access
+        'phase_changed_to_early_access'
+      end
+
       ## developer use action##
 
       def login_action
@@ -98,7 +102,8 @@ module GlobalConstant
             kyc_whitelist_processor_error,
             cynopsis_api_error,
             update_ethereum_address,
-            open_case
+            open_case,
+            phase_changed_to_early_access
         ]
       end
 
@@ -114,7 +119,8 @@ module GlobalConstant
             selfie_issue_email_sent_action => 'KYC selfie issue email sent',
             residency_issue_email_sent_action => 'KYC residency issue email sent',
             update_ethereum_address => "Ethereum Address Updated",
-            open_case => "Case is Opened Again"
+            open_case => "Case is Opened Again",
+            phase_changed_to_early_access => "Phase Changed to Early Access"
         }
       end
 

@@ -80,34 +80,61 @@ module AdminManagement
         #
         def fetch_purchase_data
 
-          @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollar_value: 0}
+          @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollar_value: 0,
+                             total_no_of_transaction: 0, overall_average_eth: 0, distinct_users: 0 }
+
+          datewise_data, total_unique_users = {}, {}
 
           total_ether_value_in_wei, total_st_value_in_wei = 0 , 0
-
           PurchaseLog
-              .select("pst_day_start_timestamp, sum(ether_wei_value) as total_ether_value, sum(st_wei_value) as total_simple_token_value, sum(usd_value) as total_usd_value")
-              .group("pst_day_start_timestamp")
-              .order("pst_day_start_timestamp DESC")
-              .each do |p_l|
+              .select("id, ethereum_address, ether_wei_value, st_wei_value, usd_value, pst_day_start_timestamp")
+              .find_in_batches(batch_size: 1000) do |purchase_logs|
 
-            total_ethereum = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_ether_value).to_f.round(2)
-            total_tokens_sold = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.total_simple_token_value).to_f.round(2)
-            total_dollar_value = p_l.total_usd_value.to_f.round(2)
+            purchase_logs.each do |p_l|
+              current_date = p_l.pst_day_start_timestamp
+              datewise_data[current_date] ||= {
+                  date: Time.at(current_date).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y"),
+                  total_ethereum_units: 0,
+                  total_tokens_sold_units: 0,
+                  total_dollar_value: 0,
+                  no_of_transaction: 0,
+                  etherium_adresses: {}
+              }
+              datewise_data[current_date][:total_ethereum_units] += p_l.ether_wei_value
+              datewise_data[current_date][:total_tokens_sold_units] += p_l.st_wei_value
+              datewise_data[current_date][:total_dollar_value] += p_l.usd_value.to_f
+              datewise_data[current_date][:no_of_transaction] += 1
+              datewise_data[current_date][:etherium_adresses][p_l.ethereum_address] = 1
+              @all_time_data[:total_dollar_value] += p_l.usd_value.to_f
+              @all_time_data[:total_no_of_transaction] += 1
+              total_unique_users[p_l.ethereum_address] = 1
+              total_ether_value_in_wei += p_l.ether_wei_value
+              total_st_value_in_wei += p_l.st_wei_value
+            end
+          end
 
+          datewise_data.keys.sort.reverse.each do |i|
+            data = datewise_data[i]
+            next if data.blank?
             @curr_page_data << {
-                date: Time.at(p_l.pst_day_start_timestamp).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y"),
-                total_ethereum: total_ethereum,
-                total_tokens_sold: total_tokens_sold,
-                total_dollar_value: total_dollar_value
+                total_ethereum: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_ethereum_units]).to_f.round(2),
+                total_tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_tokens_sold_units]).to_f.round(2),
+                total_dollar_value: data[:total_dollar_value].round(2),
+                date: data[:date],
+                no_of_transaction: data[:no_of_transaction],
+                average_eth: GlobalConstant::ConversionRate.
+                    wei_to_basic_unit_in_string(data[:total_ethereum_units] / data[:no_of_transaction]).to_f.round(2),
+                distinct_users: data[:etherium_adresses].length
             }
-
-            total_ether_value_in_wei += p_l.total_ether_value
-            total_st_value_in_wei += p_l.total_simple_token_value
-            @all_time_data[:total_dollar_value] += total_dollar_value
           end
 
           @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei).to_f.round(2)
           @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei).to_f.round(2)
+          @all_time_data[:total_dollar_value] = @all_time_data[:total_dollar_value].round(2)
+          @all_time_data[:overall_average_eth] = GlobalConstant::ConversionRate.
+              wei_to_basic_unit_in_string(total_ether_value_in_wei / @all_time_data[:total_no_of_transaction]).to_f.round(2)
+          @all_time_data[:distinct_users] = total_unique_users.length
+
         end
 
         # Set API response data
@@ -120,13 +147,14 @@ module AdminManagement
         #
         def fetch_day_wise_purchase_data
 
-          @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollar_value: 0}
+          @all_time_data = { total_ethereum: 0, total_tokens_sold: 0, total_dollar_value: 0,
+                             total_no_of_transaction: 0, overall_average_eth: 0, distinct_users: 0 }
 
-          daywise_data = {}
+          daywise_data, unique_users = {}, {}
 
           total_ether_value_in_wei, total_st_value_in_wei = 0 , 0
           PurchaseLog
-              .select("id, ether_wei_value, st_wei_value, usd_value, block_creation_timestamp")
+              .select("id, ethereum_address, ether_wei_value, st_wei_value, usd_value, block_creation_timestamp")
               .find_in_batches(batch_size: 1000) do |purchase_logs|
 
             purchase_logs.each do |p_l|
@@ -138,11 +166,17 @@ module AdminManagement
                   total_tokens_sold_units: 0,
                   total_dollar_value: 0,
                   day_no: current_day,
+                  no_of_transaction: 0,
+                  etherium_adresses: {}
               }
               daywise_data[current_day][:total_ethereum_units] += p_l.ether_wei_value
               daywise_data[current_day][:total_tokens_sold_units] += p_l.st_wei_value
               daywise_data[current_day][:total_dollar_value] += p_l.usd_value.to_f
+              daywise_data[current_day][:no_of_transaction] += 1
+              daywise_data[current_day][:etherium_adresses][p_l.ethereum_address] = 1
               @all_time_data[:total_dollar_value] += p_l.usd_value.to_f
+              @all_time_data[:total_no_of_transaction] += 1
+              unique_users[p_l.ethereum_address] = 1
               total_ether_value_in_wei += p_l.ether_wei_value
               total_st_value_in_wei += p_l.st_wei_value
             end
@@ -157,13 +191,20 @@ module AdminManagement
                 total_tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(data[:total_tokens_sold_units]).to_f.round(2),
                 total_dollar_value: data[:total_dollar_value].round(2),
                 day_start_time: data[:day_start_time],
-                day_no: data[:day_no]
+                day_no: data[:day_no],
+                no_of_transaction: data[:no_of_transaction],
+                average_eth: GlobalConstant::ConversionRate.
+                    wei_to_basic_unit_in_string(data[:total_ethereum_units] / data[:no_of_transaction]).to_f.round(2),
+                distinct_users: data[:etherium_adresses].length
             }
           end
 
           @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei).to_f.round(2)
           @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei).to_f.round(2)
           @all_time_data[:total_dollar_value] = @all_time_data[:total_dollar_value].round(2)
+          @all_time_data[:overall_average_eth] = GlobalConstant::ConversionRate.
+              wei_to_basic_unit_in_string(total_ether_value_in_wei / @all_time_data[:total_no_of_transaction]).to_f.round(2)
+          @all_time_data[:distinct_users] = unique_users.length
 
         end
 

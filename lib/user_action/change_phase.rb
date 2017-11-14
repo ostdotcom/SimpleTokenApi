@@ -2,11 +2,27 @@ module UserAction
 
   class ChangePhase
 
+    # Initialize
+    #
+    # * Author: Abhay
+    # * Date: 15/11/2017
+    # * Reviewed By: Sunil
+    #
+    # @param [Array] emails (mandatory)
+    #
+    # Sets @emails
+    #
     def initialize(params)
       @emails = params[:emails]
       ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
 
+    # Perform
+    #
+    # * Author: Abhay
+    # * Date: 15/11/2017
+    # * Reviewed By: Sunil
+    #
     def perform
       admin_email = 'francesco@simpletoken.org'
 

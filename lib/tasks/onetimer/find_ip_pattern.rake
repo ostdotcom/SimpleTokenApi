@@ -5,7 +5,10 @@ namespace :onetimer do
   task :find_ip_pattern => :environment do
 
     threshold = ENV['threshold'].to_i
-    file_path = ENV['file_path']
+    file_path = '/mnt/nginx/logs/ips.log'
+    log_file_path = '/mnt/nginx/logs/access-web.log'
+
+    system('cat ' + log_file_path + ' | awk -v FS="(PROXY=|- HTTP_VIA)" \'{print $2}\' | awk -v FS="\"|," \'{print $2}\' | sort | uniq -c | sort -n > ' + file_path)
 
     ip_patterns = []
 
@@ -30,7 +33,7 @@ namespace :onetimer do
 
     end
 
-    puts 'tail -f /mnt/nginx/logs/access-web.log | grep "' + ip_patterns.uniq.join('\|') + '"'
+    puts 'tail -f ' + log_file_path + ' | grep "' + ip_patterns.uniq.join('\|') + '"'
 
   end
 

@@ -152,10 +152,11 @@ module UserAction
       r = is_duplicate_ethereum_address?
       unless r.success?
         user_ids = UserExtendedDetail.where(id: r.data[:user_extended_detail_ids]).pluck(:user_id)
+        user_emails = User.where(id:user_ids).pluck(:email)
         return error_with_data(
           'ua_uea_7',
-          "Duplicate ethereum Address Found with user_ids: #{user_ids} and UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
-          "Duplicate ethereum Address Found with user_ids: #{user_ids} and UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+          "Duplicate ethereum Address Found with email: #{user_emails}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+          "Duplicate ethereum Address Found with email: #{user_emails}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
           GlobalConstant::ErrorAction.default,
           {}
         )

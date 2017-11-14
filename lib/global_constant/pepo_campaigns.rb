@@ -144,6 +144,10 @@ module GlobalConstant
         'kyc_approved'
       end
 
+      def purchase_confirmation
+        'purchase_confirmation'
+      end
+
       # kyc_denied email - sent when kyc is denied by cynopsis and admin both.
       def kyc_denied_template
         'kyc_denied'

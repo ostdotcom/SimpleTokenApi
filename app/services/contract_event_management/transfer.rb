@@ -16,6 +16,8 @@ module ContractEventManagement
       @block_creation_timestamp = @params[:block_creation_timestamp]
 
       @ethereum_address, @ether_value, @usd_value, @st_wei_value = nil, nil, nil, nil
+
+      @user = nil
     end
 
     # Perform
@@ -33,6 +35,10 @@ module ContractEventManagement
         sanitize_event_data
 
         create_purchase_log_entry
+
+        get_user_from_ethereum
+
+        send_purchase_confirmation_email
 
       end
 
@@ -83,6 +89,47 @@ module ContractEventManagement
                               pst_day_start_timestamp: get_pst_rounded_purchase_date
 
                           })
+    end
+
+    # Get user from ethereum address.
+    #
+    # * Author: Alpesh
+    # * Date: 14/11/2017
+    # * Reviewed By:
+    #
+    def get_user_from_ethereum
+      user_ext_det = Md5UserExtendedDetail.get_ar_object(@ethereum_address)
+      @user = User.get_from_memcache(user_ext_det.user_id)
+    end
+
+    # Send Email for the purchase confirmation
+    #
+    # * Author: Alpesh
+    # * Date: 14/11/2017
+    # * Reviewed By:
+    #
+    def send_purchase_confirmation_email
+      return if @user.blank?
+
+      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
+          @user.email, GlobalConstant::PepoCampaigns.purchase_confirmation, {})
+
+      send_purchase_confirmation_email_via_hooks if send_mail_response['error'].present?
+    end
+
+    # Send Email via hook processor
+    #
+    # * Author: Alpesh
+    # * Date: 14/11/2017
+    # * Reviewed By:
+    #
+    def send_purchase_confirmation_email_via_hooks
+
+      Email::HookCreator::SendTransactionalMail.new(
+          email: @user.email,
+          template_name: GlobalConstant::PepoCampaigns.purchase_confirmation,
+          template_vars: {}
+      ).perform
     end
 
     # get rounded purchase date

@@ -19,4 +19,21 @@ class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
     ).perform
   end
 
+  # Get active recors object from unencrypted ethereum address
+  #
+  # * Author: Alpesh
+  # * Date: 14/11/2017
+  # * Reviewed By:
+  #
+  # str [String] Unencypted ethereum address,
+  #
+  # Returns[Md5UserExtendedDetail] active record object.
+  #
+  def self.get_ar_object(ethereum_address)
+
+    sha_ethereum = get_hashed_value(ethereum_address)
+
+    where(ethereum_address: sha_ethereum).first
+  end
+
 end

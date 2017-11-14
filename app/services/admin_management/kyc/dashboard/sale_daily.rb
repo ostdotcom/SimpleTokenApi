@@ -194,7 +194,7 @@ module AdminManagement
                 day_no: data[:day_no],
                 no_of_transaction: data[:no_of_transaction],
                 average_eth: GlobalConstant::ConversionRate.
-                    wei_to_basic_unit_in_string(data[:total_ethereum_units] / data[:no_of_transaction]).to_f.round(2),
+                    wei_to_basic_unit_in_string(data[:total_ethereum_units] / data[:etherium_adresses].length).to_f.round(2),
                 distinct_users: data[:etherium_adresses].length
             }
           end
@@ -202,9 +202,10 @@ module AdminManagement
           @all_time_data[:total_ethereum]  = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_value_in_wei).to_f.round(2)
           @all_time_data[:total_tokens_sold] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_st_value_in_wei).to_f.round(2)
           @all_time_data[:total_dollar_value] = @all_time_data[:total_dollar_value].round(2)
-          @all_time_data[:overall_average_eth] = GlobalConstant::ConversionRate.
-              wei_to_basic_unit_in_string(total_ether_value_in_wei / @all_time_data[:total_no_of_transaction]).to_f.round(2)
           @all_time_data[:distinct_users] = unique_users.length
+          @all_time_data[:overall_average_eth] = GlobalConstant::ConversionRate.
+              wei_to_basic_unit_in_string(total_ether_value_in_wei / @all_time_data[:distinct_users]).to_f.round(2)
+
 
         end
 

@@ -29,7 +29,7 @@ namespace :onetimer do
 
       next if ['10.20', '114.14'].include?(curr_pattern)
 
-      ip_patterns << ip_parts[0] + '.' + ip_parts[1][0, 2]
+      ip_patterns << ip_parts[0] + '\.' + ip_parts[1][0, 2]
 
     end
 

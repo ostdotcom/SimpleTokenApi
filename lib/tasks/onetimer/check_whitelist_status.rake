@@ -6,10 +6,17 @@ namespace :onetimer do
 
     failed_checks = {}
     phase_mismatch_entries = []
+    processed_addrs = {}
 
-    KycWhitelistLog.all.each do |kwl|
+    KycWhitelistLog.order('id DESC').all.each do |kwl|
 
-      r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: kwl.ethereum_address)
+      ethereum_address = kwl.ethereum_address
+
+      next if processed_addrs[ethereum_address].present?
+
+      processed_addrs[ethereum_address] = 1
+
+      r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: ethereum_address)
       unless r.success?
         failed_checks[kwl.id] = r
         next

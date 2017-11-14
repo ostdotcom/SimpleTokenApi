@@ -57,8 +57,30 @@ namespace :onetimer do
     country = decryptor_obj.decrypt(ued.country).data[:plaintext]
     kyc_confirm_date = Time.at(user_kyc_detail.kyc_confirmed_at).in_time_zone('Pacific Time (US & Canada)').to_date.to_s
     kyc_approval_status = user_kyc_detail.kyc_approved? ? 'approved' : (user_kyc_detail.kyc_denied? ? 'denied' : 'pending')
+    proof_of_support = (user_kyc_detail.pos_bonus_percentage.to_i > 0) ? 1 : 0
+    alt_bonus = user_kyc_detail.alternate_token_id_for_bonus.present? ? 1 : 0
 
-    element = [estimated_amount, country, kyc_confirm_date, kyc_approval_status]
+    ethereum_address = decryptor_obj.decrypt(ued.ethereum_address).data[:plaintext]
+
+    number_of_transactions = 0
+    total_ether_wei_value = 0
+    PurchaseLog.where(ethereum_address: ethereum_address).each do |pl|
+      number_of_transactions += 1
+      total_ether_wei_value += pl.ether_wei_value
+    end
+
+    purchased_amount = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_ether_wei_value)
+
+    element = [
+      estimated_amount,
+      country,
+      kyc_confirm_date,
+      kyc_approval_status,
+      proof_of_support,
+      alt_bonus,
+      purchased_amount,
+      number_of_transactions
+    ]
     @csv_data[kyc_confirm_date] ||= []
     @csv_data[kyc_confirm_date] << element
   end
@@ -90,7 +112,11 @@ namespace :onetimer do
         'estimated_amount',
         'country',
         'kyc_confirm_date',
-        'kyc_approval_status'
+        'kyc_approval_status',
+        'proof_of_support',
+        'alt_bonus',
+        'purchased_amount',
+        'number_of_transactions'
     ]
   end
 

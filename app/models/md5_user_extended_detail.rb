@@ -27,13 +27,15 @@ class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
   #
   # str [String] Unencypted ethereum address,
   #
-  # Returns[Md5UserExtendedDetail] active record object.
+  # Returns[Integer] user id .
   #
-  def self.get_ar_object(ethereum_address)
+  def self.get_user_id(ethereum_address)
 
     sha_ethereum = get_hashed_value(ethereum_address)
 
-    where(ethereum_address: sha_ethereum).first
+    ued_ids = Md5UserExtendedDetail.where(ethereum_address: sha_ethereum).pluck(:user_extended_detail_id)
+
+    UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.first.user_id
   end
 
 end

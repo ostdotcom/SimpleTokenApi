@@ -98,8 +98,8 @@ module ContractEventManagement
     # * Reviewed By:
     #
     def get_user_from_ethereum
-      user_ext_det = Md5UserExtendedDetail.get_ar_object(@ethereum_address)
-      @user = User.get_from_memcache(user_ext_det.user_id)
+      user_id = Md5UserExtendedDetail.get_user_id(@ethereum_address)
+      @user = User.get_from_memcache(user_id)
     end
 
     # Send Email for the purchase confirmation

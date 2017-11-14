@@ -18,7 +18,7 @@ namespace :onetimer do
     end
 
     UserExtendedDetail.where(id: user_extended_detail_ids).
-      select('id, user_id, kyc_salt, estimated_participation_amount').each do |ued|
+      select('id, user_id, kyc_salt, ethereum_address').each do |ued|
       kyc_salt_d = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt).data[:plaintext]
 
       ethereum_address_d = LocalCipher.new(kyc_salt_d).decrypt(ued.ethereum_address).data[:plaintext]
@@ -29,7 +29,7 @@ namespace :onetimer do
         next
       end
 
-      phase_mismatch_entries << ued.user_id if r.data['phase'] != ued_id_phase_map[ued.user_id]
+      phase_mismatch_entries << ued.user_id if r.data['phase'].to_i != ued_id_phase_map[ued.id].to_i
 
     end
 

@@ -12,6 +12,7 @@ module UserManagement
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
     # @params [String] ip_address (mandatory) - ip_address
+    # @params [String] g_recaptcha_response (mandatory) - google captcha
     #
     # @return [UserManagement::Login]
     #

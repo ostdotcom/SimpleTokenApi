@@ -12,6 +12,7 @@ module UserManagement
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
     # @params [String] ip_address (mandatory) - ip_address
+    # @params [String] g_recaptcha_response (mandatory) - google captcha
     # @params [String] geoip_country (optional) - geoip_country
     # @params [Hash] utm_params (optional) - Utm Parameters for latest landing page if present
     #
@@ -43,7 +44,6 @@ module UserManagement
     # @return [Result::Base]
     #
     def perform
-
 
       r = validate_and_sanitize
       return r unless r.success?

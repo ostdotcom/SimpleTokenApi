@@ -63,7 +63,7 @@ module AdminManagement
           r = validate
           return r unless r.success?
 
-          @page_size = 50 if @page_size.to_i < 1 || @page_size.to_i > 50
+          @page_size = 100 if @page_size.to_i < 1 || @page_size.to_i > 100
           @offset = 0 if @offset.to_i <= 0
 
           success

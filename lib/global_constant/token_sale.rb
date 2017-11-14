@@ -58,7 +58,7 @@ module GlobalConstant
       end
 
       def token_sale_phase_for(time = Time.now)
-        if time >= early_access_register_end_date
+        if time >= general_access_start_date
           general_access_token_sale_phase
         else
           early_access_token_sale_phase

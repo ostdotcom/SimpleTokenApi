@@ -14,7 +14,7 @@ namespace :onetimer do
 
     UserKycDetail.where(whitelist_status: 2).each do |ukd|
       user_extended_detail_ids << ukd.user_extended_detail_id
-      ued_id_phase_map[ukd.user_extended_detail_id] = ukd.token_sale_participation_phase
+      ued_id_phase_map[ukd.user_extended_detail_id] = UserKycDetail.token_sale_participation_phases[ukd.token_sale_participation_phase]
     end
 
     UserExtendedDetail.where(id: user_extended_detail_ids).

@@ -149,11 +149,15 @@ module UserAction
         )
       end
 
-      if is_duplicate_ethereum_address?
+      r = is_duplicate_ethereum_address?
+      unless r.success?
+        user_ids = UserExtendedDetail.where(id: r.data[:user_extended_detail_ids]).pluck(:user_id)
+        user_emails = User.where(id:user_ids).pluck(:email)
+        user_kyc_detail_ids = UserKycDetail.where(user_id: user_ids).pluck(:id)
         return error_with_data(
           'ua_uea_7',
-          "Duplicate ethereum Address Given!",
-          "Duplicate ethereum Address Given!",
+          "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+          "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -183,7 +187,18 @@ module UserAction
     #
     def is_duplicate_ethereum_address?
       hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
-      Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).exists?
+      user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
+
+      if user_extended_detail_ids.present?
+        return error_with_data(
+          'ua_uea_9',
+          "Duplicate ethereum Address found in MD5 table",
+          "Duplicate ethereum Address found in in MD5 table",
+          GlobalConstant::ErrorAction.default,
+          {user_extended_detail_ids: user_extended_detail_ids}
+        )
+      end
+      success
     end
 
     # Update User encrypted Ethereum address in Extended Details

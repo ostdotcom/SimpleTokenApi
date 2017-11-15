@@ -30,6 +30,8 @@ namespace :onetimer do
       next if u_k_c.pos_bonus_percentage.to_i > 0
       next if u_k_c.alternate_token_id_for_bonus.to_i > 0
 
+      puts u_k_c.id
+
       u_k_c.pos_bonus_percentage = bonus_percentage
       u_k_c.save!
 

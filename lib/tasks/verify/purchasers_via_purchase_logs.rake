@@ -16,7 +16,7 @@ namespace :verify do
         next
       end
 
-      unless r.data['balance'].to_i >= 0
+      if r.data['balance'].to_i <= 0
         mismatches << ethereum_address
       end
 

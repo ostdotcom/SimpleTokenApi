@@ -153,18 +153,6 @@ module UserManagement
       PurchaseLog.sale_details
     end
 
-    # Sale Start time for user
-    #
-    # * Author: Aman
-    # * Date: 09/11/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Time]
-    #
-    def sale_start_time_for_user
-      (token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase) ? GlobalConstant::TokenSale.early_access_start_date : GlobalConstant::TokenSale.general_access_start_date
-    end
-
     # User detail
     #
     # * Author: Aman
@@ -222,7 +210,7 @@ module UserManagement
     # @return [Integer] bonus percent approved for user
     #
     def expected_pos_percentage
-      return nil if (GlobalConstant::TokenSale.token_sale_phase_for(Time.now) !=
+      return nil if ( token_sale_participation_phase_for_user !=
           GlobalConstant::TokenSale.early_access_token_sale_phase)
 
       PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
@@ -238,7 +226,7 @@ module UserManagement
     # @return [String] alternate token name bonus applied for user account
     #
     def expected_alt_token_name_for_bonus
-      return nil if (GlobalConstant::TokenSale.token_sale_phase_for(Time.now) !=
+      return nil if (token_sale_participation_phase_for_user !=
           GlobalConstant::TokenSale.early_access_token_sale_phase)
 
       alt_t_obj = AlternateTokenBonusEmail.where(email: @user.email).first
@@ -266,7 +254,7 @@ module UserManagement
     # @return [String] token sale participation phase
     #
     def token_sale_participation_phase_for_user
-      @token_sale_participation_phase_for_user ||= @user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.now)
+      @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
     end
 
     # User Kyc Status

@@ -108,11 +108,13 @@ class KycSubmitJob < ApplicationJob
     # Update records
     if @user_kyc_detail.new_record?
       @user_kyc_detail.kyc_confirmed_at = @action_timestamp
-      @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
+      @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-      @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
-      @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
+      if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
+        @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
+        @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
+      end
     end
     @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
@@ -121,6 +123,16 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.save!
+  end
+
+  # Token Sale phase for user
+  #
+  # * Author: Aman
+  # * Date: 15/11/2017
+  # * Reviewed By: Sunil
+  #
+  def token_sale_participation_phase_for_user
+    @token_sale_participation_phase_for_user ||= GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
   end
 
   # Find POS bonus for percentage

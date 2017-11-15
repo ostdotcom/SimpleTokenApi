@@ -72,7 +72,7 @@ module Recaptcha
       rescue => e
         return error_with_data('rv_3',
                                           "Exception in API call: #{e.message}",
-                                          'Something went wrong.',
+                                          'Recaptcha validation has failed.',
                                           GlobalConstant::ErrorAction.default,
                                           {})
       end

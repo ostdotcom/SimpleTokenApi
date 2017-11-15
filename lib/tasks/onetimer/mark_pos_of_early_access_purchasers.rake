@@ -33,7 +33,7 @@ namespace :onetimer do
       u_k_c.pos_bonus_percentage = bonus_percentage
       u_k_c.save!
 
-      updated_emails << user_emails[u_k_c.user_id].email
+      updated_emails << user_emails[u_k_c.user_id]
 
     end
 

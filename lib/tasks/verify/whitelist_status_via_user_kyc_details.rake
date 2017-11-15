@@ -1,8 +1,8 @@
-namespace :onetimer do
+namespace :verify do
 
-  # rake RAILS_ENV=development onetimer:double_check_eth_addresses
+  # rake RAILS_ENV=development verify:whitelist_status_via_user_kyc_details
 
-  task :double_check_eth_addresses => :environment do
+  task :whitelist_status_via_user_kyc_details => :environment do
 
 
     user_extended_detail_ids = []

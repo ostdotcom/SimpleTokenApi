@@ -1,8 +1,8 @@
-namespace :onetimer do
+namespace :verify do
 
-  # rake RAILS_ENV=development onetimer:check_whitelist_status
+  # rake RAILS_ENV=development verify:whitelist_status_via_kyc_whitelist_logs
 
-  task :check_whitelist_status => :environment do
+  task :whitelist_status_via_kyc_whitelist_logs => :environment do
 
     failed_checks = {}
     phase_mismatch_entries = []

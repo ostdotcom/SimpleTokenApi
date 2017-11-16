@@ -58,15 +58,25 @@ export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvaria
 export STA_TOKEN_SALE_CONTRACT_ADDRESS='0x155d194759911C4db23E5590f7a780bd21243535'
 
 ##crons
-
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1
-
 rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
-
 rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
 
+one-timers
+1. Verify scripts
+rake verify:purchase_amount_via_purchase_logs RAILS_ENV=development
+rake verify:purchasers_via_purchase_logs RAILS_ENV=development
+rake verify:whitelist_status_via_kyc_whitelist_logs RAILS_ENV=development
+rake verify:whitelist_status_via_user_kyc_details RAILS_ENV=development
 
+2. Purchasers report
+rake onetimer:get_purchasers_report RAILS_ENV=development
 
+3. KPI report
+rake onetimer:generate_estimated_participation_amount_report RAILS_ENV=development
+
+4. Update Ethereum address
+rake onetimer:open_case_and_update_ethereum_address case_id=123 ethereum_address=0x... user_email=example.com admin_email=ignas@simpletoken.org RAILS_ENV=production

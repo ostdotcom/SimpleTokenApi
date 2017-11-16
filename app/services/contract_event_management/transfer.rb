@@ -38,6 +38,8 @@ module ContractEventManagement
 
         get_user_from_ethereum
 
+        update_purchase_attribute_in_pepo_campaigns
+
         send_purchase_confirmation_email
 
       end
@@ -100,6 +102,47 @@ module ContractEventManagement
     def get_user_from_ethereum
       user_id = Md5UserExtendedDetail.get_user_id(@ethereum_address)
       @user = User.get_from_memcache(user_id)
+    end
+
+    # Update has_purchased attributes in pepo campaigns
+    #
+    # * Author: Aman
+    # * Date: 16/11/2017
+    # * Reviewed By:
+    #
+    def update_purchase_attribute_in_pepo_campaigns
+      r = Email::Services::PepoCampaigns.new.update_contact(
+          GlobalConstant::PepoCampaigns.master_list_id,
+          @user.email,
+          attributes_to_update
+      )
+      update_purchase_attribute_in_pepo_campaigns_via_hooks if r['error'].present?
+    end
+
+    # Attributes to update in pepo campaign
+    #
+    # * Author: Aman
+    # * Date: 16/11/2017
+    # * Reviewed By:
+    #
+    def attributes_to_update
+      {
+          GlobalConstant::PepoCampaigns.token_sale_has_purchased_attribute =>
+              GlobalConstant::PepoCampaigns.token_sale_has_purchased_value
+      }
+    end
+
+    # Update has_purchased attributes in pepo campaigns via hook processor
+    #
+    # * Author: Aman
+    # * Date: 16/11/2017
+    # * Reviewed By:
+    #
+    def update_purchase_attribute_in_pepo_campaigns_via_hooks
+      Email::HookCreator::UpdateContact.new(
+          email: @user.email,
+          custom_attributes: attributes_to_update
+      ).perform
     end
 
     # Send Email for the purchase confirmation

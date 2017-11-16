@@ -43,11 +43,16 @@ module GlobalConstant
         'token_sale_kyc_confirmed'
       end
 
+      def token_sale_has_purchased_attribute
+        'token_sale_has_purchased'
+      end
+
       def allowed_custom_attributes
         [
           token_sale_registered_attribute,
           token_sale_phase_attribute,
-          token_sale_kyc_confirmed_attribute
+          token_sale_kyc_confirmed_attribute,
+          token_sale_has_purchased_attribute
         ]
       end
 
@@ -104,6 +109,10 @@ module GlobalConstant
       end
 
       def token_sale_kyc_confirmed_value
+        1
+      end
+
+      def token_sale_has_purchased_value
         1
       end
 

@@ -2,20 +2,18 @@ module Email
 
   module HookCreator
 
-    # This would be called when the email has not been verified by a user
-    #
-    class AddContact < Base
+    class UpdateContact < Base
 
       # Initialize
       #
-      # * Author: Puneet
+      # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil
+      # * Reviewed By: 
       #
       # @params [Hash] custom_attributes (optional) - attribute which are to be set for this email
       # @params [String] custom_description (optional) - description which would be logged in email service hooks table
       #
-      # @return [Email::HookCreator::AddContact] returns an object of Email::HookCreator::AddContact class
+      # @return [Email::HookCreator::UpdateContact] returns an object of Email::HookCreator::UpdateContact class
       #
       def initialize(params)
         super
@@ -23,9 +21,9 @@ module Email
 
       # Perform
       #
-      # * Author: Puneet
+      # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil
+      # * Reviewed By: 
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -37,9 +35,9 @@ module Email
 
       # Validate
       #
-      # * Author: Puneet
+      # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil
+      # * Reviewed By: 
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -59,21 +57,21 @@ module Email
 
       # Event type
       #
-      # * Author: Puneet
+      # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil
+      # * Reviewed By: 
       #
       # @return [String] event type that goes into hook table
       #
       def event_type
-        GlobalConstant::EmailServiceApiCallHook.add_contact_event_type
+        GlobalConstant::EmailServiceApiCallHook.update_contact_event_type
       end
 
       # create a hook to add contact
       #
-      # * Author: Puneet
+      # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: Sunil
+      # * Reviewed By: 
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

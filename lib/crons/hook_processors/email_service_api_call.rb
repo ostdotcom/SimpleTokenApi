@@ -87,6 +87,8 @@ module Crons
           case @hook.event_type
             when GlobalConstant::EmailServiceApiCallHook.add_contact_event_type
               klass = Email::HookProcessor::AddContact
+            when GlobalConstant::EmailServiceApiCallHook.update_contact_event_type
+              klass = Email::HookProcessor::UpdateContact
             when GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type
               klass = Email::HookProcessor::SendTransactionalMail
             else

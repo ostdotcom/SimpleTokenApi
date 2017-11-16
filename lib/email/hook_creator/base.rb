@@ -17,6 +17,7 @@ module Email
       def initialize(params)
         @email = params[:email]
         @custom_description = params[:custom_description]
+        @custom_attributes = params[:custom_attributes] || {}
       end
 
       # Perform
@@ -98,6 +99,31 @@ module Email
 
       end
 
+      # Validate Custom Attributes
+      #
+      # * Author: Puneet
+      # * Date: 10/10/2017
+      # * Reviewed By:
+      #
+      # @return [Result::Base] returns an object of Result::Base class
+      #
+      def validate_custom_variables
+
+        return success if @custom_attributes.blank?
+
+        unsupported_keys = @custom_attributes.keys - GlobalConstant::PepoCampaigns.allowed_custom_attributes
+
+        unsupported_keys.blank? ? success :
+            error_with_data(
+                'e_hc_uc_2',
+                'unsupported attributes',
+                "unsupported attributes: #{unsupported_keys}",
+                GlobalConstant::ErrorAction.default,
+                {}
+            )
+
+      end
+
       # Create new hook
       #
       # * Author: Puneet
@@ -114,24 +140,6 @@ module Email
           execution_timestamp: params[:execution_timestamp] || current_timestamp,
           custom_description: @custom_description,
           params: params
-        )
-      end
-
-      # Send error if same hook already exists
-      #
-      # * Author: Puneet
-      # * Date: 10/10/2017
-      # * Reviewed By:
-      #
-      # @return [Result::Base] returns an object of Result::Base class
-      #
-      def pending_hook_exists_response
-        error_with_data(
-          'e_c_3',
-          'Pending Hook Already Exists',
-          'Pending Hook Already Exists',
-          GlobalConstant::ErrorAction.default,
-          {}
         )
       end
 

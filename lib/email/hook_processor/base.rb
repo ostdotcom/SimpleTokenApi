@@ -89,7 +89,7 @@ module Email
       # @return [Hash]
       #
       def attributes_hash
-        {}
+        fail 'sub class to implement'
       end
 
       # Build user settings for email service
@@ -101,10 +101,7 @@ module Email
       # @return [Hash]
       #
       def user_settings_hash
-        {
-          GlobalConstant::PepoCampaigns.double_opt_in_status_user_setting => double_opt_in_status_setting_value,
-          GlobalConstant::PepoCampaigns.subscribe_status_user_setting => GlobalConstant::PepoCampaigns.subscribed_value
-        }
+        fail 'sub class to implement'
       end
 
     end

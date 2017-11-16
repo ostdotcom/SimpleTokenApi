@@ -18,7 +18,6 @@ namespace :onetimer do
   def fetch_data
 
     csv_data = []
-    csv_data << ['email', 'purchased_amount', 'eth_value']
 
     all_ued_ids = UserKycDetail.kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
 
@@ -30,10 +29,14 @@ namespace :onetimer do
         data = generate_case_data(kyc_salt_d, user_extended_detail)
         csv_data << data if data[:eth_value] >= 10.0
       end
+      puts "one Batch Processed"
       sleep(1)
     end
 
     puts "----------------------\n\n\n"
+
+    puts ['email', 'purchased_amount', 'eth_value'].join(',')
+
     csv_data.each do |element|
       puts element.values.join(',')
     end

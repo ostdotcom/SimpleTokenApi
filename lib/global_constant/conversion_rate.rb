@@ -14,7 +14,7 @@ module GlobalConstant
       # return [Integer] conversion rate for ether to wei
       #
       def ether_to_wei_conversion_rate
-        @ether_to_wei_conversion_rate ||= (10 ** 18)
+        @ether_to_wei_conversion_rate ||= (10.0 ** 18)
       end
 
       # Conversion rate for st to usd

@@ -44,7 +44,29 @@ module GlobalConstant
     end
 
     def self.residency_proof_mandatory_for_countries
-      ['CHINESE','NEW ZEALANDER']
+      [
+          'CHINESE',
+          'NEW ZEALANDER',
+          'AFGHANI',
+          'BOSNIAN',
+          'CENTRAL AFRICAN',
+          'CONGOLESE',
+          'CUBAN',
+          'ERITREAN',
+          'ETHIOPIAN',
+          'IRANIAN',
+          'IRAQI',
+          'LEBANESE',
+          'LIBYAN',
+          'NORTH KOREAN',
+          'SOMALI',
+          'SOUTH SUDANESE',
+          'SUDANESE',
+          'SYRIAN',
+          'UGANDAN',
+          'NI-VANUATU',
+          'YEMENI'
+      ]
     end
 
     private

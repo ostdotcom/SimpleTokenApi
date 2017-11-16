@@ -39,13 +39,14 @@ namespace :onetimer do
 
     csv_data = []
     csv_data << ['email', 'register_datetime', 'bought_in_early_access', 'bought_in_public_sale', 'alt_token_name', 'pos_bonus', 'purchased_amount_in_eth', 'no_of_transactions', 'utm_source', 'utm_medium', 'utm_campaign']
+
     ether_to_user_mapping.each do |ethereum_address, user_id|
 
       transaction_data = transaction_details[ethereum_address]
       user = users[user_id]
       user_kyc_detail = user_kyc_details[user_id]
       utm_detail = utm_details[user_id]
-      alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].try(:name)
+      alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].try(:token_name)
 
 
       purchased_amount_in_eth = (transaction_data[:ether_wei_value] * 1.0 /GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(4)
@@ -63,7 +64,6 @@ namespace :onetimer do
           utm_detail.try(:utm_medium),
           utm_detail.try(:utm_campaign)
       ]
-
       csv_data << data
     end
 

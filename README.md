@@ -80,3 +80,6 @@ rake onetimer:generate_estimated_participation_amount_report RAILS_ENV=developme
 
 4. Update Ethereum address
 rake onetimer:open_case_and_update_ethereum_address case_id=123 ethereum_address=0x... user_email=example.com admin_email=ignas@simpletoken.org RAILS_ENV=production
+
+5. Users Eth Balance Data
+rake RAILS_ENV=development onetimer:generate_ether_balance_of_users_report

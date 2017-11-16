@@ -20,23 +20,23 @@ namespace :onetimer do
     csv_data = []
     csv_data << ['email', 'purchased_amount', 'eth_value']
 
-    ued_ids = UserKycDetail.kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
+    all_ued_ids = UserKycDetail.kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
 
-    UserExtendedDetail.where(id: ued_ids).all.each do |user_extended_detail|
-      r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
-      next unless r.success?
-
-      kyc_salt_d = r.data[:plaintext]
-      data = generate_case_data(kyc_salt_d, user_extended_detail)
-      csv_data << data if data[:eth_value] >= 10.0
+    all_ued_ids.each_slice(100) do |ued_ids|
+      UserExtendedDetail.where(id: ued_ids).all.each do |user_extended_detail|
+        r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
+        next unless r.success?
+        kyc_salt_d = r.data[:plaintext]
+        data = generate_case_data(kyc_salt_d, user_extended_detail)
+        csv_data << data if data[:eth_value] >= 10.0
+      end
+      sleep(1)
     end
 
     puts "----------------------\n\n\n"
-
     csv_data.each do |element|
       puts element.values.join(',')
     end
-
     puts "-----------------------\n\n\n"
 
   end
@@ -65,7 +65,7 @@ namespace :onetimer do
     fail "error from ops api - #{r.inspect}" unless r.success?
     eth_value_in_wei = r.data['balance']
 
-    eth_value = (eth_value_in_wei/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2)
+    eth_value = (eth_value_in_wei.to_i/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2)
     purchased_amount = (total_st_wei_value/GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(2)
 
     {

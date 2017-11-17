@@ -24,7 +24,7 @@ module ContractEventManagement
     #
     # * Author: Aman
     # * Date: 31/10/2017
-    # * Reviewed By: Keadr
+    # * Reviewed By: Kedar
     #
     # @return [Result::Base]
     #
@@ -97,7 +97,7 @@ module ContractEventManagement
     #
     # * Author: Alpesh
     # * Date: 14/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def get_user_from_ethereum
       user_id = Md5UserExtendedDetail.get_user_id(@ethereum_address)
@@ -108,7 +108,7 @@ module ContractEventManagement
     #
     # * Author: Aman
     # * Date: 16/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def update_purchase_attribute_in_pepo_campaigns
       r = Email::Services::PepoCampaigns.new.update_contact(
@@ -123,7 +123,7 @@ module ContractEventManagement
     #
     # * Author: Aman
     # * Date: 16/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def attributes_to_update
       {
@@ -136,7 +136,7 @@ module ContractEventManagement
     #
     # * Author: Aman
     # * Date: 16/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def update_purchase_attribute_in_pepo_campaigns_via_hooks
       Email::HookCreator::UpdateContact.new(
@@ -149,7 +149,7 @@ module ContractEventManagement
     #
     # * Author: Alpesh
     # * Date: 14/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def send_purchase_confirmation_email
       return if @user.blank?
@@ -164,7 +164,7 @@ module ContractEventManagement
     #
     # * Author: Alpesh
     # * Date: 14/11/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     def send_purchase_confirmation_email_via_hooks
 

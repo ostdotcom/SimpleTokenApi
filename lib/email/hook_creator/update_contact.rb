@@ -8,7 +8,7 @@ module Email
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: 
+      # * Reviewed By: Sunil
       #
       # @params [Hash] custom_attributes (optional) - attribute which are to be set for this email
       # @params [String] custom_description (optional) - description which would be logged in email service hooks table
@@ -23,7 +23,7 @@ module Email
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: 
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -37,7 +37,7 @@ module Email
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: 
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
@@ -59,7 +59,7 @@ module Email
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: 
+      # * Reviewed By:  Sunil
       #
       # @return [String] event type that goes into hook table
       #
@@ -71,7 +71,7 @@ module Email
       #
       # * Author: Aman
       # * Date: 10/10/2017
-      # * Reviewed By: 
+      # * Reviewed By: Sunil
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

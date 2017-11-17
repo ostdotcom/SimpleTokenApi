@@ -89,7 +89,7 @@ module Email
           success
         else
           error_with_data(
-            'e_hc_stm_3',
+            'e_hc_b_3',
             'Invalid Email',
             'Invalid Email',
             GlobalConstant::ErrorAction.default,
@@ -115,7 +115,7 @@ module Email
 
         unsupported_keys.blank? ? success :
             error_with_data(
-                'e_hc_uc_2',
+                'e_hc_b_2',
                 'unsupported attributes',
                 "unsupported attributes: #{unsupported_keys}",
                 GlobalConstant::ErrorAction.default,

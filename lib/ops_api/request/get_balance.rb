@@ -8,7 +8,7 @@ module OpsApi
       #
       # * Author: Kedar, Alpesh
       # * Date: 15/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @return [OpsApi::Request::GetBalance]
       #
@@ -20,7 +20,7 @@ module OpsApi
       #
       # * Author: Kedar, Alpesh
       # * Date: 15/11/2017
-      # * Reviewed By:
+      # * Reviewed By: Sunil
       #
       # @param [String] ethereum_address (mandatory)
       #

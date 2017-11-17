@@ -15,7 +15,7 @@ namespace :onetimer do
     @other_ico_balance = {}
 
     @other_ico_hash = {
-        "ST" => "0x58b7056DeB51eD292614F0DA1E94E7e9c589828d",
+        "ST" => "0x2C4e8f2D746113d0696cE89B35F0d8bF88E0AEcA",
         "0x" => "0xe41d2489571d322189246dafa5ebde1f4699f498",
         "AdEx" => "0x4470bb87d77b963a013db939be332f927f2b992e",
         "Aeternity" => "0x5ca9a71b1d01849c0a95490cc00559717fcf0d1d",

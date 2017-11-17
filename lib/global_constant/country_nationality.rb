@@ -62,8 +62,9 @@ module GlobalConstant
           'SOMALI',
           'SOUTH SUDANESE',
           'SUDANESE',
+          'SRI LANKAN',
           'SYRIAN',
-          'UGANDAN',
+          'TUNISIAN',
           'NI-VANUATU',
           'YEMENI'
       ]

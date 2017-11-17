@@ -4,10 +4,10 @@ namespace :onetimer do
 
   task :get_kycs_of_given_country => :environment do
 
-    countries = ['Sri Lanka','Tunisia']
-    nationalities = ['Ugandan']
+    countries = ['Sri Lanka','Tunisia','Uganda']
+    nationalities = ['Sri Lankan','Tunisian','Ugandan']
 
-    usr_kyc_ids = {'Sri Lanka' => [], 'Tunisia' => [], 'Ugandan' => []}
+    usr_kyc_ids = {'Sri Lanka' => [], 'Sri Lankan' => [], 'Tunisia' => [], 'Tunisian' => [], 'Uganda' => [], 'Ugandan' => []}
 
     countries.each do |cntr|
       md5_cntry = Md5UserExtendedDetail.get_hashed_value(cntr)

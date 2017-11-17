@@ -26,7 +26,7 @@ module UserAction
       ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
 
-    # Initialize
+    # Perform
     #
     # * Author: Abhay
     # * Date: 17/11/2017
@@ -73,12 +73,11 @@ module UserAction
         )
       end
 
-      if [GlobalConstant::TokenSale.early_access_token_sale_phase,
-          GlobalConstant::TokenSale.general_access_token_sale_phase].exclude?(@phase)
+      if [GlobalConstant::TokenSale.early_access_token_sale_phase].exclude?(@phase)
         return error_with_data(
           'ua_cp_3',
-          "Invalid phase value: #{@phase}",
-          "Invalid phase value: #{@phase}",
+          "Invalid phase value: #{@phase}. Script right now supports only general to early access.",
+          "Invalid phase value: #{@phase}. Script right now supports only general to early access.",
           GlobalConstant::ErrorAction.default,
           {}
         )
@@ -97,6 +96,7 @@ module UserAction
 
       p "total users phase to change: #{@emails.count}"
       @emails.each do |email|
+        email = email.to_s.downcase.strip
         p "Changing phase for email: #{email}"
         user = User.where(email: email).first
         if user.blank?

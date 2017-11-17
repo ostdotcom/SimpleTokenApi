@@ -116,6 +116,7 @@ namespace :onetimer do
 
     def process_contracts
       @other_ico_hash.each do |ico_name, contract_address|
+        puts "fetching balance for: #{ico_name}"
         @other_ico_balance[ico_name.to_s] = fetch_contract_balance(contract_address)
         sleep(2)
       end
@@ -132,7 +133,8 @@ namespace :onetimer do
           @failed_other_balance_calls[contract_address] << ea
           next
         end
-        contract_balance[ea] = r.data['balance'].to_i
+        contract_balance[ea] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(r.data['balance'].to_i)
+        puts "Balance on contract_address:#{contract_address} for ethereum address:#{contract_address[ea]}"
       end
 
       contract_balance

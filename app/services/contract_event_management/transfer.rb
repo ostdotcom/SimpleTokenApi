@@ -88,8 +88,8 @@ module ContractEventManagement
                               usd_value: @usd_value,
                               st_wei_value: @st_wei_value,
                               block_creation_timestamp: @block_creation_timestamp,
-                              pst_day_start_timestamp: get_pst_rounded_purchase_date
-
+                              pst_day_start_timestamp: get_pst_rounded_purchase_date,
+                              transaction_hash: @contract_event_obj.transaction_hash
                           })
     end
 

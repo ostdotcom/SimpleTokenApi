@@ -83,3 +83,9 @@ rake onetimer:open_case_and_update_ethereum_address case_id=123 ethereum_address
 
 5. Users Eth Balance Data
 rake RAILS_ENV=development onetimer:generate_ether_balance_of_users_report
+
+6. Open Approved Case
+rake onetimer:open_case_and_update_ethereum_address case_id=123 ethereum_address=0x... user_email=example.com admin_email=ignas@simpletoken.org open_case_only=1 RAILS_ENV=production
+
+7. Phase Change from General to Early Access
+UserAction::ChangePhase.new(emails: ['aman+11@pepo.com', 'aman+00@pepo.com'], phase: 'early_access', admin_email: 'abhay@pepo.com').perform

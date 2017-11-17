@@ -134,7 +134,7 @@ namespace :onetimer do
           next
         end
         contract_balance[ea] = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(r.data['balance'].to_i)
-        puts "Balance on contract_address:#{contract_address} for ethereum address:#{contract_address[ea]}"
+        puts "Balance on contract_address:#{contract_address} for ethereum address:#{contract_balance[ea]}"
       end
 
       contract_balance

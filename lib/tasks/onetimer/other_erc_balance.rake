@@ -4,8 +4,6 @@ namespace :onetimer do
 
   task :other_erc_balance => :environment do
 
-    #require 'CSV'
-
     @ethereum_addresses = []
     @user_extended_detail_ids = []
     @ethereum_user_mapping = {}
@@ -80,7 +78,7 @@ namespace :onetimer do
 
       print_as_csv
 
-      #create_csv_file
+      create_csv_file
 
       puts "\n\n\n\n"
 
@@ -164,27 +162,28 @@ namespace :onetimer do
     end
 
     def generate_csv_data
-      @csv_data << headers
+      @csv_data << headers.join(',')
       @ethereum_user_mapping.each do |ea, user_id|
-        row = [@all_users[user_id].email, @st_balance[ea]]
+        row = [@all_users[user_id].email, @st_balance[ea].to_i]
         @other_ico_hash.keys.each do |ico_name|
-          row << @other_ico_balance[ico_name.to_s][ea]
+          row << @other_ico_balance[ico_name.to_s][ea].to_i
         end
-        @csv_data << row
+        @csv_data << row.join(',')
       end
     end
 
 
     def print_as_csv
       @csv_data.each do |row|
-        p row.join(',')
+        p row
       end
     end
 
     def create_csv_file
-      CSV.open("other_contract_balance.csv", "wb") do |csv|
+      File.open("other_contract_balance.csv", "w") do |file|
         @csv_data.each do |row|
-          csv << row
+          file.write(row)
+          file.write("\n")
         end
       end
     end

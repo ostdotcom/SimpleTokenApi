@@ -1,22 +1,21 @@
 namespace :onetimer do
 
-  # rake RAILS_ENV=staging onetimer:other_erc_balance
+  # rake RAILS_ENV=staging onetimer:third_party_erc_contract_balance
 
-  task :other_erc_balance => :environment do
+  task :third_party_erc20_contract_balance => :environment do
 
     @ethereum_addresses = []
     @user_extended_detail_ids = []
     @ethereum_user_mapping = {}
-    @failed_st_balance_calls = []
     @failed_other_balance_calls = {}
     @all_users = {}
     @failed_kms_decrypt_ued_ids = []
 
     @csv_data = []
-    @st_balance = {}
     @other_ico_balance = {}
 
     @other_ico_hash = {
+        "ST" => "0x58b7056DeB51eD292614F0DA1E94E7e9c589828d",
         "0x" => "0xe41d2489571d322189246dafa5ebde1f4699f498",
         "AdEx" => "0x4470bb87d77b963a013db939be332f927f2b992e",
         "Aeternity" => "0x5ca9a71b1d01849c0a95490cc00559717fcf0d1d",
@@ -66,13 +65,7 @@ namespace :onetimer do
 
       fetch_eth_addresses
 
-      fetch_st_balance
-
-      puts "@failed_st_ids => #{@failed_st_balance_calls.inspect}" if @failed_st_balance_calls.present?
-
-      puts "\n\n\n\n"
-
-      process_other_contracts
+      process_contracts
 
       generate_csv_data
 
@@ -121,29 +114,19 @@ namespace :onetimer do
 
     end
 
-    def fetch_st_balance
-      @ethereum_addresses.each do |ea|
-        r = OpsApi::Request::GetBalance.new.perform({ethereum_address: ea})
-        unless r.success?
-          @failed_st_balance_calls << ea
-          next
-        end
-        @st_balance[ea] = r.data['balance'].to_i
-      end
-    end
-
-    def process_other_contracts
+    def process_contracts
       @other_ico_hash.each do |ico_name, contract_address|
-        @other_ico_balance[ico_name.to_s] = fetch_other_contract_balance(contract_address)
+        @other_ico_balance[ico_name.to_s] = fetch_contract_balance(contract_address)
+        sleep(2)
       end
     end
 
-    def fetch_other_contract_balance(contract_address)
+    def fetch_contract_balance(contract_address)
 
       contract_balance = {}
 
       @ethereum_addresses.each do |ea|
-        r = OpsApi::Request::OtherErcGetBalance.new.perform({ethereum_address: ea, contract_address: contract_address})
+        r = OpsApi::Request::ThirdPartyERC20GetBalance.new.perform({ethereum_address: ea, contract_address: contract_address})
         unless r.success?
           @failed_other_balance_calls[contract_address] ||= []
           @failed_other_balance_calls[contract_address] << ea
@@ -157,14 +140,14 @@ namespace :onetimer do
     end
 
     def headers
-      header = ['email', 'st_balance']
+      header = ['email']
       header.concat(@other_ico_hash.keys)
     end
 
     def generate_csv_data
       @csv_data << headers.join(',')
       @ethereum_user_mapping.each do |ea, user_id|
-        row = [@all_users[user_id].email, @st_balance[ea].to_i]
+        row = [@all_users[user_id].email]
         @other_ico_hash.keys.each do |ico_name|
           row << @other_ico_balance[ico_name.to_s][ea].to_i
         end

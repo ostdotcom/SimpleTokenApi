@@ -2,7 +2,7 @@ module OpsApi
 
   module Request
 
-    class OtherErcGetBalance < OpsApi::Request::Base
+    class ThirdPartyERC20GetBalance < OpsApi::Request::Base
 
       # Initialize
       #
@@ -10,7 +10,7 @@ module OpsApi
       # * Date: 17/11/2017
       # * Reviewed By:
       #
-      # @return [OpsApi::Request::OtherErcGetBalance]
+      # @return [OpsApi::Request::ThirdPartyERC20GetBalance]
       #
       def initialize
         super
@@ -29,7 +29,7 @@ module OpsApi
       #
       def perform(params)
         send_request_of_type(
-          GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/other-contract/get-balance', params
+          GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/third-party-contract/get-balance', params
         )
       end
 

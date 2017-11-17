@@ -1,6 +1,6 @@
 namespace :onetimer do
 
-  # rake RAILS_ENV=staging onetimer:third_party_erc20_contract_balance
+  # rake RAILS_ENV=staging onetimer:fetch_white_listed_users_ethereum_addresses
 
   task :fetch_white_listed_users_ethereum_addresses => :environment do
 

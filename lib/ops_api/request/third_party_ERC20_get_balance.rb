@@ -2,7 +2,7 @@ module OpsApi
 
   module Request
 
-    class ThirdPartyERC20GetBalance < OpsApi::Request::Base
+    class ThirdPartyErc20GetBalance < OpsApi::Request::Base
 
       # Initialize
       #

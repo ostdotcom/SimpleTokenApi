@@ -45,17 +45,21 @@ module UserAction
       r = validate_and_sanitize
       return r unless r.success?
 
-      r = un_whitelist_user
-      return r unless r.success?
+      # If case is denied in contract phase will already be 0
+      # No need to set phase=0 again
+      if @user_kyc_detail.kyc_approved?
+        r = un_whitelist_user
+        return r unless r.success?
 
-      # Because Ethereum Address will also be updated
-      # Let 0 whitelisting kyc_whitelist_log status changed to confirmed status before updating ethereum address
-      sleep_in_secs = 420
-      p "Wait! Sleeping for #{sleep_in_secs} seconds"
-      sleep(sleep_in_secs)
+        # Because Ethereum Address will also be updated
+        # Let 0 whitelisting kyc_whitelist_log status changed to confirmed status before updating ethereum address
+        sleep_in_secs = 420
+        p "Wait! Sleeping for #{sleep_in_secs} seconds"
+        sleep(sleep_in_secs)
 
-      r = verify_if_un_whitelisted
-      return r unless r.success?
+        r = verify_if_un_whitelisted
+        return r unless r.success?
+      end
 
       r = open_case
       return r unless r.success?
@@ -138,7 +142,7 @@ module UserAction
       end
 
       if @user_kyc_detail.kyc_approved? && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
-          GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
+                                            GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
 
         return error_with_data(
           'ua_oc_6',

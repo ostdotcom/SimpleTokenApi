@@ -137,7 +137,7 @@ module UserAction
         )
       end
 
-      if [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+      if @user_kyc_detail.kyc_approved? && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
           GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
 
         return error_with_data(

@@ -80,6 +80,9 @@ namespace :onetimer do
         purchase_log_transaction = purchase_logs_transactions[index]
         next if purchase_log_transaction[:transaction_hash].present?
         puts "#{eth_address} : #{contract_event_data[:st_wei_value]} : #{purchase_log_transaction[:id]} : #{contract_event_data[:transaction_hash]}"
+        pl = PurchaseLog.find(purchase_log_transaction[:id])
+        pl.transaction_hash = contract_event_data[:transaction_hash]
+        pl.save
       end
 
     end

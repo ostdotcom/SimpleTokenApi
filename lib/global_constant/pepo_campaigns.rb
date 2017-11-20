@@ -23,6 +23,10 @@ module GlobalConstant
         config[:api][:version]
       end
 
+      def api_timeout
+        5
+      end
+
       ########### List Ids ############
 
       def master_list_id

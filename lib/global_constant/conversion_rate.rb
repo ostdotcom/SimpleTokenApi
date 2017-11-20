@@ -41,26 +41,39 @@ module GlobalConstant
         (st_in_wei_count * st_to_usd_conversion_rate)/ether_to_wei_conversion_rate
       end
 
-      # Converts eth in wei to usd
+      # Converts eth in wei to basic unit
       #
       # * Author:Aman
       # * Date: 09/11/2017
       # * Reviewed By: Kedar
       #
-      # return [Deciaml] Converts eth in wei to usd
+      # return [String] Converts eth in wei to basic unit
       #
       def wei_to_basic_unit_in_string(wei_count)
-        str = wei_count.to_s
+        divide_by_power_of_10(wei_count, 18)
+      end
+
+      # Divide a number by 10 raised to some power
+      #
+      # * Author:Aman
+      # * Date: 20/11/2017
+      # * Reviewed By:
+      #
+      # return [String] returns  a number divided by 10 raised to some power in string format
+      #
+      def divide_by_power_of_10(count, power)
+        val = power + 1
+        str = count.to_s
 
         # pre-pend 0s
-        if str.length < 19
-          (19 - str.length).times do
+        if str.length < val
+          (val - str.length).times do
             str = '0' + str
           end
         end
 
         # insert decimal
-        str.insert(-19, '.')
+        str.insert((val * -1), '.')
         remove_trailing_zero_in_decimal(str)
       end
 

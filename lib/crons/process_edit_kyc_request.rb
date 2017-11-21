@@ -91,6 +91,7 @@ module Crons
 
           if e_k_r.ethereum_address.present?
             ethereum_address = decrypt_ethereum_address(e_k_r.ethereum_address, user_extended_detail.kyc_salt)
+            fail "ethereum_address could not be decrypted." if ethereum_address.nil?
           end
 
           user_kyc_details = @user_kyc_details[e_k_r.case_id]

@@ -84,6 +84,14 @@ class ApplicationController < ActionController::API
 
     # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
     if !service_response.success? && !Rails.env.development?
+      ApplicationMailer.notify(
+        body: {},
+        data: {
+          response_hash: response_hash
+        },
+        subject: 'Error in KYC submit API'
+      ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'user/token_sale'
+
       err = response_hash.delete(:err) || {}
       response_hash[:err] = {
           display_text: (err[:display_text].to_s),

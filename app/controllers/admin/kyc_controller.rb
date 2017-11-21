@@ -190,4 +190,26 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Get cases by email address.
+  #
+  # * Author: Alpesh
+  # * Date: 20/11/2017
+  # * Reviewed By:
+  #
+  def get_cases_by_email
+    service_response = AdminManagement::Kyc::GetByEmail.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Change ethereum address and open the case.
+  #
+  # * Author: Alpesh
+  # * Date: 20/11/2017
+  # * Reviewed By:
+  #
+  def change_address_and_open_case
+    service_response = AdminManagement::Kyc::ChangeAddressAndOpenCase.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

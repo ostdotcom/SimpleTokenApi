@@ -84,6 +84,23 @@ namespace :cron_task do
       execute_continuous_task
     end
 
+    # Read and process blocks on ether net
+    #
+    # * Author: Aman
+    # * Date: 06/11/2017
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:continuous:process_edit_kycs lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/read_blocks_on_ethernet.log"
+    task :process_edit_kycs do |task|
+      @sleep_interval = 60
+
+      @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
+      @performer_klass = 'Crons::ProcessEditKycRequest'
+      @optional_params = {}
+      execute_continuous_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

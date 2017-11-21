@@ -86,6 +86,19 @@
     - :limit
     - :offset
 
+'AdminManagement::Kyc::GetByEmail':
+  :mandatory:
+    - :admin_id
+    - :query
+  :optional:
+
+'AdminManagement::Kyc::ChangeAddressAndOpenCase':
+  :mandatory:
+    - :admin_id
+    - :case_id
+  :optional:
+    - :ethereum_address
+
 'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
     - :admin_id

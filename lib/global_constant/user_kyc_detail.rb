@@ -147,6 +147,21 @@ module GlobalConstant
 
       ### admin action type ####
 
+      ### Edit KYC request status start ####
+
+      def unprocessed_edit_kyc
+        'unprocessed'
+      end
+
+      def processed_edit_kyc
+        'processed'
+      end
+
+      def failed_edit_kyc
+        'failed'
+      end
+
+      ### Edit KYC request status end ####
 
       # Get mapped cynopsis status from response status of cynopsis call
       #

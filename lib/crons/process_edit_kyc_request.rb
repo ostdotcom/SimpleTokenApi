@@ -112,27 +112,43 @@ module Crons
             r = UserAction::UpdateEthereumAddress.new(
                 case_id: e_k_r.case_id,
                 ethereum_address: ethereum_address,
-                admin_email: e_k_r.admin_email,
-                user_email: e_k_r.user_email
+                admin_email: @admins[e_k_r.admin_id].email,
+                user_email: @users[e_k_r.user_id].email
             ).perform
 
           end
 
           if r.success?
             e_k_r.status = GlobalConstant::UserKycDetail.processed_edit_kyc
+            email_subject = "Successfully updated case for email: #{@users[e_k_r.user_id].email}"
+            email_body = "Success"
+            email_to = [@admins[e_k_r.admin_id].email]
           else
             e_k_r.status = GlobalConstant::UserKycDetail.failed_edit_kyc
-            e_k_r.debug_data = r
+            e_k_r.debug_data = r.to_json
+            email_subject = "Error in updating case for email: #{@users[e_k_r.user_id].email}"
+            email_body = r.to_json
+            email_to = (GlobalConstant::Email.default_to+[@admins[e_k_r.admin_id].email])
           end
 
         rescue Exception => e
 
           e_k_r.status = GlobalConstant::UserKycDetail.failed_edit_kyc
           e_k_r.debug_data = "#{e.message} -- #{e.backtrace}"
+          email_subject = "Error in updating case for email: #{@users[e_k_r.user_id].email}"
+          email_body = {exception: {message: e.message, backtrace: e.backtrace}}
+          email_to = (GlobalConstant::Email.default_to+[@admins[e_k_r.admin_id].email])
 
         end
 
         e_k_r.save!
+
+        ApplicationMailer.notify(
+            to: email_to,
+            body: email_body,
+            data: {case_id: e_k_r.case_id, edit_kyc_table_id: e_k_r.id},
+            subject: email_subject
+        ).deliver
 
       end
     end

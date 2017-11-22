@@ -22,7 +22,7 @@ namespace :onetimer do
     transaction_details = {}
     ether_to_user_mapping = {}
 
-    PurchaseLog.all.each do |pl|
+    PurchaseLog.order("block_creation_timestamp ASC").all.each do |pl|
       ethereum_address = pl.ethereum_address
 
       transaction_details[ethereum_address] ||= {
@@ -30,6 +30,7 @@ namespace :onetimer do
           bought_in_public_sale: false,
           ether_wei_value: 0,
           no_of_transactions: 0,
+          first_purchase_time: Time.at(pl.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').to_s
       }
 
       if pl.block_creation_timestamp <= early_access_last_time
@@ -57,7 +58,7 @@ namespace :onetimer do
     user_extended_details = UserExtendedDetail.where(:id => user_extended_detail_ids).index_by(&:id)
 
     csv_data = []
-    csv_data << ['email', 'country', 'register_datetime', 'bought_in_early_access', 'bought_in_public_sale', 'alt_token_name', 'pos_bonus', 'purchased_amount_in_eth', 'no_of_transactions', 'utm_source', 'utm_medium', 'utm_campaign']
+    csv_data << ['email', 'country', 'register_datetime', 'first_purchase_time', 'bought_in_early_access', 'bought_in_public_sale', 'alt_token_name', 'pos_bonus', 'purchased_amount_in_eth', 'no_of_transactions', 'utm_source', 'utm_medium', 'utm_campaign']
 
     ether_to_user_mapping.each do |ethereum_address, user_id|
 
@@ -74,6 +75,7 @@ namespace :onetimer do
           user.email,
           country,
           user.created_at.in_time_zone('Pacific Time (US & Canada)').to_s,
+          transaction_data[:first_purchase_time],
           transaction_data[:bought_in_early_access],
           transaction_data[:bought_in_public_sale],
           alt_token_name,

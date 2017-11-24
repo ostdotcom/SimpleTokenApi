@@ -18,8 +18,11 @@ namespace :onetimer do
 
     def check_for_duplicate_ethereum_for_purchasers
       eth_addresses = PurchaseLog.pluck(:ethereum_address).uniq
+      sha_ethereums = {}
 
-      sha_ethereums = eth_addresses.map {|x| {Md5UserExtendedDetail.get_hashed_value(x) => x}}
+      eth_addresses.each do |x|
+        sha_ethereums[Md5UserExtendedDetail.get_hashed_value(x)] = x
+      end
 
       user_mapping = {}
 
@@ -29,7 +32,7 @@ namespace :onetimer do
         user_mapping[ethereum_address] << md5_obj.user_extended_detail_id
       end
 
-      ued_ids =  user_mapping.values.flatten.uniq
+      ued_ids = user_mapping.values.flatten.uniq
       active_user_extended_detail_ids = UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
 
       user_mapping.each do |ethereum_address, user_extended_detail_ids|
@@ -114,7 +117,7 @@ namespace :onetimer do
       purchase_in_ether_wei = transaction_data[:ether_wei_value]
       purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
 
-      altcoin_bonus_in_ether_wei =  transaction_data[:altcoin_bonus_wei_value]
+      altcoin_bonus_in_ether_wei = transaction_data[:altcoin_bonus_wei_value]
       altcoin_bonus_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(altcoin_bonus_in_ether_wei)
 
       summary_csv_data << [altcoin_name, purchase_in_ether_wei, purchase_in_rounded_ether, altcoin_bonus_in_ether_wei, altcoin_bonus_in_rounded_ether]

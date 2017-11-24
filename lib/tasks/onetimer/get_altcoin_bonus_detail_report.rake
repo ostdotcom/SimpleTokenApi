@@ -20,8 +20,8 @@ namespace :onetimer do
       eth_addresses = PurchaseLog.pluck(:ethereum_address).uniq
       sha_ethereums = {}
 
-      eth_addresses.each do |x|
-        sha_ethereums[Md5UserExtendedDetail.get_hashed_value(x)] = x
+      eth_addresses.each do |eth_address|
+        sha_ethereums[Md5UserExtendedDetail.get_hashed_value(eth_address)] = eth_address
       end
 
       user_mapping = {}

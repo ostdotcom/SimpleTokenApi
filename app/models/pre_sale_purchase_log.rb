@@ -1,0 +1,4 @@
+class PreSalePurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
+
+end
+

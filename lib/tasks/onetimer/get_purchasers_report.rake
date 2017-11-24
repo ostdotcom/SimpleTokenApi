@@ -30,7 +30,7 @@ namespace :onetimer do
           bought_in_public_sale: false,
           ether_wei_value: 0,
           no_of_transactions: 0,
-          first_purchase_time: Time.at(pl.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').to_s
+          first_purchase_time: Time.at(pl.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').to_date.to_s
       }
 
       if pl.block_creation_timestamp <= early_access_last_time

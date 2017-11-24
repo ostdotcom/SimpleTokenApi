@@ -45,14 +45,14 @@ namespace :onetimer do
     records = PurchaseLog.connection.execute(
         'select ethereum_address, sum(st_wei_value) as st_wei_val, sum(ether_wei_value) as ether_wei_val from purchase_logs group by ethereum_address;')
 
-    total_st = 0
+    total_st_sold = 0
     records.each do |record|
       ethereum_address = record[0]
       st_wei_val = record[1]
       ether_wei_val = record[2]
       transaction_details[ethereum_address] = ether_wei_val
       ether_to_user_mapping[ethereum_address] = Md5UserExtendedDetail.get_user_id(ethereum_address)
-      total_st += st_wei_val
+      total_st_sold += st_wei_val
     end
 
     pre_sale_st_token_in_wei_value = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
@@ -128,7 +128,7 @@ namespace :onetimer do
 
     puts "-----------------------\n\n\n\n\n"
 
-    puts "\n\n\n\t\t\t Total ST Tokens Sold- #{total_st + pre_sale_st_token_in_wei_value}\n\n\n"
+    puts "\n\n\n\t\t\t Total ST Tokens Sold- #{total_st_sold + pre_sale_st_token_in_wei_value}\n\n\n"
 
   end
 

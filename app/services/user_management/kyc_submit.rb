@@ -46,7 +46,6 @@ module UserManagement
       @country = @params[:country] # required and one of allowed
       @postal_code = @params[:postal_code] # required and regex
       @ethereum_address = @params[:ethereum_address] # required and regex
-      @estimated_participation_amount = @params[:estimated_participation_amount] # required and number
       @passport_number = @params[:passport_number] # required
       @nationality = @params[:nationality] # required and one of allowed
       @passport_file_path = @params[:passport_file_path] # S3 Path of PassPort File
@@ -226,12 +225,14 @@ module UserManagement
     end
 
     def validate_estimated_participation_amount
-      @estimated_participation_amount = @estimated_participation_amount.to_s.strip
-      if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
-        @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'
-      else
-        @error_data[:estimated_participation_amount] = 'Estimated participation amount should be greater than 0' if @estimated_participation_amount.to_i <= 0
-      end
+      @estimated_participation_amount = '0'.to_s
+
+      # removed from ui(not sent anymore from frontend)
+      # if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
+      #   @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'
+      # else
+      #   @error_data[:estimated_participation_amount] = 'Estimated participation amount should be greater than 0' if @estimated_participation_amount.to_i <= 0
+      # end
     end
 
     def validate_passport_number

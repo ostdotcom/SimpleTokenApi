@@ -40,6 +40,18 @@ namespace :onetimer do
       end
     end
 
+    def get_qualified_for_alt_bonus_ether_addresses
+      alt_bonus_ether_addresses = []
+      records = PurchaseLog.connection.execute(
+          'select ethereum_address from purchase_logs where block_creation_timestamp <= 1510750793 group by ethereum_address having sum(ether_wei_value) >= 1000000000000000000;')
+
+      records.each do |record|
+        alt_bonus_ether_addresses << record[0]
+      end
+
+      alt_bonus_ether_addresses
+    end
+
     check_for_duplicate_ethereum_for_purchasers
 
     transaction_details = {}
@@ -64,14 +76,16 @@ namespace :onetimer do
     user_kyc_details = UserKycDetail.where(user_id: user_ids).all.index_by(&:user_id)
     alternate_tokens = AlternateToken.all.index_by(&:id)
 
+    qualified_for_alt_bonus_ether_addresses = get_qualified_for_alt_bonus_ether_addresses
     summary_data = {}
     csv_data = []
     csv_data << ['ethereum_address', 'altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit', 'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus']
 
     ether_to_user_mapping.each do |ethereum_address, user_id|
-
       user_kyc_detail = user_kyc_details[user_id]
-      next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0
+
+      next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0 || qualified_for_alt_bonus_ether_addresses.exclude?(ethereum_address)
+
       alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].token_name
 
       purchase_in_ether_wei = transaction_details[ethereum_address]

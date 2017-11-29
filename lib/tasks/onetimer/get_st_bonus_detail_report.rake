@@ -27,7 +27,7 @@ namespace :onetimer do
 
     transaction_details = {}
     st_to_user_mapping = {}
-    community_bonus_percent = 20
+    community_bonus_percent = 25
     eth_fluctuation_bonus = 15
 
     records = PurchaseLog.connection.execute(

@@ -59,7 +59,7 @@ namespace :onetimer do
       array_data.each_slice(100) do |batched_data|
         sql_data = []
         batched_data.each do |rows|
-          sql_data << "('#{rows[0]}', #{rows[1]},#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
+          sql_data << "('#{rows[0]}', '#{rows[1]}',#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
         end
         AltCoinBonusLog.bulk_insert(sql_data)
       end
@@ -92,7 +92,6 @@ namespace :onetimer do
     qualified_for_alt_bonus_ether_addresses = get_qualified_for_alt_bonus_ether_addresses
     summary_data = {}
     csv_data = []
-    csv_data << ['ethereum_address', 'altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit', 'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus']
 
     ether_to_user_mapping.each do |ethereum_address, user_id|
       user_kyc_detail = user_kyc_details[user_id]
@@ -131,6 +130,9 @@ namespace :onetimer do
     flush_and_insert_alt_bonus_details(csv_data)
 
     puts "----------------------\n\n\n\n\n"
+
+    puts ['ethereum_address', 'altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit',
+          'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus'].join(',')
 
     csv_data.each do |element|
       puts element.join(',')

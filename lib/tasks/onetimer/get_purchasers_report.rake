@@ -16,7 +16,7 @@ namespace :onetimer do
 
       birth_date = decryptor_obj.decrypt(u_e_d.birthdate).data[:plaintext]
 
-      age = ((Time.now.to_i - Time.at(birth_date).to_i) / 1.year.to_f)
+      age = ((Time.now.to_i - birth_date.to_time.to_i) / 1.year.to_f)
 
       {
         country: decryptor_obj.decrypt(u_e_d.country).data[:plaintext],

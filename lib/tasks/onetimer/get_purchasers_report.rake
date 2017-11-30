@@ -4,7 +4,7 @@ namespace :onetimer do
 
   task :get_purchasers_report => :environment do
 
-    def get_country(u_e_d)
+    def get_decoded_info(u_e_d)
       r = Aws::Kms.new('kyc', 'admin').decrypt(u_e_d.kyc_salt)
       unless r.success?
         @failed_kms_decrypt_ued_ids << u_e_d.id
@@ -14,7 +14,15 @@ namespace :onetimer do
 
       decryptor_obj = LocalCipher.new(kyc_salt_d)
 
-      decryptor_obj.decrypt(u_e_d.country).data[:plaintext]
+      birth_date = decryptor_obj.decrypt(u_e_d.birthdate).data[:plaintext]
+
+      age = ((TIme.now.to_i - Time.at(birth_date).to_i) / 1.year.to_f)
+
+      {
+        country: decryptor_obj.decrypt(u_e_d.country).data[:plaintext],
+        city:  decryptor_obj.decrypt(u_e_d.city).data[:plaintext],
+        age: age
+      }
     end
 
     early_access_last_time = 1510750793
@@ -58,7 +66,23 @@ namespace :onetimer do
     user_extended_details = UserExtendedDetail.where(:id => user_extended_detail_ids).index_by(&:id)
 
     csv_data = []
-    csv_data << ['email', 'country', 'register_datetime', 'first_purchase_time', 'bought_in_early_access', 'bought_in_public_sale', 'alt_token_name', 'pos_bonus', 'purchased_amount_in_eth', 'no_of_transactions', 'utm_source', 'utm_medium', 'utm_campaign']
+    csv_data << [
+      'email',
+      'country',
+      'city',
+      'age',
+      'register_datetime',
+      'first_purchase_time',
+      'bought_in_early_access',
+      'bought_in_public_sale',
+      'alt_token_name',
+      'pos_bonus',
+      'purchased_amount_in_eth',
+      'no_of_transactions',
+      'utm_source',
+      'utm_medium',
+      'utm_campaign'
+    ]
 
     ether_to_user_mapping.each do |ethereum_address, user_id|
 
@@ -67,13 +91,15 @@ namespace :onetimer do
       user_kyc_detail = user_kyc_details[user_id]
       utm_detail = utm_details[user_id]
       alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].try(:token_name)
-      country = get_country(user_extended_details[user_kyc_detail.user_extended_detail_id])
+      decoded_info = get_decoded_info(user_extended_details[user_kyc_detail.user_extended_detail_id])
 
       purchased_amount_in_eth = (transaction_data[:ether_wei_value] * 1.0 /GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).round(4)
 
       data = [
           user.email,
-          country,
+          decoded_info[:country],
+          decoded_info[:city],
+          decoded_info[:age],
           user.created_at.in_time_zone('Pacific Time (US & Canada)').to_s,
           transaction_data[:first_purchase_time],
           transaction_data[:bought_in_early_access],

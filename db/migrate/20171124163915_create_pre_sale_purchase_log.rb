@@ -7,7 +7,6 @@ class CreatePreSalePurchaseLog < DbMigrationConnection
         t.column :st_wei_value, :decimal, precision: 30, scale: 0, null: false
         t.column :st_bonus_wei_value, :decimal, precision: 30, scale: 0, null: false
         t.column :eth_adjustment_bonus_percent, :integer, null: false, default: 0
-        t.timestamps
       end
     end
   end

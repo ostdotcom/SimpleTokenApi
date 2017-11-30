@@ -4,6 +4,7 @@ namespace :onetimer do
   #
   # 1. rake verify:purchase_amount_via_purchase_logs RAILS_ENV=development
   # 2. rake verify:purchasers_via_purchase_logs RAILS_ENV=development
+  # 3. populate pre sale data in db table - pre_sale_purchase_logs
   # 3. Sum(purchase_logs.st_wei_value) + sale_global_variables.pre_sales_st = Contract.total_tokens_sold
   # 4. Check if ethereum address to user id mapping is unique
   #

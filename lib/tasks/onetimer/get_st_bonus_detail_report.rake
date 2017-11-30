@@ -111,7 +111,7 @@ namespace :onetimer do
 
     puts "----------------------\n\n\n\n\n"
 
-    puts ['ethereum_address', 'purchase_in_st_wei', 'purchase_in_st_basic_unit' 'st_bonus_wei_value',
+    puts ['ethereum_address', 'purchase_in_st_wei', 'purchase_in_st_basic_unit', 'st_bonus_wei_value',
           'st_bonus_value_in_basic_unit', 'pos_bonus', 'community_bonus_percent', 'eth_adjustment_bonus', 'is_pre_sale', 'st_pre_sale_bonus_wei_value'].join(',')
 
     csv_data.each do |element|

@@ -116,8 +116,8 @@ module UserManagement
 
       return error_with_data(
           'um_ks_5',
-          'Token Sale Has Ended',
-          'Token Sale Has Ended',
+          'The token sale ended, it is no longer possible to submit personal information.',
+          'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
           {},
           {}

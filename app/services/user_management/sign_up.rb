@@ -81,8 +81,8 @@ module UserManagement
 
       return error_with_data(
           'um_su_3',
-          'Token Sale Has Ended',
-          'Token Sale Has Ended',
+          'The token sale ended, it is no longer possible to signup now',
+          'The token sale ended, it is no longer possible to signup now',
           GlobalConstant::ErrorAction.default,
           {},
           {}

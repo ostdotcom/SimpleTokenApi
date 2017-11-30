@@ -102,8 +102,8 @@ module UserManagement
 
       return error_with_data(
           'um_l_4',
-          'Token Sale Has Ended',
-          'Token Sale Has Ended',
+          'The token sale ended, this account was not activated during the sale.',
+          'The token sale ended, this account was not activated during the sale.',
           GlobalConstant::ErrorAction.default,
           {},
           {}

@@ -4,7 +4,6 @@ namespace :onetimer do
   #
   # 1. rake verify:purchase_amount_via_purchase_logs RAILS_ENV=development
   # 2. rake verify:purchasers_via_purchase_logs RAILS_ENV=development
-  # 3. populate pre sale data in db table - pre_sale_purchase_logs
   # 3. Sum(purchase_logs.st_wei_value) + sale_global_variables.pre_sales_st = Contract.total_tokens_sold
   # 4. Check if ethereum address to user id mapping is unique
   #
@@ -37,20 +36,8 @@ namespace :onetimer do
       active_user_extended_detail_ids = UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
 
       user_mapping.each do |ethereum_address, user_extended_detail_ids|
-        fail "#{ethereum_address} has no or duplicate active users" if (user_extended_detail_ids && active_user_extended_detail_ids).length != 1
+        fail "#{ethereum_address} has no or duplicate active users" if (user_extended_detail_ids & active_user_extended_detail_ids).length != 1
       end
-    end
-
-    def get_qualified_for_alt_bonus_ether_addresses
-      alt_bonus_ether_addresses = []
-      records = PurchaseLog.connection.execute(
-          'select ethereum_address from purchase_logs where block_creation_timestamp <= 1510750793 group by ethereum_address having sum(ether_wei_value) >= 1000000000000000000;')
-
-      records.each do |record|
-        alt_bonus_ether_addresses << record[0]
-      end
-
-      alt_bonus_ether_addresses
     end
 
     def flush_and_insert_alt_bonus_details(array_data)
@@ -90,14 +77,13 @@ namespace :onetimer do
     user_kyc_details = UserKycDetail.where(user_id: user_ids).all.index_by(&:user_id)
     alternate_tokens = AlternateToken.all.index_by(&:id)
 
-    qualified_for_alt_bonus_ether_addresses = get_qualified_for_alt_bonus_ether_addresses
     summary_data = {}
     csv_data = []
 
     ether_to_user_mapping.each do |ethereum_address, user_id|
       user_kyc_detail = user_kyc_details[user_id]
 
-      next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0 || qualified_for_alt_bonus_ether_addresses.exclude?(ethereum_address)
+      next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0
 
       alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].token_name
 

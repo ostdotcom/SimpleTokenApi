@@ -5,7 +5,7 @@ namespace :onetimer do
   # 1. rake verify:purchase_amount_via_purchase_logs RAILS_ENV=development
   # 2. rake verify:purchasers_via_purchase_logs RAILS_ENV=development
   # 3. Sum(purchase_logs.st_wei_value) + sale_global_variables.pre_sales_st = Contract.total_tokens_sold
-  #
+  # 4. update community_bonus_percent before running the script
   # ----------
   #
   # rake onetimer:get_st_bonus_detail_report RAILS_ENV=development
@@ -48,11 +48,6 @@ namespace :onetimer do
     user_kyc_details = UserKycDetail.where(user_id: user_ids).all.index_by(&:user_id)
 
     csv_data = []
-
-    # TODO:
-    # 1. Question: Should eth_adjustment_bonus to first added to purchase to calculate other bonuses or not?
-    # 2. PreSales comunity bonus handling.
-    # 3. Store values in table
 
     total_sale_bonus_in_st_wei = 0
     st_to_user_mapping.each do |ethereum_address, user_id|

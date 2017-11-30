@@ -78,6 +78,16 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_and_sanitize
+
+      return error_with_data(
+          'um_su_3',
+          'Token Sale Has Ended',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if GlobalConstant::TokenSale.is_general_sale_ended?
+
       @email = @email.to_s.downcase.strip
 
       validation_errors = {}
@@ -198,16 +208,16 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def enqueue_job
-        BgJob.enqueue(
-            NewUserRegisterJob,
-            {
-                user_id: @user.id,
-                utm_params: @utm_params,
-                ip_address: @ip_address,
-                browser_user_agent: @browser_user_agent,
-                geoip_country: @geoip_country
-            }
-        )
+      BgJob.enqueue(
+          NewUserRegisterJob,
+          {
+              user_id: @user.id,
+              utm_params: @utm_params,
+              ip_address: @ip_address,
+              browser_user_agent: @browser_user_agent,
+              geoip_country: @geoip_country
+          }
+      )
     end
 
     # Set cookie value

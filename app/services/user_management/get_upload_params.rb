@@ -66,6 +66,16 @@ module UserManagement
       r = super
       return r unless r.success?
 
+      return error_with_data(
+          'um_gup_2',
+          'Token Sale Has Ended',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if GlobalConstant::TokenSale.is_general_sale_ended?
+
+
       image_content_types = []
       @images.each do |_, v|
         image_content_types << v.to_s.downcase

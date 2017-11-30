@@ -114,6 +114,15 @@ module UserManagement
     #
     def validate_and_sanitize
 
+      return error_with_data(
+          'um_ks_5',
+          'Token Sale Has Ended',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if GlobalConstant::TokenSale.is_general_sale_ended?
+
       # Sanitize fields, validate and assign error
       validate_first_name
       validate_last_name
@@ -276,7 +285,6 @@ module UserManagement
       @user = User.get_from_memcache(@user_id)
       return unauthorized_access_response('um_ks_3') unless @user.present? &&
           (@user.status == GlobalConstant::User.active_status)
-
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_ks_4') unless @user_secret.present?
 

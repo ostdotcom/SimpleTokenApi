@@ -100,6 +100,17 @@ module UserManagement
       return unauthorized_access_response('um_l_1') unless @user.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
+      return error_with_data(
+          'um_l_4',
+          'Token Sale Has Ended',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if GlobalConstant::TokenSale.is_general_sale_ended? && !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+
+
+
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_l_2') unless @user_secret.present?
 

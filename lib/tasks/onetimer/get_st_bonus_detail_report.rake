@@ -28,7 +28,7 @@ namespace :onetimer do
     transaction_details = {}
     st_to_user_mapping = {}
     community_bonus_percent = 25
-    eth_fluctuation_bonus = 15
+    eth_adjustment_bonus = 15
 
     records = PurchaseLog.connection.execute(
         'select ethereum_address, sum(st_wei_value) as st_wei_val from purchase_logs group by ethereum_address;')

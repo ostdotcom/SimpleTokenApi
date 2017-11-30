@@ -5,6 +5,7 @@ namespace :onetimer do
   task :unmark_altcoin_bonus => :environment do
 
     pos_qualified_user_ids = []
+    qualified_user_ids  = []
     records = PurchaseLog.connection.execute(
         'select ethereum_address, sum(ether_wei_value) as ether_in_wei from purchase_logs where block_creation_timestamp <= 1510750793 group by ethereum_address;')
 
@@ -27,7 +28,7 @@ namespace :onetimer do
     UserKycDetail.where(user_id: unmark_alt_bonus_user_ids).update_all(alternate_token_id_for_bonus: nil)
     UserKycDetail.bulk_flush(unmark_alt_bonus_user_ids)
 
-    emails = User.where('id not in ?', qualified_user_ids).pluck(:email)
+    emails = User.where('id not in (?)', qualified_user_ids).pluck(:email)
 
     unmark_emails = AlternateTokenBonusEmail.where(email: emails).pluck(:email)
     unmark_emails.each do |email|

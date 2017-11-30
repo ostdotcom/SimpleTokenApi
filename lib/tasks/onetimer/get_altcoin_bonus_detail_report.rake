@@ -20,8 +20,8 @@ namespace :onetimer do
       eth_addresses = PurchaseLog.pluck(:ethereum_address).uniq
       sha_ethereums = {}
 
-      eth_addresses.each do |x|
-        sha_ethereums[Md5UserExtendedDetail.get_hashed_value(x)] = x
+      eth_addresses.each do |eth_address|
+        sha_ethereums[Md5UserExtendedDetail.get_hashed_value(eth_address)] = eth_address
       end
 
       user_mapping = {}
@@ -36,7 +36,20 @@ namespace :onetimer do
       active_user_extended_detail_ids = UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
 
       user_mapping.each do |ethereum_address, user_extended_detail_ids|
-        fail "#{ethereum_address} has no or duplicate active users" if (user_extended_detail_ids && active_user_extended_detail_ids).length != 1
+        fail "#{ethereum_address} has no or duplicate active users" if (user_extended_detail_ids & active_user_extended_detail_ids).length != 1
+      end
+    end
+
+    def flush_and_insert_alt_bonus_details(array_data)
+      AltCoinBonusLog.delete_all
+      current_time = Time.now.to_s(:db)
+
+      array_data.each_slice(100) do |batched_data|
+        sql_data = []
+        batched_data.each do |rows|
+          sql_data << "('#{rows[0]}', '#{rows[1]}',#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
+        end
+        AltCoinBonusLog.bulk_insert(sql_data)
       end
     end
 
@@ -66,12 +79,12 @@ namespace :onetimer do
 
     summary_data = {}
     csv_data = []
-    csv_data << ['ethereum_address', 'altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit', 'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus']
 
     ether_to_user_mapping.each do |ethereum_address, user_id|
-
       user_kyc_detail = user_kyc_details[user_id]
+
       next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0
+
       alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].token_name
 
       purchase_in_ether_wei = transaction_details[ethereum_address]
@@ -101,7 +114,12 @@ namespace :onetimer do
       summary_data[alt_token_name][:altcoin_bonus_wei_value] += altcoin_bonus_in_ether_wei
     end
 
+    flush_and_insert_alt_bonus_details(csv_data)
+
     puts "----------------------\n\n\n\n\n"
+
+    puts ['ethereum_address', 'altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit',
+          'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus'].join(',')
 
     csv_data.each do |element|
       puts element.join(',')

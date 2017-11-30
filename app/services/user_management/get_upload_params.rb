@@ -69,7 +69,7 @@ module UserManagement
       return error_with_data(
           'um_gup_2',
           'Token Sale Has Ended',
-          '',
+          'Token Sale Has Ended',
           GlobalConstant::ErrorAction.default,
           {},
           {}

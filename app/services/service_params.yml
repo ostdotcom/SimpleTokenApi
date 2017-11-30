@@ -182,7 +182,6 @@
     - :country
     - :postal_code
     - :ethereum_address
-    - :estimated_participation_amount
     - :passport_number
     - :nationality
     - :passport_file_path

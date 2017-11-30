@@ -87,7 +87,7 @@ module AdminManagement
               .each do |p_l|
 
             @curr_page_data << {
-                day_timestamp: Time.at(p_l.created_at).strftime("%d/%m/%Y %H:%M"),
+                day_timestamp: Time.at(p_l.block_creation_timestamp).in_time_zone('UTC').strftime("%d/%m/%Y %H:%M"),
                 ethereum_address: "#{p_l.ethereum_address[0, 7]}...",
                 ethereum_value: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.ether_wei_value),
                 tokens_sold: GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(p_l.st_wei_value),

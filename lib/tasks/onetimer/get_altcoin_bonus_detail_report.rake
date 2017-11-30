@@ -52,6 +52,19 @@ namespace :onetimer do
       alt_bonus_ether_addresses
     end
 
+    def flush_and_insert_alt_bonus_details(array_data)
+      AltCoinBonusLog.delete_all
+      current_time = Time.now.to_s(:db)
+
+      array_data.each_slice(100) do |batched_data|
+        sql_data = []
+        batched_data.each do |rows|
+          sql_data << "('#{rows[0]}', #{rows[1]},#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
+        end
+        AltCoinBonusLog.bulk_insert(sql_data)
+      end
+    end
+
     check_for_duplicate_ethereum_for_purchasers
 
     transaction_details = {}
@@ -114,6 +127,8 @@ namespace :onetimer do
       summary_data[alt_token_name][:ether_wei_value] += purchase_in_ether_wei
       summary_data[alt_token_name][:altcoin_bonus_wei_value] += altcoin_bonus_in_ether_wei
     end
+
+    flush_and_insert_alt_bonus_details(csv_data)
 
     puts "----------------------\n\n\n\n\n"
 

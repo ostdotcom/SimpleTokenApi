@@ -17,6 +17,18 @@ module GlobalConstant
 
       ### is_pre_sale End ###
 
+      ### is_ingested_in_trustee Start ###
+
+      def true_is_ingested_in_trustee
+        'true'
+      end
+
+      def false_is_ingested_in_trustee
+        'false'
+      end
+
+      ### is_ingested_in_trustee End ###
+
 
     end
 

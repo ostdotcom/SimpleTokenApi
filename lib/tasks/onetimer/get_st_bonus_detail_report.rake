@@ -10,9 +10,9 @@ namespace :onetimer do
   # 6. verify that all 1st day purchasers have atleast 1 bonus
   # ----------
   #
-  # NOTE:: If eth_adjustment_bonus_percent is in decimal.. test bignumber multiplication with decimals and see how
-  # precise value it gives. If it is not precise multiply total percent by 10^n , so that multiplication is for
+  # NOTE:: If eth_adjustment_bonus_percent is in decimal.. multiply total percent by 10^n , so that multiplication is for
   # integers and then divide the product by 10^n using the function GlobalConstant::ConversionRate.divide_by_power_of_10
+  # choose n such that all total bonus for all row changes to integer
   #
   #
   # rake onetimer:get_st_bonus_detail_report RAILS_ENV=development

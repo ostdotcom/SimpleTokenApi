@@ -93,7 +93,7 @@ namespace :cron_task do
     desc "rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet"
     desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:continuous:process_edit_kycs lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_edit_kycs.log"
     task :process_edit_kycs do |task|
-      @sleep_interval = 60
+      @sleep_interval = 5
 
       @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
       @performer_klass = 'Crons::ProcessEditKycRequest'

@@ -54,8 +54,11 @@ module Crons
       user_ids = []
       user_extended_detail_ids = []
 
-      @edit_kyc_ars = EditKycRequests.unprocessed.all
+      @edit_kyc_ars = EditKycRequests.unprocessed.limit(1)
+
       @edit_kyc_ars.each do |e_k_r|
+        EditKycRequests.where(id: e_k_r.id).update_all(status: GlobalConstant::UserKycDetail.in_process_edit_kyc)
+
         @case_ids << e_k_r.case_id
         admin_ids << e_k_r.admin_id
         user_ids << e_k_r.user_id

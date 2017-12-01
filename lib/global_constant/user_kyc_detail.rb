@@ -161,6 +161,10 @@ module GlobalConstant
         'failed'
       end
 
+      def in_process_edit_kyc
+        'in_process'
+      end
+
       ### Edit KYC request status end ####
 
       # Get mapped cynopsis status from response status of cynopsis call

@@ -40,8 +40,8 @@ namespace :onetimer do
     def validate_pre_sale_purchase_data
       total_pre_sale_tokens_in_st1, total_pre_sale_tokens_in_st2 = 0, 0
       PreSalePurchaseLog.all.each do |pspl|
-        fail "invalid data st_base_token- #{pspl.st_base_token}, is_ingested_in_trustee- #{pspl.is_ingested_in_trustee}" if pspl.st_base_token.to_i <= 0 || ['true', 'false'].exclude?(pspl.is_ingested_in_trustee)
-        if pspl.is_ingested_in_trustee == 'true'
+        fail "invalid data st_base_token- #{pspl.st_base_token}, is_ingested_in_trustee- #{pspl.is_ingested_in_trustee}" if pspl.st_base_token.to_i <= 0 || ['true', 'false'].exclude?(pspl.is_ingested_in_trustee.downcase)
+        if pspl.is_ingested_in_trustee.downcase == 'true'
           fail "invalid data" if pspl.st_bonus_token.to_i <= 0 || pspl.eth_adjustment_bonus_percent.to_i > 0
         else
           fail "invalid data" if pspl.st_bonus_token.to_i != 0
@@ -49,7 +49,7 @@ namespace :onetimer do
 
         fail 'eth_adjustment_bonus_percent should be integer' if pspl.eth_adjustment_bonus_percent.present? && (pspl.eth_adjustment_bonus_percent.to_i != pspl.eth_adjustment_bonus_percent)
 
-        if pspl.is_ingested_in_trustee == 'true'
+        if pspl.is_ingested_in_trustee.downcase == 'true'
           total_pre_sale_tokens_in_st1 += pspl.st_base_token
         else
           total_pre_sale_tokens_in_st2 += pspl.st_base_token
@@ -126,7 +126,7 @@ namespace :onetimer do
 
       purchase_in_st = pre_sale_data.st_base_token
       purchase_in_st_wei = (purchase_in_st * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate)
-      is_ingested_in_trustee = pre_sale_data.is_ingested_in_trustee == 'true' ? 1 : 0
+      is_ingested_in_trustee = pre_sale_data.is_ingested_in_trustee.downcase == 'true' ? 1 : 0
 
       if is_ingested_in_trustee == 1
         community_bonus_percent_for_row = 0

@@ -6,7 +6,14 @@ namespace :onetimer do
   # 2. rake verify:purchasers_via_purchase_logs RAILS_ENV=development
   # 3. Sum(purchase_logs.st_wei_value) + sale_global_variables.pre_sales_st = Contract.total_tokens_sold
   # 4. update community_bonus_percent before running the script
+  # 5. verify that no users have pos bonus and altcoin bonus
+  # 6. verify that all 1st day purchasers have atleast 1 bonus
   # ----------
+  #
+  # NOTE:: If eth_adjustment_bonus_percent is in decimal.. test bignumber multiplication with decimals and see how
+  # precise value it gives. If it is not precise multiply total percent by 10^n , so that multiplication is for
+  # integers and then divide the product by 10^n using the function GlobalConstant::ConversionRate.divide_by_power_of_10
+  #
   #
   # rake onetimer:get_st_bonus_detail_report RAILS_ENV=development
   task :get_st_bonus_detail_report => :environment do
@@ -39,6 +46,9 @@ namespace :onetimer do
         else
           fail "invalid data" if pspl.st_bonus_token.to_i != 0
         end
+
+        fail 'eth_adjustment_bonus_percent should be integer' if pspl.eth_adjustment_bonus_percent.present? && (pspl.eth_adjustment_bonus_percent.to_i != pspl.eth_adjustment_bonus_percent)
+
         if pspl.is_ingested_in_trustee == 'true'
           total_pre_sale_tokens_in_st1 += pspl.st_base_token
         else
@@ -126,13 +136,15 @@ namespace :onetimer do
       else
         community_bonus_percent_for_row = community_bonus_percent
         eth_adjustment_bonus_percent_for_row = pre_sale_data.eth_adjustment_bonus_percent.to_i
-        community_bonus_in_st = (purchase_in_st * community_bonus_percent_for_row)/100.0
-        eth_adjustment_bonus_in_st = (purchase_in_st * eth_adjustment_bonus_percent_for_row)/100.0
+        community_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * community_bonus_percent_for_row), 2)
+        eth_adjustment_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * eth_adjustment_bonus_percent_for_row), 2)
       end
 
       total_bonus_percent = eth_adjustment_bonus_percent_for_row + community_bonus_percent_for_row
 
-      total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * total_bonus_percent, 2).to_i + pre_sale_data.st_bonus_token.to_i
+      total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * total_bonus_percent, 2).to_i +
+          (pre_sale_data.st_bonus_token.to_i * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate)
+
       total_bonus_value_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_bonus_in_wei)
 
       data = [
@@ -161,7 +173,7 @@ namespace :onetimer do
 
     puts ['ethereum_address', 'purchase_in_st_wei', 'purchase_in_st', 'total_bonus_in_wei',
           'total_bonus_value_in_st', 'pos_bonus_percent', 'pos_bonus_in_st', 'community_bonus_percent', 'community_bonus_in_st',
-          'eth_adjustment_bonus_percent', 'eth_adjustment_bonus_in_st', 'is_pre_sale', 'is_ingested_in_trustee', 'st_pre_sale_bonus_wei_value'].join(',')
+          'eth_adjustment_bonus_percent', 'eth_adjustment_bonus_in_st', 'is_pre_sale', 'is_ingested_in_trustee', 'pre_sale_bonus_in_st'].join(',')
 
     csv_data.each do |element|
       puts element.join(',')

@@ -30,7 +30,7 @@ namespace :onetimer do
       array_data.each_slice(100) do |batched_data|
         sql_data = []
         batched_data.each do |rows|
-          sql_data << "('#{rows[0]}', #{rows[1]},#{rows[2]},#{rows[3]},#{rows[4]}, #{rows[5]}, #{rows[6]}, #{rows[7]}, #{rows[8]}, #{rows[9]}, #{rows[10]}, #{rows[11]}, #{rows[12]}, #{rows[13]}, '#{current_time}', '#{current_time}')"
+          sql_data << "('#{rows[0]}', #{rows[1]}, #{rows[2]}, #{rows[3]}, #{rows[4]}, #{rows[5]}, #{rows[6]}, #{rows[7]}, #{rows[8]}, #{rows[9]}, #{rows[10]}, #{rows[11]}, #{rows[12]}, #{rows[13]}, '#{current_time}', '#{current_time}')"
         end
         BonusTokenLog.bulk_insert(sql_data)
       end
@@ -56,7 +56,7 @@ namespace :onetimer do
         end
       end
       fail 'pre_sale_st_base_token addition not equal1' if total_pre_sale_tokens_in_st1 != total_pre_sale_tokens_in_st2
-      fail 'pre_sale_st_base_token addition not equal2' if (total_pre_sale_tokens_in_st1 * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate) != pre_sale_st_token_in_wei_value
+      fail 'pre_sale_st_base_token addition not equal2' if (total_pre_sale_tokens_in_st1 * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).to_i != pre_sale_st_token_in_wei_value
     end
 
     validate_pre_sale_purchase_data
@@ -94,7 +94,7 @@ namespace :onetimer do
       pos_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * user_kyc_detail.pos_bonus_percentage.to_i, 2).to_i
       pos_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(pos_bonus_in_wei)
 
-      eth_adjustment_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * eth_adjustment_bonus_in_wei, 2).to_i
+      eth_adjustment_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * eth_adjustment_bonus_percent, 2).to_i
       eth_adjustment_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_adjustment_bonus_in_wei)
 
       community_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * community_bonus_percent, 2).to_i
@@ -125,7 +125,7 @@ namespace :onetimer do
     PreSalePurchaseLog.all.each do |pre_sale_data|
 
       purchase_in_st = pre_sale_data.st_base_token
-      purchase_in_st_wei = (purchase_in_st * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate)
+      purchase_in_st_wei = (purchase_in_st * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).to_i
       is_ingested_in_trustee = pre_sale_data.is_ingested_in_trustee.downcase == 'true' ? 1 : 0
 
       if is_ingested_in_trustee == 1
@@ -133,17 +133,14 @@ namespace :onetimer do
         eth_adjustment_bonus_percent_for_row = 0
         community_bonus_in_st = 0
         eth_adjustment_bonus_in_st = 0
+        total_bonus_in_wei = (pre_sale_data.st_bonus_token.to_i * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).to_i
       else
         community_bonus_percent_for_row = community_bonus_percent
         eth_adjustment_bonus_percent_for_row = pre_sale_data.eth_adjustment_bonus_percent.to_i
         community_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * community_bonus_percent_for_row), 2)
         eth_adjustment_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * eth_adjustment_bonus_percent_for_row), 2)
+        total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * (eth_adjustment_bonus_percent_for_row + community_bonus_percent_for_row), 2).to_i
       end
-
-      total_bonus_percent = eth_adjustment_bonus_percent_for_row + community_bonus_percent_for_row
-
-      total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * total_bonus_percent, 2).to_i +
-          (pre_sale_data.st_bonus_token.to_i * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate)
 
       total_bonus_value_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_bonus_in_wei)
 

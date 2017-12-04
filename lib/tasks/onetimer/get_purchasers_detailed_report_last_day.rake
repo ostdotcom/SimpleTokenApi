@@ -1,8 +1,8 @@
 namespace :onetimer do
 
-  # rake onetimer:get_purchasers_report RAILS_ENV=development
+  # rake onetimer:get_purchasers_detailed_report_last_day RAILS_ENV=development
 
-  task :get_purchasers_report => :environment do
+  task :get_purchasers_detailed_report_last_day => :environment do
 
     def get_decoded_info(u_e_d)
       r = Aws::Kms.new('kyc', 'admin').decrypt(u_e_d.kyc_salt)
@@ -30,11 +30,17 @@ namespace :onetimer do
 
     PurchaseLog.order("block_creation_timestamp ASC").all.each do |pl|
       ethereum_address = pl.ethereum_address
+      bought_in_early_access, bought_in_public_sale = false, false
+      if pl.block_creation_timestamp <= early_access_last_time
+        bought_in_early_access = true
+      else
+        bought_in_public_sale = true
+      end
 
       transaction_details << {
         ethereum_address: ethereum_address,
-        bought_in_early_access: false,
-        bought_in_public_sale: true,
+        bought_in_early_access: bought_in_early_access,
+        bought_in_public_sale: bought_in_public_sale,
         ether_wei_value: pl.ether_wei_value,
         purchase_time: Time.at(pl.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y %H:%M:%S")
       }

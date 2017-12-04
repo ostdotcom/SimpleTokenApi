@@ -36,6 +36,7 @@ namespace :onetimer do
     end
 
     user_emails.each do |email, user_id|
+      puts "Processing for email - #{email}"
       # If user has selected pos bonus
       if pos_users[user_id].present?
         bonus = pos_users[user_id].to_i
@@ -48,6 +49,7 @@ namespace :onetimer do
         end
         pos_bonus.bonus_percentage = bonus
         pos_bonus.save
+        puts "POS Bonus updated for email - #{email}"
       elsif altcoin_users[user_id].present?
         # If user has selected altcoin bonus
         alternate_token_id = altcoin_users[user_id]
@@ -60,6 +62,7 @@ namespace :onetimer do
         end
         alt_bonus_email.alternate_token_id = alternate_token_id
         alt_bonus_email.save
+        puts "Alt Coin #{alternate_token_id} Bonus updated for email - #{email}"
       end
     end
     UserKycDetail.bulk_flush(user_emails.values)

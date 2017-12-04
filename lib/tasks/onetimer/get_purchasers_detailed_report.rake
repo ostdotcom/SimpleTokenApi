@@ -1,6 +1,6 @@
 namespace :onetimer do
 
-  # rake onetimer:get_purchasers_detailed_report_last_day RAILS_ENV=development
+  # rake onetimer:get_purchasers_detailed_report RAILS_ENV=development
 
   task :get_purchasers_detailed_report => :environment do
 

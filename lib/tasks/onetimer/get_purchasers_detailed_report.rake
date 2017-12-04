@@ -25,6 +25,8 @@ namespace :onetimer do
       }
     end
 
+    early_access_last_time = 1510750793
+
     transaction_details = []
     ether_to_user_mapping = {}
 

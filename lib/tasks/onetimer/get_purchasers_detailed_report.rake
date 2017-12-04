@@ -2,7 +2,7 @@ namespace :onetimer do
 
   # rake onetimer:get_purchasers_detailed_report_last_day RAILS_ENV=development
 
-  task :get_purchasers_detailed_report_last_day => :environment do
+  task :get_purchasers_detailed_report => :environment do
 
     def get_decoded_info(u_e_d)
       r = Aws::Kms.new('kyc', 'admin').decrypt(u_e_d.kyc_salt)

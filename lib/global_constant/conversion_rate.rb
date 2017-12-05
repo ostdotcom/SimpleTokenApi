@@ -65,6 +65,20 @@ module GlobalConstant
         val = power + 1
         str = count.to_s
 
+        # if the numerator has decimal, we need to decimal and multiply the denominator by the the required power of 10
+        index_of_point = str.index('.')
+        if index_of_point
+          delta = str.length - index_of_point - 1
+
+          val += delta
+
+          str_dup = str.dup
+
+          str_dup.slice!(index_of_point)
+
+          str = str_dup
+        end
+
         # pre-pend 0s
         if str.length < val
           (val - str.length).times do

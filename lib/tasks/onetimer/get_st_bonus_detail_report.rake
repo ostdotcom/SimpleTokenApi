@@ -76,6 +76,7 @@ namespace :onetimer do
     end
 
     total_pre_sale_bonus_in_st_wei = 0
+    total_pre_sale_purchase_in_st_wei = 0
     PreSalePurchaseLog.all.each do |pre_sale_data|
 
       purchase_in_st_wei = pre_sale_data.st_wei_value
@@ -99,6 +100,7 @@ namespace :onetimer do
           pre_sale_data.st_bonus_wei_value
       ]
       csv_data << data
+      total_pre_sale_purchase_in_st_wei += purchase_in_st_wei
       total_pre_sale_bonus_in_st_wei += st_bonus_wei_value
     end
 
@@ -115,7 +117,9 @@ namespace :onetimer do
 
     puts "-----------------------\n\n\n\n\n"
 
-    puts "\n\n\n\t\t\t Total ST Tokens Sold- #{total_st_sold_in_wei_value + pre_sale_st_token_in_wei_value}\n\n\n"
+    puts "\n\n\n\t\t\t Total ST Tokens Sold- #{total_st_sold_in_wei_value + total_pre_sale_purchase_in_st_wei}\n\n\n"
+
+    puts "\n\n\n\t\t\t Total Presale ST Tokens Sold - From DB #{total_pre_sale_purchase_in_st_wei} & From SaleGlobalVariable  #{pre_sale_st_token_in_wei_value}\n\n\n"
 
     puts "\n\n\n\t\t\t Total Web Token Sale ST Bonus In Wei - #{total_sale_bonus_in_st_wei}\n\n"
     puts "\n\n\n\t\t\t Total Pre Sale ST Bonus In Wei - #{total_pre_sale_bonus_in_st_wei}\n\n"

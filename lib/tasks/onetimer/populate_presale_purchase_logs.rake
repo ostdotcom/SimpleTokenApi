@@ -65,8 +65,7 @@ namespace :onetimer do
       end
 
       puts "Ingested in trustee total - #{total_pre_sale_tokens_in_st1} && Not ingested total - #{total_pre_sale_tokens_in_st2}"
-      # fail 'pre_sale_st_base_token addition not equal1' if total_pre_sale_tokens_in_st1 != total_pre_sale_tokens_in_st2
-      fail 'pre_sale_st_base_token addition not equal2' if (total_pre_sale_tokens_in_st1 * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate).to_i !=
+      fail 'pre_sale_st_base_token addition not equal2' if total_pre_sale_tokens_in_st1 !=
           SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
     end
 

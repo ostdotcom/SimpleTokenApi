@@ -105,7 +105,7 @@ namespace :onetimer do
       total_st_purchased += purchase_in_st.to_f
       total_st_purchased_in_wei += purchase_in_st_wei
       total_st_bonus_in_wei += total_bonus_in_wei
-      total_st_bonus += total_bonus_value_in_st
+      total_st_bonus += total_bonus_value_in_st.to_f
       total_pos_bonus += pos_bonus_in_st.to_f
       total_eth_adjust_bonus += eth_adjustment_bonus_in_st.to_f
       total_community_bonus += community_bonus_in_st.to_f

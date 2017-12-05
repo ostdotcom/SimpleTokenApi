@@ -6,8 +6,8 @@ class ModifyPreSalePurchaseLog < DbMigrationConnection
       remove_column :pre_sale_purchase_logs, :st_wei_value
       remove_column :pre_sale_purchase_logs, :st_bonus_wei_value
 
-      add_column :pre_sale_purchase_logs, :st_base_token, :integer, null: false, after: :ethereum_address
-      add_column :pre_sale_purchase_logs, :st_bonus_token, :integer, after: :st_base_token
+      add_column :pre_sale_purchase_logs, :st_base_token, :decimal, precision: 30, null: false, after: :ethereum_address
+      add_column :pre_sale_purchase_logs, :st_bonus_token, :decimal, precision: 30, after: :st_base_token
       add_column :pre_sale_purchase_logs, :is_ingested_in_trustee, :boolean, null: false, default: false, after: :eth_adjustment_bonus_percent
 
       add_index :pre_sale_purchase_logs, [:ethereum_address], unique: true, name: 'ETHEREUM_ADDRESS_UNIQUE_INDEX'

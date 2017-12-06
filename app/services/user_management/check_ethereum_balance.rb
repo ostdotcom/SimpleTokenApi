@@ -156,11 +156,15 @@ module UserManagement
       total_simple_token_allotted_to_user = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(stat_data.total_simple_token_wei_value).to_f.round(4)
       total_simple_token_allotted_to_user = total_simple_token_allotted_to_user.to_i == total_simple_token_allotted_to_user ? total_simple_token_allotted_to_user.to_i : total_simple_token_allotted_to_user
 
+      bonus_log = BonusTokenLog.where(ethereum_address: @user_ethereum_address).first
+      total_st_bonus_for_user = bonus_log.present? ? bonus_log.total_bonus_value_in_st : 0
+
 
       {
           total_dollars_sent_by_user: total_dollars_sent_by_user,
           total_ethereum_sent_by_user: total_ethereum_sent_by_user,
-          total_simple_token_allotted_to_user: total_simple_token_allotted_to_user
+          total_simple_token_allotted_to_user: total_simple_token_allotted_to_user,
+          total_simple_token_bonus_to_user: total_st_bonus_for_user
       }
     end
 

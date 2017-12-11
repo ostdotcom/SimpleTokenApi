@@ -10,7 +10,7 @@ namespace :onetimer do
   # 6. verify that all 1st day purchasers have atleast 1 bonus
   # ----------
   #
-  # NOTE:: If eth_adjustment_bonus_percent is in decimal.. multiply total percent by 10^n , so that multiplication is for
+  # NOTE:: If discretionary_bonus_percent is in decimal.. multiply total percent by 10^n , so that multiplication is for
   # integers and then divide the product by 10^n using the function GlobalConstant::ConversionRate.divide_by_power_of_10
   # choose n such that all total bonus for all row changes to integer
   #
@@ -19,7 +19,7 @@ namespace :onetimer do
   task :get_st_bonus_detail_report => :environment do
 
     community_bonus_percent = 30
-    eth_adjustment_bonus_percent = 15
+    discretionary_bonus_percent = 15
 
     def flush_and_insert_bonus_details(array_data)
       BonusTokenLog.delete_all
@@ -42,7 +42,7 @@ namespace :onetimer do
     total_st_bonus_in_wei = 0
     total_st_bonus = 0
     total_pos_bonus = 0
-    total_eth_adjust_bonus = 0
+    total_discretionary_bonus = 0
     total_community_bonus = 0
     total_presale_bonus = 0
 
@@ -68,7 +68,7 @@ namespace :onetimer do
       purchase_in_st_wei = transaction_details[ethereum_address]
       user_kyc_detail = user_kyc_details[user_id]
       purchase_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_st_wei)
-      total_bonus = eth_adjustment_bonus_percent + community_bonus_percent + user_kyc_detail.pos_bonus_percentage.to_i
+      total_bonus = discretionary_bonus_percent + community_bonus_percent + user_kyc_detail.pos_bonus_percentage.to_i
 
       total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * total_bonus, 2).to_i
       total_bonus_value_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(total_bonus_in_wei)
@@ -76,8 +76,8 @@ namespace :onetimer do
       pos_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * user_kyc_detail.pos_bonus_percentage.to_i, 2).to_i
       pos_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(pos_bonus_in_wei)
 
-      eth_adjustment_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * eth_adjustment_bonus_percent, 2).to_i
-      eth_adjustment_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_adjustment_bonus_in_wei)
+      discretionary_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * discretionary_bonus_percent, 2).to_i
+      discretionary_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(discretionary_bonus_in_wei)
 
       community_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * community_bonus_percent, 2).to_i
       community_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(community_bonus_in_wei)
@@ -93,8 +93,8 @@ namespace :onetimer do
           pos_bonus_in_st,
           community_bonus_percent,
           community_bonus_in_st,
-          eth_adjustment_bonus_percent,
-          eth_adjustment_bonus_in_st,
+          discretionary_bonus_percent,
+          discretionary_bonus_in_st,
           GlobalConstant::BonusTokenLog.false_is_pre_sale,
           GlobalConstant::BonusTokenLog.false_is_ingested_in_trustee,
           0
@@ -107,7 +107,7 @@ namespace :onetimer do
       total_st_bonus_in_wei += total_bonus_in_wei
       total_st_bonus += total_bonus_value_in_st.to_f
       total_pos_bonus += pos_bonus_in_st.to_f
-      total_eth_adjust_bonus += eth_adjustment_bonus_in_st.to_f
+      total_discretionary_bonus += discretionary_bonus_in_st.to_f
       total_community_bonus += community_bonus_in_st.to_f
       total_presale_bonus += 0
     end
@@ -125,17 +125,17 @@ namespace :onetimer do
         purchase_in_st_wei = 0
         purchase_in_st = 0
         community_bonus_percent_for_row = 0
-        eth_adjustment_bonus_percent_for_row = 0
+        discretionary_bonus_percent_for_row = 0
         community_bonus_in_st = 0
-        eth_adjustment_bonus_in_st = 0
+        discretionary_bonus_in_st = 0
         total_bonus_in_wei = pre_sale_data.st_bonus_token
         presale_bonus_in_st = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(pre_sale_data.st_bonus_token).to_f
       else
         community_bonus_percent_for_row = community_bonus_percent
-        eth_adjustment_bonus_percent_for_row = pre_sale_data.eth_adjustment_bonus_percent.to_i
+        discretionary_bonus_percent_for_row = pre_sale_data.discretionary_bonus_percent.to_i
         community_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * community_bonus_percent_for_row), 2)
-        eth_adjustment_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * eth_adjustment_bonus_percent_for_row), 2)
-        total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * (eth_adjustment_bonus_percent_for_row + community_bonus_percent_for_row), 2).to_i
+        discretionary_bonus_in_st = GlobalConstant::ConversionRate.divide_by_power_of_10((purchase_in_st * discretionary_bonus_percent_for_row), 2)
+        total_bonus_in_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_st_wei * (discretionary_bonus_percent_for_row + community_bonus_percent_for_row), 2).to_i
         presale_bonus_in_st = 0
       end
 
@@ -151,8 +151,8 @@ namespace :onetimer do
           0,
           community_bonus_percent_for_row,
           community_bonus_in_st,
-          eth_adjustment_bonus_percent_for_row,
-          eth_adjustment_bonus_in_st,
+          discretionary_bonus_percent_for_row,
+          discretionary_bonus_in_st,
           GlobalConstant::BonusTokenLog.true_is_pre_sale,
           is_ingested_in_trustee,
           presale_bonus_in_st
@@ -166,7 +166,7 @@ namespace :onetimer do
       total_st_bonus_in_wei += total_bonus_in_wei
       total_st_bonus += total_bonus_value_in_st
       total_pos_bonus += 0
-      total_eth_adjust_bonus += eth_adjustment_bonus_in_st.to_f
+      total_discretionary_bonus += discretionary_bonus_in_st.to_f
       total_community_bonus += community_bonus_in_st.to_f
       total_presale_bonus += presale_bonus_in_st
     end
@@ -177,7 +177,7 @@ namespace :onetimer do
 
     puts ['ethereum_address', 'purchase_in_st_wei', 'purchase_in_st', 'total_bonus_in_wei',
           'total_bonus_value_in_st', 'pos_bonus_percent', 'pos_bonus_in_st', 'community_bonus_percent', 'community_bonus_in_st',
-          'eth_adjustment_bonus_percent', 'eth_adjustment_bonus_in_st', 'is_pre_sale', 'is_ingested_in_trustee', 'pre_sale_bonus_in_st'].join(',')
+          'discretionary_bonus_percent', 'discretionary_bonus_in_st', 'is_pre_sale', 'is_ingested_in_trustee', 'pre_sale_bonus_in_st'].join(',')
 
     # Append total values in csv
     csv_data << [
@@ -191,7 +191,7 @@ namespace :onetimer do
         "",
         total_community_bonus,
         "",
-        total_eth_adjust_bonus,
+        total_discretionary_bonus,
         "",
         "",
         total_presale_bonus

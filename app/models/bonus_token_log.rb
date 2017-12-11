@@ -13,7 +13,7 @@ class BonusTokenLog < EstablishSimpleTokenContractInteractionsDbConnection
 
   def self.bulk_insert(new_rows)
 
-    logs_sql = "INSERT INTO `bonus_token_logs` (`ethereum_address`, `purchase_in_st_wei`, `purchase_in_st`, `total_bonus_in_wei`, `total_bonus_value_in_st`, `pos_bonus_percent`, `pos_bonus_in_st`, `community_bonus_percent`, `community_bonus_in_st`, `eth_adjustment_bonus_percent`, `eth_adjustment_bonus_in_st`, `is_pre_sale`, `is_ingested_in_trustee`, `pre_sale_bonus_in_st`, `created_at`, `updated_at`)" +
+    logs_sql = "INSERT INTO `bonus_token_logs` (`ethereum_address`, `purchase_in_st_wei`, `purchase_in_st`, `total_bonus_in_wei`, `total_bonus_value_in_st`, `pos_bonus_percent`, `pos_bonus_in_st`, `community_bonus_percent`, `community_bonus_in_st`, `discretionary_bonus_percent`, `discretionary_bonus_in_st`, `is_pre_sale`, `is_ingested_in_trustee`, `pre_sale_bonus_in_st`, `created_at`, `updated_at`)" +
         "VALUES #{new_rows.join(', ')} ;"
 
     self.connection.execute(logs_sql)

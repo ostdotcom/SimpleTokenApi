@@ -161,6 +161,10 @@ module GlobalConstant
         'purchase_confirmation'
       end
 
+      def alt_coin_bonus_distribution
+        'alt_coin_bonus_distribution'
+      end
+
       # kyc_denied email - sent when kyc is denied by cynopsis and admin both.
       def kyc_denied_template
         'kyc_denied'
@@ -183,7 +187,9 @@ module GlobalConstant
           kyc_selfie_image_issue_template,
           kyc_residency_image_issue_template,
           kyc_approved_template,
-          kyc_denied_template
+          kyc_denied_template,
+          purchase_confirmation,
+          alt_coin_bonus_distribution
         ]
       end
 

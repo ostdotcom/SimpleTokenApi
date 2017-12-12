@@ -36,16 +36,16 @@ namespace :onetimer do
     rows.each_with_index do |row, index|
       arr = row.split(",")
       user_eth_address = arr[0]
-      token_contract_address = arr[1]
-      transaction_hash = arr[2].to_s
+      alt_token_contract_address = arr[1]
+      transfer_transaction_hash = arr[2].to_s
 
-      puts "#{index} - #{user_eth_address} - #{token_contract_address} - #{transaction_hash}"
+      puts "#{index} - #{user_eth_address} - #{alt_token_contract_address} - #{transfer_transaction_hash}"
 
       alt_coin_bonus_log = alt_coin_bonus_logs[user_eth_address]
 
-      fail "token_contract_address did not match" if alt_coin_bonus_log.token_contract_address != token_contract_address
+      fail "alt_token_contract_address did not match" if alt_coin_bonus_log.alt_token_contract_address.downcase != alt_token_contract_address.downcase
 
-      next if alt_coin_bonus_log.transaction_hash.present?
+      next if alt_coin_bonus_log.transfer_transaction_hash.present?
 
       user_id = Md5UserExtendedDetail.get_user_id(user_eth_address)
       user_email = User.where(id: user_id).first.email
@@ -53,7 +53,7 @@ namespace :onetimer do
           alt_coin_token_name: alt_coin_bonus_log.alt_token_name
       }
 
-      alt_coin_bonus_log.transaction_hash = transaction_hash
+      alt_coin_bonus_log.transfer_transaction_hash = transfer_transaction_hash
       alt_coin_bonus_log.save!
 
       send_alt_coin_bonus_distribution_email(user_email, template_vars)

@@ -12,7 +12,7 @@ class RenameEthAdjustmentColumnName < DbMigrationConnection
   end
 
   def down
-    run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
+    run_migration_for_db(EstablishSimpleTokenContractInteractionsDbConnection.config_key) do
       rename_column :bonus_token_logs, :discretionary_bonus_percent, :eth_adjustment_bonus_percent
       rename_column :bonus_token_logs, :discretionary_bonus_in_st, :eth_adjustment_bonus_in_st
 

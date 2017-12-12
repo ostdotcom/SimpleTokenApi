@@ -17,18 +17,18 @@ namespace :onetimer do
       eth_address = arr[0]
       st_base_token = arr[1]
       st_bonus_token = arr[2]
-      eth_price_adjust_percent = arr[3].to_i
+      discretionary_percent = arr[3].to_i
       ingested_in_trustee = (arr[4].to_s.downcase == "true")
 
-      puts "#{index} - #{eth_address} - #{st_base_token} - #{st_bonus_token} - #{eth_price_adjust_percent} - #{ingested_in_trustee}"
+      puts "#{index} - #{eth_address} - #{st_base_token} - #{st_bonus_token} - #{discretionary_percent} - #{ingested_in_trustee}"
 
       fail "Invalid data Row #{index} ====> Base Token cannot be zero" if st_base_token.to_i <= 0
 
-      fail "Invalid data Row #{index} ====> Eth price adjustment cannot be more than 10" if eth_price_adjust_percent.to_i > 10
+      fail "Invalid data Row #{index} ====> discretionary_percent cannot be more than 10" if discretionary_percent.to_i > 10
 
       if ingested_in_trustee
         fail "Invalid data Row #{index} ====> Ingested in trustee is true for 0 bonus tokens" if st_bonus_token.to_i <= 0
-        fail "Invalid data Row #{index} ====> Ingested in trustee is true so eth adjustment should be 0." if eth_price_adjust_percent.to_i > 0
+        fail "Invalid data Row #{index} ====> Ingested in trustee is true so discretionary_percent should be 0." if discretionary_percent.to_i > 0
       end
 
       if st_bonus_token.to_i == 0
@@ -37,7 +37,7 @@ namespace :onetimer do
 
       # st_base_token_in_wei = (st_base_token * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate)
       # st_bonus_token_in_wei = (st_bonus_token * GlobalConstant::ConversionRate.ether_to_wei_conversion_rate)
-      db_rows << "('#{eth_address}', #{st_base_token}, #{st_bonus_token}, #{eth_price_adjust_percent}, #{ingested_in_trustee})"
+      db_rows << "('#{eth_address}', #{st_base_token}, #{st_bonus_token}, #{discretionary_percent}, #{ingested_in_trustee})"
     end
 
     if db_rows.present?
@@ -50,7 +50,7 @@ namespace :onetimer do
       PreSalePurchaseLog.all.each do |pspl|
         fail "invalid data #{pspl.id} st_base_token- #{pspl.st_base_token}" if pspl.st_base_token.to_i <= 0
         if pspl.is_ingested_in_trustee
-          fail "invalid data #{pspl.id} ingested true" if pspl.st_bonus_token.to_i <= 0 || pspl.eth_adjustment_bonus_percent.to_i > 0
+          fail "invalid data #{pspl.id} ingested true" if pspl.st_bonus_token.to_i <= 0 || pspl.discretionary_bonus_percent.to_i > 0
         end
 
         if pspl.st_bonus_token.to_i == 0

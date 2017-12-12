@@ -4,7 +4,7 @@ class AddColumnsForAltcoinBonuses < DbMigrationConnection
 
       add_column :alt_coin_bonus_logs, :alt_token_amount_in_wei, :decimal, precision: 30, null: true, after: :altcoin_bonus_wei_value
       add_column :alt_coin_bonus_logs, :transfer_transaction_hash, :string, null: true, after: :alt_token_amount_in_wei
-      add_column :alt_coin_bonus_logs, :alternate_token_id, :integer, null: true, after: :ethereum_address
+      add_column :alt_coin_bonus_logs, :alt_token_contract_address, :string, null: true, after: :alt_token_name
 
     end
 
@@ -69,7 +69,7 @@ class AddColumnsForAltcoinBonuses < DbMigrationConnection
 
       remove_column :alt_coin_bonus_logs, :alt_token_amount_in_wei
       remove_column :alt_coin_bonus_logs, :transfer_transaction_hash
-      remove_column :alt_coin_bonus_logs, :alternate_token_id
+      remove_column :alt_coin_bonus_logs, :alt_token_contract_address
 
     end
 

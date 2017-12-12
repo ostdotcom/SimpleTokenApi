@@ -40,14 +40,15 @@ namespace :onetimer do
       end
     end
 
-    def flush_and_insert_alt_bonus_details(array_data)
+    def flush_and_insert_alt_bonus_details(array_data, alt_token_hash)
       AltCoinBonusLog.delete_all
       current_time = Time.now.to_s(:db)
 
       array_data.each_slice(100) do |batched_data|
         sql_data = []
         batched_data.each do |rows|
-          sql_data << "('#{rows[0]}', '#{rows[1]}',#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
+          token_name = rows[1]
+          sql_data << "('#{rows[0]}', #{alt_token_hash[token_name][:alt_token_id]}, '#{token_name}',#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
         end
         AltCoinBonusLog.bulk_insert(sql_data)
       end
@@ -85,7 +86,8 @@ namespace :onetimer do
 
       next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0
 
-      alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].token_name
+      alt_token_id = user_kyc_detail.alternate_token_id_for_bonus.to_i
+      alt_token_name = alternate_tokens[alt_token_id].token_name
 
       purchase_in_ether_wei = transaction_details[ethereum_address]
       purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
@@ -108,13 +110,14 @@ namespace :onetimer do
           altcoin_name: alt_token_name,
           ether_wei_value: 0,
           altcoin_bonus_wei_value: 0,
+          alt_token_id: alt_token_id
       }
 
       summary_data[alt_token_name][:ether_wei_value] += purchase_in_ether_wei
       summary_data[alt_token_name][:altcoin_bonus_wei_value] += altcoin_bonus_in_ether_wei
     end
 
-    flush_and_insert_alt_bonus_details(csv_data)
+    flush_and_insert_alt_bonus_details(csv_data, summary_data)
 
     puts "----------------------\n\n\n\n\n"
 

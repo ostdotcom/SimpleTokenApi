@@ -18,16 +18,16 @@ namespace :onetimer do
       arr = row.split(",")
       user_eth_address = arr[0]
       alt_token_contract_address = arr[1].to_s
-      eth_amount_in_wei = arr[2].to_i
+      ether_bonus_wei_value = arr[2].to_i
       alt_token_amount_in_wei = arr[3].to_i
 
-      puts "#{index} - #{user_eth_address} - #{alt_token_contract_address} - #{eth_amount_in_wei} - #{alt_token_amount_in_wei}"
+      puts "#{index} - #{user_eth_address} - #{alt_token_contract_address} - #{ether_bonus_wei_value} - #{alt_token_amount_in_wei}"
 
       alt_coin_bonus_log = alt_coin_bonus_logs[user_eth_address]
 
       fail "alt_coin token name or address did not match" if alt_coin_bonus_log.alt_token_contract_address.downcase != alt_token_contract_address.downcase
 
-      fail "eth_amount_in_wei did not match" if alt_coin_bonus_log.eth_amount_in_wei != eth_amount_in_wei
+      fail "ether_bonus_wei_value did not match" if alt_coin_bonus_log.ether_bonus_wei_value != ether_bonus_wei_value
 
       fail "alt_token_amount_in_wei cannot be 0" if alt_token_amount_in_wei.to_i == 0
 

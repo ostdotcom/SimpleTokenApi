@@ -54,7 +54,8 @@ namespace :onetimer do
         "TenX" => "0xB97048628DB6B661D4C2aA833e95Dbe1A905B280",
         "TRON" => "0xf230b790e05390fc8295f4d3f60332c93bed42e2",
         "Walton" => "0xb7cb1c96db6b22b0d3d9536e0108d062bd488f74",
-        "Wings" => "0x667088b212ce3d06a1b553a7221E1fD19000d9aF"
+        "Wings" => "0x667088b212ce3d06a1b553a7221E1fD19000d9aF",
+        "Binance Coin" => "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
     }
 
     def perform

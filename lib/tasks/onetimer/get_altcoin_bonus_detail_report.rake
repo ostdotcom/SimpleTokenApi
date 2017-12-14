@@ -110,12 +110,12 @@ namespace :onetimer do
       summary_data[alt_token_name] ||= {
           altcoin_name: alt_token_name,
           ether_wei_value: 0,
-          altcoin_bonus_wei_value: 0,
+          ether_bonus_wei_value: 0,
           alt_token_contract_address: alt_token_contract_address
       }
 
       summary_data[alt_token_name][:ether_wei_value] += purchase_in_ether_wei
-      summary_data[alt_token_name][:altcoin_bonus_wei_value] += altcoin_bonus_in_ether_wei
+      summary_data[alt_token_name][:ether_bonus_wei_value] += altcoin_bonus_in_ether_wei
     end
 
     flush_and_insert_alt_bonus_details(csv_data)
@@ -139,7 +139,7 @@ namespace :onetimer do
       purchase_in_ether_wei = transaction_data[:ether_wei_value]
       purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
 
-      altcoin_bonus_in_ether_wei = transaction_data[:altcoin_bonus_wei_value]
+      altcoin_bonus_in_ether_wei = transaction_data[:ether_bonus_wei_value]
       altcoin_bonus_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(altcoin_bonus_in_ether_wei)
 
       summary_csv_data << [altcoin_name, transaction_data[:alt_token_contract_address], purchase_in_ether_wei, purchase_in_rounded_ether, altcoin_bonus_in_ether_wei, altcoin_bonus_in_rounded_ether]

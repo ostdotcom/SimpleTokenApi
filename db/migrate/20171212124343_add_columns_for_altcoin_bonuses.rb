@@ -5,7 +5,7 @@ class AddColumnsForAltcoinBonuses < DbMigrationConnection
       add_column :alt_coin_bonus_logs, :alt_token_amount_in_wei, :decimal, precision: 30, null: true, after: :altcoin_bonus_wei_value
       add_column :alt_coin_bonus_logs, :transfer_transaction_hash, :string, null: true, after: :alt_token_amount_in_wei
       add_column :alt_coin_bonus_logs, :alt_token_contract_address, :string, null: true, after: :alt_token_name
-
+      rename_column :alt_coin_bonus_logs, :altcoin_bonus_wei_value, :ether_bonus_wei_value
     end
 
     run_migration_for_db(EstablishSimpleTokenLogDbConnection.config_key) do
@@ -55,7 +55,7 @@ class AddColumnsForAltcoinBonuses < DbMigrationConnection
         "TRON" => "0xf230b790e05390fc8295f4d3f60332c93bed42e2",
         "Walton" => "0xb7cb1c96db6b22b0d3d9536e0108d062bd488f74",
         "Wings" => "0x667088b212ce3d06a1b553a7221E1fD19000d9aF",
-        "Binance Coin" => ""
+        "Binance Coin" => "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
     }
 
     alternate_tokens = AlternateToken.all.index_by(&:token_name)
@@ -71,6 +71,7 @@ class AddColumnsForAltcoinBonuses < DbMigrationConnection
       remove_column :alt_coin_bonus_logs, :alt_token_amount_in_wei
       remove_column :alt_coin_bonus_logs, :transfer_transaction_hash
       remove_column :alt_coin_bonus_logs, :alt_token_contract_address
+      rename_column :alt_coin_bonus_logs, :ether_bonus_wei_value, :altcoin_bonus_wei_value
 
     end
 

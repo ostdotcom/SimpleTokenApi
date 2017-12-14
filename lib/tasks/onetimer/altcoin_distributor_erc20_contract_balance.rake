@@ -65,12 +65,11 @@ namespace :onetimer do
 
       puts "\n\n failed to get balance for address-#{@failed_other_balance_calls}\n\n\n"
 
-      puts "\n\n balance in wei for altcoins-\t #{@alt_token_balance.inspect}\n\n"
-
+      # puts "\n\n balance in wei for altcoins-\t #{@alt_token_balance.inspect}\n\n"
 
       puts "\n\n balance in st for altcoins:- "
       @alt_token_balance.each do |name, wei_val|
-        puts "#{name}- #{GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(wei_val)}"
+        puts "#{name} - #{GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(wei_val)} - #{wei_val}"
       end
 
     end

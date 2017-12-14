@@ -8,7 +8,7 @@ namespace :onetimer do
 
     def send_alt_coin_bonus_distribution_email(email, template_vars)
       send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
-          email, GlobalConstant::PepoCampaigns.alt_coin_bonus_distribution, template_vars)
+          email, GlobalConstant::PepoCampaigns.altdrop_sent, template_vars)
 
       if send_mail_response['error'].present?
         puts "error in send email without hook response- #{send_mail_response.inspect}"
@@ -19,7 +19,7 @@ namespace :onetimer do
     def send_purchase_confirmation_email_via_hooks(email, template_vars)
       Email::HookCreator::SendTransactionalMail.new(
           email: email,
-          template_name: GlobalConstant::PepoCampaigns.alt_coin_bonus_distribution,
+          template_name: GlobalConstant::PepoCampaigns.altdrop_sent,
           template_vars: template_vars
       ).perform
     end
@@ -53,10 +53,8 @@ namespace :onetimer do
       user_id = Md5UserExtendedDetail.get_user_id(user_eth_address)
       user_email = User.where(id: user_id).first.email
 
-      bonus_amount = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(alt_coin_bonus_log.alt_token_amount_in_wei)
       template_vars = {
-          alt_coin_token_name: alt_coin_bonus_log.alt_token_name,
-          rounded_amount: bonus_amount.to_f.round(3)
+          alt_coin_token_name: alt_coin_bonus_log.alt_token_name
       }
 
       alt_coin_bonus_log.transfer_transaction_hash = transfer_transaction_hash

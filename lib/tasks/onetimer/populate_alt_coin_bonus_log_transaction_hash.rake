@@ -31,19 +31,19 @@ namespace :onetimer do
 
     file.close
 
-    alt_coin_bonus_logs = AltCoinBonusLog.all.index_by(&:ethereum_address)
+    alt_coin_bonus_logs = AltCoinBonusLog.all.index_by(&:ethereum_address).transform_keys!(&:downcase)
 
     rows.each_with_index do |row, index|
       arr = row.split(",")
-      user_eth_address = arr[0]
-      alt_token_contract_address = arr[1]
+      user_eth_address = arr[0].to_s.downcase
+      alt_token_contract_address = arr[1].to_s.downcase
       transfer_transaction_hash = arr[2].to_s
 
       puts "#{index} - #{user_eth_address} - #{alt_token_contract_address} - #{transfer_transaction_hash}"
 
       alt_coin_bonus_log = alt_coin_bonus_logs[user_eth_address]
 
-      fail "alt_token_contract_address did not match" if alt_coin_bonus_log.alt_token_contract_address.downcase != alt_token_contract_address.downcase
+      fail "alt_token_contract_address did not match" if alt_coin_bonus_log.alt_token_contract_address.downcase != alt_token_contract_address
 
       next if alt_coin_bonus_log.transfer_transaction_hash.present?
 

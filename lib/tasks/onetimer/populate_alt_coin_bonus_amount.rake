@@ -10,14 +10,14 @@ namespace :onetimer do
 
     file.close
 
-    alt_coin_bonus_logs = AltCoinBonusLog.all.index_by(&:ethereum_address)
+    alt_coin_bonus_logs = AltCoinBonusLog.all.index_by(&:ethereum_address).transform_keys!(&:downcase)
 
     total_tokens  = {}
 
     rows.each_with_index do |row, index|
       arr = row.split(",")
-      user_eth_address = arr[0]
-      alt_token_contract_address = arr[1].to_s
+      user_eth_address = arr[0].to_s.downcase
+      alt_token_contract_address = arr[1].to_s.downcase
       ether_bonus_wei_value = arr[2].to_i
       alt_token_amount_in_wei = arr[3].to_i
 
@@ -25,7 +25,7 @@ namespace :onetimer do
 
       alt_coin_bonus_log = alt_coin_bonus_logs[user_eth_address]
 
-      fail "alt_coin token name or address did not match" if alt_coin_bonus_log.alt_token_contract_address.downcase != alt_token_contract_address.downcase
+      fail "alt_coin token name or address did not match" if alt_coin_bonus_log.alt_token_contract_address.downcase != alt_token_contract_address
 
       fail "ether_bonus_wei_value did not match" if alt_coin_bonus_log.ether_bonus_wei_value != ether_bonus_wei_value
 

@@ -6,7 +6,11 @@ namespace :onetimer do
 
     file = File.open("#{Rails.root}/lib/tasks/onetimer/altCoinBonusResults.csv", 'r')
 
-    rows = file.first.split("\r")
+    rows = []
+
+    file.each_line do |line|
+      rows << line.strip.split(',')
+    end
 
     file.close
 
@@ -15,11 +19,10 @@ namespace :onetimer do
     total_tokens  = {}
 
     rows.each_with_index do |row, index|
-      arr = row.split(",")
-      user_eth_address = arr[0].to_s.downcase
-      alt_token_contract_address = arr[1].to_s.downcase
-      ether_bonus_wei_value = arr[2].to_i
-      alt_token_amount_in_wei = arr[3].to_i
+      user_eth_address = row[0].to_s.downcase
+      alt_token_contract_address = row[1].to_s.downcase
+      ether_bonus_wei_value = row[2].to_i
+      alt_token_amount_in_wei = row[3].to_i
 
       puts "#{index} - #{user_eth_address} - #{alt_token_contract_address} - #{ether_bonus_wei_value} - #{alt_token_amount_in_wei}"
 
@@ -44,7 +47,7 @@ namespace :onetimer do
     puts ['token_name', 'alt_token_amount_in_wei', 'alt_token_bonus_amount_in_st'].join(',')
 
     total_tokens.each do |token_name, alt_token_amount_in_wei|
-      puts [token_name, alt_token_amount_in_wei, GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(amount_in_wei)].join(',')
+      puts [token_name, alt_token_amount_in_wei, GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(alt_token_amount_in_wei)].join(',')
     end
 
   end

@@ -27,17 +27,20 @@ namespace :onetimer do
 
     file = File.open(filepath, 'r')
 
-    rows = file.first.split("\r")
+    rows = []
+
+    file.each_line do |line|
+      rows << line.strip.split(',')
+    end
 
     file.close
 
     alt_coin_bonus_logs = AltCoinBonusLog.all.index_by(&:ethereum_address).transform_keys!(&:downcase)
 
     rows.each_with_index do |row, index|
-      arr = row.split(",")
-      user_eth_address = arr[0].to_s.downcase
-      alt_token_contract_address = arr[1].to_s.downcase
-      transfer_transaction_hash = arr[2].to_s
+      user_eth_address = row[0].to_s.downcase
+      alt_token_contract_address = row[1].to_s.downcase
+      transfer_transaction_hash = row[2].to_s
 
       puts "#{index} - #{user_eth_address} - #{alt_token_contract_address} - #{transfer_transaction_hash}"
 

@@ -59,22 +59,20 @@ namespace :onetimer do
 
       fetch_contract_balance
 
-      print_as_csv
-
       puts "\n\n\n\n"
 
       puts "\n\n failed to get balance for address-#{@failed_other_balance_calls}\n\n\n"
 
       # puts "\n\n balance in wei for altcoins-\t #{@alt_token_balance.inspect}\n\n"
 
-      puts "\n\n balance in st for altcoins:- "
+      puts "\n\n balance in st for (altcoins > 0):: \n\n"
       @alt_token_balance.each do |name, wei_val|
-        puts "#{name} - #{GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(wei_val)} - #{wei_val}"
+        puts "#{name} - #{GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(wei_val)} - #{wei_val}" if wei_val > 0
       end
 
     end
 
-    def fetch_contract_balance(contract_address)
+    def fetch_contract_balance
       @other_ico_hash.each do |ico_name, contract_address|
         puts "fetching balance for: #{ico_name}\n"
         r = OpsApi::Request::ThirdPartyErc20GetBalance.new.perform({ethereum_address: @altcoin_distributor_address, contract_address: contract_address})

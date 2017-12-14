@@ -52,8 +52,11 @@ namespace :onetimer do
 
       user_id = Md5UserExtendedDetail.get_user_id(user_eth_address)
       user_email = User.where(id: user_id).first.email
+
+      bonus_amount = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(alt_coin_bonus_log.alt_token_amount_in_wei)
       template_vars = {
-          alt_coin_token_name: alt_coin_bonus_log.alt_token_name
+          alt_coin_token_name: alt_coin_bonus_log.alt_token_name,
+          rounded_amount: bonus_amount.to_f.round(3)
       }
 
       alt_coin_bonus_log.transfer_transaction_hash = transfer_transaction_hash
@@ -62,7 +65,6 @@ namespace :onetimer do
       send_alt_coin_bonus_distribution_email(user_email, template_vars)
     end
 
-    # File.delete(filepath)
   end
 
 end

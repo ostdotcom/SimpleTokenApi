@@ -47,7 +47,7 @@ namespace :onetimer do
       array_data.each_slice(100) do |batched_data|
         sql_data = []
         batched_data.each do |rows|
-          sql_data << "('#{rows[0]}', '#{rows[1]}',#{rows[2]},#{rows[4]}, '#{current_time}', '#{current_time}')"
+          sql_data << "('#{rows[0]}', '#{rows[1]}', '#{rows[2]}', #{rows[3]}, #{rows[5]}, '#{current_time}', '#{current_time}')"
         end
         AltCoinBonusLog.bulk_insert(sql_data)
       end
@@ -85,7 +85,9 @@ namespace :onetimer do
 
       next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0
 
-      alt_token_name = alternate_tokens[user_kyc_detail.alternate_token_id_for_bonus.to_i].token_name
+      alt_token_id = user_kyc_detail.alternate_token_id_for_bonus.to_i
+      alt_token_name = alternate_tokens[alt_token_id].token_name
+      alt_token_contract_address = alternate_tokens[alt_token_id].contract_address
 
       purchase_in_ether_wei = transaction_details[ethereum_address]
       purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
@@ -96,6 +98,7 @@ namespace :onetimer do
       data = [
           ethereum_address,
           alt_token_name,
+          alt_token_contract_address,
           purchase_in_ether_wei,
           purchase_in_rounded_ether,
           altcoin_bonus_in_ether_wei,
@@ -107,18 +110,19 @@ namespace :onetimer do
       summary_data[alt_token_name] ||= {
           altcoin_name: alt_token_name,
           ether_wei_value: 0,
-          altcoin_bonus_wei_value: 0,
+          ether_bonus_wei_value: 0,
+          alt_token_contract_address: alt_token_contract_address
       }
 
       summary_data[alt_token_name][:ether_wei_value] += purchase_in_ether_wei
-      summary_data[alt_token_name][:altcoin_bonus_wei_value] += altcoin_bonus_in_ether_wei
+      summary_data[alt_token_name][:ether_bonus_wei_value] += altcoin_bonus_in_ether_wei
     end
 
     flush_and_insert_alt_bonus_details(csv_data)
 
     puts "----------------------\n\n\n\n\n"
 
-    puts ['ethereum_address', 'altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit',
+    puts ['ethereum_address', 'altcoin_name', 'altcoin_address', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit',
           'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus'].join(',')
 
     csv_data.each do |element|
@@ -128,17 +132,17 @@ namespace :onetimer do
     puts "-----------------------\n\n\n\n\n"
 
     summary_csv_data = []
-    summary_csv_data << ['altcoin_name', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit', 'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit']
+    summary_csv_data << ['altcoin_name', 'altcoin_address', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit', 'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit']
 
     summary_data.each do |altcoin_name, transaction_data|
 
       purchase_in_ether_wei = transaction_data[:ether_wei_value]
       purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
 
-      altcoin_bonus_in_ether_wei = transaction_data[:altcoin_bonus_wei_value]
+      altcoin_bonus_in_ether_wei = transaction_data[:ether_bonus_wei_value]
       altcoin_bonus_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(altcoin_bonus_in_ether_wei)
 
-      summary_csv_data << [altcoin_name, purchase_in_ether_wei, purchase_in_rounded_ether, altcoin_bonus_in_ether_wei, altcoin_bonus_in_rounded_ether]
+      summary_csv_data << [altcoin_name, transaction_data[:alt_token_contract_address], purchase_in_ether_wei, purchase_in_rounded_ether, altcoin_bonus_in_ether_wei, altcoin_bonus_in_rounded_ether]
     end
 
     puts "----------summary------------\n\n\n\n\n"

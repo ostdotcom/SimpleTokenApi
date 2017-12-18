@@ -37,20 +37,41 @@ namespace :onetimer do
       alt_coin_bonus_log.alt_token_amount_in_wei = alt_token_amount_in_wei
       alt_coin_bonus_log.save!
 
-      total_tokens[alt_coin_bonus_log.alt_token_name] ||= 0
-      total_tokens[alt_coin_bonus_log.alt_token_name] += alt_token_amount_in_wei
+      total_tokens[alt_coin_bonus_log.alt_token_name] ||= {alt_token_amount_in_wei: 0, decimal: alt_coin_bonus_log.number_of_decimal}
+      total_tokens[alt_coin_bonus_log.alt_token_name][:alt_token_amount_in_wei] += alt_token_amount_in_wei
     end
+
+
+    file = File.open("#{Rails.root}/altcoin_purchase_data.csv", 'r')
+
+    purchase_data = {}
+
+    file.each_line do |line|
+      data = line.strip.split(',')
+      name = data[0]
+      purchase_data[name] = data[2]
+    end
+
+    file.close
 
 
     puts "\n\nsummary of total_tokens in wei to be distributed\n\n"
 
-    puts ['token_name', 'alt_token_amount_in_wei', 'alt_token_bonus_amount_in_st'].join(',')
+    puts ['token_name', 'alt_token_amount_in_wei', 'alt_token_amount_in_basic_unit', 'tokens_left_in_wei', 'decimal'].join(',')
 
-    total_tokens.each do |token_name, alt_token_amount_in_wei|
-      puts [token_name, alt_token_amount_in_wei, GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(alt_token_amount_in_wei)].join(',')
+    total_tokens.each do |token_name, data|
+      alt_token_amount_in_wei = data[:alt_token_amount_in_wei]
+      diff =  purchase_data[token_name].to_i - alt_token_amount_in_wei
+
+      if data[:decimal] > 0
+        amount_to_transfer_in_basic_unit =  GlobalConstant::ConversionRate.divide_by_power_of_10(alt_token_amount_in_wei, data[:decimal] ).to_f.round(2)
+      else
+        amount_to_transfer_in_basic_unit = alt_coin_bonus_log.alt_token_amount_in_wei
+      end
+
+      puts [token_name, alt_token_amount_in_wei, amount_to_transfer_in_basic_unit, diff, data[:decimal]].join(',')
     end
 
   end
 
 end
-

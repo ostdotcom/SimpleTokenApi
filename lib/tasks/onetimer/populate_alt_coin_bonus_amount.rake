@@ -66,7 +66,7 @@ namespace :onetimer do
       if data[:decimal] > 0
         amount_to_transfer_in_basic_unit =  GlobalConstant::ConversionRate.divide_by_power_of_10(alt_token_amount_in_wei, data[:decimal] ).to_f.round(2)
       else
-        amount_to_transfer_in_basic_unit = alt_coin_bonus_log.alt_token_amount_in_wei
+        amount_to_transfer_in_basic_unit = alt_token_amount_in_wei
       end
 
       puts [token_name, alt_token_amount_in_wei, amount_to_transfer_in_basic_unit, diff, data[:decimal]].join(',')

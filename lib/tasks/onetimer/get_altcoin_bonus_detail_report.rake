@@ -47,7 +47,7 @@ namespace :onetimer do
       array_data.each_slice(100) do |batched_data|
         sql_data = []
         batched_data.each do |rows|
-          sql_data << "('#{rows[0]}', '#{rows[1]}', '#{rows[2]}', #{rows[3]}, #{rows[5]}, '#{current_time}', '#{current_time}')"
+          sql_data << "('#{rows[0]}', '#{rows[1]}', '#{rows[2]}', #{rows[3]}, #{rows[5]}, #{rows[8]}, '#{current_time}', '#{current_time}')"
         end
         AltCoinBonusLog.bulk_insert(sql_data)
       end
@@ -88,6 +88,7 @@ namespace :onetimer do
       alt_token_id = user_kyc_detail.alternate_token_id_for_bonus.to_i
       alt_token_name = alternate_tokens[alt_token_id].token_name
       alt_token_contract_address = alternate_tokens[alt_token_id].contract_address
+      alt_token_number_of_decimal = alternate_tokens[alt_token_id].number_of_decimal
 
       purchase_in_ether_wei = transaction_details[ethereum_address]
       purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
@@ -103,7 +104,8 @@ namespace :onetimer do
           purchase_in_rounded_ether,
           altcoin_bonus_in_ether_wei,
           altcoin_bonus_in_rounded_ether,
-          user_kyc_detail.pos_bonus_percentage.to_i
+          user_kyc_detail.pos_bonus_percentage.to_i,
+          alt_token_number_of_decimal
       ]
       csv_data << data
 
@@ -123,7 +125,7 @@ namespace :onetimer do
     puts "----------------------\n\n\n\n\n"
 
     puts ['ethereum_address', 'altcoin_name', 'altcoin_address', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit',
-          'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus'].join(',')
+          'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus', 'alt_token_number_of_decimal'].join(',')
 
     csv_data.each do |element|
       puts element.join(',')

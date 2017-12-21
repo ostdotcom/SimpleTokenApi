@@ -31,6 +31,10 @@ module GlobalConstant
           GlobalConstant::Base.s3['external_data_bucket']
         end
 
+        def report_bucket
+          GlobalConstant::Base.s3['report_bucket']
+        end
+
         private
 
         def user_access_credentials

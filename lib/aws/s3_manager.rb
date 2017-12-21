@@ -28,15 +28,20 @@ module Aws
     #
     # @param [String] bucket - bucket name
     # @param [String] s3_path - file path in bucket
+    # @param [Hash] option - options for signed url
     #
     # @return [Resul::Base]
     #
-    def get_signed_url_for(bucket, s3_path)
+    def get_signed_url_for(bucket, s3_path, options = {})
       signer = Aws::S3::Presigner.new({client: client})
-      signer.presigned_url(
-          :get_object,
+      params = {
           bucket: bucket,
           key: s3_path
+      }
+
+      signer.presigned_url(
+          :get_object,
+          params.merge(option)
       )
     end
 
@@ -69,6 +74,28 @@ module Aws
           bucket,
           post_policy
       )
+    end
+
+    # upload data in s3
+    #
+    # * Author: Aman
+    # * Date: 21/12/2017
+    # * Reviewed By:
+    #
+    # @param [String] s3_path - upload file path in bucket
+    # @param [File] body - upload file
+    # @param [String] bucket - upload bucket
+    # @param [Hash] options - extra options
+    #
+    def store(s3_path, body, bucket, options={})
+      params = {
+          key: s3_path,
+          body: body,
+          bucket: bucket
+      }
+
+      client.put_object(params.merge(options))
+
     end
 
     private

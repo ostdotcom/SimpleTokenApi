@@ -10,6 +10,7 @@ export STA_DEFAULT_DB_HOST="127.0.0.1"
 export STA_DEFAULT_AWS_REGION="us-east-1"
 export STA_KYC_S3_BUCKET_NAME='kyc.stagingsimpletoken.org'
 export STA_EXTERNAL_DATA_S3_BUCKET_NAME='external-data.simpletoken.org'
+export STA_REPORTS_S3_BUCKET_NAME='reports.stagingsimpletoken.org'
 export STA_LOGIN_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
 export STA_LOGIN_KMS_ID="eab8148d-fd9f-451d-9eb9-16c115645635"
 export STA_KYC_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
@@ -56,6 +57,7 @@ export STA_PUBLIC_OPS_API_BASE_URL='http://127.0.0.1:3001'
 export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvariables'
 
 export STA_TOKEN_SALE_CONTRACT_ADDRESS='0x155d194759911C4db23E5590f7a780bd21243535'
+export STA_SIMPLE_TOKEN_CONTRACT_ADDRESS='0xb4c3Cdd293842A6c6233690eEf2d3924099DFa3a'
 
 ##crons
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
@@ -89,3 +91,6 @@ rake onetimer:open_case_and_update_ethereum_address case_id=123 ethereum_address
 
 7. Phase Change from General to Early Access
 UserAction::ChangePhase.new(emails: ['aman+11@pepo.com', 'aman+00@pepo.com'], phase: 'early_access', admin_email: 'abhay@pepo.com').perform
+
+8. send report of processable users st balance on a daily basis
+rake RAILS_ENV=development cron_task:continuous:populate_st_balance_for_processable_users

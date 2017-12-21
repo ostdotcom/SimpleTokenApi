@@ -17,6 +17,10 @@ module GlobalConstant
         ['francesco@pepo.com']
       end
 
+      def st_balance_report_email_to
+        ['nishith@simpletoken.org']
+      end
+
       def default_directors_to
         ['jason@simpletoken.org', 'nishith@simpletoken.org']
       end

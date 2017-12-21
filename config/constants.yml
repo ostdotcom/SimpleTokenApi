@@ -39,6 +39,7 @@ constants:
   s3:
     kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>
     external_data_bucket: <%= ENV['STA_EXTERNAL_DATA_S3_BUCKET_NAME']%>
+    report_bucket: <%= ENV['STA_REPORTS_S3_BUCKET_NAME']%>
 
   local_path:
     geo_ip_file: <%= ENV['STA_GEOIP_FILE_WITH_PATH'] %>
@@ -47,6 +48,7 @@ constants:
     critical_details:
       active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
       token_sale_ethereum_address: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS']%>'
+      simple_token_contract_address: '<%= ENV['STA_SIMPLE_TOKEN_CONTRACT_ADDRESS']%>'
     user_register_dates:
       early_access_register_end_date:  <%= ENV['STA_EARLY_ACCESS_REGISTER_END_DATE'] %>
     sale_dates:

@@ -1,0 +1,4 @@
+class ProcessableDistribution < EstablishSimpleTokenLogDbConnection
+
+
+end

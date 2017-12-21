@@ -77,7 +77,7 @@ namespace :onetimer do
     end
 
     def upload_to_s3_and_email
-      local_filepath = "#{Rails.root}/lib/tasks/onetimer/daily_st_balance_report.csv"
+      local_filepath = "#{Rails.root}/tmp/daily_st_balance_report.csv"
       s3_path = "daily_st_data/report_#{@execution_time.to_s(:db).gsub(' ', '_')}.csv"
 
       File.open(local_filepath, 'w') do |f|

@@ -28,7 +28,7 @@ module Aws
     #
     # @param [String] bucket - bucket name
     # @param [String] s3_path - file path in bucket
-    # @param [Hash] option - options for signed url
+    # @param [Hash] options - options for signed url
     #
     # @return [Resul::Base]
     #
@@ -41,7 +41,7 @@ module Aws
 
       signer.presigned_url(
           :get_object,
-          params.merge(option)
+          params.merge(options)
       )
     end
 

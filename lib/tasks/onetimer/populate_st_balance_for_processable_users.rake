@@ -86,7 +86,9 @@ namespace :onetimer do
         end
       end
 
-      Aws::S3Manager.new('kyc', 'user').store(
+      s3_manager_obj = Aws::S3Manager.new('kyc', 'admin')
+
+      s3_manager_obj.store(
           s3_path,
           File.open(local_filepath),
           GlobalConstant::Aws::Common.report_bucket,
@@ -97,7 +99,7 @@ namespace :onetimer do
 
       File.delete(local_filepath)
 
-      s3_url = Aws::S3Manager.new('kyc', 'admin').get_signed_url_for(
+      s3_url = s3_manager_obj.get_signed_url_for(
           GlobalConstant::Aws::Common.report_bucket,
           s3_path,
           {

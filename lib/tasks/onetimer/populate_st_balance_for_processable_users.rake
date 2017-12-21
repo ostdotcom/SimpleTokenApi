@@ -12,9 +12,9 @@ namespace :onetimer do
     @execution_time = Time.now
 
 
-    def fetch_processables_distribution_data
-      @processable_addresses_data = ProcessableDistribution.select('ethereum_address, sum(st_value) as total_st_distributed').
-          group(:ethereum_address).all.index_by(&:ethereum_address).transform_keys!(&:downcase)
+    def fetch_processable_distribution_data
+      @processable_addresses_data = ProcessableDistribution.select('lower(ethereum_address) as ethereum_address, sum(st_value) as total_st_distributed').
+          group(:ethereum_address).all.index_by(&:ethereum_address)
     end
 
     def fetch_contract_balance(ethereum_address)
@@ -51,27 +51,30 @@ namespace :onetimer do
       last_day_max_count = SimpleTokenDailyBalanceReport.where('execution_timestamp < ? ', @execution_time.beginning_of_day.to_i).
           maximum(:iteration_count).to_i
 
-      previous_balances_rows = SimpleTokenDailyBalanceReport.where(iteration_count: last_day_max_count).all.
-          index_by(&:ethereum_address).transform_keys!(&:downcase)
+      previous_balances_rows = SimpleTokenDailyBalanceReport.where(iteration_count: last_day_max_count).
+          select('lower(ethereum_address) as ethereum_address, execution_timestamp, st_value').all.
+          index_by(&:ethereum_address)
 
-      @report_csv_data << ['ethereum_address', 'total_st_distributed', 'current_balance', 'previous_balance', 'total_st_movement', 'last_run_time_diff_in_hours']
+      last_execution_time = Time.at(previous_balances_rows.first.try(:execution_timestamp).to_i).
+          in_time_zone('UTC').strftime("%d/%m/%Y %H:%M")
+
+      @report_csv_data << ['Address', 'Total Distribution', 'Current Balance', "Previous Balance on - #{last_execution_time}", 'ST Movement']
 
       @token_balance_data.each do |rows|
-        previous_balance, st_difference, time_difference_in_hours = nil, nil, nil
+        previous_balance, st_difference = nil, nil
 
         ethereum_address = rows[0]
         st_in_basic_unit = rows[2]
 
-        total_st_distributed = @processable_addresses_data[ethereum_address].total_st_distributed.to_i
+        total_st_distributed = @processable_addresses_data[ethereum_address].total_st_distributed
         previous_balance_obj = previous_balances_rows[ethereum_address.downcase]
 
         if previous_balance_obj.present?
           previous_balance = previous_balance_obj.st_value
-          st_difference = st_in_basic_unit - previous_balance
-          time_difference_in_hours = ((@execution_time.to_i - previous_balance_obj.execution_timestamp)/3600.0).floor
+          st_difference =  st_in_basic_unit - previous_balance
         end
 
-        @report_csv_data << [ethereum_address, total_st_distributed, st_in_basic_unit, previous_balance, st_difference, time_difference_in_hours]
+        @report_csv_data << [ethereum_address, total_st_distributed, st_in_basic_unit, previous_balance, st_difference]
       end
 
     end
@@ -108,15 +111,15 @@ namespace :onetimer do
       )
 
       ApplicationMailer.notify(
-          to: Rails.env.production? ? GlobalConstant::Email.st_balance_report_email_to : 'aman@pepo.com',
+          to: Rails.env.production? ? GlobalConstant::Email.st_balance_report_email_to : GlobalConstant::Email.default_to,
           body: "url for report- #{s3_url}",
-          subject: 'Daily Processables ST Balance Report'
+          subject: 'Daily Processable ST Balance Report'
       ).deliver
 
     end
 
     def perform
-      fetch_processables_distribution_data
+      fetch_processable_distribution_data
       fetch_st_balances
       insert_in_table
       create_csv_report_data

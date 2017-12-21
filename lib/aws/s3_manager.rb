@@ -80,7 +80,7 @@ module Aws
     #
     # * Author: Aman
     # * Date: 21/12/2017
-    # * Reviewed By:
+    # * Reviewed By: Sunil
     #
     # @param [String] s3_path - upload file path in bucket
     # @param [File] body - upload file

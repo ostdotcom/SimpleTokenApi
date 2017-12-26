@@ -5,6 +5,10 @@ module GlobalConstant
 
     class << self
 
+      def st_token_sale_client_id
+        GlobalConstant::Base.st_token_sale['default_client_id']
+      end
+
       def st_token_sale_active_status
         GlobalConstant::Base.st_token_sale['critical_details']['active_status']
       end

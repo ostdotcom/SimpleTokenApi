@@ -26,6 +26,10 @@ token_sale:
     expiry_in_seconds: 86400
 
 client:
+  client_details:
+    key_template: 'client_detail_%{id}'
+    expiry_in_seconds: 86400
+
   client_cynopsis_details:
     key_template: 'client_cynopsis_detail_%{client_id}'
     expiry_in_seconds: 86400

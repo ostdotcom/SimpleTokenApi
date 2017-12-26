@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Hash] filters (optional)
         # @params [Hash] sortings (optional)
         # @params [Integer] page_number (optional)
@@ -46,6 +47,9 @@ module AdminManagement
           r = validate_and_sanitize
           return r unless r.success?
 
+          r = validate_for_whitelist_access
+          return r unless r.success?
+
           fetch_whitelisted_kyc_details
 
           fetch_user_details
@@ -60,6 +64,27 @@ module AdminManagement
 
         private
 
+        # check if client has whitelist setup
+        #
+        # * Author: Aman
+        # * Date: 26/12/2017
+        # * Reviewed By:
+        #
+        # @return [Result::Base]
+        #
+        def validate_for_whitelist_access
+
+          return error_with_data(
+              'am_k_d_w_1',
+              'Client has not completed whitelisting setup',
+              'Client has not completed whitelisting setup',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) unless @client.is_whitelist_setup_done?
+
+          success
+        end
+
         # Fetch all users' kyc detail
         #
         # * Author: Alpesh
@@ -69,7 +94,7 @@ module AdminManagement
         # Sets @user_kycs, @total_filtered_kycs
         #
         def fetch_whitelisted_kyc_details
-          ar_relation = UserKycDetail
+          ar_relation = UserKycDetail.where(client_id: @client_id)
 
           if @sortings[:sort_order] == 'inc'
             ar_relation = ar_relation.order('id ASC')

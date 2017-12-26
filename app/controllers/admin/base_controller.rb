@@ -25,6 +25,7 @@ class Admin::BaseController < ApiController
       ) if extended_cookie_value.present?
 
       params[:admin_id] = service_response.data[:admin_id]
+      params[:client_id] = service_response.data[:client_id]
 
       # Remove sensitive data
       service_response.data = {}

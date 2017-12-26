@@ -5,6 +5,32 @@ class Client < EstablishSimpleTokenClientDbConnection
            GlobalConstant::Client.inactive_status => 2
        }
 
+  after_commit :memcache_flush
+
+  # Check if email setup is done for client
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if email setup is done for client
+  #
+  def is_email_setup_done?
+    setup_properties_array.include?(GlobalConstant::Client.email_setup_done)
+  end
+
+  # Check if whitelisting setup is done for client
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if whitelisting setup is done for client
+  #
+  def is_whitelist_setup_done?
+    setup_properties_array.include?(GlobalConstant::Client.whitelist_setup_done)
+  end
+
   # Array of Properties symbols
   #
   # * Author: Aman
@@ -27,7 +53,7 @@ class Client < EstablishSimpleTokenClientDbConnection
     @setup_properties_config ||= {
         GlobalConstant::Client.cynopsis_setup_done => 1,
         GlobalConstant::Client.email_setup_done => 2,
-        GlobalConstant::Client.whiteliste_setup_done => 4
+        GlobalConstant::Client.whitelist_setup_done => 4
     }
   end
 
@@ -45,5 +71,47 @@ class Client < EstablishSimpleTokenClientDbConnection
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
+
+  # Get Key Object
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('client.client_details')
+  end
+
+  # Get/Set Memcache data for User
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By
+  #
+  # @param [Integer] client_id - client id
+  #
+  # @return [AR] Client object
+  #
+  def self.get_from_memcache(client_id)
+    memcache_key_object = Client.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {id: client_id}, memcache_key_object.expiry) do
+      Client.where(id: client_id).first
+    end
+  end
+
+  private
+
+  # Flush Memcache
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By
+  #
+  def memcache_flush
+    client_memcache_key = Client.get_memcache_key_object.key_template % {id: self.id}
+    Memcache.delete(client_memcache_key)
+  end
 
 end

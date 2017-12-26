@@ -55,6 +55,7 @@ constants:
       early_access_start_date: <%= ENV['STA_EARLY_ACCESS_START_DATE'] %>
       general_access_start_date: <%= ENV['STA_GENERAL_ACCESS_START_DATE'] %>
       general_access_end_date: <%= ENV['STA_GENERAL_ACCESS_END_DATE'] %>
+    default_client_id: <%= ENV['SIMPLE_TOKEN_SALE_CLIENT_ID'] %>
 
   st_foundation_contracts:
     token_sale: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS'] %>'

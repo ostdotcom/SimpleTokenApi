@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] page_size (optional)
         # @params [Integer] offset (optional)
         #
@@ -22,6 +23,7 @@ module AdminManagement
           super
 
           @admin_id = @params[:admin_id]
+          @client_id = @params[:client_id]
           @page_size = @params[:page_size]
           @offset = @params[:offset]
           @tab_type = @params[:tab_type]
@@ -41,6 +43,9 @@ module AdminManagement
         def perform
 
           r = validate_and_sanitize
+          return r unless r.success?
+
+          r = validate_for_sale_dashboard_access
           return r unless r.success?
 
           @tab_type=='date' ? fetch_purchase_data(false) : fetch_purchase_data(true)
@@ -66,6 +71,54 @@ module AdminManagement
 
           @page_size = 50 if @page_size.to_i < 1 || @page_size.to_i > 50
           @offset = 0 if @offset.to_i <= 0
+
+          r = fetch_and_validate_client
+          return r unless r.success?
+
+          success
+        end
+
+        # fetch client and validate
+        #
+        # * Author: Aman
+        # * Date: 26/12/2017
+        # * Reviewed By:
+        #
+        # Sets @client
+        #
+        # @return [Result::Base]
+        #
+        def fetch_and_validate_client
+          @client = Client.get_from_memcache(@client_id)
+
+          return error_with_data(
+              'am_k_d_sd_1',
+              'Client is not active',
+              'Client is not active',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @client.status != GlobalConstant::Client.active_status
+
+          success
+        end
+
+        # check if client has access for sale dashboard
+        #
+        # * Author: Aman
+        # * Date: 26/12/2017
+        # * Reviewed By:
+        #
+        # @return [Result::Base]
+        #
+        def validate_for_sale_dashboard_access
+
+          return error_with_data(
+              'am_k_d_sd_2',
+              'Client does not access for sale dashboard',
+              'Client does not access for sale dashboard',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) unless @client.id != GlobalConstant::TokenSale.st_token_sale_client_id
 
           success
         end

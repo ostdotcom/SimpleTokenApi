@@ -35,6 +35,7 @@
 'AdminManagement::Kyc::Dashboard::Status':
   :mandatory:
     - :admin_id
+    - :client_id
   :optional:
     - :filters
     - :sortings
@@ -44,6 +45,7 @@
 'AdminManagement::Kyc::Dashboard::Whitelist':
   :mandatory:
     - :admin_id
+    - :client_id
   :optional:
     - :filters
     - :sortings
@@ -53,6 +55,7 @@
 'AdminManagement::Kyc::Dashboard::SaleAll':
   :mandatory:
     - :admin_id
+    - :client_id
   :optional:
     - :offset
     - :page_size
@@ -60,6 +63,7 @@
 'AdminManagement::Kyc::Dashboard::SaleDaily':
   :mandatory:
     - :admin_id
+    - :client_id
   :optional:
     - :offset
     - :page_size
@@ -68,6 +72,7 @@
 'AdminManagement::Kyc::Dashboard::ContractEvents':
   :mandatory:
     - :admin_id
+    - :client_id
   :optional:
     - :offset
     - :page_size

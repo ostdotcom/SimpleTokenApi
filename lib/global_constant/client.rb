@@ -27,8 +27,8 @@ module GlobalConstant
         "email_setup_done"
       end
 
-      def whiteliste_setup_done
-        "whiteliste_setup_done"
+      def whitelist_setup_done
+        "whitelist_setup_done"
       end
 
       ### setup Property done ###

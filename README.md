@@ -59,6 +59,8 @@ export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvaria
 export STA_TOKEN_SALE_CONTRACT_ADDRESS='0x155d194759911C4db23E5590f7a780bd21243535'
 export STA_SIMPLE_TOKEN_CONTRACT_ADDRESS='0xb4c3Cdd293842A6c6233690eEf2d3924099DFa3a'
 
+export SIMPLE_TOKEN_SALE_CLIENT_ID=1
+
 ##crons
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1

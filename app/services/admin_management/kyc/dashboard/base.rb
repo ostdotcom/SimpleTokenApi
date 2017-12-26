@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Hash] filters (optional)
         # @params [Hash] sortings (optional)
         # @params [Integer] page_number (optional)
@@ -23,6 +24,7 @@ module AdminManagement
           super
 
           @admin_id = @params[:admin_id]
+          @client_id = @params[:client_id]
           @filters = @params[:filters]
           @sortings = @params[:sortings]
           @page_size = @params[:page_size]
@@ -46,9 +48,35 @@ module AdminManagement
           @page_size = 50 if @page_size.to_i < 1 || @page_size.to_i > 50
           @offset = 0 if @offset.to_i <= 0
 
+          r = fetch_and_validate_client
+          return r unless r.success?
+
           success
         end
 
+        # fetch client and validate
+        #
+        # * Author: Aman
+        # * Date: 26/12/2017
+        # * Reviewed By:
+        #
+        # Sets @client
+        #
+        # @return [Result::Base]
+        #
+        def fetch_and_validate_client
+          @client = Client.get_from_memcache(@client_id)
+
+          return error_with_data(
+              'am_k_d_b_1',
+              'Client is not active',
+              'Client is not active',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @client.status != GlobalConstant::Client.active_status
+
+          success
+        end
 
         # Fetch user other details
         #

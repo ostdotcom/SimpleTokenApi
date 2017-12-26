@@ -36,6 +36,7 @@ module AdminManagement
 
         set_extended_cookie_value
         r.data[:extended_cookie_value] = @extended_cookie_value
+        r.data[:client_id] =  @admin[:default_client_id]
 
         return r
 

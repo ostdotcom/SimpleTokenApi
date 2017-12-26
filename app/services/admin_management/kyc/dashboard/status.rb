@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Hash] filters (optional)
         # @params [Hash] sortings (optional)
         # @params [Integer] page_number (optional)
@@ -69,7 +70,7 @@ module AdminManagement
         # Sets @user_kycs, @total_filtered_kycs
         #
         def fetch_user_kyc_details
-          ar_relation = UserKycDetail
+          ar_relation = UserKycDetail.where(client_id: @client_id)
 
           if @sortings[:sort_order] == 'inc'
             ar_relation = ar_relation.order('id ASC')

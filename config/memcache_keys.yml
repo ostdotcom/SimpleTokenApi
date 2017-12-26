@@ -25,3 +25,15 @@ token_sale:
     key_template: 'token_sale_sale_ended'
     expiry_in_seconds: 86400
 
+client:
+  client_cynopsis_details:
+    key_template: 'client_cynopsis_detail_%{client_id}'
+    expiry_in_seconds: 86400
+
+  client_pepo_campaign_details:
+    key_template: 'client_pepo_campaign_detail_%{client_id}'
+    expiry_in_seconds: 86400
+
+  client_admins:
+    key_template: 'client_admins_%{admin_id}'
+    expiry_in_seconds: 86400

@@ -11,6 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
+      # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] case_id (mandatory)
       # @params [Hash] filters (optional) - Dashboard filter to go back on same dash page
       # @params [Hash] sortings (optional) - Dashboard sorting to go back on same dash page
@@ -21,6 +22,7 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
+        @client_id = @params[:client_id]
         @user_kyc_detail_id = @params[:case_id]
         @filters = @params[:filters]
         @sortings = @params[:sortings]
@@ -45,6 +47,9 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
+        r = fetch_and_validate_client
+        return r unless r.success?
+
         r = fetch_user_kyc_detail
         return r unless r.success?
 
@@ -63,6 +68,30 @@ module AdminManagement
 
       private
 
+      # fetch client and validate
+      #
+      # * Author: Aman
+      # * Date: 26/12/2017
+      # * Reviewed By:
+      #
+      # Sets @client
+      #
+      # @return [Result::Base]
+      #
+      def fetch_and_validate_client
+        @client = Client.get_from_memcache(@client_id)
+
+        return error_with_data(
+            'am_k_cd_1',
+            'Client is not active',
+            'Client is not active',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client.status != GlobalConstant::Client.active_status
+
+        success
+      end
+
       # Fetch user kyc detail
       #
       # * Author: Kedar
@@ -72,11 +101,11 @@ module AdminManagement
       # Sets @user, @user_kyc_detail
       #
       def fetch_user_kyc_detail
-        @user_kyc_detail = UserKycDetail.where(id: @user_kyc_detail_id).first
-        return err_response('am_k_cd_1') if @user_kyc_detail.blank?
+        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @user_kyc_detail_id).first
+        return err_response('am_k_cd_2') if @user_kyc_detail.blank?
 
-        @user = User.where(id: @user_kyc_detail.user_id).first
-        return err_response('am_k_cd_2') if @user.blank?
+        @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
+        return err_response('am_k_cd_3') if @user.blank?
 
         success
       end
@@ -90,7 +119,7 @@ module AdminManagement
       # Sets @next_kyc_id, @previous_kyc_id
       #
       def fetch_surround_kyc_ids
-        ar_relation = UserKycDetail
+        ar_relation = UserKycDetail.where(client_id: @client_id)
 
         if @filters.present?
           query_hash = {}
@@ -143,7 +172,7 @@ module AdminManagement
       #
       def fetch_user_extended_detail
         @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
-        return err_response('am_k_cd_3') if @user_extended_detail.blank?
+        return err_response('am_k_cd_4') if @user_extended_detail.blank?
 
         @kyc_salt_e = @user_extended_detail.kyc_salt
 
@@ -168,7 +197,7 @@ module AdminManagement
       def decrypt_kyc_salt
 
         r = Aws::Kms.new('kyc', 'admin').decrypt(@kyc_salt_e)
-        return err_response('am_k_cd_4') unless r.success?
+        return err_response('am_k_cd_5') unless r.success?
 
         @kyc_salt_d = r.data[:plaintext]
 

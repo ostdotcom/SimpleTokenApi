@@ -11,6 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
+      # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] case_id (mandatory) - user kyc details id
       #
       # @return [AdminManagement::Kyc::FetchDuplicates]
@@ -19,6 +20,7 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
+        @client_id = @params[:client_id]
         @case_id = @params[:case_id]
 
         @duplicate_kycs = {}
@@ -57,7 +59,7 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        @user_kyc_detail = UserKycDetail.where(id: @case_id).first
+        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
         return error_with_data(
             'am_k_fd_1',
             'KYC detail id not found',
@@ -95,7 +97,7 @@ module AdminManagement
           end
         end
 
-        UserKycDetail.where(user_id: @duplicate_kycs.keys).each do |u_k_d|
+        UserKycDetail.where(client_id: @client_id, user_id: @duplicate_kycs.keys).each do |u_k_d|
           @duplicate_kycs[u_k_d.user_id][:case_id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
           @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
@@ -119,7 +121,7 @@ module AdminManagement
         duplicate_email_user_ids += UserEmailDuplicationLog.where(user1_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user2_id)
         duplicate_email_user_ids += UserEmailDuplicationLog.where(user2_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
 
-        UserKycDetail.where(user_id: duplicate_email_user_ids).all.each do |u_k_d|
+        UserKycDetail.where(client_id: @client_id, user_id: duplicate_email_user_ids).all.each do |u_k_d|
           @duplicate_kycs[u_k_d.user_id] ||= {
               GlobalConstant::UserKycDuplicationLog.active_status.to_sym => [],
               GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym => []

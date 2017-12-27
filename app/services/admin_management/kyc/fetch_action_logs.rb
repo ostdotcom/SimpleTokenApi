@@ -11,6 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
+      # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] case_id (mandatory) - user kyc details id
       # @params [Integer] limit (optional) - page size
       # @params [Integer] offset (optional) - offset
@@ -21,6 +22,7 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
+        @client_id = @params[:client_id]
         @case_id = @params[:case_id]
         @limit = @params[:limit]
         @offset = @params[:offset]
@@ -65,7 +67,7 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        @user_kyc_detail = UserKycDetail.where(id: @case_id).first
+        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
         return error_with_data(
             'am_k_fal_1',
             'KYC detail id not found',

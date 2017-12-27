@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] case_id (mandatory)
         #
         # @return [AdminManagement::Kyc::AdminAction::PassportIssue]
@@ -32,6 +33,9 @@ module AdminManagement
         def perform
 
           r = validate_and_sanitize
+          return r unless r.success?
+
+          r = validate_for_email_setup
           return r unless r.success?
 
           log_admin_action

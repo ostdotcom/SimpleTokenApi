@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By:
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] case_id (mandatory)
         #
         # @return [AdminManagement::Kyc::AdminAction::Qualify]
@@ -87,7 +88,7 @@ module AdminManagement
 
           user_extended_detail_ids.delete(@user_kyc_detail.user_extended_detail_id)
           return false if user_extended_detail_ids.blank?
-          UserKycDetail.where(user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
+          UserKycDetail.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
         end
 
         # Change case's admin status

@@ -12,9 +12,9 @@ class NewUserRegisterJob < ApplicationJob
 
     init_params(params)
 
-    create_user_utm_log
+    create_user_utm_log if @client.is_st_token_sale_client?
 
-    create_email_service_api_call_hook
+    create_email_service_api_call_hook if @client.is_st_token_sale_client?
 
     fetch_duplicate_email_data
 
@@ -48,6 +48,8 @@ class NewUserRegisterJob < ApplicationJob
     @utm_params = params[:utm_params] || {}
 
     @user = User.where(id: @user_id).first
+    @client_id = @user.client_id
+    @client = Client.get_from_memcache(@client_id)
     @duplicate_user_ids = []
   end
 
@@ -102,7 +104,7 @@ class NewUserRegisterJob < ApplicationJob
 
     email_regex = "#{email_name}%@#{email_domain}"
 
-    @duplicate_user_ids = User.where("email like ?", email_regex).pluck(:id)
+    @duplicate_user_ids = User.where(client_id: @client_id).where("email like ?", email_regex).pluck(:id)
     @duplicate_user_ids.delete(@user_id)
   end
 

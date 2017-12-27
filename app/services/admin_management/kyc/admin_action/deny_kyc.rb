@@ -13,6 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
+        # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] case_id (mandatory)
         #
         # @return [AdminManagement::Kyc::AdminAction::DenyKyc]
@@ -79,6 +80,7 @@ module AdminManagement
         #
         def remove_reserved_branded_token
           return unless @user_kyc_detail.kyc_denied?
+          return unless @client.is_st_token_sale_client?
 
           @user.bt_name = nil
           @user.save! if @user.changed?
@@ -91,6 +93,8 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         def send_email
+          return if @client.is_email_setup_done?
+
           if @user_kyc_detail.kyc_denied?
             Email::HookCreator::SendTransactionalMail.new(
                 email: @user.email,

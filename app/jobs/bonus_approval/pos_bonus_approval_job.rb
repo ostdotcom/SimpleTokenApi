@@ -99,9 +99,9 @@ module BonusApproval
         end
 
         # Associate bonus with user in kyc details, if required
-        user_ids = User.where(email: updated_emails).pluck(:id)
+        user_ids = User.where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id, email: updated_emails).pluck(:id)
         if user_ids.present?
-          @kyc_updated_count += UserKycDetail.where(user_id: user_ids, token_sale_participation_phase: GlobalConstant::TokenSale.early_access_token_sale_phase).
+          @kyc_updated_count += UserKycDetail.where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id, user_id: user_ids, token_sale_participation_phase: GlobalConstant::TokenSale.early_access_token_sale_phase).
               update_all(pos_bonus_percentage: bonus_percentage, updated_at: Time.zone.now)
           UserKycDetail.bulk_flush(user_ids)
         end

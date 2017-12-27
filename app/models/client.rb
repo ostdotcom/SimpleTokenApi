@@ -31,6 +31,18 @@ class Client < EstablishSimpleTokenClientDbConnection
     setup_properties_array.include?(GlobalConstant::Client.whitelist_setup_done)
   end
 
+  # Check if client is the internal st token sale client
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if client is the internal st token sale client
+  #
+  def is_st_token_sale_client?
+    GlobalConstant::TokenSale.st_token_sale_client_id == self.id
+  end
+
   # Array of Properties symbols
   #
   # * Author: Aman

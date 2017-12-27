@@ -27,6 +27,7 @@
 'AdminManagement::Kyc::CheckDetails':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
     - :filters
@@ -80,12 +81,14 @@
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
 
 'AdminManagement::Kyc::FetchActionLogs':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
     - :limit
@@ -94,12 +97,14 @@
 'AdminManagement::Kyc::GetByEmail':
   :mandatory:
     - :admin_id
+    - :client_id
     - :query
   :optional:
 
 'AdminManagement::Kyc::ChangeAddressAndOpenCase':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
     - :ethereum_address
@@ -107,12 +112,14 @@
 'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
 
 'AdminManagement::Kyc::AdminAction::DataMismatch':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
     - :email_temp_vars
   :optional:
@@ -120,6 +127,7 @@
 'AdminManagement::Kyc::AdminAction::PassportIssue':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
     - :email_temp_vars
@@ -127,6 +135,7 @@
 'AdminManagement::Kyc::AdminAction::SelfieImageIssue':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
     - :email_temp_vars
@@ -134,6 +143,7 @@
 'AdminManagement::Kyc::AdminAction::ResidencyImageIssue':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
     - :email_temp_vars
@@ -141,6 +151,7 @@
 'AdminManagement::Kyc::AdminAction::Qualify':
   :mandatory:
     - :admin_id
+    - :client_id
     - :case_id
   :optional:
 

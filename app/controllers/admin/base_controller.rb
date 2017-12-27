@@ -1,4 +1,4 @@
-class Admin::BaseController < ApiController
+class Admin::BaseController < WebController
 
   private
 
@@ -8,7 +8,7 @@ class Admin::BaseController < ApiController
   # * Date: 10/10/2017
   # * Reviewed By: Sunil Khedar
   #
-  def validate_cookie
+  def authenticate_request
 
     service_response = AdminManagement::VerifyCookie::DoubleAuth.new(
         cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],

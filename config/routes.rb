@@ -57,6 +57,10 @@ Rails.application.routes.draw do
     match 'whitelist-event' => :whitelist_event, via: :GET
   end
 
+  scope 'api/v1/kyc', controller: 'external_user/kyc' do
+    match 'add-kyc' => :add_kyc, via: :POST
+  end
+
   match '*permalink', to: 'application#not_found', via: :all
 
 end

@@ -1,5 +1,5 @@
 class Callback::BaseController < ApiController
 
-  skip_before_action :validate_cookie
+  skip_before_action :authenticate_request
 
 end

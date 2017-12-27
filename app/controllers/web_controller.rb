@@ -1,9 +1,47 @@
-class ApiController < ApplicationController
+class WebController < ApplicationController
+
+  include ActionController::RequestForgeryProtection
+  protect_from_forgery with: :exception
+
+  include CsrfTokenConcern
+
+  [
+      ActionController::Cookies
+  ].each do |mdl|
+    include mdl
+  end
 
   # this is the top-most wrapper - to catch all the exceptions at any level
   prepend_around_action :handle_exceptions_gracefully
 
   before_action :authenticate_request
+
+  # Delete the given cookie
+  #
+  # * Author: Aman
+  # * Date: 15/10/2017
+  # * Reviewed By: Sunil
+  #
+  def delete_cookie(cookie_name)
+    cookies.delete(cookie_name.to_sym, domain: :all, secure: !Rails.env.development?, same_site: :strict)
+  end
+
+  # Set the given cookie
+  #
+  # * Author: Aman
+  # * Date: 15/10/2017
+  # * Reviewed By: Sunil
+  #
+  def set_cookie(cookie_name, value, expires)
+    cookies[cookie_name.to_sym] = {
+        value: value,
+        expires: expires,
+        domain: :all,
+        http_only: true,
+        secure: !Rails.env.development?,
+        same_site: :strict
+    }
+  end
 
   private
 

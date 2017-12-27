@@ -9,6 +9,7 @@ module UserManagement
     # * Reviewed By: Kedar
     #
     # @params [Integer] user_id (mandatory) - user id
+    # @params [Integer] client_id (mandatory) - client id
     # @params [String] first_name (mandatory) - first name
     # @params [String] last_name (mandatory) - last name
     # @params [String] birthdate (mandatory) - birth date
@@ -24,8 +25,6 @@ module UserManagement
     # @params [String] passport_file_path (mandatory) - passport file
     # @params [String] selfie_file_path (mandatory) - selfie file
     #
-    # @params [String] g_recaptcha_response (mandatory)
-    # @params [String] remoteip (mandatory)
     #
     # @params [String] residence_proof_file_path (optional)
     #
@@ -37,6 +36,7 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
+      @client_id = @params[:client_id]
       @first_name = @params[:first_name] # required
       @last_name = @params[:last_name] # required
       @birthdate = @params[:birthdate] # format - 'dd/mm/yyyy'
@@ -51,8 +51,6 @@ module UserManagement
       @passport_file_path = @params[:passport_file_path] # S3 Path of PassPort File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
-      @g_recaptcha_response = @params[:g_recaptcha_response]
-      @remoteip = @params[:remoteip]
 
       @user_secret = nil
       @user = nil
@@ -76,10 +74,6 @@ module UserManagement
       r = validate_and_sanitize
       return r unless r.success?
       Rails.logger.info('---- validate_and_sanitize done')
-
-      r = check_recaptcha_before_verification
-      return r unless r.success?
-      Rails.logger.info('---- check_recaptcha_before_verification done')
 
       r = fetch_user_data
       return r unless r.success?
@@ -115,7 +109,7 @@ module UserManagement
     def validate_and_sanitize
 
       return error_with_data(
-          'um_ks_5',
+          'um_ks_6',
           'The token sale ended, it is no longer possible to submit personal information.',
           'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
@@ -156,8 +150,11 @@ module UserManagement
 
       # Check if user KYC is already approved
       user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+
+      return unauthorized_access_response('um_ks_2', 'Invalid User') if user_kyc_detail.client_id != @client_id
+
       if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
-        return unauthorized_access_response('um_ks_2', 'Your KYC is already approved/denied.')
+        return unauthorized_access_response('um_ks_3', 'Your KYC is already approved/denied.')
       end
 
       success
@@ -283,30 +280,10 @@ module UserManagement
     #
     def fetch_user_data
       @user = User.get_from_memcache(@user_id)
-      return unauthorized_access_response('um_ks_3') unless @user.present? &&
+      return unauthorized_access_response('um_ks_4') unless @user.present? && @user.client_id == @client_id &&
           (@user.status == GlobalConstant::User.active_status)
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response('um_ks_4') unless @user_secret.present?
-
-      success
-    end
-
-    # Verify recaptcha
-    #
-    # * Author: Kedar
-    # * Date: 10/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    def check_recaptcha_before_verification
-      # Check re-capcha on when verification is not yet done
-      r = Recaptcha::Verify.new({
-                                    'response' => @g_recaptcha_response.to_s,
-                                    'remoteip' => @remoteip.to_s
-                                }).perform
-      Rails.logger.info('---- Recaptcha::Verify done')
-      return r unless r.success?
+      return unauthorized_access_response('um_ks_5') unless @user_secret.present?
 
       success
     end

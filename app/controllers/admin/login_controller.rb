@@ -1,6 +1,6 @@
 class Admin::LoginController < Admin::BaseController
 
-  before_action :validate_cookie, except: [
+  before_action :authenticate_request, except: [
     :password_auth,
     :multifactor_auth
   ]

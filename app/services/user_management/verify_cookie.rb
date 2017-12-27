@@ -49,7 +49,8 @@ module UserManagement
 
       success_with_data(
           user_id: @user_id,
-          extended_cookie_value: @extended_cookie_value
+          extended_cookie_value: @extended_cookie_value,
+          client_id: @user.client_id
       )
 
     end

@@ -2,12 +2,14 @@ class User::LoginController < User::BaseController
 
   prepend_before_action :merge_utm_to_params, only: [:sign_up]
 
-  before_action :validate_cookie, except: [
+  before_action :authenticate_request, except: [
                                     :sign_up,
                                     :login,
                                     :send_reset_password_link,
                                     :reset_password
                                 ]
+
+  before_action :verify_recaptcha, only: [:sign_up, :login]
 
   # Sign up
   #
@@ -21,7 +23,6 @@ class User::LoginController < User::BaseController
 
     service_response = UserManagement::SignUp.new(
         params.merge(
-            g_recaptcha_response: params['g-recaptcha-response'],
             browser_user_agent: http_user_agent,
             ip_address: ip_address,
             geoip_country: geoip_country
@@ -50,7 +51,6 @@ class User::LoginController < User::BaseController
   def login
     service_response = UserManagement::Login.new(
         params.merge(
-            g_recaptcha_response: params['g-recaptcha-response'],
             browser_user_agent: http_user_agent,
             ip_address: ip_address
         )

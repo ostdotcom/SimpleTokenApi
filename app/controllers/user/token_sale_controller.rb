@@ -1,6 +1,8 @@
 class User::TokenSaleController < User::BaseController
 
-  skip_before_action :validate_cookie, only: [:sale_details]
+  skip_before_action :authenticate_request, only: [:sale_details]
+
+  before_action :verify_recaptcha, only: [:kyc_submit]
 
   # Sale Details
   #
@@ -20,12 +22,7 @@ class User::TokenSaleController < User::BaseController
   # * Reviewed By: Sunil
   #
   def kyc_submit
-    service_response = UserManagement::KycSubmit.new(
-        params.merge(
-            g_recaptcha_response: params['g-recaptcha-response'],
-            remoteip: request.remote_ip
-        )
-    ).perform
+    service_response = UserManagement::KycSubmit.new(params).perform
     render_api_response(service_response)
   end
 

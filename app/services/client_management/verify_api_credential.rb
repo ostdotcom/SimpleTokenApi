@@ -1,4 +1,4 @@
-module UserManagement
+module ClientManagement
 
   class VerifyApiCredential < ServicesBase
 
@@ -16,7 +16,7 @@ module UserManagement
     # @param [String] url_path (mandatory) - path of request url
     # @param [Hash] request_parameters (mandatory) - request parameters
     #
-    # @return [UserManagement::VerifyApiCredential]
+    # @return [ClientManagement::VerifyApiCredential]
     #
     def initialize(params)
       super

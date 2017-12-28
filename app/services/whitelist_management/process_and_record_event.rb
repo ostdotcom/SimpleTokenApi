@@ -2,6 +2,7 @@ module WhitelistManagement
 
   class ProcessAndRecordEvent < ServicesBase
 
+    # todo: client id
     # Initialize
     #
     # * Author: Aman

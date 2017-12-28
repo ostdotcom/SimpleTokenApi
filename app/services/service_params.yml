@@ -184,7 +184,7 @@
     - :browser_user_agent
   :optional:
 
-'UserManagement::VerifyApiCredential':
+'ClientManagement::VerifyApiCredential':
   :mandatory:
     - :api_key
     - :signature

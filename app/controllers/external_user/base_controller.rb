@@ -9,7 +9,7 @@ class ExternalUser::BaseController < ApiController
   # * Reviewed By:
   #
   def authenticate_request
-    service_response = UserManagement::VerifyApiCredential.new(
+    service_response = ClientManagement::VerifyApiCredential.new(
         params.merge({
                          request_parameters: request.request_parameters,
                          url_path: request.path

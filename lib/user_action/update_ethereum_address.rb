@@ -82,11 +82,11 @@ module UserAction
 
       if @ethereum_address.blank? || @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(
-          'ua_uea_1',
-          'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
-          'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_1',
+            'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
+            'Ethereum Address, Case ID, Admin Email, User Email is mandatory!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -96,11 +96,11 @@ module UserAction
       # regex check
       if !Util::CommonValidator.is_ethereum_address?(@ethereum_address)
         return error_with_data(
-          'ua_uea_2',
-          'Invalid Ethereum Address format!',
-          'Invalid Ethereum Address format!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_2',
+            'Invalid Ethereum Address format!',
+            'Invalid Ethereum Address format!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -108,11 +108,11 @@ module UserAction
       r = UserManagement::CheckEthereumAddress.new(ethereum_address: @ethereum_address).perform
       if !r.success?
         return error_with_data(
-          'ua_uea_3',
-          'Invalid Ethereum Address!',
-          'Invalid Ethereum Address!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_3',
+            'Invalid Ethereum Address!',
+            'Invalid Ethereum Address!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -120,57 +120,80 @@ module UserAction
 
       if @user_kyc_detail.blank?
         return error_with_data(
-          'ua_uea_4',
-          "Invalid Case ID - #{@case_id}",
-          "Invalid Case ID - #{@case_id}",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_4',
+            "Invalid Case ID - #{@case_id}",
+            "Invalid Case ID - #{@case_id}",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if @user_kyc_detail.case_closed?
         return error_with_data(
-          'ua_uea_5',
-          "Case ID - #{@case_id} should be open.",
-          "Case ID - #{@case_id} should be open.",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_5',
+            "Case ID - #{@case_id} should be open.",
+            "Case ID - #{@case_id} should be open.",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       @admin = Admin.where(email: @admin_email, status: GlobalConstant::Admin.active_status).first
       if @admin.blank?
         return error_with_data(
-          'ua_uea_6',
-          "Invalid Active Admin Email - #{@admin_email}",
-          "Invalid Active Admin Email - #{@admin_email}",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_6',
+            "Invalid Active Admin Email - #{@admin_email}",
+            "Invalid Active Admin Email - #{@admin_email}",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       r = is_duplicate_ethereum_address?
+      #  todo: "KYCaas-Changes"
+      # unless r.success?
+      #   user_ids = UserExtendedDetail.where(id: r.data[:user_extended_detail_ids]).pluck(:user_id)
+      #   user_emails = User.where(id:user_ids).pluck(:email)
+      #   user_kyc_detail_ids = UserKycDetail.where(user_id: user_ids).pluck(:id)
+      #   return error_with_data(
+      #     'ua_uea_7',
+      #     "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+      #     "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+      #     GlobalConstant::ErrorAction.default,
+      #     {}
+      #   )
+      # end
+
       unless r.success?
-        user_ids = UserExtendedDetail.where(id: r.data[:user_extended_detail_ids]).pluck(:user_id)
-        user_emails = User.where(id:user_ids).pluck(:email)
-        user_kyc_detail_ids = UserKycDetail.where(user_id: user_ids).pluck(:id)
-        return error_with_data(
-          'ua_uea_7',
-          "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
-          "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
-          GlobalConstant::ErrorAction.default,
-          {}
-        )
+        user_kyc_detail_ids, user_ids = [], []
+
+        UserKycDetail.where(client_id: @user_kyc_detail.client_id, user_extended_detail_id: r.data[:user_extended_detail_ids]).all.each do |user_kyc_detail_obj|
+          user_kyc_detail_ids << user_kyc_detail_obj.id
+          user_ids << user_kyc_detail_obj.user_id
+        end
+
+        if user_ids.present?
+          user_emails = User.where(id: user_ids).pluck(:email)
+
+          return error_with_data(
+              'ua_uea_7',
+              "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+              "Duplicate ethereum Address Found with email: #{user_emails}, case ids: #{user_kyc_detail_ids}, user_ids: #{user_ids}, UserExtendedDetail ids: #{r.data[:user_extended_detail_ids]}",
+              GlobalConstant::ErrorAction.default,
+              {}
+          )
+        end
       end
+
 
       if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
                      status: GlobalConstant::User.active_status).exists?
         return error_with_data(
-          'ua_uea_8',
-          "User Email: #{@user_email} is Invalid or Not Active!",
-          "User Email: #{@user_email} is Invalid or Not Active!",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_8',
+            "User Email: #{@user_email} is Invalid or Not Active!",
+            "User Email: #{@user_email} is Invalid or Not Active!",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -189,13 +212,14 @@ module UserAction
       hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
       user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
 
+      # todo: incorrect logic
       if user_extended_detail_ids.present?
         return error_with_data(
-          'ua_uea_9',
-          "Duplicate ethereum Address found in MD5 table",
-          "Duplicate ethereum Address found in in MD5 table",
-          GlobalConstant::ErrorAction.default,
-          {user_extended_detail_ids: user_extended_detail_ids}
+            'ua_uea_9',
+            "Duplicate ethereum Address found in MD5 table",
+            "Duplicate ethereum Address found in in MD5 table",
+            GlobalConstant::ErrorAction.default,
+            {user_extended_detail_ids: user_extended_detail_ids}
         )
       end
       success
@@ -277,18 +301,18 @@ module UserAction
 
       # Fetch all user_extended_details corresponding to current user_extended_details1_id
       all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
-        user_extended_details1_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details2_id)
+          user_extended_details1_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details2_id)
 
       # Fetch all user_extended_details corresponding to current user_extended_details2_id
       all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
-        user_extended_details2_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details1_id)
+          user_extended_details2_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details1_id)
 
       # Initiailize
       active_dup_user_extended_details_ids, inactive_dup_user_extended_details_ids, user_ids = [], [], []
       # Fetch active, inactive user_extended_details_ids
       UserKycDuplicationLog.where("user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids).
-        where(status: [GlobalConstant::UserKycDuplicationLog.active_status, GlobalConstant::UserKycDuplicationLog.inactive_status]).
-        select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
+          where(status: [GlobalConstant::UserKycDuplicationLog.active_status, GlobalConstant::UserKycDuplicationLog.inactive_status]).
+          select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
 
         next if (ukdl.user_extended_details1_id == @user_kyc_detail.user_extended_detail_id) || (ukdl.user_extended_details2_id == @user_kyc_detail.user_extended_detail_id)
 
@@ -312,14 +336,14 @@ module UserAction
       # Active user_kyc_details will already be is_kyc_duplicate_status
       if inactive_dup_user_extended_details_ids.present?
         UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
-          update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+            update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
       end
 
       never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
       # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
       if never_dup_user_extended_details_ids.present?
         UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
-          update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+            update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
       end
 
       # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids
@@ -349,18 +373,18 @@ module UserAction
     def log_activity
 
       BgJob.enqueue(
-        UserActivityLogJob,
-        {
-          user_id: @user_kyc_detail.user_id,
-          admin_id: @admin.id,
-          action: GlobalConstant::UserActivityLog.update_ethereum_address,
-          action_timestamp: Time.now.to_i,
-          extra_data: {
-            case_id: @case_id,
-            old_encrypted_u_e_d_ethereum_address: @old_encrypted_u_e_d_ethereum_address,
-            old_md5_ethereum_address: @old_md5_ethereum_address
+          UserActivityLogJob,
+          {
+              user_id: @user_kyc_detail.user_id,
+              admin_id: @admin.id,
+              action: GlobalConstant::UserActivityLog.update_ethereum_address,
+              action_timestamp: Time.now.to_i,
+              extra_data: {
+                  case_id: @case_id,
+                  old_encrypted_u_e_d_ethereum_address: @old_encrypted_u_e_d_ethereum_address,
+                  old_md5_ethereum_address: @old_md5_ethereum_address
+              }
           }
-        }
       )
 
       success
@@ -387,11 +411,11 @@ module UserAction
 
       if decrypted_ethereum_address != @ethereum_address
         return error_with_data(
-          'ua_uea_9',
-          "Decrypted Ethereum Address is not matching with updated ethereum address",
-          "Decrypted Ethereum Address is not matching with updated ethereum address",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_uea_9',
+            "Decrypted Ethereum Address is not matching with updated ethereum address",
+            "Decrypted Ethereum Address is not matching with updated ethereum address",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 

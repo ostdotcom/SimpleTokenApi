@@ -11,6 +11,7 @@ module AdminManagement
       # * Reviewed By:
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
+      # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] case_id (mandatory) - search term to find case
       # @params [String] ethereum_address (optional) - Ethereum address to be changed.
       #
@@ -20,6 +21,7 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
+        @client_id = @params[:client_id]
         @case_id = @params[:case_id]
         @new_ethereum_address = @params[:ethereum_address]
 
@@ -70,18 +72,21 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
+        r = fetch_and_validate_client
+        return r unless r.success?
+
         edit_kyc_request = EditKycRequests.where(case_id: @case_id, status: GlobalConstant::UserKycDetail.unprocessed_edit_kyc).first
         return error_with_data(
-            'am_k_c_caaoc_1',
+            'am_k_c_caaoc_3',
             'Edit request is in process for this case.',
             'Edit request is in process for this case.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if edit_kyc_request.present?
 
-        @user_kyc_detail = UserKycDetail.where(id: @case_id).first
+        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
         return error_with_data(
-            'am_k_c_caaoc_3',
+            'am_k_c_caaoc_4',
             'KYC detail id not found',
             '',
             GlobalConstant::ErrorAction.default,
@@ -89,6 +94,30 @@ module AdminManagement
         ) if @user_kyc_detail.blank?
 
         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+
+        success
+      end
+
+      # fetch client and validate
+      #
+      # * Author: Aman
+      # * Date: 26/12/2017
+      # * Reviewed By:
+      #
+      # Sets @client
+      #
+      # @return [Result::Base]
+      #
+      def fetch_and_validate_client
+        @client = Client.get_from_memcache(@client_id)
+
+        return error_with_data(
+            'am_k_c_caaoc_1',
+            'Client is not active',
+            'Client is not active',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client.status != GlobalConstant::Client.active_status
 
         success
       end

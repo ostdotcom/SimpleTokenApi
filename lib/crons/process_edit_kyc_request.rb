@@ -84,6 +84,7 @@ module Crons
     #
     def edit_kycs
       @edit_kyc_ars.each do |e_k_r|
+        send_error_mail = false
 
         begin
 
@@ -126,13 +127,14 @@ module Crons
             e_k_r.status = GlobalConstant::UserKycDetail.processed_edit_kyc
             email_subject = "Successfully updated case for email: #{@users[e_k_r.user_id].email}"
             email_body = "Success"
-            email_to = [@admins[e_k_r.admin_id].email]
+            admin_email_body = "Success"
           else
             e_k_r.status = GlobalConstant::UserKycDetail.failed_edit_kyc
             e_k_r.debug_data = r.to_json
             email_subject = "Error in updating case for email: #{@users[e_k_r.user_id].email}"
             email_body = r.to_json
-            email_to = (GlobalConstant::Email.default_to+[@admins[e_k_r.admin_id].email])
+            admin_email_body = "Error"
+            send_error_mail = true
           end
 
         rescue Exception => e
@@ -141,16 +143,22 @@ module Crons
           e_k_r.debug_data = "#{e.message} -- #{e.backtrace}"
           email_subject = "Error in updating case for email: #{@users[e_k_r.user_id].email}"
           email_body = {exception: {message: e.message, backtrace: e.backtrace}}
-          email_to = (GlobalConstant::Email.default_to+[@admins[e_k_r.admin_id].email])
-
+          admin_email_body = "Error"
+          send_error_mail = true
         end
 
         e_k_r.save!
 
         ApplicationMailer.notify(
-            to: email_to,
+            to: GlobalConstant::Email.default_to,
             body: email_body,
             data: {case_id: e_k_r.case_id, edit_kyc_table_id: e_k_r.id},
+            subject: email_subject
+        ).deliver if send_error_mail
+
+        ApplicationMailer.notify(
+            to: @admins[e_k_r.admin_id].email,
+            body: admin_email_body,
             subject: email_subject
         ).deliver
 

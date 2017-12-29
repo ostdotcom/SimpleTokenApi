@@ -47,7 +47,7 @@ module UserAction
 
       # If case is denied in contract phase will already be 0
       # No need to set phase=0 again
-      if @user_kyc_detail.kyc_approved?
+      if @client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved?
         r = un_whitelist_user
         return r unless r.success?
 
@@ -80,7 +80,7 @@ module UserAction
     #
     # @return [Result::Base]
     #
-    # Sets @user_kyc_detail, @admin, @user_extended_detail
+    # Sets @user_kyc_detail, @admin, @user_extended_detail, @client_id, @client
     #
     def validate_and_sanitize
 
@@ -90,115 +90,153 @@ module UserAction
 
       if @case_id < 1 || @admin_email.blank? || @user_email.blank?
         return error_with_data(
-          'ua_oc_1',
-          'Case ID, Admin Email, User Email is mandatory!',
-          'Case ID, Admin Email, User Email is mandatory!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_1',
+            'Case ID, Admin Email, User Email is mandatory!',
+            'Case ID, Admin Email, User Email is mandatory!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       @admin = Admin.where(email: @admin_email, status: GlobalConstant::Admin.active_status).first
       if @admin.blank?
         return error_with_data(
-          'ua_oc_2',
-          "Invalid Active Admin Email - #{@admin_email}",
-          "Invalid Active Admin Email - #{@admin_email}",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_2',
+            "Invalid Active Admin Email - #{@admin_email}",
+            "Invalid Active Admin Email - #{@admin_email}",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       @user_kyc_detail = UserKycDetail.where(id: @case_id).first
       if @user_kyc_detail.blank?
         return error_with_data(
-          'ua_oc_3',
-          'Invalid Case ID!',
-          'Invalid Case ID!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_3',
+            'Invalid Case ID!',
+            'Invalid Case ID!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
+
+      @client_id = @user_kyc_detail.client_id
+      @client = Client.get_from_memcache(@client_id)
+
 
       if !User.where(id: @user_kyc_detail.user_id, email: @user_email,
                      status: GlobalConstant::User.active_status).exists?
         return error_with_data(
-          'ua_oc_4',
-          "User Email: #{@user_email} is Invalid or Not Active!",
-          "User Email: #{@user_email} is Invalid or Not Active!",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_4',
+            "User Email: #{@user_email} is Invalid or Not Active!",
+            "User Email: #{@user_email} is Invalid or Not Active!",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if !@user_kyc_detail.case_closed?
         return error_with_data(
-          'ua_oc_5',
-          "Case ID - #{@case_id} should be closed.",
-          "Case ID - #{@case_id} should be closed.",
-          GlobalConstant::ErrorAction.default,
-          {}
-        )
-      end
-
-      if @user_kyc_detail.kyc_approved? && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
-                                            GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
-
-        return error_with_data(
-          'ua_oc_6',
-          "Whitelist is in progress. Let it be completed to done!",
-          "Whitelist is in progress. Let it be completed to done!",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_5',
+            "Case ID - #{@case_id} should be closed.",
+            "Case ID - #{@case_id} should be closed.",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       if @user_extended_detail.blank?
         return error_with_data(
-          'ua_oc_7',
-          'Invalid User Extended Details!',
-          'Invalid User Extended Details!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_7',
+            'Invalid User Extended Details!',
+            'Invalid User Extended Details!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       r = decrypt_ethereum_address
       return r unless r.success?
 
-      if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
+      r = validate_for_whitelisting
+      return r unless r.success?
+
+      r = validate_for_st_token_sale_default_client
+      return r unless r.success?
+
+      success
+    end
+
+    # Validate for whitelisting
+    #
+    # * Author: Aman
+    # * Date: 27/12/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_for_whitelisting
+      return success unless @client.is_whitelist_setup_done?
+
+      if @user_kyc_detail.kyc_approved? && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+                                            GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
+
         return error_with_data(
-          'ua_oc_8',
-          "User already bought SimpleToken. His case can't be opened",
-          "User already bought SimpleToken. His case can't be opened",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_6',
+            "Whitelist is in progress. Let it be completed to done!",
+            "Whitelist is in progress. Let it be completed to done!",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
-      KycWhitelistLog.where(ethereum_address: @ethereum_address).all.each do |kwl|
+      KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address).all.each do |kwl|
 
         if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
           return error_with_data(
-            'ua_oc_9',
-            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
-            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
-            GlobalConstant::ErrorAction.default,
-            {}
+              'ua_oc_9',
+              "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+              "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+              GlobalConstant::ErrorAction.default,
+              {}
           )
         end
 
         if kwl.updated_at >= (Time.now - 10.minutes)
           return error_with_data(
-            'ua_oc_10',
-            "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
-            "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
-            GlobalConstant::ErrorAction.default,
-            {}
+              'ua_oc_10',
+              "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
+              "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
+              GlobalConstant::ErrorAction.default,
+              {}
           )
         end
 
+      end
+
+      success
+    end
+
+    # Validations for default st token sale client
+    #
+    # * Author: Aman
+    # * Date: 27/12/2017
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_for_st_token_sale_default_client
+      return success unless @client.is_st_token_sale_client?
+
+      if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
+        return error_with_data(
+            'ua_oc_8',
+            "User already bought SimpleToken. His case can't be opened",
+            "User already bought SimpleToken. His case can't be opened",
+            GlobalConstant::ErrorAction.default,
+            {}
+        )
       end
 
       success
@@ -220,11 +258,11 @@ module UserAction
 
       unless r.success?
         return error_with_data(
-          'ua_oc_11',
-          'Error decrypting Kyc salt!',
-          'Error decrypting Kyc salt!',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_11',
+            'Error decrypting Kyc salt!',
+            'Error decrypting Kyc salt!',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -257,11 +295,12 @@ module UserAction
       return r unless r.success?
 
       @kyc_whitelist_log = KycWhitelistLog.create!({
-                                                     ethereum_address: api_data[:address],
-                                                     phase: api_data[:phase],
-                                                     transaction_hash: r.data[:transaction_hash],
-                                                     status: GlobalConstant::KycWhitelistLog.pending_status,
-                                                     is_attention_needed: 0
+                                                       client_id: @client_id,
+                                                       ethereum_address: api_data[:address],
+                                                       phase: api_data[:phase],
+                                                       transaction_hash: r.data[:transaction_hash],
+                                                       status: GlobalConstant::KycWhitelistLog.pending_status,
+                                                       is_attention_needed: 0
                                                    })
       success
     end
@@ -319,17 +358,17 @@ module UserAction
     def log_activity
 
       BgJob.enqueue(
-        UserActivityLogJob,
-        {
-          user_id: @user_kyc_detail.user_id,
-          admin_id: @admin.id,
-          action: GlobalConstant::UserActivityLog.open_case,
-          action_timestamp: Time.now.to_i,
-          extra_data: {
-            case_id: @case_id,
-            user_extended_detail_id: @user_extended_detail.id
+          UserActivityLogJob,
+          {
+              user_id: @user_kyc_detail.user_id,
+              admin_id: @admin.id,
+              action: GlobalConstant::UserActivityLog.open_case,
+              action_timestamp: Time.now.to_i,
+              extra_data: {
+                  case_id: @case_id,
+                  user_extended_detail_id: @user_extended_detail.id
+              }
           }
-        }
       )
 
       success
@@ -349,11 +388,11 @@ module UserAction
                                   is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed).first
       if kwl.blank?
         return error_with_data(
-          'ua_oc_12',
-          "KycWhitelistLog: #{@kyc_whitelist_log.id} is still not confirmed or it's marked is_attention_needed!",
-          "KycWhitelistLog: #{@kyc_whitelist_log.id} is still not confirmed or it's marked is_attention_needed!",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_12',
+            "KycWhitelistLog: #{@kyc_whitelist_log.id} is still not confirmed or it's marked is_attention_needed!",
+            "KycWhitelistLog: #{@kyc_whitelist_log.id} is still not confirmed or it's marked is_attention_needed!",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -364,21 +403,21 @@ module UserAction
 
       if !Util::CommonValidator.is_numeric?(_phase) || r.data['phase'].to_i != 0
         return error_with_data(
-          'ua_oc_13',
-          "Invalid Phase: #{_phase} for KycWhitelistLog: #{kwl.id}",
-          "Invalid Phase: #{_phase} for KycWhitelistLog: #{kwl.id}",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_13',
+            "Invalid Phase: #{_phase} for KycWhitelistLog: #{kwl.id}",
+            "Invalid Phase: #{_phase} for KycWhitelistLog: #{kwl.id}",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
-      if PurchaseLog.of_ethereum_address(@ethereum_address).exists?
+      if  @client.is_st_token_sale_client? && PurchaseLog.of_ethereum_address(@ethereum_address).exists?
         return error_with_data(
-          'ua_oc_14',
-          "User already bought SimpleToken. His case can't be opened",
-          "User already bought SimpleToken. His case can't be opened",
-          GlobalConstant::ErrorAction.default,
-          {}
+            'ua_oc_14',
+            "User already bought SimpleToken. His case can't be opened",
+            "User already bought SimpleToken. His case can't be opened",
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -395,10 +434,10 @@ module UserAction
     #
     def update_ethereum_address
       UserAction::UpdateEthereumAddress.new(
-        case_id: @case_id,
-        ethereum_address: @new_ethereum_address,
-        admin_email: @admin_email,
-        user_email: @user_email
+          case_id: @case_id,
+          ethereum_address: @new_ethereum_address,
+          admin_email: @admin_email,
+          user_email: @user_email
       ).perform
     end
 

@@ -25,10 +25,13 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
-      UserKycDetail.
-        kyc_admin_and_cynopsis_approved. # records which are approved by both admin and cynopsis
-        whitelist_status_unprocessed. # records which are not yet processed for whitelisting
-        find_in_batches(batch_size: 10) do |u_k_detail_objs|
+      @client_whitelist_objs = ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
+      client_ids = client_whitelist_objs.keys
+
+      UserKycDetail.where(client_id: client_ids).
+          kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis
+      whitelist_status_unprocessed.# records which are not yet processed for whitelisting
+      find_in_batches(batch_size: 10) do |u_k_detail_objs|
 
         u_k_detail_objs.each do |user_kyc_detail|
           begin
@@ -101,7 +104,7 @@ module Crons
     # Sets @api_data
     #
     def construct_api_data
-      @api_data = {address: get_ethereum_address, phase: get_phase}
+      @api_data = {address: get_ethereum_address, phase: get_phase, contract_address: get_contract_address}
     end
 
     # Make API call
@@ -114,7 +117,7 @@ module Crons
     #
     def make_whitelist_api_call
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
-      r = OpsApi::Request::Whitelist.new.whitelist({address: @api_data[:address], phase: @api_data[:phase]})
+      r = OpsApi::Request::Whitelist.new.whitelist({contract_address: @api_data[:contract_address], address: @api_data[:address], phase: @api_data[:phase]})
 
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
@@ -133,11 +136,12 @@ module Crons
     #
     def create_kyc_whitelist_log
       KycWhitelistLog.create!({
-                                ethereum_address: @api_data[:address],
-                                phase: @api_data[:phase],
-                                transaction_hash: @transaction_hash,
-                                status: GlobalConstant::KycWhitelistLog.pending_status,
-                                is_attention_needed: 0
+                                  client_id: @user_kyc_detail.client_id,
+                                  ethereum_address: @api_data[:address],
+                                  phase: @api_data[:phase],
+                                  transaction_hash: @transaction_hash,
+                                  status: GlobalConstant::KycWhitelistLog.pending_status,
+                                  is_attention_needed: 0
                               })
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Creating entry in KycWhitelistLog")
     end
@@ -171,6 +175,18 @@ module Crons
       UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase]
     end
 
+    # Get contract address
+    #
+    # * Author: Aman
+    # * Date: 29/12/2017
+    # * Reviewed By:
+    #
+    # @return [Integer] contract address
+    #
+    def get_contract_address
+      @client_whitelist_objs[@user_kyc_detail.client_id].contract_address
+    end
+
     # Handle whitelist errors
     #
     # * Author: Abhay
@@ -188,14 +204,14 @@ module Crons
       @user_kyc_detail.save!
 
       UserActivityLogJob.new().perform({
-                                         user_id: @user_kyc_detail.user_id,
-                                         action: GlobalConstant::UserActivityLog.kyc_whitelist_processor_error,
-                                         action_timestamp: Time.now.to_i,
-                                         extra_data: {
-                                           user_kyc_detail_id: @user_kyc_detail.id,
-                                           error_type: error_type,
-                                           error_data: error_data
-                                         }
+                                           user_id: @user_kyc_detail.user_id,
+                                           action: GlobalConstant::UserActivityLog.kyc_whitelist_processor_error,
+                                           action_timestamp: Time.now.to_i,
+                                           extra_data: {
+                                               user_kyc_detail_id: @user_kyc_detail.id,
+                                               error_type: error_type,
+                                               error_data: error_data
+                                           }
                                        })
     end
 
@@ -207,11 +223,11 @@ module Crons
     #
     def notify_devs(error_data, user_id)
       ApplicationMailer.notify(
-        body: {user_id: user_id},
-        data: {
-          error_data: error_data
-        },
-        subject: 'Error while KycWhitelistProcessor'
+          body: {user_id: user_id},
+          data: {
+              error_data: error_data
+          },
+          subject: 'Error while KycWhitelistProcessor'
       ).deliver
     end
 

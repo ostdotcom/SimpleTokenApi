@@ -290,7 +290,7 @@ module UserAction
     #
     def un_whitelist_user
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
-      r = OpsApi::Request::Whitelist.new.whitelist({address: api_data[:address], phase: api_data[:phase]})
+      r = OpsApi::Request::Whitelist.new.whitelist({contract_address: api_data[:contract_address], address: api_data[:address], phase: api_data[:phase]})
       Rails.logger.info("Whitelist API Response: #{r.inspect}")
       return r unless r.success?
 
@@ -330,7 +330,21 @@ module UserAction
     # @return [Hash]
     #
     def api_data
-      {address: @ethereum_address, phase: 0}
+      @api_data ||= {address: @ethereum_address, phase: 0, contract_address: get_contract_address}
+    end
+
+    # Get contract address
+    #
+    # * Author: Aman
+    # * Date: 29/12/2017
+    # * Reviewed By:
+    #
+    # @return [Integer] contract address
+    #
+    def get_contract_address
+      ClientWhitelistDetail.where(client_id, @user_kyc_detail.client_id,
+                                  status: GlobalConstant::ClientWhitelistDetail.active_status).
+          pluck(:contract_address).first
     end
 
     # Construct local cipher object
@@ -396,7 +410,7 @@ module UserAction
         )
       end
 
-      r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: @ethereum_address)
+      r = OpsApi::Request::GetWhitelistStatus.new.perform(contract_address: api_data[:contract_address], ethereum_address: @ethereum_address)
       return r unless r.success?
 
       _phase = r.data['phase']
@@ -411,7 +425,7 @@ module UserAction
         )
       end
 
-      if  @client.is_st_token_sale_client? && PurchaseLog.of_ethereum_address(@ethereum_address).exists?
+      if @client.is_st_token_sale_client? && PurchaseLog.of_ethereum_address(@ethereum_address).exists?
         return error_with_data(
             'ua_oc_14',
             "User already bought SimpleToken. His case can't be opened",

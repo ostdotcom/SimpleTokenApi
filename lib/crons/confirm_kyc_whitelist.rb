@@ -124,6 +124,30 @@ module Crons
 
     end
 
+    # Get contract address
+    #
+    # * Author: Aman
+    # * Date: 29/12/2017
+    # * Reviewed By:
+    #
+    # @return [Integer] contract address
+    #
+    def get_contract_address
+      client_whitelist_objs[@user_kyc_detail.client_id].contract_address
+    end
+
+    # Get contract address
+    #
+    # * Author: Aman
+    # * Date: 29/12/2017
+    # * Reviewed By:
+    #
+    # @return [Integer] contract address
+    #
+    def client_whitelist_objs
+      @client_whitelist_objs ||= ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
+    end
+
     # is done status
     #
     # * Author: Kedar, Alpesh
@@ -189,7 +213,7 @@ module Crons
       contract_event = ContractEvent.where(
           transaction_hash: @transaction_hash,
           kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
-          contract_address: GlobalConstant::StFoundationContract.token_sale_contract_address,
+          contract_address: get_contract_address,
           block_hash: @block_hash
       ).first
 
@@ -219,7 +243,7 @@ module Crons
     # @return [Result::Base]
     #
     def query_contract
-      r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: @kyc_whitelist_log.ethereum_address)
+      r = OpsApi::Request::GetWhitelistStatus.new.perform(contract_address: get_contract_address, ethereum_address: @kyc_whitelist_log.ethereum_address)
       return r unless r.success?
 
       if r.data['phase'].to_i == @kyc_whitelist_log.phase
@@ -316,7 +340,7 @@ module Crons
     # @return [Result::Base]
     #
     def get_prospective_user_extended_detail_ids
-      prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
+      prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(client_id: @kyc_whitelist_log.client_id,
         ethereum_address: Md5UserExtendedDetail.get_hashed_value(@kyc_whitelist_log.ethereum_address)
       ).pluck(:user_extended_detail_id)
 

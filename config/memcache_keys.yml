@@ -34,6 +34,10 @@ client:
     key_template: 'client_cynopsis_detail_%{client_id}'
     expiry_in_seconds: 86400
 
+  client_whitelist_details:
+    key_template: 'client_whitelist_detail_%{client_id}'
+    expiry_in_seconds: 86400
+
   client_pepo_campaign_details:
     key_template: 'client_pepo_campaign_detail_%{client_id}'
     expiry_in_seconds: 86400

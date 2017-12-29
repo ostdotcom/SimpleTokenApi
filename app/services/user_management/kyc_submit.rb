@@ -52,6 +52,7 @@ module UserManagement
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
 
+      @client = nil
       @user_secret = nil
       @user = nil
       @kyc_salt_d = nil
@@ -87,9 +88,10 @@ module UserManagement
       return r unless r.success?
       Rails.logger.info('---- create_user_extended_details done')
 
-      r = update_user
-      return r unless r.success?
-      Rails.logger.info('---- update_user done')
+      #  todo: "KYCaaS-Changes"
+      # r = update_user
+      # return r unless r.success?
+      # Rails.logger.info('---- update_user done')
 
       enqueue_job
 
@@ -107,15 +109,6 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_and_sanitize
-
-      return error_with_data(
-          'um_ks_6',
-          'The token sale ended, it is no longer possible to submit personal information.',
-          'The token sale ended, it is no longer possible to submit personal information.',
-          GlobalConstant::ErrorAction.default,
-          {},
-          {}
-      ) if GlobalConstant::TokenSale.is_general_sale_ended?
 
       # Sanitize fields, validate and assign error
       validate_first_name
@@ -148,6 +141,19 @@ module UserManagement
       r = validate
       return r unless r.success?
 
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      #  todo: "KYCaas-Changes"
+      return error_with_data(
+          'um_ks_6',
+          'The token sale ended, it is no longer possible to submit personal information.',
+          'The token sale ended, it is no longer possible to submit personal information.',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @client.is_st_token_sale_client?
+
       # Check if user KYC is already approved
       user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
 
@@ -156,6 +162,30 @@ module UserManagement
       if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
         return unauthorized_access_response('um_ks_3', 'Your KYC is already approved/denied.')
       end
+
+      success
+    end
+
+    # fetch client and validate
+    #
+    # * Author: Aman
+    # * Date: 26/12/2017
+    # * Reviewed By:
+    #
+    # Sets @client
+    #
+    # @return [Result::Base]
+    #
+    def fetch_and_validate_client
+      @client = Client.get_from_memcache(@client_id)
+
+      return error_with_data(
+          'um_ks_7',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @client.status != GlobalConstant::Client.active_status
 
       success
     end
@@ -393,12 +423,13 @@ module UserManagement
     #
     # @return [Result::Base]
     #
-    def update_user
-      @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
-      @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
-      @user.save! if @user.changed?
-      success
-    end
+    #  todo: "KYCaaS-Changes"
+    # def update_user
+    #   @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
+    #   @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+    #   @user.save! if @user.changed?
+    #   success
+    # end
 
     # Do remaining task in sidekiq
     #
@@ -407,27 +438,39 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def enqueue_job
-      if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+      #  todo: "KYCaaS-Changes"
+      # if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+      #
+      #   BgJob.enqueue(
+      #       OnBTSubmitJob,
+      #       {
+      #           user_id: @user_id
+      #       }
+      #   )
+      #   Rails.logger.info('---- enqueue_job OnBTSubmitJob done')
+      # else
+      #
+      #   BgJob.enqueue(
+      #       KycSubmitJob,
+      #       {
+      #           user_id: @user_id,
+      #           action: GlobalConstant::UserActivityLog.update_kyc_action,
+      #           action_timestamp: Time.now.to_i
+      #       }
+      #   )
+      #   Rails.logger.info('---- enqueue_job KycSubmitJob done')
+      # end
 
-        BgJob.enqueue(
-            OnBTSubmitJob,
-            {
-                user_id: @user_id
-            }
-        )
-        Rails.logger.info('---- enqueue_job OnBTSubmitJob done')
-      else
+      BgJob.enqueue(
+          KycSubmitJob,
+          {
+              user_id: @user_id,
+              action: GlobalConstant::UserActivityLog.update_kyc_action,
+              action_timestamp: Time.now.to_i
+          }
+      )
+      Rails.logger.info('---- enqueue_job KycSubmitJob done')
 
-        BgJob.enqueue(
-            KycSubmitJob,
-            {
-                user_id: @user_id,
-                action: GlobalConstant::UserActivityLog.update_kyc_action,
-                action_timestamp: Time.now.to_i
-            }
-        )
-        Rails.logger.info('---- enqueue_job KycSubmitJob done')
-      end
     end
 
     # Unauthorized access response

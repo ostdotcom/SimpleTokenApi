@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'user/token_sale' do
     match 'kyc-submit' => :kyc_submit, via: :POST
     match 'bt-submit' => :bt_submit, via: :POST
-    match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
+    # match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'upload-params' => :get_upload_params, via: :GET
     match 'check-ethereum-balance' => :check_ethereum_balance, via: :GET
     match 'check-ethereum-address' => :check_ethereum_address, via: :GET

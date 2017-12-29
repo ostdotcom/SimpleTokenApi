@@ -9,6 +9,7 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     # @param [Integer] user_id (mandatory)
+    # @params [Integer] client_id (mandatory) - logged in admin's client id
     # @param [Hash] images (mandatory)
     #
     # @return [UserManagement::GetUploadParams]
@@ -17,6 +18,7 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
+      @client_id = @params[:client_id]
       @images = @params[:images] || {}
       @pdfs = @params[:pdfs] || {}
 
@@ -38,13 +40,13 @@ module UserManagement
 
       @images.each do |k, v|
         content_type = v
-        key = "i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
+        key = "i/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 
       @pdfs.each do |k, v|
         content_type = v
-        key = "d/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
+        key = "d/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 
@@ -66,15 +68,18 @@ module UserManagement
       r = super
       return r unless r.success?
 
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      #  todo: "KYCaas-Changes"
       return error_with_data(
-          'um_gup_2',
+          'um_gup_3',
           'The token sale ended, it is no longer possible to submit personal information.',
           'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if GlobalConstant::TokenSale.is_general_sale_ended?
-
+      ) if @client.is_st_token_sale_client?
 
       image_content_types = []
       @images.each do |_, v|
@@ -100,7 +105,31 @@ module UserManagement
       success
     end
 
-    # Perform
+    # fetch client and validate
+    #
+    # * Author: Aman
+    # * Date: 26/12/2017
+    # * Reviewed By:
+    #
+    # Sets @client
+    #
+    # @return [Result::Base]
+    #
+    def fetch_and_validate_client
+      @client = Client.get_from_memcache(@client_id)
+
+      return error_with_data(
+          'um_gup_2',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @client.status != GlobalConstant::Client.active_status
+
+      success
+    end
+
+    # get_upload_params
     #
     # * Author: Kedar
     # * Date: 13/10/2017

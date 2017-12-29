@@ -23,7 +23,9 @@ module UserManagement
       @skip_name = @params[:skip_name]
 
       @user = nil
-      @enqueue_task = false
+
+      #  todo: "KYCaas-Changes"
+      # @enqueue_task = false
 
     end
 
@@ -44,11 +46,13 @@ module UserManagement
 
       update_token_sale_bt_done
 
-      update_token_sale_kyc_double_optin_mail_sent
+      #  todo: "KYCaas-Changes"
+      # update_token_sale_kyc_double_optin_mail_sent
 
       save_user
 
-      enqueue_job if @enqueue_task
+      #  todo: "KYCaas-Changes"
+      # enqueue_job if @enqueue_task
 
       success
 
@@ -82,11 +86,11 @@ module UserManagement
             if @bt_name.downcase == 'simpletoken'
               validation_errors[:bt_name] = "Branded Token Name is already taken."
             else
-              existing_bt_row = User.where(bt_name: @bt_name).first
+              existing_bt_row = User.where(client_id: @client_id, bt_name: @bt_name).first
               if existing_bt_row.present? && existing_bt_row.id != @user_id
                 validation_errors[:bt_name] = "Branded Token Name is already taken."
               else
-                user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+                user_kyc_detail = UserKycDetail.where(client_id: @client_id, user_id: @user_id).first
                 if user_kyc_detail.present? && user_kyc_detail.kyc_denied?
                   validation_errors[:bt_name] = "Your KYC is denied. Token Name cannot be reserved"
                 end
@@ -128,7 +132,8 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def update_token_sale_bt_done
-      @user.send("set_"+GlobalConstant::User.token_sale_bt_done_property)
+      #  todo: "KYCaas-Changes"
+      # @user.send("set_"+GlobalConstant::User.token_sale_bt_done_property)
       @user.bt_name = @bt_name unless @skip_name
     end
 
@@ -138,13 +143,14 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    def update_token_sale_kyc_double_optin_mail_sent
-      if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
-        @enqueue_task = true
-        #TODO: Handle multiple concurrent requests for same bt update
-        @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
-      end
-    end
+    #  todo: "KYCaas-Changes"
+    # def update_token_sale_kyc_double_optin_mail_sent
+    #   if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
+    #     @enqueue_task = true
+    #     #TODO: Handle multiple concurrent requests for same bt update
+    #     @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+    #   end
+    # end
 
     # Save User
     #
@@ -162,14 +168,15 @@ module UserManagement
     # * Date: 15/10/2017
     # * Reviewed By: Sunil
     #
-    def enqueue_job
-      BgJob.enqueue(
-          OnBTSubmitJob,
-          {
-              user_id: @user_id
-          }
-      )
-    end
+    #  todo: "KYCaas-Changes"
+    # def enqueue_job
+    #   BgJob.enqueue(
+    #       OnBTSubmitJob,
+    #       {
+    #           user_id: @user_id
+    #       }
+    #   )
+    # end
 
   end
 

@@ -65,17 +65,18 @@ class User::TokenSaleController < User::BaseController
   # * Date: 13/10/2017
   # * Reviewed By: Sunil
   #
-  def resend_double_opt_in
-    BgJob.enqueue(
-        OnBTSubmitJob,
-        {
-            user_id: params[:user_id]
-        }
-    )
-
-    r = Result::Base.success({})
-    render_api_response(r)
-  end
+  #  todo: "KYCaas-Changes"
+  # def resend_double_opt_in
+  #   BgJob.enqueue(
+  #       OnBTSubmitJob,
+  #       {
+  #           user_id: params[:user_id]
+  #       }
+  #   )
+  #
+  #   r = Result::Base.success({})
+  #   render_api_response(r)
+  # end
 
   # Check if ethereum address is valid
   #

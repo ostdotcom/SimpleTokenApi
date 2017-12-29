@@ -76,13 +76,13 @@ module UserManagement
     def validate_token
       return success if @token.blank? || @user_token_sale_state == GlobalConstant::User.get_token_sale_state_page_names("profile_page")
 
-      service_response = UserManagement::DoubleOptIn.new(double_opt_in_params).perform
+      #  todo: "KYCaas-Changes"
+      # service_response = UserManagement::DoubleOptIn.new(double_opt_in_params).perform
       return unauthorized_access_response('um_pd_2') unless service_response.success?
 
-      @user.reload
-      @user_token_sale_state = @user.get_token_sale_state_page_name
-
-      success
+      # @user.reload
+      # @user_token_sale_state = @user.get_token_sale_state_page_name
+      # success
     end
 
     # Double opt in parameters
@@ -93,12 +93,13 @@ module UserManagement
     #
     # @return [Result::Base]
     #
-    def double_opt_in_params
-      {
-          user_id: @user.id,
-          t: @token
-      }
-    end
+    #  todo: "KYCaas-Changes"
+    # def double_opt_in_params
+    #   {
+    #       user_id: @user.id,
+    #       t: @token
+    #   }
+    # end
 
     # Validate token
     #

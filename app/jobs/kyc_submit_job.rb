@@ -17,7 +17,8 @@ class KycSubmitJob < ApplicationJob
 
     find_or_init_user_kyc_detail
 
-    create_email_service_api_call_hook
+    #  todo: "KYCaas-Changes"
+    # create_email_service_api_call_hook
 
     decrypt_kyc_salt
 
@@ -70,9 +71,10 @@ class KycSubmitJob < ApplicationJob
   #
   def block_kyc_submit_job_hard_check
     # Double optin is required
-    if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
-      fail "Double optin not yet done by user id: #{@user_id}."
-    end
+    #  todo: "KYCaas-Changes"
+    # if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+    #   fail "Double optin not yet done by user id: #{@user_id}."
+    # end
 
     # Check if user KYC is already approved
     user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
@@ -112,10 +114,11 @@ class KycSubmitJob < ApplicationJob
       @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-      if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
-        @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
-        @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
-      end
+      #  todo: "KYCaas-Changes"
+      # if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
+      #   @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
+      #   @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
+      # end
     end
     @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
@@ -133,18 +136,20 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def token_sale_participation_phase_for_user
-    @token_sale_participation_phase_for_user ||= GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
+    #  todo: "KYCaas-Changes"
+    @token_sale_participation_phase_for_user ||= 1 #GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
   end
 
+  #  todo: "KYCaas-Changes"
   # Find POS bonus for percentage
   #
   # * Author: Aman
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def get_pos_bonus_percentage
-    PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
-  end
+  # def get_pos_bonus_percentage
+  #   PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
+  # end
 
   # Find Alternate Token Id for bonus
   #
@@ -152,31 +157,32 @@ class KycSubmitJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def get_alternate_token_id_for_bonus
-    AlternateTokenBonusEmail.where(email: @user.email).first.try(:alternate_token_id)
-  end
+  #  todo: "KYCaas-Changes"
+  # def get_alternate_token_id_for_bonus
+  #   AlternateTokenBonusEmail.where(email: @user.email).first.try(:alternate_token_id)
+  # end
 
   # Create Hook to sync data in Email Service
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
+  #  todo: "KYCaas-Changes"
+  # def create_email_service_api_call_hook
+  #   return if @is_re_submit
   #
-  def create_email_service_api_call_hook
-    return if @is_re_submit
-
-    Rails.logger.info('-- create_email_service_api_call_hook')
-
-    Email::HookCreator::AddContact.new(
-        email: @user.email,
-        custom_attributes: {
-          GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value,
-          GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_attribute => GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_value,
-          GlobalConstant::PepoCampaigns.token_sale_phase_attribute => @user_kyc_detail.token_sale_participation_phase
-        }
-    ).perform
-
-  end
+  #   Rails.logger.info('-- create_email_service_api_call_hook')
+  #
+  #   Email::HookCreator::AddContact.new(
+  #       email: @user.email,
+  #       custom_attributes: {
+  #         GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value,
+  #         GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_attribute => GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_value,
+  #         GlobalConstant::PepoCampaigns.token_sale_phase_attribute => @user_kyc_detail.token_sale_participation_phase
+  #       }
+  #   ).perform
+  #
+  # end
 
   # Decrypt kyc salt
   #

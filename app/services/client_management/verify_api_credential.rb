@@ -115,10 +115,12 @@ module ClientManagement
       return invalid_credentials_response('um_vac_2') unless @client.present? &&
           @client.status == GlobalConstant::Client.active_status
 
+      return invalid_credentials_response('um_vac_3') if @client.is_st_token_sale_client?
+
       r = decrypt_api_secret
 
       return error_with_data(
-          'um_vac_3',
+          'um_vac_4',
           'Something Went Wrong',
           'Something Went Wrong. Please try again',
           GlobalConstant::ErrorAction.default,
@@ -127,7 +129,7 @@ module ClientManagement
 
       generated_signature = generate_signature
 
-      return invalid_credentials_response('um_vac_3') unless generated_signature == @signature
+      return invalid_credentials_response('um_vac_5') unless generated_signature == @signature
 
       success
     end

@@ -70,7 +70,7 @@ module UserManagement
     #
     def fetch_user
       @user = User.where(email: @email).first
-      return unauthorized_access_response('um_l_1') unless @user.present? &&
+      return unauthorized_access_response('um_l_1') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
       return error_with_data(

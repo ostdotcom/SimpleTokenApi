@@ -9,6 +9,7 @@ class CreateClientWhitelistDetails < DbMigrationConnection
         t.timestamps
       end
       add_index :client_whitelist_details, :client_id, unique: true, name: 'uniq_client_id'
+      add_index :client_whitelist_details, :contract_address, unique: true, name: 'uniq_contract_address'
     end
   end
 

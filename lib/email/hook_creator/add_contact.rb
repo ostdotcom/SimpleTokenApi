@@ -12,6 +12,7 @@ module Email
       # * Date: 10/10/2017
       # * Reviewed By: Sunil
       #
+      # @params [Integer] client_id (mandatory) - client id
       # @params [Hash] custom_attributes (optional) - attribute which are to be set for this email
       # @params [String] custom_description (optional) - description which would be logged in email service hooks table
       #
@@ -52,6 +53,17 @@ module Email
           GlobalConstant::ErrorAction.default,
           {}
         ) if @email.blank?
+
+        r = validate_for_email_setup
+        return r unless r.success?
+
+        return error_with_data(
+            'e_hc_uc_2',
+            'Add contact cannot be done for clients',
+            'Add contact cannot be done for clients',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) unless @client.is_st_token_sale_client?
 
         validate_custom_variables
 

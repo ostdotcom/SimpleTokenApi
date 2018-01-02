@@ -1,4 +1,4 @@
-class ExternalUser::BaseController < ApiController
+class Saas::BaseController < ApiController
 
   private
 

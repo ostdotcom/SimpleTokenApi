@@ -35,17 +35,21 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-        return if GlobalConstant::TokenSale.is_sale_ended?
 
-        UserKycDetail.where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
+        Clients.all.each do |client_obj|
+          @client = client_obj
+          next if @client.is_st_token_sale_client?
 
-          batches.each do |user_kyc_detail|
-            process_user_kyc_details(user_kyc_detail)
+          UserKycDetail.where(client_id: @client.id, cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
+
+            batches.each do |user_kyc_detail|
+              process_user_kyc_details(user_kyc_detail)
+            end
+
+            send_denied_email
+
+            reset_data
           end
-
-          send_denied_email
-
-          reset_data
         end
       end
 
@@ -62,7 +66,7 @@ module Crons
       def process_user_kyc_details(user_kyc_detail)
         is_already_kyc_denied_by_admin = user_kyc_detail.kyc_denied?
 
-        r = Cynopsis::Customer.new().check_status({rfrID: user_kyc_detail.cynopsis_user_id})
+        r = Cynopsis::Customer.new(client_id: user_kyc_detail.client_id).check_status({rfrID: user_kyc_detail.cynopsis_user_id})
         Rails.logger.info("-- call_cynopsis_check_status_api response: #{r.inspect}")
         return unless r.success?
 
@@ -92,12 +96,15 @@ module Crons
         User.where(id: @denied_user_ids).select(:email, :id).each do |user|
 
           Email::HookCreator::SendTransactionalMail.new(
+              client_id: @client.id,
               email: user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
               template_vars: {}
-          ).perform
+          ).perform if @client.is_email_setup_done?
 
         end
+
+        return unless @client.is_st_token_sale_client?
 
         User.where(id: @denied_user_ids).update_all(bt_name: nil, updated_at: Time.now.to_s(:db))
         User.bulk_flush(@denied_user_ids)

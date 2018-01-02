@@ -7,7 +7,9 @@ namespace :onetimer do
     filepath = "#{Rails.root}/lib/tasks/onetimer/alt_coin_bonus_log_transaction_hash_data.csv"
 
     def send_alt_coin_bonus_distribution_email(email, template_vars)
-      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
+      send_mail_response = Email::Services::PepoCampaigns.new(
+          ClientPepoCampaignDetail.get_from_memcache(GlobalConstant::TokenSale.st_token_sale_client_id)).
+          send_transactional_email(
           email, GlobalConstant::PepoCampaigns.altdrop_sent, template_vars)
 
       if send_mail_response['error'].present?
@@ -18,6 +20,7 @@ namespace :onetimer do
 
     def send_purchase_confirmation_email_via_hooks(email, template_vars)
       Email::HookCreator::SendTransactionalMail.new(
+          client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
           email: email,
           template_name: GlobalConstant::PepoCampaigns.altdrop_sent,
           template_vars: template_vars

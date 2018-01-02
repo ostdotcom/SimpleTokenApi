@@ -51,6 +51,19 @@ module Email
           {}
         ) if @email.blank?
 
+
+        r = validate_for_email_setup
+        return r unless r.success?
+
+        return error_with_data(
+            'e_hc_uc_2',
+            'Add contact cannot be done for clients',
+            'Add contact cannot be done for clients',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) unless @client.is_st_token_sale_client?
+
+
         validate_custom_variables
 
       end

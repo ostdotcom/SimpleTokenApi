@@ -57,7 +57,7 @@ Rails.application.routes.draw do
     match 'whitelist-event' => :whitelist_event, via: :GET
   end
 
-  scope 'api/v1/kyc', controller: 'external_user/kyc' do
+  scope 'api/v1/kyc', controller: 'saas/kyc' do
     match 'add-kyc' => :add_kyc, via: :POST
   end
 

@@ -27,7 +27,8 @@ namespace :onetimer do
 
         puts "#{user.email} -> #{custom_attributes}"
 
-        r = Email::Services::PepoCampaigns.new.add_contact(
+        r = Email::Services::PepoCampaigns.new(
+            ClientPepoCampaignDetail.get_from_memcache(GlobalConstant::TokenSale.st_token_sale_client_id)).add_contact(
           *add_update_contact_params
         )
 

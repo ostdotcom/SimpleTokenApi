@@ -2,7 +2,6 @@ module WhitelistManagement
 
   class ProcessAndRecordEvent < ServicesBase
 
-    # todo: client id
     # Initialize
     #
     # * Author: Aman
@@ -23,6 +22,8 @@ module WhitelistManagement
       @kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
 
       @block_number, @event_data, @contract_address = nil, nil, nil
+
+      @client_id, @client = nil, nil
     end
 
     # Perform
@@ -297,12 +298,12 @@ module WhitelistManagement
     #
     # @params [Array] prospective_user_extended_detail_ids
     #
-    # Sets @user_id, @user_kyc_detail, @user
+    # Sets @user_id, @user_kyc_detail, @user, @client_id, @client
     #
     # @return [Result::Base]
     #
     def fetch_user_kyc_detail(prospective_user_extended_detail_ids)
-      user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(
+      user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(client_id: @kyc_whitelist_log.client_id,
           user_extended_detail_id: prospective_user_extended_detail_ids
       ).all
 
@@ -385,8 +386,10 @@ module WhitelistManagement
       end
 
       @user_id = @user_kyc_detail.user_id
-      @user = User.get_from_memcache(@user_kyc_detail.user_id)
+      @client_id = @user_kyc_detail.client_id
 
+      @user = User.get_from_memcache(@user_kyc_detail.user_id)
+      @client = Client.get_from_memcache(@client_id)
       success
 
     end
@@ -443,21 +446,31 @@ module WhitelistManagement
     #
     def send_kyc_approved_mail
 
-      return if GlobalConstant::TokenSale.is_sale_ended?
+      return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
 
       emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(
-        GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
+          @client.id, GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
 
       return if emails_hook_info.present? && emails_hook_info[@user.email].present?
 
-      return if (KycWhitelistLog.where(ethereum_address: @ethereum_address, status:
+      return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
         [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
-      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
+      send_mail_response = Email::Services::PepoCampaigns.new(client_campaign_detail_obj).send_transactional_email(
         @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
 
       send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 
+    end
+
+    # client pepo campaign setup object
+    #
+    # * Author: Aman
+    # * Date: 02/1/2018
+    # * Reviewed By:
+    #
+    def client_campaign_detail_obj
+      @client_campaign_detail_obj ||= ClientPepoCampaignDetail.get_from_memcache(@client_id)
     end
 
     # KYC approved email transactional var data
@@ -471,7 +484,7 @@ module WhitelistManagement
     def kyc_approved_template_vars
       {
           token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-          is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
+          is_sale_active: false  #GlobalConstant::TokenSale.is_general_sale_interval?
       }
     end
 
@@ -484,6 +497,7 @@ module WhitelistManagement
     def send_kyc_approved_mail_via_hooks
 
       Email::HookCreator::SendTransactionalMail.new(
+          client_id: @client_id,
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
           template_vars: kyc_approved_template_vars

@@ -96,7 +96,7 @@ module UserManagement
     #
     def validate_token
       @user = User.get_from_memcache(@user_id)
-      return unauthorized_access_response('um_vc_5') unless @user.present? &&
+      return unauthorized_access_response('um_vc_5') unless @user.present? && @user.password.present? &&
           (@user[:status] == GlobalConstant::User.active_status)
 
       evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)

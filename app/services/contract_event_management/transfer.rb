@@ -111,7 +111,7 @@ module ContractEventManagement
     # * Reviewed By: Sunil
     #
     def update_purchase_attribute_in_pepo_campaigns
-      r = Email::Services::PepoCampaigns.new.update_contact(
+      r = Email::Services::PepoCampaigns.new(st_token_sale_campaign_detail).update_contact(
           GlobalConstant::PepoCampaigns.master_list_id,
           @user.email,
           attributes_to_update
@@ -154,10 +154,20 @@ module ContractEventManagement
     def send_purchase_confirmation_email
       return if @user.blank?
 
-      send_mail_response = Email::Services::PepoCampaigns.new.send_transactional_email(
+      send_mail_response = Email::Services::PepoCampaigns.new(st_token_sale_campaign_detail).send_transactional_email(
           @user.email, GlobalConstant::PepoCampaigns.purchase_confirmation, {})
 
       send_purchase_confirmation_email_via_hooks if send_mail_response['error'].present?
+    end
+
+    # client pepo campaign setup object
+    #
+    # * Author: Aman
+    # * Date: 02/1/2018
+    # * Reviewed By:
+    #
+    def st_token_sale_campaign_detail
+      @st_token_sale_campaign_detail ||= ClientPepoCampaignDetail.get_from_memcache(GlobalConstant::TokenSale.st_token_sale_client_id)
     end
 
     # Send Email via hook processor
@@ -169,6 +179,7 @@ module ContractEventManagement
     def send_purchase_confirmation_email_via_hooks
 
       Email::HookCreator::SendTransactionalMail.new(
+          client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.purchase_confirmation,
           template_vars: {}

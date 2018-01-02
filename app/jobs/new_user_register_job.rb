@@ -81,10 +81,11 @@ class NewUserRegisterJob < ApplicationJob
   def create_email_service_api_call_hook
 
     Email::HookCreator::AddContact.new(
-      email: @user.email,
-      custom_attributes: {
-        GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value
-      }
+        client_id: @client.id,
+        email: @user.email,
+        custom_attributes: {
+            GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value
+        }
     ).perform
 
   end

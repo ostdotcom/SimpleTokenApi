@@ -11,6 +11,7 @@ module Email
       # * Reviewed By:
       #
       # @param [String] email (mandatory) - Email
+      # @params [Integer] client_id (mandatory) - client id
       # @param [String] event_type (mandatory) - event_type that would go into hooks table
       # @param [String] template_name (mandatory) - Template Name
       # @param [Hash] template_vars (mandatory) - Template Vars
@@ -47,6 +48,9 @@ module Email
       # @return [Result::Base] returns an object of Result::Base class
       #
       def validate
+
+        r = validate_for_email_setup
+        return r unless r.success?
 
         r = validate_template_name
         return r unless r.success?

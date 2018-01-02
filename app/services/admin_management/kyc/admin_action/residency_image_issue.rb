@@ -58,6 +58,7 @@ module AdminManagement
         def send_email
 
           Email::HookCreator::SendTransactionalMail.new(
+              client_id: @client.id,
               email: @user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_residency_image_issue_template,
               template_vars: @email_temp_vars

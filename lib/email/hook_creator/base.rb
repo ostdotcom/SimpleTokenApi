@@ -16,6 +16,7 @@ module Email
       #
       def initialize(params)
         @email = params[:email]
+        @client_id = params[:client_id]
         @custom_description = params[:custom_description]
         @custom_attributes = params[:custom_attributes] || {}
       end
@@ -89,11 +90,11 @@ module Email
           success
         else
           error_with_data(
-            'e_hc_b_3',
-            'Invalid Email',
-            'Invalid Email',
-            GlobalConstant::ErrorAction.default,
-            {}
+              'e_hc_b_3',
+              'Invalid Email',
+              'Invalid Email',
+              GlobalConstant::ErrorAction.default,
+              {}
           )
         end
 
@@ -124,6 +125,31 @@ module Email
 
       end
 
+      # check if client has email setup
+      #
+      # * Author: Aman
+      # * Date: 26/12/2017
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      # Sets @client
+      #
+      def validate_for_email_setup
+
+        @client = Client.get_from_memcache(@client_id)
+
+        return error_with_data(
+            'e_hc_b_3',
+            'Client has not completed email setup',
+            'Client has not completed email setup',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) unless @client.is_email_setup_done?
+
+        success
+      end
+
       # Create new hook
       #
       # * Author: Puneet
@@ -135,11 +161,12 @@ module Email
       #
       def create_hook(params = {})
         EmailServiceApiCallHook.create!(
-          event_type: event_type,
-          email: @email,
-          execution_timestamp: params[:execution_timestamp] || current_timestamp,
-          custom_description: @custom_description,
-          params: params
+            client_id: @client_id,
+            event_type: event_type,
+            email: @email,
+            execution_timestamp: params[:execution_timestamp] || current_timestamp,
+            custom_description: @custom_description,
+            params: params
         )
       end
 

@@ -74,7 +74,7 @@ module AdminManagement
           ) if @email_temp_vars.blank?
 
           error_fields = []
-          @email_temp_vars.each{|e_f_k, _| error_fields << e_f_k.to_s.humanize}
+          @email_temp_vars.each { |e_f_k, _| error_fields << e_f_k.to_s.humanize }
           @extra_data = {
               error_fields: error_fields
           }
@@ -92,6 +92,7 @@ module AdminManagement
         def send_email
 
           Email::HookCreator::SendTransactionalMail.new(
+              client_id: @client.id,
               email: @user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_data_mismatch_template,
               template_vars: @email_temp_vars

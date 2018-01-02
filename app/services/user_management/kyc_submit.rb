@@ -53,7 +53,6 @@ module UserManagement
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
 
       @client = nil
-      @user_secret = nil
       @user = nil
       @kyc_salt_d = nil
       @kyc_salt_e = nil
@@ -95,7 +94,7 @@ module UserManagement
 
       enqueue_job
 
-      success
+      success_with_data({user_id: @user_id})
     end
 
     private
@@ -306,14 +305,12 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Kedar
     #
-    # Sets @user, @user_secret
+    # Sets @user
     #
     def fetch_user_data
       @user = User.get_from_memcache(@user_id)
       return unauthorized_access_response('um_ks_4') unless @user.present? && @user.client_id == @client_id &&
           (@user.status == GlobalConstant::User.active_status)
-      @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response('um_ks_5') unless @user_secret.present?
 
       success
     end

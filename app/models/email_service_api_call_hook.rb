@@ -47,11 +47,11 @@ class EmailServiceApiCallHook < EstablishSimpleTokenEmailDbConnection
     #
     # @return [Hash]
     #
-    def get_emails_hook_info(template, emails)
+    def get_emails_hook_info(client_id, template, emails)
       emails_hook_info = {}
       return emails_hook_info if template.blank? || emails.blank?
 
-      EmailServiceApiCallHook.where(email: emails, event_type: GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type).
+      EmailServiceApiCallHook.where(client_id: client_id, email: emails, event_type: GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type).
           all.each do |h|
         next if h.params[:template_name] != template
         emails_hook_info[h.email] = true

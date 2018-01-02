@@ -161,7 +161,7 @@ module UserManagement
     #
     def fetch_user
       @user = User.get_from_memcache(@temporary_token_obj.user_id)
-      return unauthorized_access_response('um_rp_9') unless @user.present? &&
+      return unauthorized_access_response('um_rp_9') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first

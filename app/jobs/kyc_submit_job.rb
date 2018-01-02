@@ -251,7 +251,7 @@ class KycSubmitJob < ApplicationJob
   # @return [Result::Base]
   #
   def create_cynopsis_case
-    Cynopsis::Customer.new().create(cynopsis_params)
+    Cynopsis::Customer.new(client_id: @user.client_id).create(cynopsis_params)
   end
 
   # Update user in cynopsis
@@ -263,7 +263,7 @@ class KycSubmitJob < ApplicationJob
   # @return [Result::Base]
   #
   def update_cynopsis_case
-    Cynopsis::Customer.new().update(cynopsis_params, true)
+    Cynopsis::Customer.new(client_id: @user.client_id).update(cynopsis_params, true)
   end
 
   # Create cynopsis params
@@ -352,7 +352,7 @@ class KycSubmitJob < ApplicationJob
 
     upload_params[:please_mention] = desc if document_type == 'OTHERS'
 
-    r = Cynopsis::Document.new().upload(upload_params)
+    r = Cynopsis::Document.new(client_id: @user.client_id).upload(upload_params)
 
     if !r.success?
       log_to_user_activity(r)

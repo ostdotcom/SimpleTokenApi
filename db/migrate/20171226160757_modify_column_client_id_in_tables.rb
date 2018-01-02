@@ -28,6 +28,7 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
     UserKycDetail.update_all(client_id: client_id)
     User.update_all(client_id: client_id)
     KycWhitelistLog.update_all(client_id: client_id)
+    EmailServiceApiCallHook.update_all(client_id: client_id)
 
 
     # modify client id to null false
@@ -45,6 +46,10 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
       change_column :kyc_whitelist_logs, :client_id, :integer, null: false
     end
 
+    run_migration_for_db(EstablishSimpleTokenEmailDbConnection.config_key) do
+      change_column :email_service_api_call_hooks, :client_id, :integer, null: false
+    end
+
   end
 
   def down
@@ -60,6 +65,10 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
 
     run_migration_for_db(EstablishSimpleTokenContractInteractionsDbConnection.config_key) do
       change_column :kyc_whitelist_logs, :client_id, :integer, null: true
+    end
+
+    run_migration_for_db(EstablishSimpleTokenEmailDbConnection.config_key) do
+      change_column :email_service_api_call_hooks, :client_id, :integer, null: true
     end
 
   end

@@ -88,7 +88,7 @@ module AdminManagement
           success
         end
 
-        # check if client has whitelist setup
+        # check if client has Email setup
         #
         # * Author: Aman
         # * Date: 26/12/2017

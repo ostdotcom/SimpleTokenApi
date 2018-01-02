@@ -293,3 +293,9 @@
   :mandatory:
     - :contract_event_obj
   :optional:
+
+'SaasManagement::AddUser':
+  :mandatory:
+    - :email
+    - :client_id
+  :optional:

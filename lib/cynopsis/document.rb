@@ -8,6 +8,8 @@ module Cynopsis
     # * Date: 10/10/2017
     # * Reviewed By:
     #
+    # @params [Integer] client id (mandatory) - Client id
+
     # @return [Cynopsis::Document]
     #
     def initialize
@@ -28,7 +30,7 @@ module Cynopsis
     # @return [Result::Base]
     #
     def upload(params)
-      params[:domain_name] = GlobalConstant::Cynopsis.domain_name
+      params[:domain_name] = client_cynopsis_detail.domain_name
       params[:file] = HTTP::FormData::File.new(params[:local_file_path])
       params[:filename] = params[:local_file_path].split('/').last
       params.delete(:local_file_path)

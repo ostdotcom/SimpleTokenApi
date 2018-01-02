@@ -8,6 +8,8 @@ module Cynopsis
     # * Date: 10/10/2017
     # * Reviewed By:
     #
+    # @params [Integer] client id (mandatory) - Client id
+    #
     # @return [Cynopsis::Customer]
     #
     def initialize
@@ -32,7 +34,7 @@ module Cynopsis
     # @return [Result::Base]
     #
     def create(params)
-      params[:domain_name] = GlobalConstant::Cynopsis.domain_name
+      params[:domain_name] = client_cynopsis_detail.domain_name
       params.merge!(default_mandatory_api_params)
 
       post_request('/default/individual_risk', params)
@@ -56,7 +58,7 @@ module Cynopsis
     # @return [Result::Base]
     #
     def update(params, re_assess = false)
-      params[:domain_name] = GlobalConstant::Cynopsis.domain_name
+      params[:domain_name] = client_cynopsis_detail.domain_name
       # Set new if you are sending the completely new data and want new scan
       params[:re_assess] = re_assess
       params.merge!(default_mandatory_api_params)
@@ -75,7 +77,7 @@ module Cynopsis
     # @return [Result::Base]
     #
     def check_status(params)
-      params[:domain_name] = GlobalConstant::Cynopsis.domain_name
+      params[:domain_name] = client_cynopsis_detail.domain_name
 
       get_request('/default/check_status.json', params)
     end

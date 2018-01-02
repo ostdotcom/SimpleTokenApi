@@ -68,7 +68,7 @@ module UserManagement
           GlobalConstant::ErrorAction.default,
           {},
           {email: 'This user is not registered or is blocked'}
-      ) unless @user.present? && (@user.status == GlobalConstant::User.active_status)
+      ) unless @user.present? && @user.password.present? && (@user.status == GlobalConstant::User.active_status)
 
       success
     end
@@ -105,6 +105,7 @@ module UserManagement
     #
     def send_forgot_password_mail
       Email::HookCreator::SendTransactionalMail.new(
+          client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.forgot_password_template,
           template_vars: {

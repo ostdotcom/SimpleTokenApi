@@ -97,6 +97,7 @@ module AdminManagement
 
           if @user_kyc_detail.kyc_denied?
             Email::HookCreator::SendTransactionalMail.new(
+                client_id: @client.id,
                 email: @user.email,
                 template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
                 template_vars: {}

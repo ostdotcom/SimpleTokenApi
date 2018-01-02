@@ -12,9 +12,11 @@ module Cynopsis
     # * Date: 10/10/2017
     # * Reviewed By:
     #
+    # @params [Integer] client id (mandatory) - Client id
     # @return [Cynopsis::Base]
     #
     def initialize
+      @client_id = params[:client_id]
     end
 
     private
@@ -79,6 +81,18 @@ module Cynopsis
       send_request_of_type('upload', path, params)
     end
 
+    # Client cynopsis detail obj
+    #
+    # * Author: Aman
+    # * Date: 02/01/2018
+    # * Reviewed By:
+    #
+    # @return [Ar] ClientCynopsisDetail object
+    #
+    def client_cynopsis_detail
+      @client_cynopsis_detail ||= ClientCynopsisDetail.get_from_memcache(@client_id)
+    end
+
     # Send required request
     #
     # * Author: Sunil Khedar
@@ -93,8 +107,8 @@ module Cynopsis
     #
     def send_request_of_type(request_type, path, params)
       begin
-        response = HTTP.headers('WEB2PY-USER-TOKEN' => GlobalConstant::Cynopsis.token)
-        request_path = GlobalConstant::Cynopsis.base_url + path
+        response = HTTP.headers('WEB2PY-USER-TOKEN' => client_cynopsis_detail.token)
+        request_path = client_cynopsis_detail.base_url + path
 
         case request_type
           when 'get'

@@ -21,13 +21,14 @@ namespace :onetimer do
     User.where(id: purchased_user_ids).order(:id).each do |user|
 
       custom_attributes_to_update = {
-        GlobalConstant::PepoCampaigns.token_sale_has_purchased_attribute => GlobalConstant::PepoCampaigns.token_sale_has_purchased_value
+          GlobalConstant::PepoCampaigns.token_sale_has_purchased_attribute => GlobalConstant::PepoCampaigns.token_sale_has_purchased_value
       }
 
-      r = Email::Services::PepoCampaigns.new.update_contact(
-        GlobalConstant::PepoCampaigns.master_list_id,
-        user.email,
-        custom_attributes_to_update
+      r = Email::Services::PepoCampaigns.new(
+          ClientPepoCampaignDetail.get_from_memcache(GlobalConstant::TokenSale.st_token_sale_client_id)).update_contact(
+          GlobalConstant::PepoCampaigns.master_list_id,
+          user.email,
+          custom_attributes_to_update
       )
 
       if r['error'].present?
@@ -35,8 +36,9 @@ namespace :onetimer do
         p "Trying through hook processing in async"
 
         r = Email::HookCreator::UpdateContact.new(
-          email: user.email,
-          custom_attributes: custom_attributes_to_update
+            client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+            email: user.email,
+            custom_attributes: custom_attributes_to_update
         ).perform
 
         if !r.success?

@@ -18,6 +18,7 @@ module Email
       #
       def initialize(hook)
         @hook = hook
+        @client_pepo_campaign_detail_obj = ClientPepoCampaignDetail.get_from_memcache(hook.client_id)
       end
 
       # Perform

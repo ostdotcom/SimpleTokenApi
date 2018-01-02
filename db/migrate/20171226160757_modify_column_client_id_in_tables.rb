@@ -2,34 +2,31 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
 
   def up
 
-    # Add client for simpletoken and update all tables with client id
+    params = {
+        "client_name" => "simpletoken",
+        "cynopsis" => {
+            "domain_name" => GlobalConstant::Cynopsis.domain_name,
+            "token" => GlobalConstant::Cynopsis.token,
+            "base_url" =>  GlobalConstant::Cynopsis.base_url
+        },
+        "pepo_campaign" => {
+            "api_key" => GlobalConstant::PepoCampaigns.api_key,
+            "api_secret" => GlobalConstant::PepoCampaigns.api_secret
+        },
+        "whitelist" => {
+            "contract_address" => GlobalConstant::TokenSale.st_token_sale_ethereum_address
+        }
+    }
 
-    client = Client.create(name: 'simpletoken', status: GlobalConstant::Client.active_status, setup_properties: 7, api_key: SecureRandom.hex, api_secret: SecureRandom.hex)
-    client_id = client.id
+    system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='#{params.to_json}'")
 
-
-    ClientCynopsisDetail.create(client_id: client_id, domain_name: GlobalConstant::Cynopsis.domain_name,
-                                token: GlobalConstant::Cynopsis.token, base_url: GlobalConstant::Cynopsis.base_url,
-                                status: GlobalConstant::ClientCynopsisDetail.active_status)
-
-    ClientPepoCampaignDetail.create(client_id: client_id, api_key: GlobalConstant::PepoCampaigns.api_key,
-                                    api_secret: GlobalConstant::PepoCampaigns.api_secret,
-                                    status: GlobalConstant::ClientPepoCampaignDetail.active_status)
-
-    Admin.all.each do |admin|
-
-      ClientAdmin.create(client_id: client_id, admin_id: admin.id,
-                         role: GlobalConstant::ClientAdmin.normal_admin_role,
-                         status: GlobalConstant::ClientAdmin.active_status)
-
-    end
+    client_id = Client.first.id
 
     Admin.update_all(default_client_id: client_id)
     UserKycDetail.update_all(client_id: client_id)
     User.update_all(client_id: client_id)
     KycWhitelistLog.update_all(client_id: client_id)
     EmailServiceApiCallHook.update_all(client_id: client_id)
-
 
     # modify client id to null false
 

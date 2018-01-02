@@ -9,6 +9,9 @@ constants:
     entity_association:
       arn: <%= ENV['STA_ENTITY_ASSOC_ARN']%>
       id: <%= ENV['STA_ENTITY_ASSOC_ID']%>
+    saas:
+      arn: <%= ENV['STA_SAAS_KMS_ARN']%>
+      id: <%= ENV['STA_SAAS_KMS_ID']%>
 
   cynopsis:
     base_url: <%= ENV['STA_CYNOPSIS_BASE_URL']%>
@@ -23,6 +26,9 @@ constants:
     user:
       access_key: <%= ENV['STA_USER_AWS_ACCESS_KEY']%>
       secret_key: <%= ENV['STA_USER_AWS_SECRET_KEY']%>
+    saas:
+      access_key: <%= ENV['STA_SAAS_AWS_ACCESS_KEY']%>
+      secret_key: <%= ENV['STA_SAAS_AWS_SECRET_KEY']%>
 
   pepo_campaigns:
     api:

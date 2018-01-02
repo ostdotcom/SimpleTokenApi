@@ -61,6 +61,12 @@ export STA_SIMPLE_TOKEN_CONTRACT_ADDRESS='0xb4c3Cdd293842A6c6233690eEf2d3924099D
 
 export SIMPLE_TOKEN_SALE_CLIENT_ID=1
 
+export STA_SAAS_AWS_ACCESS_KEY="AKIAIAKMZNBD6IWWGNNQ"
+export STA_SAAS_AWS_SECRET_KEY="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"
+
+export STA_SAAS_KMS_ARN="arn:aws:kms:us-east-1:604850698061:key"
+export STA_SAAS_KMS_ID="c9faf079-68b0-4186-8231-eb331fcd365d"
+
 ##crons
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1

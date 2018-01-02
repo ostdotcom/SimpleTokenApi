@@ -35,7 +35,6 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-
         Clients.all.each do |client_obj|
           @client = client_obj
           next if @client.is_st_token_sale_client?

@@ -24,13 +24,14 @@ module Email
       require "openssl"
 
       # Initialize
-      # @params [AR] client_pepo_campaign_detail obj
+      # @params [String] api_key(mandatory)
+      # @params [String] api_secret(mandatory)
       #
       # Sets @api_key, @api_secret, @api_base_url, @version
       #
-      def initialize(client_pepo_campaign_detail)
-        @api_key = client_pepo_campaign_detail.api_key
-        @api_secret = client_pepo_campaign_detail.api_secret
+      def initialize(api_key, api_secret)
+        @api_key = api_key
+        @api_secret = api_secret
         @api_base_url = GlobalConstant::PepoCampaigns.base_url
         @version = GlobalConstant::PepoCampaigns.version
       end

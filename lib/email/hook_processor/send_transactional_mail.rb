@@ -56,7 +56,7 @@ module Email
 
         send_mail_params = @hook.params
 
-        send_mail_response = Email::Services::PepoCampaigns.new(@client_pepo_campaign_detail_obj).send_transactional_email(
+        send_mail_response = pepo_campaign_obj.send_transactional_email(
           @hook.email,
           send_mail_params[:template_name],
           send_mail_params[:template_vars]

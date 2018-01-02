@@ -8,6 +8,7 @@ class CreateClients < DbMigrationConnection
         t.column :name, :string, null: false
         t.column :status, :tinyint, limit: 1, null: false
         t.column :setup_properties, :tinyint, null: false
+        t.column :api_salt, :string, null: false
         t.column :api_key, :string, null: false
         t.column :api_secret, :string, null: false
         t.timestamps

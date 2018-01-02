@@ -12,7 +12,7 @@ module Cynopsis
     #
     # @return [Cynopsis::Customer]
     #
-    def initialize
+    def initialize(params)
       super
     end
 

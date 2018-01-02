@@ -456,21 +456,37 @@ module WhitelistManagement
       return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
         [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
-      send_mail_response = Email::Services::PepoCampaigns.new(client_campaign_detail_obj).send_transactional_email(
+      send_mail_response = pepo_campaign_obj.send_transactional_email(
         @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
 
       send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 
     end
 
-    # client pepo campaign setup object
+    # pepo campaign klass
     #
     # * Author: Aman
-    # * Date: 02/1/2018
+    # * Date: 02/01/2018
     # * Reviewed By:
     #
-    def client_campaign_detail_obj
-      @client_campaign_detail_obj ||= ClientPepoCampaignDetail.get_from_memcache(@client_id)
+    # @return [Object] Email::Services::PepoCampaigns
+    def pepo_campaign_obj
+      @pepo_campaign_obj ||= begin
+        client_campaign_detail = ClientPepoCampaignDetail.get_from_memcache(@client_id)
+
+        r = Aws::Kms.new('saas', 'saas').decrypt(client.api_salt)
+        return r unless r.success?
+
+        api_salt_d = r.data[:plaintext]
+
+        r = LocalCipher.new(api_salt_d).decrypt(client_campaign_detail.api_secret)
+        return r unless r.success?
+
+        api_secret_d = r.data[:plaintext]
+
+        Email::Services::PepoCampaigns.new(api_key: client_campaign_detail.api_key, api_secret: api_secret_d)
+      end
+
     end
 
     # KYC approved email transactional var data

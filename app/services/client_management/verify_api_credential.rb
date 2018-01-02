@@ -28,6 +28,7 @@ module ClientManagement
       @request_parameters = @params[:request_parameters]
 
       @parsed_request_time = nil
+      @api_secret_d = nil
 
     end
 
@@ -114,6 +115,16 @@ module ClientManagement
       return invalid_credentials_response('um_vac_2') unless @client.present? &&
           @client.status == GlobalConstant::Client.active_status
 
+      r = decrypt_api_secret
+
+      return error_with_data(
+          'um_vac_3',
+          'Something Went Wrong',
+          'Something Went Wrong. Please try again',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) unless r.success?
+
       generated_signature = generate_signature
 
       return invalid_credentials_response('um_vac_3') unless generated_signature == @signature
@@ -132,7 +143,31 @@ module ClientManagement
     def generate_signature
       digest = OpenSSL::Digest.new('sha256')
       string_to_sign = "#{@url_path}?#{sorted_parameters_query}"
-      OpenSSL::HMAC.hexdigest(digest, @client.api_secret, string_to_sign)
+      OpenSSL::HMAC.hexdigest(digest, @api_secret_d, string_to_sign)
+    end
+
+    # Decrypt api secret
+    #
+    # * Author: Aman
+    # * Date: 02/01/2018
+    # * Reviewed By:
+    #
+    # Sets @api_secret_d
+    #
+    # @return [Result::Base]
+    #
+    def decrypt_api_secret
+      r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+      return r unless r.success?
+
+      api_salt_d = r.data[:plaintext]
+
+      r = LocalCipher.new(api_salt_d).decrypt(@client.api_secret)
+      return r unless r.success?
+
+      @api_secret_d = r.data[:plaintext]
+
+      success
     end
 
     # Sort request parameters

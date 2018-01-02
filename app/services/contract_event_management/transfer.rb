@@ -18,6 +18,7 @@ module ContractEventManagement
       @ethereum_address, @ether_value, @usd_value, @st_wei_value = nil, nil, nil, nil
 
       @user = nil
+      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -111,12 +112,39 @@ module ContractEventManagement
     # * Reviewed By: Sunil
     #
     def update_purchase_attribute_in_pepo_campaigns
-      r = Email::Services::PepoCampaigns.new(st_token_sale_campaign_detail).update_contact(
+      r = pepo_campaign_obj.update_contact(
           GlobalConstant::PepoCampaigns.master_list_id,
           @user.email,
           attributes_to_update
       )
       update_purchase_attribute_in_pepo_campaigns_via_hooks if r['error'].present?
+    end
+
+    # pepo campaign klass
+    #
+    # * Author: Aman
+    # * Date: 02/01/2018
+    # * Reviewed By:
+    #
+    # @return [Object] Email::Services::PepoCampaigns
+    def pepo_campaign_obj
+      @pepo_campaign_obj ||= begin
+        st_token_sale_campaign_detail = ClientPepoCampaignDetail.get_from_memcache(@client_id)
+        client = Client.get_from_memcache(@client_id)
+
+        r = Aws::Kms.new('saas', 'saas').decrypt(client.api_salt)
+        return r unless r.success?
+
+        api_salt_d = r.data[:plaintext]
+
+        r = LocalCipher.new(api_salt_d).decrypt(st_token_sale_campaign_detail.api_secret)
+        return r unless r.success?
+
+        api_secret_d = r.data[:plaintext]
+
+        Email::Services::PepoCampaigns.new(api_key: st_token_sale_campaign_detail.api_key, api_secret: api_secret_d)
+      end
+
     end
 
     # Attributes to update in pepo campaign
@@ -140,6 +168,7 @@ module ContractEventManagement
     #
     def update_purchase_attribute_in_pepo_campaigns_via_hooks
       Email::HookCreator::UpdateContact.new(
+          client_id: @client_id,
           email: @user.email,
           custom_attributes: attributes_to_update
       ).perform
@@ -154,7 +183,7 @@ module ContractEventManagement
     def send_purchase_confirmation_email
       return if @user.blank?
 
-      send_mail_response = Email::Services::PepoCampaigns.new(st_token_sale_campaign_detail).send_transactional_email(
+      send_mail_response = pepo_campaign_obj.send_transactional_email(
           @user.email, GlobalConstant::PepoCampaigns.purchase_confirmation, {})
 
       send_purchase_confirmation_email_via_hooks if send_mail_response['error'].present?

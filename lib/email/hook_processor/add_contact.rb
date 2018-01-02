@@ -56,7 +56,7 @@ module Email
       #
       def process_hook
 
-        add_contact_response = Email::Services::PepoCampaigns.new(@client_pepo_campaign_detail_obj).add_contact(
+        add_contact_response = pepo_campaign_obj.add_contact(
           *add_update_contact_params
         )
 

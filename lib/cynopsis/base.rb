@@ -15,7 +15,7 @@ module Cynopsis
     # @params [Integer] client id (mandatory) - Client id
     # @return [Cynopsis::Base]
     #
-    def initialize
+    def initialize(params)
       @client_id = params[:client_id]
     end
 
@@ -93,6 +93,30 @@ module Cynopsis
       @client_cynopsis_detail ||= ClientCynopsisDetail.get_from_memcache(@client_id)
     end
 
+    # Client cynopsis detail decrypted token
+    #
+    # * Author: Aman
+    # * Date: 02/01/2018
+    # * Reviewed By:
+    #
+    # @return [String] ClientCynopsisDetail decrypted token
+    #
+    def client_cynopsis_token_decrypted
+      @client = Client.get_from_memcache(@client_id)
+
+      r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+      return r unless r.success?
+
+      api_salt_d = r.data[:plaintext]
+
+      r = LocalCipher.new(api_salt_d).decrypt(client_cynopsis_detail.token)
+      return r unless r.success?
+
+      api_secret_d = r.data[:plaintext]
+
+      success_with_data({token_d: api_secret_d})
+    end
+
     # Send required request
     #
     # * Author: Sunil Khedar
@@ -107,7 +131,10 @@ module Cynopsis
     #
     def send_request_of_type(request_type, path, params)
       begin
-        response = HTTP.headers('WEB2PY-USER-TOKEN' => client_cynopsis_detail.token)
+        r = get_client_cynopsis_token_decrypted
+        return r unless r.success?
+
+        response = HTTP.headers('WEB2PY-USER-TOKEN' => r.data[:token_d])
         request_path = client_cynopsis_detail.base_url + path
 
         case request_type

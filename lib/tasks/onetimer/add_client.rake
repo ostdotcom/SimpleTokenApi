@@ -28,12 +28,12 @@ namespace :onetimer do
     fail 'token cannot be blank for cynopsis' if cynopsis_data['token'].blank?
 
     if pepo_campaign_data.present?
-      fail 'api_key cannot be blank for pepo_campaign' if  pepo_campaign_data['api_key'].blank?
-      fail 'api_secret cannot be blank for pepo_campaign' if  pepo_campaign_data['api_secret'].blank?
+      fail 'api_key cannot be blank for pepo_campaign' if pepo_campaign_data['api_key'].blank?
+      fail 'api_secret cannot be blank for pepo_campaign' if pepo_campaign_data['api_secret'].blank?
     end
 
     if whitelist_data.present?
-      fail 'contract_address cannot be blank for whitelist_data' if  whitelist_data['contract_address'].blank?
+      fail 'contract_address cannot be blank for whitelist_data' if whitelist_data['contract_address'].blank?
     end
 
     setup_properties_val = 1
@@ -82,14 +82,8 @@ namespace :onetimer do
     ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
                                  status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
 
-    Admin.all.each do |admin|
-      ClientAdmin.create(client_id: client_id, admin_id: admin.id,
-                         role: GlobalConstant::ClientAdmin.normal_admin_role,
-                         status: GlobalConstant::ClientAdmin.active_status)
 
-    end
-
-
+    puts "success"
   end
 
 end

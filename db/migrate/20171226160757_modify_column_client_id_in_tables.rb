@@ -28,6 +28,13 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
     KycWhitelistLog.update_all(client_id: client_id)
     EmailServiceApiCallHook.update_all(client_id: client_id)
 
+    Admin.all.each do |admin|
+      ClientAdmin.create(client_id: client_id, admin_id: admin.id,
+                         role: GlobalConstant::ClientAdmin.normal_admin_role,
+                         status: GlobalConstant::ClientAdmin.active_status)
+
+    end
+
     # modify client id to null false
 
     run_migration_for_db(EstablishSimpleTokenAdminDbConnection.config_key) do

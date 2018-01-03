@@ -29,9 +29,9 @@ module Email
       #
       # Sets @api_key, @api_secret, @api_base_url, @version
       #
-      def initialize(api_key, api_secret)
-        @api_key = api_key
-        @api_secret = api_secret
+      def initialize(params)
+        @api_key = params[:api_key]
+        @api_secret = params[:api_secret]
         @api_base_url = GlobalConstant::PepoCampaigns.base_url
         @version = GlobalConstant::PepoCampaigns.version
       end

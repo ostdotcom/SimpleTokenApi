@@ -7,7 +7,7 @@ namespace :onetimer do
     # filepath = "#{Rails.root}/lib/tasks/onetimer/alt_coin_bonus_log_transaction_hash_data.csv"
     #
     # def send_alt_coin_bonus_distribution_email(email, template_vars)
-    #   send_mail_response = Email::Services::PepoCampaigns.new('','').
+    #   send_mail_response = Email::Services::PepoCampaigns.new({}).
     #       send_transactional_email(
     #       email, GlobalConstant::PepoCampaigns.altdrop_sent, template_vars)
     #

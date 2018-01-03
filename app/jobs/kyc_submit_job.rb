@@ -23,7 +23,7 @@ class KycSubmitJob < ApplicationJob
 
     check_duplicate_kyc_documents
 
-    call_cynopsis_api
+    # call_cynopsis_api
 
     UserActivityLogJob.new().perform({
                                          user_id: @user_id,

@@ -2,7 +2,7 @@ namespace :onetimer do
 
 
   # params = {
-  #     "client_name" => "simpletoken",
+  #     "client_name" => "newtoken",
   #     "cynopsis" => {
   #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
   #         "token" => GlobalConstant::Cynopsis.token,
@@ -14,9 +14,10 @@ namespace :onetimer do
   #     }
   # }
   #
+  # system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='#{params.to_json}'")
+
+
   # params = params.to_json
-
-
   # rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"cynopsis\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
 
   task :add_client => :environment do
@@ -49,7 +50,9 @@ namespace :onetimer do
     api_salt_e = resp.data[:ciphertext_blob]
     api_salt_d = resp.data[:plaintext]
 
-    r = LocalCipher.new(api_salt_d).encrypt(SecureRandom.hex)
+    client_api_secret_d = SecureRandom.hex
+
+    r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
     return r unless r.success?
 
     api_secret_e = r.data[:ciphertext_blob]
@@ -84,7 +87,7 @@ namespace :onetimer do
                                  status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
 
 
-    puts "success"
+    puts "api-secret: #{client_api_secret_d}"
   end
 
 end

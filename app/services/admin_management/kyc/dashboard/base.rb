@@ -132,6 +132,10 @@ module AdminManagement
                   page_offset: @offset,
                   page_size: @page_size,
                   total_filtered_recs: @total_filtered_kycs
+              },
+              client_setup: {
+                  has_email_setup: @client.is_email_setup_done?,
+                  has_whitelist_setup: @client.is_whitelist_setup_done?
               }
           }
 

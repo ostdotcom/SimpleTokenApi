@@ -221,7 +221,11 @@ module AdminManagement
                 next_kyc_id: @next_kyc_id,
                 previous_kyc_id: @previous_kyc_id
             },
-            is_case_closed: @user_kyc_detail.case_closed?
+            is_case_closed: @user_kyc_detail.case_closed?,
+            client_setup: {
+                has_email_setup: @client.is_email_setup_done?,
+                has_whitelist_setup: @client.is_whitelist_setup_done?
+            }
         }
       end
 

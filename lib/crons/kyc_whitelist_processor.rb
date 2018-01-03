@@ -26,7 +26,7 @@ module Crons
     #
     def perform
       @client_whitelist_objs = ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
-      client_ids = client_whitelist_objs.keys
+      client_ids = @client_whitelist_objs.keys
 
       UserKycDetail.where(client_id: client_ids).
           kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis

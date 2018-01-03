@@ -75,10 +75,10 @@ class Admin::KycController < Admin::BaseController
   # * Date: 09/11/2017
   # * Reviewed By: Sunil
   #
-  def sale_all_dashboard
-    service_response = AdminManagement::Kyc::Dashboard::SaleAll.new(params).perform
-    render_api_response(service_response)
-  end
+  # def sale_all_dashboard
+  #   service_response = AdminManagement::Kyc::Dashboard::SaleAll.new(params).perform
+  #   render_api_response(service_response)
+  # end
 
   # Sale Day wise Dashboard
   #
@@ -86,10 +86,10 @@ class Admin::KycController < Admin::BaseController
   # * Date: 09/11/2017
   # * Reviewed By: Sunil
   #
-  def sale_daily_dashboard
-    service_response = AdminManagement::Kyc::Dashboard::SaleDaily.new(params).perform
-    render_api_response(service_response)
-  end
+  # def sale_daily_dashboard
+  #   service_response = AdminManagement::Kyc::Dashboard::SaleDaily.new(params).perform
+  #   render_api_response(service_response)
+  # end
 
   # Contract Events Dashboard
   #
@@ -97,10 +97,10 @@ class Admin::KycController < Admin::BaseController
   # * Date: 10/11/2017
   # * Reviewed By:
   #
-  def contract_events_dashboard
-    service_response = AdminManagement::Kyc::Dashboard::ContractEvents.new(params).perform
-    render_api_response(service_response)
-  end
+  # def contract_events_dashboard
+  #   service_response = AdminManagement::Kyc::Dashboard::ContractEvents.new(params).perform
+  #   render_api_response(service_response)
+  # end
 
   # Fetch duplicate
   #

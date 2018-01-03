@@ -342,7 +342,7 @@ module UserAction
     # @return [Integer] contract address
     #
     def get_contract_address
-      ClientWhitelistDetail.where(client_id, @user_kyc_detail.client_id,
+      ClientWhitelistDetail.where(client_id: @user_kyc_detail.client_id,
                                   status: GlobalConstant::ClientWhitelistDetail.active_status).
           pluck(:contract_address).first
     end

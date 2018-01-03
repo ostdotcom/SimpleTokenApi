@@ -156,12 +156,13 @@ module UserManagement
       # Check if user KYC is already approved
       user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
 
-      return unauthorized_access_response('um_ks_2', 'Invalid User') if user_kyc_detail.client_id != @client_id
+      if user_kyc_detail.present?
+        return unauthorized_access_response('um_ks_2', 'Invalid User') if user_kyc_detail.client_id != @client_id
 
-      if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
-        return unauthorized_access_response('um_ks_3', 'Your KYC is already approved/denied.')
+        return unauthorized_access_response('um_ks_3', 'Your KYC is already approved/denied.') if (user_kyc_detail.kyc_approved? ||
+            user_kyc_detail.kyc_denied?)
+
       end
-
       success
     end
 

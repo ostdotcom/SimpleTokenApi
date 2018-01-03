@@ -71,7 +71,7 @@ module ClientManagement
       return r unless r.success?
 
       @url_path = "#{@url_path}/"
-      @parsed_request_time = DateTime.rfc3339(request_time) rescue nil
+      @parsed_request_time = DateTime.rfc3339(@request_time) rescue nil
 
       return error_with_data(
           'um_vac_1',
@@ -80,6 +80,8 @@ module ClientManagement
           GlobalConstant::ErrorAction.default,
           {}
       ) unless @parsed_request_time && (@parsed_request_time.between?(Time.now - EXPIRATION_WINDOW, Time.now + EXPIRATION_WINDOW))
+
+      @request_parameters.permit!
 
       ["signature", "api_key"].each do |k|
         @request_parameters.delete(k)

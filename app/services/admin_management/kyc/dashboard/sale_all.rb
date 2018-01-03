@@ -117,7 +117,7 @@ module AdminManagement
               'Client does not access for sale dashboard',
               GlobalConstant::ErrorAction.default,
               {}
-          ) unless @client.id != GlobalConstant::TokenSale.st_token_sale_client_id
+          ) if @client.id != GlobalConstant::TokenSale.st_token_sale_client_id
 
           success
         end

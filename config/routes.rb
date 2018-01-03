@@ -46,9 +46,9 @@ Rails.application.routes.draw do
     match 'qualify' => :qualify, via: :POST
     match 'kyc-action-logs' => :kyc_action_logs, via: :GET
     match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
-    match 'sale-daily-dashboard' => :sale_daily_dashboard, via: :GET
-    match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
-    match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
+    # match 'sale-daily-dashboard' => :sale_daily_dashboard, via: :GET
+    # match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
+    # match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
     match 'get-cases-by-email' => :get_cases_by_email, via: :GET
     match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
   end

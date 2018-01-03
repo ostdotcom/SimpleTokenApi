@@ -74,6 +74,7 @@ rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
 rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
+rake RAILS_ENV=development cron_task:continuous:process_edit_kycs
 
 one-timers
 1. Verify scripts

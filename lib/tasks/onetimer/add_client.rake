@@ -21,6 +21,7 @@ namespace :onetimer do
 
   task :add_client => :environment do
 
+    params= JSON.parse(ENV['params'])
     cynopsis_data = params["cynopsis"]
     pepo_campaign_data = params["pepo_campaign"]
     whitelist_data = params["whitelist"]

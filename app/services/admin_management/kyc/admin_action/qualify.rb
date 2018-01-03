@@ -98,9 +98,19 @@ module AdminManagement
         #
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
+          @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.cleared_cynopsis_status
+          @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
           @user_kyc_detail.last_acted_by = @admin_id
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
           @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
+
+          Email::Services::PepoCampaigns.new.send_transactional_email(
+              @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template,
+              {
+                  token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+                  is_sale_active: GlobalConstant::TokenSale.is_general_sale_interval?
+              }
+          )
         end
 
       end

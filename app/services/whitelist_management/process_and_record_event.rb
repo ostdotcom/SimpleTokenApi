@@ -19,7 +19,7 @@ module WhitelistManagement
 
       @transaction_hash, @block_hash, @ethereum_address, @phase = nil, nil, nil, nil
 
-      @kyc_whitelist_log, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil
+      @kyc_whitelist_log, @client_whitelist_obj, @user_id, @user_kyc_detail, @user = nil, nil, nil, nil, nil
 
       @block_number, @event_data, @contract_address = nil, nil, nil
 
@@ -100,21 +100,20 @@ module WhitelistManagement
       @block_number = @decoded_token_data[:block_number].to_i
 
       (@decoded_token_data[:events_data] || []).each do |e|
-        if (GlobalConstant::StFoundationContract.token_sale_contract_address == e[:address]) &&
-          (e[:name] == GlobalConstant::ContractEvent.whitelist_updated_kind)
+        if e[:name] == GlobalConstant::ContractEvent.whitelist_updated_kind
 
-          @contract_address = GlobalConstant::StFoundationContract.token_sale_contract_address
+          @contract_address = e[:address]
           @event_data = e[:events]
 
         end
       end
 
       return error_with_data(
-        'wm_pare_2',
-        'invalid event data',
-        'invalid event data',
-        GlobalConstant::ErrorAction.default,
-        {}
+          'wm_pare_2',
+          'invalid event data',
+          'invalid event data',
+          GlobalConstant::ErrorAction.default,
+          {}
       ) unless @event_data.present?
 
       @event_data.each do |var_obj|
@@ -124,11 +123,11 @@ module WhitelistManagement
           when '_phase'
             _phase = var_obj[:value]
             return error_with_data(
-              'wm_pare_2.1',
-              "invalid phase value: #{_phase}",
-              "invalid phase value: #{_phase}",
-              GlobalConstant::ErrorAction.default,
-              {}
+                'wm_pare_2.1',
+                "invalid phase value: #{_phase}",
+                "invalid phase value: #{_phase}",
+                GlobalConstant::ErrorAction.default,
+                {}
             ) unless Util::CommonValidator.is_numeric?(_phase)
 
             @phase = _phase.to_i
@@ -163,7 +162,7 @@ module WhitelistManagement
                                 transaction_hash: @transaction_hash,
                                 block_number: @block_number,
                                 kind: GlobalConstant::ContractEvent.whitelist_updated_kind,
-                                contract_address:@contract_address,
+                                contract_address: @contract_address,
                                 status: contract_event_status,
                                 data: {event_data: @event_data}
                             })
@@ -175,7 +174,7 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    # Sets @kyc_whitelist_log
+    # Sets @kyc_whitelist_log, @client_whitelist_obj
     #
     # @return [Result::Base]
     #
@@ -193,6 +192,16 @@ module WhitelistManagement
             {}
         )
       end
+
+      @client_whitelist_obj = ClientWhitelistDetail.where(client_id: @kyc_whitelist_log.client_id, status: GlobalConstant::ClientWhitelistDetail.active_status).first
+
+      return error_with_data(
+          'wm_pare_2.2',
+          'Contract Address used for whitelist does not match',
+          'Contract Address used for whitelist does not match',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @client_whitelist_obj.blank || @client_whitelist_obj.contract_address.downcase != @contract_address
 
       success
     end
@@ -304,7 +313,7 @@ module WhitelistManagement
     #
     def fetch_user_kyc_detail(prospective_user_extended_detail_ids)
       user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(client_id: @kyc_whitelist_log.client_id,
-          user_extended_detail_id: prospective_user_extended_detail_ids
+                                                                             user_extended_detail_id: prospective_user_extended_detail_ids
       ).all
 
       if user_kyc_details.blank?
@@ -340,24 +349,24 @@ module WhitelistManagement
       @user_kyc_detail = user_kyc_details.first
 
       if (@phase == 0 && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
-                             GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status))
+                          GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status))
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. if phase is 0 then whitelist status should be done or failed only"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. if phase is 0 then whitelist status should be done or failed only"
         )
         return error_with_data(
-          'wm_pare_9',
-          'if phase is 0 then whitelist status should be done or failed only',
-          'if phase is 0 then whitelist status should be done or failed only',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'wm_pare_9',
+            'if phase is 0 then whitelist status should be done or failed only',
+            'if phase is 0 then whitelist status should be done or failed only',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if @phase > 0 && @user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
         notify_devs(
-          {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
+            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
         )
 
         return error_with_data(
@@ -454,10 +463,10 @@ module WhitelistManagement
       return if emails_hook_info.present? && emails_hook_info[@user.email].present?
 
       return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
-        [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
+                                                                [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
       send_mail_response = pepo_campaign_obj.send_transactional_email(
-        @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
+          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
 
       send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 
@@ -500,7 +509,7 @@ module WhitelistManagement
     def kyc_approved_template_vars
       {
           token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-          is_sale_active: false  #GlobalConstant::TokenSale.is_general_sale_interval?
+          is_sale_active: false #GlobalConstant::TokenSale.is_general_sale_interval?
       }
     end
 

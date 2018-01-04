@@ -59,6 +59,7 @@ Rails.application.routes.draw do
 
   scope 'api/v1/kyc', controller: 'saas/kyc' do
     match 'add-kyc' => :add_kyc, via: :POST
+    match 'upload-params' => :get_upload_params, via: :GET
   end
 
   match '*permalink', to: 'application#not_found', via: :all

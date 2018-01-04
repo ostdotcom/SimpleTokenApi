@@ -16,4 +16,17 @@ class Saas::KycController < Saas::BaseController
     render_api_response(service_response)
   end
 
+
+  # Get upload file params
+  #
+  # * Author: Aman
+  # * Date: 04/01/2018
+  # * Reviewed By:
+  #
+  def get_upload_params
+    service_response = UserManagement::GetUploadParams.new(params).perform
+    render_api_response(service_response)
+  end
+
+
 end

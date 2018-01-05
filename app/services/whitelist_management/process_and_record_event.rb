@@ -201,7 +201,7 @@ module WhitelistManagement
           'Contract Address used for whitelist does not match',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if @client_whitelist_obj.blank || @client_whitelist_obj.contract_address.downcase != @contract_address
+      ) if @client_whitelist_obj.blank || @client_whitelist_obj.contract_address.downcase != @contract_address.downcase
 
       success
     end

@@ -58,6 +58,9 @@ module SaasManagement
       r = fetch_and_validate_client
       return r unless r.success?
 
+      r = validate_if_st_default_client
+      return r unless r.success?
+
       success
     end
 
@@ -67,24 +70,9 @@ module SaasManagement
     # * Date: 02/01/2018
     # * Reviewed By:
     #
-    # Sets @client
-    #
     # @return [Result::Base]
     #
-    def fetch_and_validate_client
-
-      @client = Client.where(id: @client_id).first
-
-      return error_with_data(
-          'sm_au_1',
-          'invalid client',
-          'invalid client',
-          GlobalConstant::ErrorAction.default,
-          {},
-          {}
-      ) unless @client.present? &&
-          @client.status == GlobalConstant::Client.active_status
-
+    def validate_if_st_default_client
       return error_with_data(
           'sm_au_2',
           'unauthorized client action',
@@ -93,7 +81,6 @@ module SaasManagement
           {},
           {}
       ) if @client.is_st_token_sale_client?
-
 
       success
     end

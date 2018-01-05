@@ -5,7 +5,6 @@ module UserAction
     include ::Util::ResultHelper
 
     # Initialize
-    # Todo: client id
     #
     # * Author: Abhay
     # * Date: 17/11/2017

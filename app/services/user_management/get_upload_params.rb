@@ -105,30 +105,6 @@ module UserManagement
       success
     end
 
-    # fetch client and validate
-    #
-    # * Author: Aman
-    # * Date: 26/12/2017
-    # * Reviewed By:
-    #
-    # Sets @client
-    #
-    # @return [Result::Base]
-    #
-    def fetch_and_validate_client
-      @client = Client.get_from_memcache(@client_id)
-
-      return error_with_data(
-          'um_gup_2',
-          'Client is not active',
-          'Client is not active',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) if @client.status != GlobalConstant::Client.active_status
-
-      success
-    end
-
     # get_upload_params
     #
     # * Author: Kedar

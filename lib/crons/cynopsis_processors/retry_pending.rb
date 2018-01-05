@@ -35,11 +35,8 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-        Clients.all.each do |client_obj|
-          @client = client_obj
-          next if @client.is_st_token_sale_client?
-
-          UserKycDetail.where(client_id: @client.id, cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
+          UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).
+              where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
 
             batches.each do |user_kyc_detail|
               process_user_kyc_details(user_kyc_detail)
@@ -49,7 +46,6 @@ module Crons
 
             reset_data
           end
-        end
       end
 
       private
@@ -83,6 +79,18 @@ module Crons
 
       end
 
+      # client objs
+      #
+      # * Author: Aman
+      # * Date: 05/01/2018
+      # * Reviewed By:
+      #
+      # returns [Hash] client objs indexed by id
+      #
+      def client_objs
+        @client_objs ||= Client.all.index_by(&:id)
+      end
+
       # Send denied email
       #
       # * Author: Aman
@@ -93,17 +101,19 @@ module Crons
         return if @denied_user_ids.blank?
 
         User.where(id: @denied_user_ids).select(:email, :id).each do |user|
+          client_id = user.client_id
+          client = client_objs[client_id]
 
           Email::HookCreator::SendTransactionalMail.new(
-              client_id: @client.id,
+              client_id: client_id,
               email: user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
               template_vars: {}
-          ).perform if @client.is_email_setup_done?
+          ).perform if client.is_email_setup_done?
 
         end
 
-        return unless @client.is_st_token_sale_client?
+        return unless client.is_st_token_sale_client?
 
         User.where(id: @denied_user_ids).update_all(bt_name: nil, updated_at: Time.now.to_s(:db))
         User.bulk_flush(@denied_user_ids)

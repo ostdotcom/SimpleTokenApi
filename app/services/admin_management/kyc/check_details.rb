@@ -68,30 +68,6 @@ module AdminManagement
 
       private
 
-      # fetch client and validate
-      #
-      # * Author: Aman
-      # * Date: 26/12/2017
-      # * Reviewed By:
-      #
-      # Sets @client
-      #
-      # @return [Result::Base]
-      #
-      def fetch_and_validate_client
-        @client = Client.get_from_memcache(@client_id)
-
-        return error_with_data(
-            'am_k_cd_1',
-            'Client is not active',
-            'Client is not active',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if @client.status != GlobalConstant::Client.active_status
-
-        success
-      end
-
       # Fetch user kyc detail
       #
       # * Author: Kedar

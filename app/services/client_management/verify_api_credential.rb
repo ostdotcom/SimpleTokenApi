@@ -101,7 +101,7 @@ module ClientManagement
     # Sets @client
     #
     def fetch_client
-      @client = Client.where(api_key: @api_key).first
+      @client = Client.get_client_for_api_key_from_memcache(@api_key)
     end
 
     # Validate client and its signature

@@ -1,4 +1,4 @@
-class ApiController < ApplicationController
+class RestApiController < ApplicationController
 
   # this is the top-most wrapper - to catch all the exceptions at any level
   prepend_around_action :handle_exceptions_gracefully

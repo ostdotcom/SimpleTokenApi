@@ -12,9 +12,9 @@ namespace :onetimer do
     records.each do |record|
 
       if record[1] >= 1000000000000000000
-        qualified_user_ids << Md5UserExtendedDetail.get_user_id(record[0])
+        qualified_user_ids << Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, record[0])
       else
-        pos_qualified_user_ids << Md5UserExtendedDetail.get_user_id(record[0])
+        pos_qualified_user_ids << Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, record[0])
       end
     end
 

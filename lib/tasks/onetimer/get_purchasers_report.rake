@@ -50,7 +50,7 @@ namespace :onetimer do
       transaction_details[ethereum_address][:no_of_transactions] += 1
       transaction_details[ethereum_address][:ether_wei_value] += pl.ether_wei_value
 
-      ether_to_user_mapping[ethereum_address] ||= Md5UserExtendedDetail.get_user_id(ethereum_address)
+      ether_to_user_mapping[ethereum_address] ||= Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
     end
 
     user_ids = ether_to_user_mapping.values

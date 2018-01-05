@@ -101,7 +101,7 @@ module ContractEventManagement
     # * Reviewed By: Sunil
     #
     def get_user_from_ethereum
-      user_id = Md5UserExtendedDetail.get_user_id(@ethereum_address)
+      user_id = Md5UserExtendedDetail.get_user_id(@client_id, @ethereum_address)
       @user = User.get_from_memcache(user_id)
     end
 
@@ -196,7 +196,7 @@ module ContractEventManagement
     # * Reviewed By:
     #
     def st_token_sale_campaign_detail
-      @st_token_sale_campaign_detail ||= ClientPepoCampaignDetail.get_from_memcache(GlobalConstant::TokenSale.st_token_sale_client_id)
+      @st_token_sale_campaign_detail ||= ClientPepoCampaignDetail.get_from_memcache(@client_id)
     end
 
     # Send Email via hook processor
@@ -208,7 +208,7 @@ module ContractEventManagement
     def send_purchase_confirmation_email_via_hooks
 
       Email::HookCreator::SendTransactionalMail.new(
-          client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+          client_id: @client_id,
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.purchase_confirmation,
           template_vars: {}

@@ -52,7 +52,7 @@ namespace :onetimer do
     #
     #   next if alt_coin_bonus_log.transfer_transaction_hash.present?
     #
-    #   user_id = Md5UserExtendedDetail.get_user_id(user_eth_address)
+    #   user_id = Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, user_eth_address)
     #   user_email = User.where(id: user_id).first.email
     #
     #   template_vars = {

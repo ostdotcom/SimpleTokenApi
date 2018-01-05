@@ -167,7 +167,8 @@ module UserAction
       unless r.success?
         user_kyc_detail_ids, user_ids = [], []
 
-        UserKycDetail.where(client_id: @user_kyc_detail.client_id, user_extended_detail_id: r.data[:user_extended_detail_ids]).all.each do |user_kyc_detail_obj|
+        UserKycDetail.kyc_admin_and_cynopsis_approved.
+            where(client_id: @user_kyc_detail.client_id, user_extended_detail_id: r.data[:user_extended_detail_ids]).all.each do |user_kyc_detail_obj|
           user_kyc_detail_ids << user_kyc_detail_obj.id
           user_ids << user_kyc_detail_obj.user_id
         end
@@ -212,7 +213,6 @@ module UserAction
       hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
       user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
 
-      # todo: incorrect logic
       if user_extended_detail_ids.present?
         return error_with_data(
             'ua_uea_9',

@@ -9,7 +9,7 @@ namespace :onetimer do
 
     PurchaseLog.where("block_creation_timestamp <= ?", last_time).all.pluck(:ethereum_address).uniq.each do |ethereum_address|
 
-      user_ids << Md5UserExtendedDetail.get_user_id(ethereum_address)
+      user_ids << Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
 
     end
 

@@ -29,13 +29,13 @@ class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
   #
   # Returns[Integer] user id .
   #
-  def self.get_user_id(ethereum_address)
+  def self.get_user_id(client_id, ethereum_address)
 
     sha_ethereum = get_hashed_value(ethereum_address)
 
     ued_ids = Md5UserExtendedDetail.where(ethereum_address: sha_ethereum).pluck(:user_extended_detail_id)
 
-    UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.first.user_id
+    UserKycDetail.where(client_id: client_id, user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.first.user_id
   end
 
 end

@@ -47,7 +47,7 @@ namespace :onetimer do
         purchase_time: Time.at(pl.block_creation_timestamp).in_time_zone('Pacific Time (US & Canada)').strftime("%d/%m/%Y %H:%M:%S")
       }
 
-      ether_to_user_mapping[ethereum_address] ||= Md5UserExtendedDetail.get_user_id(ethereum_address)
+      ether_to_user_mapping[ethereum_address] ||= Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
     end
 
     user_ids = ether_to_user_mapping.values

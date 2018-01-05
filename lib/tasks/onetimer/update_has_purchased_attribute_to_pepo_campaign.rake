@@ -13,7 +13,7 @@ namespace :onetimer do
     # purchased_user_ids = []
     # PurchaseLog.all.each do |pl|
     #   ethereum_address = pl.ethereum_address
-    #   purchased_user_ids << Md5UserExtendedDetail.get_user_id(ethereum_address)
+    #   purchased_user_ids << Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
     # end
     #
     # purchased_user_ids.uniq!

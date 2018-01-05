@@ -67,7 +67,7 @@ namespace :onetimer do
       st_wei_val = record[1]
       ether_wei_val = record[2]
       transaction_details[ethereum_address] = ether_wei_val
-      ether_to_user_mapping[ethereum_address] = Md5UserExtendedDetail.get_user_id(ethereum_address)
+      ether_to_user_mapping[ethereum_address] = Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
       total_st_sold += st_wei_val
     end
 

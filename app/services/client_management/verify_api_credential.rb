@@ -129,9 +129,7 @@ module ClientManagement
           {}
       ) unless r.success?
 
-      generated_signature = generate_signature
-
-      return invalid_credentials_response('um_vac_5') unless generated_signature == @signature
+      return invalid_credentials_response('um_vac_5') unless generate_signature == @signature
 
       success
     end
@@ -161,10 +159,16 @@ module ClientManagement
     # @return [Result::Base]
     #
     def decrypt_api_secret
-      r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
-      return r unless r.success?
 
-      api_salt_d = r.data[:plaintext]
+      if @client.decrypted_api_salt.present?
+        api_salt_d = @client.decrypted_api_salt
+      else
+        r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+        return r unless r.success?
+
+        @client.memcache_flush
+        api_salt_d = r.data[:plaintext]
+      end
 
       r = LocalCipher.new(api_salt_d).decrypt(@client.api_secret)
       return r unless r.success?

@@ -5,6 +5,8 @@ class Client < EstablishSimpleTokenClientDbConnection
            GlobalConstant::Client.inactive_status => 2
        }
 
+  attr_accessor :decrypted_api_salt
+
   after_commit :memcache_flush
 
   # Check if email setup is done for client
@@ -126,7 +128,13 @@ class Client < EstablishSimpleTokenClientDbConnection
   def self.get_client_for_api_key_from_memcache(api_key)
     api_memcache_key_object = MemcacheKey.new('client.api_key_details')
     Memcache.get_set_memcached(api_memcache_key_object.key_template % {api_key: api_key}, api_memcache_key_object.expiry) do
-      Client.where(api_key: api_key).first
+      client_obj = Client.where(api_key: api_key).first
+      return nil if client_obj.blank?
+
+      r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)
+      client_obj.decrypted_api_salt = r.data[:plaintext] if  r.success?
+
+      client_obj
     end
   end
 

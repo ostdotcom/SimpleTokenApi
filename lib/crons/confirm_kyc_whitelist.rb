@@ -133,7 +133,7 @@ module Crons
     # @return [Integer] contract address
     #
     def get_contract_address
-      client_whitelist_objs[@user_kyc_detail.client_id].contract_address
+      client_whitelist_objs[@kyc_whitelist_log.client_id].contract_address
     end
 
     # Get contract address
@@ -340,7 +340,7 @@ module Crons
     # @return [Result::Base]
     #
     def get_prospective_user_extended_detail_ids
-      prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(client_id: @kyc_whitelist_log.client_id,
+      prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
         ethereum_address: Md5UserExtendedDetail.get_hashed_value(@kyc_whitelist_log.ethereum_address)
       ).pluck(:user_extended_detail_id)
 
@@ -374,7 +374,7 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_user_kyc_detail(prospective_user_extended_detail_ids)
-      user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(
+      user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(client_id: @kyc_whitelist_log.client_id,
         user_extended_detail_id: prospective_user_extended_detail_ids
       ).all
 

@@ -201,7 +201,7 @@ module WhitelistManagement
           'Contract Address used for whitelist does not match',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if @client_whitelist_obj.blank || @client_whitelist_obj.contract_address.downcase != @contract_address.downcase
+      ) if @client_whitelist_obj.blank? || @client_whitelist_obj.contract_address.downcase != @contract_address.downcase
 
       success
     end
@@ -483,7 +483,7 @@ module WhitelistManagement
       @pepo_campaign_obj ||= begin
         client_campaign_detail = ClientPepoCampaignDetail.get_from_memcache(@client_id)
 
-        r = Aws::Kms.new('saas', 'saas').decrypt(client.api_salt)
+        r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
         return r unless r.success?
 
         api_salt_d = r.data[:plaintext]

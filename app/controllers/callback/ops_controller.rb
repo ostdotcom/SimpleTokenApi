@@ -1,7 +1,5 @@
 class Callback::OpsController < Callback::BaseController
 
-  protect_from_forgery except: ['whitelist_event']
-
   before_action :decrypt_jwt
 
   # Whitelist event callback

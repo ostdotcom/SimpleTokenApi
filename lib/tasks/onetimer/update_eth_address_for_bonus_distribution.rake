@@ -9,7 +9,7 @@ namespace :onetimer do
   # rake RAILS_ENV=development onetimer:update_eth_address_for_bonus_distribution
   #
   task :update_eth_address_for_bonus_distribution => :environment do
-    
+
     include Util::ResultHelper
 
     require 'csv'
@@ -50,14 +50,14 @@ namespace :onetimer do
       UserKycDetail.where(user_id: user_id_email_map.keys).
           select(:user_id, :user_extended_detail_id).each do |ukd|
         ukd_ids << ukd.user_extended_detail_id
-        @valid_rows[user.email][:user_extended_detail_id_id] = ukd.user_extended_detail_id
+        @valid_rows[user_id_email_map[ukd.user_id]][:user_extended_detail_id_id] = ukd.user_extended_detail_id
       end
 
       UserExtendedDetail.where(id: ukd_ids).
           select(:id, :user_id, :ethereum_address, :kyc_salt).each do |ued|
 
         kyc_salt_e = ued.kyc_salt
-        decrypt_key_rsp = Aws::Kms.new(@run_purpose, @run_role).decrypt(kyc_salt_e)
+        decrypt_key_rsp = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
         unless decrypt_key_rsp.success?
           @invalid_rows << {
               user_id: ued.user_id,
@@ -66,7 +66,7 @@ namespace :onetimer do
           next
         end
 
-        local_cipher_obj = LocalCipher.new(r.data[:plaintext])
+        local_cipher_obj = LocalCipher.new(decrypt_key_rsp.data[:plaintext])
         decrypt_key_rsp = local_cipher_obj.decrypt(ued.ethereum_address)
         if decrypt_key_rsp.success?
           @valid_rows[user_id_email_map[ued.user_id]][:old_eth_address] = decrypt_key_rsp.data[:plaintext]
@@ -121,7 +121,7 @@ namespace :onetimer do
       return error_rsp('uea_1', 'ETH Address Missing') if eth_address.blank?
       UserManagement::CheckEthereumAddress.new(ethereum_address: eth_address).perform
     end
-    
+
     def error_rsp(err_code, display_text)
       error_with_data(
           err_code,
@@ -131,12 +131,14 @@ namespace :onetimer do
           {}
       )
     end
-    
+
     def process_csv_data(data)
       bonus_log = data[:bonus_log]
+      # bonus_log.update_attributes!(ethereum_address_for_bonus_distribution: data[:new_eth_address])
       puts "would update #{bonus_log.id} to address #{data[:new_eth_address]} debug data : #{data}"
+      success
     end
-    
+
     def perform
 
       p " === Starting Updating Ethereum Address For Bonus Distribution ==="

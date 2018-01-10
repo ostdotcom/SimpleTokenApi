@@ -50,7 +50,7 @@ namespace :onetimer do
       UserKycDetail.where(user_id: user_id_email_map.keys).
           select(:user_id, :user_extended_detail_id).each do |ukd|
         ukd_ids << ukd.user_extended_detail_id
-        @valid_rows[user_id_email_map[ukd.user_id]][:user_extended_detail_id_id] = ukd.user_extended_detail_id
+        @valid_rows[user_id_email_map[ukd.user_id]][:user_extended_detail_id] = ukd.user_extended_detail_id
       end
 
       UserExtendedDetail.where(id: ukd_ids).

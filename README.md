@@ -58,6 +58,7 @@ export STA_PUBLIC_OPS_API_SECRET_KEY='2somethingsarebetterkeptinenvironemntvaria
 
 export STA_TOKEN_SALE_CONTRACT_ADDRESS='0x155d194759911C4db23E5590f7a780bd21243535'
 export STA_SIMPLE_TOKEN_CONTRACT_ADDRESS='0xb4c3Cdd293842A6c6233690eEf2d3924099DFa3a'
+export STA_WHITELISTER_ADDRESS='0x6058cf09166321f29a24f6caf6138754be1f61b0'
 
 export SIMPLE_TOKEN_SALE_CLIENT_ID=1
 
@@ -70,8 +71,9 @@ export STA_SAAS_KMS_ID="c9faf079-68b0-4186-8231-eb331fcd365d"
 ##crons
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1
-rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist
+rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist lock_key_suffix=1
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
+rake RAILS_ENV=development cron_task:lockable:check_eth_balance_of_whitelister
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
 rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
 rake RAILS_ENV=development cron_task:continuous:process_edit_kycs

@@ -1,9 +1,10 @@
 class Admin::LoginController < Admin::BaseController
 
   before_action :authenticate_request, except: [
-    :password_auth,
-    :multifactor_auth
-  ]
+                                         :password_auth,
+                                         :get_ga_url,
+                                         :multifactor_auth
+                                     ]
 
   # Password auth
   #
@@ -14,7 +15,7 @@ class Admin::LoginController < Admin::BaseController
   def password_auth
 
     service_response = AdminManagement::Login::PasswordAuth.new(
-      params.merge(browser_user_agent: http_user_agent)
+        params.merge(browser_user_agent: http_user_agent)
     ).perform
 
     if service_response.success?
@@ -33,6 +34,21 @@ class Admin::LoginController < Admin::BaseController
 
   end
 
+  # get Admins Ga AUTH QR code on first time login
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  def get_ga_url
+    service_response = AdminManagement::Login::Multifactor::GetGaUrl.new(
+        params.merge({
+                         single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
+                         browser_user_agent: http_user_agent
+                     })).perform
+    render_api_response(service_response)
+  end
+
   # Multifactor auth
   #
   # * Author: Kedar
@@ -41,11 +57,11 @@ class Admin::LoginController < Admin::BaseController
   #
   def multifactor_auth
 
-    service_response = AdminManagement::Login::MultifactorAuth.new(
-      params.merge({
-                     single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
-                     browser_user_agent: http_user_agent
-                   })
+    service_response = AdminManagement::Login::Multifactor::Authenticate.new(
+        params.merge({
+                         single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
+                         browser_user_agent: http_user_agent
+                     })
     ).perform
 
     if service_response.success?

@@ -5,10 +5,16 @@
     - :browser_user_agent
   :optional:
 
-'AdminManagement::Login::MultifactorAuth':
+'AdminManagement::Login::Multifactor::Authenticate':
   :mandatory:
     - :single_auth_cookie_value
     - :otp
+    - :browser_user_agent
+  :optional:
+
+'AdminManagement::Login::Multifactor::GetGaUrl':
+  :mandatory:
+    - :single_auth_cookie_value
     - :browser_user_agent
   :optional:
 
@@ -16,6 +22,21 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
+  :optional:
+
+'AdminManagement::Profile::ChangePassword':
+  :mandatory:
+    - :admin_id
+    - :current_password
+    - :new_password
+    - :confirm_password
+    - :browser_user_agent
+  :optional:
+
+'AdminManagement::Profile::GetDetail':
+  :mandatory:
+    - :admin_id
+    - :client_id
   :optional:
 
 'AdminManagement::VerifyCookie::DoubleAuth':

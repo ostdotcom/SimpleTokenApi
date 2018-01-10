@@ -6,6 +6,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
            GlobalConstant::Admin.deactived_status => 3
        }
 
+  after_commit :memcache_flush
 
   # Add Admin
   #
@@ -60,7 +61,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     #create admin
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name,
-                          admin_secret_id: admin_secrets_obj.id, last_otp_at: Time.now.to_i, status: GlobalConstant::Admin.active_status)
+                          admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status)
     admin_obj.save!(validate: false)
 
     puts url
@@ -124,6 +125,48 @@ class Admin < EstablishSimpleTokenAdminDbConnection
         salt: key
     }
     Sha256.new(sha256_params).perform
+  end
+
+  # Get Key Object
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('admin.admin_details')
+  end
+
+  # Get/Set Memcache data for User
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] user_id - user id
+  #
+  # @return [AR] User object
+  #
+  def self.get_from_memcache(admin_id)
+    memcache_key_object = Admin.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {id: admin_id}, memcache_key_object.expiry) do
+      Admin.where(id: admin_id).first
+    end
+  end
+
+  private
+
+  # Flush Memcache
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  def memcache_flush
+    admin_details_memcache_key = Admin.get_memcache_key_object.key_template % {id: self.id}
+    Memcache.delete(admin_details_memcache_key)
   end
 
 end

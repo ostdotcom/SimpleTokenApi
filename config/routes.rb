@@ -29,7 +29,13 @@ Rails.application.routes.draw do
 
   scope 'api/admin', controller: 'admin/login' do
     match 'login' => :password_auth, via: :POST
+    match 'get-ga-url' => :get_ga_url, via: :GET
     match 'mfa' => :multifactor_auth, via: :POST
+  end
+
+  scope 'api/admin/profile', controller: 'admin/profile' do
+    match 'change-password' => :change_password, via: :POST
+    match 'detail' => :get_detail, via: :GET
   end
 
   scope 'api/admin/kyc', controller: 'admin/kyc' do

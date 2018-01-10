@@ -45,6 +45,21 @@ namespace :cron_task do
       execute_lockable_task
     end
 
+    # Check Eth balance of whitelister
+    #
+    # * Author: Aman
+    # * Date: 06/11/2017
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:check_eth_balance_of_whitelister"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:check_eth_balance_of_whitelister >> /mnt/simpletoken-api/shared/log/check_eth_balance_of_whitelister.log"
+    task :check_eth_balance_of_whitelister do |task|
+      @process_name = task
+      @performer_klass = 'Crons::CheckWhitelisterBalance'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

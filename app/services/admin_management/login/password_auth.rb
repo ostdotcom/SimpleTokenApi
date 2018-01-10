@@ -91,7 +91,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin_secret
-        @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
+        @admin_secret = AdminSecret.get_from_memcache(@admin.admin_secret_id)
         return incorrect_login_error('am_l_pa_2') unless @admin_secret.present?
 
         success

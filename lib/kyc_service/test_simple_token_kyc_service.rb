@@ -1,22 +1,6 @@
-# Email::Services::PepoCampaigns.new.get_send_info(<pepo_campaign_send_id>)
-# Email::Services::PepoCampaigns.new.fetch_users_info([<email_address>])
-# Email::Services::PepoCampaigns.new.create_list(<list_name>, <list_description>, 'single')
-# Email::Services::PepoCampaigns.new.add_contact(
-#   <list_id>,
-#   <email_address>,
-#   {
-#     <attribute_1> => <value>,
-#     <attribute_2> => <value>
-#   },
-#   {
-#     <setting_1> => <value>,
-#     <setting_2> => <value>,
-#   }
-#)
-
 module KycService
 
-  class SimpleTokenKycService
+  class TestSimpleTokenKycService
 
     require "uri"
     require "open-uri"

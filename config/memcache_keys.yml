@@ -49,3 +49,11 @@ client:
   client_admins:
     key_template: 'client_admins_%{admin_id}'
     expiry_in_seconds: 86400
+
+admin:
+  admin_details:
+    key_template: 'admin_det_%{id}'
+    expiry_in_seconds: 86400
+  admin_secret_details:
+    key_template: 'admin_secrets_det_%{id}'
+    expiry_in_seconds: 86400

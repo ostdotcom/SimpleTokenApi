@@ -2,7 +2,7 @@ namespace :onetimer do
 
 
   # params = {
-  #     "client_name" => "newtoken",
+  #     "client_name" => "thirdtoken",
   #     "cynopsis" => {
   #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
   #         "token" => GlobalConstant::Cynopsis.token,
@@ -11,10 +11,15 @@ namespace :onetimer do
   #     "pepo_campaign" => {
   #         "api_key" => GlobalConstant::PepoCampaigns.api_key,
   #         "api_secret" => GlobalConstant::PepoCampaigns.api_secret
+  #     },
+  #     "whitelist" => {
+  #         "contract_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142'
   #     }
   # }
-  #
-  # system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='#{params.to_json}'")
+
+#   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
+# {\"client_name\":\"thirdtoken\",\"cynopsis\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.cynopsis-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"whitelist\":{\"contract_address\":\"0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142\"}}
+# '")
 
 
   # params = params.to_json

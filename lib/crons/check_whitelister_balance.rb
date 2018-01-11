@@ -12,7 +12,7 @@ module Crons
     #
     # @return [Crons::CheckWhitelisterBalance]
     #
-    def initialize
+    def initialize(params={})
     end
 
     # perform

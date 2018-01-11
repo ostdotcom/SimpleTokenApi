@@ -37,6 +37,8 @@ module AdminManagement
 
           update_user_kyc_status
 
+          send_approved_email
+
           #Dont log admin action on approved by admin
 
           success_with_data(@api_response_data)
@@ -103,6 +105,29 @@ module AdminManagement
           @user_kyc_detail.last_acted_by = @admin_id
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
           @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
+        end
+
+        # Send email
+        #
+        # * Author: Aman
+        # * Date: 11/01/2018
+        # * Reviewed By:
+        #
+        def send_approved_email
+          return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? || @client.is_st_token_sale_client?
+
+          if @user_kyc_detail.kyc_approved?
+            Email::HookCreator::SendTransactionalMail.new(
+                client_id: @client.id,
+                email: @user.email,
+                template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+                template_vars: {
+                    token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+                    is_sale_active: false
+                }
+            ).perform
+          end
+
         end
 
       end

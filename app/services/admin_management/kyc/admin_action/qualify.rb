@@ -98,6 +98,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         def update_user_kyc_status
+          @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.approved_cynopsis_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
           @user_kyc_detail.last_acted_by = @admin_id
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil

@@ -24,7 +24,7 @@ class KycSubmitJob < ApplicationJob
 
     check_duplicate_kyc_documents
 
-    call_cynopsis_api
+    # call_cynopsis_api
 
     UserActivityLogJob.new().perform({
                                          user_id: @user_id,
@@ -114,6 +114,7 @@ class KycSubmitJob < ApplicationJob
       @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+      @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.approved_cynopsis_status
       #  todo: "KYCaas-Changes"
       # if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
       #   @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
@@ -124,7 +125,7 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
-    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
+    # @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.save!
   end

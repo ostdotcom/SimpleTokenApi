@@ -31,6 +31,7 @@ module UserManagement
       @login_salt_hash = nil
       @user_secret = nil
       @user = nil
+      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -117,7 +118,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def check_if_email_already_registered
-      user = User.where(email: @email).first
+      user = User.where(client_id: @client_id, email: @email).first
 
       return error_with_data(
           'um_su_2',
@@ -167,6 +168,7 @@ module UserManagement
       password_e = User.get_encrypted_password(@password, @login_salt_hash[:plaintext])
 
       @user = User.create!(
+          client_id: @client_id,
           email: @email,
           password: password_e,
           user_secret_id: @user_secret.id,

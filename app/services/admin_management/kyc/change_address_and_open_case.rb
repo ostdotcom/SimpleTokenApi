@@ -49,7 +49,7 @@ module AdminManagement
         EditKycRequests.create!(
             case_id: @case_id,
             admin_id: @admin_id,
-            user_id:  @user_kyc_detail.user_id,
+            user_id: @user_kyc_detail.user_id,
             ethereum_address: @encrypted_ethereum_address,
             open_case_only: @encrypted_ethereum_address.blank? ? 1 : 0
         )
@@ -70,6 +70,9 @@ module AdminManagement
       #
       def validate_and_sanitize
         r = validate
+        return r unless r.success?
+
+        r = validate_ethereum_address
         return r unless r.success?
 
         r = fetch_and_validate_client
@@ -94,6 +97,30 @@ module AdminManagement
         ) if @user_kyc_detail.blank?
 
         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+
+        success
+      end
+
+      # validate ethereum address
+      #
+      # * Author: Aman
+      # * Date: 15/01/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def validate_ethereum_address
+        return success if @new_ethereum_address.blank?
+
+        @new_ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@new_ethereum_address)
+
+        return error_with_data(
+            'am_k_c_caaoc_5',
+            'Invalid Ethereum Address',
+            'Invalid Ethereum Address',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) unless Util::CommonValidator.is_ethereum_address?(@new_ethereum_address)
 
         success
       end

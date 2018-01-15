@@ -26,6 +26,7 @@ module UserManagement
       @user_secret = nil
       @user = nil
       @login_salt_d = nil
+      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -69,7 +70,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.where(email: @email).first
+      @user = User.where(client_id: @client_id, email: @email).first
       return unauthorized_access_response('um_l_1') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 

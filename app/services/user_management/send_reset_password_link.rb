@@ -19,7 +19,7 @@ module UserManagement
 
       @user = nil
       @reset_password_token = nil
-
+      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -59,7 +59,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.where(email: @email).first
+      @user = User.where(client_id: @client_id, email: @email).first
 
       return error_with_data(
           'um_srpl_1',
@@ -105,7 +105,7 @@ module UserManagement
     #
     def send_forgot_password_mail
       Email::HookCreator::SendTransactionalMail.new(
-          client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+          client_id: @client_id,
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.forgot_password_template,
           template_vars: {

@@ -96,6 +96,14 @@ module AdminManagement
             {}
         ) if @user_kyc_detail.blank?
 
+        return error_with_data(
+            'am_k_c_caaoc_6',
+            'Please provide ethereum address',
+            'Please provide ethereum address',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if !@user_kyc_detail.case_closed? && @new_ethereum_address.blank?
+
         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
 
         success

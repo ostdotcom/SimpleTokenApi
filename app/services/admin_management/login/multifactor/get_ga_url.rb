@@ -77,7 +77,8 @@ module AdminManagement
           otpauth = r.data[:otpauth]
           escaped_otpauth = CGI.escape(otpauth)
 
-          @qr_code_url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
+          # @qr_code_url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
+          @qr_code_url ="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
         end
 
       end

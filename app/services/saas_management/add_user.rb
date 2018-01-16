@@ -55,6 +55,15 @@ module SaasManagement
       r = validate
       return r unless r.success?
 
+      return error_with_data(
+        'sm_au_1',
+        'Please enter a valid email address',
+        'Please enter a valid email address',
+        GlobalConstant::ErrorAction.default,
+        {},
+        {}
+      ) unless Util::CommonValidator.is_valid_email?(@email)
+
       r = fetch_and_validate_client
       return r unless r.success?
 

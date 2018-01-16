@@ -139,7 +139,7 @@ module GlobalConstant
 
       # passport_issue email - sent when user clicks on "passport issue" on admin panel
       def kyc_passport_issue_template
-        'kyc_passport_issue'
+        'kyc_document_issue'
       end
 
       # selfie_image_issue email - sent when user clicks on "selfie image issue" on admin panel

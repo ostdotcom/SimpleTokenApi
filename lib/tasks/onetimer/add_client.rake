@@ -14,6 +14,7 @@ namespace :onetimer do
   #     },
   #     "whitelist" => {
   #         "contract_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142'
+  #         "whitelister_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142'
   #     }
   # }
 
@@ -22,8 +23,8 @@ namespace :onetimer do
 # '")
 
 
-  # params = params.to_json
-  # rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"cynopsis\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
+# params = params.to_json
+# rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"cynopsis\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
 
   task :add_client => :environment do
 
@@ -39,8 +40,8 @@ namespace :onetimer do
       fail 'api_secret cannot be blank for pepo_campaign' if pepo_campaign_data['api_secret'].blank?
     end
 
-    if whitelist_data.present?
-      fail 'contract_address cannot be blank for whitelist_data' if whitelist_data['contract_address'].blank?
+    if whitelist_data.present? && (whitelist_data['contract_address'].blank? || whitelist_data['whitelister_address'].blank?)
+      fail 'contract_address or  whitelister_address cannot be blank for whitelist_data'
     end
 
     setup_properties_val = 1
@@ -89,6 +90,7 @@ namespace :onetimer do
     end
 
     ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
+                                 whitelister_address: whitelist_data['whitelister_address'],
                                  status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
 
 

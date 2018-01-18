@@ -21,6 +21,10 @@ module GlobalConstant
         ['nishith@simpletoken.org']
       end
 
+      def contact_us_admin_email
+        Rails.env.production? ? 'notifier@simpletoken.org' : 'notifier@stagingsimpletoken.org'
+      end
+
       def default_directors_to
         ['jason@simpletoken.org', 'nishith@simpletoken.org']
       end

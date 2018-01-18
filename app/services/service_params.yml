@@ -320,3 +320,11 @@
     - :email
     - :client_id
   :optional:
+
+'UserManagement::ContactUs':
+  :mandatory:
+    - :full_name
+    - :company
+    - :email
+    - :contact_number
+  :optional:

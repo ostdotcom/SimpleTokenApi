@@ -5,6 +5,10 @@ Rails.application.routes.draw do
     match 'details' => :sale_details, via: :GET
   end
 
+  scope 'api/home', controller: 'user/home' do
+    match 'contact-us' => :contact_us, via: :POST
+  end
+
   scope 'api/user', controller: 'user/login' do
     match 'sign-up' => :sign_up, via: :POST
     match 'login' => :login, via: :POST

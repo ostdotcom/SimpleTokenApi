@@ -58,7 +58,7 @@ module KycService
           "nationality" => kyc_data[:nationality] || 'INDIAN',
           "passport_file_path" => kyc_data[:passport_file_path] || '/q/qw',
           "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',
-          "remoteip" => kyc_data[:remoteip] || '172.1.1.1'
+          "user_ip_address" => kyc_data[:user_ip_address] || '172.1.1.1'
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
       make_post_request(endpoint, custom_params)

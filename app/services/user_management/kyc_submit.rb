@@ -209,7 +209,7 @@ module UserManagement
 
     def validate_country
       @country = @country.to_s.strip
-      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
+      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country.upcase)
         @error_data[:country] = 'Country is required.'
       end
     end
@@ -252,7 +252,7 @@ module UserManagement
 
     def validate_nationality
       @nationality = @nationality.to_s.strip
-      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
+      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality.upcase)
         @error_data[:nationality] = 'Nationality is required.'
       end
     end

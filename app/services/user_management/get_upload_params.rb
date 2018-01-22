@@ -8,7 +8,6 @@ module UserManagement
     # * Date: 13/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] user_id (mandatory)
     # @params [Integer] client_id (mandatory) - logged in admin's client id
     # @param [Hash] images (mandatory)
     #
@@ -17,7 +16,6 @@ module UserManagement
     def initialize(params)
       super
 
-      @user_id = @params[:user_id]
       @client_id = @params[:client_id]
       @images = @params[:images] || {}
       @pdfs = @params[:pdfs] || {}
@@ -40,13 +38,13 @@ module UserManagement
 
       @images.each do |k, v|
         content_type = v
-        key = "i/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
+        key = "i/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 
       @pdfs.each do |k, v|
         content_type = v
-        key = "d/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}-#{@user_id}")
+        key = "d/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 

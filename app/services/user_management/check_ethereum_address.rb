@@ -86,8 +86,8 @@ module UserManagement
       if !r.success? && r.data[:web3_js_error]
         return error_with_data(
             'um_cea_1',
-            'Invalid Ethereum Address',
-            'Invalid Ethereum Address',
+            '',
+            '',
             GlobalConstant::ErrorAction.default,
             {},
             {ethereum_address: 'Invalid Ethereum Address'}

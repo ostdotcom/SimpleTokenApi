@@ -320,6 +320,7 @@
     - :email
     - :client_id
   :optional:
+    - :user_ip_address
 
 'UserManagement::ContactUs':
   :mandatory:

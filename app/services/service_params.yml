@@ -254,7 +254,6 @@
 
 'UserManagement::GetUploadParams':
   :mandatory:
-    - :user_id
     - :client_id
   :optional:
     - :pdfs

@@ -73,7 +73,7 @@ module KycService
           "ethereum_address" => ethereum_address
       }
       endpoint = "/api/#{@version}/kyc/check-ethereum-address/"
-      make_post_request(endpoint, custom_params)
+      make_get_request(endpoint, custom_params)
     end
 
     private

@@ -5,6 +5,10 @@ Rails.application.routes.draw do
     match 'details' => :sale_details, via: :GET
   end
 
+  scope 'api/home', controller: 'user/home' do
+    match 'contact-us' => :contact_us, via: :POST
+  end
+
   scope 'api/user', controller: 'user/login' do
     match 'sign-up' => :sign_up, via: :POST
     match 'login' => :login, via: :POST
@@ -66,6 +70,7 @@ Rails.application.routes.draw do
   scope 'api/v1/kyc', controller: 'saas/kyc' do
     match 'add-kyc' => :add_kyc, via: :POST
     match 'upload-params' => :get_upload_params, via: :GET
+    match 'check-ethereum-address' => :check_ethereum_address, via: :GET
   end
 
   match '*permalink', to: 'application#not_found', via: :all

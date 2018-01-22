@@ -9,9 +9,11 @@ class Saas::BaseController < RestApiController
   # * Reviewed By:
   #
   def authenticate_request
+    request_parameters = request.request_method == 'GET' ? request.query_parameters : request.request_parameters
+
     service_response = ClientManagement::VerifyApiCredential.new(
         params.merge({
-                         request_parameters: request.request_parameters,
+                         request_parameters: request_parameters,
                          url_path: request.path
                      })
     ).perform

@@ -27,7 +27,7 @@ module KycService
 
       @api_secret = r.data[:plaintext]
 
-      @api_base_url = Rails.env.development? ?  "http://sale.developmentsimpletoken.org:8080" : "https://sale.stagingsimpletoken.org"
+      @api_base_url = Rails.env.development? ? "http://sale.developmentsimpletoken.org:8080" : "https://sale.stagingsimpletoken.org"
       @version = 'v1'
     end
 
@@ -47,7 +47,7 @@ module KycService
           "email" => email,
           "first_name" => kyc_data[:first_name] || 'aman',
           "last_name" => kyc_data[:last_name] || 'barbaria',
-          "birthdate" => kyc_data[:birthdate] || '23/07/1991',
+          "birthdate" => kyc_data[:birthdate] || '23/07/2091',
           "street_address" => kyc_data[:street_address] || 'magarpatta city',
           "city" => kyc_data[:city] || 'pune',
           "state" => kyc_data[:state] || 'maharashtra',
@@ -58,10 +58,22 @@ module KycService
           "nationality" => kyc_data[:nationality] || 'INDIAN',
           "passport_file_path" => kyc_data[:passport_file_path] || '/q/qw',
           "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',
-          "remoteip" => kyc_data[:remoteip]  || '172.1.1.1'
+          "user_ip_address" => kyc_data[:user_ip_address]
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
       make_post_request(endpoint, custom_params)
+    end
+
+    # Check if valid ethereum address
+    #
+    # @params [String] ethereum_address(mandatory)
+    #
+    def check_ethereum_address(ethereum_address)
+      custom_params = {
+          "ethereum_address" => ethereum_address
+      }
+      endpoint = "/api/#{@version}/kyc/check-ethereum-address/"
+      make_get_request(endpoint, custom_params)
     end
 
     private
@@ -92,7 +104,7 @@ module KycService
     # returns:
     #   Hash, Request Data
     #
-    def base_params(endpoint, custom_params={})
+    def base_params(endpoint, custom_params = {})
       request_time = DateTime.now.to_s
       query_param = custom_params.merge("request_time" => request_time).to_query.gsub(/^&/, '')
       str = "#{endpoint}?#{query_param}"

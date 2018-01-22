@@ -47,7 +47,7 @@ module KycService
           "email" => email,
           "first_name" => kyc_data[:first_name] || 'aman',
           "last_name" => kyc_data[:last_name] || 'barbaria',
-          "birthdate" => kyc_data[:birthdate] || '23/07/1991',
+          "birthdate" => kyc_data[:birthdate] || '23/07/2091',
           "street_address" => kyc_data[:street_address] || 'magarpatta city',
           "city" => kyc_data[:city] || 'pune',
           "state" => kyc_data[:state] || 'maharashtra',
@@ -58,7 +58,7 @@ module KycService
           "nationality" => kyc_data[:nationality] || 'INDIAN',
           "passport_file_path" => kyc_data[:passport_file_path] || '/q/qw',
           "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',
-          "user_ip_address" => kyc_data[:user_ip_address] || '172.1.1.1'
+          "user_ip_address" => kyc_data[:user_ip_address]
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
       make_post_request(endpoint, custom_params)

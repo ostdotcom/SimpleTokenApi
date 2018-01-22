@@ -28,5 +28,16 @@ class Saas::KycController < Saas::BaseController
     render_api_response(service_response)
   end
 
+  # Check if ethereum address is valid
+  #
+  # * Author: Aman
+  # * Date: 22/01/2018
+  # * Reviewed By:
+  #
+  def check_ethereum_address
+    service_response = UserManagement::CheckEthereumAddress.new(params).perform
+    render_api_response(service_response)
+  end
+
 
 end

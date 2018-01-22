@@ -104,7 +104,12 @@ module Crons
     # Sets @api_data
     #
     def construct_api_data
-      @api_data = {address: get_ethereum_address, phase: get_phase, contract_address: get_contract_address}
+      @api_data = {
+          address: get_ethereum_address,
+          whitelister_address: get_whitelister_address,
+          phase: get_phase,
+          contract_address: get_contract_address
+      }
     end
 
     # Make API call
@@ -117,7 +122,12 @@ module Crons
     #
     def make_whitelist_api_call
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
-      r = OpsApi::Request::Whitelist.new.whitelist({contract_address: @api_data[:contract_address], address: @api_data[:address], phase: @api_data[:phase]})
+      r = OpsApi::Request::Whitelist.new.whitelist({
+                                                       whitelister_address: @api_data[:whitelister_address],
+                                                       contract_address: @api_data[:contract_address],
+                                                       address: @api_data[:address],
+                                                       phase: @api_data[:phase]
+                                                   })
 
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
@@ -181,10 +191,22 @@ module Crons
     # * Date: 29/12/2017
     # * Reviewed By:
     #
-    # @return [Integer] contract address
+    # @return [String] contract address
     #
     def get_contract_address
       @client_whitelist_objs[@user_kyc_detail.client_id].contract_address
+    end
+
+    # Get get_whitelister_address address
+    #
+    # * Author: Aman
+    # * Date: 15/01/2018
+    # * Reviewed By:
+    #
+    # @return [String] whitelister_address of client
+    #
+    def get_whitelister_address
+      @client_whitelist_objs[@user_kyc_detail.client_id].whitelister_address
     end
 
     # Handle whitelist errors

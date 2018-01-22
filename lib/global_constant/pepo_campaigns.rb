@@ -170,6 +170,11 @@ module GlobalConstant
         'kyc_denied'
       end
 
+      # contact us admin email for freshdesk
+      def contact_us_template
+        'contact_us'
+      end
+
       # All possible templates integrated with email service
       #
       # * Author: Puneet
@@ -189,7 +194,8 @@ module GlobalConstant
           kyc_approved_template,
           kyc_denied_template,
           purchase_confirmation,
-          altdrop_sent
+          altdrop_sent,
+          contact_us_template
         ]
       end
 

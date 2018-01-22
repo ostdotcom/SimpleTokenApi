@@ -9,6 +9,8 @@ module SaasManagement
     #
     # @param [String] client_id (mandatory) -  api key of client
     # @param [String] email (mandatory) - generated signature
+    # @param [String] user_ip_address (optional ) - user ip address
+    #
     #
     # @return [SaasManagement::AddUser]
     #
@@ -17,6 +19,10 @@ module SaasManagement
 
       @client_id = @params[:client_id]
       @email = @params[:email]
+      @user_ip_address = @params[:user_ip_address]
+
+      @geoip_country = nil
+      @new_user_added = false
     end
 
 
@@ -34,6 +40,8 @@ module SaasManagement
       return r unless r.success?
 
       find_or_initialize_user
+
+      enqueue_job if @new_user_added
 
       success_with_data(user_id: @user.id)
 
@@ -56,12 +64,12 @@ module SaasManagement
       return r unless r.success?
 
       return error_with_data(
-        'sm_au_1',
-        'Please enter a valid email address',
-        'Please enter a valid email address',
-        GlobalConstant::ErrorAction.default,
-        {},
-        {}
+          'sm_au_1',
+          'Please enter a valid email address',
+          'Please enter a valid email address',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
       ) unless Util::CommonValidator.is_valid_email?(@email)
 
       r = fetch_and_validate_client
@@ -104,7 +112,30 @@ module SaasManagement
     #
     def find_or_initialize_user
       @user = User.find_or_initialize_by(client_id: @client_id, email: @email)
+      @new_user_added = true if @user.new_record?
       @user.save! if @user.changed?
+    end
+
+    # Do remaining task in sidekiq
+    #
+    # * Author: Aman
+    # * Date: 22/01/2018
+    # * Reviewed By:
+    #
+    def enqueue_job
+      if @user_ip_address.present?
+        geo_ip_obj = Util::GeoIpUtil.new(ip_address: @user_ip_address)
+        @geoip_country = geo_ip_obj.get_country_name.to_s.downcase
+      end
+
+      BgJob.enqueue(
+          NewUserRegisterJob,
+          {
+              user_id: @user.id,
+              ip_address: @user_ip_address,
+              geoip_country: @geoip_country
+          }
+      )
     end
 
   end

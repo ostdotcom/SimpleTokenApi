@@ -231,7 +231,6 @@
     - :nationality
     - :passport_file_path
     - :selfie_file_path
-    - :remoteip
   :optional:
     - :residence_proof_file_path
 
@@ -255,7 +254,6 @@
 
 'UserManagement::GetUploadParams':
   :mandatory:
-    - :user_id
     - :client_id
   :optional:
     - :pdfs
@@ -319,4 +317,13 @@
   :mandatory:
     - :email
     - :client_id
+  :optional:
+    - :user_ip_address
+
+'UserManagement::ContactUs':
+  :mandatory:
+    - :full_name
+    - :company
+    - :email
+    - :contact_number
   :optional:

@@ -188,9 +188,9 @@ module UserManagement
       begin
         @birthdate = @birthdate.to_s.strip
         @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
-        age = (Time.zone.now.beginning_of_day - @birthdate)
-        @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
-        @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
+        # age = (Time.zone.now.beginning_of_day - @birthdate)
+        # @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
+        # @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
         @birthdate = @birthdate.to_s(:db)
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'
@@ -209,18 +209,16 @@ module UserManagement
 
     def validate_country
       @country = @country.to_s.strip
-      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
+      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country.upcase)
         @error_data[:country] = 'Country is required.'
       end
     end
 
     def validate_state
       @state = @state.to_s.strip
-      if !@state.present?
-        @error_data[:state] = 'State is required.'
-      elsif GlobalConstant::CountryNationality.disallowed_states[@country.downcase].present? && GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase].present?
-        @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
-      end
+      @error_data[:state] = 'State is required.' if @state.blank?
+      # GlobalConstant::CountryNationality.disallowed_states[@country.downcase].present? && GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase].present?
+      #  @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
     end
 
     def validate_postal_code
@@ -248,13 +246,13 @@ module UserManagement
     end
 
     def validate_passport_number
-      @passport_number = @passport_number.to_s.strip
+      @passport_number = @passport_number.to_s.strip.downcase
       @error_data[:passport_number] = 'Identification document number is required.' if !@passport_number.present?
     end
 
     def validate_nationality
       @nationality = @nationality.to_s.strip
-      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
+      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality.upcase)
         @error_data[:nationality] = 'Nationality is required.'
       end
     end
@@ -271,9 +269,9 @@ module UserManagement
 
     def validate_residence_proof_file_path
       @residence_proof_file_path = @residence_proof_file_path.to_s.strip
-      if GlobalConstant::CountryNationality.is_residence_proof_mandatory?(@nationality) && !@residence_proof_file_path.present?
-        @error_data[:residence_proof_file_path] = 'Residence proof is required.'
-      end
+      # if GlobalConstant::CountryNationality.is_residence_proof_mandatory?(@nationality) && !@residence_proof_file_path.present?
+      #   @error_data[:residence_proof_file_path] = 'Residence proof is required.'
+      # end
     end
 
     # Fetch user data

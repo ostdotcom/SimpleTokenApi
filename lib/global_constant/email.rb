@@ -10,7 +10,7 @@ module GlobalConstant
       end
 
       def default_to
-        ['bala@pepo.com', 'sunil@pepo.com', 'kedar@pepo.com', 'abhay@pepo.com', 'aman@pepo.com', 'alpesh@pepo.com', 'akshay@pepo.com', 'thahir@pepo.com', 'kushal@pepo.com']
+        ['bala@pepo.com', 'sunil@pepo.com', 'kedar@pepo.com', 'abhay@pepo.com', 'aman@pepo.com', 'alpesh@pepo.com', 'akshay@pepo.com', 'thahir@pepo.com']
       end
 
       def default_pm_to
@@ -19,6 +19,10 @@ module GlobalConstant
 
       def st_balance_report_email_to
         ['nishith@simpletoken.org']
+      end
+
+      def contact_us_admin_email
+        Rails.env.production? ? 'support@simpletoken.org' : 'puneet.khushwani@ost.com'
       end
 
       def default_directors_to

@@ -76,6 +76,27 @@ module KycService
       make_get_request(endpoint, custom_params)
     end
 
+    # Get upload Params for file upload
+    #
+    # @params [Hash] hash of image and pdf files content type data (mandatory)
+    #
+    def get_upload_params(custom_params = {})
+
+      default_params = {
+          "images" => {
+              "file1.png" => 'image/png1',
+              "file2.jpg" => 'image/jpg'
+          },
+          "pdfs" => {
+              "file3.pdf" => "application/pdf"
+          }
+      }
+      custom_params = default_params if custom_params.blank?
+
+      endpoint = "/api/#{@version}/kyc/upload-params/"
+      make_get_request(endpoint, custom_params)
+    end
+
     private
 
     # Create Request Data

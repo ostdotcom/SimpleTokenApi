@@ -5,7 +5,7 @@ module UserManagement
       # Initialize
       #
       # * Author: Aman
-      # * Date: 18/01/2018
+      # * Date: 24/01/2018
       # * Reviewed By:
       #
       # @params [String] full_name (mandatory) - full name
@@ -29,7 +29,7 @@ module UserManagement
       # Perform
       #
       # * Author: Aman
-      # * Date: 18/01/2018
+      # * Date: 24/01/2018
       # * Reviewed By:
       #
       # @return [Result::Base]
@@ -41,6 +41,8 @@ module UserManagement
         r = send_contact_us_admin_email
         return r unless r.success?
 
+       send_autorespond_email
+
         success
       end
 
@@ -49,7 +51,7 @@ module UserManagement
       # Validate
       #
       # * Author: Aman
-      # * Date: 18/01/2018
+      # * Date: 24/01/2018
       # * Reviewed By:
       #
       # @return [Result::Base]
@@ -80,7 +82,7 @@ module UserManagement
       # Send email
       #
       # * Author: Aman
-      # * Date: 18/01/2018
+      # * Date: 24/01/2018
       # * Reviewed By:
       #
       def send_contact_us_admin_email
@@ -95,10 +97,35 @@ module UserManagement
         ).perform
       end
 
+      # Send auto respond email to user
+      #
+      # * Author: Aman
+      # * Date: 24/01/2018
+      # * Reviewed By:
+      #
+      def send_autorespond_email
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+            email: @email,
+            template_name: autorespond_template_name,
+            template_vars: {}
+        ).perform
+      end
+
+      # autorespond template name
+      #
+      # * Author: Aman
+      # * Date: 24/01/2018
+      # * Reviewed By:
+      #
+      def autorespond_template_name
+        fail 'undefined method autorespond_template_name for contact us'
+      end
+
       # Subject
       #
       # * Author: Aman
-      # * Date: 18/01/2018
+      # * Date: 24/01/2018
       # * Reviewed By:
       #
       def subject
@@ -108,7 +135,7 @@ module UserManagement
       # Contact US body
       #
       # * Author: Aman
-      # * Date: 18/01/2018
+      # * Date: 24/01/2018
       # * Reviewed By:
       #
       def body

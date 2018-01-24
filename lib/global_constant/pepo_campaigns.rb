@@ -185,9 +185,14 @@ module GlobalConstant
         'update_ethereum_request_outcome'
       end
 
-      # email to admins on edit kyc request for closed cases
-      def open_case_request_outcome_template
-        'open_case_request_outcome'
+      # auto respond email to user on contact us query for kyc
+      def contact_us_ost_kyc_autoresponder_template
+        'contact_us_ost_kyc_autoresponder'
+      end
+
+      # auto respond email to user on contact us query for partners
+      def contact_us_ost_partner_autoresponder_template
+        'contact_us_ost_partner_autoresponder'
       end
 
       # All possible templates integrated with email service
@@ -213,7 +218,9 @@ module GlobalConstant
           contact_us_template,
           low_whitelister_balance_template,
           update_ethereum_request_outcome_template,
-          open_case_request_outcome_template
+          open_case_request_outcome_template,
+          contact_us_ost_partner_autoresponder_template,
+          contact_us_ost_kyc_autoresponder_template
         ]
       end
 

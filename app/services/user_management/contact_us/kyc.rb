@@ -44,6 +44,16 @@ module UserManagement
         "#{GlobalConstant::Email.subject_prefix}ostKYC Lead - Contact Us - #{@email}"
       end
 
+      # autorespond template name
+      #
+      # * Author: Aman
+      # * Date: 24/01/2018
+      # * Reviewed By:
+      #
+      def autorespond_template_name
+        GlobalConstant::PepoCampaigns.contact_us_ost_kyc_autoresponder_template
+      end
+
     end
   end
 end

@@ -156,6 +156,21 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     end
   end
 
+  # Get email ids of all admins of a client
+  #
+  # * Author: Aman
+  # * Date: 23/01/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] client id
+  #
+  # @return [Array <String>] emails of admin
+  #
+  def self.client_admin_emails(client_id)
+    admin_ids = ClientAdmin.where(client_id: client_id).pluck(:admin_id)
+    Admin.where(id: admin_ids).pluck(:email)
+  end
+
   private
 
   # Flush Memcache

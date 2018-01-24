@@ -84,7 +84,8 @@ module Crons
     #
     def edit_kycs
       @edit_kyc_ars.each do |e_k_r|
-        send_error_mail = false
+        is_success = 0
+        reason_failure_msg = nil
 
         begin
 
@@ -103,7 +104,6 @@ module Crons
           r = success
 
           if user_kyc_details.case_closed?
-
             r = UserAction::OpenCaseAndUpdateEthereumAddress.new(
                 case_id: e_k_r.case_id,
                 ethereum_address: ethereum_address,
@@ -125,42 +125,46 @@ module Crons
 
           if r.success?
             e_k_r.status = GlobalConstant::UserKycDetail.processed_edit_kyc
-            email_subject = "Successfully updated case for email: #{@users[e_k_r.user_id].email}"
-            email_body = "Success"
-            admin_email_body = "Success"
+            is_success = 1
           else
             e_k_r.status = GlobalConstant::UserKycDetail.failed_edit_kyc
             e_k_r.debug_data = r.to_json
-            email_subject = "Error in updating case for email: #{@users[e_k_r.user_id].email}"
-            email_body = r.to_json
-            admin_email_body = "Error"
-            send_error_mail = true
+            reason_failure_msg = r.error_message
           end
 
         rescue Exception => e
-
           e_k_r.status = GlobalConstant::UserKycDetail.failed_edit_kyc
           e_k_r.debug_data = "#{e.message} -- #{e.backtrace}"
-          email_subject = "Error in updating case for email: #{@users[e_k_r.user_id].email}"
-          email_body = {exception: {message: e.message, backtrace: e.backtrace}}
-          admin_email_body = "Error"
-          send_error_mail = true
+          reason_failure_msg = "Something went wrong. We are looking into it"
+
+          ApplicationMailer.notify(
+              to: GlobalConstant::Email.default_to,
+              body: e.message,
+              data: {case_id: e_k_r.case_id, edit_kyc_table_id: e_k_r.id, backtrace: e.backtrace},
+              subject: "Exception::Something went wrong while edit kyc request"
+          ).deliver
         end
 
         e_k_r.save!
 
-        ApplicationMailer.notify(
-            to: GlobalConstant::Email.default_to,
-            body: email_body,
-            data: {case_id: e_k_r.case_id, edit_kyc_table_id: e_k_r.id},
-            subject: email_subject
-        ).deliver if send_error_mail
 
-        ApplicationMailer.notify(
-            to: @admins[e_k_r.admin_id].email,
-            body: admin_email_body,
-            subject: email_subject
-        ).deliver
+        if user_kyc_details.case_closed?
+          ethereum_address_updated = e_k_r.open_case_only.to_i > 0 ?  0 : 1
+
+          Email::HookCreator::SendTransactionalMail.new(
+              client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+              email: @admins[e_k_r.admin_id].email,
+              template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
+              template_vars: {success: is_success, email: @users[e_k_r.user_id].email, reason_failure: reason_failure_msg, ethereum_address_updated: ethereum_address_updated}
+          ).perform
+        else
+          Email::HookCreator::SendTransactionalMail.new(
+              client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+              email: @admins[e_k_r.admin_id].email,
+              template_name: GlobalConstant::PepoCampaigns.update_ethereum_request_outcome_template,
+              template_vars: {success: is_success, email: @users[e_k_r.user_id].email, reason_failure: reason_failure_msg}
+          ).perform
+        end
 
       end
     end

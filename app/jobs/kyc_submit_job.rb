@@ -308,7 +308,7 @@ class KycSubmitJob < ApplicationJob
   def upload_documents
     return unless document_upload_needed?
     Rails.logger.info("-- upload_documents")
-    upload_document(passport_file_path_d, 'PASSPORT')
+    upload_document(document_id_file_path_d, 'PASSPORT')
     upload_document(selfie_file_path_d, 'OTHERS', 'selfie')
     residence_proof_file = residence_proof_file_path_d
     upload_document(residence_proof_file, 'OTHERS', 'residence_proof') if residence_proof_file.present?
@@ -415,13 +415,13 @@ class KycSubmitJob < ApplicationJob
     local_cipher_obj.decrypt(@user_extended_detail.nationality).data[:plaintext]
   end
 
-  # Get decrypted passport file path
+  # Get decrypted document id file path
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def passport_file_path_d
+  def document_id_file_path_d
     local_cipher_obj.decrypt(@user_extended_detail.passport_file_path).data[:plaintext]
   end
 

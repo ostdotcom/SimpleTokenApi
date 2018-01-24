@@ -43,8 +43,8 @@ module GlobalConstant
         'data_mismatch_email_sent'
       end
 
-      def passport_issue_email_sent_action
-        'passport_issue_email_sent'
+      def document_id_issue_email_sent_action
+        'document_id_issue_email_sent'
       end
 
       def selfie_issue_email_sent_action
@@ -95,7 +95,7 @@ module GlobalConstant
             kyc_denied_action,
             kyc_qualified_action,
             data_mismatch_email_sent_action,
-            passport_issue_email_sent_action,
+            document_id_issue_email_sent_action,
             selfie_issue_email_sent_action,
             residency_issue_email_sent_action,
             kyc_whitelist_attention_needed,
@@ -115,7 +115,7 @@ module GlobalConstant
             kyc_denied_action => 'KYC denied',
             kyc_qualified_action => 'KYC approved',
             data_mismatch_email_sent_action => 'KYC data mismatch email sent',
-            passport_issue_email_sent_action => 'KYC passport issue email sent',
+            document_id_issue_email_sent_action => 'KYC document ID issue email sent',
             selfie_issue_email_sent_action => 'KYC selfie issue email sent',
             residency_issue_email_sent_action => 'KYC residency issue email sent',
             update_ethereum_address => "Ethereum Address Updated",

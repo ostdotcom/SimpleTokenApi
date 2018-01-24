@@ -22,7 +22,7 @@ module UserManagement
     # @params [String] estimated_participation_amount (mandatory) - estimated participation amount
     # @params [String] passport_number (mandatory) - passport number
     # @params [String] nationality (mandatory) - passport country
-    # @params [String] passport_file_path (mandatory) - passport file
+    # @params [String] document_id_file_path (mandatory) - document_id file
     # @params [String] selfie_file_path (mandatory) - selfie file
     #
     #
@@ -48,7 +48,7 @@ module UserManagement
       @ethereum_address = @params[:ethereum_address] # required and regex
       @passport_number = @params[:passport_number] # required
       @nationality = @params[:nationality] # required and one of allowed
-      @passport_file_path = @params[:passport_file_path] # S3 Path of PassPort File
+      @document_id_file_path = @params[:document_id_file_path] # S3 Path of document_id File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
 
@@ -122,7 +122,7 @@ module UserManagement
       validate_estimated_participation_amount
       validate_passport_number
       validate_nationality
-      validate_passport_file_path
+      validate_document_id_file_path
       validate_selfie_file_path
       validate_residence_proof_file_path
 
@@ -159,8 +159,14 @@ module UserManagement
       if user_kyc_detail.present?
         return unauthorized_access_response('um_ks_2', 'Invalid User') if user_kyc_detail.client_id != @client_id
 
-        return unauthorized_access_response('um_ks_3', 'Your KYC is already approved/denied.') if (user_kyc_detail.kyc_approved? ||
-            user_kyc_detail.kyc_denied?)
+        return error_with_data(
+            'um_ks_3',
+            'Your KYC is already approved/denied.',
+            'Your KYC is already approved/denied.',
+            GlobalConstant::ErrorAction.default,
+            {},
+            {}
+        ) if (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
 
       end
       success
@@ -257,9 +263,9 @@ module UserManagement
       end
     end
 
-    def validate_passport_file_path
-      @passport_file_path = @passport_file_path.to_s.strip
-      @error_data[:passport_file_path] = 'Identification document image is required.' if !@passport_file_path.present?
+    def validate_document_id_file_path
+      @document_id_file_path = @document_id_file_path.to_s.strip
+      @error_data[:document_id_file_path] = 'Identification document image is required.' if !@document_id_file_path.present?
     end
 
     def validate_selfie_file_path
@@ -339,7 +345,7 @@ module UserManagement
           estimated_participation_amount: @estimated_participation_amount,
           passport_number: @passport_number,
           nationality: @nationality,
-          passport_file_path: @passport_file_path,
+          passport_file_path: @document_id_file_path,
           selfie_file_path: @selfie_file_path,
           residence_proof_file_path: @residence_proof_file_path
       }

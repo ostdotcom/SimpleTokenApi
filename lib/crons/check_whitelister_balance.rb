@@ -47,13 +47,19 @@ module Crons
     #
     # check whitelister address eth balance
     #
-    def send_report_email(client_id, whitelister_address, eth_value)
-      ApplicationMailer.notify(
-          to: GlobalConstant::Email.default_to,
-          body: 'Ether Balance is low for whitelister. Please Transfer Ether',
-          data: {eth_value: eth_value, whitelister_address: whitelister_address, client_id: client_id},
-          subject: 'KYCaaS Whitelister Ether Balance is low'
-      ).deliver
+    def send_report_email(client_id, whitelister_address, ether_value)
+      admin_emails = Admin.client_admin_emails(client_id)
+
+      admin_emails.each do |admin_email|
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+            email: admin_email,
+            template_name: GlobalConstant::PepoCampaigns.low_whitelister_balance_template,
+            template_vars: {ether_value: ether_value, whitelister_address: whitelister_address}
+        ).perform
+
+      end
+
     end
 
   end

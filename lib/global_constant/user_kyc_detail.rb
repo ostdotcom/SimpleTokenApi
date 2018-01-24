@@ -133,8 +133,8 @@ module GlobalConstant
         'data_mismatch'
       end
 
-      def passport_issue_admin_action_type
-        'passport_issue'
+      def document_id_issue_admin_action_type
+        'document_id_issue'
       end
 
       def selfie_issue_admin_action_type

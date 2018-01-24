@@ -41,7 +41,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   enum admin_action_type: {
       GlobalConstant::UserKycDetail.no_admin_action_type => 0,
       GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
-      GlobalConstant::UserKycDetail.passport_issue_admin_action_type => 2,
+      GlobalConstant::UserKycDetail.document_id_issue_admin_action_type => 2,
       GlobalConstant::UserKycDetail.selfie_issue_admin_action_type => 3,
       GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
   }, _suffix: true

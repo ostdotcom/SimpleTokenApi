@@ -59,8 +59,8 @@ module UserManagement
         # IF error, return
         return error_with_data(
             'um_cea_1',
-            'Invalid Ethereum Address!',
-            'Invalid Ethereum Address!',
+            '',
+            '',
             GlobalConstant::ErrorAction.default,
             {},
             {ethereum_address: 'Invalid ethereum address.'}

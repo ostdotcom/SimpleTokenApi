@@ -229,8 +229,7 @@ module AdminManagement
             postal_code: postal_code_d,
             country: country_d,
             geoip_data: @user_geoip_data,
-
-            passport_file_url: passport_file_url,
+            document_id_file_url: document_id_file_url,
             selfie_file_url: selfie_file_url,
             residence_proof_file_url: residence_proof_file_url
         }
@@ -349,13 +348,13 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.state).data[:plaintext]
       end
 
-      # Decrypt passport url
+      # Decrypt document_id url
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
       # * Reviewed By: Sunil
       #
-      def passport_file_path_d
+      def document_id_file_path_d
         local_cipher_obj.decrypt(@user_extended_detail.passport_file_path).data[:plaintext]
       end
 
@@ -391,14 +390,14 @@ module AdminManagement
         @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
       end
 
-      # get passport url
+      # get document_id url
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
       # * Reviewed By: Sunil
       #
-      def passport_file_url
-        get_url(passport_file_path_d)
+      def document_id_file_url
+        get_url(document_id_file_path_d)
       end
 
       # get selfie url

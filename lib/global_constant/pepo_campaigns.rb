@@ -137,8 +137,8 @@ module GlobalConstant
         'kyc_data_mismatch'
       end
 
-      # passport_issue email - sent when user clicks on "passport issue" on admin panel
-      def kyc_passport_issue_template
+      # document_id_issue email - sent when user clicks on "document_id issue" on admin panel
+      def kyc_document_id_issue_template
         'kyc_document_issue'
       end
 
@@ -175,6 +175,21 @@ module GlobalConstant
         'contact_us'
       end
 
+      # email to admins for low balance of whitelister
+      def low_whitelister_balance_template
+        'low_whitelister_balance'
+      end
+
+      # email to admins on edit kyc request for open cases
+      def update_ethereum_request_outcome_template
+        'update_ethereum_request_outcome'
+      end
+
+      # email to admins on edit kyc request for closed cases
+      def open_case_request_outcome_template
+        'open_case_request_outcome'
+      end
+
       # All possible templates integrated with email service
       #
       # * Author: Puneet
@@ -188,14 +203,17 @@ module GlobalConstant
           double_opt_in_template,
           forgot_password_template,
           kyc_data_mismatch_template,
-          kyc_passport_issue_template,
+          kyc_document_id_issue_template,
           kyc_selfie_image_issue_template,
           kyc_residency_image_issue_template,
           kyc_approved_template,
           kyc_denied_template,
           purchase_confirmation,
           altdrop_sent,
-          contact_us_template
+          contact_us_template,
+          low_whitelister_balance_template,
+          update_ethereum_request_outcome_template,
+          open_case_request_outcome_template
         ]
       end
 

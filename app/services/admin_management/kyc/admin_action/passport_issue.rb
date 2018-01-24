@@ -60,7 +60,7 @@ module AdminManagement
           Email::HookCreator::SendTransactionalMail.new(
               client_id: @client.id,
               email: @user.email,
-              template_name: GlobalConstant::PepoCampaigns.kyc_passport_issue_template,
+              template_name: GlobalConstant::PepoCampaigns.kyc_document_id_issue_template,
               template_vars: @email_temp_vars
           ).perform
 
@@ -73,7 +73,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def update_kyc_details
-          @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.passport_issue_admin_action_type
+          @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.document_id_issue_admin_action_type
           @user_kyc_detail.last_acted_by = @admin_id
           @user_kyc_detail.save! if @user_kyc_detail.changed?
         end
@@ -85,7 +85,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         def logging_action_type
-          GlobalConstant::UserActivityLog.passport_issue_email_sent_action
+          GlobalConstant::UserActivityLog.document_id_issue_email_sent_action
         end
 
       end

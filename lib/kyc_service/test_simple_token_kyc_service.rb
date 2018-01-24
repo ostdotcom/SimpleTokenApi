@@ -56,7 +56,7 @@ module KycService
           "ethereum_address" => kyc_data[:ethereum_address] || '0x2755a475Ff253Ae5BBE6C1c140f975e5e85534bD',
           "passport_number" => kyc_data[:passport_number] || "#{Time.now.to_i}",
           "nationality" => kyc_data[:nationality] || 'INDIAN',
-          "passport_file_path" => kyc_data[:passport_file_path] || '/q/qw',
+          "document_id_file_path" => kyc_data[:document_id_file_path] || '/q/qw',
           "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',
           "user_ip_address" => kyc_data[:user_ip_address]
       }

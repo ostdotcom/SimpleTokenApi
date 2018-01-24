@@ -58,6 +58,7 @@ module KycService
           "nationality" => kyc_data[:nationality] || 'INDIAN',
           "document_id_file_path" => kyc_data[:document_id_file_path] || '/q/qw',
           "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',
+          "residence_proof_file_path" => kyc_data[:residence_proof_file_path],
           "user_ip_address" => kyc_data[:user_ip_address]
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"

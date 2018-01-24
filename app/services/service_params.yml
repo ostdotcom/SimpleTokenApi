@@ -320,7 +320,15 @@
   :optional:
     - :user_ip_address
 
-'UserManagement::ContactUs':
+'UserManagement::ContactUs::Partner':
+  :mandatory:
+    - :full_name
+    - :company
+    - :email
+    - :contact_number
+  :optional:
+
+'UserManagement::ContactUs::Kyc':
   :mandatory:
     - :full_name
     - :company

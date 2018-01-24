@@ -185,6 +185,12 @@ module GlobalConstant
         'update_ethereum_request_outcome'
       end
 
+      # email to admins on edit kyc request for closed cases
+      def open_case_request_outcome_template
+        'open_case_request_outcome'
+      end
+
+
       # auto respond email to user on contact us query for kyc
       def contact_us_ost_kyc_autoresponder_template
         'contact_us_ost_kyc_autoresponder'

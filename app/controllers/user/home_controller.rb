@@ -7,7 +7,7 @@ class User::HomeController < User::BaseController
   # * Date: 18/01/2018
   # * Reviewed By:
   #
-  def contact_us_partner
+  def contact_us_partners
     service_response = UserManagement::ContactUs::Partner.new(params).perform
     render_api_response(service_response)
   end

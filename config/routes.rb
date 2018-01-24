@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   end
 
   scope 'api/home', controller: 'user/home' do
-    match 'contact-us-partner' => :contact_us_partner, via: :POST
+    match 'contact-us-partners' => :contact_us_partners, via: :POST
     match 'contact-us-kyc' => :contact_us_kyc, via: :POST
   end
 

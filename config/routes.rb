@@ -7,7 +7,6 @@ Rails.application.routes.draw do
 
   scope 'api/home', controller: 'user/home' do
     match 'contact-us-partners' => :contact_us_partners, via: :POST
-    match 'contact-us-kyc' => :contact_us_kyc, via: :POST
   end
 
   scope 'api/user', controller: 'user/login' do
@@ -33,6 +32,10 @@ Rails.application.routes.draw do
   end
 
   constraints(InitKyc) do
+
+    scope 'api/home', controller: 'user/home' do
+      match 'contact-us-kyc' => :contact_us_kyc, via: :POST
+    end
 
     scope 'api/v1/kyc', controller: 'saas/kyc' do
       match 'add-kyc' => :add_kyc, via: :POST

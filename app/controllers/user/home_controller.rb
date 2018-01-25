@@ -2,6 +2,8 @@ class User::HomeController < User::BaseController
 
   skip_before_action :authenticate_request
 
+  before_action :verify_recaptcha
+
   #
   # * Author: Aman
   # * Date: 18/01/2018

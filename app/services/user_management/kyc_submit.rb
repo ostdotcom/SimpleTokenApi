@@ -20,8 +20,8 @@ module UserManagement
     # @params [String] postal_code (mandatory) - postal code
     # @params [String] ethereum_address (mandatory) - ethereum address
     # @params [String] estimated_participation_amount (mandatory) - estimated participation amount
-    # @params [String] passport_number (mandatory) - passport number
-    # @params [String] nationality (mandatory) - passport country
+    # @params [String] document_id_number (mandatory) - document_id number
+    # @params [String] nationality (mandatory) - document_id country
     # @params [String] document_id_file_path (mandatory) - document_id file
     # @params [String] selfie_file_path (mandatory) - selfie file
     #
@@ -46,7 +46,7 @@ module UserManagement
       @country = @params[:country] # required and one of allowed
       @postal_code = @params[:postal_code] # required and regex
       @ethereum_address = @params[:ethereum_address] # required and regex
-      @passport_number = @params[:passport_number] # required
+      @document_id_number = @params[:document_id_number] # required
       @nationality = @params[:nationality] # required and one of allowed
       @document_id_file_path = @params[:document_id_file_path] # S3 Path of document_id File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
@@ -120,7 +120,7 @@ module UserManagement
       validate_postal_code
       validate_ethereum_address
       validate_estimated_participation_amount
-      validate_passport_number
+      validate_document_id_number
       validate_nationality
       validate_document_id_file_path
       validate_selfie_file_path
@@ -251,9 +251,9 @@ module UserManagement
       # end
     end
 
-    def validate_passport_number
-      @passport_number = @passport_number.to_s.strip.downcase
-      @error_data[:passport_number] = 'Identification document number is required.' if !@passport_number.present?
+    def validate_document_id_number
+      @document_id_number = @document_id_number.to_s.strip.downcase
+      @error_data[:document_id_number] = 'Identification document number is required.' if !@document_id_number.present?
     end
 
     def validate_nationality
@@ -343,9 +343,9 @@ module UserManagement
           postal_code: @postal_code,
           ethereum_address: @ethereum_address,
           estimated_participation_amount: @estimated_participation_amount,
-          passport_number: @passport_number,
+          document_id_number: @document_id_number,
           nationality: @nationality,
-          passport_file_path: @document_id_file_path,
+          document_id_file_path: @document_id_file_path,
           selfie_file_path: @selfie_file_path,
           residence_proof_file_path: @residence_proof_file_path
       }
@@ -359,7 +359,7 @@ module UserManagement
           postal_code: @postal_code,
           ethereum_address: @ethereum_address,
           estimated_participation_amount: @estimated_participation_amount,
-          passport_number: @passport_number,
+          document_id_number: @document_id_number,
           nationality: @nationality
       }
 

@@ -28,9 +28,9 @@ module AdminManagement
         @duplicate_user_ids = []
 
         @new_duplicate_md5_data = {
-            GlobalConstant::UserKycDuplicationLog.passport_with_country_duplicate_type => [],
+            GlobalConstant::UserKycDuplicationLog.document_id_with_country_duplicate_type => [],
             GlobalConstant::UserKycDuplicationLog.ethereum_duplicate_type => [],
-            GlobalConstant::UserKycDuplicationLog.only_passport_duplicate_type => [],
+            GlobalConstant::UserKycDuplicationLog.only_document_id_duplicate_type => [],
             GlobalConstant::UserKycDuplicationLog.address_duplicate_type => []
         }
 
@@ -161,17 +161,17 @@ module AdminManagement
 
         new_duplicate_user_ids = []
 
-        # By Nationality with passport
-        Md5UserExtendedDetail.where(nationality: @md5_user_extended_details.nationality, passport_number: @md5_user_extended_details.passport_number).all.each do |md5_obj|
+        # By Nationality with document_id
+        Md5UserExtendedDetail.where(nationality: @md5_user_extended_details.nationality, document_id_number: @md5_user_extended_details.document_id_number).all.each do |md5_obj|
           next if md5_obj.user_id == @user_id
-          @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.passport_with_country_duplicate_type] << md5_obj
+          @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.document_id_with_country_duplicate_type] << md5_obj
           new_duplicate_user_ids << md5_obj.user_id
         end
 
-        # By only passport if not in above list
-        Md5UserExtendedDetail.where(passport_number: @md5_user_extended_details.passport_number).all.each do |md5_obj|
+        # By only document_id if not in above list
+        Md5UserExtendedDetail.where(document_id_number: @md5_user_extended_details.document_id_number).all.each do |md5_obj|
           next if (md5_obj.user_id == @user_id) || (new_duplicate_user_ids.include?(md5_obj.user_id))
-          @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.only_passport_duplicate_type] << md5_obj
+          @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.only_document_id_duplicate_type] << md5_obj
           new_duplicate_user_ids << md5_obj.user_id
         end
 

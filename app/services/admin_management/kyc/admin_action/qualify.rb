@@ -82,10 +82,10 @@ module AdminManagement
 
           hashed_ethereurm_address = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.ethereum_address)
           hashed_nationality = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.nationality)
-          hashed_passport_number = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.passport_number)
+          hashed_document_id_number = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.document_id_number)
 
           user_extended_detail_ids = Md5UserExtendedDetail.
-              where('(ethereum_address = ?) or (passport_number = ? && nationality = ?)', hashed_ethereurm_address, hashed_passport_number, hashed_nationality).
+              where('(ethereum_address = ?) or (document_id_number = ? && nationality = ?)', hashed_ethereurm_address, hashed_document_id_number, hashed_nationality).
               pluck(:user_extended_detail_id)
 
           user_extended_detail_ids.delete(@user_kyc_detail.user_extended_detail_id)

@@ -135,14 +135,14 @@ class Admin::KycController < Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Admin found passport improper
+  # Admin found document id improper
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
   # * Reviewed By: Sunil
   #
-  def passport_issue
-    service_response = AdminManagement::Kyc::AdminAction::PassportIssue.new(params).perform
+  def document_id_issue
+    service_response = AdminManagement::Kyc::AdminAction::DocumentIdIssue.new(params).perform
     render_api_response(service_response)
   end
 

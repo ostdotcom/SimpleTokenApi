@@ -221,7 +221,7 @@ module AdminManagement
             submitted_at: Time.at(@user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M"),
 
             birthdate: birthdate_d,
-            passport_number: passport_number_d,
+            document_id_number: document_id_number_d,
             nationality: nationality_d,
             street_address: street_address_d,
             city: city_d,
@@ -279,14 +279,14 @@ module AdminManagement
         local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
       end
 
-      # Decrypt passport number
+      # Decrypt document_id number
       #
       # * Author: Kedar, Puneet
       # * Date: 12/10/2017
       # * Reviewed By: Sunil
       #
-      def passport_number_d
-        local_cipher_obj.decrypt(@user_extended_detail.passport_number).data[:plaintext]
+      def document_id_number_d
+        local_cipher_obj.decrypt(@user_extended_detail.document_id_number).data[:plaintext]
       end
 
       # Decrypt nationality
@@ -355,7 +355,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def document_id_file_path_d
-        local_cipher_obj.decrypt(@user_extended_detail.passport_file_path).data[:plaintext]
+        local_cipher_obj.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
       end
 
       # Decrypt selfie url

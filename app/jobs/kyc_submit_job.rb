@@ -280,7 +280,7 @@ class KycSubmitJob < ApplicationJob
         country_of_residence: country_of_residence_d.upcase,
         date_of_birth: Date.parse(date_of_birth_d).strftime("%d/%m/%Y"),
         identification_type: 'PASSPORT',
-        identification_number: passport_number_d,
+        identification_number: document_id_number_d,
         nationality: nationality_d.upcase
     }
 
@@ -395,14 +395,14 @@ class KycSubmitJob < ApplicationJob
     local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
   end
 
-  # Get decrypted passport number
+  # Get decrypted document_id number
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def passport_number_d
-    local_cipher_obj.decrypt(@user_extended_detail.passport_number).data[:plaintext]
+  def document_id_number_d
+    local_cipher_obj.decrypt(@user_extended_detail.document_id_number).data[:plaintext]
   end
 
   # Get decrypted nationality
@@ -422,7 +422,7 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def document_id_file_path_d
-    local_cipher_obj.decrypt(@user_extended_detail.passport_file_path).data[:plaintext]
+    local_cipher_obj.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
   end
 
   # Get decrypted selfie file path

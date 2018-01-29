@@ -19,12 +19,12 @@ module GlobalConstant
 
       ### duplicate_type starts ####
 
-      def passport_with_country_duplicate_type
-        'passport_with_country'
+      def document_id_with_country_duplicate_type
+        'document_id_with_country'
       end
 
-      def only_passport_duplicate_type
-        'only_passport'
+      def only_document_id_duplicate_type
+        'only_document_id'
       end
 
       def ethereum_duplicate_type

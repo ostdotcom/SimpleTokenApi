@@ -54,7 +54,7 @@ module KycService
           "country" => kyc_data[:country] || 'INDIA',
           "postal_code" => kyc_data[:postal_code] || '411028',
           "ethereum_address" => kyc_data[:ethereum_address] || '0x2755a475Ff253Ae5BBE6C1c140f975e5e85534bD',
-          "passport_number" => kyc_data[:passport_number] || "#{Time.now.to_i}",
+          "document_id_number" => kyc_data[:document_id_number] || "#{Time.now.to_i}",
           "nationality" => kyc_data[:nationality] || 'INDIAN',
           "document_id_file_path" => kyc_data[:document_id_file_path] || '/q/qw',
           "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',

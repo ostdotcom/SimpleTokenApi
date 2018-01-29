@@ -6,9 +6,9 @@ class UserKycDuplicationLog < EstablishSimpleTokenLogDbConnection
        }
 
   enum duplicate_type: {
-           GlobalConstant::UserKycDuplicationLog.passport_with_country_duplicate_type => 1,
+           GlobalConstant::UserKycDuplicationLog.document_id_with_country_duplicate_type => 1,
            GlobalConstant::UserKycDuplicationLog.ethereum_duplicate_type => 2,
-           GlobalConstant::UserKycDuplicationLog.only_passport_duplicate_type => 3,
+           GlobalConstant::UserKycDuplicationLog.only_document_id_duplicate_type => 3,
            GlobalConstant::UserKycDuplicationLog.address_duplicate_type => 4
        }
 

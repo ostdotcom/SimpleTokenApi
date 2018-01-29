@@ -4,7 +4,7 @@ module AdminManagement
 
     module AdminAction
 
-      class PassportIssue < AdminManagement::Kyc::AdminAction::Base
+      class DocumentIdIssue < AdminManagement::Kyc::AdminAction::Base
 
         # Deny KYC by admin
         #
@@ -16,7 +16,7 @@ module AdminManagement
         # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] case_id (mandatory)
         #
-        # @return [AdminManagement::Kyc::AdminAction::PassportIssue]
+        # @return [AdminManagement::Kyc::AdminAction::DocumentIdIssue]
         #
         def initialize(params)
           super

@@ -145,7 +145,7 @@
     - :email_temp_vars
   :optional:
 
-'AdminManagement::Kyc::AdminAction::PassportIssue':
+'AdminManagement::Kyc::AdminAction::DocumentIdIssue':
   :mandatory:
     - :admin_id
     - :client_id
@@ -227,7 +227,7 @@
     - :country
     - :postal_code
     - :ethereum_address
-    - :passport_number
+    - :document_id_number
     - :nationality
     - :document_id_file_path
     - :selfie_file_path

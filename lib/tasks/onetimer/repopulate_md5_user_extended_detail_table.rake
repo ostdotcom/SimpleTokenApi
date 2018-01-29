@@ -45,7 +45,7 @@ namespace :onetimer do
                 postal_code: user_extended_detail.postal_code,
                 ethereum_address: user_extended_detail.ethereum_address,
                 estimated_participation_amount: user_extended_detail.estimated_participation_amount,
-                passport_number: user_extended_detail.passport_number,
+                document_id_number: user_extended_detail.document_id_number,
                 nationality: user_extended_detail.nationality
             }
 

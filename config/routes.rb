@@ -62,7 +62,7 @@ Rails.application.routes.draw do
       match 'fetch-duplicate' => :fetch_duplicate, via: :GET
       match 'deny-kyc' => :deny_kyc, via: :POST
       match 'data-mismatch' => :data_mismatch, via: :POST
-      match 'passport-issue' => :passport_issue, via: :POST
+      match 'document-id-issue' => :document_id_issue, via: :POST
       match 'selfie-img-issue' => :selfie_image_issue, via: :POST
       match 'residency-img-issue' => :residency_image_issue, via: :POST
       match 'qualify' => :qualify, via: :POST

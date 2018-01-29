@@ -44,10 +44,6 @@ module UserManagement
         "#{GlobalConstant::Email.subject_prefix}Partner Companies - Contact Us - #{@email}"
       end
 
-      def send_autorespond_email
-
-      end
-
       # autorespond template name
       #
       # * Author: Aman

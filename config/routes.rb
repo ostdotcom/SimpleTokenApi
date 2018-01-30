@@ -7,7 +7,6 @@ Rails.application.routes.draw do
 
   scope 'api/home', controller: 'user/home' do
     match 'contact-us-partners' => :contact_us_partners, via: :POST
-    match 'contact-us-kyc' => :contact_us_kyc, via: :POST
   end
 
   scope 'api/user', controller: 'user/login' do
@@ -30,6 +29,10 @@ Rails.application.routes.draw do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
     match 'get-token-sale-address' => :get_token_sale_address, via: :GET
+  end
+
+  scope 'api/home', controller: 'user/home' do
+    match 'contact-us-kyc' => :contact_us_kyc, via: :POST
   end
 
   scope 'api/admin', controller: 'admin/login' do
@@ -64,14 +67,20 @@ Rails.application.routes.draw do
     match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
   end
 
+
   scope 'api/callback', controller: 'callback/ops' do
     match 'whitelist-event' => :whitelist_event, via: :GET
   end
 
-  scope 'api/v1/kyc', controller: 'saas/kyc' do
-    match 'add-kyc' => :add_kyc, via: :POST
-    match 'upload-params' => :get_upload_params, via: :GET
-    match 'check-ethereum-address' => :check_ethereum_address, via: :GET
+  constraints(InitKyc) do
+
+    scope 'api/v1/kyc', controller: 'saas/kyc' do
+      match 'add-kyc' => :add_kyc, via: :POST
+      match 'upload-params' => :get_upload_params, via: :GET
+      match 'check-ethereum-address' => :check_ethereum_address, via: :GET
+    end
+
+    match '*permalink', to: 'application#not_found', via: :all
   end
 
   match '*permalink', to: 'application#not_found', via: :all

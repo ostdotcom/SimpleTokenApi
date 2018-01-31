@@ -71,7 +71,7 @@ module ClientManagement
       return r unless r.success?
 
       @url_path = "#{@url_path}/"
-      @parsed_request_time = DateTime.rfc3339(@request_time) rescue nil
+      @parsed_request_time = Time.at(@request_time.to_i)
 
       return error_with_data(
           'um_vac_1',
@@ -83,7 +83,7 @@ module ClientManagement
 
       @request_parameters.permit!
 
-      ["signature", "api_key"].each do |k|
+      ["signature"].each do |k|
         @request_parameters.delete(k)
       end
 

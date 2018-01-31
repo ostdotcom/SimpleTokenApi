@@ -27,7 +27,7 @@ module KycService
 
       @api_secret = r.data[:plaintext]
 
-      @api_base_url = Rails.env.development? ? "http://sale.developmentsimpletoken.org:8080" : "https://sale.stagingsimpletoken.org"
+      @api_base_url = Rails.env.development? ? "http://kyc.developmentost.com:8080" : "https://sale.stagingsimpletoken.org"
       @version = 'v1'
     end
 
@@ -85,7 +85,7 @@ module KycService
 
       default_params = {
           "images" => {
-              "file1.png" => 'image/png1',
+              "file1.png" => 'image/png',
               "file2.jpg" => 'image/jpg'
           },
           "pdfs" => {
@@ -127,14 +127,13 @@ module KycService
     #   Hash, Request Data
     #
     def base_params(endpoint, custom_params = {})
-      request_time = DateTime.now.to_s
-      query_param = custom_params.merge("request_time" => request_time).to_query.gsub(/^&/, '')
+      request_time = Time.now.to_i
+      request_params = custom_params.merge("request_time" => request_time, "api_key" => @api_key)
+      query_param = request_params.to_query.gsub(/^&/, '')
       str = "#{endpoint}?#{query_param}"
-      {
-          "request_time" => request_time,
-          "signature" => generate_signature(str),
-          "api_key" => @api_key
-      }
+      signature = generate_signature(str)
+      request_params.merge!("signature" => signature)
+      request_params
     end
 
     # Generate Signature
@@ -185,8 +184,8 @@ module KycService
     #   Hash, Response
     #
     def make_get_request(endpoint, custom_params = {})
-      base_params = base_params(endpoint, custom_params)
-      raw_url = get_api_url(endpoint) + "?#{base_params.merge(custom_params).to_query}"
+      request_params = base_params(endpoint, custom_params)
+      raw_url = get_api_url(endpoint) + "?#{request_params.to_query}"
 
       begin
         Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
@@ -210,12 +209,12 @@ module KycService
     #   Hash, Response
     #
     def make_post_request(endpoint, custom_params = {})
-      base_params = base_params(endpoint, custom_params)
+      request_params = base_params(endpoint, custom_params)
       uri = post_api_uri(endpoint)
       begin
         Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
           http = setup_request(uri)
-          result = http.post(uri.path, base_params.merge(custom_params).to_query)
+          result = http.post(uri.path, request_params.to_query)
           return JSON.parse(result.body)
         end
       rescue Timeout::Error => e

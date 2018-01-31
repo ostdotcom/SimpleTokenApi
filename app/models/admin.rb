@@ -26,12 +26,14 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     return 'Invalid email address' if !Util::CommonValidator.is_valid_email?(email)
     return 'Admin email already present' if Admin.where(email: email).present?
 
-    #udid = SecureRandom.hex(16)
+    client = Client.get_from_memcache(default_client_id)
+    return 'Invalid client id' unless client.present?
+
     ga_secret = ROTP::Base32.random_base32
 
     #get ga_secret qr code
     rotp_client = TimeBasedOtp.new(ga_secret)
-    r = rotp_client.provisioning_uri(name)
+    r = rotp_client.provisioning_uri(client.name)
     return r unless r.success?
     otpauth = r.data[:otpauth]
     escaped_otpauth = CGI.escape(otpauth)

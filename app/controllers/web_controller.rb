@@ -16,6 +16,28 @@ class WebController < ApplicationController
 
   before_action :authenticate_request
 
+  # Verify recaptcha
+  #
+  # * Author: Aman
+  # * Date: 27/12/2017
+  # * Reviewed By:
+  #
+  def verify_recaptcha
+    service_response = Recaptcha::Verify.new({
+                                                 'response' => params['g-recaptcha-response'].to_s,
+                                                 'remoteip' => request.remote_ip.to_s
+                                             }).perform
+
+    Rails.logger.info('---- Recaptcha::Verify done')
+
+    unless service_response.success?
+      render_api_response(service_response)
+    end
+
+    Rails.logger.info('---- check_recaptcha_before_verification done')
+
+  end
+
   # Delete the given cookie
   #
   # * Author: Aman

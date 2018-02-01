@@ -5,6 +5,7 @@ class Admin::LoginController < Admin::BaseController
                                          :get_ga_url,
                                          :multifactor_auth
                                      ]
+  before_action :verify_recaptcha, only: [:password_auth]
 
   # Password auth
   #

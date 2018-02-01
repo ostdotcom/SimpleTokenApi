@@ -115,7 +115,7 @@ module ClientManagement
     def validate_client
 
       return invalid_credentials_response('um_vac_2') unless @client.present? &&
-          @client.status == GlobalConstant::Client.active_status
+          @client.status == GlobalConstant::Client.active_status && !@client.is_web_host_setup_done?
 
       return invalid_credentials_response('um_vac_3') if @client.is_st_token_sale_client?
 

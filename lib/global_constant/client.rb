@@ -31,6 +31,10 @@ module GlobalConstant
         "whitelist_setup_done"
       end
 
+      def web_host_setup_done
+        "web_host_setup_done"
+      end
+
       ### setup Property done ###
 
     end

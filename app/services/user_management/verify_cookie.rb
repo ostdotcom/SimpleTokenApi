@@ -10,6 +10,7 @@ module UserManagement
     #
     # @param [String] cookie_value (mandatory) - this is the user cookie value
     # @param [String] browser_user_agent (mandatory) - browser user agent
+    # @param [Integer] client_id (mandatory) - client id
     #
     # @return [UserManagement::VerifyCookie]
     #
@@ -18,6 +19,7 @@ module UserManagement
 
       @cookie_value = @params[:cookie_value]
       @browser_user_agent = @params[:browser_user_agent]
+      @client_id = @params[:client_id]
 
       @user_id = nil
       @created_ts = nil
@@ -49,8 +51,7 @@ module UserManagement
 
       success_with_data(
           user_id: @user_id,
-          extended_cookie_value: @extended_cookie_value,
-          client_id: @user.client_id
+          extended_cookie_value: @extended_cookie_value
       )
 
     end
@@ -97,7 +98,7 @@ module UserManagement
     def validate_token
       @user = User.get_from_memcache(@user_id)
       return unauthorized_access_response('um_vc_5') unless @user.present? && @user.password.present? &&
-          (@user[:status] == GlobalConstant::User.active_status)
+          (@user[:status] == GlobalConstant::User.active_status) && @user.client_id == @client_id
 
       evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
       return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)

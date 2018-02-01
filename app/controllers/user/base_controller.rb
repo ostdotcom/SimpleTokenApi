@@ -1,6 +1,27 @@
 class User::BaseController < WebController
 
+  before_action :authenticate_client_host
+
   private
+
+  # Validate cookie
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  def authenticate_client_host
+    service_response = UserManagement::VerifyClientHost.new(domain: request.domain).perform
+
+    if service_response.success?
+      params[:client_id] = service_response.data[:client_id]
+      service_response.data = {}
+    else
+      # Set 401 header
+      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
+      render_api_response(service_response)
+    end
+  end
 
   # Validate cookie
   #
@@ -25,7 +46,6 @@ class User::BaseController < WebController
 
       # Set user id
       params[:user_id] = service_response.data[:user_id]
-      params[:client_id] = service_response.data[:client_id]
 
       # Remove sensitive data
       service_response.data = {}

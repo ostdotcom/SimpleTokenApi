@@ -9,6 +9,18 @@ class Client < EstablishSimpleTokenClientDbConnection
 
   after_commit :memcache_flush
 
+  # Check if whitelisting setup is done for client
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if whitelisting setup is done for client
+  #
+  def is_web_host_setup_done?
+    setup_properties_array.include?(GlobalConstant::Client.web_host_setup_done)
+  end
+
   # Check if email setup is done for client
   #
   # * Author: Aman
@@ -67,7 +79,8 @@ class Client < EstablishSimpleTokenClientDbConnection
     @setup_properties_config ||= {
         GlobalConstant::Client.cynopsis_setup_done => 1,
         GlobalConstant::Client.email_setup_done => 2,
-        GlobalConstant::Client.whitelist_setup_done => 4
+        GlobalConstant::Client.whitelist_setup_done => 4,
+        GlobalConstant::Client.web_host_setup_done => 8
     }
   end
 

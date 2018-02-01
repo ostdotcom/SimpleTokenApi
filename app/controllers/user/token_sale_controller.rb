@@ -1,5 +1,7 @@
 class User::TokenSaleController < User::BaseController
 
+  skip_before_action :authenticate_client_host, only: [:sale_details]
+
   skip_before_action :authenticate_request, only: [:sale_details]
 
   before_action :verify_recaptcha, only: [:kyc_submit]

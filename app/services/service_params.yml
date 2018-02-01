@@ -203,6 +203,7 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
+    - :client_id
   :optional:
 
 'ClientManagement::VerifyApiCredential':
@@ -334,4 +335,9 @@
     - :company
     - :email
     - :contact_number
+  :optional:
+
+'UserManagement::VerifyClientHost':
+  :mandatory:
+    - :domain
   :optional:

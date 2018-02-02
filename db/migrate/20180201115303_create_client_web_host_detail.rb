@@ -1,4 +1,4 @@
-class CreateClientHost < DbMigrationConnection
+class CreateClientWebHostDetail < DbMigrationConnection
 
   def up
     run_migration_for_db(EstablishSimpleTokenClientDbConnection.config_key) do

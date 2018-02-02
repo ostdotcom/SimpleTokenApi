@@ -13,7 +13,7 @@ class SaasUser::BaseController < WebController
   # * Reviewed By:
   #
   def authenticate_client_host
-    service_response = UserManagement::VerifyClientHost.new(domain: request.domain).perform
+    service_response = UserManagement::VerifyClientHost.new(domain: request.host).perform
 
     if service_response.success?
       params[:client_id] = service_response.data[:client_id]
@@ -33,6 +33,7 @@ class SaasUser::BaseController < WebController
   #
   def authenticate_request
     service_response = UserManagement::VerifyCookie.new(
+        client_id: params[:client_id],
         cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym],
         browser_user_agent: http_user_agent
     ).perform

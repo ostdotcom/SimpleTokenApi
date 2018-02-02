@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @param [Integer] user_id (mandatory) - user id
     # @param [String] bt_name (mandatory) - Branded Token Name
     # @param [Boolean] skip_name (mandatory) - skip this step
@@ -21,6 +22,7 @@ module UserManagement
       @user_id = @params[:user_id]
       @bt_name = @params[:bt_name]
       @skip_name = @params[:skip_name]
+      @client_id = @params[:client_id]
 
       @user = nil
 
@@ -69,6 +71,16 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_and_sanitize
+
+      return error_with_data(
+          'um_bs_1',
+          'Invalid action',
+          'Invalid action',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @client_id != GlobalConstant::TokenSale.st_token_sale_client_id
+
 
       validation_errors = {}
       @skip_name = ActiveRecord::Type::Boolean.new.cast(@skip_name)

@@ -79,7 +79,7 @@ class ApplicationController < ActionController::API
           response_hash: response_hash
         },
         subject: 'Error in KYC submit API'
-      ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'user/token_sale'
+      ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'saas_user/token_sale'
 
       err = response_hash.delete(:err) || {}
       response_hash[:err] = {

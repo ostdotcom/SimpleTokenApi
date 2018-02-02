@@ -1,5 +1,7 @@
 class Admin::BaseController < WebController
 
+  before_action :authenticate_request
+
   private
 
   # Validate cookie

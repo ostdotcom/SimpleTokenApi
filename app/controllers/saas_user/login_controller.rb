@@ -1,13 +1,8 @@
-class User::LoginController < User::BaseController
+class SaasUser::LoginController < SaasUser::BaseController
 
   prepend_before_action :merge_utm_to_params, only: [:sign_up]
 
-  before_action :authenticate_request, except: [
-                                    :sign_up,
-                                    :login,
-                                    :send_reset_password_link,
-                                    :reset_password
-                                ]
+  skip_before_action :authenticate_request
 
   before_action :verify_recaptcha, only: [:sign_up, :login]
 

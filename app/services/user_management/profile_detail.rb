@@ -8,8 +8,8 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @params [Integer] user_id (mandatory) - this is the user id
-    # @params [String] t (mandatory) - this is the double opt in token
     #
     # @return [UserManagement::GetBasicDetail]
     #
@@ -17,8 +17,10 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
-      @token = @params[:t]
+      @client_id = @params[:client_id]
 
+      @client = nil
+      @client_token_sale_details = nil
       @user = nil
       @user_token_sale_state = nil
       @user_kyc_detail = nil
@@ -36,21 +38,59 @@ module UserManagement
       r = validate
       return r unless r.success?
 
-      fetch_user
-
-      r = validate_token
+      r = fetch_and_validate_client
       return r unless r.success?
+
+      fetch_client_token_sale_details
+
+      r = validate_client_details
+      return r unless r.success?
+
+      fetch_user
 
       r = validate_user_token_sale_state
       return r unless r.success?
 
       fetch_user_kyc_detail
 
-      success_with_data(success_response_data)
+      success_with_data(success_response_data_for_client)
     end
 
     private
 
+    # Fetch token sale details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_token_sale_details
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+    end
+
+    # validate clients web hosting setup details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # Sets @client
+    #
+    # @return [Result::Base]
+    #
+    def validate_client_details
+      return error_with_data(
+          'um_su_3',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@client.is_web_host_setup_done?
+
+      success
+    end
 
     # Fetch User
     #
@@ -64,42 +104,6 @@ module UserManagement
       @user = User.get_from_memcache(@user_id)
       @user_token_sale_state = @user.get_token_sale_state_page_name
     end
-
-    # Validate token
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    def validate_token
-      return success if @token.blank? || @user_token_sale_state == GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-
-      #  todo: "KYCaas-Changes"
-      # service_response = UserManagement::DoubleOptIn.new(double_opt_in_params).perform
-      return unauthorized_access_response('um_pd_2') unless service_response.success?
-
-      # @user.reload
-      # @user_token_sale_state = @user.get_token_sale_state_page_name
-      # success
-    end
-
-    # Double opt in parameters
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    #  todo: "KYCaas-Changes"
-    # def double_opt_in_params
-    #   {
-    #       user_id: @user.id,
-    #       t: @token
-    #   }
-    # end
 
     # Validate token
     #
@@ -126,7 +130,7 @@ module UserManagement
       @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
     end
 
-    # Success response data
+    # response data on client basis
     #
     # * Author: Aman
     # * Date: 12/10/2017
@@ -134,11 +138,23 @@ module UserManagement
     #
     # @return [Hash] final success data
     #
-    def success_response_data
-      {
-          user: user_data,
-          user_kyc_data: user_kyc_data
-      }.merge(sale_stats)
+    def success_response_data_for_client
+      if @client.is_st_token_sale_client?
+        {
+            user: user_data,
+            user_kyc_data: user_kyc_data,
+            is_st_token_sale_client: @client.is_st_token_sale_client?
+        }.merge(sale_stats)
+
+      else
+        {
+            user: user_data,
+            user_kyc_data: user_kyc_data,
+            is_st_token_sale_client: @client.is_st_token_sale_client?
+        }
+
+      end
+
     end
 
     # Sale stats
@@ -190,7 +206,7 @@ module UserManagement
               pos_bonus_percentage: @user_kyc_detail.pos_bonus_percentage,
               alternate_token_name_for_bonus: get_alternate_token_name(@user_kyc_detail.alternate_token_id_for_bonus)
           }
-      :
+          :
           {
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
@@ -211,7 +227,7 @@ module UserManagement
     # @return [Integer] bonus percent approved for user
     #
     def expected_pos_percentage
-      return nil if ( token_sale_participation_phase_for_user !=
+      return nil if (token_sale_participation_phase_for_user !=
           GlobalConstant::TokenSale.early_access_token_sale_phase)
 
       PosBonusEmail.where(email: @user.email).first.try(:bonus_percentage)
@@ -301,3 +317,6 @@ module UserManagement
   end
 
 end
+
+# send if client whitelist details and token sale details start and end time and if show deposit address
+#

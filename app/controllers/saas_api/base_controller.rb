@@ -1,4 +1,4 @@
-class Saas::BaseController < RestApiController
+class SaasApi::BaseController < RestApiController
 
   private
 

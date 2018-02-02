@@ -21,6 +21,7 @@ module UserManagement
       @pdfs = @params[:pdfs] || {}
 
       @upload_params = {}
+      @client_token_sale_details = nil
     end
 
     # Perform
@@ -69,6 +70,8 @@ module UserManagement
       r = fetch_and_validate_client
       return r unless r.success?
 
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+
       #  todo: "KYCaas-Changes"
       return error_with_data(
           'um_gup_3',
@@ -77,7 +80,7 @@ module UserManagement
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if @client.is_st_token_sale_client?
+      ) if @client_token_sale_details.has_token_sale_ended?
 
       image_content_types = []
       @images.each do |_, v|

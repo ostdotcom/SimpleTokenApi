@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 13/10/2017
     # * Reviewed By: Sunil
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @params [String] r_t (mandatory) - token for reset
     # @params [String] password (mandatory) - this is the new password
     # @params [String] confirm_password (mandatory) - this is the confirm password
@@ -20,7 +21,9 @@ module UserManagement
       @r_t = @params[:r_t]
       @password = @params[:password]
       @confirm_password = @params[:confirm_password]
+      @client_id = @params[:client_id]
 
+      @client = nil
       @reset_token = nil
       @temporary_token_id = nil
       @temporary_token_obj = nil
@@ -40,6 +43,12 @@ module UserManagement
     def perform
 
       r = validate_and_sanitize
+      return r unless r.success?
+
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      r = validate_client_details
       return r unless r.success?
 
       fetch_temporary_token_obj
@@ -113,6 +122,28 @@ module UserManagement
       success
     end
 
+    # validate clients web hosting setup details
+    #
+    # * Author: Aman
+    # * Date: 26/12/2017
+    # * Reviewed By:
+    #
+    # Sets @client
+    #
+    # @return [Result::Base]
+    #
+    def validate_client_details
+      return error_with_data(
+          'um_rp_12',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@client.is_web_host_setup_done?
+
+      success
+    end
+
     # Fetch temporary token obj
     #
     # * Author: Aman
@@ -163,6 +194,8 @@ module UserManagement
       @user = User.get_from_memcache(@temporary_token_obj.user_id)
       return unauthorized_access_response('um_rp_9') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
+
+      return unauthorized_access_response('um_rp_11') if @user.client_id != @client_id
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_rp_10') unless @user_secret.present?

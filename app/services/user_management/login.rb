@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
@@ -18,15 +19,17 @@ module UserManagement
     def initialize(params)
       super
 
+      @client_id = @params[:client_id]
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
       @ip_address = @params[:ip_address]
 
+      @client = nil
+      @client_token_sale_details = nil
       @user_secret = nil
       @user = nil
       @login_salt_d = nil
-      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -41,6 +44,14 @@ module UserManagement
 
       r = validate
       return r unless r.success?
+
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      r = validate_client_details
+      return r unless r.success?
+
+      fetch_client_token_sale_details
 
       r = fetch_user
       return r unless r.success?
@@ -58,6 +69,38 @@ module UserManagement
     end
 
     private
+
+    # Fetch token sale details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_token_sale_details
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+    end
+
+    # validate clients web hosting setup details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_client_details
+      return error_with_data(
+          'um_l_5',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@client.is_web_host_setup_done?
+
+      success
+    end
 
     # Fetch user
     #
@@ -81,9 +124,9 @@ module UserManagement
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if GlobalConstant::TokenSale.is_general_sale_ended? && !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
-
-
+      ) if @client_token_sale_details.has_token_sale_ended? &&
+          (!@user.send("#{GlobalConstant::User.token_sale_kyc_submitted_property}?") ||
+          (@client.is_st_token_sale_client? && !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")))
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_l_2') unless @user_secret.present?
@@ -100,7 +143,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def decrypt_login_salt
-      r = Aws::Kms.new('login','user').decrypt(@user_secret.login_salt)
+      r = Aws::Kms.new('login', 'user').decrypt(@user_secret.login_salt)
       return r unless r.success?
 
       @login_salt_d = r.data[:plaintext]
@@ -135,7 +178,7 @@ module UserManagement
           UserActivityLogJob,
           {
               user_id: @user.id,
-              action:   GlobalConstant::UserActivityLog.login_action,
+              action: GlobalConstant::UserActivityLog.login_action,
               action_timestamp: Time.now.to_i,
               extra_data: {
                   browser_user_agent: @browser_user_agent,
@@ -170,11 +213,11 @@ module UserManagement
     #
     def unauthorized_access_response(err, display_text = 'Incorrect login details.')
       error_with_data(
-        err,
-        display_text,
-        display_text,
-        GlobalConstant::ErrorAction.default,
-        {}
+          err,
+          display_text,
+          display_text,
+          GlobalConstant::ErrorAction.default,
+          {}
       )
     end
 

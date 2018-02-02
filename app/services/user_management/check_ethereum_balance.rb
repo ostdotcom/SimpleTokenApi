@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 28/10/2017
     # * Reviewed By: Sunil
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @param [Integer] user_id (mandatory)
     # @param [String] user_ethereum_address (mandatory)
     #
@@ -18,6 +19,7 @@ module UserManagement
 
       @user_id = @params[:user_id]
       @user_ethereum_address = @params[:user_ethereum_address]
+      @client_id = @params[:client_id]
 
       @user_kyc_detail = nil
     end
@@ -66,6 +68,15 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_and_ethereum_address
+
+      return error_with_data(
+          'um_ceb_1.1',
+          'Invalid action',
+          'Invalid action',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @client_id != GlobalConstant::TokenSale.st_token_sale_client_id
 
       return error_with_data(
           'um_ceb_1',

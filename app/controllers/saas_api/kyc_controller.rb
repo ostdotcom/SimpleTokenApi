@@ -1,4 +1,4 @@
-class Saas::KycController < Saas::BaseController
+class SaasApi::KycController < SaasApi::BaseController
 
   # Add KYC
   #

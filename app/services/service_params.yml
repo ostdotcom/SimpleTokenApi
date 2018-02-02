@@ -183,6 +183,7 @@
 
 'UserManagement::SignUp':
   :mandatory:
+    - :client_id
     - :email
     - :password
     - :browser_user_agent
@@ -193,6 +194,7 @@
 
 'UserManagement::Login':
   :mandatory:
+    - :client_id
     - :email
     - :password
     - :browser_user_agent
@@ -201,9 +203,9 @@
 
 'UserManagement::VerifyCookie':
   :mandatory:
+    - :client_id
     - :cookie_value
     - :browser_user_agent
-    - :client_id
   :optional:
 
 'ClientManagement::VerifyApiCredential':
@@ -244,10 +246,12 @@
 'UserManagement::GetBasicDetail':
   :mandatory:
     - :user_id
+    - :client_id
   :optional:
 
 'UserManagement::BtSubmit':
   :mandatory:
+    - :client_id
     - :bt_name
     - :skip_name
     - :user_id
@@ -262,17 +266,20 @@
 
 'UserManagement::CheckEthereumBalance':
   :mandatory:
+    - :client_id
     - :user_id
     - :user_ethereum_address
   :optional:
 
 'UserManagement::SendResetPasswordLink':
   :mandatory:
+    - :client_id
     - :email
   :optional:
 
 'UserManagement::ResetPassword':
   :mandatory:
+    - :client_id
     - :r_t
     - :password
     - :confirm_password
@@ -280,9 +287,9 @@
 
 'UserManagement::ProfileDetail':
   :mandatory:
+    - :client_id
     - :user_id
   :optional:
-   - :t
 
 'WhitelistManagement::ProcessAndRecordEvent':
   :mandatory:
@@ -291,6 +298,7 @@
 
 'UserManagement::GetTokenSaleAddress':
   :mandatory:
+    - :client_id
     - :user_id
   :optional:
 

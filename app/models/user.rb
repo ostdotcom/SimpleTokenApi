@@ -1,10 +1,10 @@
 class User < EstablishSimpleTokenUserDbConnection
 
   enum status: {
-           GlobalConstant::User.active_status => 1,
-           GlobalConstant::User.inactive_status => 2,
-           GlobalConstant::User.deactived_status => 3
-       }
+      GlobalConstant::User.active_status => 1,
+      GlobalConstant::User.inactive_status => 2,
+      GlobalConstant::User.deactived_status => 3
+  }
 
   after_commit :memcache_flush
 
@@ -29,12 +29,25 @@ class User < EstablishSimpleTokenUserDbConnection
   # @returns [String] returns page name according to user properties
   #
   def get_token_sale_state_page_name
-    if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
-      GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-    elsif properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
-      GlobalConstant::User.get_token_sale_state_page_names("verification_page")
+
+    if self.client_id == GlobalConstant::TokenSale.st_token_sale_client_id
+
+      if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+        GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+      elsif properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+        GlobalConstant::User.get_token_sale_state_page_names("verification_page")
+      else
+        GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
+      end
+
     else
-      GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
+
+      if properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+        GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+      else
+        GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
+      end
+
     end
   end
 
@@ -123,7 +136,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   def self.get_cookie_token(user_id, password, browser_user_agent, current_ts)
     string_to_sign = "#{user_id}:#{password}:#{browser_user_agent}:#{current_ts}:#{GlobalConstant::Cookie.double_auth_prefix}"
-    key="#{user_id}:#{current_ts}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
+    key = "#{user_id}:#{current_ts}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
     sha256_params = {
         string: string_to_sign,
         salt: key

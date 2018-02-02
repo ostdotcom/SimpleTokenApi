@@ -1,4 +1,4 @@
-class User::ProfileController < User::BaseController
+class SaasUser::ProfileController < SaasUser::BaseController
 
   # Get logged in user details
   #

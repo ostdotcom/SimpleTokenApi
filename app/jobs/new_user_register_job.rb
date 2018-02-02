@@ -12,7 +12,7 @@ class NewUserRegisterJob < ApplicationJob
 
     init_params(params)
 
-    create_user_utm_log if @client.is_st_token_sale_client?
+    create_user_utm_log if @utm_params.present?
 
     create_email_service_api_call_hook if @client.is_st_token_sale_client?
 

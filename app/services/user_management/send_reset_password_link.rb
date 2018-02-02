@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @params [String] email (mandatory) - this is the email entered
     #
     # @return [UserManagement::SendResetPasswordLink]
@@ -16,10 +17,11 @@ module UserManagement
       super
 
       @email = @params[:email]
+      @client_id = @params[:client_id]
 
+      @client = nil
       @user = nil
       @reset_password_token = nil
-      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -33,6 +35,9 @@ module UserManagement
     def perform
 
       r = validate
+      return r unless r.success?
+
+      r = fetch_and_validate_client
       return r unless r.success?
 
       r = fetch_user

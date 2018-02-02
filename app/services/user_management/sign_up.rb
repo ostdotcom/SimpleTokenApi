@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil Khedar
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
@@ -20,6 +21,7 @@ module UserManagement
     def initialize(params)
       super
 
+      @client_id = @params[:client_id]
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
@@ -28,10 +30,11 @@ module UserManagement
 
       @utm_params = @params[:utm_params]
 
+      @client = nil
+      @client_token_sale_details = nil
       @login_salt_hash = nil
       @user_secret = nil
       @user = nil
-      @client_id = GlobalConstant::TokenSale.st_token_sale_client_id
     end
 
     # Perform
@@ -45,6 +48,14 @@ module UserManagement
     def perform
 
       r = validate_and_sanitize
+      return r unless r.success?
+
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      fetch_client_token_sale_details
+
+      r = validate_client_details
       return r unless r.success?
 
       r = check_if_email_already_registered
@@ -73,15 +84,6 @@ module UserManagement
     #
     def validate_and_sanitize
 
-      return error_with_data(
-          'um_su_3',
-          'The token sale ended, it is no longer possible to signup now',
-          'The token sale ended, it is no longer possible to signup now',
-          GlobalConstant::ErrorAction.default,
-          {},
-          {}
-      ) if GlobalConstant::TokenSale.is_general_sale_ended?
-
       @email = @email.to_s.downcase.strip
 
       validation_errors = {}
@@ -105,6 +107,50 @@ module UserManagement
       # NOTE: To be on safe side, check for generic errors as well
       r = validate
       return r unless r.success?
+
+      success
+    end
+
+    # Fetch token sale details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_token_sale_details
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+    end
+
+    # validate clients web hosting setup details and sale registration
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # Sets @client
+    #
+    # @return [Result::Base]
+    #
+    def validate_client_details
+
+      return error_with_data(
+          'um_su_3',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@client.is_web_host_setup_done?
+
+      return error_with_data(
+          'um_su_4',
+          'The token sale ended, it is no longer possible to signup now',
+          'The token sale ended, it is no longer possible to signup now',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @client_token_sale_details.has_token_sale_ended?
 
       success
     end

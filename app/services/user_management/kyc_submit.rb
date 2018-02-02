@@ -8,6 +8,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Kedar
     #
+    # @param [Integer] client_id (mandatory) - client id
     # @params [Integer] user_id (mandatory) - user id
     # @params [Integer] client_id (mandatory) - client id
     # @params [String] first_name (mandatory) - first name
@@ -53,6 +54,7 @@ module UserManagement
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
 
       @client = nil
+      @client_token_sale_details = nil
       @user = nil
       @kyc_salt_d = nil
       @kyc_salt_e = nil
@@ -87,10 +89,9 @@ module UserManagement
       return r unless r.success?
       Rails.logger.info('---- create_user_extended_details done')
 
-      #  todo: "KYCaaS-Changes"
-      # r = update_user
-      # return r unless r.success?
-      # Rails.logger.info('---- update_user done')
+      r = update_user
+      return r unless r.success?
+      Rails.logger.info('---- update_user done')
 
       enqueue_job
 
@@ -143,15 +144,16 @@ module UserManagement
       r = fetch_and_validate_client
       return r unless r.success?
 
-      #  todo: "KYCaas-Changes"
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+
       return error_with_data(
-          'um_ks_6',
+          'um_ks_7',
           'The token sale ended, it is no longer possible to submit personal information.',
           'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if @client.is_st_token_sale_client?
+      ) if @client_token_sale_details.has_token_sale_ended?
 
       # Check if user KYC is already approved
       user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
@@ -401,13 +403,12 @@ module UserManagement
     #
     # @return [Result::Base]
     #
-    #  todo: "KYCaaS-Changes"
-    # def update_user
-    #   @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
-    #   @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
-    #   @user.save! if @user.changed?
-    #   success
-    # end
+    def update_user
+      @user.send("set_" + GlobalConstant::User.token_sale_kyc_submitted_property)
+      # @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+      @user.save! if @user.changed?
+      success
+    end
 
     # Do remaining task in sidekiq
     #

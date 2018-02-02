@@ -54,6 +54,10 @@ client:
     key_template: 'client_web_host_details_by_domain_%{domain}'
     expiry_in_seconds: 86400
 
+  client_token_sale_details:
+    key_template: 'client_token_sale_detail_%{client_id}'
+    expiry_in_seconds: 86400
+
   client_admins:
     key_template: 'client_admins_%{admin_id}'
     expiry_in_seconds: 86400

@@ -108,7 +108,7 @@ module UserManagement
             client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: @email,
             template_name: autorespond_template_name,
-            template_vars: {}
+            template_vars: {email: @email}
         ).perform
       end
 

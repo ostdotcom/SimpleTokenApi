@@ -2,4 +2,5 @@
 rails_time_zones:
   development: 'Asia/Kolkata'
   staging: 'Eastern Time (US & Canada)'
+  sandbox: 'Eastern Time (US & Canada)'
   production: 'Eastern Time (US & Canada)'

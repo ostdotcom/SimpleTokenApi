@@ -141,8 +141,8 @@ module UserManagement
     def success_response_data_for_client
       if @client.is_st_token_sale_client?
         {
-            user: user_data,
-            user_kyc_data: user_kyc_data,
+            user: user_data_default_client,
+            user_kyc_data: user_kyc_data_default_client,
             is_st_token_sale_client: @client.is_st_token_sale_client?
         }.merge(sale_stats)
 
@@ -182,7 +182,6 @@ module UserManagement
       {
           id: @user.id,
           email: @user.email,
-          bt_name: @user.bt_name,
           user_token_sale_state: @user_token_sale_state
       }
     end
@@ -196,6 +195,50 @@ module UserManagement
     # @return [Hash] hash of user data
     #
     def user_kyc_data
+      @user_kyc_detail.present? ?
+          {
+              user_id: @user.id,
+              kyc_status: kyc_status,
+              admin_action_type: @user_kyc_detail.admin_action_type,
+              token_sale_participation_phase: token_sale_participation_phase_for_user,
+              whitelist_status: @user_kyc_detail.whitelist_status
+          }
+          :
+          {
+              user_id: @user.id,
+              kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
+              admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
+              token_sale_participation_phase: token_sale_participation_phase_for_user,
+              whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+          }
+    end
+
+    # User detail
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Hash] hash of user data for st token sale client
+    #
+    def user_data_default_client
+      {
+          id: @user.id,
+          email: @user.email,
+          bt_name: @user.bt_name,
+          user_token_sale_state: @user_token_sale_state
+      }
+    end
+
+    # User detail
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Hash] hash of user data for st token sale client
+    #
+    def user_kyc_data_default_client
       @user_kyc_detail.present? ?
           {
               user_id: @user.id,

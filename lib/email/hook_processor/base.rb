@@ -33,9 +33,7 @@ module Email
         r = validate
         return r unless r.success?
 
-        fetch_client_details
-
-        r = decrypt_api_secret
+        r = fetch_client_details
         return r unless r.success?
 
         process_hook
@@ -48,13 +46,21 @@ module Email
       # * Date: 02/01/2018
       # * Reviewed By:
       #
-      # Sets @client, @client_pepo_campaign_detail_obj
+      # Sets @client, @client_pepo_campaign_detail_obj, @campaign_api_secret_d, @campaign_api_key
       #
       # @return [Result::Base]
       #
       def fetch_client_details
-        @client = Client.get_from_memcache(@hook.client_id)
-        @client_pepo_campaign_detail_obj = ClientPepoCampaignDetail.get_from_memcache(@hook.client_id)
+        if @hook.client_id == Client::OST_KYC_CLIENT_IDENTIFIER
+          @campaign_api_key = GlobalConstant::PepoCampaigns.api_key
+          @campaign_api_secret_d = GlobalConstant::PepoCampaigns.api_secret
+          success
+        else
+          @client = Client.get_from_memcache(@hook.client_id)
+          @client_pepo_campaign_detail_obj = ClientPepoCampaignDetail.get_from_memcache(@hook.client_id)
+          @campaign_api_key = @client_pepo_campaign_detail_obj.api_key
+          decrypt_api_secret
+        end
       end
 
       private
@@ -65,7 +71,7 @@ module Email
       # * Date: 02/01/2018
       # * Reviewed By:
       #
-      # Sets @api_secret_d
+      # Sets @campaign_api_secret_d
       #
       # @return [Result::Base]
       #
@@ -78,7 +84,7 @@ module Email
         r = LocalCipher.new(api_salt_d).decrypt(@client_pepo_campaign_detail_obj.api_secret)
         return r unless r.success?
 
-        @api_secret_d = r.data[:plaintext]
+        @campaign_api_secret_d = r.data[:plaintext]
 
         success
       end
@@ -132,7 +138,7 @@ module Email
       #
       # @return [Object] Email::Services::PepoCampaigns
       def pepo_campaign_obj
-        Email::Services::PepoCampaigns.new(api_key: @client_pepo_campaign_detail_obj.api_key, api_secret: @api_secret_d)
+        Email::Services::PepoCampaigns.new(api_key: @campaign_api_key, api_secret: @campaign_api_secret_d)
       end
 
       # Build attributes for email service

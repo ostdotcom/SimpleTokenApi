@@ -5,6 +5,8 @@ class Client < EstablishSimpleTokenClientDbConnection
            GlobalConstant::Client.inactive_status => 2
        }
 
+  OST_KYC_CLIENT_IDENTIFIER = -1
+
   attr_accessor :decrypted_api_salt
 
   after_commit :memcache_flush

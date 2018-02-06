@@ -1,6 +1,6 @@
 class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
 
-  scope :of_ethereum_address, ->(ethereum_address) { where(ethereum_address: ethereum_address) }
+  scope :of_ethereum_address, ->(ethereum_address) {where(ethereum_address: ethereum_address)}
 
   # Total Sales Stats
   #
@@ -10,17 +10,9 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
   #
   def self.sale_details
     memcache_key_object = MemcacheKey.new('token_sale.sale_details')
-
-    cache_expiry = get_sale_details_cache_expiry(memcache_key_object.expiry)
-
-    if cache_expiry > 0
-      Memcache.get_set_memcached(memcache_key_object.key_template, cache_expiry) do
-        fetch_data_for_cache
-      end
-    else
+    Memcache.get_set_memcached(memcache_key_object.key_template, memcache_key_object.expiry) do
       fetch_data_for_cache
     end
-
   end
 
   # Fetch data for cache
@@ -74,24 +66,6 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
             token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
         }
     }
-  end
-
-  # Get sale details cache expiry
-  #
-  # * Author: Aman
-  # * Date: 10/11/2017
-  # * Reviewed By: Sunil
-  #
-  def self.get_sale_details_cache_expiry(expiry_time)
-
-    if !GlobalConstant::TokenSale.is_early_access_sale_started?
-      calculated_time = (GlobalConstant::TokenSale.early_access_start_date.to_i - Time.now.to_i)
-      calculated_time = - 1 if calculated_time <= 3
-      [calculated_time, expiry_time].min
-    else
-      expiry_time
-    end
-
   end
 
 end

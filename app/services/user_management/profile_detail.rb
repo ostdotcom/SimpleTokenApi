@@ -143,18 +143,36 @@ module UserManagement
         {
             user: user_data_default_client,
             user_kyc_data: user_kyc_data_default_client,
-            is_st_token_sale_client: @client.is_st_token_sale_client?
+            client_setting: client_setting
         }.merge(sale_stats)
 
       else
         {
             user: user_data,
             user_kyc_data: user_kyc_data,
-            is_st_token_sale_client: @client.is_st_token_sale_client?
+            client_setting: client_setting
         }
-
       end
+    end
 
+    # Client Setup details
+    #
+    # * Author: Aman
+    # * Date: 06/02/2018
+    # * Reviewed By:
+    #
+    # @return [Hash] hash of client's kyc setting
+    #
+    def client_setting
+      {
+          is_st_token_sale_client: @client.is_st_token_sale_client?,
+          is_whitelist_setup_done: @client.is_whitelist_setup_done?,
+          token_sale_details: {
+              sale_start_timestamp: @client_token_sale_details.sale_start_timestamp,
+              sale_end_timestamp: @client_token_sale_details.sale_end_timestamp,
+              has_ethereum_deposit_address: @client_token_sale_details.ethereum_deposit_address.present?
+          }
+      }
     end
 
     # Sale stats

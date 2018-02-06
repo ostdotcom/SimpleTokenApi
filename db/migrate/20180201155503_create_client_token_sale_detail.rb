@@ -13,13 +13,13 @@ class CreateClientTokenSaleDetail < DbMigrationConnection
       add_index :client_token_sale_details, :client_id, unique: true, name: 'uniq_client_id'
     end
 
-    ClientTokenSaleDetail.create!(
-        client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
-        sale_start_timestamp: GlobalConstant::TokenSale.early_access_start_date,
-        sale_end_timestamp: GlobalConstant::TokenSale.general_access_end_date,
-        ethereum_deposit_address: GlobalConstant::TokenSale.st_token_sale_ethereum_address,
-        status: GlobalConstant::ClientTokenSaleDetail.active_status
-    )
+    # ClientTokenSaleDetail.create!(
+    #     client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+    #     sale_start_timestamp: GlobalConstant::TokenSale.early_access_start_date,
+    #     sale_end_timestamp: GlobalConstant::TokenSale.general_access_end_date,
+    #     ethereum_deposit_address: GlobalConstant::TokenSale.st_token_sale_ethereum_address,
+    #     status: GlobalConstant::ClientTokenSaleDetail.active_status
+    # )
 
   end
 

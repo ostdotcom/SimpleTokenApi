@@ -21,6 +21,8 @@ module UserManagement
       @user_ethereum_address = @params[:user_ethereum_address]
       @client_id = @params[:client_id]
 
+      @client = nil
+      @client_token_sale_details = nil
       @user_kyc_detail = nil
     end
 
@@ -37,6 +39,14 @@ module UserManagement
       r = validate
       return r unless r.success?
 
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      fetch_client_token_sale_details
+
+      r = validate_client_details
+      return r unless r.success?
+
       fetch_user_kyc_details
 
       r = validate_user_and_ethereum_address
@@ -46,6 +56,40 @@ module UserManagement
     end
 
     private
+
+    # Fetch token sale details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_token_sale_details
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+    end
+
+    # validate clients web hosting setup details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # Sets @client
+    #
+    # @return [Result::Base]
+    #
+    def validate_client_details
+      return error_with_data(
+          'um_ceb_3',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@client.is_web_host_setup_done?
+
+      success
+    end
 
     # set user kyc detail
     #
@@ -143,7 +187,7 @@ module UserManagement
     # @return [Hash] sale data for user
     #
     def user_purchase_data
-      Time.now >= sale_start_time_for_user ? get_user_sale_detail : {}
+      @client_token_sale_details.has_token_sale_started? ? get_user_sale_detail : {}
     end
 
     # Get user purchase data
@@ -177,20 +221,6 @@ module UserManagement
           total_simple_token_allotted_to_user: total_simple_token_allotted_to_user,
           total_simple_token_bonus_to_user: total_st_bonus_for_user
       }
-    end
-
-    # Sale Start time for user
-    #
-    # * Author: Aman
-    # * Date: 09/11/2017
-    # * Reviewed By:
-    #
-    # @return [Time]
-    #
-    def sale_start_time_for_user
-      (@user_kyc_detail.token_sale_participation_phase == GlobalConstant::TokenSale.early_access_token_sale_phase) ?
-        GlobalConstant::TokenSale.early_access_start_date :
-        GlobalConstant::TokenSale.general_access_start_date
     end
 
   end

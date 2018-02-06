@@ -91,7 +91,7 @@ module UserManagement
           'Sale is not active',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if @client_token_sale_details.has_token_sale_ended?
+      )  if !@client_token_sale_details.is_token_sale_live?
 
       return error_with_data(
           'um_ea_2',

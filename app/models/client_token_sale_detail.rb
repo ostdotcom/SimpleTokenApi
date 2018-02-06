@@ -20,6 +20,30 @@ class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
     sale_end_timestamp >= Time.now.to_i
   end
 
+  # Token sale start time has passed
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @return [Boolean] return true if token sale has started
+  #
+  def has_token_sale_started?
+    sale_start_timestamp <= Time.now.to_i
+  end
+
+  # Token sale is live
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @return [Boolean] return true if token sale is live
+  #
+  def is_token_sale_live?
+    has_token_sale_started? && !has_token_sale_ended?
+  end
+
   # Get Key Object
   #
   # * Author: Aman

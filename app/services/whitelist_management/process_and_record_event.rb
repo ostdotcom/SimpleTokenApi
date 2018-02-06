@@ -457,6 +457,8 @@ module WhitelistManagement
 
       return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
 
+      fetch_client_token_sale_details
+
       emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(
           @client.id, GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
 
@@ -470,6 +472,18 @@ module WhitelistManagement
 
       send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 
+    end
+
+    # Fetch token sale details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_token_sale_details
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
     end
 
     # pepo campaign klass
@@ -509,7 +523,7 @@ module WhitelistManagement
     def kyc_approved_template_vars
       {
           token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-          is_sale_active: false #GlobalConstant::TokenSale.is_general_sale_interval?
+          is_sale_active: @client_token_sale_details.has_token_sale_started? #GlobalConstant::TokenSale.is_general_sale_interval?
       }
     end
 

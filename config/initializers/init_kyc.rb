@@ -6,7 +6,7 @@ class InitKyc
     elsif Rails.env.sandbox?
       request.host == 'kyc.sandboxost.com'
     elsif Rails.env.staging?
-      request.host == 'kyc.stagingsimpletoken.org'
+      request.host == 'kyc.stagingost.com'
     else
       request.host == 'kyc.developmentost.com'
     end

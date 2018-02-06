@@ -108,7 +108,7 @@ module UserManagement
             client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
             email: @email,
             template_name: autorespond_template_name,
-            template_vars: {}
+            template_vars: {email: @email}
         ).perform
       end
 

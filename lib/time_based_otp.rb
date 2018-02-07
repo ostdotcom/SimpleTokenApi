@@ -92,7 +92,7 @@ class TimeBasedOtp
   # @return [Object] ROTP
   #
   def client
-    env_name = Rails.env.production? ? '' :  (Rails.env.staging? ? ' - sandbox' : " - #{Rails.env}")
+    env_name = Rails.env.production? ? '' :  " - #{Rails.env}"
     @client ||= ROTP::TOTP.new(@secret, issuer: "OST KYC#{env_name}")
   end
 

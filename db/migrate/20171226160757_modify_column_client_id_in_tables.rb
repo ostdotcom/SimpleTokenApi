@@ -14,7 +14,8 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
             "api_secret" => GlobalConstant::PepoCampaigns.api_secret
         },
         "whitelist" => {
-            "contract_address" => GlobalConstant::TokenSale.st_token_sale_ethereum_address
+            "contract_address" => GlobalConstant::TokenSale.st_token_sale_ethereum_address,
+            "whitelister_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142'
         }
     }
 

@@ -33,7 +33,7 @@ module Util
       rescue => e
         Rails.logger.error("location_details failed with exception: for #{@ip_address} - #{e.message}")
         # Fail it for non production environments
-        fail "location_details failed with exception: for #{@ip_address} - #{e.message}" unless Rail.env.production?
+        fail "location_details failed with exception: for #{@ip_address} - #{e.message}" unless (Rail.env.production? || Rail.env.sandbox?)
         {}
       end
     end

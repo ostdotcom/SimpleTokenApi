@@ -137,6 +137,8 @@ module Email
       #
       def validate_for_email_setup
 
+        return success if @client_id == Client::OST_KYC_CLIENT_IDENTIFIER
+
         @client = Client.get_from_memcache(@client_id)
 
         return error_with_data(

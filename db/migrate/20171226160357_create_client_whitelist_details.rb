@@ -5,6 +5,7 @@ class CreateClientWhitelistDetails < DbMigrationConnection
       create_table :client_whitelist_details do |t|
         t.column :client_id, :integer, limit: 8, null: false
         t.column :contract_address, :string, null: false
+        t.column :whitelister_address, :string, null: true
         t.column :status, :tinyint, limit: 1, null: false
         t.timestamps
       end

@@ -22,7 +22,7 @@ module GlobalConstant
       end
 
       def contact_us_admin_email
-        Rails.env.production? ? 'support@simpletoken.org' : 'aman@ost.com'
+        Rails.env.production? ? 'paul@simpletoken.org' : 'aman@ost.com'
       end
 
       def default_directors_to

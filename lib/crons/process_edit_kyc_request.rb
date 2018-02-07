@@ -152,14 +152,14 @@ module Crons
           ethereum_address_updated = e_k_r.open_case_only.to_i > 0 ?  0 : 1
 
           Email::HookCreator::SendTransactionalMail.new(
-              client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+              client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
               email: @admins[e_k_r.admin_id].email,
               template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
               template_vars: {success: is_success, email: @users[e_k_r.user_id].email, reason_failure: reason_failure_msg, ethereum_address_updated: ethereum_address_updated}
           ).perform
         else
           Email::HookCreator::SendTransactionalMail.new(
-              client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+              client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
               email: @admins[e_k_r.admin_id].email,
               template_name: GlobalConstant::PepoCampaigns.update_ethereum_request_outcome_template,
               template_vars: {success: is_success, email: @users[e_k_r.user_id].email, reason_failure: reason_failure_msg}

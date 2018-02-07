@@ -56,7 +56,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
         GlobalConstant::ClientKycConfigDetail.city_kyc_field => 16,
         GlobalConstant::ClientKycConfigDetail.state_kyc_field => 32,
         GlobalConstant::ClientKycConfigDetail.country_kyc_field => 64,
-        GlobalConstant::ClientKycConfigDetail.zip_code_kyc_field => 128,
+        GlobalConstant::ClientKycConfigDetail.postal_code_kyc_field => 128,
         GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field => 256,
         GlobalConstant::ClientKycConfigDetail.document_id_number_kyc_field => 512,
         GlobalConstant::ClientKycConfigDetail.nationality_kyc_field => 1024,

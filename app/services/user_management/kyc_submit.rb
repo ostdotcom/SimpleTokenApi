@@ -14,19 +14,18 @@ module UserManagement
     # @params [String] first_name (mandatory) - first name
     # @params [String] last_name (mandatory) - last name
     # @params [String] birthdate (mandatory) - birth date
-    # @params [String] street_address (mandatory) - street address
-    # @params [String] city (mandatory) - city
-    # @params [String] state (mandatory) - state
     # @params [String] country (mandatory) - country
-    # @params [String] postal_code (mandatory) - postal code
     # @params [String] ethereum_address (mandatory) - ethereum address
-    # @params [String] estimated_participation_amount (mandatory) - estimated participation amount
+    # @params [String] estimated_participation_amount (optional) - estimated participation amount
     # @params [String] document_id_number (mandatory) - document_id number
     # @params [String] nationality (mandatory) - document_id country
     # @params [String] document_id_file_path (mandatory) - document_id file
     # @params [String] selfie_file_path (mandatory) - selfie file
     #
-    #
+    # @params [String] postal_code (optional) - postal code
+    # @params [String] street_address (optional) - street address
+    # @params [String] city (optional) - city
+    # @params [String] state (optional) - state
     # @params [String] residence_proof_file_path (optional)
     #
     #
@@ -41,11 +40,11 @@ module UserManagement
       @first_name = @params[:first_name] # required
       @last_name = @params[:last_name] # required
       @birthdate = @params[:birthdate] # format - 'dd/mm/yyyy'
-      @street_address = @params[:street_address] # required
-      @city = @params[:city] # required
-      @state = @params[:state] # required
+      @street_address = @params[:street_address]
+      @city = @params[:city]
+      @state = @params[:state]
       @country = @params[:country] # required and one of allowed
-      @postal_code = @params[:postal_code] # required and regex
+      @postal_code = @params[:postal_code] and regex
       @ethereum_address = @params[:ethereum_address] # required and regex
       @document_id_number = @params[:document_id_number] # required
       @nationality = @params[:nationality] # required and one of allowed
@@ -55,6 +54,7 @@ module UserManagement
 
       @client = nil
       @client_token_sale_details = nil
+      @client_kyc_config_detail = nil
       @user = nil
       @kyc_salt_d = nil
       @kyc_salt_e = nil
@@ -114,17 +114,29 @@ module UserManagement
       validate_first_name
       validate_last_name
       validate_birthdate
-      validate_street_address
-      validate_city
       validate_country
-      validate_state
-      validate_postal_code
       validate_ethereum_address
-      validate_estimated_participation_amount
       validate_document_id_number
       validate_nationality
       validate_document_id_file_path
       validate_selfie_file_path
+
+      @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+
+      return error_with_data(
+          'um_ks_5',
+          'Invalid Request',
+          'Invalid Request',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @client_kyc_config_detail.blank?
+
+      validate_estimated_participation_amount
+      validate_street_address
+      validate_city
+      validate_state
+      validate_postal_code
       validate_residence_proof_file_path
 
       # IF error, return
@@ -147,7 +159,7 @@ module UserManagement
       @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
       return error_with_data(
-          'um_ks_7',
+          'um_ks_6',
           'The token sale ended, it is no longer possible to submit personal information.',
           'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
@@ -207,23 +219,26 @@ module UserManagement
 
     def validate_street_address
       @street_address = @street_address.to_s.strip
+      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field)
       @error_data[:street_address] = 'Street Address is required.' if !@street_address.present?
     end
 
     def validate_city
       @city = @city.to_s.strip
+      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.city_kyc_field)
       @error_data[:city] = 'City is required.' if !@city.present?
     end
 
     def validate_country
-      @country = @country.to_s.strip
-      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country.upcase)
+      @country = @country.to_s.strip.upcase
+      if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
         @error_data[:country] = 'Country is required.'
       end
     end
 
     def validate_state
       @state = @state.to_s.strip
+      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.state_kyc_field)
       @error_data[:state] = 'State is required.' if @state.blank?
       # GlobalConstant::CountryNationality.disallowed_states[@country.downcase].present? && GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase].present?
       #  @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
@@ -231,6 +246,7 @@ module UserManagement
 
     def validate_postal_code
       @postal_code = @postal_code.to_s.strip
+      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.postal_code_kyc_field)
       @error_data[:postal_code] = 'Postal Code is required.' if !@postal_code.present?
     end
 
@@ -243,14 +259,13 @@ module UserManagement
     end
 
     def validate_estimated_participation_amount
-      @estimated_participation_amount = '0'.to_s
+      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field)
 
-      # removed from ui(not sent anymore from frontend)
-      # if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
-      #   @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'
-      # else
-      #   @error_data[:estimated_participation_amount] = 'Estimated participation amount should be greater than 0' if @estimated_participation_amount.to_i <= 0
-      # end
+      if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
+        @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'
+      else
+        @error_data[:estimated_participation_amount] = 'Estimated participation amount should be greater than 0' if @estimated_participation_amount.to_i <= 0
+      end
     end
 
     def validate_document_id_number
@@ -259,8 +274,8 @@ module UserManagement
     end
 
     def validate_nationality
-      @nationality = @nationality.to_s.strip
-      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality.upcase)
+      @nationality = @nationality.to_s.strip.upcase
+      if !@nationality.present? || !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
         @error_data[:nationality] = 'Nationality is required.'
       end
     end
@@ -277,9 +292,9 @@ module UserManagement
 
     def validate_residence_proof_file_path
       @residence_proof_file_path = @residence_proof_file_path.to_s.strip
-      # if GlobalConstant::CountryNationality.is_residence_proof_mandatory?(@nationality) && !@residence_proof_file_path.present?
-      #   @error_data[:residence_proof_file_path] = 'Residence proof is required.'
-      # end
+      if @client_kyc_config_detail.residency_proof_nationalities.include?(@nationality) && !@residence_proof_file_path.present?
+        @error_data[:residence_proof_file_path] = 'Residence proof is required.'
+      end
     end
 
     # Fetch user data

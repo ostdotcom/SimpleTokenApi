@@ -35,8 +35,8 @@ module GlobalConstant
         'country'
       end
 
-      def zip_code_kyc_field
-        'zip_code'
+      def postal_code_kyc_field
+        'postal_code'
       end
 
       def ethereum_address_kyc_field

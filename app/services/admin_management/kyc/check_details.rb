@@ -244,7 +244,7 @@ module AdminManagement
       # @return [Hash]
       #
       def case_detail
-       {
+        {
             admin_status: @user_kyc_detail.admin_status,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
             is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
@@ -306,7 +306,8 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def street_address_d
-        local_cipher_obj.decrypt(@user_extended_detail.street_address).data[:plaintext]
+        @user_extended_detail.street_address.present? ?
+            local_cipher_obj.decrypt(@user_extended_detail.street_address).data[:plaintext] : ''
       end
 
       #
@@ -315,7 +316,8 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def city_d
-        local_cipher_obj.decrypt(@user_extended_detail.city).data[:plaintext]
+        @user_extended_detail.city.present? ?
+            local_cipher_obj.decrypt(@user_extended_detail.city).data[:plaintext] : ''
       end
 
       # Decrypt postal code
@@ -325,7 +327,8 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def postal_code_d
-        local_cipher_obj.decrypt(@user_extended_detail.postal_code).data[:plaintext]
+        @user_extended_detail.postal_code.present? ?
+            local_cipher_obj.decrypt(@user_extended_detail.postal_code).data[:plaintext] : ''
       end
 
       # Decrypt country
@@ -345,7 +348,8 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def state_d
-        local_cipher_obj.decrypt(@user_extended_detail.state).data[:plaintext]
+        @user_extended_detail.state.present? ?
+            local_cipher_obj.decrypt(@user_extended_detail.state).data[:plaintext] : ''
       end
 
       # Decrypt document_id url

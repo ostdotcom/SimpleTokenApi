@@ -215,11 +215,7 @@
     - :first_name
     - :last_name
     - :birthdate
-    - :street_address
-    - :city
-    - :state
     - :country
-    - :postal_code
     - :ethereum_address
     - :document_id_number
     - :nationality
@@ -227,6 +223,10 @@
     - :selfie_file_path
   :optional:
     - :residence_proof_file_path
+    - :street_address
+    - :city
+    - :state
+    - :postal_code
 
 'UserManagement::DoubleOptIn':
   :mandatory:

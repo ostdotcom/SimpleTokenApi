@@ -38,6 +38,7 @@ module AdminManagement
         @new_duplicate_user_ids = []
         @user_kyc_active_duplicate_log_sql_values = []
         @user_kyc_inactive_duplicate_log_sql_values = []
+        @client_kyc_config_detail = nil
       end
 
       # Perform
@@ -55,6 +56,8 @@ module AdminManagement
         fetch_user_current_kyc_details
 
         return success unless @user_kyc_details.unprocessed_kyc_duplicate_status?
+
+        fetch_client_kyc_config_detail
 
         fetch_existing_duplicate_data
         if @duplicate_log_ids.present?
@@ -86,6 +89,18 @@ module AdminManagement
         @user_kyc_details = UserKycDetail.where(user_id: @user_id).first
         @client_id = @user_kyc_details.client_id
         @md5_user_extended_details = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_details.user_extended_detail_id).first
+      end
+
+      # Fetch client kyc config detail
+      #
+      # * Author: Aman
+      # * Date: 01/02/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def fetch_client_kyc_config_detail
+        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
       end
 
       # Fetch user details
@@ -182,11 +197,15 @@ module AdminManagement
           new_duplicate_user_ids << md5_obj.user_id
         end
 
-        # By Address
-        Md5UserExtendedDetail.where(street_address: @md5_user_extended_details.street_address, city: @md5_user_extended_details.city, state: @md5_user_extended_details.state).all.each do |md5_obj|
-          next if md5_obj.user_id == @user_id
-          @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.address_duplicate_type] << md5_obj
-          new_duplicate_user_ids << md5_obj.user_id
+        if ([GlobalConstant::ClientKycConfigDetail.state_kyc_field,
+             GlobalConstant::ClientKycConfigDetail.city_kyc_field,
+             GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field] - @client_kyc_config_detail.kyc_fields).blank?
+          # By Address
+          Md5UserExtendedDetail.where(street_address: @md5_user_extended_details.street_address, city: @md5_user_extended_details.city, state: @md5_user_extended_details.state).all.each do |md5_obj|
+            next if md5_obj.user_id == @user_id
+            @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.address_duplicate_type] << md5_obj
+            new_duplicate_user_ids << md5_obj.user_id
+          end
         end
 
         return {} if new_duplicate_user_ids.blank?
@@ -194,7 +213,7 @@ module AdminManagement
         new_duplicate_user_ids.uniq!
 
         @dup_user_kyc_detail_objects = UserKycDetail.where(client_id: @client_id,
-            user_id: new_duplicate_user_ids).select(:user_id, :user_extended_detail_id).all.index_by(&:user_id)
+                                                           user_id: new_duplicate_user_ids).select(:user_id, :user_extended_detail_id).all.index_by(&:user_id)
       end
 
       # Create bulk insert queries and set other user ids

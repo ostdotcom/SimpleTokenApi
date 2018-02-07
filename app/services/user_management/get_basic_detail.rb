@@ -21,6 +21,7 @@ module UserManagement
 
       @client = nil
       @user = nil
+      @client_setting = nil
     end
 
     # Perform
@@ -42,6 +43,9 @@ module UserManagement
       return r unless r.success?
 
       fetch_user
+
+      r = fetch_client_settings
+      return r unless r.success?
 
       success_with_data(user: user_data)
     end
@@ -82,6 +86,23 @@ module UserManagement
       @user = User.get_from_memcache(@user_id)
     end
 
+    # Fetch clients Sale setting data
+    #
+    # * Author: Aman
+    # * Date: 08/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_settings
+      r = ClientManagement::GetClientSetting.new(client_id: @client_id).perform
+      return r unless r.success?
+
+      @client_setting = r.data
+
+      success
+    end
+
     # User detail
     #
     # * Author: Aman
@@ -96,7 +117,8 @@ module UserManagement
           email: @user.email,
           user_token_sale_state: @user.get_token_sale_state_page_name,
           bt_name: @user.bt_name.to_s,
-          is_st_token_sale_client: @client.is_st_token_sale_client?
+          is_st_token_sale_client: @client.is_st_token_sale_client?,
+          client_setting: @client_setting
       }
     end
 

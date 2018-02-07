@@ -208,15 +208,6 @@
     - :browser_user_agent
   :optional:
 
-'ClientManagement::VerifyApiCredential':
-  :mandatory:
-    - :api_key
-    - :signature
-    - :request_time
-    - :url_path
-    - :request_parameters
-  :optional:
-
 'UserManagement::KycSubmit':
   :mandatory:
     - :user_id
@@ -348,4 +339,24 @@
 'UserManagement::VerifyClientHost':
   :mandatory:
     - :domain
+  :optional:
+
+'ClientManagement::VerifyApiCredential':
+  :mandatory:
+    - :api_key
+    - :signature
+    - :request_time
+    - :url_path
+    - :request_parameters
+  :optional:
+
+'ClientManagement::GetClientSetting':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::GetPageSetting':
+  :mandatory:
+    - :client_id
+    - :template_type
   :optional:

@@ -13,7 +13,7 @@ namespace :onetimer do
   #         "api_secret" => GlobalConstant::PepoCampaigns.api_secret
   #     },
   #     "whitelist" => {
-  #         "contract_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142'
+  #         "contract_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142',
   #         "whitelister_address" => '0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142'
   #     }
   # }

@@ -44,7 +44,7 @@ class Client < EstablishSimpleTokenClientDbConnection
   # @returns [Boolean] returns true if client is the internal st token sale client
   #
   def is_st_token_sale_client?
-    GlobalConstant::TokenSale.st_token_sale_client_id == self.id
+    false && GlobalConstant::TokenSale.st_token_sale_client_id == self.id
   end
 
   # Array of Properties symbols

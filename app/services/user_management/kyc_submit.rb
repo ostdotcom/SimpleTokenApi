@@ -88,9 +88,9 @@ module UserManagement
       Rails.logger.info('---- create_user_extended_details done')
 
       #  todo: "KYCaaS-Changes"
-      # r = update_user
-      # return r unless r.success?
-      # Rails.logger.info('---- update_user done')
+      r = update_user
+      return r unless r.success?
+      Rails.logger.info('---- update_user done')
 
       enqueue_job
 
@@ -402,12 +402,12 @@ module UserManagement
     # @return [Result::Base]
     #
     #  todo: "KYCaaS-Changes"
-    # def update_user
-    #   @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
-    #   @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
-    #   @user.save! if @user.changed?
-    #   success
-    # end
+    def update_user
+      @user.send("set_"+GlobalConstant::User.token_sale_kyc_submitted_property)
+      @user.send("set_"+GlobalConstant::User.token_sale_double_optin_done_property)
+      @user.save! if @user.changed?
+      success
+    end
 
     # Do remaining task in sidekiq
     #

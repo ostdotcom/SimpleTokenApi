@@ -24,6 +24,7 @@ module UserManagement
       @user_token_sale_state = nil
       @user_kyc_detail = nil
       @client_setting = nil
+      @page_setting = nil
     end
 
     # Perform
@@ -54,6 +55,9 @@ module UserManagement
       r = fetch_client_settings
       return r unless r.success?
 
+      r = fetch_page_settings
+      return r unless r.success?
+
       success_with_data(success_response_data_for_client)
     end
 
@@ -73,6 +77,22 @@ module UserManagement
 
       @client_setting = r.data
 
+      success
+    end
+
+    # Fetch clients page setting data
+    #
+    # * Author: Aman
+    # * Date: 08/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_page_settings
+      r = ClientManagement::PageSetting::Dashboard.new(client_id: @client_id).perform
+      return r unless r.success?
+
+      @page_setting = r.data
       success
     end
 
@@ -150,14 +170,14 @@ module UserManagement
             user: user_data_default_client,
             user_kyc_data: user_kyc_data_default_client,
             client_setting: @client_setting,
-            page_setting: {}
+            page_setting: @page_setting
         }.merge(sale_stats)
       else
         {
             user: user_data,
             user_kyc_data: user_kyc_data,
             client_setting: @client_setting,
-            page_setting: {}
+            page_setting: @page_setting
         }
       end
     end

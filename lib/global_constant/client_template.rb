@@ -41,145 +41,70 @@ module GlobalConstant
 
       ### Template type End ###
 
-
-      def common
-        {
-            blacklisted_country_for_ip: [],
-            primary_button_color: '',
-            secondary_button_color: '',
-            header: {
-                logo: {
-                    href: '',
-                    alt: '',
-                    title: '',
-                    src: '',
-                },
-                logout_cta: ''
-            },
-            footer_html: ''
-        }
+      def allowed_template_types
+        ClientTemplate.template_types
       end
 
-      def login
-        {
-            email_address_label: '',
-            password_label: '',
-            forgot_password_label: '',
-
-            primary_button_color: '',
-            primary_button_cta: '',
-
-            secondary_button_label: '',
-            secondary_button_color: '',
-            secondary_button_cta: ''
-        }
-      end
-
-      def sign_up
-        {
-            email_address_label: '',
-            password_label: '',
-            password_info_text: '',
-            checkbox_html: '',
-
-            primary_button_color: '',
-            primary_button_cta: '',
-
-            secondary_button_label: '',
-            secondary_button_color: '',
-            secondarysecondary_button_cta: ''
-        }
-      end
-
-      def reset_password
-        {
-            header: '',
-            subheader: '',
-            email_address_label: '',
-
-            primary_button_color: '',
-            primary_button_cta: '',
-
-            secondary_button_color: '',
-            secondary_button_cta: '',
-
-            success: {
-                header: '',
-                text1: '',
-                text2: '',
-                secondary_button_label: '',
-                secondary_button_color: '',
-                secondarysecondary_button_cta: ''
-            }
-
-        }
-      end
-
-      def change_password
-        {
-            header: '',
-            password_label: '',
-            confirm_password_label: '',
-
-            primary_button_color: '',
-            primary_button_cta: '',
-
-            success: {
-                header: '',
-                text1: '',
-                primary_button_color: '',
-                primary_button_cta: '',
-            }
-
-        }
-      end
-
-      def token_sale_blocked_region
-        {
-            header: '',
-            subheader: '',
-            primary_button_color: '',
-            primary_button_cta: '',
-            primary_button_href: '',
-        }
-      end
-
-      def kyc
-        {
-            header: '',
-            subheader: '',
-            dob_info: '',
-            ethereum_address: {
-                text: '',
-                learn_more: {
-                    text: '',
-                    cta: '',
-                    href: ''
-                }
-            },
-
-            passport_number_text: '',
-            primary_button_cta: '',
-            primary_button_href: '',
-
-            verify_modal: {
-                add_kyc: {
-                    checkbox_texts: ['', '']
-                },
-                update_kyc: {
-                    checkbox_texts: []
-                },
-
-                primary_button_color: '',
-                primary_button_cta: ''
-            }
-
-        }
-      end
-
-      def dashboard
-        {}
-      end
+      # def common
+      #   {
+      #       blacklisted_country_for_ip: [],
+      #       primary_button_color: '',
+      #       secondary_button_color: '',
+      #       header: {
+      #           logo: {
+      #               href: '',
+      #               alt: '',
+      #               title: '',
+      #               src: '',
+      #           },
+      #       },
+      #       footer_html: '',
+      #       account_name: ''
+      #   }
+      # end
+      #
+      # def login
+      #   {
+      #   }
+      # end
+      #
+      # def sign_up
+      #   {
+      #       checkbox_html: ''
+      #   }
+      # end
+      #
+      # def reset_password
+      #   {
+      #   }
+      # end
+      #
+      # def change_password
+      #   {
+      #   }
+      # end
+      #
+      # def token_sale_blocked_region
+      #   {
+      #       primary_button_href: '',
+      #   }
+      # end
+      #
+      # def kyc
+      #   {
+      #       ethereum_address_info_html: '',
+      #       document_info_html: '',
+      #
+      #       verify_modal: {
+      #           add_kyc_checkbox_texts: ['', ''],
+      #           update_kyc_checkbox_texts: ['', '']
+      #       }
+      #   }
+      # end
+      #
+      # def dashboard
+      #   {}
+      # end
 
     end
 

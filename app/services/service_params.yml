@@ -238,6 +238,7 @@
   :mandatory:
     - :user_id
     - :client_id
+    - :template_type
   :optional:
 
 'UserManagement::BtSubmit':
@@ -355,8 +356,37 @@
     - :client_id
   :optional:
 
-'ClientManagement::GetPageSetting':
+'ClientManagement::PageSetting::Login':
   :mandatory:
     - :client_id
-    - :template_type
+  :optional:
+
+'ClientManagement::PageSetting::Dashboard':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::PageSetting::ChangePassword':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::PageSetting::Kyc':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::PageSetting::ResetPassword':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::PageSetting::SignUp':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::PageSetting::TokenSaleBlockedRegion':
+  :mandatory:
+    - :client_id
   :optional:

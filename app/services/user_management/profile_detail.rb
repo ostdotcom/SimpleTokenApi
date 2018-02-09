@@ -11,7 +11,7 @@ module UserManagement
     # @param [Integer] client_id (mandatory) - client id
     # @params [Integer] user_id (mandatory) - this is the user id
     #
-    # @return [UserManagement::GetBasicDetail]
+    # @return [UserManagement::ProfileDetail]
     #
     def initialize(params)
       super

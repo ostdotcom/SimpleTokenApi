@@ -89,6 +89,7 @@ Rails.application.routes.draw do
   end
 
   scope 'api/user', controller: 'saas_user/profile' do
+    match 'client-detail' => :client_detail, via: :GET
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
     match 'get-token-sale-address' => :get_token_sale_address, via: :GET

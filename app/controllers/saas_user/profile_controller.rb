@@ -1,5 +1,18 @@
 class SaasUser::ProfileController < SaasUser::BaseController
 
+  skip_before_action :authenticate_request, only: [:client_detail]
+
+  # Get logged in user details
+  #
+  # * Author: Aman
+  # * Date: 09/02/2018
+  # * Reviewed By:
+  #
+  def client_detail
+    service_response = UserManagement::GetClientDetail.new(params).perform
+    render_api_response(service_response)
+  end
+
   # Get logged in user details
   #
   # * Author: Aman

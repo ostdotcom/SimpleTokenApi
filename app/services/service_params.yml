@@ -238,6 +238,12 @@
   :mandatory:
     - :user_id
     - :client_id
+  :optional:
+    - :template_type
+
+'UserManagement::GetClientDetail':
+  :mandatory:
+    - :client_id
     - :template_type
   :optional:
 

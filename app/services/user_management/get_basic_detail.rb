@@ -53,7 +53,7 @@ module UserManagement
       r = fetch_page_settings
       return r unless r.success?
 
-      success_with_data(user: user_data)
+      success_with_data(success_responnse)
     end
 
     private
@@ -69,7 +69,7 @@ module UserManagement
     def validate_and_sanitize
       @template_type = @template_type.to_s.strip
 
-      r = super
+      r = validate
       return r unless r.success?
 
       return error_with_data(
@@ -164,7 +164,21 @@ module UserManagement
           id: @user.id,
           email: @user.email,
           user_token_sale_state: @user.get_token_sale_state_page_name,
-          bt_name: @user.bt_name.to_s,
+          bt_name: @user.bt_name.to_s
+      }
+    end
+
+    # Success response
+    #
+    # * Author: Aman
+    # * Date: 12/02/2018
+    # * Reviewed By:
+    #
+    # @return [Hash] hash of result
+    #
+    def success_responnse
+      {
+          user: user_data,
           client_setting: @client_setting,
           page_setting: @page_setting
       }

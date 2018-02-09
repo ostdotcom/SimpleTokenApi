@@ -39,7 +39,7 @@ class ClientTemplate < EstablishSimpleTokenClientDbConnection
   # @return [AR] ClientTemplate object
   #
   def self.get_from_memcache_by_client_id_and_template_type(client_id, template_type)
-    memcache_key_object = ClientWebHostDetail.get_memcache_by_client_id_key_object
+    memcache_key_object = ClientTemplate.get_memcache_by_client_id_and_template_type_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id, template_type: template_type}, memcache_key_object.expiry) do
       ClientTemplate.where(client_id: client_id, template_type: template_type).first
     end

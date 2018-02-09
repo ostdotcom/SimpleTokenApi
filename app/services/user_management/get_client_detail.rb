@@ -64,7 +64,7 @@ module UserManagement
     def validate_and_sanitize
       @template_type = @template_type.to_s.strip
 
-      r = super
+      r = validate
       return r unless r.success?
 
       return error_with_data(

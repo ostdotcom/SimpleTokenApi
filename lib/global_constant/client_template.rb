@@ -45,66 +45,65 @@ module GlobalConstant
         ClientTemplate.template_types
       end
 
-      # def common
-      #   {
-      #       blacklisted_country_for_ip: [],
-      #       primary_button_color: '',
-      #       secondary_button_color: '',
-      #       header: {
-      #           logo: {
-      #               href: '',
-      #               alt: '',
-      #               title: '',
-      #               src: '',
-      #           },
-      #       },
-      #       footer_html: '',
-      #       account_name: ''
-      #   }
-      # end
-      #
-      # def login
-      #   {
-      #   }
-      # end
-      #
-      # def sign_up
-      #   {
-      #       checkbox_html: ''
-      #   }
-      # end
-      #
-      # def reset_password
-      #   {
-      #   }
-      # end
-      #
-      # def change_password
-      #   {
-      #   }
-      # end
-      #
-      # def token_sale_blocked_region
-      #   {
-      #       primary_button_href: '',
-      #   }
-      # end
-      #
-      # def kyc
-      #   {
-      #       ethereum_address_info_html: '',
-      #       document_info_html: '',
-      #
-      #       verify_modal: {
-      #           add_kyc_checkbox_texts: ['', ''],
-      #           update_kyc_checkbox_texts: ['', '']
-      #       }
-      #   }
-      # end
-      #
-      # def dashboard
-      #   {}
-      # end
+      def common
+        {
+            primary_button_color: '',
+            secondary_button_color: '',
+            header: {
+                logo: {
+                    href: '/',
+                    alt: 'Simple Token Logo',
+                    title: 'Simple Token',
+                    src: 'https://d36lai1ppm9dxu.cloudfront.net/assets/logo/simple-token-dashboard-logo-1x.png',
+                },
+            },
+            footer_html: '<footer class="navbar-fixed-bottom" style="font-size:14px;font-weight: 300;letter-spacing: 1.3px;text-align:center;padding:20px 10px;color:#9ea9a7;background:#e5efe8;">Copyright &copy; 2017 Simple Token. All Rights Reserved. <a href="https://simpletoken.org/privacy" title="Privacy Policy" target="_blank" style="color: #9ea9a7;text-decoration: none;border-bottom: 1px solid #9ea9a7;">Privacy Policy</a>, <a href="https://simpletoken.org/terms" title="Website Terms" target="_blank" style="color: #9ea9a7;text-decoration: none;border-bottom: 1px solid #9ea9a7;">Website Terms</a> and <a href="https://drive.google.com/file/d/0B1E_xJPbELBKeU9pUk5uSnNqWFU/view" title="OST Token Terms" target="_blank" style="color: #9ea9a7;text-decoration: none;border-bottom: 1px solid #9ea9a7;">OST Token Terms</a> </footer>',
+            account_name: 'Simple Token'
+        }
+      end
+
+      def login
+        {
+        }
+      end
+
+      def sign_up
+        {
+            checkbox_html: 'By checking this box, you agree to our <a href="https://simpletoken.org/terms" title="Terms of Service" target="_blank">Terms of Service</a> and acknowledge and consent to our <a href="https://simpletoken.org/privacy" title="Privacy Policy" target="_blank">Privacy Policy</a>.'
+        }
+      end
+
+      def reset_password
+        {
+        }
+      end
+
+      def change_password
+        {
+        }
+      end
+
+      def token_sale_blocked_region
+        {
+            primary_button_href: 'https://simpletoken.org/terms',
+        }
+      end
+
+      def kyc
+        {
+            ethereum_address_info_html: '',
+            document_info_html: '',
+
+            verify_modal: {
+                add_kyc_checkbox_points_html: ['', ''],
+                update_kyc_checkbox_points_html: ['', '']
+            }
+        }
+      end
+
+      def dashboard
+        {}
+      end
 
     end
 

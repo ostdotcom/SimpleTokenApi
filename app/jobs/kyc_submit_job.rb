@@ -124,7 +124,7 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
-    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
+    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.cleared_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
     @user_kyc_detail.save!
   end

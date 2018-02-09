@@ -102,7 +102,7 @@ module GlobalConstant
                     'I have read, understood and agree to <a href="<%= GlobalConstant::Base.simple_token_web["root_url"] %>/privacy" target="_blank" class="modal-ext-link">OpenST Limited"s Privacy Policy</a>. I acknowledge this may change. I also understand that any purchase of Simple Tokens will be subject to additional terms and conditions.',
                     'I agree that I will send payment from, and receive any Simple Tokens to, the digital wallet address I have entered on this website.'
                 ],
-                update_kyc_checkbox_points_html: ['', '']
+                update_kyc_checkbox_points_html: []
             }
         }
       end

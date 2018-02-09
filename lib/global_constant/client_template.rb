@@ -91,11 +91,17 @@ module GlobalConstant
 
       def kyc
         {
-            ethereum_address_info_html: '',
-            document_info_html: '',
+            ethereum_address_info_html: 'Make sure to use your Ethereum Wallet address and not addresses from exchanges like Coinbase,Poloniex, Kraken.<br/><a href="https://docs.google.com/document/d/1WVPQyUZgul81MoF2DkmsAeA6vPpKJ8vtjS53GWeSov4/edit" title="Learn more" target="_blank">Learn more</a>',
+            document_info_html: 'A valid ID Document is required for the verification <br/>process. In addition to Government Issued Passports, <br/>National IDs and Drivers License are also accepted.',
 
             verify_modal: {
-                add_kyc_checkbox_points_html: ['', ''],
+                add_kyc_checkbox_points_html: [
+                    'All the information I have entered is true and complete.',
+                    'I am not restricted under any law from providing this information or purchasing Simple Tokens.',
+                    'I act on my own behalf, unless I have notified you in writing.',
+                    'I have read, understood and agree to <a href="<%= GlobalConstant::Base.simple_token_web["root_url"] %>/privacy" target="_blank" class="modal-ext-link">OpenST Limited"s Privacy Policy</a>. I acknowledge this may change. I also understand that any purchase of Simple Tokens will be subject to additional terms and conditions.',
+                    'I agree that I will send payment from, and receive any Simple Tokens to, the digital wallet address I have entered on this website.'
+                ],
                 update_kyc_checkbox_points_html: ['', '']
             }
         }

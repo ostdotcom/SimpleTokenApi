@@ -44,7 +44,7 @@ module ClientManagement
 
         extra_data = {
             residency_proof_nationalities: client_kyc_config_detail_obj.residency_proof_nationalities,
-            kyc_fields: client_kyc_config_detail_obj.kyc_fields
+            kyc_fields: client_kyc_config_detail_obj.kyc_fields_array
         }
 
         @client_template_obj.data.merge(extra_data)

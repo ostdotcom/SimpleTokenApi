@@ -199,7 +199,7 @@ module AdminManagement
 
         if ([GlobalConstant::ClientKycConfigDetail.state_kyc_field,
              GlobalConstant::ClientKycConfigDetail.city_kyc_field,
-             GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field] - @client_kyc_config_detail.kyc_fields).blank?
+             GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field] - @client_kyc_config_detail.kyc_fields_array).blank?
           # By Address
           Md5UserExtendedDetail.where(street_address: @md5_user_extended_details.street_address, city: @md5_user_extended_details.city, state: @md5_user_extended_details.state).all.each do |md5_obj|
             next if md5_obj.user_id == @user_id

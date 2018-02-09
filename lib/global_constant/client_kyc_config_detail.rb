@@ -20,7 +20,7 @@ module GlobalConstant
       end
 
       def stree_address_kyc_field
-        'stree_address_name'
+        'stree_address'
       end
 
       def city_kyc_field

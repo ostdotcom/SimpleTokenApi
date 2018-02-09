@@ -219,13 +219,13 @@ module UserManagement
 
     def validate_street_address
       @street_address = @street_address.to_s.strip
-      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field)
+      return if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field)
       @error_data[:street_address] = 'Street Address is required.' if !@street_address.present?
     end
 
     def validate_city
       @city = @city.to_s.strip
-      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.city_kyc_field)
+      return if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.city_kyc_field)
       @error_data[:city] = 'City is required.' if !@city.present?
     end
 
@@ -238,7 +238,7 @@ module UserManagement
 
     def validate_state
       @state = @state.to_s.strip
-      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.state_kyc_field)
+      return if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.state_kyc_field)
       @error_data[:state] = 'State is required.' if @state.blank?
       # GlobalConstant::CountryNationality.disallowed_states[@country.downcase].present? && GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase].present?
       #  @error_data[:state] = "#{GlobalConstant::CountryNationality.disallowed_states[@country.downcase][@state.downcase]} State residents are unable to participate in the token sale. Please refer to T&Cs."
@@ -246,7 +246,7 @@ module UserManagement
 
     def validate_postal_code
       @postal_code = @postal_code.to_s.strip
-      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.postal_code_kyc_field)
+      return if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.postal_code_kyc_field)
       @error_data[:postal_code] = 'Postal Code is required.' if !@postal_code.present?
     end
 
@@ -259,7 +259,7 @@ module UserManagement
     end
 
     def validate_estimated_participation_amount
-      return if !@client_kyc_config_detail.kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field)
+      return if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field)
 
       if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
         @error_data[:estimated_participation_amount] = 'Estimated participation amount is required.'

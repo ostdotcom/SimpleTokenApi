@@ -47,8 +47,8 @@ module GlobalConstant
 
       def common
         {
-            primary_button_color: '',
-            secondary_button_color: '',
+            primary_button_style: '.client-primary-btn {border-color: #e4b030;background: #e4b030;color: #fff;}  .client-primary-btn.focus-cls, .client-primary-btn:focus {color: #fff;outline: none;text-decoration: none;}  .client-primary-btn.hover-cls, .client-primary-btn.active-cls, .client-primary-btn:hover, .client-primary-btn:active {color: #fff;text-decoration: none;background-color: #d4a326;border-color: #d4a326;}',
+            secondary_button_style: '.client-secondary-btn {border-color: #7f9183;color: #7f9183;}  .client-secondary-btn:focus {color: #7f9183;outline: none;text-decoration: none;}  .client-secondary-btn:hover, .client-secondary-btn:active {color: #fff;text-decoration: none;background-color: #7f9183;border-color: #7f9183;}',
             header: {
                 logo: {
                     href: '/',
@@ -82,7 +82,7 @@ module GlobalConstant
                 'vanuatu',
                 'yemen',
                 'cuba'
-            ] #downcase
+            ]
         }
       end
 

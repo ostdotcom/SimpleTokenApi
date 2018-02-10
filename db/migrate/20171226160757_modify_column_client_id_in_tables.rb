@@ -19,6 +19,7 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
         }
     }
 
+    # update rake task
     system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='#{params.to_json}'")
 
     client_id = Client.first.id

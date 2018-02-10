@@ -59,6 +59,7 @@ module GlobalConstant
             },
             footer_html: '<footer class="navbar-fixed-bottom" style="font-size:14px;font-weight: 300;letter-spacing: 1.3px;text-align:center;padding:20px 10px;color:#9ea9a7;background:#e5efe8;">Copyright &copy; 2017 Simple Token. All Rights Reserved. <a href="https://simpletoken.org/privacy" title="Privacy Policy" target="_blank" style="color: #9ea9a7;text-decoration: none;border-bottom: 1px solid #9ea9a7;">Privacy Policy</a>, <a href="https://simpletoken.org/terms" title="Website Terms" target="_blank" style="color: #9ea9a7;text-decoration: none;border-bottom: 1px solid #9ea9a7;">Website Terms</a> and <a href="https://drive.google.com/file/d/0B1E_xJPbELBKeU9pUk5uSnNqWFU/view" title="OST Token Terms" target="_blank" style="color: #9ea9a7;text-decoration: none;border-bottom: 1px solid #9ea9a7;">OST Token Terms</a> </footer>',
             account_name: 'Simple Token',
+            account_name_short: 'ST',
             blacklisted_countries: [
                 'china',
                 'afghanistan',
@@ -132,7 +133,21 @@ module GlobalConstant
       end
 
       def dashboard
-        {}
+        {
+            kyc_update_modal_text: 'By submitting new details, the previous ones will be lost.',
+            telegram_href: 'https://www.t.me/simpletoken',
+            early_purchase_ethereum_deposit_text: 'Individual Max Cap is 40 ETH.',
+            ethereum_deposit_text_html: 'Set Gas Limit to 150,000.<br/><small>DO NOT use Coinbase, Kraken or any other exchange to purchase ST. Min Purchase 0.1 ETH</small>',
+            ethereum_confirm_checkbox_points_html: [
+                'I understand what Simple Tokens are. I also understand the risks.',
+                'I am a sophisticated purchaser and I am not restricted under any law from purchasing Simple Tokens.',
+                'I have read the English version of the <a href="https://drive.google.com/file/d/0B1E_xJPbELBKeU9pUk5uSnNqWFU/view" title="Terms and Condition" target="_blank" class="modal-ext-link">Terms and Conditions</a> cover to cover and I have understood and agree to them. I agree to monitor the <a href="https://sale.simpletoken.org/" class="modal-ext-link" target="_blank">website</a> for any updates.',
+                'I have obtained all the professional advice I need.',
+                'I agree that I will send payment from, and receive any Simple Tokens to, the Ethereum address I provided during registration.'
+
+            ]
+
+        }
       end
 
     end

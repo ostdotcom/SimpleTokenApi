@@ -17,7 +17,7 @@ class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
   # @return [Boolean] return true if token sale has ended
   #
   def has_token_sale_ended?
-    sale_end_timestamp >= Time.now.to_i
+    sale_end_timestamp <= Time.now.to_i
   end
 
   # Token sale start time has passed

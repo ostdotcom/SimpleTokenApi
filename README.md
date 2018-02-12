@@ -30,8 +30,8 @@ export STA_CYNOPSIS_DOMAIN_NAME='SIMPLETOKEN'
 export STA_CYNOPSIS_TOKEN='11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234'
 export STA_CYNOPSIS_BASE_URL='https://d1.cynopsis-solutions.com/artemis_simpletoken'
 
-export STA_CAMPAIGN_CLIENT_KEY="0455fbd02e9512168211903ff25094d8"
-export STA_CAMPAIGN_CLIENT_SECRET="4c1b4ec0983ab6b1e37d1c1fc31de5e6"
+export STA_CAMPAIGN_CLIENT_KEY="553b5d32bf40e734875a8133bdb42e1c"
+export STA_CAMPAIGN_CLIENT_SECRET="b39f7cebbf47eb13934af1e90a454c19"
 export STA_CAMPAIGN_BASE_URL="https://pepocampaigns.com/"
 export STA_CAMPAIGN_MASTER_LIST="2334"
 
@@ -104,3 +104,14 @@ UserAction::ChangePhase.new(client_id: 1, emails: ['aman+11@pepo.com', 'aman+00@
 
 8. send report of processable users st balance on a daily basis
 rake RAILS_ENV=development cron_task:continuous:populate_st_balance_for_processable_users
+
+
+
+
+New DB SETUP
+
+rake RAILS_ENV=staging onetimer:insert_general_salt_key_row_in_table salt_type=user_activity_logging
+SaleGlobalVariable.create!(variable_kind: 'last_block_verified_for_tokens_sold_variable_kind', variable_data: '2610002')
+SaleGlobalVariable.create!(variable_kind: 'pre_sale_tokens_sold_variable_kind', variable_data: '1000000000000000000000')
+SaleGlobalVariable.create!(variable_kind: 'pre_sale_eth_received_variable_kind', variable_data: '100000000000000000000')  
+    

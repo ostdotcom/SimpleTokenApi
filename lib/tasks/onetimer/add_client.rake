@@ -1,6 +1,5 @@
 namespace :onetimer do
 
-# start adding client kyc and client web host details, client token sale details
 
   params = {
       "client_name" => "secondclient-pepokyc.developmentost.com",

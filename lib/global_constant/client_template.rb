@@ -146,8 +146,8 @@ module GlobalConstant
                 'I agree that I will send payment from, and receive any Simple Tokens to, the Ethereum address I provided during registration.'
 
             ],
-            timer_element_color_style: 'color: #fff; background: linear-gradient( to bottom, #91c0ad 0%, #91c0ad 50%, #a7cdbd 51%, #a7cdbd 100%);'
-
+            timer_element_color: '#91c0ad',
+            timer_element_gradient_style: 'color: #fff; background: linear-gradient( to bottom, #91c0ad 0%, #91c0ad 50%, #a7cdbd 51%, #a7cdbd 100%);'
 
         }
       end

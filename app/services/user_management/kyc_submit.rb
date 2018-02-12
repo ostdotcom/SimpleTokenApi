@@ -51,6 +51,7 @@ module UserManagement
       @document_id_file_path = @params[:document_id_file_path] # S3 Path of document_id File
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
+      @estimated_participation_amount = @params[:estimated_participation_amount]
 
       @client = nil
       @client_token_sale_details = nil

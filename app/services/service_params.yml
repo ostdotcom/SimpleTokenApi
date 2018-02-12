@@ -227,6 +227,7 @@
     - :city
     - :state
     - :postal_code
+    - :estimated_participation_amount
 
 'UserManagement::DoubleOptIn':
   :mandatory:

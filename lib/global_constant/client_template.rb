@@ -147,7 +147,8 @@ module GlobalConstant
 
             ],
             timer_element_color: '#91c0ad',
-            timer_element_gradient_style: 'color: #fff; background: linear-gradient( to bottom, #91c0ad 0%, #91c0ad 50%, #a7cdbd 51%, #a7cdbd 100%);'
+            timer_element_gradient_style: 'color: #fff; background: linear-gradient( to bottom, #91c0ad 0%, #91c0ad 50%, #a7cdbd 51%, #a7cdbd 100%);',
+            container_background_color: '#6c9ba9'
 
         }
       end

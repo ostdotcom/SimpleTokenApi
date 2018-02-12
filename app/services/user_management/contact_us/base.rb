@@ -87,7 +87,7 @@ module UserManagement
       #
       def send_contact_us_admin_email
         Email::HookCreator::SendTransactionalMail.new(
-            client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: GlobalConstant::Email.contact_us_admin_email,
             template_name: GlobalConstant::PepoCampaigns.contact_us_template,
             template_vars: {
@@ -105,7 +105,7 @@ module UserManagement
       #
       def send_autorespond_email
         Email::HookCreator::SendTransactionalMail.new(
-            client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: @email,
             template_name: autorespond_template_name,
             template_vars: {email: @email}

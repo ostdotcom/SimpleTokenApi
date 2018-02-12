@@ -2,7 +2,7 @@ class AddColumnWhitelisterAddressToClientWhitelistDetailTable < DbMigrationConne
 
   def up
     run_migration_for_db(EstablishSimpleTokenClientDbConnection.config_key) do
-      add_column :client_whitelist_details, :whitelister_address, :string, limit: 255, null: true, after: :contract_address
+      # add_column :client_whitelist_details, :whitelister_address, :string, limit: 255, null: true, after: :contract_address
 
       ClientWhitelistDetail.update_all('whitelister_address= id')
       change_column :client_whitelist_details, :whitelister_address, :string, limit: 255, null: false
@@ -13,7 +13,7 @@ class AddColumnWhitelisterAddressToClientWhitelistDetailTable < DbMigrationConne
 
   def down
     run_migration_for_db(EstablishSimpleTokenClientDbConnection.config_key) do
-      remove_column :client_whitelist_details, :whitelister_address
+      # remove_column :client_whitelist_details, :whitelister_address
       remove_index :client_whitelist_details, name: 'uniq_whitelister_address'
     end
   end

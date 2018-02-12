@@ -52,7 +52,7 @@ module Crons
 
       admin_emails.each do |admin_email|
         Email::HookCreator::SendTransactionalMail.new(
-            client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: admin_email,
             template_name: GlobalConstant::PepoCampaigns.low_whitelister_balance_template,
             template_vars: {ether_value: ether_value, whitelister_address: whitelister_address}

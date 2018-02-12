@@ -27,7 +27,8 @@ module KycService
 
       @api_secret = r.data[:plaintext]
 
-      @api_base_url = Rails.env.development? ? "http://kyc.developmentost.com:8080" : "https://kyc.sandboxost.com"
+      @api_base_url = Rails.env.development? ? "http://kyc.developmentost.com:8080" :
+                          (Rails.env.sandbox? ? "https://kyc.sandboxost.com" : "https://kyc.stagingost.com")
       @version = 'v1'
     end
 

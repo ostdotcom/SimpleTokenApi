@@ -61,8 +61,7 @@ module Email
             'Add contact cannot be done for clients',
             GlobalConstant::ErrorAction.default,
             {}
-        ) unless @client.is_st_token_sale_client?
-
+        ) if @client.blank? || !@client.is_st_token_sale_client?
 
         validate_custom_variables
 

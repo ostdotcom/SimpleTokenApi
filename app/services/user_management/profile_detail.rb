@@ -385,6 +385,3 @@ module UserManagement
   end
 
 end
-
-# send if client whitelist details and token sale details start and end time and if show deposit address
-#

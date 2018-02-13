@@ -68,7 +68,6 @@ module ClientManagement
       {
           is_st_token_sale_client: @client.is_st_token_sale_client?,
           is_whitelist_setup_done: @client.is_whitelist_setup_done?,
-          blacklisted_countries: [],
           token_sale_details: {
               sale_start_timestamp: @client_token_sale_details.sale_start_timestamp,
               sale_end_timestamp: @client_token_sale_details.sale_end_timestamp,

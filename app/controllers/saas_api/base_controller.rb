@@ -1,5 +1,7 @@
 class SaasApi::BaseController < RestApiController
 
+  before_action :authenticate_request
+
   private
 
   # Authenticate client request by validating api credentials

@@ -17,6 +17,10 @@ module GlobalConstant
         GlobalConstant::Base.secret_encryptor['user_extended_detail_secret_key']
       end
 
+      def ethereum_deposit_address_secret_key
+        GlobalConstant::Base.secret_encryptor['ethereum_deposit_address_secret_key']
+      end
+
     end
 
   end

@@ -74,6 +74,7 @@ constants:
     cookie_secret_key: <%= ENV['STA_COOKIE_SECRET_KEY'] %>
     email_tokens_decriptor_key: <%= ENV['STA_EMAIL_TOKENS_DECRIPTOR_KEY'] %>
     user_extended_detail_secret_key: <%= ENV['STA_USER_EXTENDED_DETAIL_SECRET_KEY'] %>
+    ethereum_deposit_address_secret_key: <%= ENV['STA_ETHEREUM_DEPOSIT_ADDRESS_SECRET_KEY'] %>
 
   private_ops:
     base_url: <%= ENV['STA_PRIVATE_OPS_API_BASE_URL'] %>

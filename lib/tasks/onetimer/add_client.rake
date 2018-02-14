@@ -152,11 +152,22 @@ namespace :onetimer do
     ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
                                 status: GlobalConstant::ClientWebHostDetail.active_status) if web_host_data.present?
 
+
+    ethereum_deposit_address = token_sale_details['ethereum_deposit_address']
+    ethereum_deposit_address_e = nil
+
+    if ethereum_deposit_address.present?
+        encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
+        r = encryptor_obj.encrypt(ethereum_deposit_address)
+        fail r unless r.success?
+      ethereum_deposit_address_e = r.data[:ciphertext_blob]
+    end
+
     ClientTokenSaleDetail.create!(
         client_id: client_id,
         sale_start_timestamp: token_sale_details['sale_start_timestamp'],
         sale_end_timestamp: token_sale_details['sale_end_timestamp'],
-        ethereum_deposit_address: token_sale_details['ethereum_deposit_address'],
+        ethereum_deposit_address: ethereum_deposit_address_e,
         status: GlobalConstant::ClientTokenSaleDetail.active_status
     )
 

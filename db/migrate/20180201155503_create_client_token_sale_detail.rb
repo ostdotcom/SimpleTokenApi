@@ -6,7 +6,7 @@ class CreateClientTokenSaleDetail < DbMigrationConnection
         t.column :client_id, :integer, limit: 8, null: false
         t.column :sale_start_timestamp, :integer, limit: 8, null: false
         t.column :sale_end_timestamp, :integer, limit: 8, null: false
-        t.column :ethereum_deposit_address, :string, limit: 255, null: true
+        t.column :ethereum_deposit_address, :string, limit: 355, null: true
         t.column :status, :tinyint, limit: 1, null: false
         t.timestamps
       end

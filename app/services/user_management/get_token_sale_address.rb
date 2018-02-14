@@ -22,6 +22,7 @@ module UserManagement
       @client = nil
       @client_token_sale_details = nil
       @user_kyc_detail = nil
+      @token_sale_ethereum_address = nil
     end
 
     # Perform
@@ -44,6 +45,9 @@ module UserManagement
       fetch_user_kyc_detail
 
       r = validate_can_purchase
+      return r unless r.success?
+
+      r = decrypt_ethereum_deposit_address
       return r unless r.success?
 
       success_with_data(success_response_data)
@@ -91,7 +95,7 @@ module UserManagement
           'Sale is not active',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if !@client_token_sale_details.is_token_sale_live?
+      ) if !@client_token_sale_details.is_token_sale_live?
 
       return error_with_data(
           'um_ea_2',
@@ -99,16 +103,42 @@ module UserManagement
           'Invalid action',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if @client_token_sale_details.ethereum_deposit_address.blank?
+      ) if @client_token_sale_details.ethereum_deposit_address.blank?
 
-     return error_with_data(
+      return error_with_data(
           'um_ea_3',
           'Unauthorized to purchase',
           'Unauthorized to purchase',
           GlobalConstant::ErrorAction.default,
           {}
-      )  if @user_kyc_detail.blank? || !@user_kyc_detail.kyc_approved? ||
-         (@client.is_whitelist_setup_done? && !@user_kyc_detail.done_whitelist_status?)
+      ) if @user_kyc_detail.blank? || !@user_kyc_detail.kyc_approved? ||
+          (@client.is_whitelist_setup_done? && !@user_kyc_detail.done_whitelist_status?)
+
+      success
+    end
+
+    # Decrypt ethereum deposit address
+    #
+    # * Author: Aman
+    # * Date: 14/02/2018
+    # * Reviewed By:
+    #
+    # Sets @token_sale_ethereum_address
+    # @return [Result::Base]
+    #
+    def decrypt_ethereum_deposit_address
+      decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
+      r = decryptor_obj.decrypt(@client_token_sale_details.ethereum_deposit_address)
+
+      return error_with_data(
+          'um_ea_4',
+          'Unable to fetch deposit address',
+          'Unable to fetch deposit address',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) unless r.success?
+
+      @token_sale_ethereum_address = r.data[:plaintext]
 
       success
     end
@@ -123,7 +153,7 @@ module UserManagement
     #
     def success_response_data
       {
-          token_sale_ethereum_address: @client_token_sale_details.ethereum_deposit_address
+          token_sale_ethereum_address: @token_sale_ethereum_address
       }
     end
 

@@ -39,13 +39,13 @@ module UserManagement
 
       @images.each do |k, v|
         content_type = v
-        key = "i/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
+        key = "#{@client_id}/i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 
       @pdfs.each do |k, v|
         content_type = v
-        key = "d/#{@client_id}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
+        key = "#{@client_id}/d/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
         @upload_params[k] = get_upload_params_for(content_type, key)
       end
 

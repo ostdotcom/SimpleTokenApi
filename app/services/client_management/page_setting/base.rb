@@ -16,7 +16,6 @@ module ClientManagement
         super
 
         @client_id = @params[:client_id]
-        @template_type = @params[:template_type]
 
         @client = nil
         @common_client_template_obj = nil

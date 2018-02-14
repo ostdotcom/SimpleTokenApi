@@ -22,15 +22,15 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
   # * Reviewed By: Sunil
   #
   def self.fetch_data_for_cache
-    return {
-        sale_details: {
-            total_st_token_sold: '0',
-            total_eth_raised: '0',
-            total_usd_value: 0,
-            sale_ended_before_time: SaleGlobalVariable.sale_ended_flag,
-            token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
-        }
-    } unless GlobalConstant::TokenSale.is_early_access_sale_started?
+    # return {
+    #     sale_details: {
+    #         total_st_token_sold: '0',
+    #         total_eth_raised: '0',
+    #         total_usd_value: 0,
+    #         sale_ended_before_time: SaleGlobalVariable.sale_ended_flag,
+    #         token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+    #     }
+    # } unless GlobalConstant::TokenSale.is_early_access_sale_started?
 
     pre_sale_data = SaleGlobalVariable.pre_sale_data
 

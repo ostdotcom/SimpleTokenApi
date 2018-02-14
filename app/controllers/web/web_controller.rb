@@ -1,4 +1,4 @@
-class WebController < ApplicationController
+class Web::WebController < ApplicationController
 
   include ActionController::RequestForgeryProtection
   protect_from_forgery with: :exception

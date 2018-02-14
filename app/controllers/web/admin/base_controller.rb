@@ -1,4 +1,4 @@
-class Admin::BaseController < WebController
+class Web::Admin::BaseController < Web::WebController
 
   before_action :authenticate_request
 

@@ -1,4 +1,4 @@
-class SaasUser::LoginController < SaasUser::BaseController
+class Web::SaasUser::LoginController < Web::SaasUser::BaseController
 
   prepend_before_action :merge_utm_to_params, only: [:sign_up]
 

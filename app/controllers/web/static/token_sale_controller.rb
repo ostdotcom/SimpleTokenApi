@@ -1,4 +1,4 @@
-class User::TokenSaleController < User::BaseController
+class Web::Static::TokenSaleController < Web::Static::BaseController
 
   # Sale Details
   #

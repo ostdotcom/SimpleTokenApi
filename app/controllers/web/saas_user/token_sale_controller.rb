@@ -1,4 +1,4 @@
-class SaasUser::TokenSaleController < SaasUser::BaseController
+class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
 
   before_action :verify_recaptcha, only: [:kyc_submit]
 

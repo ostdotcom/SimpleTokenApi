@@ -1,4 +1,4 @@
-class Admin::LoginController < Admin::BaseController
+class Web::Admin::LoginController < Web::Admin::BaseController
 
   before_action :authenticate_request, except: [
                                          :password_auth,

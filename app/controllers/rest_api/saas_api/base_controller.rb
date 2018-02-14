@@ -1,4 +1,4 @@
-class SaasApi::BaseController < RestApiController
+class RestApi::SaasApi::BaseController < RestApi::RestApiController
 
   before_action :authenticate_request
 

@@ -1,4 +1,4 @@
-class Callback::OpsController < Callback::BaseController
+class RestApi::Callback::OpsController < RestApi::Callback::BaseController
 
   before_action :decrypt_jwt
 

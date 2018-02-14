@@ -1,4 +1,4 @@
-class SaasUser::ProfileController < SaasUser::BaseController
+class Web::SaasUser::ProfileController < Web::SaasUser::BaseController
 
   skip_before_action :authenticate_request, only: [:client_detail]
 
@@ -9,6 +9,8 @@ class SaasUser::ProfileController < SaasUser::BaseController
   # * Reviewed By:
   #
   def client_detail
+    puts "\n\n\n\n\n"
+    puts params[:controller]
     service_response = UserManagement::GetClientDetail.new(params).perform
     render_api_response(service_response)
   end

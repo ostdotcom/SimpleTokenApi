@@ -1,4 +1,4 @@
-class SaasUser::BaseController < WebController
+class Web::SaasUser::BaseController < Web::WebController
 
   before_action :authenticate_client_host
 

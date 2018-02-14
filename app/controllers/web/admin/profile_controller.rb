@@ -1,4 +1,4 @@
-class Admin::ProfileController < Admin::BaseController
+class Web::Admin::ProfileController < Web::Admin::BaseController
 
   # Change Password
   #

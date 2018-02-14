@@ -1,4 +1,4 @@
-class User::HomeController < User::BaseController
+class Web::Static::HomeController < Web::Static::BaseController
 
   before_action :verify_recaptcha
 

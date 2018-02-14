@@ -1,4 +1,4 @@
-class Admin::KycController < Admin::BaseController
+class Web::Admin::KycController < Web::Admin::BaseController
 
   # Check details
   #

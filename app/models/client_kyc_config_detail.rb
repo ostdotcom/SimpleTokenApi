@@ -5,6 +5,12 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   after_commit :memcache_flush
 
 
+  # Add kyc config row for client
+  #
+  # * Author: Aman
+  # * Date: 08/02/2018
+  # * Reviewed By:
+  #
   def self.add_config(params)
 
     fail 'mandatory kyc fields missing' if !params[:kyc_fields].is_a?(Array) ||

@@ -7,6 +7,9 @@ class ApplicationController < ActionController::API
 
   after_action :set_response_headers
 
+  # this is the top-most wrapper - to catch all the exceptions at any level
+  prepend_around_action :handle_exceptions_gracefully
+
   # Action not found handling. Also block "/"
   #
   # * Author: Kedar
@@ -93,6 +96,45 @@ class ApplicationController < ActionController::API
 
     (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
   end
+
+
+  # Handle exceptions gracefully so that no exception goes unhandled.
+  #
+  # * Author: Kedar
+  # * Date: 10/10/2017
+  # * Reviewed By: Sunil Khedar
+  #
+  def handle_exceptions_gracefully
+
+    begin
+
+      yield
+
+    rescue => se
+
+      Rails.logger.error("Exception in API: #{se.message}")
+      ApplicationMailer.notify(
+          body: {exception: {message: se.message, backtrace: se.backtrace}},
+          data: {
+              'params' => params
+          },
+          subject: 'Exception in API'
+      ).deliver
+
+      r = Result::Base.exception(
+          se,
+          {
+              error: 'swr',
+              error_message: 'Something Went Wrong',
+              data: params
+          }
+      )
+      render_api_response(r)
+
+    end
+
+  end
+
 
   # After action for setting the response headers
   #

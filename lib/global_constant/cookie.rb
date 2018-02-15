@@ -14,7 +14,7 @@ module GlobalConstant
       end
 
       def utm_cookie_name
-        'st_utm'
+        'ost_utm'
       end
 
       def double_auth_expiry

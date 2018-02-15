@@ -23,8 +23,7 @@ module UserManagement
       @user = nil
       @user_token_sale_state = nil
       @user_kyc_detail = nil
-      @client_setting = nil
-      @page_setting = nil
+      @client_setting_data = {}
     end
 
     # Perform
@@ -52,10 +51,7 @@ module UserManagement
 
       fetch_user_kyc_detail
 
-      r = fetch_client_settings
-      return r unless r.success?
-
-      r = fetch_page_settings
+      r = fetch_client_setting_data_from_cache
       return r unless r.success?
 
       success_with_data(success_response_data_for_client)
@@ -63,38 +59,6 @@ module UserManagement
 
     private
 
-    # Fetch clients settings data
-    #
-    # * Author: Aman
-    # * Date: 08/02/2018
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def fetch_client_settings
-      r = ClientManagement::GetClientSetting.new(client_id: @client_id).perform
-      return r unless r.success?
-
-      @client_setting = r.data
-
-      success
-    end
-
-    # Fetch clients page setting data
-    #
-    # * Author: Aman
-    # * Date: 08/02/2018
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def fetch_page_settings
-      r = ClientManagement::PageSetting::Dashboard.new(client_id: @client_id).perform
-      return r unless r.success?
-
-      @page_setting = r.data
-      success
-    end
 
     # validate clients web hosting setup details
     #
@@ -156,6 +120,24 @@ module UserManagement
       @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
     end
 
+    # Fetch clients setting and page setting data from cache
+    #
+    # * Author: Aman
+    # * Date: 15/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_setting_data_from_cache
+      return success if @template_type.blank?
+
+      r = ClientSetting.new(@client_id, GlobalConstant::ClientTemplate.dashboard_template_type).perform
+      return r unless r.success?
+
+      @client_setting_data = r.data
+      success
+    end
+
     # response data on client basis
     #
     # * Author: Aman
@@ -165,21 +147,20 @@ module UserManagement
     # @return [Hash] final success data
     #
     def success_response_data_for_client
-      if @client.is_st_token_sale_client?
-        {
-            user: user_data_default_client,
-            user_kyc_data: user_kyc_data_default_client,
-            client_setting: @client_setting,
-            page_setting: @page_setting
-        }.merge(sale_stats)
-      else
-        {
-            user: user_data,
-            user_kyc_data: user_kyc_data,
-            client_setting: @client_setting,
-            page_setting: @page_setting
-        }
-      end
+
+      resp_data = if @client.is_st_token_sale_client?
+                    {
+                        user: user_data_default_client,
+                        user_kyc_data: user_kyc_data_default_client
+                    }.merge(sale_stats)
+                  else
+                    {
+                        user: user_data,
+                        user_kyc_data: user_kyc_data
+                    }
+                  end
+
+      resp_data.merge(@client_setting_data)
     end
 
     # Sale stats

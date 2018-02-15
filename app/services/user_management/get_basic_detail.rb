@@ -23,8 +23,7 @@ module UserManagement
 
       @client = nil
       @user = nil
-      @client_setting = nil
-      @page_setting = nil
+      @client_setting_data = {}
     end
 
     # Perform
@@ -47,10 +46,7 @@ module UserManagement
 
       fetch_user
 
-      r = fetch_client_settings
-      return r unless r.success?
-
-      r = fetch_page_settings
+      r = fetch_client_setting_data_from_cache
       return r unless r.success?
 
       success_with_data(success_responnse)
@@ -117,37 +113,21 @@ module UserManagement
       @user = User.get_from_memcache(@user_id)
     end
 
-    # Fetch clients Sale setting data
+    # Fetch clients setting and page setting data from cache
     #
     # * Author: Aman
-    # * Date: 08/02/2018
+    # * Date: 15/02/2018
     # * Reviewed By:
     #
     # @return [Result::Base]
     #
-    def fetch_client_settings
-      r = ClientManagement::GetClientSetting.new(client_id: @client_id).perform
-      return r unless r.success?
-
-      @client_setting = r.data
-
-      success
-    end
-
-    # Fetch clients page setting data
-    #
-    # * Author: Aman
-    # * Date: 08/02/2018
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def fetch_page_settings
+    def fetch_client_setting_data_from_cache
       return success if @template_type.blank?
-      r = ClientManagement::PageSetting::Kyc.new(client_id: @client_id).perform
+
+      r = ClientSetting.new(@client_id, @template_type).perform
       return r unless r.success?
 
-      @page_setting = r.data
+      @client_setting_data = r.data
       success
     end
 
@@ -178,10 +158,8 @@ module UserManagement
     #
     def success_responnse
       {
-          user: user_data,
-          client_setting: @client_setting,
-          page_setting: @page_setting
-      }
+          user: user_data
+      }.merge(@client_setting_data)
     end
 
   end

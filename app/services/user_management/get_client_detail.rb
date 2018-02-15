@@ -20,8 +20,6 @@ module UserManagement
       @template_type = @params[:template_type]
 
       @client = nil
-      @client_setting = nil
-      @page_setting = nil
     end
 
     # Perform
@@ -42,13 +40,10 @@ module UserManagement
       r = validate_client_details
       return r unless r.success?
 
-      r = fetch_client_settings
+      r = fetch_client_data_from_cache
       return r unless r.success?
 
-      r = fetch_page_settings
-      return r unless r.success?
-
-      success_with_data(response_data)
+      success_with_data(r.data)
     end
 
     private
@@ -106,69 +101,16 @@ module UserManagement
       success
     end
 
-    # Fetch clients Sale setting data
+    # Fetch clients setting and page setting data from cache
     #
     # * Author: Aman
-    # * Date: 08/02/2018
+    # * Date: 15/02/2018
     # * Reviewed By:
     #
     # @return [Result::Base]
     #
-    def fetch_client_settings
-      r = ClientManagement::GetClientSetting.new(client_id: @client_id).perform
-      return r unless r.success?
-
-      @client_setting = r.data
-
-      success
-    end
-
-    # Fetch clients page setting data
-    #
-    # * Author: Aman
-    # * Date: 08/02/2018
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def fetch_page_settings
-      r = page_setting_class.new(client_id: @client_id).perform
-      return r unless r.success?
-
-      @page_setting = r.data
-      success
-    end
-
-    def page_setting_class
-      case @template_type
-        when GlobalConstant::ClientTemplate.login_template_type
-          ClientManagement::PageSetting::Login
-        when GlobalConstant::ClientTemplate.sign_up_template_type
-          ClientManagement::PageSetting::SignUp
-        when GlobalConstant::ClientTemplate.reset_password_template_type
-          ClientManagement::PageSetting::ResetPassword
-        when GlobalConstant::ClientTemplate.change_password_template_type
-          ClientManagement::PageSetting::ChangePassword
-        when GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
-          ClientManagement::PageSetting::TokenSaleBlockedRegion
-        else
-          'invalid template type'
-      end
-    end
-
-    # User detail
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Hash] hash of client settings data
-    #
-    def response_data
-      {
-          client_setting: @client_setting,
-          page_setting: @page_setting
-      }
+    def fetch_client_data_from_cache
+      ClientSetting.new(@client_id, @template_type).perform
     end
 
   end

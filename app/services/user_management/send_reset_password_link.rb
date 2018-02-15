@@ -40,6 +40,9 @@ module UserManagement
       r = fetch_and_validate_client
       return r unless r.success?
 
+      r = validate_client_details
+      return r unless r.success?
+
       r = fetch_user
       return r unless r.success?
 
@@ -52,6 +55,27 @@ module UserManagement
     end
 
     private
+
+    # validate clients web hosting setup details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_client_details
+
+      return error_with_data(
+          'um_srpl_1',
+          'Client is not active',
+          'Client is not active',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@client.is_web_host_setup_done?
+
+      success
+    end
 
     # Fetch user
     #
@@ -67,7 +91,7 @@ module UserManagement
       @user = User.where(client_id: @client_id, email: @email).first
 
       return error_with_data(
-          'um_srpl_1',
+          'um_srpl_2',
           'User not present',
           '',
           GlobalConstant::ErrorAction.default,

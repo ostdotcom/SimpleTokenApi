@@ -42,7 +42,7 @@ module GlobalConstant
       ### Template type End ###
 
       def page_specific_template_types
-        ClientTemplate.template_types - [common_template_type]
+        ::ClientTemplate.template_types.keys - [common_template_type]
       end
 
       def common

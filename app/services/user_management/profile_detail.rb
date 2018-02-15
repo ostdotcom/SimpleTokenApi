@@ -129,8 +129,6 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_client_setting_data_from_cache
-      return success if @template_type.blank?
-
       r = ClientSetting.new(@client_id, GlobalConstant::ClientTemplate.dashboard_template_type).perform
       return r unless r.success?
 

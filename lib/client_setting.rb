@@ -148,7 +148,7 @@ class ClientSetting
   #
   # @return [Hash] hash of client settings data
   #
-  def self.flush_memcache_key_for_template_types_of_client(client_id, templates_to_flush= ClientManagement::PageSetting::page_specific_template_types)
+  def self.flush_memcache_key_for_template_types_of_client(client_id, templates_to_flush= GlobalConstant::ClientTemplate.page_specific_template_types)
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
     templates_to_flush.each do |template_type|
       memcache_template_key = memcache_key_object.key_template % {client_id: client_id, template_type: template_type}

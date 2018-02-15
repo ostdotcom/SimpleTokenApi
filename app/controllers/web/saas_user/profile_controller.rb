@@ -9,8 +9,6 @@ class Web::SaasUser::ProfileController < Web::SaasUser::BaseController
   # * Reviewed By:
   #
   def client_detail
-    puts "\n\n\n\n\n"
-    puts params[:controller]
     service_response = UserManagement::GetClientDetail.new(params).perform
     render_api_response(service_response)
   end

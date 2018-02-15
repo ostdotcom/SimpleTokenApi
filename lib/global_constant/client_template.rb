@@ -41,8 +41,8 @@ module GlobalConstant
 
       ### Template type End ###
 
-      def allowed_template_types
-        ClientTemplate.template_types
+      def page_specific_template_types
+        ClientTemplate.template_types - [common_template_type]
       end
 
       def common

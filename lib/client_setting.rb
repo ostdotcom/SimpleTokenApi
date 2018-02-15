@@ -137,4 +137,23 @@ class ClientSetting
     }
   end
 
+  # self method to flush all client setting data for all templates of a client
+  #
+  # * Author: Aman
+  # * Date: 15/02/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] client_id (mandatory) - client id
+  # @param [Array] templates_to_flush (optional) - template types to flush
+  #
+  # @return [Hash] hash of client settings data
+  #
+  def self.flush_memcache_key_for_template_types_of_client(client_id, templates_to_flush= ClientManagement::PageSetting::page_specific_template_types)
+    memcache_key_object = MemcacheKey.new('client.client_setting_detail')
+    templates_to_flush.each do |template_type|
+      memcache_template_key = memcache_key_object.key_template % {client_id: client_id, template_type: template_type}
+      Memcache.delete(memcache_template_key)
+    end
+  end
+
 end

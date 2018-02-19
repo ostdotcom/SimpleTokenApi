@@ -101,7 +101,7 @@ module Cynopsis
     #
     # @return [String] ClientCynopsisDetail decrypted token
     #
-    def client_cynopsis_token_decrypted
+    def get_client_cynopsis_token_decrypted
       @client = Client.get_from_memcache(@client_id)
 
       r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)

@@ -248,6 +248,7 @@
 'UserManagement::BtSubmit':
   :mandatory:
     - :bt_name
+    - :client_id
     - :skip_name
     - :user_id
   :optional:

@@ -9,6 +9,7 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     # @param [Integer] user_id (mandatory) - user id
+    # @param [Integer] client_id (mandatory) - client id
     # @param [String] bt_name (mandatory) - Branded Token Name
     # @param [Boolean] skip_name (mandatory) - skip this step
     #
@@ -21,7 +22,7 @@ module UserManagement
       @user_id = @params[:user_id]
       @bt_name = @params[:bt_name]
       @skip_name = @params[:skip_name]
-
+      @client_id = @params[:client_id]
       @user = nil
 
       #  todo: "KYCaas-Changes"

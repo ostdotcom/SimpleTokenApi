@@ -44,7 +44,7 @@ module UserManagement
       @city = @params[:city]
       @state = @params[:state]
       @country = @params[:country] # required and one of allowed
-      @postal_code = @params[:postal_code] and regex
+      @postal_code = @params[:postal_code]
       @ethereum_address = @params[:ethereum_address] # required and regex
       @document_id_number = @params[:document_id_number] # required
       @nationality = @params[:nationality] # required and one of allowed

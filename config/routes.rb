@@ -1,6 +1,14 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
+  constraints(InitStaticOst) do
+    scope 'api/home', controller: 'web/static/home' do
+      match 'contact-us-partners' => :contact_us_partners, via: [:GET, :POST]
+    end
+
+    match '*permalink', to: 'application#not_found', via: :all
+  end
+
   constraints(InitSimpleToken) do
     scope 'api/sale', controller: 'web/static/token_sale' do
       match 'details' => :sale_details, via: :GET

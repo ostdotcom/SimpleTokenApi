@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/home', controller: 'web/static/home' do
-      match 'contact-us-partners' => :contact_us_partners, via: :POST
+      match 'contact-us-partners' => :contact_us_partners, via: [:GET, :POST]
     end
 
     match '*permalink', to: 'application#not_found', via: :all

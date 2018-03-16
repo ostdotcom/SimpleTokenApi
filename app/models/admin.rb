@@ -66,6 +66,12 @@ class Admin < EstablishSimpleTokenAdminDbConnection
                           admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status)
     admin_obj.save!(validate: false)
 
+
+    ClientAdmin.create(client_id: default_client_id, admin_id: admin_obj.id,
+                       role: GlobalConstant::ClientAdmin.normal_admin_role,
+                       status: GlobalConstant::ClientAdmin.active_status)
+
+
     puts url
     return url
   end

@@ -30,7 +30,7 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   def get_token_sale_state_page_name
 
-    if self.client_id == GlobalConstant::TokenSale.st_token_sale_client_id
+    if (self.client_id == GlobalConstant::TokenSale.st_token_sale_client_id) && !Rails.env.sandbox?
 
       if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
         GlobalConstant::User.get_token_sale_state_page_names("profile_page")

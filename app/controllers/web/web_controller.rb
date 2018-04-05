@@ -41,8 +41,7 @@ class Web::WebController < ApplicationController
   # * Reviewed By: Sunil
   #
   def delete_cookie(cookie_name)
-    # cookies.delete(cookie_name.to_sym, domain: :all, secure: !Rails.env.development?, same_site: :strict)
-    cookies.delete(cookie_name.to_sym, domain: request.host, secure: !Rails.env.development?, same_site: :strict)
+    cookies.delete(cookie_name.to_sym, domain: request.host, secure: !(Rails.env.development? || Rails.env.staging?), same_site: :strict)
   end
 
   # Set the given cookie
@@ -57,7 +56,7 @@ class Web::WebController < ApplicationController
         expires: expires,
         domain: request.host,
         http_only: true,
-        secure: !Rails.env.development?,
+        secure: !(Rails.env.development? || Rails.env.staging?),
         same_site: :strict
     }
   end

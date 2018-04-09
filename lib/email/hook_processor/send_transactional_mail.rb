@@ -59,7 +59,7 @@ module Email
         send_mail_response = pepo_campaign_obj.send_transactional_email(
           @hook.email,
           send_mail_params[:template_name],
-          send_mail_params[:template_vars]
+          send_mail_params[:template_vars].merge({environment: Rails.env})
         )
 
         if send_mail_response['error'].present?

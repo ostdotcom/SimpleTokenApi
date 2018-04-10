@@ -39,5 +39,16 @@ class RestApi::SaasApi::KycController < RestApi::SaasApi::BaseController
     render_api_response(service_response)
   end
 
+  # Get User detail
+  #
+  # * Author: Aman
+  # * Date: 09/04/2018
+  # * Reviewed By:
+  #
+  def get_detail
+    service_response = SaasManagement::GetUserDetail.new(params).perform
+    render_api_response(service_response)
+  end
+
 
 end

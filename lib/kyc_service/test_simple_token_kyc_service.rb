@@ -99,6 +99,16 @@ module KycService
       make_get_request(endpoint, custom_params)
     end
 
+    # Get details of a user
+    #
+    # @params [Integer] user_id
+    # @params [String] email
+    #
+    def get_user_detail(user_id)
+      endpoint = "/api/#{@version}/kyc/get-detail/"
+      make_get_request(endpoint, {user_id: user_id})
+    end
+
     private
 
     # Create Request Data

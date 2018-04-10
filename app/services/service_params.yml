@@ -328,6 +328,12 @@
   :optional:
     - :user_ip_address
 
+'SaasManagement::GetUserDetail':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+
 'UserManagement::ContactUs::Partner':
   :mandatory:
     - :full_name

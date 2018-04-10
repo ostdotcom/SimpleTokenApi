@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       match 'add-kyc' => :add_kyc, via: :POST
       match 'upload-params' => :get_upload_params, via: :GET
       match 'check-ethereum-address' => :check_ethereum_address, via: :GET
+      match 'get-detail' => :get_detail, via: :GET
     end
 
     scope 'api/admin', controller: 'web/admin/login' do

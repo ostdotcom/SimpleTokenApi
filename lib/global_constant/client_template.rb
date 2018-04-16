@@ -88,6 +88,13 @@ module GlobalConstant
                 'yemen',
                 'cuba'
             ]
+         # gtm_pixel: {
+         #     id: '11'
+         # },
+         # fb_pixel: {
+         #     id: '11',
+         #     version: '2.0'
+         # }
         }
       end
 

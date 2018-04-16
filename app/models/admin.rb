@@ -71,9 +71,6 @@ class Admin < EstablishSimpleTokenAdminDbConnection
                        role: GlobalConstant::ClientAdmin.normal_admin_role,
                        status: GlobalConstant::ClientAdmin.active_status)
 
-
-    puts url
-    return url
   end
 
   # Get encrypted password

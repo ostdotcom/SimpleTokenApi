@@ -118,9 +118,10 @@ namespace :onetimer do
     return r unless r.success?
 
     api_secret_e = r.data[:ciphertext_blob]
+    api_key = SecureRandom.hex
 
     client = Client.create(name: params["client_name"], status: GlobalConstant::Client.active_status,
-                           setup_properties: setup_properties_val, api_key: SecureRandom.hex, api_salt: api_salt_e,
+                           setup_properties: setup_properties_val, api_key: api_key, api_salt: api_salt_e,
                            api_secret: api_secret_e)
     client_id = client.id
 
@@ -175,8 +176,9 @@ namespace :onetimer do
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"],
                                      client_id: client_id)
 
-    puts "api-secret: #{client_api_secret_d}"
     puts "client_id: #{client_id}"
+    puts "api-key: #{api_key}"
+    puts "api-secret: #{client_api_secret_d}"
   end
 
 end

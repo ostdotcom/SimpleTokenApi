@@ -43,6 +43,7 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
+    - :is_super_admin_role
   :optional:
 
 'AdminManagement::Kyc::CheckDetails':
@@ -180,6 +181,13 @@
   :mandatory:
     - :user_id
   :optional:
+
+'AdminManagement::Report::GetKycReport':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+    - :filters
 
 'UserManagement::SignUp':
   :mandatory:

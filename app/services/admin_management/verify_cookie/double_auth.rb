@@ -18,6 +18,7 @@ module AdminManagement
       def initialize(params)
         super
 
+        @is_super_admin_role = @params[:is_super_admin_role]
         @extended_cookie_value = nil
       end
 
@@ -33,6 +34,8 @@ module AdminManagement
 
         r = super
         return r unless r.success?
+
+        return unauthorized_access_response('am_da_1') if @is_super_admin_role && (@admin.role != GlobalConstant::Admin.super_admin_role)
 
         set_extended_cookie_value
         r.data[:extended_cookie_value] = @extended_cookie_value

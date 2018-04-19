@@ -21,6 +21,18 @@ module GlobalConstant
 
       ### Status End ###
 
+      ### Role Start ###
+
+      def normal_admin_role
+        'normal_admin'
+      end
+
+      def super_admin_role
+        'super_admin'
+      end
+
+      ### Role End ###
+      #
     end
 
   end

@@ -55,6 +55,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
+      match 'get-kyc-report' => :get_kyc_report, via: :GET
       # match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
       # match 'run-alt-token-bonus-process' => :run_alt_token_bonus_process, via: :GET
       match 'check-details' => :check_details, via: :GET

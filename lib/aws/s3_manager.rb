@@ -102,6 +102,23 @@ module Aws
 
     end
 
+    # Download an object to disk
+    #
+    # * Author: Aman
+    # * Date: 21/12/2017
+    # * Reviewed By: Sunil
+    #
+    # @param [String] s3_path - upload file path in bucket
+    # @param [String] local_path - local file path for download
+    # @param [String] bucket - upload bucket
+    #
+    def get(local_path, s3_path, bucket)
+      client.get_object(
+          response_target: local_path,
+          bucket: bucket,
+          key: s3_path)
+    end
+
     private
 
     # Client

@@ -335,14 +335,11 @@ class KycSubmitJob < ApplicationJob
   def upload_document(s3_path, document_type, desc = nil)
     Rails.logger.info("-- upload_document: #{document_type} start")
 
-    url = Aws::S3Manager.new(@run_purpose, @run_role).
-        get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
-
     file_name = s3_path.split('/').last
-
     local_file_path = "#{Rails.root}/tmp/#{file_name}"
 
-    system("wget -O #{local_file_path} '#{url}'")
+    s3_obj = Aws::S3Manager.new(@run_purpose, @run_role)
+    s3_obj.get(local_file_path, s3_path, GlobalConstant::Aws::Common.kyc_bucket)
 
     upload_params = {
         rfrID: get_cynopsis_user_id,

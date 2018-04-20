@@ -225,7 +225,7 @@ class ProcessKycReportJob < ApplicationJob
     # todo: to_sym handling
     user_data = {
         email: user.email,
-        submitted_at: Time.at(user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M"), # test time with zone
+        submitted_at: Time.at(user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M %z"), # test time with zone
         admin_status: user_kyc_detail.admin_status,
         cynopsis_status: user_kyc_detail.cynopsis_status
     }
@@ -234,9 +234,9 @@ class ProcessKycReportJob < ApplicationJob
     kyc_form_fields.each do |field_name|
       if ['first_name', 'last_name'].include?(field_name)
         user_data[field_name] = user_extended_detail[field_name]
-      elsif ['birthdate', 'document_id_number', 'nationality', 'street_address', 'city', 'postal_code', 'country', 'state'].include?(field_name)
+      elsif ['birthdate', 'document_id_number', 'nationality', 'street_address', 'city', 'postal_code', 'country', 'state', 'estimated_participation_amount'].include?(field_name)
         user_data[field_name] = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
-      elsif ['document_id_number', 'selfie_file_path', 'residence_proof_file_path'].include?(field_name)
+      elsif ['document_id_file_path', 'selfie_file_path', 'residence_proof_file_path'].include?(field_name)
         if field_name == 'residence_proof_file_path' && user_extended_detail.residence_proof_file_path.blank?
           user_data[field_name] = ''
         else
@@ -244,7 +244,7 @@ class ProcessKycReportJob < ApplicationJob
           user_data[field_name] = get_url(decrypted_s3_path)
         end
       else
-        throw 'invalid kyc field'
+        throw "invalid kyc field-#{field_name}"
       end
     end
 

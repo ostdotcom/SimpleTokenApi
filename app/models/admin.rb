@@ -67,9 +67,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_obj.save!(validate: false)
 
 
-    ClientAdmin.create(client_id: default_client_id, admin_id: admin_obj.id,
-                       role: GlobalConstant::ClientAdmin.normal_admin_role,
-                       status: GlobalConstant::ClientAdmin.active_status)
+    # ClientAdmin.create(client_id: default_client_id, admin_id: admin_obj.id,
+    #                    role: GlobalConstant::ClientAdmin.normal_admin_role,
+    #                    status: GlobalConstant::ClientAdmin.active_status)
 
   end
 
@@ -172,8 +172,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @return [Array <String>] emails of admin
   #
   def self.client_admin_emails(client_id)
-    admin_ids = ClientAdmin.where(client_id: client_id).pluck(:admin_id)
-    Admin.where(id: admin_ids).pluck(:email)
+    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status).pluck(:email)
   end
 
   private

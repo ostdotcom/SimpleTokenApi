@@ -219,7 +219,7 @@ module UserManagement
     end
 
     def validate_street_address
-      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field)
+      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.street_address_kyc_field)
         @street_address = nil
         return
       end

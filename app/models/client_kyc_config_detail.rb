@@ -57,8 +57,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
     @kyc_fields_config ||= {
         GlobalConstant::ClientKycConfigDetail.first_name_kyc_field => 1,
         GlobalConstant::ClientKycConfigDetail.last_name_kyc_field => 2,
-        GlobalConstant::ClientKycConfigDetail.dob_kyc_field => 4,
-        GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field => 8,
+        GlobalConstant::ClientKycConfigDetail.birthdate_kyc_field => 4,
+        GlobalConstant::ClientKycConfigDetail.street_address_kyc_field => 8,
         GlobalConstant::ClientKycConfigDetail.city_kyc_field => 16,
         GlobalConstant::ClientKycConfigDetail.state_kyc_field => 32,
         GlobalConstant::ClientKycConfigDetail.country_kyc_field => 64,

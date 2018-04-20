@@ -222,7 +222,6 @@ class ProcessKycReportJob < ApplicationJob
     kyc_salt_d = r.data[:plaintext]
     local_cipher_obj = LocalCipher.new(kyc_salt_d)
 
-    # todo: to_sym handling
     user_data = {
         email: user.email,
         submitted_at: Time.at(user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M %z"), # test time with zone
@@ -232,22 +231,22 @@ class ProcessKycReportJob < ApplicationJob
     user_data[:whitelist_status] = user_kyc_detail.whitelist_status if other_kyc_fields.include?('whitelist_status')
 
     kyc_form_fields.each do |field_name|
-      if ['first_name', 'last_name'].include?(field_name)
+      if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name)
         user_data[field_name] = user_extended_detail[field_name]
-      elsif ['birthdate', 'document_id_number', 'nationality', 'street_address', 'city', 'postal_code', 'country', 'state', 'estimated_participation_amount'].include?(field_name)
-        user_data[field_name] = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
-      elsif ['document_id_file_path', 'selfie_file_path', 'residence_proof_file_path'].include?(field_name)
-        if field_name == 'residence_proof_file_path' && user_extended_detail.residence_proof_file_path.blank?
+      elsif GlobalConstant::ClientKycConfigDetail.encrypted_fields.include?(field_name)
+        if field_name == GlobalConstant::ClientKycConfigDetail.residence_proof_file_path_kyc_field && user_extended_detail.residence_proof_file_path.blank?
           user_data[field_name] = ''
-        else
-          decrypted_s3_path = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
-          user_data[field_name] = get_url(decrypted_s3_path)
+          next
         end
+        decrypted_data = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
+        decrypted_data = get_url(decrypted_data) if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
+        user_data[field_name] = decrypted_data
       else
         throw "invalid kyc field-#{field_name}"
       end
     end
 
+    return user_data
   end
 
   # update status of job

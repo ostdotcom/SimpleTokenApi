@@ -94,7 +94,7 @@ module Aws
           bucket: bucket
       }
       options.merge!({server_side_encryption: 'aws:kms',
-                      server_side_encryption_aws_kms_key_id: key_id,
+                      ssekms_key_id: key_id,
                       acl: "private"
                      })
 

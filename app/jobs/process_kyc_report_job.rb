@@ -127,14 +127,9 @@ class ProcessKycReportJob < ApplicationJob
     if @has_data
       zip_folder
       upload_to_s3
-      # todo: remove
       delete_local_files
     end
 
-  end
-
-  def upload_s3_path
-    "/csv_dowload/#{@client_id}/#{folder_name}.zip"
   end
 
   def upload_to_s3
@@ -143,13 +138,15 @@ class ProcessKycReportJob < ApplicationJob
         File.open("#{csv_file_folder_full_path}.zip"),
         GlobalConstant::Aws::Common.report_bucket,
         {
-            content_type: 'application/zip'
+            content_type: 'application/zip',
+            expires: Time.now + 7.day,
         }
     )
   end
 
   def email_file_url
     s3_url = ''
+
     if @has_data
       s3_url = s3_manager_obj.get_signed_url_for(
           GlobalConstant::Aws::Common.report_bucket,
@@ -303,7 +300,11 @@ class ProcessKycReportJob < ApplicationJob
   end
 
   def folder_name
-    "#{@client_id}_#{Time.now.to_i}"
+    @folder_name ||= Digest::MD5.hexdigest("#{@csv_report_job_id}-#{Time.now.to_f}-#{rand}")
+  end
+
+  def upload_s3_path
+    @upload_s3_path ||= "csv_download/#{@client_id}/#{Time.now.strftime('%y-%m-%d')}/#{folder_name}"
   end
 
   def csv_headers

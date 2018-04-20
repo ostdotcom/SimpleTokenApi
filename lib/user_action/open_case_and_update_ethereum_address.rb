@@ -318,7 +318,7 @@ module UserAction
     #
     def open_case
 
-      @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
+      @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!

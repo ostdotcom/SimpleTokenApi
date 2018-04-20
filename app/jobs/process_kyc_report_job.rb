@@ -127,6 +127,7 @@ class ProcessKycReportJob < ApplicationJob
     if @has_data
       zip_folder
       upload_to_s3
+      # todo: remove
       delete_local_files
     end
 
@@ -149,7 +150,6 @@ class ProcessKycReportJob < ApplicationJob
 
   def email_file_url
     s3_url = ''
-
     if @has_data
       s3_url = s3_manager_obj.get_signed_url_for(
           GlobalConstant::Aws::Common.report_bucket,
@@ -210,7 +210,7 @@ class ProcessKycReportJob < ApplicationJob
   def format_user_data(user_data)
     row = []
     csv_headers.each do |field_name|
-      row << user_data[field_name]
+      row << user_data[field_name.to_sym]
     end
     row
   end
@@ -232,15 +232,15 @@ class ProcessKycReportJob < ApplicationJob
 
     kyc_form_fields.each do |field_name|
       if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name)
-        user_data[field_name] = user_extended_detail[field_name]
+        user_data[field_name.to_sym] = user_extended_detail[field_name]
       elsif GlobalConstant::ClientKycConfigDetail.encrypted_fields.include?(field_name)
         if field_name == GlobalConstant::ClientKycConfigDetail.residence_proof_file_path_kyc_field && user_extended_detail.residence_proof_file_path.blank?
-          user_data[field_name] = ''
+          user_data[field_name.to_sym] = nil
           next
         end
         decrypted_data = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
         decrypted_data = get_url(decrypted_data) if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
-        user_data[field_name] = decrypted_data
+        user_data[field_name.to_sym] = decrypted_data
       else
         throw "invalid kyc field-#{field_name}"
       end

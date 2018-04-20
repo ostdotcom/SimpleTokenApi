@@ -2,7 +2,6 @@ module Util
   module CsvHelper
 
     require 'csv'
-    extend ActiveSupport::Concern
 
     CSV_BATCH_SIZE = 10000
 

@@ -162,14 +162,12 @@ class ProcessKycReportJob < ApplicationJob
         subject: "DOWNLOAD CSV RESPONSE"
     ).deliver
 
-    #todo send email
-    #
-    # Email::HookCreator::SendTransactionalMail.new(
-    #     client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
-    #     email: @admin.email,
-    #     template_name: GlobalConstant::PepoCampaigns.low_whitelister_balance_template,
-    #     template_vars: {has_data: @has_data}
-    # ).perform
+    Email::HookCreator::SendTransactionalMail.new(
+        client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+        email: @admin.email,
+        template_name: GlobalConstant::PepoCampaigns.low_whitelister_balance_template,
+        template_vars: {has_data: @has_data, file_url: s3_url}
+    ).perform
   end
 
 

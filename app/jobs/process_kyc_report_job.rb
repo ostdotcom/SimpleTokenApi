@@ -157,16 +157,11 @@ class ProcessKycReportJob < ApplicationJob
       )
     end
 
-    ApplicationMailer.notify(
-        body: {has_data: @has_data, file_url: s3_url},
-        subject: "DOWNLOAD CSV RESPONSE"
-    ).deliver
-
     Email::HookCreator::SendTransactionalMail.new(
         client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
         email: @admin.email,
-        template_name: GlobalConstant::PepoCampaigns.low_whitelister_balance_template,
-        template_vars: {has_data: @has_data, file_url: s3_url}
+        template_name: GlobalConstant::PepoCampaigns.kyc_report_download_template,
+        template_vars: {file_download_url: s3_url}
     ).perform
   end
 

@@ -155,6 +155,7 @@ class ProcessKycReportJob < ApplicationJob
               expires_in: ZIP_FILE_EXPIRY_TIMESTAMP_INTERVAL
           }
       )
+      s3_url = CGI.escape(s3_url)
     end
 
     Email::HookCreator::SendTransactionalMail.new(

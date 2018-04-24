@@ -190,6 +190,15 @@ module GlobalConstant
         end
       end
 
+      #
+      # def filter_hash_data
+      #   {
+      #       admin_status: {
+      #
+      #       }
+      #   }
+      # end
+
 
     end
 

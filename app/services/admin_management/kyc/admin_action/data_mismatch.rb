@@ -109,6 +109,7 @@ module AdminManagement
         def update_kyc_details
           @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.data_mismatch_admin_action_type
           @user_kyc_detail.last_acted_by = @admin_id
+          @user_kyc_detail.last_acted_timestamp = Time.now.to_i
           @user_kyc_detail.save! if @user_kyc_detail.changed?
         end
 

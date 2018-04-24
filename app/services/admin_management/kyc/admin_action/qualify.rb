@@ -102,6 +102,7 @@ module AdminManagement
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
           @user_kyc_detail.last_acted_by = @admin_id
+          @user_kyc_detail.last_acted_timestamp = Time.now.to_i
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
           @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
         end

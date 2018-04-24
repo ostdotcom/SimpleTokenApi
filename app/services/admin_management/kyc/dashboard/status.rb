@@ -8,9 +8,9 @@ module AdminManagement
 
         # Initialize
         #
-        # * Author: Alpesh
-        # * Date: 24/10/2017
-        # * Reviewed By: Sunil
+        # * Author: AMan
+        # * Date: 24/04/2018
+        # * Reviewed By:
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] client_id (mandatory) - logged in admin's client id
@@ -120,20 +120,21 @@ module AdminManagement
             country_name = GlobalConstant::CountryNationality.country_name_for(md5_user_extended_detail.country)
             nationality_name = GlobalConstant::CountryNationality.nationality_name_for(md5_user_extended_detail.nationality)
 
-            # all time should be timestamp
-
             @curr_page_data << {
                 case_id: u_k.id,
-                kyc_confirmed_at: Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M"),
+                name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
+                kyc_confirmed_at: get_formatted_time(u_k.kyc_confirmed_at),
                 admin_status: u_k.admin_status,
                 cynopsis_status: u_k.cynopsis_status,
-                is_duplicate: u_k.show_duplicate_status.to_i,
-                is_re_submitted: u_k.is_re_submitted?,
-                submission_count: u_k.submission_count.to_i,
-                name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
+                whitelist_status: u_k.whitelist_status,
                 country: country_name.titleize,
                 nationality: nationality_name.titleize,
-                last_acted_by: last_acted_by(u_k.last_acted_by.to_i)
+                is_re_submitted: u_k.is_re_submitted?,
+                submission_count: u_k.submission_count.to_i,
+                is_duplicate: u_k.show_duplicate_status.to_i,
+                duplicate_type: 'email',
+                last_acted_by: last_acted_by(u_k.last_acted_by.to_i),
+                last_acted_timestamp: get_formatted_time(u_k.last_acted_timestamp)
             }
           end
 

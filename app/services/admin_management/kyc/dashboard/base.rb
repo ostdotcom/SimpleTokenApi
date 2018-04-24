@@ -97,6 +97,19 @@ module AdminManagement
           (last_acted_by_id > 0) ? @admin_details[last_acted_by_id].name : ''
         end
 
+        # Get Formatted Time
+        #
+        # * Author: Aman
+        # * Date: 24/04/2018
+        # * Reviewed By:
+        #
+        # @return [Integer] returns Timestamp
+        #
+        def get_formatted_time(timestamp)
+          timestamp.to_i > 0 ? Util::DateTimeHelper.get_formatted_time(timestamp) : nil
+          # Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M")
+        end
+
         # Set API response data
         #
         # * Author: Alpesh
@@ -110,9 +123,10 @@ module AdminManagement
 
           dummy_meta = {
               page_number: 1,
-              page_size: 10,
               total_records: 100,
-              page_payload: {},
+              page_payload: {
+                  page_size: 10
+              },
               filters: @filters,
               sortings: @sortings
           }

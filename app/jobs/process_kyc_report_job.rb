@@ -5,9 +5,9 @@ class ProcessKycReportJob < ApplicationJob
   include ::Util::ResultHelper
   include ::Util::CsvHelper
 
-  MYSQL_BATCH_SIZE = 100
-  IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL = 7.days.to_i
-  ZIP_FILE_EXPIRY_TIMESTAMP_INTERVAL = 12.hours.to_i
+  MYSQL_BATCH_SIZE = 5 #100
+  IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL = 600 #7.days.to_i
+  ZIP_FILE_EXPIRY_TIMESTAMP_INTERVAL = 300 # 12.hours.to_i
 
   # Perform
   #

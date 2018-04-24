@@ -3,7 +3,7 @@ module Util
 
     require 'csv'
 
-    CSV_BATCH_SIZE = 10000
+    CSV_BATCH_SIZE = 6 #10000
 
     def zip_folder
       write_csv if csv.lineno > 0

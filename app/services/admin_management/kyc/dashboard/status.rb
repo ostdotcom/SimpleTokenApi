@@ -120,13 +120,16 @@ module AdminManagement
             country_name = GlobalConstant::CountryNationality.country_name_for(md5_user_extended_detail.country)
             nationality_name = GlobalConstant::CountryNationality.nationality_name_for(md5_user_extended_detail.nationality)
 
+            # all time should be timestamp
+
             @curr_page_data << {
                 case_id: u_k.id,
                 kyc_confirmed_at: Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M"),
                 admin_status: u_k.admin_status,
                 cynopsis_status: u_k.cynopsis_status,
                 is_duplicate: u_k.show_duplicate_status.to_i,
-                is_re_submitted: u_k.is_re_submitted.to_i,
+                is_re_submitted: u_k.is_re_submitted?,
+                submission_count: u_k.submission_count.to_i,
                 name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
                 country: country_name.titleize,
                 nationality: nationality_name.titleize,

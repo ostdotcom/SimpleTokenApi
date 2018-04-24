@@ -51,6 +51,10 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   after_commit :memcache_flush
 
+  def is_re_submitted?
+    submission_count.to_i > 1 ? 1 : 0
+  end
+
   def kyc_approved?
     GlobalConstant::UserKycDetail.cynopsis_approved_statuses.include?(cynopsis_status) && GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end

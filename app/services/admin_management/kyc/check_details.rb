@@ -247,7 +247,8 @@ module AdminManagement
         {
             admin_status: @user_kyc_detail.admin_status,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
-            is_re_submitted: @user_kyc_detail.is_re_submitted.to_i,
+            submission_count: @user_kyc_detail.submission_count.to_i,
+            is_re_submitted: @user_kyc_detail.is_re_submitted?,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
             last_acted_by: last_acted_by,
             whitelist_status: @user_kyc_detail.kyc_approved? ? @user_kyc_detail.whitelist_status : '',

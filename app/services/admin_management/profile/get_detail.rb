@@ -39,6 +39,8 @@ module AdminManagement
 
         fetch_client
 
+        fetch_admin
+
         success_with_data(success_response_data)
 
       end
@@ -57,6 +59,19 @@ module AdminManagement
         @client = Client.get_from_memcache(@client_id)
       end
 
+
+      # Fetch Admin
+      #
+      # * Author: Aman
+      # * Date: 18/04/2018
+      # * Reviewed By:
+      #
+      # Sets @admin
+      #
+      def fetch_admin
+        @admin = Admin.get_from_memcache(@admin_id)
+      end
+
       # Api response data
       #
       # * Author: Aman
@@ -70,6 +85,11 @@ module AdminManagement
             client_setup: {
                 has_email_setup: @client.is_email_setup_done?,
                 has_whitelist_setup: @client.is_whitelist_setup_done?
+            },
+            admin: {
+                email: @admin.email,
+                name: @admin.name,
+                role: @admin.role
             }
         }
       end

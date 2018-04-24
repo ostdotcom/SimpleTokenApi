@@ -2,6 +2,8 @@ module UserManagement
 
   class KycSubmit < ServicesBase
 
+    S3_DOCUMENT_PATH_REGEX = /\A[A-Z0-9\/]+\Z/i
+
     # Initialize
     #
     # * Author: Aman
@@ -219,7 +221,7 @@ module UserManagement
     end
 
     def validate_street_address
-      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.stree_address_kyc_field)
+      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.street_address_kyc_field)
         @street_address = nil
         return
       end
@@ -301,12 +303,20 @@ module UserManagement
 
     def validate_document_id_file_path
       @document_id_file_path = @document_id_file_path.to_s.strip
-      @error_data[:document_id_file_path] = 'Identification document image is required.' if !@document_id_file_path.present?
+       if !@document_id_file_path.present?
+         @error_data[:document_id_file_path] = 'Identification document image is required.'
+       else
+         @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !(@document_id_file_path =~ S3_DOCUMENT_PATH_REGEX)
+       end
     end
 
     def validate_selfie_file_path
       @selfie_file_path = @selfie_file_path.to_s.strip
-      @error_data[:selfie_file_path] = 'Selfie is required.' if !@selfie_file_path.present?
+       if !@selfie_file_path.present?
+         @error_data[:selfie_file_path] = 'Selfie is required.'
+       else
+         @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !(@selfie_file_path =~ S3_DOCUMENT_PATH_REGEX)
+       end
     end
 
     def validate_residence_proof_file_path
@@ -314,6 +324,11 @@ module UserManagement
       if @client_kyc_config_detail.residency_proof_nationalities.include?(@nationality) && !@residence_proof_file_path.present?
         @error_data[:residence_proof_file_path] = 'Residence proof is required.'
       end
+
+      if @residence_proof_file_path.present?
+        @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !(@residence_proof_file_path =~ S3_DOCUMENT_PATH_REGEX)
+      end
+
     end
 
     # Fetch user data

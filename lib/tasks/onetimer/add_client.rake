@@ -28,15 +28,15 @@ namespace :onetimer do
   #         "kyc_fields" => [
   #             "first_name",
   #             "last_name",
-  #             "dob_name",
+  #             "birthdate",
   #             "country",
   #             "ethereum_address",
-  #             "document_id",
+  #             "document_id_number",
   #             "nationality",
   #             "document_id_file_path",
   #             "selfie_file_path",
   #             "residence_proof_file_path",
-  #             # "stree_address",
+  #             # "street_address",
   #             # "city",
   #             "state",
   #             # "postal_code"

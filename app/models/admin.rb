@@ -1,10 +1,15 @@
 class Admin < EstablishSimpleTokenAdminDbConnection
 
   enum status: {
-           GlobalConstant::Admin.active_status => 1,
-           GlobalConstant::Admin.inactive_status => 2,
-           GlobalConstant::Admin.deactived_status => 3
-       }
+      GlobalConstant::Admin.active_status => 1,
+      GlobalConstant::Admin.inactive_status => 2,
+      GlobalConstant::Admin.deactived_status => 3
+  }
+
+  enum role: {
+      GlobalConstant::Admin.normal_admin_role => 1,
+      GlobalConstant::Admin.super_admin_role => 2
+  }
 
   after_commit :memcache_flush
 
@@ -17,7 +22,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @param [String] email
   # @param [String] password
   #
-  def self.add_admin(default_client_id, email, password, name)
+  def self.add_admin(default_client_id, email, password, name, is_super_admin_role=false)
 
     email = email.to_s.downcase.strip
     name = name.to_s.strip
@@ -62,14 +67,12 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_secrets_obj.save!(validate: false)
 
     #create admin
+
+    admin_role = is_super_admin_role ? GlobalConstant::Admin.super_admin_role : GlobalConstant::Admin.normal_admin_role
+
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
-                          admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status)
+                          admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status, role: admin_role)
     admin_obj.save!(validate: false)
-
-
-    # ClientAdmin.create(client_id: default_client_id, admin_id: admin_obj.id,
-    #                    role: GlobalConstant::ClientAdmin.normal_admin_role,
-    #                    status: GlobalConstant::ClientAdmin.active_status)
 
   end
 
@@ -124,7 +127,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   def self.get_cookie_token(admin_id, password, last_otp_at, auth_level, browser_user_agent, current_ts)
     string_to_sign = "#{admin_id}:#{password}:#{last_otp_at}:#{current_ts}:#{browser_user_agent}:#{auth_level}"
-    key="#{admin_id}:#{current_ts}:#{last_otp_at}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
+    key = "#{admin_id}:#{current_ts}:#{last_otp_at}:#{browser_user_agent}:#{password[-12..-1]}:#{GlobalConstant::SecretEncryptor.cookie_key}"
     sha256_params = {
         string: string_to_sign,
         salt: key

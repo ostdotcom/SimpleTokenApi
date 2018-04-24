@@ -12,7 +12,7 @@ namespace :verify do
     phase_mismatch_entries = []
 
 
-    UserKycDetail.where(whitelist_status: 2).each do |ukd|
+    UserKycDetail.where(whitelist_status: GlobalConstant::UserKycDetail.done_whitelist_status).each do |ukd|
       user_extended_detail_ids << ukd.user_extended_detail_id
       ued_id_phase_map[ukd.user_extended_detail_id] = UserKycDetail.token_sale_participation_phases[ukd.token_sale_participation_phase]
     end

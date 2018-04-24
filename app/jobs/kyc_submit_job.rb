@@ -54,7 +54,7 @@ class KycSubmitJob < ApplicationJob
     @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
     Rails.logger.info("-- init_params @user_extended_detail: #{@user_extended_detail.id}")
 
-    @cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
+    @cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
 
     @run_role = 'admin'
     @run_purpose = 'kyc'
@@ -124,8 +124,8 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
-    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.un_processed_cynopsis_status
-    @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.un_processed_admin_status
+    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
+    @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
     @user_kyc_detail.save!
   end
 
@@ -335,14 +335,11 @@ class KycSubmitJob < ApplicationJob
   def upload_document(s3_path, document_type, desc = nil)
     Rails.logger.info("-- upload_document: #{document_type} start")
 
-    url = Aws::S3Manager.new(@run_purpose, @run_role).
-        get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
-
     file_name = s3_path.split('/').last
-
     local_file_path = "#{Rails.root}/tmp/#{file_name}"
 
-    system("wget -O #{local_file_path} '#{url}'")
+    s3_obj = Aws::S3Manager.new(@run_purpose, @run_role)
+    s3_obj.get(local_file_path, s3_path, GlobalConstant::Aws::Common.kyc_bucket)
 
     upload_params = {
         rfrID: get_cynopsis_user_id,

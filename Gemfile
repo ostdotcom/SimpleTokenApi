@@ -17,6 +17,7 @@ gem 'dalli', '2.7.6'
 gem 'sanitize', '4.5.0'
 gem 'exception_notification', '4.2.2'
 gem 'hkdf', '0.2.0'
+gem 'rubyzip', '1.2.0'
 
 gem 'aws-sdk-kms', '1.2.0'
 # gem 'aws-sdk-dynamodb', '1.2.0'

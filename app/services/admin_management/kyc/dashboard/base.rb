@@ -128,27 +128,26 @@ module AdminManagement
                   page_size: 10
               },
               filters: @filters,
-              sortings: @sortings
+              sortings: @sortings,
+
+              page_offset: @offset,
+              page_size: @page_size,
+              total_filtered_recs: @total_filtered_kycs
           }
 
           dummy_data = {
               meta: dummy_meta,
               result_set: 'user_kyc_list',
-              user_kyc_list: @curr_page_data
-          }
-
-          @api_response_data = {
-              curr_page_data: @curr_page_data,
-              meta: {
-                  page_offset: @offset,
-                  page_size: @page_size,
-                  total_filtered_recs: @total_filtered_kycs
-              },
+              user_kyc_list: @curr_page_data,
               client_setup: {
                   has_email_setup: @client.is_email_setup_done?,
                   has_whitelist_setup: @client.is_whitelist_setup_done?
-              }
-          }.merge(dummy_data)
+              },
+
+              curr_page_data: @curr_page_data
+          }
+
+          @api_response_data = dummy_data
 
         end
 

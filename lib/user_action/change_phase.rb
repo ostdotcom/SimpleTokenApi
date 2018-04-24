@@ -84,7 +84,7 @@ module UserAction
           'Invalid Active Admin Email or client',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if @client.status != GlobalConstant::Client.active_status
+      ) if (@client.status != GlobalConstant::Client.active_status)
 
       if [GlobalConstant::TokenSale.early_access_token_sale_phase].exclude?(@phase)
         return error_with_data(

@@ -37,6 +37,7 @@ module UserManagement
       r = validate
       return r unless r.success?
 
+      # NOTE:: path should contain only [a-z A-Z 0-9 /] character sets
       @images.each do |k, v|
         content_type = v
         key = "#{@client_id}/i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")

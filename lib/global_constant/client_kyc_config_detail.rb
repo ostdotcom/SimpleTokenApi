@@ -15,12 +15,12 @@ module GlobalConstant
         'last_name'
       end
 
-      def dob_kyc_field
-        'dob_name'
+      def birthdate_kyc_field
+        'birthdate'
       end
 
-      def stree_address_kyc_field
-        'stree_address'
+      def street_address_kyc_field
+        'street_address'
       end
 
       def city_kyc_field
@@ -44,7 +44,7 @@ module GlobalConstant
       end
 
       def document_id_number_kyc_field
-        'document_id'
+        'document_id_number'
       end
 
       def nationality_kyc_field
@@ -73,11 +73,46 @@ module GlobalConstant
         [
             first_name_kyc_field,
             last_name_kyc_field,
-            dob_kyc_field,
+            birthdate_kyc_field,
             country_kyc_field,
             ethereum_address_kyc_field,
             document_id_number_kyc_field,
             nationality_kyc_field,
+            document_id_file_path_kyc_field,
+            selfie_file_path_kyc_field,
+            residence_proof_file_path_kyc_field
+        ]
+      end
+
+      def unencrypted_fields
+        [
+            first_name_kyc_field,
+            last_name_kyc_field
+        ]
+      end
+
+      def encrypted_fields
+        [
+            birthdate_kyc_field,
+            country_kyc_field,
+            nationality_kyc_field,
+            ethereum_address_kyc_field,
+            document_id_number_kyc_field,
+
+            state_kyc_field,
+            city_kyc_field,
+            postal_code_kyc_field,
+            street_address_kyc_field,
+            estimated_participation_amount_kyc_field,
+
+            document_id_file_path_kyc_field,
+            selfie_file_path_kyc_field,
+            residence_proof_file_path_kyc_field
+        ]
+      end
+
+      def image_url_fields
+        [
             document_id_file_path_kyc_field,
             selfie_file_path_kyc_field,
             residence_proof_file_path_kyc_field

@@ -7,24 +7,24 @@ module GlobalConstant
 
       ### Cynopsis Status Start ###
 
-      def un_processed_cynopsis_status
-        'un_processed_cynopsis_status'
+      def unprocessed_cynopsis_status
+        'unprocessed'
       end
 
       def cleared_cynopsis_status
-        'cleared_cynopsis_status'
+        'cleared'
       end
 
       def pending_cynopsis_status
-        'pending_cynopsis_status'
+        'pending'
       end
 
       def approved_cynopsis_status
-        'approved_cynopsis_status'
+        'approved'
       end
 
       def rejected_cynopsis_status
-        'rejected_cynopsis_status'
+        'rejected'
       end
 
       ### Cynopsis Status End ###
@@ -40,16 +40,16 @@ module GlobalConstant
 
       ### Admin Status Start ###
 
-      def un_processed_admin_status
-        'un_processed_admin_status'
+      def unprocessed_admin_status
+        'unprocessed'
       end
 
       def qualified_admin_status
-        'qualified_admin_status'
+        'qualified'
       end
 
       def denied_admin_status
-        'denied_admin_status'
+        'denied'
       end
 
       ### Admin Status End ###
@@ -186,7 +186,7 @@ module GlobalConstant
         elsif approval_status == 'REJECTED'
           rejected_cynopsis_status
         else
-          un_processed_cynopsis_status
+          unprocessed_cynopsis_status
         end
       end
 

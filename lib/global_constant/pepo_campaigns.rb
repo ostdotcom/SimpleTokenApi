@@ -180,6 +180,11 @@ module GlobalConstant
         'low_whitelister_balance'
       end
 
+      # email to admin with csv download link
+      def kyc_report_download_template
+        'kyc_report_download'
+      end
+
       # email to admins on edit kyc request for open cases
       def update_ethereum_request_outcome_template
         'update_ethereum_request_outcome'
@@ -226,7 +231,8 @@ module GlobalConstant
           update_ethereum_request_outcome_template,
           open_case_request_outcome_template,
           contact_us_ost_partner_autoresponder_template,
-          contact_us_ost_kyc_autoresponder_template
+          contact_us_ost_kyc_autoresponder_template,
+          kyc_report_download_template
         ]
       end
 

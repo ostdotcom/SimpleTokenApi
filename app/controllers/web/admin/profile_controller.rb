@@ -1,5 +1,7 @@
 class Web::Admin::ProfileController < Web::Admin::BaseController
 
+  before_action :authenticate_request
+
   # Change Password
   #
   # * Author: Aman

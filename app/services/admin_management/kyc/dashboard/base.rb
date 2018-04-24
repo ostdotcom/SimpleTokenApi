@@ -6,6 +6,11 @@ module AdminManagement
 
       class Base < ServicesBase
 
+
+        KYC_FILTERS = {
+
+        }
+
         # Initialize
         #
         # * Author: Alpesh
@@ -102,6 +107,22 @@ module AdminManagement
         #
         def set_api_response_data
 
+
+          dummy_meta = {
+              page_number: 1,
+              page_size: 10,
+              total_records: 100,
+              page_payload: {},
+              filters: @filters,
+              sortings: @sortings
+          }
+
+          dummy_data = {
+              meta: dummy_meta,
+              result_set: 'user_kyc_list',
+              user_kyc_list: @curr_page_data
+          }
+
           @api_response_data = {
               curr_page_data: @curr_page_data,
               meta: {
@@ -113,7 +134,7 @@ module AdminManagement
                   has_email_setup: @client.is_email_setup_done?,
                   has_whitelist_setup: @client.is_whitelist_setup_done?
               }
-          }
+          }.merge(dummy_data)
 
         end
 

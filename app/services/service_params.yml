@@ -63,7 +63,6 @@
     - :filters
     - :sortings
     - :page_number
-    - :page_size
 
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
@@ -376,6 +375,13 @@
 'ClientManagement::PageSetting::TokenSaleBlockedRegion':
   :mandatory:
     - :client_id
+  :optional:
+
+'AdminManagement::Kyc::RetryCynopsisUpload':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :case_id
   :optional:
 
 #'AdminManagement::Kyc::Dashboard::Whitelist':

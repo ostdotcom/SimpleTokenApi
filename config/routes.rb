@@ -73,6 +73,7 @@ Rails.application.routes.draw do
       # match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
       # match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
       match 'get-cases-by-email' => :get_cases_by_email, via: :GET
+      match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
       match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
     end
 

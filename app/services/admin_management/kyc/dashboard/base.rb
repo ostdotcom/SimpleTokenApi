@@ -31,13 +31,14 @@ module AdminManagement
           @sortings = @params[:sortings]
 
           @page_number = @params[:page_number]
-          @page_size = @params[:page_size]
 
           @duplicate_user_extended_detail_ids, @email_duplicate_user_extended_detail_ids, @duplicate_kyc_type_data = [], [], {}
           @duplicate_user_ids = []
 
           @admin = nil
           @client = nil
+
+          @page_size = 20
         end
 
         private
@@ -119,7 +120,6 @@ module AdminManagement
             ) if error_data.present?
           end
 
-          @page_size = 30 if @page_size.to_i < 1 || @page_size.to_i > 30
           @page_number = 1 if @page_number.to_i < 1
 
           r = fetch_and_validate_client
@@ -254,7 +254,6 @@ module AdminManagement
               page_number: @page_number,
               total_records: @total_filtered_kycs,
               page_payload: {
-                  page_size: @page_size
               },
               filters: @filters,
               sortings: @sortings,

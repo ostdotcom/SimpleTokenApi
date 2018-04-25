@@ -79,10 +79,10 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # * Date: 14/10/2017
   # * Reviewed By: Sunil
   #
-  def whitelist_dashboard
-    service_response = AdminManagement::Kyc::Dashboard::Whitelist.new(params).perform
-    render_api_response(service_response)
-  end
+  # def whitelist_dashboard
+  #   service_response = AdminManagement::Kyc::Dashboard::Whitelist.new(params).perform
+  #   render_api_response(service_response)
+  # end
 
   # Sale All Dashboard
   #

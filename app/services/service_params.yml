@@ -62,42 +62,7 @@
   :optional:
     - :filters
     - :sortings
-    - :offset
-    - :page_size
-
-'AdminManagement::Kyc::Dashboard::Whitelist':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :filters
-    - :sortings
-    - :offset
-    - :page_size
-
-'AdminManagement::Kyc::Dashboard::SaleAll':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :offset
-    - :page_size
-
-'AdminManagement::Kyc::Dashboard::SaleDaily':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :offset
-    - :page_size
-    - :tab_type
-
-'AdminManagement::Kyc::Dashboard::ContractEvents':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :offset
+    - :page_number
     - :page_size
 
 'AdminManagement::Kyc::FetchDuplicates':
@@ -120,7 +85,7 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :query
+    - :email
   :optional:
 
 'AdminManagement::Kyc::ChangeAddressAndOpenCase':
@@ -188,6 +153,7 @@
     - :admin_id
   :optional:
     - :filters
+    - :sortings
 
 'UserManagement::SignUp':
   :mandatory:
@@ -411,3 +377,38 @@
   :mandatory:
     - :client_id
   :optional:
+
+#'AdminManagement::Kyc::Dashboard::Whitelist':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :filters
+#    - :sortings
+#    - :offset
+#    - :page_size
+#
+#'AdminManagement::Kyc::Dashboard::SaleAll':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :offset
+#    - :page_size
+#
+#'AdminManagement::Kyc::Dashboard::SaleDaily':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :offset
+#    - :page_size
+#    - :tab_type
+#
+#'AdminManagement::Kyc::Dashboard::ContractEvents':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :offset
+#    - :page_size

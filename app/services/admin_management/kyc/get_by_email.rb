@@ -12,7 +12,7 @@ module AdminManagement
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
       # @params [Integer] client_id (mandatory) - logged in admin's client id
-      # @params [String] query (mandatory) - search term to find case
+      # @params [String] email (mandatory) - search term to find case
       #
       # @return [AdminManagement::Kyc::GetByEmail]
       #
@@ -21,8 +21,8 @@ module AdminManagement
 
         @admin_id = @params[:admin_id]
         @client_id = @params[:client_id]
-        @query = @params[:query]
-        @limit = 10
+        @email = @params[:email]
+        @page_size = 10
 
         @user_ids = []
         @matching_users = {}
@@ -60,7 +60,7 @@ module AdminManagement
       # Sets @matching_users, @user_ids, @user_kycs
       #
       def fetch_records
-        User.where(client_id: @client_id).where("email like ?", "#{@query}%").select("id, email").limit(@limit).each do |usr|
+        User.where(client_id: @client_id).where("email like ?", "#{@email}%").select("id, email").limit(@page_size).each do |usr|
           @user_ids << usr.id
           @matching_users[usr.id] = usr
         end
@@ -80,9 +80,27 @@ module AdminManagement
       #
       def api_response
 
+        search_data = []
         @user_kycs.each do |u_k|
-          @api_response[u_k.id] = @matching_users[u_k.user_id].email
+          search_data << {
+              case_id: u_k.id,
+              email: @matching_users[u_k.user_id].email
+          }
         end
+
+        meta = {
+            page_number: 1,
+            total_records: @user_kycs.length,
+            page_payload: {
+                page_size: @page_size
+            }
+        }
+
+        @api_response = {
+            meta: meta,
+            result_set: 'user_search_list',
+            user_search_list: search_data,
+        }
 
         success_with_data(@api_response)
       end

@@ -190,15 +190,50 @@ module GlobalConstant
         end
       end
 
-      #
-      # def filter_hash_data
-      #   {
-      #       admin_status: {
-      #
-      #       }
-      #   }
-      # end
+      def filters
+        {
+            "admin_status" => {
+                "all" => [],
+                "#{unprocessed_admin_status}" => [unprocessed_admin_status],
+                "#{qualified_admin_status}" => [qualified_admin_status],
+                "#{denied_admin_status}" => [denied_admin_status]
+            },
 
+            "cynopsis_status" => {
+                "all" => [],
+                "#{cleared_cynopsis_status}:#{approved_cynopsis_status}" => [cleared_cynopsis_status, approved_cynopsis_status],
+                "#{unprocessed_cynopsis_status}" => [unprocessed_cynopsis_status],
+                "#{pending_cynopsis_status}" => [pending_cynopsis_status],
+                "#{cleared_cynopsis_status}" => [cleared_cynopsis_status],
+                "#{approved_cynopsis_status}" => [approved_cynopsis_status],
+                "#{rejected_cynopsis_status}" => [rejected_cynopsis_status]
+            },
+            "whitelist_status" => {
+                "all" => [],
+                "#{unprocessed_whitelist_status}" => [unprocessed_whitelist_status],
+                "#{started_whitelist_status}" => [started_whitelist_status],
+                "#{done_whitelist_status}" => [done_whitelist_status],
+                "#{failed_whitelist_status}" => [failed_whitelist_status]
+            },
+            "admin_action_type" => {
+                "all" => [],
+                "#{no_admin_action_type}" => [no_admin_action_type],
+                "#{data_mismatch_admin_action_type}" => [data_mismatch_admin_action_type],
+                "#{document_id_issue_admin_action_type}" => [document_id_issue_admin_action_type],
+                "#{selfie_issue_admin_action_type}" => [selfie_issue_admin_action_type],
+                "#{residency_issue_admin_action_type}" => [residency_issue_admin_action_type]
+            }
+        }
+      end
+
+      def sorting
+        {
+            "sort_by" => {
+                'desc' => {id: :desc},
+                'inc' => {id: :asc}
+            }
+        }
+      end
 
     end
 

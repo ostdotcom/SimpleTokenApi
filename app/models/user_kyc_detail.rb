@@ -1,18 +1,18 @@
 class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   enum cynopsis_status: {
-           GlobalConstant::UserKycDetail.unprocessed_cynopsis_status => 1, # yello
-           GlobalConstant::UserKycDetail.pending_cynopsis_status => 2, # yello
-           GlobalConstant::UserKycDetail.cleared_cynopsis_status => 3, # green
-           GlobalConstant::UserKycDetail.approved_cynopsis_status => 4, # green
-           GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5 # red
-       }, _suffix: true
+      GlobalConstant::UserKycDetail.unprocessed_cynopsis_status => 1, # yello
+      GlobalConstant::UserKycDetail.pending_cynopsis_status => 2, # yello
+      GlobalConstant::UserKycDetail.cleared_cynopsis_status => 3, # green
+      GlobalConstant::UserKycDetail.approved_cynopsis_status => 4, # green
+      GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5 # red
+  }, _suffix: true
 
   enum admin_status: {
-           GlobalConstant::UserKycDetail.unprocessed_admin_status => 1, # yello
-           GlobalConstant::UserKycDetail.qualified_admin_status => 2, # green
-           GlobalConstant::UserKycDetail.denied_admin_status => 3 # red
-       }, _suffix: true
+      GlobalConstant::UserKycDetail.unprocessed_admin_status => 1, # yello
+      GlobalConstant::UserKycDetail.qualified_admin_status => 2, # green
+      GlobalConstant::UserKycDetail.denied_admin_status => 3 # red
+  }, _suffix: true
 
   enum token_sale_participation_phase: {
       GlobalConstant::TokenSale.early_access_token_sale_phase => 1,
@@ -20,16 +20,16 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   }
 
   enum kyc_duplicate_status: {
-         GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status => 0,
-         GlobalConstant::UserKycDetail.never_kyc_duplicate_status => 1,
-         GlobalConstant::UserKycDetail.is_kyc_duplicate_status => 2,
-         GlobalConstant::UserKycDetail.was_kyc_duplicate_status => 3
-     }, _suffix: true
+      GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status => 0,
+      GlobalConstant::UserKycDetail.never_kyc_duplicate_status => 1,
+      GlobalConstant::UserKycDetail.is_kyc_duplicate_status => 2,
+      GlobalConstant::UserKycDetail.was_kyc_duplicate_status => 3
+  }, _suffix: true
 
   enum email_duplicate_status: {
-          GlobalConstant::UserKycDetail.no_email_duplicate_status => 0,
-          GlobalConstant::UserKycDetail.yes_email_duplicate_status => 1
-      }, _suffix: true
+      GlobalConstant::UserKycDetail.no_email_duplicate_status => 0,
+      GlobalConstant::UserKycDetail.yes_email_duplicate_status => 1
+  }, _suffix: true
 
   enum whitelist_status: {
       GlobalConstant::UserKycDetail.unprocessed_whitelist_status => 0,
@@ -46,8 +46,26 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
       GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
   }, _suffix: true
 
-  scope :kyc_admin_and_cynopsis_approved, -> { where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses) }
-  scope :whitelist_status_unprocessed, -> { where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status) }
+  scope :kyc_admin_and_cynopsis_approved, -> {where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
+  scope :whitelist_status_unprocessed, -> {where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status)}
+
+  scope :filter_by, -> (filters) {
+    where_clause = {}
+    filters.each do |key, val|
+      filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
+      where_clause[key] = filter_data if filter_data.present?
+    end
+    where(where_clause)
+  }
+
+  scope :sorting_by, -> (sortings) {
+    order_clause = {}
+    sortings.each do |key, val|
+      sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
+      order_clause.merge!(sort_data) if sort_data.present?
+    end
+    order(order_clause)
+  }
 
   after_commit :memcache_flush
 
@@ -69,6 +87,14 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   def kyc_pending?
     !kyc_approved? && !kyc_denied?
+  end
+
+  def check_duplicate_status
+    [
+        GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status,
+        GlobalConstant::UserKycDetail.is_kyc_duplicate_status,
+        GlobalConstant::UserKycDetail.was_kyc_duplicate_status
+    ].include?(kyc_duplicate_status)
   end
 
   def show_duplicate_status

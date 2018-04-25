@@ -5,7 +5,7 @@ class ProcessKycReportJob < ApplicationJob
   include ::Util::ResultHelper
   include ::Util::CsvHelper
 
-  MYSQL_BATCH_SIZE =100
+  MYSQL_BATCH_SIZE = 100
   IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL = 7.days.to_i
   ZIP_FILE_EXPIRY_TIMESTAMP_INTERVAL = 12.hours.to_i
 
@@ -62,10 +62,14 @@ class ProcessKycReportJob < ApplicationJob
   # * Date: 18/04/2018
   # * Reviewed By:
   #
-  # Sets @csv_report_job, @admin, @client_id, @client_kyc_config, @client
+  # Sets @csv_report_job, @admin, @client_id, @client_kyc_config, @client, @filters, @sortings
   #
   def fetch_details
     @csv_report_job = CsvReportJob.where(id: @csv_report_job_id).first
+
+    @filters = @csv_report_job.extra_data[:filters]
+    @sortings = @csv_report_job.extra_data[:sortings]
+
     @admin = Admin.get_from_memcache(@csv_report_job.admin_id)
 
     @client_id = @csv_report_job.client_id
@@ -174,7 +178,7 @@ class ProcessKycReportJob < ApplicationJob
       user_extended_detail_ids = []
       user_ids = []
 
-      user_kyc_details = UserKycDetail.where(client_id: @client_id).order('id').limit(MYSQL_BATCH_SIZE).offset(offset).all
+      user_kyc_details = user_kyc_detail_model_query.limit(MYSQL_BATCH_SIZE).offset(offset).all
       break if user_kyc_details.blank?
 
       user_kyc_details.each do |user_kyc_detail|
@@ -196,6 +200,15 @@ class ProcessKycReportJob < ApplicationJob
     end
 
     return offset > 0
+  end
+
+  def user_kyc_detail_model_query
+    @user_kyc_detail_model_query ||= begin
+      ar_relation = UserKycDetail.where(client_id: @client_id)
+      ar_relation = ar_relation.filter_by(@filters)
+      ar_relation = ar_relation.sorting_by(@sortings)
+      ar_relation
+    end
   end
 
   def format_user_data(user_data)

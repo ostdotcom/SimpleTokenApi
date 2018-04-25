@@ -15,7 +15,8 @@ module AdminManagement
       # @params [String] client_id (mandatory) - this is the client id
       # @params [String] admin_id (mandatory) - this is the email entered
       #
-      # @params [String] filters (optional) - this is a hash of filters to be applied for csv data
+      # @params [Hash] filters (optional)
+      # @params [Hash] sortings (optional)
       #
       # @return [AdminManagement::Report::GetKycReport]
       #
@@ -26,6 +27,7 @@ module AdminManagement
         @admin_id = @params[:admin_id]
 
         @filters = @params[:filters]
+        @sortings = @params[:sortings]
 
         @client = nil
         @admin = nil
@@ -41,10 +43,13 @@ module AdminManagement
       #
       def perform
 
-        r = validate
+        r = validate_and_sanitize
         return r unless r.success?
 
         r = fetch_and_validate_client
+        return r unless r.success?
+
+        r = fetch_and_validate_admin
         return r unless r.success?
 
         r = validate_if_request_can_be_taken
@@ -57,6 +62,85 @@ module AdminManagement
       end
 
       private
+
+      # Validate and sanitize
+      #
+      # * Author: Alpesh
+      # * Date: 24/10/2017
+      # * Reviewed By: Sunil
+      #
+      def validate_and_sanitize
+        r = validate
+        return r unless r.success?
+
+        @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
+        @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
+
+        if @filters.present?
+
+          error_data = {}
+
+          @filters.each do |key, val|
+
+            if GlobalConstant::UserKycDetail.filters[key.to_s].blank?
+              return error_with_data(
+                  'am_r_gkr_vas_1',
+                  'Invalid Parameters.',
+                  'Invalid Filter type passed',
+                  GlobalConstant::ErrorAction.default,
+                  {},
+                  {}
+              )
+            end
+
+            filter_data = GlobalConstant::UserKycDetail.filters[key][val]
+            error_data[key] = 'invalid value for filter' if filter_data.nil?
+          end
+
+          return error_with_data(
+              'am_r_gkr_vas_2',
+              'Invalid Filter Parameter value',
+              '',
+              GlobalConstant::ErrorAction.default,
+              {},
+              error_data
+          ) if error_data.present?
+
+        end
+
+
+        if @sortings.present?
+          error_data = {}
+
+          @sortings.each do |key, val|
+
+            if GlobalConstant::UserKycDetail.sorting[key.to_s].blank?
+              return error_with_data(
+                  'am_r_gkr_vas_3',
+                  'Invalid Parameters.',
+                  'Invalid Sort type passed',
+                  GlobalConstant::ErrorAction.default,
+                  {},
+                  {}
+              )
+            end
+
+            sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
+            error_data[key] = 'invalid value for sorting' if sort_data.nil?
+          end
+
+          return error_with_data(
+              'am_r_gkr_vas_4',
+              'Invalid Sort Parameter value',
+              '',
+              GlobalConstant::ErrorAction.default,
+              {},
+              error_data
+          ) if error_data.present?
+        end
+
+        success
+      end
 
       # validate if no pending requests for this client is pending and limit not reached
       #
@@ -106,7 +190,7 @@ module AdminManagement
       #
       def create_csv_report_job
         csv_report_job = CsvReportJob.create!(client_id: @client_id, admin_id: @admin_id,
-                                              status: GlobalConstant::CsvReportJob.pending_status, extra_data: {})
+                                              status: GlobalConstant::CsvReportJob.pending_status, extra_data: {filters: @filters, sortings: @sortings})
 
         BgJob.enqueue(
             ProcessKycReportJob,

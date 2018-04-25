@@ -25,6 +25,7 @@ module AdminManagement
 
           @total_filtered_kycs = 0
           @user_kycs = []
+
           @user_extended_detail_ids = []
           @user_extended_details = {}
           @md5_user_extended_details = {}
@@ -71,37 +72,13 @@ module AdminManagement
         #
         def fetch_user_kyc_details
           ar_relation = UserKycDetail.where(client_id: @client_id)
+          ar_relation = ar_relation.filter_by(@filters)
+          ar_relation = ar_relation.sorting_by(@sortings)
 
-          if @sortings[:sort_order] == 'inc'
-            ar_relation = ar_relation.order('id ASC')
-          else
-            ar_relation = ar_relation.order('id DESC')
-          end
-
-          if @filters.present?
-            query_hash = {}
-            @filters.each do |fl_k, fl_v|
-
-              if fl_v.present? &&
-                  (UserKycDetail::admin_statuses[fl_v].present? ||
-                      UserKycDetail::cynopsis_statuses[fl_v].present? ||
-                      UserKycDetail::admin_action_types[fl_v].present?
-                  )
-
-                query_hash[fl_k.to_sym] = fl_v
-              elsif fl_v == "#{GlobalConstant::UserKycDetail.cleared_cynopsis_status}:#{GlobalConstant::UserKycDetail.approved_cynopsis_status}"
-                query_hash[fl_k.to_sym] = [GlobalConstant::UserKycDetail.cleared_cynopsis_status, GlobalConstant::UserKycDetail.approved_cynopsis_status]
-              elsif fl_k == 'admin_action_type' && fl_v == 'any'
-                ar_relation = ar_relation.where("admin_action_type > 0")
-              end
-            end
-
-            ar_relation = ar_relation.where(query_hash) if query_hash.present?
-          end
-
+          offset = 0
+          offset = @page_size * (@page_number - 1) if @page_number > 1
+          @user_kycs = ar_relation.limit(@page_size).offset(offset).all
           @total_filtered_kycs = ar_relation.count
-          @user_kycs = ar_relation.limit(@page_size).offset(@offset).all
-
         end
 
         # Set API response data
@@ -120,6 +97,8 @@ module AdminManagement
             country_name = GlobalConstant::CountryNationality.country_name_for(md5_user_extended_detail.country)
             nationality_name = GlobalConstant::CountryNationality.nationality_name_for(md5_user_extended_detail.nationality)
 
+            duplicate_type = get_duplicate_type(u_k.user_extended_detail_id)
+
             @curr_page_data << {
                 case_id: u_k.id,
                 name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
@@ -132,9 +111,10 @@ module AdminManagement
                 is_re_submitted: u_k.is_re_submitted?,
                 submission_count: u_k.submission_count.to_i,
                 is_duplicate: u_k.show_duplicate_status.to_i,
-                duplicate_type: 'email',
                 last_acted_by: last_acted_by(u_k.last_acted_by.to_i),
-                last_acted_timestamp: get_formatted_time(u_k.last_acted_timestamp)
+                last_acted_timestamp: get_formatted_time(u_k.last_acted_timestamp),
+
+                duplicate_type: duplicate_type,
             }
           end
 

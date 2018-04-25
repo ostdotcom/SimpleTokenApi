@@ -30,7 +30,7 @@ module AdminManagement
           @filters = @params[:filters]
           @sortings = @params[:sortings]
 
-          @page_number = @params[:page_number]
+          @page_number = @params[:page_number].to_i
 
           @duplicate_user_extended_detail_ids, @email_duplicate_user_extended_detail_ids, @duplicate_kyc_type_data = [], [], {}
           @duplicate_user_ids = []
@@ -120,7 +120,7 @@ module AdminManagement
             ) if error_data.present?
           end
 
-          @page_number = 1 if @page_number.to_i < 1
+          @page_number = 1 if @page_number < 1
 
           r = fetch_and_validate_client
           return r unless r.success?

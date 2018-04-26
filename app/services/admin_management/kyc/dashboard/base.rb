@@ -255,6 +255,7 @@ module AdminManagement
               total_records: @total_filtered_kycs,
               page_payload: {
               },
+              page_size: @page_size,
               filters: @filters,
               sortings: @sortings,
           }

@@ -34,6 +34,7 @@ module AdminManagement
 
           @duplicate_user_extended_detail_ids, @email_duplicate_user_extended_detail_ids, @duplicate_kyc_type_data = [], [], {}
           @duplicate_user_ids = []
+          @admin_details = {}
 
           @admin = nil
           @client = nil
@@ -145,7 +146,7 @@ module AdminManagement
 
           @user_kycs.each do |u_k|
             @user_extended_detail_ids << u_k.user_extended_detail_id
-            @admin_ids << u_k.last_acted_by
+            @admin_ids << u_k.last_acted_by if u_k.last_acted_by.present?
             if u_k.email_duplicate_status == GlobalConstant::UserKycDetail.yes_email_duplicate_status
               @email_duplicate_user_extended_detail_ids << u_k.user_extended_detail_id
             else
@@ -181,17 +182,20 @@ module AdminManagement
 
           duplicate_data = []
 
-          duplicate_data += UserKycDuplicationLog.select('distinct user_extended_details1_id as user_extended_details_id, duplicate_type, status').where(user1_id: @duplicate_user_ids, user_extended_details1_id: @duplicate_user_extended_detail_ids).all
-          duplicate_data += UserKycDuplicationLog.select('distinct user_extended_details2_id as user_extended_details_id, duplicate_type, status').where(user2_id: @duplicate_user_ids, user_extended_details2_id: @duplicate_user_extended_detail_ids).all
+          duplicate_data += UserKycDuplicationLog.select('distinct user_extended_details1_id as user_extended_details_id, duplicate_type').
+              where(user1_id: @duplicate_user_ids, status: GlobalConstant::UserKycDuplicationLog.active_status, user_extended_details1_id: @duplicate_user_extended_detail_ids).all
+          duplicate_data += UserKycDuplicationLog.select('distinct user_extended_details2_id as user_extended_details_id, duplicate_type').
+              where(user2_id: @duplicate_user_ids, status: GlobalConstant::UserKycDuplicationLog.active_status, user_extended_details2_id: @duplicate_user_extended_detail_ids).all
 
           duplicate_data.each do |duplicate|
 
-            @duplicate_kyc_type_data[duplicate.user_extended_details_id] ||= {}
-            @duplicate_kyc_type_data[duplicate.user_extended_details_id][duplicate.status] ||= duplicate.duplicate_type
+            @duplicate_kyc_type_data[duplicate.user_extended_details_id] ||= duplicate.duplicate_type
 
-            if UserKycDuplicationLog.duplicate_types[@duplicate_kyc_type_data[duplicate.user_extended_details_id][duplicate.status]] >
-                UserKycDuplicationLog.duplicate_types[duplicate.duplicate_type]
-              @duplicate_kyc_type_data[duplicate.user_extended_details_id][duplicate.status] = duplicate.duplicate_type
+            if @duplicate_kyc_type_data[duplicate.user_extended_details_id].blank? ||
+                UserKycDuplicationLog.duplicate_types[@duplicate_kyc_type_data[duplicate.user_extended_details_id]] >
+                    UserKycDuplicationLog.duplicate_types[duplicate.duplicate_type]
+
+              @duplicate_kyc_type_data[duplicate.user_extended_details_id] = duplicate.duplicate_type
             end
           end
 
@@ -206,7 +210,7 @@ module AdminManagement
         # @return [String]
         #
         def last_acted_by(last_acted_by_id)
-          (last_acted_by_id > 0) ? @admin_details[last_acted_by_id].name : ''
+          (last_acted_by_id > 0) ? @admin_details[last_acted_by_id].name : nil
         end
 
         # Get Duplicate type of user if present
@@ -220,10 +224,8 @@ module AdminManagement
         def get_duplicate_type(user_extended_detail_id)
           if @email_duplicate_user_extended_detail_ids.include?(user_extended_detail_id)
             return GlobalConstant::UserEmailDuplicationLog.email_duplicate_type
-          elsif @duplicate_user_extended_detail_ids.include?(user_extended_detail_id)
-            @duplicate_kyc_type_data[user_extended_detail_id][GlobalConstant::UserKycDuplicationLog.active_status] || @duplicate_kyc_type_data[user_extended_detail_id][GlobalConstant::UserKycDuplicationLog.inactive_status]
           else
-            return nil
+            @duplicate_kyc_type_data[user_extended_detail_id]
           end
         end
 

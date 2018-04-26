@@ -100,7 +100,7 @@ module AdminManagement
             duplicate_type = get_duplicate_type(u_k.user_extended_detail_id)
 
             @curr_page_data << {
-                case_id: u_k.id,
+                id: u_k.id,
                 name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
                 kyc_confirmed_at: get_formatted_time(u_k.kyc_confirmed_at),
                 admin_status: u_k.admin_status,
@@ -113,7 +113,6 @@ module AdminManagement
                 is_duplicate: u_k.show_duplicate_status.to_i,
                 last_acted_by: last_acted_by(u_k.last_acted_by.to_i),
                 last_acted_timestamp: get_formatted_time(u_k.last_acted_timestamp),
-
                 duplicate_type: duplicate_type,
             }
           end

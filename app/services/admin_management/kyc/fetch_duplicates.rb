@@ -12,7 +12,7 @@ module AdminManagement
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
       # @params [Integer] client_id (mandatory) - logged in admin's client id
-      # @params [Integer] case_id (mandatory) - user kyc details id
+      # @params [Integer] id (mandatory) - user kyc details id
       #
       # @return [AdminManagement::Kyc::FetchDuplicates]
       #
@@ -21,9 +21,10 @@ module AdminManagement
 
         @admin_id = @params[:admin_id]
         @client_id = @params[:client_id]
-        @case_id = @params[:case_id]
+        @case_id = @params[:id]
 
         @duplicate_kycs = {}
+        @api_response_data = {}
       end
 
       # Perform
@@ -40,9 +41,12 @@ module AdminManagement
         return r unless r.success?
 
         get_duplicate_kyc_data
+
         get_duplicate_email_data
 
-        success_with_data(@duplicate_kycs)
+        set_api_response_data
+
+        success_with_data(@api_response_data)
       end
 
       private
@@ -68,6 +72,12 @@ module AdminManagement
             {}
         ) if @user_kyc_detail.blank?
 
+        r = fetch_and_validate_client
+        return r unless r.success?
+
+        r = fetch_and_validate_admin
+        return r unless r.success?
+
         success
       end
 
@@ -80,7 +90,7 @@ module AdminManagement
       # Sets @duplicate_kycs
       #
       def get_duplicate_kyc_data
-        return if @user_kyc_detail.never_kyc_duplicate_status? || @user_kyc_detail.unprocessed_kyc_duplicate_status?
+        return unless @user_kyc_detail.show_duplicate_status
 
         duplicate_with_users = []
 
@@ -98,7 +108,7 @@ module AdminManagement
         end
 
         UserKycDetail.where(client_id: @client_id, user_id: @duplicate_kycs.keys).each do |u_k_d|
-          @duplicate_kycs[u_k_d.user_id][:case_id] = u_k_d.id
+          @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
           @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
         end
@@ -127,12 +137,32 @@ module AdminManagement
               GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym => []
           }
 
-          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << 'Email'
-          @duplicate_kycs[u_k_d.user_id][:case_id] = u_k_d.id
+          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.capitalize
+          @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
           @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
         end
 
+      end
+
+      # Set API response data
+      #
+      # * Author: Alpesh
+      # * Date: 24/10/2017
+      # * Reviewed By: sunil
+      #
+      # Sets @api_response_data
+      #
+      def set_api_response_data
+        meta = {
+            page_number: 1
+        }
+
+        @api_response_data = {
+            meta: meta,
+            result_set: 'user_duplicate_list',
+            user_duplicate_list: @duplicate_kycs.values
+        }
       end
 
     end

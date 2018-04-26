@@ -69,7 +69,7 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
 'AdminManagement::Kyc::FetchActionLogs':

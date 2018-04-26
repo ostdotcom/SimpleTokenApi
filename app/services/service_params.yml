@@ -63,6 +63,7 @@
     - :filters
     - :sortings
     - :page_number
+    - :page_size
 
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
@@ -75,10 +76,10 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
-    - :limit
-    - :offset
+    - :page_number
+    - :page_size
 
 'AdminManagement::Kyc::GetByEmail':
   :mandatory:
@@ -99,46 +100,22 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
-'AdminManagement::Kyc::AdminAction::DataMismatch':
+'AdminManagement::Kyc::AdminAction::EmailKycIssue':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
     - :email_temp_vars
   :optional:
-
-'AdminManagement::Kyc::AdminAction::DocumentIdIssue':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :email_temp_vars
-
-'AdminManagement::Kyc::AdminAction::SelfieImageIssue':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :email_temp_vars
-
-'AdminManagement::Kyc::AdminAction::ResidencyImageIssue':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :email_temp_vars
 
 'AdminManagement::Kyc::AdminAction::Qualify':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
 'AdminManagement::Kyc::CheckDuplicates':

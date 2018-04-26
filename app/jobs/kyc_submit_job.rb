@@ -119,7 +119,7 @@ class KycSubmitJob < ApplicationJob
       #   @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
       # end
     end
-    @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
+    @user_kyc_detail.admin_action_types = 0
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.submission_count += 1
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status

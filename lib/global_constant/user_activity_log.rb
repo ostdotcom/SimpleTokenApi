@@ -39,20 +39,8 @@ module GlobalConstant
         'kyc_qualified'
       end
 
-      def data_mismatch_email_sent_action
-        'data_mismatch_email_sent'
-      end
-
-      def document_id_issue_email_sent_action
-        'document_id_issue_email_sent'
-      end
-
-      def selfie_issue_email_sent_action
-        'selfie_issue_email_sent'
-      end
-
-      def residency_issue_email_sent_action
-        'residency_issue_email_sent'
+      def kyc_issue_email_sent_action
+        'kyc_issue_email_sent'
       end
 
       def update_ethereum_address
@@ -94,33 +82,56 @@ module GlobalConstant
             update_kyc_action,
             kyc_denied_action,
             kyc_qualified_action,
-            data_mismatch_email_sent_action,
-            document_id_issue_email_sent_action,
-            selfie_issue_email_sent_action,
-            residency_issue_email_sent_action,
             kyc_whitelist_attention_needed,
             kyc_whitelist_processor_error,
             cynopsis_api_error,
             update_ethereum_address,
             open_case,
-            phase_changed_to_early_access
+            phase_changed_to_early_access,
+            kyc_issue_email_sent_action
         ]
       end
 
-      def humanized_actions
-        {
-            register_action => 'User registered',
-            double_opt_in_action => 'User did double opt-in',
-            update_kyc_action => 'Updated KYC',
-            kyc_denied_action => 'KYC denied',
-            kyc_qualified_action => 'KYC approved',
-            data_mismatch_email_sent_action => 'KYC data mismatch email sent',
-            document_id_issue_email_sent_action => 'KYC document ID issue email sent',
-            selfie_issue_email_sent_action => 'KYC selfie issue email sent',
-            residency_issue_email_sent_action => 'KYC residency issue email sent',
-            update_ethereum_address => "Ethereum Address Updated",
-            open_case => "Case is Opened Again",
-            phase_changed_to_early_access => "Phase Changed to Early Access"
+      # def humanized_actions
+      #   {
+      #       register_action => 'User registered',
+      #       double_opt_in_action => 'User did double opt-in',
+      #       update_kyc_action => 'Updated KYC',
+      #       kyc_denied_action => 'KYC denied',
+      #       kyc_qualified_action => 'KYC approved',
+      #
+      #       #todo: WEBCODECHANGE
+      #
+      #       kyc_issue_email_sent_action => '',
+      #
+      #       # data_mismatch_email_sent_action => 'KYC data mismatch email sent',
+      #       # document_id_issue_email_sent_action => 'KYC document ID issue email sent',
+      #       # selfie_issue_email_sent_action => 'KYC selfie issue email sent',
+      #       # residency_issue_email_sent_action => 'KYC residency issue email sent',
+      #
+      #       update_ethereum_address => "Ethereum Address Updated",
+      #       open_case => "Case is Opened Again",
+      #       phase_changed_to_early_access => "Phase Changed to Early Access"
+      #   }
+      # end
+
+      # hash of all categories and subcategories for kyc issue email sent log
+      # other_issue_admin_action_type - is a text string instead of enum
+
+      def kyc_issue_email_sent_action_categories
+        {"#{GlobalConstant::UserKycDetail.data_mismatch_admin_action_type}" => {
+            "first_name" => {display_text: 'First Name'},
+            "last_name" => {display_text: 'Last Name'},
+            "birthdate" => {display_text: 'Birthdate'},
+            "nationality" => {display_text: 'Nationality'},
+            "document_id_number" => {display_text: 'Document id number'}
+        },
+         "#{GlobalConstant::UserKycDetail.document_issue_admin_action_type}" => {
+             "document_id_issue" => {display_text: 'Document Id issue'},
+             "selfie_issue" => {display_text: 'Selfie issue'},
+             "residency_proof_issue" => {display_text: 'residency issue'}
+         },
+         "#{GlobalConstant::UserKycDetail.other_issue_admin_action_type}" => ''
         }
       end
 

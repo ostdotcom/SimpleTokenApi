@@ -38,24 +38,21 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
       GlobalConstant::UserKycDetail.failed_whitelist_status => 3
   }, _suffix: true
 
-  enum admin_action_type: {
-      GlobalConstant::UserKycDetail.no_admin_action_type => 0,
-      GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
-      GlobalConstant::UserKycDetail.document_id_issue_admin_action_type => 2,
-      GlobalConstant::UserKycDetail.selfie_issue_admin_action_type => 3,
-      GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
-  }, _suffix: true
-
   scope :kyc_admin_and_cynopsis_approved, -> {where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
   scope :whitelist_status_unprocessed, -> {where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status)}
 
   scope :filter_by, -> (filters) {
     where_clause = {}
+    where_bitwise_clause = {}
     filters.each do |key, val|
       filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
-      where_clause[key] = filter_data if filter_data.present?
+      if key.to_s === 'admin_action_types'
+        where_bitwise_clause =  filter_data
+      else
+        where_clause[key] = filter_data if filter_data.present?
+      end
     end
-    where(where_clause)
+    where(where_clause).where(where_bitwise_clause)
   }
 
   scope :sorting_by, -> (sortings) {
@@ -68,6 +65,57 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   }
 
   after_commit :memcache_flush
+
+  #todo: WEBCODECHANGE
+  # enum admin_action_type: {
+  #     GlobalConstant::UserKycDetail.no_admin_action_type => 0,
+  #     GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
+  #     GlobalConstant::UserKycDetail.document_id_issue_admin_action_type => 2,
+  #     GlobalConstant::UserKycDetail.selfie_issue_admin_action_type => 3,
+  #     GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
+  # }, _suffix: true
+
+  # Array of Properties symbols
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  # @returns [Array<Symbol>] returns Array of properties bits set for user
+  #
+  def admin_action_types_array
+    @admin_action_types_array = UserKycDetail.get_bits_set_for_admin_action_types(admin_action_types)
+  end
+
+  # properties config
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  def self.admin_action_types_config
+    @ukd_admin_action_types_con ||= {
+        GlobalConstant::UserKycDetail.data_mismatch_admin_action_type => 1,
+        GlobalConstant::UserKycDetail.document_issue_admin_action_type => 2,
+        GlobalConstant::UserKycDetail.other_issue_admin_action_type => 4
+    }
+  end
+
+  # Bitwise columns config
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  def self.bit_wise_columns_config
+    @b_w_c_c ||= {
+        admin_action_types: admin_action_types_config
+    }
+  end
+
+  # Note : always include this after declaring bit_wise_columns_config method
+  include BitWiseConcern
+
 
   def is_re_submitted?
     submission_count.to_i > 1 ? 1 : 0
@@ -92,18 +140,12 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   def check_duplicate_status
     [
         GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status,
-        GlobalConstant::UserKycDetail.is_kyc_duplicate_status,
-        GlobalConstant::UserKycDetail.was_kyc_duplicate_status
+        GlobalConstant::UserKycDetail.is_kyc_duplicate_status
     ].include?(kyc_duplicate_status)
   end
 
   def show_duplicate_status
-
-    [
-        GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status,
-        GlobalConstant::UserKycDetail.is_kyc_duplicate_status
-    ].include?(kyc_duplicate_status) || email_duplicate_status == GlobalConstant::UserKycDetail.yes_email_duplicate_status
-
+    check_duplicate_status || email_duplicate_status == GlobalConstant::UserKycDetail.yes_email_duplicate_status
   end
 
   def never_duplicate?

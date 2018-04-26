@@ -176,7 +176,7 @@ module SaasManagement
       @user_kyc_detail.present? ?
           {
               kyc_status: kyc_status,
-              admin_action_type: @user_kyc_detail.admin_action_type,
+              admin_action_types: @user_kyc_detail.admin_action_types_array,
               whitelist_status: @user_kyc_detail.whitelist_status
           }
           :

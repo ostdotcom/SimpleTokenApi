@@ -68,10 +68,7 @@ Rails.application.routes.draw do
       # match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
 
       match 'deny-kyc' => :deny_kyc, via: :POST
-      match 'data-mismatch' => :data_mismatch, via: :POST
-      match 'document-id-issue' => :document_id_issue, via: :POST
-      match 'selfie-img-issue' => :selfie_image_issue, via: :POST
-      match 'residency-img-issue' => :residency_image_issue, via: :POST
+      match 'email-kyc-issue' => :email_kyc_issue, via: :POST
       match 'qualify' => :qualify, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: :GET

@@ -132,24 +132,29 @@ module GlobalConstant
         'forgot_password'
       end
 
-      # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
-      def kyc_data_mismatch_template
-        'kyc_data_mismatch'
-      end
+      # # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
+      # def kyc_data_mismatch_template
+      #   'kyc_data_mismatch'
+      # end
+      #
+      # # document_id_issue email - sent when user clicks on "document_id issue" on admin panel
+      # def kyc_document_id_issue_template
+      #   'kyc_document_issue'
+      # end
+      #
+      # # selfie_image_issue email - sent when user clicks on "selfie image issue" on admin panel
+      # def kyc_selfie_image_issue_template
+      #   'kyc_selfie_image_issue'
+      # end
+      #
+      # # kyc_residence_image_issue email - sent when user clicks on "residence image issue" on admin panel
+      # def kyc_residency_image_issue_template
+      #   'kyc_residency_image_issue'
+      # end
+      #
 
-      # document_id_issue email - sent when user clicks on "document_id issue" on admin panel
-      def kyc_document_id_issue_template
-        'kyc_document_issue'
-      end
-
-      # selfie_image_issue email - sent when user clicks on "selfie image issue" on admin panel
-      def kyc_selfie_image_issue_template
-        'kyc_selfie_image_issue'
-      end
-
-      # kyc_residence_image_issue email - sent when user clicks on "residence image issue" on admin panel
-      def kyc_residency_image_issue_template
-        'kyc_residency_image_issue'
+      def kyc_issue_template
+        'kyc_issue'
       end
 
       # kyc_approved email - sent when kyc is approved by cynopsis and admin both.
@@ -218,10 +223,13 @@ module GlobalConstant
         [
           double_opt_in_template,
           forgot_password_template,
-          kyc_data_mismatch_template,
-          kyc_document_id_issue_template,
-          kyc_selfie_image_issue_template,
-          kyc_residency_image_issue_template,
+          kyc_issue_template,
+
+          # kyc_data_mismatch_template,
+          # kyc_document_id_issue_template,
+          # kyc_selfie_image_issue_template,
+          # kyc_residency_image_issue_template,
+
           kyc_approved_template,
           kyc_denied_template,
           purchase_confirmation,

@@ -14,7 +14,7 @@ module AdminManagement
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] client_id (mandatory) - logged in admin's client id
-        # @params [Integer] case_id (mandatory)
+        # @params [Integer] id (mandatory)
         #
         # @return [AdminManagement::Kyc::AdminAction::Qualify]
         #

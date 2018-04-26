@@ -139,47 +139,14 @@ class Web::Admin::KycController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Admin found data mismatch
+  # Email Admin found kyc data issue
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
   # * Reviewed By: Sunil
   #
-  def data_mismatch
-    service_response = AdminManagement::Kyc::AdminAction::DataMismatch.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Admin found document id improper
-  #
-  # * Author: Alpesh
-  # * Date: 15/10/2017
-  # * Reviewed By: Sunil
-  #
-  def document_id_issue
-    service_response = AdminManagement::Kyc::AdminAction::DocumentIdIssue.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Admin found selfie improper
-  #
-  # * Author: Alpesh
-  # * Date: 15/10/2017
-  # * Reviewed By: Sunil
-  #
-  def selfie_image_issue
-    service_response = AdminManagement::Kyc::AdminAction::SelfieImageIssue.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Admin found residency improper
-  #
-  # * Author: Alpesh
-  # * Date: 21/10/2017
-  # * Reviewed By: Sunil
-  #
-  def residency_image_issue
-    service_response = AdminManagement::Kyc::AdminAction::ResidencyImageIssue.new(params).perform
+  def email_kyc_issue
+    service_response = AdminManagement::Kyc::AdminAction::EmailKycIssue.new(params).perform
     render_api_response(service_response)
   end
 

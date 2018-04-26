@@ -22,7 +22,7 @@ module AdminManagement
         @admin_id = @params[:admin_id]
         @client_id = @params[:client_id]
 
-        @case_id = @params[:case_id]
+        @case_id = @params[:id]
 
         @user_kyc_detail, @user_extended_detail = nil, nil
         @cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status

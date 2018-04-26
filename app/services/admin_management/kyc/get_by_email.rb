@@ -83,7 +83,7 @@ module AdminManagement
         search_data = []
         @user_kycs.each do |u_k|
           search_data << {
-              case_id: u_k.id,
+              id: u_k.id,
               email: @matching_users[u_k.user_id].email
           }
         end

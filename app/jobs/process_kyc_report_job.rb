@@ -238,24 +238,32 @@ class ProcessKycReportJob < ApplicationJob
       if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name)
         user_data[field_name.to_sym] = user_extended_detail[field_name]
       elsif GlobalConstant::ClientKycConfigDetail.encrypted_fields.include?(field_name)
+
         if GlobalConstant::ClientKycConfigDetail.non_mandatory_fields.include?(field_name) && user_extended_detail[field_name].blank?
-          user_data[field_name.to_sym] = nil
+          if field_name == GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field
+            for i in 1..GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+              user_data["#{field_name}_#{i}".to_sym] = nil
+            end
+          else
+            user_data[field_name.to_sym] = nil
+          end
           next
         end
+
         decrypted_data = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
 
         if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
           if field_name == GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field
-            url_data = []
-            decrypted_data.each do |path|
-              url_data << get_url(path)
+            for i in 1..GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+              user_data["#{field_name}_#{i}".to_sym] = get_url(decrypted_data[i - 1])
             end
-            decrypted_data = url_data.to_json
           else
-            decrypted_data = get_url(decrypted_data)
+            user_data[field_name.to_sym] = get_url(decrypted_data)
           end
+        else
+          user_data[field_name.to_sym] = decrypted_data
         end
-        user_data[field_name.to_sym] = decrypted_data
+
       else
         throw "invalid kyc field-#{field_name}"
       end
@@ -295,6 +303,19 @@ class ProcessKycReportJob < ApplicationJob
     @kyc_fields ||= @client_kyc_config.kyc_fields_array - [GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field]
   end
 
+  def headers_for_kyc_form_fields
+    @headers_for_kyc_form_fields ||= begin
+      fields = kyc_form_fields
+      if fields.include?(GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field)
+        fields = fields - [GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field]
+        for i in 1..GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+          fields << "#{GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field}_#{i}"
+        end
+      end
+      fields
+    end
+  end
+
   def other_kyc_fields
     @kyc_status_fields ||=
         begin
@@ -326,7 +347,7 @@ class ProcessKycReportJob < ApplicationJob
   end
 
   def csv_headers
-    ['email'] + other_kyc_fields + kyc_form_fields
+    ['email'] + other_kyc_fields + headers_for_kyc_form_fields
   end
 
 end

@@ -178,7 +178,7 @@
     - :state
     - :postal_code
     - :estimated_participation_amount
-    - :investor_proofs_file_path
+    - :investor_proof_files_path
 
 'UserManagement::DoubleOptIn':
   :mandatory:

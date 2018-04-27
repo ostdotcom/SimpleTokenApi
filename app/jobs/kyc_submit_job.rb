@@ -230,7 +230,8 @@ class KycSubmitJob < ApplicationJob
     r = @user_kyc_detail.cynopsis_user_id.blank? ? create_cynopsis_case : update_cynopsis_case
     Rails.logger.info("-- call_cynopsis_api r: #{r.inspect}")
 
-    if !r.success? # cynopsis status will remain unprocessed
+    if !r.success? # cynopsis status will turn failed
+      @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
       log_to_user_activity(r)
       return
     end

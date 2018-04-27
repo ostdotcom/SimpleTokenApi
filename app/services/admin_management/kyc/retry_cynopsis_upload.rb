@@ -12,7 +12,7 @@ module AdminManagement
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
       # @params [Integer] client_id (mandatory) - logged in admin's client id
-      # @params [Integer] case_id (mandatory) - search term to find case
+      # @params [Integer] id (mandatory) - search term to find case
       #
       # @return [AdminManagement::Kyc::RetryCynopsisUpload]
       #
@@ -25,7 +25,7 @@ module AdminManagement
         @case_id = @params[:id]
 
         @user_kyc_detail, @user_extended_detail = nil, nil
-        @cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
+        @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
 
         @kyc_salt_d = nil
       end
@@ -54,9 +54,6 @@ module AdminManagement
         return r unless r.success?
 
         fetch_user_extended_detail
-
-        r = check_if_kyc_submit_job_has_run
-        return r unless r.success?
 
         decrypt_kyc_salt
 
@@ -106,7 +103,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
+        ) if @user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.failed_cynopsis_status
 
         success
       end
@@ -121,27 +118,6 @@ module AdminManagement
       #
       def fetch_user_extended_detail
         @user_extended_detail = UserExtendedDetail.where(user_id: @user_kyc_detail.user_id).last
-      end
-
-      # Validate if cynopsis upload is pending and not failed. If kyc_submit_job has not run the extended detail id is not updated
-      #
-      # * Author: Aman
-      # * Date: 25/04/2018
-      # * Reviewed By:
-      #
-      # @return [Result::Base]
-      #
-      def check_if_kyc_submit_job_has_run
-        return error_with_data(
-            'am_k_rcu_ciksjhr_1',
-            "Kyc submit job pending",
-            "Cynopsis update job is still pending.It must be updated soon",
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
-        ) if @user_kyc_detail.user_extended_detail_id != @user_extended_detail.id
-
-        success
       end
 
       # Cynopsis add or update
@@ -270,9 +246,19 @@ module AdminManagement
       #
       def save_cynopsis_status
         Rails.logger.info('-- save_cynopsis_status')
+        is_already_kyc_denied_by_admin = @user_kyc_detail.kyc_denied?
+
         @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
         @user_kyc_detail.cynopsis_status = @cynopsis_status
-        @user_kyc_detail.save! if @user_kyc_detail.changed?
+
+        if @user_kyc_detail.changed?
+          @user_kyc_detail.save!(touch: false)
+
+          send_denied_email if @user_kyc_detail.kyc_denied? && !is_already_kyc_denied_by_admin
+
+          send_approved_email if @user_kyc_detail.kyc_approved?
+        end
+
       end
 
       # Get cynopsis rfrID
@@ -286,6 +272,50 @@ module AdminManagement
       #
       def get_cynopsis_user_id
         UserKycDetail.get_cynopsis_user_id(@user_kyc_detail.user_id)
+      end
+
+      # Send denied email
+      #
+      # * Author: Aman
+      # * Date: 27/04/2018
+      # * Reviewed By:
+      #
+      def send_denied_email
+        return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
+
+        user = User.where(id: @user_kyc_detail.user_id).select(:email, :id).first
+
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: @client_id,
+            email: user.email,
+            template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
+            template_vars: {}
+        ).perform
+
+      end
+
+      # Send approved email
+      #
+      # * Author: Aman
+      # * Date: 27/04/2018
+      # * Reviewed By:
+      #
+      def send_approved_email
+        return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? || @client.is_st_token_sale_client?
+
+        user = User.where(id: @user_kyc_detail.user_id).select(:email, :id).first
+        client_token_sale_details_obj = ClientTokenSaleDetail.get_from_memcache(@client_id)
+
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: @client_id,
+            email: user.email,
+            template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+            template_vars: {
+                token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
+                is_sale_active: client_token_sale_details_obj.has_token_sale_started?
+            }
+        ).perform
+
       end
 
     end

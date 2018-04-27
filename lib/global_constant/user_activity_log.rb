@@ -129,7 +129,8 @@ module GlobalConstant
          "#{GlobalConstant::UserKycDetail.document_issue_admin_action_type}" => {
              "document_id_issue" => {display_text: 'Document Id issue'},
              "selfie_issue" => {display_text: 'Selfie issue'},
-             "residency_proof_issue" => {display_text: 'residency issue'}
+             "residency_proof_issue" => {display_text: 'Residency Image Issue'},
+             "investor_proof_issue" => {display_text: 'Investor proof issue'}
          },
          "#{GlobalConstant::UserKycDetail.other_issue_admin_action_type}" => ''
         }

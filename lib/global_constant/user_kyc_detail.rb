@@ -27,6 +27,10 @@ module GlobalConstant
         'rejected'
       end
 
+      def failed_cynopsis_status
+        'failed'
+      end
+
       ### Cynopsis Status End ###
 
       def cynopsis_approved_statuses
@@ -220,7 +224,8 @@ module GlobalConstant
                 "#{pending_cynopsis_status}" => [pending_cynopsis_status],
                 "#{cleared_cynopsis_status}" => [cleared_cynopsis_status],
                 "#{approved_cynopsis_status}" => [approved_cynopsis_status],
-                "#{rejected_cynopsis_status}" => [rejected_cynopsis_status]
+                "#{rejected_cynopsis_status}" => [rejected_cynopsis_status],
+                "#{failed_cynopsis_status}" => [failed_cynopsis_status]
             },
             "whitelist_status" => {
                 "all" => [],

@@ -43,7 +43,6 @@ namespace :onetimer do
 
     UserActivityLog.where(action: [7, 8, 9]).find_in_batches(batch_size: 100) do |uals|
       uals.each do |ual|
-        ual.action = GlobalConstant::UserActivityLog.kyc_issue_email_sent_action
         throw "FOUND E_DATA for image issue actions u_activity_log_id: #{ual.id}" if ual.e_data.present?
 
         updated_data = {}
@@ -58,6 +57,7 @@ namespace :onetimer do
                   throw "unidentified action #{ual.action}"
               end
 
+        ual.action = GlobalConstant::UserActivityLog.kyc_issue_email_sent_action
         updated_data[GlobalConstant::UserKycDetail.document_issue_admin_action_type] = [str]
         updated_data.deep_symbolize_keys
 

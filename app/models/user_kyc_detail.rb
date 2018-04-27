@@ -5,7 +5,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
       GlobalConstant::UserKycDetail.pending_cynopsis_status => 2, # yello
       GlobalConstant::UserKycDetail.cleared_cynopsis_status => 3, # green
       GlobalConstant::UserKycDetail.approved_cynopsis_status => 4, # green
-      GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5 # red
+      GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5, # red
+      GlobalConstant::UserKycDetail.failed_cynopsis_status => 6 # red
   }, _suffix: true
 
   enum admin_status: {
@@ -47,7 +48,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     filters.each do |key, val|
       filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
       if key.to_s === 'admin_action_types'
-        where_bitwise_clause =  filter_data
+        where_bitwise_clause = filter_data
       else
         where_clause[key] = filter_data if filter_data.present?
       end

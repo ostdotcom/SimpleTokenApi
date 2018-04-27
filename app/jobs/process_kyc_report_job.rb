@@ -238,12 +238,23 @@ class ProcessKycReportJob < ApplicationJob
       if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name)
         user_data[field_name.to_sym] = user_extended_detail[field_name]
       elsif GlobalConstant::ClientKycConfigDetail.encrypted_fields.include?(field_name)
-        if field_name == GlobalConstant::ClientKycConfigDetail.residence_proof_file_path_kyc_field && user_extended_detail.residence_proof_file_path.blank?
+        if GlobalConstant::ClientKycConfigDetail.non_mandatory_fields.include?(field_name) && user_extended_detail[field_name].blank?
           user_data[field_name.to_sym] = nil
           next
         end
         decrypted_data = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
-        decrypted_data = get_url(decrypted_data) if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
+
+        if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
+          if field_name == GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field
+            url_data = []
+            decrypted_data.each do |path|
+              url_data << get_url(path)
+            end
+            decrypted_data = url_data.to_json
+          else
+            decrypted_data = get_url(decrypted_data)
+          end
+        end
         user_data[field_name.to_sym] = decrypted_data
       else
         throw "invalid kyc field-#{field_name}"

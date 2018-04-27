@@ -303,7 +303,8 @@ module AdminManagement
             geoip_data: @user_geoip_data,
             document_id_file_url: document_id_file_url,
             selfie_file_url: selfie_file_url,
-            residence_proof_file_url: residence_proof_file_url
+            residence_proof_file_url: residence_proof_file_url,
+            investor_proof_files_url: investor_proof_files_urls
         }
       end
 
@@ -460,6 +461,18 @@ module AdminManagement
             nil
       end
 
+      # Decrypt investor proof urls
+      #
+      # * Author: Pankaj
+      # * Date: 26/04/2018
+      # * Reviewed By:
+      #
+      def investor_proofs_file_path_d
+        @user_extended_detail.investor_proof_files_path.present? ?
+            local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
+            nil
+      end
+
       # local cipher obj
       #
       # * Author: Kedar, Puneet
@@ -498,6 +511,18 @@ module AdminManagement
       #
       def residence_proof_file_url
         get_url(residence_proof_file_path_d)
+      end
+
+      # get Investor proofs documents url
+      #
+      # * Author: Pankaj
+      # * Date: 26/04/2018
+      # * Reviewed By:
+      #
+      def investor_proof_files_urls
+        urls = []
+        investor_proofs_file_path_d.each{|x| urls << get_url(x)}
+        urls
       end
 
       # Get file urls

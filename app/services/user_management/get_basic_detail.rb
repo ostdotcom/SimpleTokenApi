@@ -49,7 +49,7 @@ module UserManagement
       r = fetch_client_setting_data_from_cache
       return r unless r.success?
 
-      success_with_data(success_responnse)
+      success_with_data(success_response)
     end
 
     private
@@ -156,7 +156,7 @@ module UserManagement
     #
     # @return [Hash] hash of result
     #
-    def success_responnse
+    def success_response
       {
           user: user_data
       }.merge(@client_setting_data)

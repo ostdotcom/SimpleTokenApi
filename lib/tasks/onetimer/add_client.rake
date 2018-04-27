@@ -2,7 +2,7 @@ namespace :onetimer do
 
 
   # params = {
-  #     "client_name" => "secondclient-pepokyc.developmentost.com",
+  #     "client_name" => "pankajkyc.developmentost.com",
   #     "cynopsis" => {
   #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
   #         "token" => GlobalConstant::Cynopsis.token,
@@ -13,8 +13,8 @@ namespace :onetimer do
   #         "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
   #     },
   #     "whitelist" => {
-  #         "contract_address" => '0x22A6B1B34Bfe6E95c9180828dd284b171a9515b0',
-  #         "whitelister_address" => '0x7316bef49c8149a2fab0d88cab5835949f1d5681'
+  #         "contract_address" => '0x81662ab3f307b6d4b777bb5996f0ba9659ab6d27',
+  #         "whitelister_address" => '0x31f2c12ef04683cb8fa5a7b145f34876a5271660'
   #     },
   #     "web_host" => {
   #         "domain" => "pepokyc.developmentost.com"
@@ -36,6 +36,7 @@ namespace :onetimer do
   #             "document_id_file_path",
   #             "selfie_file_path",
   #             "residence_proof_file_path",
+  #             "investor_proof_files_path",
   #             # "street_address",
   #             # "city",
   #             "state",

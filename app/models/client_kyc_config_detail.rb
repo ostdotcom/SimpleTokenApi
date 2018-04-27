@@ -69,7 +69,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
         GlobalConstant::ClientKycConfigDetail.document_id_file_path_kyc_field => 2048,
         GlobalConstant::ClientKycConfigDetail.selfie_file_path_kyc_field => 4096,
         GlobalConstant::ClientKycConfigDetail.residence_proof_file_path_kyc_field => 8192,
-        GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field => 16384
+        GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field => 16384,
+        GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field => 32768
     }
   end
 

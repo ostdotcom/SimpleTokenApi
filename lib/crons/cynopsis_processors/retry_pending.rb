@@ -117,7 +117,7 @@ module Crons
       def send_denied_email
         return if @denied_user_ids.blank?
 
-        User.where(id: @denied_user_ids).select(:email, :id).each do |user|
+        User.where(id: @denied_user_ids).select(:email, :id, :client_id).each do |user|
           client_id = user.client_id
           client = client_objs[client_id]
 
@@ -129,11 +129,6 @@ module Crons
           ).perform if client.is_email_setup_done?
 
         end
-
-        return unless client.is_st_token_sale_client?
-
-        User.where(id: @denied_user_ids).update_all(bt_name: nil, updated_at: Time.now.to_s(:db))
-        User.bulk_flush(@denied_user_ids)
       end
 
       # Send approved email
@@ -146,7 +141,7 @@ module Crons
         return if @approved_user_id_hash.blank?
         approved_user_ids = @approved_user_id_hash.keys
 
-        User.where(id: approved_user_ids).select(:email, :id).each do |user|
+        User.where(id: approved_user_ids).select(:email, :id, :client_id).each do |user|
           client_id = user.client_id
           client = client_objs[client_id]
           user_kyc_detail = @approved_user_id_hash[user.id]

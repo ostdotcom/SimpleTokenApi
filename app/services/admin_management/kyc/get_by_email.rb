@@ -92,8 +92,8 @@ module AdminManagement
             page_number: 1,
             total_records: @user_kycs.length,
             page_payload: {
-                page_size: @page_size
-            }
+            },
+            page_size: @page_size
         }
 
         @api_response = {

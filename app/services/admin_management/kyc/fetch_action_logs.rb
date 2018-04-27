@@ -14,6 +14,7 @@ module AdminManagement
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] id (mandatory) - user kyc details id
       # @params [Integer] page_number (optional) - page number if present
+      # @params [Integer] page_size (optional) - page size if present
       #
       # @return [AdminManagement::Kyc::FetchActionLogs]
       #
@@ -32,7 +33,7 @@ module AdminManagement
 
         @curr_page_data = []
         @api_response_data = {}
-
+        @total_action_logs = 0
       end
 
       # Perform
@@ -102,10 +103,14 @@ module AdminManagement
         offset = 0
         offset = @page_size * (@page_number - 1) if @page_number > 1
 
-        @logs_ars = UserActivityLog.where(
+        ar_relation = UserActivityLog.where(
             user_id: @user_kyc_detail.user_id,
             log_type: GlobalConstant::UserActivityLog.admin_log_type
-        ).limit(@page_size).offset(offset).order('id DESC').all
+        )
+
+        @total_action_logs = ar_relation.count
+
+        @logs_ars = ar_relation.limit(@page_size).offset(offset).order('id DESC').all
         return if @logs_ars.blank?
 
         admin_ids = @logs_ars.collect(&:admin_id).compact.uniq
@@ -156,7 +161,8 @@ module AdminManagement
             page_number: @page_number,
             page_payload: {
             },
-            page_size: @page_size
+            page_size: @page_size,
+            total_records: @total_action_logs,
         }
 
         data = {

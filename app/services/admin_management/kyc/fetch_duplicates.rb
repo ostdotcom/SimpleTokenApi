@@ -155,7 +155,9 @@ module AdminManagement
       #
       def set_api_response_data
         meta = {
-            page_number: 1
+            page_number: 1,
+            page_payload: {
+            }
         }
 
         @api_response_data = {

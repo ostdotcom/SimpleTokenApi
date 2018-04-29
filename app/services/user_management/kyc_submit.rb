@@ -84,6 +84,19 @@ module UserManagement
       return r unless r.success?
       Rails.logger.info('---- fetch_user_data done')
 
+      # todo: VERIFYPAGE dont allow kyc submit
+
+      if @user.get_token_sale_state_page_name == GlobalConstant::User.get_token_sale_state_page_names("verification_page")
+        return error_with_data(
+            'um_ks_p_1',
+            'Invalid user state for kyc submit ',
+            'Double opt in not done by user',
+            GlobalConstant::ErrorAction.default,
+            {},
+            {}
+        )
+      end
+
       r = generate_new_kyc_salt
       return r unless r.success?
       Rails.logger.info('---- generate_new_kyc_salt done')
@@ -303,20 +316,20 @@ module UserManagement
 
     def validate_document_id_file_path
       @document_id_file_path = @document_id_file_path.to_s.strip
-       if !@document_id_file_path.present?
-         @error_data[:document_id_file_path] = 'Identification document image is required.'
-       else
-         @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !(@document_id_file_path =~ S3_DOCUMENT_PATH_REGEX)
-       end
+      if !@document_id_file_path.present?
+        @error_data[:document_id_file_path] = 'Identification document image is required.'
+      else
+        @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !(@document_id_file_path =~ S3_DOCUMENT_PATH_REGEX)
+      end
     end
 
     def validate_selfie_file_path
       @selfie_file_path = @selfie_file_path.to_s.strip
-       if !@selfie_file_path.present?
-         @error_data[:selfie_file_path] = 'Selfie is required.'
-       else
-         @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !(@selfie_file_path =~ S3_DOCUMENT_PATH_REGEX)
-       end
+      if !@selfie_file_path.present?
+        @error_data[:selfie_file_path] = 'Selfie is required.'
+      else
+        @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !(@selfie_file_path =~ S3_DOCUMENT_PATH_REGEX)
+      end
     end
 
     def validate_residence_proof_file_path
@@ -454,7 +467,7 @@ module UserManagement
     #
     def update_user
       @user.send("set_" + GlobalConstant::User.token_sale_kyc_submitted_property)
-      # @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+      # @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property)
       @user.save! if @user.changed?
       success
     end

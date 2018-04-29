@@ -55,7 +55,7 @@ class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
   #  todo: "KYCaas-Changes"
   # def resend_double_opt_in
   #   BgJob.enqueue(
-  #       OnBTSubmitJob,
+  #       SendDoubleOptIn,
   #       {
   #           user_id: params[:user_id]
   #       }

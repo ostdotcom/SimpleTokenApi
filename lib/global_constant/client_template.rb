@@ -35,6 +35,10 @@ module GlobalConstant
         'kyc'
       end
 
+      def verification_template_type
+        'verification'
+      end
+
       def dashboard_template_type
         'dashboard'
       end

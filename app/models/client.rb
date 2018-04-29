@@ -23,6 +23,19 @@ class Client < EstablishSimpleTokenClientDbConnection
     setup_properties_array.include?(GlobalConstant::Client.web_host_setup_done)
   end
 
+  # Check if verify page is needed after kyc submit
+  #
+  # * Author: Aman
+  # * Date: 27/04/2018
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if verify page is needed after kyc submit
+  #
+  def is_verify_page_active_for_client?
+    # todo: VERIFYPAGE custom property depending on client
+    is_web_host_setup_done?
+  end
+
   # Check if email setup is done for client
   #
   # * Author: Aman

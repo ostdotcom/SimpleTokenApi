@@ -31,6 +31,10 @@ module GlobalConstant
         'reset_password'
       end
 
+      def admin_reset_password_kind
+        'admin_reset_password'
+      end
+
       ########## Kinds ###########
 
       ########## expiry intervals ###########

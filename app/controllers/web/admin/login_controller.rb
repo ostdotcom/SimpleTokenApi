@@ -3,7 +3,9 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   before_action :authenticate_request, except: [
                                          :password_auth,
                                          :get_ga_url,
-                                         :multifactor_auth
+                                         :multifactor_auth,
+                                         :send_admin_reset_password_link,
+                                         :admin_reset_password
                                      ]
   before_action :verify_recaptcha, only: [:password_auth]
 
@@ -78,6 +80,28 @@ class Web::Admin::LoginController < Web::Admin::BaseController
 
     render_api_response(service_response)
 
+  end
+
+  # Send Admin Reset Password Link
+  #
+  # * Author: Pankaj
+  # * Date: 30/04/2018
+  # * Reviewed By:
+  #
+  def send_admin_reset_password_link
+    service_response = AdminManagement::Login::SendAdminResetPasswordLink.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Reset Password
+  #
+  # * Author: Pankaj
+  # * Date: 30/04/2018
+  # * Reviewed By:
+  #
+  def admin_reset_password
+    service_response = AdminManagement::Login::AdminResetPassword.new(params).perform
+    render_api_response(service_response)
   end
 
 end

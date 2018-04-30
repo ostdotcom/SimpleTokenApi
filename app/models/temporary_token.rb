@@ -9,9 +9,12 @@ class TemporaryToken < EstablishSimpleTokenEmailDbConnection
   enum kind: {
            GlobalConstant::TemporaryToken.double_opt_in_kind => 1,
            GlobalConstant::TemporaryToken.reset_password_kind => 2,
+           GlobalConstant::TemporaryToken.admin_reset_password_kind => 3
        }
 
   def is_expired?
+    #TODO:: Confirm if admin reset password expiry would be different.
+
     expiry_interval = (self.kind == GlobalConstant::TemporaryToken.double_opt_in_kind) ?
         GlobalConstant::TemporaryToken.double_opt_in_expiry_interval :
         GlobalConstant::TemporaryToken.reset_token_expiry_interval

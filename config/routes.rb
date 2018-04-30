@@ -47,6 +47,8 @@ Rails.application.routes.draw do
       match 'login' => :password_auth, via: :POST
       match 'get-ga-url' => :get_ga_url, via: :GET
       match 'mfa' => :multifactor_auth, via: :POST
+      match 'reset-password' => :admin_reset_password, via: :POST
+      match 'send-reset-password-link' => :send_admin_reset_password_link, via: :POST
     end
 
     scope 'api/admin/profile', controller: 'web/admin/profile' do

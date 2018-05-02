@@ -28,7 +28,6 @@ Rails.application.routes.draw do
 
     scope 'api/user', controller: 'web/saas_user/token_sale' do
       match 'bt-submit' => :bt_submit, via: :POST
-      # match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
       match 'check-ethereum-balance' => :check_ethereum_balance, via: :GET
     end
 
@@ -96,6 +95,7 @@ Rails.application.routes.draw do
   end
 
   scope 'api/user', controller: 'web/saas_user/token_sale' do
+    match 'resend-double-opt-in' => :resend_double_opt_in, via: :GET
     match 'kyc-submit' => :kyc_submit, via: :POST
     match 'upload-params' => :get_upload_params, via: :GET
     match 'check-ethereum-address' => :check_ethereum_address, via: :GET

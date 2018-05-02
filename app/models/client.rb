@@ -23,17 +23,16 @@ class Client < EstablishSimpleTokenClientDbConnection
     setup_properties_array.include?(GlobalConstant::Client.web_host_setup_done)
   end
 
-  # Check if verify page is needed after kyc submit
+  # Check if verify page is needed after signup
   #
   # * Author: Aman
   # * Date: 27/04/2018
   # * Reviewed By:
   #
-  # @returns [Boolean] returns true if verify page is needed after kyc submit
+  # @returns [Boolean] returns true if verify page is needed
   #
   def is_verify_page_active_for_client?
-    # todo: VERIFYPAGE custom property depending on client
-    is_web_host_setup_done?
+    setup_properties_array.include?(GlobalConstant::Client.double_opt_in_setup_needed)
   end
 
   # Check if email setup is done for client
@@ -95,7 +94,8 @@ class Client < EstablishSimpleTokenClientDbConnection
         GlobalConstant::Client.cynopsis_setup_done => 1,
         GlobalConstant::Client.email_setup_done => 2,
         GlobalConstant::Client.whitelist_setup_done => 4,
-        GlobalConstant::Client.web_host_setup_done => 8
+        GlobalConstant::Client.web_host_setup_done => 8,
+        GlobalConstant::Client.double_opt_in_setup_needed => 16
     }
   end
 

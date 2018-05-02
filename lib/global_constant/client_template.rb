@@ -129,6 +129,10 @@ module GlobalConstant
         }
       end
 
+      def verification
+        {}
+      end
+
       def kyc
         {
             ethereum_address_info_html: 'Make sure to use your Ethereum Wallet address and not addresses from exchanges like Coinbase,Poloniex, Kraken.<br/><a href="https://docs.google.com/document/d/1WVPQyUZgul81MoF2DkmsAeA6vPpKJ8vtjS53GWeSov4/edit" title="Learn more" target="_blank">Learn more</a>',

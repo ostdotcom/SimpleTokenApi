@@ -38,8 +38,7 @@ module ClientManagement
       # * Reviewed By:
       #
       def page_template_type
-        #todo: VERIFYPAGE change it to verification template type with migrations for all client using it
-        GlobalConstant::ClientTemplate.change_password_template_type
+        GlobalConstant::ClientTemplate.verification_template_type
       end
 
     end

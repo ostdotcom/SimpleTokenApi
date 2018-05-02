@@ -49,6 +49,9 @@ module UserManagement
 
       fetch_user
 
+      r = validate_user
+      return r unless r.success?
+
       r = validate_user_state
       return r unless r.success?
 
@@ -100,6 +103,19 @@ module UserManagement
         return r unless r.success?
       end
 
+      success
+    end
+
+    # validate user
+    #
+    # * Author: Aman
+    # * Date: 02/05/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_user
+      return unauthorized_access_response('um_gbd_vu_1') if @user.blank? || (@user.client_id != @client_id)
       success
     end
 

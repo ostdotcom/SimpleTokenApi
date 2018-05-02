@@ -65,25 +65,6 @@ class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
     render_api_response(service_response)
   end
 
-  # Send Double Opt In again
-  #
-  # * Author: Aman
-  # * Date: 13/10/2017
-  # * Reviewed By: Sunil
-  #
-  #  todo: "KYCaas-Changes"
-  # def resend_double_opt_in
-  #   BgJob.enqueue(
-  #       SendDoubleOptIn,
-  #       {
-  #           user_id: params[:user_id]
-  #       }
-  #   )
-  #
-  #   r = Result::Base.success({})
-  #   render_api_response(r)
-  # end
-
   # Check if ethereum address is valid
   #
   # * Author: Abhay

@@ -9,6 +9,7 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     # @params [String] t (mandatory)
+    # @params [Integer] user_id (mandatory)
     #
     # @return [UserManagement::DoubleOptIn]
     #

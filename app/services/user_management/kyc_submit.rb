@@ -84,18 +84,8 @@ module UserManagement
       return r unless r.success?
       Rails.logger.info('---- fetch_user_data done')
 
-      # todo: VERIFYPAGE dont allow kyc submit
-
-      if @user.get_token_sale_state_page_name == GlobalConstant::User.get_token_sale_state_page_names("verification_page")
-        return error_with_data(
-            'um_ks_p_1',
-            'Invalid user state for kyc submit ',
-            'Double opt in not done by user',
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
-        )
-      end
+      r = validate_user_state
+      return r unless r.success?
 
       r = generate_new_kyc_salt
       return r unless r.success?
@@ -199,6 +189,27 @@ module UserManagement
         ) if (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
 
       end
+      success
+    end
+
+    # validate user
+    #
+    # * Author: Aman
+    # * Date: 02/05/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def validate_user_state
+      return error_with_data(
+          'um_ks_p_vus__1',
+          'Invalid user state for kyc submit ',
+          'Double opt in not done by user',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @user.get_token_sale_state_page_name == GlobalConstant::User.get_token_sale_state_page_names("verification_page")
+
       success
     end
 

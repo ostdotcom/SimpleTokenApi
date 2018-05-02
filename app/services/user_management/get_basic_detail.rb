@@ -24,6 +24,7 @@ module UserManagement
       @token = @params[:token]
 
       @token_invalid = false
+      @account_activated = false
       @user_token_sale_state = nil
       @client = nil
       @user = nil
@@ -96,6 +97,7 @@ module UserManagement
     # * Date: 01/02/2018
     # * Reviewed By:
     #
+    # Sets @token_invalid
     # @return [Result::Base]
     #
     def validate_user_state
@@ -153,6 +155,8 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By:
     #
+    # Sets @account_activated
+    #
     # @return [Result::Base]
     #
     def validate_token
@@ -161,6 +165,10 @@ module UserManagement
       service_response = UserManagement::DoubleOptIn.new({t: @token, user_id: @user_id}).perform
       return unauthorized_access_response('um_gbd_2') unless service_response.success?
       @user.reload
+
+      @account_activated = true if (@user_token_sale_state != @user.get_token_sale_state_page_name &&
+          @user_token_sale_state == GlobalConstant::User.get_token_sale_state_page_names("verification_page"))
+
       @user_token_sale_state = @user.get_token_sale_state_page_name
       success
     end
@@ -224,6 +232,7 @@ module UserManagement
     def success_responnse
       {
           is_token_invalid: @token_invalid.to_i,
+          account_activated: @account_activated,
           user: user_data
       }.merge(@client_setting_data)
     end

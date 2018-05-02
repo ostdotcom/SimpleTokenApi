@@ -235,6 +235,7 @@ module UserManagement
       BgJob.enqueue(
           SendDoubleOptIn,
           {
+              client_id: @client_id,
               user_id: @user.id
           }
       )  if @client.is_verify_page_active_for_client?

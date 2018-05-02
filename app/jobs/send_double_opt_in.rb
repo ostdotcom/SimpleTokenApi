@@ -29,6 +29,7 @@ class SendDoubleOptIn < ApplicationJob
   # * Reviewed By: Sunil
   #
   def init_params(params)
+    @client_id = params[:client_id]
     @user_id = params[:user_id]
     @user = User.find(@user_id)
     @double_opt_in_token = nil

@@ -134,7 +134,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_token
-      return unauthorized_access_response('um_gbd_1') if @token.blank?
+      return success if @token.blank?
 
       service_response = UserManagement::DoubleOptIn.new({t: @token, user_id: @user_id}).perform
       return unauthorized_access_response('um_gbd_2') unless service_response.success?

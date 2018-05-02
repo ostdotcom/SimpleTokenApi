@@ -8,12 +8,10 @@
 'AdminManagement::Login::SendAdminResetPasswordLink':
   :mandatory:
     - :email
-    - :client_id
   :optional:
 
 'AdminManagement::Login::AdminResetPassword':
   :mandatory:
-    - :client_id
     - :r_t
     - :password
     - :confirm_password

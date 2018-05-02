@@ -10,7 +10,6 @@ module AdminManagement
       # * Date: 30/04/2018
       # * Reviewed By: 
       #
-      # @param [Integer] client_id (mandatory) - client id
       # @params [String] r_t (mandatory) - token for reset
       # @params [String] password (mandatory) - this is the new password
       # @params [String] confirm_password (mandatory) - this is the confirm password
@@ -23,9 +22,7 @@ module AdminManagement
         @r_t = @params[:r_t]
         @password = @params[:password]
         @confirm_password = @params[:confirm_password]
-        @client_id = @params[:client_id]
-  
-        @client = nil
+
         @reset_token = nil
         @temporary_token_id = nil
         @temporary_token_obj = nil
@@ -45,12 +42,6 @@ module AdminManagement
       def perform
   
         r = validate_and_sanitize
-        return r unless r.success?
-  
-        r = fetch_and_validate_client
-        return r unless r.success?
-  
-        r = validate_client_details
         return r unless r.success?
   
         fetch_temporary_token_obj
@@ -124,28 +115,6 @@ module AdminManagement
         success
       end
   
-      # validate clients web hosting setup details
-      #
-      # * Author: Pankaj
-      # * Date: 30/04/2018
-      # * Reviewed By:
-      #
-      # Sets @client
-      #
-      # @return [Result::Base]
-      #
-      def validate_client_details
-        return error_with_data(
-            'um_rp_12',
-            'Client is not active',
-            'Client is not active',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if !@client.is_web_host_setup_done?
-  
-        success
-      end
-  
       # Fetch temporary token obj
       #
       # * Author: Pankaj
@@ -196,11 +165,9 @@ module AdminManagement
         @admin = Admin.where(id: @temporary_token_obj.user_id).first
         return unauthorized_access_response('am_l_arp_9') unless @admin.present? && @admin.password.present? &&
             (@admin.status == GlobalConstant::Admin.active_status)
-  
-        return unauthorized_access_response('am_l_arp_10') if @admin.default_client_id != @client_id
 
         @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
-        return unauthorized_access_response('am_l_arp_11') unless @admin_secret.present?
+        return unauthorized_access_response('am_l_arp_10') unless @admin_secret.present?
   
         success
       end

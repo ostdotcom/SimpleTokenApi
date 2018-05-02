@@ -232,7 +232,7 @@ module UserManagement
     def success_responnse
       {
           is_token_invalid: @token_invalid.to_i,
-          account_activated: @account_activated,
+          account_activated: @account_activated.to_i,
           user: user_data
       }.merge(@client_setting_data)
     end

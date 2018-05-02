@@ -23,6 +23,7 @@ module UserManagement
       @template_type = @params[:template_type]
       @token = @params[:token]
 
+      @token_invalid = false
       @user_token_sale_state = nil
       @client = nil
       @user = nil
@@ -53,7 +54,8 @@ module UserManagement
       return r unless r.success?
 
       r = validate_user_state
-      return r unless r.success?
+      # dont return error if token is wrong.. user token sale state wont change and thus he will be redirected to verify page in web
+      # return r unless r.success?
 
       r = fetch_client_setting_data_from_cache
       return r unless r.success?
@@ -100,7 +102,11 @@ module UserManagement
       if @user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property) &&
           @template_type == GlobalConstant::ClientTemplate.kyc_template_type
         r = validate_token
-        return r unless r.success?
+
+        unless r.success?
+          @token_invalid = true
+          return r
+        end
       end
 
       success
@@ -217,6 +223,7 @@ module UserManagement
     #
     def success_responnse
       {
+          is_token_invalid: @token_invalid.to_i,
           user: user_data
       }.merge(@client_setting_data)
     end

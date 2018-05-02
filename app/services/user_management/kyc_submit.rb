@@ -202,7 +202,7 @@ module UserManagement
     #
     def validate_user_state
       return error_with_data(
-          'um_ks_p_vus__1',
+          'um_ks_p_vus_1',
           'Invalid user state for kyc submit ',
           'Double opt in not done by user',
           GlobalConstant::ErrorAction.default,

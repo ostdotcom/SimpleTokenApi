@@ -239,7 +239,7 @@ class KycSubmitJob < ApplicationJob
     response_hash = ((r.data || {})[:response] || {})
     @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
     save_cynopsis_status
-    upload_documents
+    # upload_documents
   end
 
   # Create user in cynopsis

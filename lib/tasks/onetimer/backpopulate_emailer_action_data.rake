@@ -1,7 +1,7 @@
 namespace :onetimer do
 
   task :backpopulate_emailer_action_data => :environment do
-    UserKycDetail.where(admin_action_types: [2, 3, 4]).update_all(admin_action_types: 2)
+    UserKycDetail.where(admin_action_types: [3, 4]).update_all(admin_action_types: 2)
 
     data_mismatch_map = {
         'First name' => 'first_name',

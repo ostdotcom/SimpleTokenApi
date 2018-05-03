@@ -34,6 +34,26 @@ module AdminManagement
 
         private
 
+        # validate if mandatory parameters are present
+        #
+        # * Author: Aman
+        # * Date: 10/10/2017
+        # * Reviewed By: Kedar
+        #
+        # @return [Result::Base]
+        #
+        def validate
+          return error_with_data(
+              'am_l_ma_b_v_1',
+              'Invalid Session',
+              'Your session has expired. please refresh your page',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @single_auth_cookie_value.blank?
+
+          super
+        end
+
         # Parse and validate single auth cookie
         #
         # * Author: Aman

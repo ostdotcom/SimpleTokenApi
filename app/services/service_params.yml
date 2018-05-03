@@ -374,6 +374,12 @@
     - :id
   :optional:
 
+'AdminManagement::AdminUser::Dashboard':
+  :mandatory:
+    - :admin_id
+    - :client_id
+  :optional:
+
 #'AdminManagement::Kyc::Dashboard::Whitelist':
 #  :mandatory:
 #    - :admin_id

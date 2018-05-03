@@ -75,7 +75,14 @@ Rails.application.routes.draw do
 
       match 'get-cases-by-email' => :get_cases_by_email, via: :GET
       match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
+      match 'dashboard' => :dashboard, via: :GET
+    end
+
+    scope 'api/admin/kyc', controller: 'web/admin/super_admin' do
       match 'get-kyc-report' => :get_kyc_report, via: :GET
+    end
+
+    scope 'api/admin/admin-user', controller: 'web/admin/super_admin' do
       match 'dashboard' => :dashboard, via: :GET
     end
 

@@ -1,19 +1,7 @@
 class Web::Admin::KycController < Web::Admin::BaseController
 
   # super admin
-  before_action :authenticate_request, except: [:get_kyc_report]
-  before_action only: [:get_kyc_report] {authenticate_request(true)}
-
-  # enqueue a job to send csv with kyc details
-  #
-  # * Author: Aman
-  # * Date: 18/04/2018
-  # * Reviewed By:
-  #
-  def get_kyc_report
-    service_response = AdminManagement::Report::GetKycReport.new(params).perform
-    render_api_response(service_response)
-  end
+  before_action :authenticate_request
 
   # Check details
   #

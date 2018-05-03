@@ -82,68 +82,38 @@ module AdminManagement
         @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
         @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
 
-        # todo: dont throw error instead dont use filter or sort ??
+
+        sanitized_filter = @filters.dup
+
         if @filters.present?
-
-          error_data = {}
-
           @filters.each do |key, val|
-
             if GlobalConstant::UserKycDetail.filters[key.to_s].blank?
-              return error_with_data(
-                  'am_k_cd_vas_1',
-                  'Invalid Parameters.',
-                  'Invalid Filter type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
+              sanitized_filter.delete(key)
+              next
             end
 
             filter_data = GlobalConstant::UserKycDetail.filters[key][val]
-            error_data[key] = 'invalid value for filter' if filter_data.nil?
+            sanitized_filter.delete(key) if filter_data.nil?
           end
-
-          return error_with_data(
-              'am_k_cd_vas_2',
-              'Invalid Filter Parameter value',
-              '',
-              GlobalConstant::ErrorAction.default,
-              {},
-              error_data
-          ) if error_data.present?
-
         end
 
-        if @sortings.present?
-          error_data = {}
+        sanitized_sorting = @sortings.dup
 
+        if @sortings.present?
           @sortings.each do |key, val|
 
             if GlobalConstant::UserKycDetail.sorting[key.to_s].blank?
-              return error_with_data(
-                  'am_k_cd_vas_3',
-                  'Invalid Parameters.',
-                  'Invalid Sort type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
+              sanitized_sorting.delete(key)
+              next
             end
 
             sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
-            error_data[key] = 'invalid value for sorting' if sort_data.nil?
+            sanitized_sorting.delete(key) if sort_data.nil?
           end
-
-          return error_with_data(
-              'am_k_cd_vas_4',
-              'Invalid Sort Parameter value',
-              '',
-              GlobalConstant::ErrorAction.default,
-              {},
-              error_data
-          ) if error_data.present?
         end
+
+        @filters = sanitized_filter
+        @sortings = sanitized_sorting
 
         @page_number = 1 if @page_number < 1
         @page_size = 20 if @page_size == 0 || @page_size > 100
@@ -470,7 +440,7 @@ module AdminManagement
       def investor_proofs_file_path_d
         @user_extended_detail.investor_proof_files_path.present? ?
             local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
-            nil
+            []
       end
 
       # local cipher obj

@@ -94,8 +94,10 @@ module AdminManagement
 
         duplicate_with_users = []
 
-        duplicate_with_users += UserKycDuplicationLog.where(user1_id: @user_kyc_detail.user_id, user_extended_details1_id: @user_kyc_detail.user_extended_detail_id).order('status ASC, id DESC').all
-        duplicate_with_users += UserKycDuplicationLog.where(user2_id: @user_kyc_detail.user_id, user_extended_details2_id: @user_kyc_detail.user_extended_detail_id).order('status ASC, id DESC').all
+        duplicate_with_users += UserKycDuplicationLog.where(user1_id: @user_kyc_detail.user_id, user_extended_details1_id: @user_kyc_detail.user_extended_detail_id)
+                                    .order('status ASC, id DESC').limit(100).all
+        duplicate_with_users += UserKycDuplicationLog.where(user2_id: @user_kyc_detail.user_id, user_extended_details2_id: @user_kyc_detail.user_extended_detail_id)
+                                    .order('status ASC, id DESC').limit(100).all
         duplicate_with_users.each do |duplicate|
           duplicate_with_uid = (duplicate.user1_id == @user_kyc_detail.user_id) ? duplicate.user2_id : duplicate.user1_id
           @duplicate_kycs[duplicate_with_uid] ||= {

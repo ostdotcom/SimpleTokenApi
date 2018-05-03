@@ -121,7 +121,7 @@ module AdminManagement
           Email::HookCreator::SendTransactionalMail.new(
               client_id: @client.id,
               email: @user.email,
-              template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
+              template_name: GlobalConstant::PepoCampaigns.kyc_report_issue_template,
               template_vars: @email_temp_vars
           ).perform
 

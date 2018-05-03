@@ -2,8 +2,8 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
   enum status: {
       GlobalConstant::Admin.active_status => 1,
-      GlobalConstant::Admin.inactive_status => 2,
-      GlobalConstant::Admin.deactived_status => 3
+      GlobalConstant::Admin.invited_status => 2,
+      GlobalConstant::Admin.deleted_status => 3
   }
 
   enum role: {

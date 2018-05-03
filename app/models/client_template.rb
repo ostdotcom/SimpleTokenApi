@@ -10,7 +10,9 @@ class ClientTemplate < EstablishSimpleTokenClientDbConnection
       GlobalConstant::ClientTemplate.change_password_template_type => 5,
       GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type => 6,
       GlobalConstant::ClientTemplate.kyc_template_type => 7,
-      GlobalConstant::ClientTemplate.dashboard_template_type => 8
+      GlobalConstant::ClientTemplate.dashboard_template_type => 8,
+      GlobalConstant::ClientTemplate.verification_template_type => 9
+
   }
 
   after_commit :memcache_flush

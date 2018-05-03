@@ -113,6 +113,8 @@ class ClientSetting
         ClientManagement::PageSetting::ChangePassword
       when GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
         ClientManagement::PageSetting::TokenSaleBlockedRegion
+      when GlobalConstant::ClientTemplate.verification_template_type
+        ClientManagement::PageSetting::Verification
       when GlobalConstant::ClientTemplate.kyc_template_type
         ClientManagement::PageSetting::Kyc
       when GlobalConstant::ClientTemplate.dashboard_template_type

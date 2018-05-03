@@ -35,6 +35,10 @@ module GlobalConstant
         'kyc'
       end
 
+      def verification_template_type
+        'verification'
+      end
+
       def dashboard_template_type
         'dashboard'
       end
@@ -123,6 +127,10 @@ module GlobalConstant
         {
             primary_button_href: 'https://simpletoken.org/terms',
         }
+      end
+
+      def verification
+        {}
       end
 
       def kyc

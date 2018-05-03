@@ -213,13 +213,16 @@ module UserManagement
 
       password_e = User.get_encrypted_password(@password, @login_salt_hash[:plaintext])
 
-      @user = User.create!(
+      @user = User.new(
           client_id: @client_id,
           email: @email,
           password: password_e,
           user_secret_id: @user_secret.id,
           status: GlobalConstant::User.active_status
       )
+
+      @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property) if @client.is_verify_page_active_for_client?
+      @user.save!
     end
 
     # Do remaining task in sidekiq
@@ -229,6 +232,14 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def enqueue_job
+      BgJob.enqueue(
+          SendDoubleOptIn,
+          {
+              client_id: @client_id,
+              user_id: @user.id
+          }
+      )  if @client.is_verify_page_active_for_client?
+
       BgJob.enqueue(
           NewUserRegisterJob,
           {
@@ -253,7 +264,7 @@ module UserManagement
     #
     def set_cookie_value
       cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
-      success_with_data(cookie_value: cookie_value)
+      success_with_data({cookie_value: cookie_value, user_token_sale_state: @user.get_token_sale_state_page_name})
     end
 
   end

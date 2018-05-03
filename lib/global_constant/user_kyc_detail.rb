@@ -257,7 +257,7 @@ module GlobalConstant
         {
             "sort_by" => {
                 'desc' => {id: :desc},
-                'inc' => {id: :asc}
+                'asc' => {id: :asc}
             }
         }
       end

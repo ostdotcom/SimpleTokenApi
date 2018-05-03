@@ -155,7 +155,7 @@ module AdminManagement
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation = ar_relation.select(:id)
 
-        if @sortings.present? && @sortings[:sort_order] == 'inc'
+        if @sortings.present? && @sortings[:sort_order] == 'asc'
           kyc_1 = ar_relation.where("id > ?", @case_id).first
           kyc_2 = ar_relation.where("id < ?", @case_id).last
           @next_kyc_id = kyc_1.id if kyc_1.present?

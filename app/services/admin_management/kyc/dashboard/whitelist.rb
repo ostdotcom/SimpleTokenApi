@@ -96,7 +96,7 @@ module AdminManagement
         # def fetch_whitelisted_kyc_details
         #   ar_relation = UserKycDetail.where(client_id: @client_id)
         #
-        #   if @sortings[:sort_order] == 'inc'
+        #   if @sortings[:sort_order] == 'asc'
         #     ar_relation = ar_relation.order('id ASC')
         #   else
         #     ar_relation = ar_relation.order('id DESC')

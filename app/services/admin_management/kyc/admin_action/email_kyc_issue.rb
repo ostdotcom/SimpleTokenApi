@@ -23,6 +23,7 @@ module AdminManagement
           super
 
           @email_temp_vars = @params[:email_temp_vars]
+          @sanitized_email_data = {}
         end
 
         # Deny KYC by admin
@@ -58,6 +59,8 @@ module AdminManagement
         # * Date: 15/10/2017
         # * Reviewed By: Sunil
         #
+        # Sets @sanitized_email_data
+        #
         # return [Result::Base]
         #
         def validate_and_sanitize
@@ -90,11 +93,19 @@ module AdminManagement
 
             if GlobalConstant::UserKycDetail.other_issue_admin_action_type == issue_category
               error_fields[issue_category] = 'please enter some description' if issue_data.blank? || !issue_data.is_a?(String)
+              @sanitized_email_data[issue_category] = issue_data
             else
               error_fields[issue_category] = 'please select some options' if !issue_data.is_a?(Array) || issue_data.blank?
               invalid_subcategories = issue_data - issue_data_enum.keys
               error_fields[issue_category] = "invalid categories selected- #{invalid_subcategories.join(', ')}" if invalid_subcategories.present?
+
+              @sanitized_email_data[issue_category] ||= {}
+              issue_data.each do |issue|
+                @sanitized_email_data[issue_category][issue.to_s] = "1"
+              end
             end
+
+
           end
 
           return error_with_data(
@@ -121,8 +132,8 @@ module AdminManagement
           Email::HookCreator::SendTransactionalMail.new(
               client_id: @client.id,
               email: @user.email,
-              template_name: GlobalConstant::PepoCampaigns.kyc_report_issue_template,
-              template_vars: @email_temp_vars
+              template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
+              template_vars: @sanitized_email_data
           ).perform
 
         end

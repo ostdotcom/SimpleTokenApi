@@ -153,8 +153,8 @@ module GlobalConstant
       # end
       #
 
-      def kyc_report_issue_template
-        'kyc_report_issue'
+      def kyc_issue_template
+        'kyc_issue'
       end
 
       # kyc_approved email - sent when kyc is approved by cynopsis and admin both.
@@ -223,7 +223,7 @@ module GlobalConstant
         [
           double_opt_in_template,
           forgot_password_template,
-          kyc_report_issue_template,
+          kyc_issue_template,
 
           # kyc_data_mismatch_template,
           # kyc_document_id_issue_template,

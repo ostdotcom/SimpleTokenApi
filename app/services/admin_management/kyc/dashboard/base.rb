@@ -74,7 +74,7 @@ module AdminManagement
                 )
               end
 
-              filter_data = GlobalConstant::UserKycDetail.filters[key][val]
+              filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
               error_data[key] = 'invalid value for filter' if filter_data.nil?
             end
 
@@ -106,7 +106,7 @@ module AdminManagement
                 )
               end
 
-              sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
+              sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
               error_data[key] = 'invalid value for sorting' if sort_data.nil?
             end
 

@@ -92,7 +92,7 @@ module AdminManagement
               next
             end
 
-            filter_data = GlobalConstant::UserKycDetail.filters[key][val]
+            filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
             sanitized_filter.delete(key) if filter_data.nil?
           end
         end
@@ -107,16 +107,13 @@ module AdminManagement
               next
             end
 
-            sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
+            sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
             sanitized_sorting.delete(key) if sort_data.nil?
           end
         end
 
         @filters = sanitized_filter
         @sortings = sanitized_sorting
-
-        @page_number = 1 if @page_number < 1
-        @page_size = 20 if @page_size == 0 || @page_size > 100
 
         r = fetch_and_validate_client
         return r unless r.success?

@@ -191,7 +191,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.get_from_memcache(@temporary_token_obj.user_id)
+      @user = User.get_from_memcache(@temporary_token_obj.entity_id)
       return unauthorized_access_response('um_rp_9') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
@@ -244,7 +244,7 @@ module UserManagement
       @temporary_token_obj.save!
 
       TemporaryToken.where(
-          user_id: @user.id,
+          entity_id: @user.id,
           kind: GlobalConstant::TemporaryToken.reset_password_kind,
           status: GlobalConstant::TemporaryToken.active_status
       ).update_all(

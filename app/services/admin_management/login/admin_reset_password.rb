@@ -162,7 +162,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin
-        @admin = Admin.where(id: @temporary_token_obj.user_id).first
+        @admin = Admin.where(id: @temporary_token_obj.entity_id).first
         return unauthorized_access_response('am_l_arp_9') unless @admin.present? && @admin.password.present? &&
             (@admin.status == GlobalConstant::Admin.active_status)
 
@@ -213,7 +213,7 @@ module AdminManagement
         @temporary_token_obj.save!
   
         TemporaryToken.where(
-            user_id: @admin.id,
+            entity_id: @admin.id,
             kind: GlobalConstant::TemporaryToken.admin_reset_password_kind,
             status: GlobalConstant::TemporaryToken.active_status
         ).update_all(

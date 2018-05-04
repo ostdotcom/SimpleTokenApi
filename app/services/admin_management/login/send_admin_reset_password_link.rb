@@ -86,7 +86,7 @@ module AdminManagement
       #
       def create_reset_password_token
         reset_token = Digest::MD5.hexdigest("#{@admin.id}::#{@admin.password}::#{Time.now.to_i}::reset_password::#{rand}")
-        db_row = TemporaryToken.create!(user_id: @admin.id, kind: GlobalConstant::TemporaryToken.admin_reset_password_kind, token: reset_token)
+        db_row = TemporaryToken.create!(entity_id: @admin.id, kind: GlobalConstant::TemporaryToken.admin_reset_password_kind, token: reset_token)
 
         reset_pass_token_str = "#{db_row.id.to_s}:#{reset_token}"
         encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)

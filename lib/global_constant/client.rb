@@ -35,6 +35,10 @@ module GlobalConstant
         "web_host_setup_done"
       end
 
+      def double_opt_in_setup_needed
+        "double_opt_in_setup_needed"
+      end
+
       ### setup Property done ###
 
     end

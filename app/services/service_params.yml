@@ -204,6 +204,7 @@
     - :client_id
   :optional:
     - :template_type
+    - :token
 
 'UserManagement::GetClientDetail':
   :mandatory:
@@ -343,6 +344,11 @@
   :optional:
 
 'ClientManagement::PageSetting::ChangePassword':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'ClientManagement::PageSetting::Verification':
   :mandatory:
     - :client_id
   :optional:

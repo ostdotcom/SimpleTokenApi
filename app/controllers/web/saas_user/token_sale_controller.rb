@@ -2,6 +2,25 @@ class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
 
   before_action :verify_recaptcha, only: [:kyc_submit]
 
+  # Send Double Opt In again
+  #
+  # * Author: Aman
+  # * Date: 02/05/2018
+  # * Reviewed By:
+  #
+  def resend_double_opt_in
+    BgJob.enqueue(
+        SendDoubleOptIn,
+        {
+            client_id: params[:client_id],
+            user_id: params[:user_id]
+        }
+    )
+
+    r = Result::Base.success({})
+    render_api_response(r)
+  end
+
   # Submit KYC
   #
   # * Author: Kedar
@@ -45,25 +64,6 @@ class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
     service_response = UserManagement::CheckEthereumBalance.new(params).perform
     render_api_response(service_response)
   end
-
-  # Send Double Opt In again
-  #
-  # * Author: Aman
-  # * Date: 13/10/2017
-  # * Reviewed By: Sunil
-  #
-  #  todo: "KYCaas-Changes"
-  # def resend_double_opt_in
-  #   BgJob.enqueue(
-  #       OnBTSubmitJob,
-  #       {
-  #           user_id: params[:user_id]
-  #       }
-  #   )
-  #
-  #   r = Result::Base.success({})
-  #   render_api_response(r)
-  # end
 
   # Check if ethereum address is valid
   #

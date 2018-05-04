@@ -183,7 +183,7 @@ module UserManagement
     #  todo: "KYCaas-Changes"
     # def enqueue_job
     #   BgJob.enqueue(
-    #       OnBTSubmitJob,
+    #       SendDoubleOptIn,
     #       {
     #           user_id: @user_id
     #       }

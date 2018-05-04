@@ -58,7 +58,7 @@ module AdminManagement
 
       private
 
-      # Perform
+      # fetch normal admins
       #
       # * Author: Aman
       # * Date: 03/05/2018
@@ -67,7 +67,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admins
-        admin_objs = Admin.where(default_client_id: @client_id).where('status != ?', GlobalConstant::Admin.deleted_status).all
+        admin_objs = Admin.not_deleted.where(default_client_id: @client_id).all
         admin_objs.each do |admin|
           @admin_user_count += 1
           next if admin.role != GlobalConstant::Admin.normal_admin_role

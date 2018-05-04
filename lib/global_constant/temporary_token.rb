@@ -35,6 +35,10 @@ module GlobalConstant
         'admin_reset_password'
       end
 
+      def admin_invite_kind
+        'admin_invite'
+      end
+
       ########## Kinds ###########
 
       ########## expiry intervals ###########
@@ -45,6 +49,10 @@ module GlobalConstant
 
       def double_opt_in_expiry_interval
         15.days
+      end
+
+      def admin_invite_expiry_interval
+        1.days
       end
 
       ########## Kinds ###########

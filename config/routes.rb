@@ -49,6 +49,8 @@ Rails.application.routes.draw do
       match 'mfa' => :multifactor_auth, via: :POST
       match 'reset-password' => :admin_reset_password, via: :POST
       match 'send-reset-password-link' => :send_admin_reset_password_link, via: :POST
+      match 'invite-detail' => :invite_detail, via: :GET
+      match 'activate-invite' => :activate_invited_admin, via: :POST
     end
 
     scope 'api/admin/profile', controller: 'web/admin/profile' do
@@ -84,6 +86,10 @@ Rails.application.routes.draw do
 
     scope 'api/admin/admin-user', controller: 'web/admin/super_admin' do
       match 'dashboard' => :dashboard, via: :GET
+      match 'invite' => :invite, via: :POST
+      match 'resend-invite' => :resend_invite, via: :POST
+      match 'reset-mfa' => :reset_mfa, via: :POST
+      match 'delete-admin' => :delete_admin, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

@@ -11,6 +11,8 @@ class Admin < EstablishSimpleTokenAdminDbConnection
       GlobalConstant::Admin.super_admin_role => 2
   }
 
+  scope :not_deleted, -> {where(status: [GlobalConstant::Admin.active_status, GlobalConstant::Admin.invited_status])}
+
   after_commit :memcache_flush
 
   # Add Admin

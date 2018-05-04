@@ -132,6 +132,10 @@ module GlobalConstant
         'forgot_password'
       end
 
+      def admin_invite_template
+        "admin_invite"
+      end
+
       # # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
       # def kyc_data_mismatch_template
       #   'kyc_data_mismatch'
@@ -224,6 +228,7 @@ module GlobalConstant
           double_opt_in_template,
           forgot_password_template,
           kyc_issue_template,
+          admin_invite_template,
 
           # kyc_data_mismatch_template,
           # kyc_document_id_issue_template,

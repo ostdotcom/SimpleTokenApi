@@ -380,6 +380,47 @@
     - :client_id
   :optional:
 
+'AdminManagement::AdminUser::Invite':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :email
+    - :name
+  :optional:
+
+'AdminManagement::AdminUser::ResendInvite':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::AdminUser::ResetMfa':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::AdminUser::DeleteAdmin':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::AdminUser::ActivateInvitedAdmin':
+  :mandatory:
+    - :i_t
+    - :password
+    - :confirm_password
+  :optional:
+
+'AdminManagement::AdminUser::GetInviteDetail':
+  :mandatory:
+    - :i_t
+  :optional:
+
 #'AdminManagement::Kyc::Dashboard::Whitelist':
 #  :mandatory:
 #    - :admin_id

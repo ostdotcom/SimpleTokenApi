@@ -85,7 +85,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   # @returns [Array<Symbol>] returns Array of properties bits set for user
   #
   def admin_action_types_array
-    @admin_action_types_array = UserKycDetail.get_bits_set_for_admin_action_types(admin_action_types)
+    @admin_action_types_array = UserKycDetail.get_bits_set_for_admin_action_types(admin_action_type)
   end
 
   # properties config

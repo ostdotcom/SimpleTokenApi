@@ -436,7 +436,7 @@ module AdminManagement
       #
       def investor_proofs_file_path_d
         @user_extended_detail.investor_proof_files_path.present? ?
-            local_cipher_obj.decrypt(@user_extended_detail.residence_proof_file_path).data[:plaintext] :
+            local_cipher_obj.decrypt(@user_extended_detail.investor_proof_files_path).data[:plaintext] :
             []
       end
 

@@ -24,9 +24,6 @@ module AdminManagement
         @temporary_token_obj = nil
         @admin = nil
 
-        @api_response_data = {}
-        @invalid_token = false
-
       end
 
       # Perform
@@ -50,9 +47,7 @@ module AdminManagement
         r = fetch_admin
         return r unless r.success?
 
-        set_api_response_data
-
-        success_with_data(@api_response_data)
+        success_with_data({name: @admin.name})
 
       end
 
@@ -64,34 +59,24 @@ module AdminManagement
       # * Date: 03/05/2018
       # * Reviewed By:
       #
-      # Sets @invite_token, @temporary_token_id, @invalid_token
+      # Sets @invite_token, @temporary_token_id
       #
       # @return [Result::Base]
       #
       def validate_and_sanitize
 
-        # dont return error but set @invalid_token as true
         r = validate
-        unless r.success?
-          @invalid_token = true
-          return success
-        end
+        return incorrect_invite_error('invalid_token') unless r.success?
 
         decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
         r = decryptor_obj.decrypt(@i_t)
-        unless r.success?
-          @invalid_token = true
-          return success
-        end
+        return incorrect_invite_error('invalid_token') unless r.success?
 
         decripted_t = r.data[:plaintext]
 
         splited_invite_token = decripted_t.split(':')
 
-        if splited_invite_token.length != 2
-          @invalid_token = true
-          return success
-        end
+        return incorrect_invite_error('invalid_token') if splited_invite_token.length != 2
 
         @invite_token = splited_invite_token[1].to_s
 
@@ -109,7 +94,6 @@ module AdminManagement
       # Sets @temporary_token_obj
       #
       def fetch_temporary_token_obj
-        return if @invalid_token
         @temporary_token_obj = TemporaryToken.where(id: @temporary_token_id).first
       end
 
@@ -122,14 +106,15 @@ module AdminManagement
       # @return [Result::Base]
       #
       def validate_invite_token
+        return incorrect_invite_error('invalid_token') if @temporary_token_obj.blank?
 
-        return success if @invalid_token
+        return incorrect_invite_error('invalid_token') if @temporary_token_obj.token != @invite_token
 
-        if @temporary_token_obj.blank? || @temporary_token_obj.token != @invite_token ||
-            @temporary_token_obj.kind != GlobalConstant::TemporaryToken.admin_invite_kind
-          @invalid_token = true
-          return success
-        end
+        return incorrect_invite_error('invalid_token') if @temporary_token_obj.kind != GlobalConstant::TemporaryToken.admin_invite_kind
+
+        return incorrect_invite_error('expired_token') if @temporary_token_obj.status != GlobalConstant::TemporaryToken.active_status
+
+        return incorrect_invite_error('expired_token') if @temporary_token_obj.is_expired?
 
         success
       end
@@ -145,40 +130,27 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin
-        return success if @invalid_token
-
         @admin = Admin.where(id: @temporary_token_obj.user_id).first
-
-        @invalid_token = true if @admin.blank?
-
+        return incorrect_invite_error('invalid_token') if @admin.blank?
         success
       end
 
-      # set response data
+      # Incorrect invite error
       #
       # * Author: Aman
-      # * Date: 03/05/2018
+      # * Date: 04/05/2018
       # * Reviewed By:
       #
-      # Sets @api_response_data
+      # @return [Result::Base]
       #
-      def set_api_response_data
-
-        @api_response_data = {
-            invalid_token: @invalid_token.to_i
-        }
-
-        if !@invalid_token
-
-          if @temporary_token_obj.status != GlobalConstant::TemporaryToken.active_status || @temporary_token_obj.is_expired?
-            @api_response_data[:is_expired] = true.to_i
-          end
-
-          @api_response_data[:admin] = {
-              name: @admin.name
-          }
-        end
-
+      def incorrect_invite_error(err_code)
+        error_with_data(
+            err_code,
+            'Invalid invite token',
+            '',
+            GlobalConstant::ErrorAction.default,
+            {}
+        )
       end
 
     end

@@ -76,7 +76,7 @@ module AdminManagement
       def fetch_admin
         @admin = Admin.where(email: @email).first
 
-        return incorrect_login_error('am_l_pa_1', {is_deleted: 1}) if @admin.present? &&
+        return incorrect_login_error('is_deleted') if @admin.present? &&
             @admin.status == GlobalConstant::Admin.deleted_status
 
         return incorrect_login_error('am_l_pa_2') unless @admin.present? &&
@@ -173,13 +173,13 @@ module AdminManagement
       #
       # @return [Result::Base]
       #
-      def incorrect_login_error(err_code, data= {})
+      def incorrect_login_error(err_code)
         error_with_data(
             err_code,
             'Email or password is incorrect.',
             'Email or password is incorrect.',
             GlobalConstant::ErrorAction.default,
-            data
+            {}
         )
       end
 

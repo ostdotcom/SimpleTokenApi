@@ -88,7 +88,8 @@ class ApplicationController < ActionController::API
       response_hash[:err] = {
           display_text: (err[:display_text].to_s),
           display_heading: (err[:display_heading].to_s),
-          error_data: (err[:error_data] || {})
+          error_data: (err[:error_data] || {}),
+          code: (err[:code] || {})
       }
 
       response_hash[:data] = {}

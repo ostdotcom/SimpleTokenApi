@@ -117,7 +117,7 @@ module AdminManagement
       #
       def create_invite_token
         admin_invite_token = Digest::MD5.hexdigest("#{@invite_admin_obj.id}::#{@invite_admin_obj.name}::#{Time.now.to_i}::invite_admin::#{rand}")
-        db_row = TemporaryToken.create!(user_id: @invite_admin_obj.id,
+        db_row = TemporaryToken.create!(entity_id: @invite_admin_obj.id,
                                         kind: GlobalConstant::TemporaryToken.admin_invite_kind, token: admin_invite_token)
 
         admin_invite_token_str = "#{db_row.id.to_s}:#{admin_invite_token}"

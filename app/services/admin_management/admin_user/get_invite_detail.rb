@@ -130,7 +130,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin
-        @admin = Admin.where(id: @temporary_token_obj.user_id).first
+        @admin = Admin.where(id: @temporary_token_obj.entity_id).first
         return incorrect_invite_error('invalid_token') if @admin.blank?
         success
       end

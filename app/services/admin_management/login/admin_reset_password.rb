@@ -183,7 +183,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def decrypt_login_salt
-        r = Aws::Kms.new('login', 'user').decrypt(@admin_secret.login_salt)
+        r = Aws::Kms.new('login', 'admin').decrypt(@admin_secret.login_salt)
         return r unless r.success?
   
         @login_salt_d = r.data[:plaintext]

@@ -57,7 +57,7 @@ module AdminManagement
 
         create_csv_report_job
 
-        success
+        success_with_data({success_message: "Success! We are consolidating your CSV file. We will send an email on #{@admin.email}, with a link to download it. Please check your inbox in sometime."})
 
       end
 
@@ -158,7 +158,7 @@ module AdminManagement
           return error_with_data(
               'am_r_gkr_vircbt_1',
               'previous request for download is already in process',
-              'previous request for download is already in process',
+              'Previous request for download is already in process',
               GlobalConstant::ErrorAction.default,
               {},
               {}
@@ -166,16 +166,24 @@ module AdminManagement
         end
 
         total_completed_jobs = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
-                                       .where('created_at > ?', Time.now - 1.day).count
+                                   .where('created_at > ?', Time.now - 1.day).count
 
-        return error_with_data(
-            'am_r_gkr_vircbt_2',
-            "Maximum of #{total_completed_jobs} csv downloads for today is done.",
-            "Maximum of #{total_completed_jobs} csv downloads for today is done.",
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
-        ) if total_completed_jobs >= MAX_LIMIT_FOR_1_DAY
+        if total_completed_jobs >= MAX_LIMIT_FOR_1_DAY
+          db_resp = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
+                                     .where('created_at > ?', Time.now - 1.day).select('min(created_at) as next_download_time').first
+
+          time_str = db_resp.next_download_time.strftime("%H:%M %p %z")
+          # "tomorrow" string to be relative to next time str
+
+          return error_with_data(
+              'am_r_gkr_vircbt_2',
+              "Maximum of #{total_completed_jobs} csv downloads for today is done.",
+              "You can only download the CSV #{MAX_LIMIT_FOR_1_DAY} times in 24 hours. Please try again after #{time_str}.",
+              GlobalConstant::ErrorAction.default,
+              {},
+              {}
+          )
+        end
 
         success
       end

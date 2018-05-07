@@ -4,7 +4,8 @@ module AdminManagement
 
     class GetKycReport < ServicesBase
 
-      MAX_LIMIT_FOR_1_DAY = 5
+      MAX_LIMIT_FOR_DOWNLOAD = 5
+      TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR = 10
 
       # Initialize
       #
@@ -158,34 +159,52 @@ module AdminManagement
           return error_with_data(
               'am_r_gkr_vircbt_1',
               'previous request for download is already in process',
-              'Previous request for download is already in process',
+              'Previous request for download is already in process. Please try after some time',
               GlobalConstant::ErrorAction.default,
               {},
               {}
           )
         end
 
+        last_min_download_time = Time.now - TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR.hours
         total_completed_jobs = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
-                                   .where('created_at > ?', Time.now - 1.day).count
+                                   .where('created_at > ?', last_min_download_time).count
 
-        if total_completed_jobs >= MAX_LIMIT_FOR_1_DAY
+        if total_completed_jobs >= MAX_LIMIT_FOR_DOWNLOAD
           db_resp = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
-                                     .where('created_at > ?', Time.now - 1.day).select('min(created_at) as next_download_time').first
+                        .where('created_at > ?', last_min_download_time).select('min(created_at) as next_download_time').first
 
-          time_str = db_resp.next_download_time.strftime("%H:%M %p %z")
-          # "tomorrow" string to be relative to next time str
+          time_str = time_diff_string(db_resp.next_download_time)
 
           return error_with_data(
               'am_r_gkr_vircbt_2',
               "Maximum of #{total_completed_jobs} csv downloads for today is done.",
-              "You can only download the CSV #{MAX_LIMIT_FOR_1_DAY} times in 24 hours. Please try again after #{time_str}.",
+              "You can only download the CSV #{MAX_LIMIT_FOR_DOWNLOAD} times in #{TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR} hours. Please try again after #{time_str}.",
               GlobalConstant::ErrorAction.default,
               {},
               {}
           )
         end
-
         success
+      end
+
+      # give display string for time left to download another csv
+      #
+      # * Author: Aman
+      # * Date: 18/04/2018
+      # * Reviewed By:
+      #
+      # @return [String] return human readable string for time difference rounded off to 15 minutes
+      #
+      def time_diff_string(next_download_time)
+        timestamp_diff = next_download_time.to_i - Time.now.to_i
+        timestamp_diff_in_hour = timestamp_diff / (60 * 60)
+        timestamp_diff_in_min = timestamp_diff % (60 * 60)
+
+        time_str = "#{timestamp_diff_in_hour} hour" if timestamp_diff_in_hour > 0
+        time_str += " #{(timestamp_diff_in_min / 15.0).ceil} minutes" if timestamp_diff_in_min > 0
+
+        time_str
       end
 
       # create a record in csv report job and enqueue job

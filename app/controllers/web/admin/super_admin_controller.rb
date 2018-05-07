@@ -31,7 +31,7 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def invite
-    service_response = AdminManagement::AdminUser::Invite.new(params).perform
+    service_response = AdminManagement::AdminUser::Invite::Send.new(params).perform
     render_api_response(service_response)
   end
 
@@ -42,7 +42,7 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def resend_invite
-    service_response = AdminManagement::AdminUser::ResendInvite.new(params).perform
+    service_response = AdminManagement::AdminUser::Invite::Resend.new(params).perform
     render_api_response(service_response)
   end
 

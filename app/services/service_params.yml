@@ -386,7 +386,7 @@
     - :client_id
   :optional:
 
-'AdminManagement::AdminUser::Invite':
+'AdminManagement::AdminUser::Invite::Send':
   :mandatory:
     - :admin_id
     - :client_id
@@ -394,7 +394,7 @@
     - :name
   :optional:
 
-'AdminManagement::AdminUser::ResendInvite':
+'AdminManagement::AdminUser::Invite::Resend':
   :mandatory:
     - :admin_id
     - :client_id

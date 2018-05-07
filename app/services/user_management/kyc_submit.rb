@@ -145,6 +145,7 @@ module UserManagement
       validate_state
       validate_postal_code
       validate_residence_proof_file_path
+      validate_investor_documents
 
       # IF error, return
       return error_with_data(

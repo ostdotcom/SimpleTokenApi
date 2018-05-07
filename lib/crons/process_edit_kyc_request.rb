@@ -1,6 +1,6 @@
 module Crons
 
-  class ProcessEditKycRequest
+  class ProcessEditKycRequestOld
 
     include Util::ResultHelper
 

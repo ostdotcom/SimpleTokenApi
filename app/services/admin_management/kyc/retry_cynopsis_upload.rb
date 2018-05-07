@@ -10,19 +10,22 @@ module AdminManagement
       # * Date: 25/04/2018
       # * Reviewed By:
       #
-      # @params [Integer] admin_id (mandatory) - logged in admin
       # @params [Integer] client_id (mandatory) - logged in admin's client id
-      # @params [Integer] id (mandatory) - search term to find case
+      # @params [Integer] id (mandatory) - user kyc detail id
+      #
+      # @params [Integer] admin_id (optional) - logged in admin (not passed when called by a cron)
+      # @params [Boolean] cron_job (optional) - true if called by cron job
       #
       # @return [AdminManagement::Kyc::RetryCynopsisUpload]
       #
       def initialize(params)
         super
 
-        @admin_id = @params[:admin_id]
         @client_id = @params[:client_id]
-
         @case_id = @params[:id]
+
+        @admin_id = @params[:admin_id]
+        @cron_job = @params[:cron_job]
 
         @user_kyc_detail, @user_extended_detail = nil, nil
         @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
@@ -45,8 +48,10 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
-        r = fetch_and_validate_admin
-        return r unless r.success?
+        if !is_a_cron_task?
+          r = fetch_and_validate_admin
+          return r unless r.success?
+        end
 
         fetch_user_kyc
 
@@ -117,7 +122,7 @@ module AdminManagement
       # Sets @user_extended_detail
       #
       def fetch_user_extended_detail
-        @user_extended_detail = UserExtendedDetail.where(user_id: @user_kyc_detail.user_id).last
+        @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       end
 
       # Cynopsis add or update
@@ -133,7 +138,9 @@ module AdminManagement
         Rails.logger.info("-- retry for call_cynopsis_api r: #{r.inspect}")
 
         if !r.success?
-          log_to_user_activity(r)
+          # dont log activity if it is a cron task
+          log_to_user_activity(r) if !is_a_cron_task?
+
           return error_with_data(
               'am_k_rcu_cca_1',
               "There was some error in cynopsis update",
@@ -316,6 +323,10 @@ module AdminManagement
             }
         ).perform
 
+      end
+
+      def is_a_cron_task?
+        @cron_job == true
       end
 
     end

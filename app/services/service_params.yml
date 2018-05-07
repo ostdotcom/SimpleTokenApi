@@ -375,10 +375,11 @@
 
 'AdminManagement::Kyc::RetryCynopsisUpload':
   :mandatory:
-    - :admin_id
     - :client_id
     - :id
   :optional:
+    - :admin_id
+    - :cron_job
 
 'AdminManagement::AdminUser::Dashboard':
   :mandatory:

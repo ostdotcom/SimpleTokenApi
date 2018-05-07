@@ -117,7 +117,7 @@ module UserManagement
         return invalid_url_error('um_doi_5')
       end
 
-      if @token_sale_double_opt_in_token.user_id != @user_id
+      if @token_sale_double_opt_in_token.entity_id != @user_id
         return invalid_url_error('um_doi_6')
       end
 

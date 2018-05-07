@@ -44,7 +44,7 @@ class SendDoubleOptIn < ApplicationJob
   # @return [Result::Base]
   #
   def create_double_opt_in_token
-    db_row = TemporaryToken.find_or_initialize_by(user_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind)
+    db_row = TemporaryToken.find_or_initialize_by(entity_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind)
     if db_row.new_record?
       t_double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
       db_row.token = t_double_opt_in_token

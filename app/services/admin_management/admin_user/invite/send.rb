@@ -89,6 +89,8 @@ module AdminManagement
         def extra_validations
           r = check_max_allowed_admin_count
           return r unless r.success?
+
+          success
         end
 
         # fetch admin if present
@@ -106,6 +108,7 @@ module AdminManagement
           return r unless r.success?
 
           add_or_update_admin
+          success
         end
 
         # check if total no admins allowed for a client has reached

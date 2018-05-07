@@ -4,7 +4,7 @@ module AdminManagement
 
     module Invite
 
-      class Resend < ServicesBase
+      class Resend < Base
 
         # Initialize
         #

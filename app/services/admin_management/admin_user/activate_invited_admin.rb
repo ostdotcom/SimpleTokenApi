@@ -183,7 +183,7 @@ module AdminManagement
         return resp unless resp.success?
 
         ciphertext_blob = resp.data[:ciphertext_blob]
-        login_salt_d = plaintext
+        login_salt_d = resp.data[:plaintext]
 
         encrypted_password = Admin.get_encrypted_password(@password, login_salt_d)
         encryptor_obj = LocalCipher.new(login_salt_d)

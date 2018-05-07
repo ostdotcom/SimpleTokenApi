@@ -153,10 +153,11 @@ module AdminManagement
 
           if l_ar.action == GlobalConstant::UserActivityLog.kyc_issue_email_sent_action
             activity_data.each do |issue_key, issue_val|
-              humanized_action_data[issue_key.humanize.to_s] = nil
+              humanized_key = issue_key.to_s.humanize
+              humanized_action_data[humanized_key] = nil
 
               if issue_key.to_s != GlobalConstant::UserKycDetail.other_issue_admin_action_type
-                humanized_action_data[issue_key.humanize.to_s] = issue_val.map {|x| x.humanize}.join(", ")
+                humanized_action_data[humanized_key] = issue_val.map {|x| x.humanize}.join(", ")
               end
             end
           end

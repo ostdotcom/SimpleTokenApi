@@ -149,11 +149,24 @@ module AdminManagement
           data_hash = l_ar.e_data.present? ? LocalCipher.new(activity_log_decyption_salt).decrypt(l_ar.e_data).data[:plaintext] : {}
           admin_detail = (@admin_details.present? && l_ar.admin_id.present?) ? @admin_details[l_ar.admin_id] : {}
           activity_data = data_hash
+          humanized_action_data = {}
+
+          if l_ar.action == GlobalConstant::UserActivityLog.kyc_issue_email_sent_action
+            activity_data.each do |issue_key, issue_val|
+              humanized_action_data[issue_key.humanize.to_s] = nil
+
+              if issue_key.to_s != GlobalConstant::UserKycDetail.other_issue_admin_action_type
+                humanized_action_data[issue_key.humanize.to_s] = issue_val.map {|x| x.humanize}.join(", ")
+              end
+            end
+          end
+
           @curr_page_data << {
               created_at_timestamp: Util::DateTimeHelper.get_formatted_time(l_ar.action_timestamp),
               agent: admin_detail['name'].to_s,
               action: l_ar.action,
-              action_data: activity_data
+              action_data: activity_data,
+              humanized_action_data: humanized_action_data
           }
         end
 

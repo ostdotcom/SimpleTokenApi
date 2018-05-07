@@ -44,6 +44,8 @@ module AdminManagement
 
         get_duplicate_email_data
 
+        format_duplicate_data
+
         set_api_response_data
 
         success_with_data(@api_response_data)
@@ -139,12 +141,25 @@ module AdminManagement
               GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym => []
           }
 
-          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.capitalize
+          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.humanize
           @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
           @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
         end
 
+      end
+
+      # format duplicate data
+      #
+      # * Author: Aman
+      # * Date: 07/05/2018
+      # * Reviewed By:
+      #
+      def format_duplicate_data
+        @duplicate_kycs.each do |_, kyc_data|
+          kyc_data[GlobalConstant::UserKycDuplicationLog.active_status.to_sym] = kyc_data[GlobalConstant::UserKycDuplicationLog.active_status.to_sym].map {|x| x.humanize}
+          kyc_data[GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym] = kyc_data[GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym].map {|x| x.humanize}
+        end
       end
 
       # Set API response data

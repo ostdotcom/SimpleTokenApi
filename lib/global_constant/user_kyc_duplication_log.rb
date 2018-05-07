@@ -28,7 +28,7 @@ module GlobalConstant
       end
 
       def ethereum_duplicate_type
-        'ethereum'
+        'ethereum_address'
       end
 
       def address_duplicate_type

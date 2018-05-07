@@ -41,8 +41,6 @@ module UserManagement
       return r unless r.success?
 
       r = mark_token_as_used
-      # r is returned as error if token was marked used in some other concurrent request
-      # And we return success to user in this case
       return success unless r.success?
 
       save_user
@@ -107,21 +105,21 @@ module UserManagement
     #
     def fetch_token_sale_double_opt_in_token
 
-      @token_sale_double_opt_in_token = TemporaryToken.where(id: @token_sale_double_opt_in_token_id).first
+      @token_sale_double_opt_in_token_obj = TemporaryToken.where(id: @token_sale_double_opt_in_token_id).first
 
-      return invalid_url_error('um_doi_3') if @token_sale_double_opt_in_token.blank?
+      return invalid_url_error('um_doi_3') if @token_sale_double_opt_in_token_obj.blank?
 
-      return invalid_url_error('um_doi_4') if @token_sale_double_opt_in_token.token != @token
+      return invalid_url_error('um_doi_4') if @token_sale_double_opt_in_token_obj.token != @token
 
-      if @token_sale_double_opt_in_token.status != GlobalConstant::TemporaryToken.active_status
+      if @token_sale_double_opt_in_token_obj.status != GlobalConstant::TemporaryToken.active_status
         return invalid_url_error('um_doi_5')
       end
 
-      if @token_sale_double_opt_in_token.entity_id != @user_id
+      if @token_sale_double_opt_in_token_obj.entity_id != @user_id
         return invalid_url_error('um_doi_6')
       end
 
-      if @token_sale_double_opt_in_token.kind != GlobalConstant::TemporaryToken.double_opt_in_kind
+      if @token_sale_double_opt_in_token_obj.kind != GlobalConstant::TemporaryToken.double_opt_in_kind
         return invalid_url_error('um_doi_7')
       end
 
@@ -138,13 +136,18 @@ module UserManagement
     # @return [Result::Base]
     #
     def mark_token_as_used
-      row_updated_count = TemporaryToken.where(
-          id: @token_sale_double_opt_in_token.id,
-          status: GlobalConstant::TemporaryToken.active_status
-      ).update_all(status: GlobalConstant::TemporaryToken.used_status)
+      @token_sale_double_opt_in_token_obj.status = GlobalConstant::TemporaryToken.used_status
+      @token_sale_double_opt_in_token_obj.save!
 
-      # if row_updated_count == 0 means this token was already marked as used by some other concurrent request
-      row_updated_count > 0 ? success : invalid_url_error('um_doi_8')
+      TemporaryToken.where(
+          entity_id: @user.id,
+          kind: GlobalConstant::TemporaryToken.double_opt_in_kind,
+          status: GlobalConstant::TemporaryToken.active_status
+      ).update_all(
+          status: GlobalConstant::TemporaryToken.inactive_status
+      )
+
+      success
     end
 
     # Save User

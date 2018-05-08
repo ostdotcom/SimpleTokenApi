@@ -128,8 +128,13 @@ module GlobalConstant
       end
 
       # reset password email - sent when user clicks on forgot password
-      def forgot_password_template
+      def user_forgot_password_template
         'forgot_password'
+      end
+
+      # reset password email - sent when Admin clicks on forgot password
+      def admin_forgot_password_template
+        'admin_forgot_password'
       end
 
       def admin_invite_template
@@ -226,7 +231,8 @@ module GlobalConstant
       def supported_templates
         [
           double_opt_in_template,
-          forgot_password_template,
+          admin_forgot_password_template,
+          user_forgot_password_template,
           kyc_issue_template,
           admin_invite_template,
 

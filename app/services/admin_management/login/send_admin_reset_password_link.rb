@@ -104,12 +104,11 @@ module AdminManagement
       # * Date: 30/04/2018
       # * Reviewed By:
       #
-      # TODO:: Confirm if Reset password template would be different for admins.
       def send_forgot_password_mail
         Email::HookCreator::SendTransactionalMail.new(
             client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: @admin.email,
-            template_name: GlobalConstant::PepoCampaigns.forgot_password_template,
+            template_name: GlobalConstant::PepoCampaigns.admin_forgot_password_template,
             template_vars: {
                 reset_password_token: @reset_password_token
             }

@@ -294,8 +294,8 @@ module AdminManagement
             last_acted_by: last_acted_by,
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
-            is_case_closed: @user_kyc_detail.case_closed?,
-            can_reopen_case: @user_kyc_detail.case_closed? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)
+            is_case_closed: @user_kyc_detail.case_closed?.to_i,
+            can_reopen_case: (@user_kyc_detail.case_closed? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i
         }
       end
 

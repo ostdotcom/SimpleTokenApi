@@ -29,6 +29,7 @@ module UserManagement
       @client = nil
       @user = nil
       @client_setting_data = {}
+      @has_double_opt_in = false
     end
 
     # Perform
@@ -103,6 +104,9 @@ module UserManagement
     def validate_user_state
       if @user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property) &&
           @template_type == GlobalConstant::ClientTemplate.kyc_template_type
+
+        @has_double_opt_in = true
+
         r = validate_token
 
         unless r.success?
@@ -233,6 +237,7 @@ module UserManagement
       {
           is_token_invalid: @token_invalid.to_i,
           account_activated: @account_activated.to_i,
+          has_double_opt_in: @has_double_opt_in.to_i,
           user: user_data
       }.merge(@client_setting_data)
     end

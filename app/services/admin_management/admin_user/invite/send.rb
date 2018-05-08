@@ -57,23 +57,21 @@ module AdminManagement
           @email = @email.to_s.downcase.strip
           @name = @name.to_s.downcase.strip
 
-          validation_errors = {}
-          if !Util::CommonValidator.is_valid_email?(@email)
-            validation_errors[:email] = 'Please enter a valid email address'
-          end
-
-          if @name.length > 100
-            validation_errors[:name] = 'name can be maximum 100 characters'
-          end
-
           return error_with_data(
               'am_au_i_vas_1',
               'Invite User Error',
-              '',
+              'Please enter a valid email address',
               GlobalConstant::ErrorAction.default,
-              {},
-              validation_errors
-          ) if validation_errors.present?
+              {}
+          ) if !Util::CommonValidator.is_valid_email?(@email)
+
+          return error_with_data(
+              'am_au_i_vas_2',
+              'Invite User Error',
+              'Name can be of maximum 100 characters',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @name.length > 100
 
           success
         end

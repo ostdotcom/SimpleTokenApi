@@ -100,13 +100,13 @@
     - :email
   :optional:
 
-'AdminManagement::Kyc::ChangeAddressAndOpenCase':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :ethereum_address
+#'AdminManagement::Kyc::ChangeAddressAndOpenCase':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#    - :case_id
+#  :optional:
+#    - :ethereum_address
 
 'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
@@ -426,6 +426,21 @@
 'AdminManagement::AdminUser::GetInviteDetail':
   :mandatory:
     - :i_t
+  :optional:
+
+'AdminManagement::Kyc::OpenEditKycCase':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :case_id
+  :optional:
+
+'AdminManagement::Kyc::UpdateEthereumAddress':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :case_id
+    - :ethereum_address
   :optional:
 
 #'AdminManagement::Kyc::Dashboard::Whitelist':

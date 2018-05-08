@@ -58,7 +58,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
-      match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
+      # match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
 
       # match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
       # match 'run-alt-token-bonus-process' => :run_alt_token_bonus_process, via: :GET
@@ -77,6 +77,9 @@ Rails.application.routes.draw do
       match 'get-cases-by-email' => :get_cases_by_email, via: :GET
       match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
+
+      match 'open-case' => :open_kyc_case, via: :POST
+      match 'update-address' => :update_ethereum_address, via: :POST
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/super_admin' do

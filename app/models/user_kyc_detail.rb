@@ -36,7 +36,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
       GlobalConstant::UserKycDetail.unprocessed_whitelist_status => 0,
       GlobalConstant::UserKycDetail.started_whitelist_status => 1,
       GlobalConstant::UserKycDetail.done_whitelist_status => 2,
-      GlobalConstant::UserKycDetail.failed_whitelist_status => 3
+      GlobalConstant::UserKycDetail.failed_whitelist_status => 3,
+      GlobalConstant::UserKycDetail.started_unwhitelist_status => 4
   }, _suffix: true
 
   scope :kyc_admin_and_cynopsis_approved, -> {where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
@@ -128,6 +129,10 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   def kyc_denied?
     (cynopsis_status == GlobalConstant::UserKycDetail.rejected_cynopsis_status) || (admin_status == GlobalConstant::UserKycDetail.denied_admin_status)
+  end
+
+  def cynopsis_rejected?
+    cynopsis_status == GlobalConstant::UserKycDetail.rejected_cynopsis_status
   end
 
   def case_closed?

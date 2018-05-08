@@ -124,6 +124,10 @@ module GlobalConstant
         'failed'
       end
 
+      def started_unwhitelist_status
+        'unwhitelist_started'
+      end
+
       ### whitelist status ####
 
 
@@ -181,6 +185,10 @@ module GlobalConstant
 
       def in_process_edit_kyc
         'in_process'
+      end
+
+      def unwhitelist_in_process_edit_kyc
+        'unwhitelist_in_process'
       end
 
       ### Edit KYC request status end ####
@@ -261,6 +269,19 @@ module GlobalConstant
             }
         }
       end
+
+      ### Edit KYC request update action items start ####
+
+      def open_case_update_action
+        'open_case'
+      end
+
+      def update_ethereum_action
+        'update_ethereum'
+      end
+
+      ### Edit KYC request update action items end ####
+
 
     end
 

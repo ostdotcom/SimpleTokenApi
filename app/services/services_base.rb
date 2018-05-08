@@ -106,7 +106,7 @@ class ServicesBase
         'Client is not active',
         GlobalConstant::ErrorAction.default,
         {}
-    ) if @client.status != GlobalConstant::Client.active_status
+    ) if @client.blank? || @client.status != GlobalConstant::Client.active_status
 
     success
   end

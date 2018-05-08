@@ -177,10 +177,10 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # * Date: 20/11/2017
   # * Reviewed By:
   #
-  def change_address_and_open_case
-    service_response = AdminManagement::Kyc::ChangeAddressAndOpenCase.new(params).perform
-    render_api_response(service_response)
-  end
+  # def change_address_and_open_case
+  #   service_response = AdminManagement::Kyc::ChangeAddressAndOpenCase.new(params).perform
+  #   render_api_response(service_response)
+  # end
 
   # Add Udate Kyc Detail in cynopsis in case of failure
   #
@@ -190,6 +190,28 @@ class Web::Admin::KycController < Web::Admin::BaseController
   #
   def retry_cynopsis_upload
     service_response = AdminManagement::Kyc::RetryCynopsisUpload.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Open Edit KYC case
+  #
+  # * Author: Pankaj
+  # * Date: 07/05/2018
+  # * Reviewed By:
+  #
+  def open_kyc_case
+    service_response = AdminManagement::Kyc::OpenEditKycCase.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Update Ethereum address of Open KYC case
+  #
+  # * Author: Pankaj
+  # * Date: 07/05/2018
+  # * Reviewed By:
+  #
+  def update_ethereum_address
+    service_response = AdminManagement::Kyc::UpdateEthereumAddress.new(params).perform
     render_api_response(service_response)
   end
 

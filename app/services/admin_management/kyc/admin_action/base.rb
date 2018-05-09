@@ -27,7 +27,7 @@ module AdminManagement
 
           @api_response_data = {}
           @user_kyc_detail = nil
-          @extra_data = nil
+          @extra_data = {}
         end
 
         private

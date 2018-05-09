@@ -96,11 +96,13 @@ module AdminManagement
             if GlobalConstant::UserKycDetail.other_issue_admin_action_type == issue_category
               error_fields[issue_category] = 'please enter some description' if !issue_data.is_a?(String)
               @sanitized_email_data[issue_category] = issue_data
+              @extra_data[issue_category] = issue_data
             else
               error_fields[issue_category] = 'please select some options' if !issue_data.is_a?(Array)
               invalid_subcategories = issue_data - issue_data_enum.keys
               error_fields[issue_category] = "invalid categories selected- #{invalid_subcategories.join(', ')}" if invalid_subcategories.present?
 
+              @extra_data[issue_category] = issue_data
               @sanitized_email_data[issue_category] ||= {}
               issue_data.each do |issue|
                 @sanitized_email_data[issue_category][issue.to_s] = "1"
@@ -125,8 +127,6 @@ module AdminManagement
               {},
               error_fields
           ) if error_fields.present?
-
-          @extra_data = @email_temp_vars
 
           success
         end

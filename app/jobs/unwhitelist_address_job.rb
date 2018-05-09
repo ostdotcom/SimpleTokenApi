@@ -20,15 +20,15 @@ class UnwhitelistAddressJob < ApplicationJob
       return
     end
 
-    # Mark Edit Kyc Request as unWhitelist in process
-    update_edit_kyc_request(GlobalConstant::UserKycDetail.unwhitelist_in_process_edit_kyc)
-
     r = send_unwhitelist_request
     if !r.success?
       notify_errors("Failed while sending unwhitelist request: #{r.inspect}")
       update_edit_kyc_request(GlobalConstant::UserKycDetail.failed_edit_kyc)
       return
     end
+
+    # Mark Edit Kyc Request as unWhitelist in process
+    update_edit_kyc_request(GlobalConstant::UserKycDetail.unwhitelist_in_process_edit_kyc, {kyc_whitelist_log: @kyc_whitelist_log.id})
 
   end
 
@@ -161,8 +161,8 @@ class UnwhitelistAddressJob < ApplicationJob
   #
   # @status [Integer] status (mandatory) - Status to be set for Edit kyc entry
   #
-  def update_edit_kyc_request(status)
-    EditKycRequests.where(id: @edit_kyc_id).update_all(status: status)
+  def update_edit_kyc_request(status, debug_data = nil)
+    EditKycRequests.where(id: @edit_kyc_id).update_all(status: status, debug_data: debug_data)
   end
 
   # Notify admin and internal devs about the error

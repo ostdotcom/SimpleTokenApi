@@ -166,6 +166,8 @@ module AdminManagement
       # Sets @next_kyc_id, @previous_kyc_id
       #
       def fetch_surround_kyc_ids
+        return if @filters.blank? && @sortings.blank?
+
         ar_relation = UserKycDetail.where(client_id: @client_id)
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation = ar_relation.select(:id)
@@ -176,8 +178,8 @@ module AdminManagement
           @next_kyc_id = kyc_1.id if kyc_1.present?
           @previous_kyc_id = kyc_2.id if kyc_2.present?
         else
-          kyc_1 = ar_relation.where("id < ?", @case_id).first
-          kyc_2 = ar_relation.where("id > ?", @case_id).last
+          kyc_1 = ar_relation.where("id < ?", @case_id).last
+          kyc_2 = ar_relation.where("id > ?", @case_id).first
           @next_kyc_id = kyc_1.id if kyc_1.present?
           @previous_kyc_id = kyc_2.id if kyc_2.present?
         end

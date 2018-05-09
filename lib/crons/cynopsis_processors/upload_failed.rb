@@ -32,7 +32,7 @@ module Crons
                 cron_job: true
             }
 
-            r = AdminManagement::Kyc::RetryCynopsisUpload(params_to_retry)
+            r = AdminManagement::Kyc::RetryCynopsisUpload.new(params_to_retry).perform
 
             unless r.success?
               ApplicationMailer.notify(

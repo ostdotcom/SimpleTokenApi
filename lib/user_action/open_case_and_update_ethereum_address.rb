@@ -135,7 +135,7 @@
 #         )
 #       end
 #
-#       if !@user_kyc_detail.case_closed?
+#       if !@user_kyc_detail.case_closed_for_admin?
 #         return error_with_data(
 #             'ua_oc_5',
 #             "Case ID - #{@case_id} should be closed.",

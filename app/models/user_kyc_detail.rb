@@ -135,8 +135,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     cynopsis_status == GlobalConstant::UserKycDetail.rejected_cynopsis_status
   end
 
-  def case_closed?
-    kyc_approved? || kyc_denied?
+  def case_closed_for_admin?
+    (kyc_approved? || kyc_denied?) || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
   def kyc_pending?

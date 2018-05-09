@@ -58,7 +58,7 @@ module AdminManagement
               'Closed case can not be changed.',
               GlobalConstant::ErrorAction.default,
               {}
-          ) if @user_kyc_detail.case_closed?
+          ) if @user_kyc_detail.case_closed_for_admin?
 
           @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
 

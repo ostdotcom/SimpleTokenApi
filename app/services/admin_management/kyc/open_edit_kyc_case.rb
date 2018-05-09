@@ -93,7 +93,7 @@ module AdminManagement
             '',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank? || !@user_kyc_detail.case_closed?
+        ) if @user_kyc_detail.blank? || !@user_kyc_detail.case_closed_for_admin?
 
         return error_with_data(
             'am_k_oekc_4',

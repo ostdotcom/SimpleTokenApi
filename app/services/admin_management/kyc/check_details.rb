@@ -35,6 +35,7 @@ module AdminManagement
         @kyc_salt_e = nil
         @user_geoip_data = {}
         @kyc_salt_d = nil
+        @client_kyc_config_detail = nil
 
         @api_response_data = {}
       end
@@ -52,6 +53,9 @@ module AdminManagement
         return r unless r.success?
 
         r = fetch_user_kyc_detail
+        return r unless r.success?
+
+        r = fetch_client_kyc_config
         return r unless r.success?
 
         fetch_surround_kyc_ids
@@ -140,6 +144,18 @@ module AdminManagement
         return err_response('am_k_cd_3') if @user.blank?
 
         success
+      end
+
+      # Fetch Client kyc config detail
+      #
+      # * Author: Aman
+      # * Date: 09/05/2018
+      # * Reviewed By:
+      #
+      # Sets @client_kyc_config_detail
+      #
+      def fetch_client_kyc_config
+        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
       end
 
       # Fetch next and previous kyc ids
@@ -254,25 +270,37 @@ module AdminManagement
       # @return [Hash]
       #
       def user_detail
-        {
+        u_detail = {
             first_name: @user_extended_detail.first_name,
             last_name: @user_extended_detail.last_name,
-            email: @user.email,
-            submitted_at: Util::DateTimeHelper.get_formatted_time(@user_extended_detail.created_at.to_i),
             birthdate: birthdate_d,
-            document_id_number: document_id_number_d,
-            nationality: nationality_d,
             street_address: street_address_d,
             city: city_d,
             state: state_d,
-            postal_code: postal_code_d,
             country: country_d,
-            geoip_data: @user_geoip_data,
+            postal_code: postal_code_d,
+            document_id_number: document_id_number_d,
+            nationality: nationality_d,
+
             document_id_file_url: document_id_file_url,
             selfie_file_url: selfie_file_url,
             residence_proof_file_url: residence_proof_file_url,
-            investor_proof_files_url: investor_proof_files_urls
+            investor_proof_files_url: investor_proof_files_urls,
+
+            email: @user.email,
+            submitted_at: Util::DateTimeHelper.get_formatted_time(@user_extended_detail.created_at.to_i),
+            geoip_data: @user_geoip_data
         }
+
+        fields_to_check = ["first_name", "last_name", "birthdate", "street_address", "city", "state", "country", "postal_code", "document_id_number", "nationality"]
+
+        fields_to_check.each do |kyc_field|
+          u_detail.delete(kyc_field.to_sym) if @client_kyc_config_detail.kyc_fields_array.exclude?(kyc_field)
+        end
+
+        u_detail.delete("investor_proof_files_url".to_sym) if @client_kyc_config_detail.kyc_fields_array.exclude?(GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field)
+
+        u_detail
       end
 
       # Case detail
@@ -294,9 +322,31 @@ module AdminManagement
             last_acted_by: last_acted_by,
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
-            is_case_closed: @user_kyc_detail.case_closed?.to_i,
-            can_reopen_case: (@user_kyc_detail.case_closed? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i
+            is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
+            kyc_status: kyc_status,
+            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i
         }
+      end
+
+      # User Kyc Status
+      #
+      # * Author: Aman
+      # * Date: 12/10/2017
+      # * Reviewed By: Sunil
+      #
+      # @return [String] status of kyc
+      #
+      def kyc_status
+        case true
+          when @user_kyc_detail.kyc_approved?
+            GlobalConstant::UserKycDetail.kyc_approved_status
+          when @user_kyc_detail.kyc_denied?
+            GlobalConstant::UserKycDetail.kyc_denied_status
+          when @user_kyc_detail.kyc_pending?
+            GlobalConstant::UserKycDetail.kyc_pending_status
+          else
+            fail "Invalid kyc status"
+        end
       end
 
       # Last acted by
@@ -488,7 +538,7 @@ module AdminManagement
       #
       def investor_proof_files_urls
         urls = []
-        investor_proofs_file_path_d.each{|x| urls << get_url(x)}
+        investor_proofs_file_path_d.each {|x| urls << get_url(x)}
         urls
       end
 

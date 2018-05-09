@@ -103,7 +103,7 @@
 #
 #           r = success
 #
-#           if user_kyc_details.case_closed?
+#           if user_kyc_details.case_closed_for_admin?
 #             r = UserAction::OpenCaseAndUpdateEthereumAddress.new(
 #                 case_id: e_k_r.case_id,
 #                 ethereum_address: ethereum_address,
@@ -148,7 +148,7 @@
 #         e_k_r.save!
 #
 #
-#         if user_kyc_details.case_closed?
+#         if user_kyc_details.case_closed_for_admin?
 #           ethereum_address_updated = e_k_r.open_case_only.to_i > 0 ?  0 : 1
 #
 #           Email::HookCreator::SendTransactionalMail.new(

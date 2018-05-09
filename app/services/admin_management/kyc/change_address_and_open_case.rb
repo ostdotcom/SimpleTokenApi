@@ -102,7 +102,7 @@
 #             'Please provide ethereum address',
 #             GlobalConstant::ErrorAction.default,
 #             {}
-#         ) if !@user_kyc_detail.case_closed? && @new_ethereum_address.blank?
+#         ) if !@user_kyc_detail.case_closed_for_admin? && @new_ethereum_address.blank?
 #
 #         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
 #

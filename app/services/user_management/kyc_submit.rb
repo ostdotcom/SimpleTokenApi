@@ -365,6 +365,8 @@ module UserManagement
     #
     #
     def validate_investor_documents
+      return if @investor_proof_files_path.blank?
+
       # Investor proofs are not allowed for any client
       if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field)
         @investor_proof_files_path = nil

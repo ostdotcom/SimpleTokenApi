@@ -201,6 +201,7 @@ module AdminManagement
         timestamp_diff_in_hour = timestamp_diff / (60 * 60)
         timestamp_diff_in_min = timestamp_diff % (60 * 60)
 
+        time_str = ""
         time_str = "#{timestamp_diff_in_hour} hour" if timestamp_diff_in_hour > 0
         time_str += " #{(timestamp_diff_in_min / 15.0).ceil} minutes" if timestamp_diff_in_min > 0
 

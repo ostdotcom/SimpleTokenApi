@@ -51,6 +51,8 @@ module AdminManagement
         r = fetch_admin_to_delete
         return r unless r.success?
 
+        mark_invited_token_inactive
+
         update_admin
 
         success_with_data({})
@@ -100,6 +102,27 @@ module AdminManagement
         ) if @delete_admin_obj.status == GlobalConstant::Admin.deleted_status
 
         success
+      end
+
+      # mark_invited_token as inactive if admin is invited state
+      #
+      # * Author: Aman
+      # * Date: 03/05/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def mark_invited_token_inactive
+        return if @delete_admin_obj.status != GlobalConstant::Admin.invited_status
+
+        TemporaryToken.where(
+            entity_id: @delete_admin_obj.id,
+            kind: GlobalConstant::TemporaryToken.admin_invite_kind,
+            status: GlobalConstant::TemporaryToken.active_status
+        ).update_all(
+            status: GlobalConstant::TemporaryToken.inactive_status
+        )
+
       end
 
       # soft delete admin

@@ -106,7 +106,6 @@ module AdminManagement
               {},
               error_data
           ) if error_data.present?
-
         end
 
 

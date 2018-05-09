@@ -52,6 +52,8 @@ module AdminManagement
         r = update_tables
         return r unless r.success?
 
+        handle_duplicate_logs
+
         success_with_data({})
 
       end
@@ -143,17 +145,8 @@ module AdminManagement
             {}
         ) unless r.success?
 
-        # Check for duplicate Ethereum address
-        hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
-        user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
-
-        return error_with_data(
-            'am_k_uea_5',
-            'Duplicate ethereum Address found for other users.',
-            'Duplicate ethereum Address found for other users.',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if user_extended_detail_ids.present?
+        r = check_for_duplicate_ethereum
+        return r unless r.success?
 
         success
       end
@@ -244,6 +237,43 @@ module AdminManagement
         success
       end
 
+      # Check whether Ethereum address is already present
+      #
+      # * Author: Pankaj
+      # * Date: 08/05/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def check_for_duplicate_ethereum
+        # Check for duplicate Ethereum address
+        hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
+        user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
+
+        # Ethereum address is already present
+        if user_extended_detail_ids.present?
+          # Check whether duplicate address kyc is already approved
+          already_approved_cases = []
+          UserKycDetail.where(client_id: @user_kyc_detail.client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
+            if ukd.kyc_approved?
+              already_approved_cases << ukd.id
+            end
+          end
+          return error_with_data(
+              'am_k_uea_5',
+              "Duplicate Ethereum address cases has already been approved, Case Ids #{already_approved_cases}",
+              "Duplicate Ethereum address cases has already been approved, Case Ids #{already_approved_cases}",
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if already_approved_cases.present?
+        end
+
+        success
+
+      end
+
+
+
       # Enqueue Log Activity
       #
       # * Author: Pankaj
@@ -265,6 +295,80 @@ module AdminManagement
                 }
             }
         )
+      end
+
+      #  Handle Duplicate Logs
+      #
+      # * Author: Abhay
+      # * Date: 10/11/2017
+      # * Reviewed By: Kedar
+      #
+      # @return [Result::Base]
+      #
+      def handle_duplicate_logs
+        all_non_current_user_dup_user_extended_details_ids = []
+
+        # Fetch all user_extended_details corresponding to current user_extended_details1_id
+        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
+            user_extended_details1_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details2_id)
+
+        # Fetch all user_extended_details corresponding to current user_extended_details2_id
+        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
+            user_extended_details2_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details1_id)
+
+        # Initiailize
+        active_dup_user_extended_details_ids, inactive_dup_user_extended_details_ids, user_ids = [], [], []
+        # Fetch active, inactive user_extended_details_ids
+        UserKycDuplicationLog.where("user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids).
+            where(status: [GlobalConstant::UserKycDuplicationLog.active_status, GlobalConstant::UserKycDuplicationLog.inactive_status]).
+            select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
+
+          next if (ukdl.user_extended_details1_id == @user_kyc_detail.user_extended_detail_id) || (ukdl.user_extended_details2_id == @user_kyc_detail.user_extended_detail_id)
+
+          if ukdl.status == GlobalConstant::UserKycDuplicationLog.active_status
+            active_dup_user_extended_details_ids << ukdl.user_extended_details1_id
+            active_dup_user_extended_details_ids << ukdl.user_extended_details2_id
+          else
+            inactive_dup_user_extended_details_ids << ukdl.user_extended_details1_id
+            inactive_dup_user_extended_details_ids << ukdl.user_extended_details2_id
+          end
+          user_ids << ukdl.user1_id
+          user_ids << ukdl.user2_id
+        end if all_non_current_user_dup_user_extended_details_ids.present?
+
+        active_dup_user_extended_details_ids.uniq!
+        inactive_dup_user_extended_details_ids.uniq!
+        user_ids.uniq!
+
+        inactive_dup_user_extended_details_ids -= active_dup_user_extended_details_ids
+        # Mark inactive user_extended_details_ids as was_kyc_duplicate_status
+        # Active user_kyc_details will already be is_kyc_duplicate_status
+        if inactive_dup_user_extended_details_ids.present?
+          UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
+              update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+        end
+
+        never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
+        # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
+        if never_dup_user_extended_details_ids.present?
+          UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
+              update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+        end
+
+        # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids
+        UserKycDuplicationLog.where("user_extended_details1_id = ? OR user_extended_details2_id = ?",
+                                    @user_kyc_detail.user_extended_detail_id, @user_kyc_detail.user_extended_detail_id).delete_all
+
+        # Mark current user as unprocessed
+        @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
+        @user_kyc_detail.save!
+        # Perform Check duplicates again for current user id
+        r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id).perform
+        return r unless r.success?
+
+        UserKycDetail.bulk_flush(user_ids)
+
+        success
       end
 
     end

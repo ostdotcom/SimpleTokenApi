@@ -70,7 +70,7 @@ module AdminManagement
 
           return error_with_data(
               'am_k_aa_eki_1',
-              'Please select options for email issue ',
+              'Please select options for email issue',
               'Please mention the reason to email issue',
               GlobalConstant::ErrorAction.default,
               {}
@@ -91,11 +91,13 @@ module AdminManagement
                 {}
             ) if issue_data_enum.nil?
 
+            next if issue_data.blank?
+
             if GlobalConstant::UserKycDetail.other_issue_admin_action_type == issue_category
-              error_fields[issue_category] = 'please enter some description' if issue_data.blank? || !issue_data.is_a?(String)
+              error_fields[issue_category] = 'please enter some description' if !issue_data.is_a?(String)
               @sanitized_email_data[issue_category] = issue_data
             else
-              error_fields[issue_category] = 'please select some options' if !issue_data.is_a?(Array) || issue_data.blank?
+              error_fields[issue_category] = 'please select some options' if !issue_data.is_a?(Array)
               invalid_subcategories = issue_data - issue_data_enum.keys
               error_fields[issue_category] = "invalid categories selected- #{invalid_subcategories.join(', ')}" if invalid_subcategories.present?
 
@@ -104,15 +106,23 @@ module AdminManagement
                 @sanitized_email_data[issue_category][issue.to_s] = "1"
               end
             end
-
-
           end
 
           return error_with_data(
               'am_k_aa_eki_3',
+              'NO option selected for kyc issue',
+              'Please mention the reason to email issue',
+              GlobalConstant::ErrorAction.default,
+              {},
+              {}
+          ) unless @sanitized_email_data.present?
+
+          return error_with_data(
+              'am_k_aa_eki_4',
               'Invalid option for kyc issue',
               '',
               GlobalConstant::ErrorAction.default,
+              {},
               error_fields
           ) if error_fields.present?
 

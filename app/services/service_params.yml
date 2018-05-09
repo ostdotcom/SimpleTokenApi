@@ -432,14 +432,14 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
 'AdminManagement::Kyc::UpdateEthereumAddress':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
     - :ethereum_address
   :optional:
 

@@ -135,16 +135,7 @@ module AdminManagement
         # If client has whitelisting activated then send unwhitelist request.
         # If user kyc is approved then only send unwhitelist
         if @client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved?
-          r = send_unwhitelist_request
-
-          if r.success?
-            # Mark open case process as unwhitelist in process
-            update_edit_kyc_request(GlobalConstant::UserKycDetail.unwhitelist_in_process_edit_kyc)
-          else
-            # Mark open case process as failed.
-            update_edit_kyc_request(GlobalConstant::UserKycDetail.failed_edit_kyc)
-            return r
-          end
+          enqueue_unwhitelist_request
 
         else
           r = mark_user_kyc_unprocessed
@@ -220,106 +211,26 @@ module AdminManagement
         @edit_kyc_request.save!
       end
 
-      # Make UnWhitelist API call
+      # Enqueue Unwhitelisting
       #
       # * Author: Pankaj
-      # * Date: 07/05/2018
-      # * Reviewed By: Sunil
-      #
-      # @return [Result::Base]
-      #
-      # Sets @kyc_whitelist_log
-      #
-      def send_unwhitelist_request
-        r = fetch_ethereum_address
-        return r unless r.success?
-
-        Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
-        r = OpsApi::Request::Whitelist.new.whitelist({
-                                                         whitelister_address: api_data[:client_whitelist_detail_obj].whitelister_address,
-                                                         contract_address: api_data[:client_whitelist_detail_obj].contract_address,
-                                                         address: api_data[:address],
-                                                         phase: api_data[:phase]
-                                                     })
-        Rails.logger.info("Whitelist API Response: #{r.inspect}")
-        return r unless r.success?
-
-        @kyc_whitelist_log = KycWhitelistLog.create!({
-                                                         client_id: @client_id,
-                                                         ethereum_address: api_data[:address],
-                                                         phase: api_data[:phase],
-                                                         transaction_hash: r.data[:transaction_hash],
-                                                         status: GlobalConstant::KycWhitelistLog.pending_status,
-                                                         is_attention_needed: 0
-                                                     })
-
-        # TODO:: Confirm whether started unwhitelist status is actually required.
-        @user_kyc_detail.status = GlobalConstant::UserKycDetail.started_unwhitelist_status
-        @user_kyc_detail.save!
-
-        success
-      end
-
-      # API Data for phase 0
-      #
-      # * Author: Pankaj
-      # * Date: 07/05/2018
+      # * Date: 09/05/2018
       # * Reviewed By:
       #
-      # @return [Hash]
-      #
-      def api_data
-        @api_data ||= {
-            address: @ethereum_address,
-            phase: 0,
-            client_whitelist_detail_obj: get_client_whitelist_detail_obj
-        }
-      end
+      def enqueue_unwhitelist_request
 
-      # Get client_whitelist_detail obj
-      #
-      # * Author: Pankaj
-      # * Date: 07/05/2018
-      # * Reviewed By:
-      #
-      # @return [Ar] ClientWhitelistDetail obj
-      #
-      def get_client_whitelist_detail_obj
-        ClientWhitelistDetail.where(client_id: @user_kyc_detail.client_id,
-                                    status: GlobalConstant::ClientWhitelistDetail.active_status).first
-      end
+        BgJob.enqueue(
+            UnwhitelistAddressJob,
+            {
+                edit_kyc_id: @edit_kyc_request.id,
+                user_extended_detail_id: @user_kyc_detail.user_extended_detail_id,
+                client_id: @client_id,
+                user_kyc_detail_id: @user_kyc_detail.id,
+                admin_email: @admin.email,
+                user_id: @user_kyc_detail.user_id
+            }
+        )
 
-      # Fetch Ethereum Address of user
-      #
-      # * Author: Pankaj
-      # * Date: 07/05/2018
-      # * Reviewed By:
-      #
-      # Sets @ethereum_address
-      #
-      def fetch_ethereum_address
-        user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
-
-        r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
-
-        unless r.success?
-          return error_with_data(
-              'am_k_c_caaoc_6',
-              'Error decrypting Kyc salt!',
-              'Error decrypting Kyc salt!',
-              GlobalConstant::ErrorAction.default,
-              {}
-          )
-        end
-
-        kyc_salt_d = r.data[:plaintext]
-
-        r = LocalCipher.new(kyc_salt_d).decrypt(user_extended_detail.ethereum_address)
-        return r unless r.success?
-
-        @ethereum_address = r.data[:plaintext]
-
-        success
       end
 
     end

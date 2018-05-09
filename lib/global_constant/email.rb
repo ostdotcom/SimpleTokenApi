@@ -18,7 +18,7 @@ module GlobalConstant
       end
 
       def default_to
-        ['bala@ost.com', 'sunil@ost.com', 'kedar@ost.com', 'abhay@ost.com', 'aman@ost.com', 'alpesh@ost.com', 'akshay@ost.com', 'thahir@ost.com']
+        ['bala@ost.com', 'sunil@ost.com', 'pankaj@ost.com', 'aman@ost.com']
       end
 
       def default_pm_to

@@ -55,8 +55,7 @@ module AdminManagement
         r = fetch_user_kyc_detail
         return r unless r.success?
 
-        r = fetch_client_kyc_config
-        return r unless r.success?
+        fetch_client_kyc_config
 
         fetch_surround_kyc_ids
 

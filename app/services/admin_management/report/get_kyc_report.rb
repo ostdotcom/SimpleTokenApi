@@ -171,9 +171,9 @@ module AdminManagement
 
         if total_completed_jobs >= MAX_LIMIT_FOR_DOWNLOAD
           db_resp = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
-                        .where('created_at > ?', last_min_download_time).select('min(created_at) as next_download_time').first
+                        .where('created_at > ?', last_min_download_time).select('min(created_at) as last_download_time').first
 
-          time_str = time_diff_string(db_resp.next_download_time)
+          time_str = time_diff_string(db_resp.last_download_time)
 
           return error_with_data(
               'am_r_gkr_vircbt_2',
@@ -195,14 +195,21 @@ module AdminManagement
       #
       # @return [String] return human readable string for time difference rounded off to 15 minutes
       #
-      def time_diff_string(next_download_time)
-        timestamp_diff = next_download_time.to_i - Time.now.to_i
-        timestamp_diff_in_hour = timestamp_diff / (60 * 60)
+      def time_diff_string(last_download_time)
+        timestamp_diff = last_download_time.to_i - Time.now.to_i + TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR.hours.to_i
+        time_in_hour = timestamp_diff / (60 * 60)
+
         timestamp_diff_in_min = timestamp_diff % (60 * 60)
+        time_in_min = (timestamp_diff_in_min / (15.0 * 60)).ceil
+
+        if time_in_min == 4
+          time_in_min = 0
+          time_in_hour += 1
+        end
 
         time_str = ""
-        time_str = "#{timestamp_diff_in_hour} hour" if timestamp_diff_in_hour > 0
-        time_str += " #{(timestamp_diff_in_min / 15.0).ceil} minutes" if timestamp_diff_in_min > 0
+        time_str = "#{time_in_hour} hour" if time_in_hour > 0
+        time_str += " #{time_in_min * 15} minutes" if time_in_min > 0
 
         time_str
       end

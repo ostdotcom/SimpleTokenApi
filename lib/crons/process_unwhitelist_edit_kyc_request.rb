@@ -116,7 +116,7 @@ module Crons
           send_email(true, ekr)
         else
           update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.failed_status)
-          send_email(false, ekr, r.error_display_text)
+          send_email(false, ekr, r.error_display_text, r)
         end
       end
     end
@@ -203,7 +203,7 @@ module Crons
     # * Date: 09/05/2018
     # * Reviewed By:
     #
-    def send_email(is_success, edit_kyc_row, error_message = nil)
+    def send_email(is_success, edit_kyc_row, error_message = nil, result_base = nil)
       user_email = User.get_from_memcache(edit_kyc_row.user_id).email
 
       Email::HookCreator::SendTransactionalMail.new(
@@ -218,7 +218,7 @@ module Crons
         ApplicationMailer.notify(
             to: GlobalConstant::Email.default_to,
             body: error_message,
-            data: {case_id: edit_kyc_row.case_id, edit_kyc_table_id: edit_kyc_row.id},
+            data: {case_id: edit_kyc_row.case_id, edit_kyc_table_id: edit_kyc_row.id, result: result_base},
             subject: "Exception::Something went wrong while opening case of Unwhitelisted Edit KYC request."
         ).deliver
       end

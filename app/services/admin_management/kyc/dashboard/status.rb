@@ -8,7 +8,7 @@ module AdminManagement
 
         # Initialize
         #
-        # * Author: AMan
+        # * Author: Aman
         # * Date: 24/04/2018
         # * Reviewed By:
         #

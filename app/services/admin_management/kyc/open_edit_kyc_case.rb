@@ -44,7 +44,7 @@ module AdminManagement
         r = open_case
         return r unless r.success?
 
-        success
+        success_with_data(r.data)
       end
 
       private
@@ -103,6 +103,35 @@ module AdminManagement
             {}
         ) if @user_kyc_detail.cynopsis_rejected?
 
+        r = validate_is_whitelist_in_process
+        return r unless r.success?
+
+        success
+      end
+
+      # Validate is whitelist in process
+      #
+      # * Author: Pankaj
+      # * Date: 02/05/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def validate_is_whitelist_in_process
+        return success unless @client.is_whitelist_setup_done?
+
+        if @user_kyc_detail.kyc_approved? && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+                                              GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
+
+          return error_with_data(
+              'am_k_oekc_5',
+              "Whitelist is in progress. Please try after sometime.",
+              "Whitelist is in progress. Please try after sometime.",
+              GlobalConstant::ErrorAction.default,
+              {}
+          )
+        end
+
         success
       end
 
@@ -134,6 +163,7 @@ module AdminManagement
       def open_case
         # If client has whitelisting activated then send unwhitelist request.
         # If user kyc is approved then only send unwhitelist
+        case_opened = false
         if @client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved?
           enqueue_unwhitelist_request
 
@@ -144,9 +174,11 @@ module AdminManagement
           update_edit_kyc_request(GlobalConstant::UserKycDetail.processed_edit_kyc)
 
           log_activity
+
+          case_opened = true
         end
 
-        success
+        success_with_data({is_processing: !case_opened})
       end
 
       # Mark user kyc as unprocessed.

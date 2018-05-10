@@ -15,14 +15,14 @@ class UnwhitelistAddressJob < ApplicationJob
 
     r = fetch_ethereum_address
     if !r.success?
-      notify_errors("Ethereum address is invalid.")
+      notify_errors("Ethereum address is invalid.", r)
       update_edit_kyc_request(GlobalConstant::UserKycDetail.failed_edit_kyc)
       return
     end
 
     r = send_unwhitelist_request
     if !r.success?
-      notify_errors("Failed while sending unwhitelist request: #{r.inspect}")
+      notify_errors("Failed while sending unwhitelist request.", r)
       update_edit_kyc_request(GlobalConstant::UserKycDetail.failed_edit_kyc)
       return
     end
@@ -91,13 +91,16 @@ class UnwhitelistAddressJob < ApplicationJob
   #
   # * Author: Pankaj
   # * Date: 07/05/2018
-  # * Reviewed By: Sunil
+  # * Reviewed By:
   #
   # @return [Result::Base]
   #
   # Sets @kyc_whitelist_log
   #
   def send_unwhitelist_request
+
+    r = validate_whitelisting_in_process
+    return r unless r.success?
 
     Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail_id} - making private ops api call")
     r = OpsApi::Request::Whitelist.new.whitelist({
@@ -120,6 +123,43 @@ class UnwhitelistAddressJob < ApplicationJob
 
     # TODO:: Confirm whether started unwhitelist status is actually required.
     UserKycDetail.where(id: @user_kyc_detail_id).update_all(whitelist_status: GlobalConstant::UserKycDetail.started_unwhitelist_status)
+
+    success
+  end
+
+  # Validate whether Ethereum address is in whitelist process
+  #
+  # * Author: Pankaj
+  # * Date: 07/05/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def validate_whitelisting_in_process
+    KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address).all.each do |kwl|
+
+      if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
+        return error_with_data(
+            'uaj_1',
+            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+            GlobalConstant::ErrorAction.default,
+            {}
+        )
+      end
+
+      # TODO:: Confirm from Sunil. Why to wait for 10 minutes
+      # if kwl.updated_at >= (Time.now - 10.minutes)
+      #   return error_with_data(
+      #       'ua_oc_10',
+      #       "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
+      #       "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
+      #       GlobalConstant::ErrorAction.default,
+      #       {}
+      #   )
+      # end
+
+    end
 
     success
   end
@@ -171,20 +211,20 @@ class UnwhitelistAddressJob < ApplicationJob
   # * Date: 09/05/2018
   # * Reviewed By:
   #
-  def notify_errors(error_message = nil)
+  def notify_errors(error_message, result_base)
     user_email = User.get_from_memcache(@user_id).email
 
     Email::HookCreator::SendTransactionalMail.new(
               client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
               email: @admin_email,
               template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-              template_vars: {success: false, email: user_email, reason_failure: error_message, ethereum_address_updated: false}
+              template_vars: {success: false, email: user_email, reason_failure: error_message + ": #{result_base.error_message}", ethereum_address_updated: false}
           ).perform
 
     # Send internal email in case of failure
     ApplicationMailer.notify(
         to: GlobalConstant::Email.default_to,
-        body: error_message,
+        body: error_message + result_base.inspect,
         data: {case_id: @user_kyc_detail_id, edit_kyc_table_id: @edit_kyc_id},
         subject: "Exception::Something went wrong while Unwhitelist Edit KYC request."
     ).deliver

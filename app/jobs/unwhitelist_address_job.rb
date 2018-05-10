@@ -121,9 +121,6 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      is_attention_needed: 0
                                                  })
 
-    # TODO:: Confirm whether started unwhitelist status is actually required.
-    UserKycDetail.where(id: @user_kyc_detail_id).update_all(whitelist_status: GlobalConstant::UserKycDetail.started_unwhitelist_status)
-
     success
   end
 

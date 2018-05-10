@@ -124,10 +124,6 @@ module GlobalConstant
         'failed'
       end
 
-      def started_unwhitelist_status
-        'unwhitelist_started'
-      end
-
       ### whitelist status ####
 
 

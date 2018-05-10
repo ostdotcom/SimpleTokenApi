@@ -20,6 +20,13 @@ class UnwhitelistAddressJob < ApplicationJob
       return
     end
 
+    r = validate_whitelisting_in_process
+    if !r.success?
+      notify_errors(r.error_display_text)
+      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status, r.to_json)
+      return
+    end
+
     r = send_unwhitelist_request
     if !r.success?
       notify_errors("Failed while sending unwhitelist request.", r)
@@ -99,9 +106,6 @@ class UnwhitelistAddressJob < ApplicationJob
   #
   def send_unwhitelist_request
 
-    r = validate_whitelisting_in_process
-    return r unless r.success?
-
     Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail_id} - making private ops api call")
     r = OpsApi::Request::Whitelist.new.whitelist({
                                                      whitelister_address: api_data[:client_whitelist_detail_obj].whitelister_address,
@@ -138,8 +142,8 @@ class UnwhitelistAddressJob < ApplicationJob
       if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
         return error_with_data(
             'uaj_1',
-            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
-            "Existing Kyc White Log ID: #{kwl.id} is not in confirmed status. Also check is_attention_needed value.",
+            "Waiting for KYC Whitelist Confirmation. Please try after sometime!",
+            "Waiting for KYC Whitelist Confirmation. Please try after sometime!",
             GlobalConstant::ErrorAction.default,
             {}
         )
@@ -208,7 +212,7 @@ class UnwhitelistAddressJob < ApplicationJob
   # * Date: 09/05/2018
   # * Reviewed By:
   #
-  def notify_errors(error_message, result_base)
+  def notify_errors(error_message, result_base = nil)
     user_email = User.get_from_memcache(@user_id).email
 
     Email::HookCreator::SendTransactionalMail.new(
@@ -219,12 +223,14 @@ class UnwhitelistAddressJob < ApplicationJob
     ).perform
 
     # Send internal email in case of failure
-    ApplicationMailer.notify(
-        to: GlobalConstant::Email.default_to,
-        body: error_message + result_base.inspect,
-        data: {case_id: @user_kyc_detail_id, edit_kyc_table_id: @edit_kyc_id},
-        subject: "Exception::Something went wrong while Unwhitelist Edit KYC request."
-    ).deliver
+    if result_base.present?
+      ApplicationMailer.notify(
+          to: GlobalConstant::Email.default_to,
+          body: error_message + result_base.inspect,
+          data: {case_id: @user_kyc_detail_id, edit_kyc_table_id: @edit_kyc_id},
+          subject: "Exception::Something went wrong while Unwhitelist Edit KYC request."
+      ).deliver
+    end
   end
 
 end

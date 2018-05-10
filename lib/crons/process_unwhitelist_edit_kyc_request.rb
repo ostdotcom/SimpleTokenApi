@@ -13,7 +13,7 @@ module Crons
     # @return [Result::Base]
     #
     def initialize(params)
-      @wait_time = 5 # 5 Minutes
+      @wait_time = 7 # 7 Minutes
       @edit_kyc_rows = []
       @kyc_whitelist_logs = {}
       @case_ids = []
@@ -109,14 +109,13 @@ module Crons
 
           user_kyc_detail.save!
 
-          # Update Edit Kyc Request
-          ekr.status = GlobalConstant::EditKycRequest.processed_status
-          ekr.save
+          update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.processed_status)
 
           log_activity(ekr)
 
           send_email(true, ekr)
         else
+          update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.failed_status)
           send_email(false, ekr, r.error_display_text)
         end
       end
@@ -223,6 +222,17 @@ module Crons
             subject: "Exception::Something went wrong while opening case of Unwhitelisted Edit KYC request."
         ).deliver
       end
+    end
+
+    # Update Edit Kyc Request
+    #
+    # * Author: Pankaj
+    # * Date: 09/05/2018
+    # * Reviewed By:
+    #
+    def update_edit_kyc_row(ekr, status)
+      ekr.status = status
+      ekr.save
     end
 
   end

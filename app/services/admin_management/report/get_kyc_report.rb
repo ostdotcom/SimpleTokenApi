@@ -58,7 +58,7 @@ module AdminManagement
 
         create_csv_report_job
 
-        success_with_data({success_message: "Success! We are consolidating your CSV file. We will send an email on #{@admin.email}, with a link to download it. Please check your inbox in sometime."})
+        success_with_data({success_message: "We are consolidating your CSV file. We will send an email on #{@admin.email}, with a link to download it. Please check your inbox in sometime."})
 
       end
 

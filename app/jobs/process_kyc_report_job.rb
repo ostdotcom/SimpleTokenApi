@@ -214,7 +214,8 @@ class ProcessKycReportJob < ApplicationJob
   def format_user_data(user_data)
     row = []
     csv_headers.each do |field_name|
-      row << user_data[field_name.to_sym]
+      data = user_data[field_name.to_sym]
+      row << (data.present? ? data.html_safe : nil)
     end
     row
   end
@@ -326,7 +327,7 @@ class ProcessKycReportJob < ApplicationJob
   end
 
   def get_url(s3_path)
-    return '' unless s3_path.present?
+    return nil unless s3_path.present?
     s3_manager_obj.get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path, {expires_in: IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL})
   end
 

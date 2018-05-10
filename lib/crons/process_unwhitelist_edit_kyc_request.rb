@@ -52,7 +52,7 @@ module Crons
     #
     #
     def fetch_unwhitelist_inprocess_edit_requests
-      edit_kyc_requests = EditKycRequests.where(status: GlobalConstant::EditKycRequest.unwhitelist_in_process_status).all
+      edit_kyc_requests = EditKycRequests.where(status: GlobalConstant::EditKycRequest.unwhitelist_in_process_status).limit(1000)
 
       admin_ids, user_ids, user_extended_detail_ids, kyc_logs, client_ids = [], [], [], [], []
       edit_kyc_requests.each do |e_k_r|
@@ -102,6 +102,11 @@ module Crons
           # Update USer kyc detail
           user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
           user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+
+          # todo: record timestamps?? wont affect much
+          user_kyc_detail.last_acted_by = @admin_id
+          user_kyc_detail.last_acted_timestamp = Time.now.to_i
+
           user_kyc_detail.save!
 
           # Update Edit Kyc Request
@@ -112,7 +117,7 @@ module Crons
 
           send_email(true, ekr)
         else
-          send_email(false, ekr, r.error_message)
+          send_email(false, ekr, r.error_display_text)
         end
       end
     end
@@ -128,6 +133,8 @@ module Crons
     def verify_if_un_whitelisted(kyc_log_id, client_id)
 
       kwl = @kyc_whitelist_logs[kyc_log_id]
+
+      # todo: wait and check for confirmed_status so that confirm cron is not affected.. change.. or just check the transaction hash status??
 
       if kwl.blank? || kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status ||
           kwl.is_attention_needed != GlobalConstant::KycWhitelistLog.attention_not_needed
@@ -213,7 +220,7 @@ module Crons
             to: GlobalConstant::Email.default_to,
             body: error_message,
             data: {case_id: edit_kyc_row.case_id, edit_kyc_table_id: edit_kyc_row.id},
-            subject: "Exception::Something went wrong while Unwhitelist Edit KYC request."
+            subject: "Exception::Something went wrong while opening case of Unwhitelisted Edit KYC request."
         ).deliver
       end
     end

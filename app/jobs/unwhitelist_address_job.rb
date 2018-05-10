@@ -16,14 +16,14 @@ class UnwhitelistAddressJob < ApplicationJob
     r = fetch_ethereum_address
     if !r.success?
       notify_errors("Ethereum address is invalid.", r)
-      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status)
+      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status, r.to_json)
       return
     end
 
     r = send_unwhitelist_request
     if !r.success?
       notify_errors("Failed while sending unwhitelist request.", r)
-      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status)
+      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status, r.to_json)
       return
     end
 
@@ -212,11 +212,11 @@ class UnwhitelistAddressJob < ApplicationJob
     user_email = User.get_from_memcache(@user_id).email
 
     Email::HookCreator::SendTransactionalMail.new(
-              client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
-              email: @admin_email,
-              template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-              template_vars: {success: false, email: user_email, reason_failure: error_message + ": #{result_base.error_message}", ethereum_address_updated: false}
-          ).perform
+        client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+        email: @admin_email,
+        template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
+        template_vars: {success: false, email: user_email, reason_failure: error_message, ethereum_address_updated: false}
+    ).perform
 
     # Send internal email in case of failure
     ApplicationMailer.notify(

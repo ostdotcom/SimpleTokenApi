@@ -107,7 +107,7 @@ namespace :cron_task do
     # * Date: 07/05/2018
     # * Reviewed By:
     #
-    desc "rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet"
+    desc "rake RAILS_ENV=development cron_task:continuous:process_unwhitelist_edit_kycs"
     desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:continuous:process_unwhitelist_edit_kycs lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_unwhitelist_edit_kycs.log"
     task :process_unwhitelist_edit_kycs do |task|
       @sleep_interval = 5

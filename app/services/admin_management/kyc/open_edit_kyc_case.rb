@@ -99,7 +99,7 @@ module AdminManagement
         return error_with_data(
             'am_k_oekc_4',
             'KYC detail not found or its already open.',
-            'Kyc Details not found or its closed.',
+            'Kyc Details not found or its already open.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if @user_kyc_detail.blank? || !@user_kyc_detail.case_closed_for_admin?

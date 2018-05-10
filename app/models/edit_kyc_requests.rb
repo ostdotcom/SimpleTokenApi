@@ -17,8 +17,8 @@ class EditKycRequests < EstablishSimpleTokenLogDbConnection
 
   scope :unprocessed, -> { where(status: GlobalConstant::EditKycRequest.unprocessed_status) }
 
-  scope :under_process, -> { where(["status IN (?)", [GlobalConstant::EditKycRequest.unprocessed_status,
+  scope :under_process, -> { where(status: [GlobalConstant::EditKycRequest.unprocessed_status,
                                                       GlobalConstant::EditKycRequest.in_process_status,
-                                                      GlobalConstant::EditKycRequest.unwhitelist_in_process_status]])}
+                                                      GlobalConstant::EditKycRequest.unwhitelist_in_process_status])}
 
 end

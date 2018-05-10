@@ -149,8 +149,8 @@ module AdminManagement
             admin_id: @admin_id,
             user_id: @user_kyc_detail.user_id,
             open_case_only: 1,
-            update_action: GlobalConstant::UserKycDetail.open_case_update_action,
-            status: GlobalConstant::UserKycDetail.in_process_edit_kyc
+            update_action: GlobalConstant::EditKycRequest.open_case_update_action,
+            status: GlobalConstant::EditKycRequest.in_process_status
         )
       end
 
@@ -171,7 +171,7 @@ module AdminManagement
           r = mark_user_kyc_unprocessed
           return r unless r.success?
 
-          update_edit_kyc_request(GlobalConstant::UserKycDetail.processed_edit_kyc)
+          update_edit_kyc_request(GlobalConstant::EditKycRequest.processed_status)
 
           log_activity
 

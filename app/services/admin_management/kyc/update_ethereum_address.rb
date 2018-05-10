@@ -187,8 +187,8 @@ module AdminManagement
             case_id: @case_id,
             admin_id: @admin_id,
             user_id: @user_kyc_detail.user_id,
-            update_action: GlobalConstant::UserKycDetail.update_ethereum_action,
-            status: GlobalConstant::UserKycDetail.in_process_edit_kyc,
+            update_action: GlobalConstant::EditKycRequest.update_ethereum_action,
+            status: GlobalConstant::EditKycRequest.in_process_status,
             ethereum_address: @encrypted_ethereum_address
         )
       end
@@ -209,7 +209,7 @@ module AdminManagement
 
         update_user_md5_extended_details
 
-        @edit_kyc_request.status = GlobalConstant::UserKycDetail.processed_edit_kyc
+        @edit_kyc_request.status = GlobalConstant::EditKycRequest.processed_status
         @edit_kyc_request.save!
 
         log_activity

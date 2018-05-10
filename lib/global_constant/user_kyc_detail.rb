@@ -165,30 +165,6 @@ module GlobalConstant
 
       # ### admin action type ####
 
-      ### Edit KYC request status start ####
-
-      def unprocessed_edit_kyc
-        'unprocessed'
-      end
-
-      def processed_edit_kyc
-        'processed'
-      end
-
-      def failed_edit_kyc
-        'failed'
-      end
-
-      def in_process_edit_kyc
-        'in_process'
-      end
-
-      def unwhitelist_in_process_edit_kyc
-        'unwhitelist_in_process'
-      end
-
-      ### Edit KYC request status end ####
-
       # Get mapped cynopsis status from response status of cynopsis call
       #
       # * Author: Aman
@@ -265,19 +241,6 @@ module GlobalConstant
             }
         }
       end
-
-      ### Edit KYC request update action items start ####
-
-      def open_case_update_action
-        'open_case'
-      end
-
-      def update_ethereum_action
-        'update_ethereum'
-      end
-
-      ### Edit KYC request update action items end ####
-
 
     end
 

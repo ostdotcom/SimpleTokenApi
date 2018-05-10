@@ -16,19 +16,19 @@ class UnwhitelistAddressJob < ApplicationJob
     r = fetch_ethereum_address
     if !r.success?
       notify_errors("Ethereum address is invalid.", r)
-      update_edit_kyc_request(GlobalConstant::UserKycDetail.failed_edit_kyc)
+      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status)
       return
     end
 
     r = send_unwhitelist_request
     if !r.success?
       notify_errors("Failed while sending unwhitelist request.", r)
-      update_edit_kyc_request(GlobalConstant::UserKycDetail.failed_edit_kyc)
+      update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status)
       return
     end
 
     # Mark Edit Kyc Request as unWhitelist in process
-    update_edit_kyc_request(GlobalConstant::UserKycDetail.unwhitelist_in_process_edit_kyc, {kyc_whitelist_log: @kyc_whitelist_log.id})
+    update_edit_kyc_request(GlobalConstant::EditKycRequest.unwhitelist_in_process_status, {kyc_whitelist_log: @kyc_whitelist_log.id})
 
   end
 

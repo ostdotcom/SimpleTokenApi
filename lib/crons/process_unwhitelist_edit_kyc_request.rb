@@ -52,7 +52,7 @@ module Crons
     #
     #
     def fetch_unwhitelist_inprocess_edit_requests
-      edit_kyc_requests = EditKycRequests.where(status: GlobalConstant::UserKycDetail.unwhitelist_in_process_edit_kyc).all
+      edit_kyc_requests = EditKycRequests.where(status: GlobalConstant::EditKycRequest.unwhitelist_in_process_status).all
 
       admin_ids, user_ids, user_extended_detail_ids, kyc_logs, client_ids = [], [], [], [], []
       edit_kyc_requests.each do |e_k_r|
@@ -105,7 +105,7 @@ module Crons
           user_kyc_detail.save!
 
           # Update Edit Kyc Request
-          ekr.status = GlobalConstant::UserKycDetail.processed_edit_kyc
+          ekr.status = GlobalConstant::EditKycRequest.processed_status
           ekr.save
 
           log_activity(ekr)

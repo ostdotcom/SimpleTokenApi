@@ -78,11 +78,20 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
+        # Default Client is not allowed to open case
+        return error_with_data(
+            'am_k_uea_1',
+            'Update ethereum not allowed for Token Sale Client.',
+            'Update ethereum not allowed for Token Sale Client.',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client.is_st_token_sale_client?
+
         r = fetch_and_validate_admin
         return r unless r.success?
 
         return error_with_data(
-            'am_k_uea_1',
+            'am_k_uea_2',
             'Admin does not have rights to perform this action.',
             'Admin does not have rights to perform this action.',
             GlobalConstant::ErrorAction.default,
@@ -93,7 +102,7 @@ module AdminManagement
         edit_kyc_request = EditKycRequests.under_process.where(case_id: @case_id).first
 
         return error_with_data(
-            'am_k_uea_2',
+            'am_k_uea_3',
             'Edit request is in process for this case.',
             'Edit request is in process for this case.',
             GlobalConstant::ErrorAction.default,
@@ -102,7 +111,7 @@ module AdminManagement
 
         @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
         return error_with_data(
-            'am_k_uea_3',
+            'am_k_uea_4',
             'Kyc Details not found or its closed.',
             '',
             GlobalConstant::ErrorAction.default,
@@ -128,7 +137,7 @@ module AdminManagement
 
         # Regex check for Ethereum address
         return error_with_data(
-            'am_k_uea_4',
+            'am_k_uea_5',
             'Invalid Ethereum Address',
             'Invalid Ethereum Address',
             GlobalConstant::ErrorAction.default,
@@ -138,7 +147,7 @@ module AdminManagement
         # check with the private geth for address validation
         r = UserManagement::CheckEthereumAddress.new(ethereum_address: @new_ethereum_address).perform
         return error_with_data(
-            'am_k_uea_4',
+            'am_k_uea_5',
             'Invalid Ethereum Address!',
             'Invalid Ethereum Address!',
             GlobalConstant::ErrorAction.default,

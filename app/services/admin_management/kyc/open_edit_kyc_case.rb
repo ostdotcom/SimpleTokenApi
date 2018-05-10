@@ -64,11 +64,20 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
+        # Default Client is not allowed to open case
+        return error_with_data(
+            'am_k_oekc_1',
+            'Open Case Actions not allowed for Token Sale Client.',
+            'Open Case Actions not allowed for Token Sale Client.',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client.is_st_token_sale_client?
+
         r = fetch_and_validate_admin
         return r unless r.success?
 
         return error_with_data(
-            'am_k_oekc_1',
+            'am_k_oekc_2',
             'Admin does not have rights to perform this action.',
             'Admin does not have rights to perform this action.',
             GlobalConstant::ErrorAction.default,
@@ -79,7 +88,7 @@ module AdminManagement
         edit_kyc_request = EditKycRequests.under_process.where(case_id: @case_id).first
 
         return error_with_data(
-            'am_k_oekc_2',
+            'am_k_oekc_3',
             'Edit request is in process for this case.',
             'Edit request is in process for this case.',
             GlobalConstant::ErrorAction.default,
@@ -88,7 +97,7 @@ module AdminManagement
 
         @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
         return error_with_data(
-            'am_k_oekc_3',
+            'am_k_oekc_4',
             'KYC detail not found or its already open.',
             '',
             GlobalConstant::ErrorAction.default,
@@ -96,7 +105,7 @@ module AdminManagement
         ) if @user_kyc_detail.blank? || !@user_kyc_detail.case_closed_for_admin?
 
         return error_with_data(
-            'am_k_oekc_4',
+            'am_k_oekc_5',
             'Case is rejected by Cynopsis',
             '',
             GlobalConstant::ErrorAction.default,
@@ -124,7 +133,7 @@ module AdminManagement
                                               GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
 
           return error_with_data(
-              'am_k_oekc_5',
+              'am_k_oekc_6',
               "Whitelist is in progress. Please try after sometime.",
               "Whitelist is in progress. Please try after sometime.",
               GlobalConstant::ErrorAction.default,

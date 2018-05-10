@@ -113,7 +113,7 @@ module AdminManagement
         return error_with_data(
             'am_k_uea_4',
             'Kyc Details not found or its closed.',
-            '',
+            'Kyc Details not found or its closed.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if @user_kyc_detail.blank? || @user_kyc_detail.case_closed_for_admin?

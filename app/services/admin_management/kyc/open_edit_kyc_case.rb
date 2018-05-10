@@ -99,7 +99,7 @@ module AdminManagement
         return error_with_data(
             'am_k_oekc_4',
             'KYC detail not found or its already open.',
-            '',
+            'Kyc Details not found or its closed.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if @user_kyc_detail.blank? || !@user_kyc_detail.case_closed_for_admin?
@@ -107,7 +107,7 @@ module AdminManagement
         return error_with_data(
             'am_k_oekc_5',
             'Case is rejected by Cynopsis',
-            '',
+            'Case is rejected by Cynopsis',
             GlobalConstant::ErrorAction.default,
             {}
         ) if @user_kyc_detail.cynopsis_rejected?

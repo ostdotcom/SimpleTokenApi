@@ -266,10 +266,6 @@ module AdminManagement
               meta: meta,
               result_set: 'user_kyc_list',
               user_kyc_list: @curr_page_data
-              # client_setup: {
-              #     has_email_setup: @client.is_email_setup_done?,
-              #     has_whitelist_setup: @client.is_whitelist_setup_done?
-              # }
           }
 
           @api_response_data = data

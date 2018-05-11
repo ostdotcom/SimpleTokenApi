@@ -323,6 +323,7 @@ module AdminManagement
             last_acted_by: last_acted_by,
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
+            last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map{|x| x.humanize},
             is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
             kyc_status: kyc_status,
             can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i

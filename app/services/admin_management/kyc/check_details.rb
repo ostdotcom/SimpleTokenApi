@@ -372,7 +372,8 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def birthdate_d
-        local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
+        birthdate = local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
+        Time.zone.strptime(birthdate, "%Y-%m-%d").strftime("%d/%m/%Y")
       end
 
       # Decrypt document_id number

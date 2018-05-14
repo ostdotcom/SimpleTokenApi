@@ -432,7 +432,7 @@ module Crons
 
       user_kyc_detail = user_kyc_details.first
 
-      if user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
+      if [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(user_kyc_detail.whitelist_status)
         notify_devs(
             {transaction_hash: @transaction_hash},
             "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"

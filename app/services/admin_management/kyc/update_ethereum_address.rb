@@ -72,9 +72,6 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        r = validate_ethereum_address
-        return r unless r.success?
-
         r = fetch_and_validate_client
         return r unless r.success?
 
@@ -97,6 +94,9 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         ) if @admin.default_client_id != @client.id
+
+        r = validate_ethereum_address
+        return r unless r.success?
 
         # Check for pending edit kyc requests
         edit_kyc_request = EditKycRequests.under_process.where(case_id: @case_id).first
@@ -263,7 +263,7 @@ module AdminManagement
         if user_extended_detail_ids.present?
           # Check whether duplicate address kyc is already approved
           already_approved_cases = []
-          UserKycDetail.where(client_id: @user_kyc_detail.client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
+          UserKycDetail.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
             if ukd.kyc_approved?
               already_approved_cases << ukd.id
             end

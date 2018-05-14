@@ -326,7 +326,8 @@ module AdminManagement
             last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map{|x| x.humanize},
             is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
             kyc_status: kyc_status,
-            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i
+            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i,
+            case_reopen_inprocess: is_case_reopening_under_process?
         }
       end
 
@@ -574,6 +575,25 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         )
+      end
+
+      # Case Reopening is under process or not
+      #
+      # * Author: Pankaj
+      # * Date: 14/05/2018
+      # * Reviewed By:
+      #
+      # @return [Integer] - 0/1
+      #
+      def is_case_reopening_under_process?
+        under_process = 0
+        # Client has opted for whitelisting & kyc is approved, then only unwhitelisting would happen in background.
+        # So check for any open edit kyc requests
+        if @client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved?
+          under_process = EditKycRequests.under_process.where(case_id: @user_kyc_detail.id).exists?.to_i
+        end
+
+        under_process
       end
 
     end

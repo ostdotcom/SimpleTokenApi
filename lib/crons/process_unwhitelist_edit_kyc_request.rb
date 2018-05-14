@@ -210,7 +210,7 @@ module Crons
           client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
           email: Admin.get_from_memcache(edit_kyc_row.admin_id).email,
           template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-          template_vars: {success: is_success, email: user_email, reason_failure: error_message, ethereum_address_updated: false}
+          template_vars: {success: is_success.to_i, email: user_email, reason_failure: error_message}
       ).perform
 
       # Send internal email in case of failure

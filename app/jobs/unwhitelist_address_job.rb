@@ -219,7 +219,7 @@ class UnwhitelistAddressJob < ApplicationJob
         client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
         email: @admin_email,
         template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-        template_vars: {success: false, email: user_email, reason_failure: error_message, ethereum_address_updated: false}
+        template_vars: {success: 0, email: user_email, reason_failure: error_message}
     ).perform
 
     # Send internal email in case of failure

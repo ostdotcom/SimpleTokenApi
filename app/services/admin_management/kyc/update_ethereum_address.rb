@@ -240,7 +240,7 @@ module AdminManagement
 
         md5_user_extended_detail = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
         @old_md5_ethereum_address = md5_user_extended_detail.ethereum_address
-        md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@ethereum_address)
+        md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
         md5_user_extended_detail.save!
 
         success

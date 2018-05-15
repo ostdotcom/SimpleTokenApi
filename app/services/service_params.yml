@@ -452,7 +452,6 @@
     - :sortings
     - :page_number
     - :page_size
-    - :q
 
 #'AdminManagement::Kyc::Dashboard::Whitelist':
 #  :mandatory:

@@ -30,9 +30,9 @@ module AdminManagement
         @client = nil
         @admin = nil
 
-        @page_number = 1
+        @page_number = @params[:page_number]
         @total_filtered_users = 0
-        @page_size = 100
+        @page_size = 10
         @users_list = []
         @api_response_data = {}
 
@@ -95,6 +95,9 @@ module AdminManagement
         users = User.where(client_id: @client_id).all
 
         users.each do |u|
+          if(@users_list.length == @page_size)
+            break
+          end
           @users_list << {
               email: u.email,
               registration_timestamp: u.created_at.to_i,

@@ -86,6 +86,10 @@ Rails.application.routes.draw do
       match 'get-kyc-report' => :get_kyc_report, via: :GET
     end
 
+    scope 'api/admin/users', controller: 'web/admin/user' do
+      match 'list' => :get_users_list, via: :GET
+    end
+
     scope 'api/admin/admin-user', controller: 'web/admin/super_admin' do
       match 'dashboard' => :dashboard, via: :GET
       match 'invite' => :invite, via: :POST

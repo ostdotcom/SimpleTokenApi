@@ -443,6 +443,17 @@
     - :ethereum_address
   :optional:
 
+'AdminManagement::Users::UserList':
+  :mandatory:
+    - :admin_id
+    - :client_id
+  :optional:
+    - :filters
+    - :sortings
+    - :page_number
+    - :page_size
+    - :q
+
 #'AdminManagement::Kyc::Dashboard::Whitelist':
 #  :mandatory:
 #    - :admin_id

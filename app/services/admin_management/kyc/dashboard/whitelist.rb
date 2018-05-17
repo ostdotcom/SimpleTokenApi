@@ -138,7 +138,7 @@ module AdminManagement
         #
         #     @curr_page_data << {
         #         case_id: u_k.id,
-        #         kyc_confirmed_at: Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M"),
+        #         kyc_confirmed_at: Time.at(u_k.created_at.to_i).strftime("%d/%m/%Y %H:%M"),
         #         whitelist_status: u_k.whitelist_status,
         #         is_duplicate: u_k.show_duplicate_status.to_i,
         #         is_re_submitted: u_k.is_re_submitted?,

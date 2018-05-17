@@ -207,7 +207,7 @@ module Crons
       r = record_event
 
       if r.success?
-        @kyc_whitelist_log.mark_confirmed
+        mark_whitelisting_confirmed
       else
         return error_with_data(
             'l_c_ckw_2',
@@ -240,7 +240,7 @@ module Crons
       ).first
 
       if contract_event.present? && (contract_event.block_hash == @block_hash)
-        @kyc_whitelist_log.mark_confirmed
+        mark_whitelisting_confirmed
       else
         handle_error('Block Value Mismatch')
 
@@ -449,7 +449,7 @@ module Crons
 
       @user_id = user_kyc_detail.user_id
 
-      success
+      success_with_data(user_kyc_detail: user_kyc_detail)
 
     end
 
@@ -467,6 +467,30 @@ module Crons
           },
           subject: 'Error while ConfirmKycWhitelist'
       ).deliver
+    end
+
+    # Method to mark Kyc whitelist log as confirmed
+    #
+    # # * Author: Pankaj
+    # * Date: 17/05/2018
+    # * Reviewed By:
+    #
+    def mark_whitelisting_confirmed
+      @kyc_whitelist_log.mark_confirmed
+
+      # If kyc whitelist log is of whitelisting then also put kyc_confirmed_time in user_kyc_details
+      # phase with 0 value can come in callback event for unwhitelisting .
+      return if @kyc_whitelist_log == 0
+
+      r = get_prospective_user_extended_detail_ids
+      return unless r.success?
+
+      r = fetch_user_kyc_detail(r.data[:prospective_user_extended_detail_ids])
+      return unless r.success?
+
+      user_kyc_detail = r.data[:user_kyc_detail]
+      user_kyc_detail.kyc_confirmed_at = Time.now.to_i
+      user_kyc_detail.save
     end
 
   end

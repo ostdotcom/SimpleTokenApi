@@ -102,7 +102,7 @@ module Crons
           # Update USer kyc detail
           user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
           user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-
+          user_kyc_detail.kyc_confirmed_at = nil
           # todo: record timestamps?? wont affect much
           user_kyc_detail.last_acted_by = @admin_id
           user_kyc_detail.last_acted_timestamp = Time.now.to_i

@@ -129,12 +129,12 @@ module AdminManagement
       def validate_is_whitelist_in_process
         return success unless @client.is_whitelist_setup_done?
 
-        if @user_kyc_detail.kyc_approved? && [GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(@user_kyc_detail.whitelist_status)
+        if @user_kyc_detail.kyc_approved? && @user_kyc_detail.whitelist_confirmation_pending?
 
           return error_with_data(
               'am_k_oekc_6',
-              "Whitelist is in progress. Please try after sometime.",
-              "Whitelist is in progress. Please try after sometime.",
+              "Whitelist confirmation is still pending. Please try after sometime.",
+              "Whitelist confirmation is still pending. Please try after sometime.",
               GlobalConstant::ErrorAction.default,
               {}
           )
@@ -201,6 +201,7 @@ module AdminManagement
         @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
         @user_kyc_detail.last_acted_by = @admin_id
         @user_kyc_detail.last_acted_timestamp = Time.now.to_i
+        @user_kyc_detail.kyc_confirmed_at = nil
         if @user_kyc_detail.save!
           return success
         else

@@ -239,7 +239,6 @@ module AdminManagement
         #
         def get_formatted_time(timestamp)
           timestamp.to_i > 0 ? Util::DateTimeHelper.get_formatted_time(timestamp) : nil
-          # Time.at(u_k.kyc_confirmed_at).strftime("%d/%m/%Y %H:%M")
         end
 
         # Set API response data

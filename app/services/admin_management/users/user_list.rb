@@ -226,7 +226,8 @@ module AdminManagement
               registration_timestamp: u.created_at.to_i,
               kyc_submitted: ukd_present.to_i,
               whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
-              case_reopen_inprocess: (ukd_present && @open_edit_cases.include?(@user_kyc_details[u.id].id)).to_i
+              case_reopen_inprocess: (ukd_present && @open_edit_cases.include?(@user_kyc_details[u.id].id)).to_i,
+              whitelist_confirmation_pending: ukd_present ? @user_kyc_details[u.id].whitelist_confirmation_pending?.to_i : 0
           }
         end
 

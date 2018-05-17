@@ -108,7 +108,9 @@ class KycSubmitJob < ApplicationJob
     # Update records
     if @user_kyc_detail.new_record?
       @user_kyc_detail.client_id = @user.client_id
-      @user_kyc_detail.kyc_confirmed_at = @action_timestamp
+      # KYC_confirmed_at for now holds data When whitelist is confirmed for ethereum address
+      # TODO: Removed population of data from here.
+      # @user_kyc_detail.kyc_confirmed_at = @action_timestamp
       @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status

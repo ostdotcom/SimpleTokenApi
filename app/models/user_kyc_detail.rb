@@ -166,6 +166,17 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     "ts_#{Rails.env[0..1]}_#{user_id}"
   end
 
+  # Whitelist confirmation is pending till kyc_confirmed_at is populated
+  #
+  # * Author: Pankaj
+  # * Date: 17/05/2018
+  #
+  def whitelist_confirmation_pending?
+    ([GlobalConstant::UserKycDetail.started_whitelist_status,
+      GlobalConstant::UserKycDetail.done_whitelist_status].include?(whitelist_status) &&
+        kyc_confirmed_at.nil?)
+  end
+
   # Get Key Object
   #
   # * Author: Abhay

@@ -97,7 +97,10 @@ namespace :onetimer do
 
       estimated_amount = decryptor_obj.decrypt(user_extended_detail.estimated_participation_amount).data[:plaintext].to_f
       country = decryptor_obj.decrypt(user_extended_detail.country).data[:plaintext]
-      kyc_confirm_date = Time.at(user_kyc_detail.kyc_confirmed_at).in_time_zone('Pacific Time (US & Canada)').to_date.to_s
+      # kyc_confirmed_at column is now holding data when ethereum address is whitelisted.
+      # TODO: Please deprecate use of this from here
+      # kyc_confirm_date = Time.at(user_kyc_detail.kyc_confirmed_at).in_time_zone('Pacific Time (US & Canada)').to_date.to_s
+      kyc_confirm_date = Time.at(user_kyc_detail.created_at.to_i).in_time_zone('Pacific Time (US & Canada)').to_date.to_s
       kyc_approval_status = user_kyc_detail.kyc_approved? ? 'approved' : (user_kyc_detail.kyc_denied? ? 'denied' : 'pending')
       proof_of_support = (user_kyc_detail.pos_bonus_percentage.to_i > 0) ? 1 : 0
       alt_bonus = user_kyc_detail.alternate_token_id_for_bonus.present? ? 1 : 0

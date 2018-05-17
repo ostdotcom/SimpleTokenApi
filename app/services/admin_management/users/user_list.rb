@@ -31,7 +31,7 @@ module AdminManagement
         @client = nil
         @admin = nil
 
-        @page_number = @params[:page_number] || 0
+        @page_number = @params[:page_number].to_i || 1
         @total_filtered_users = 0
         @page_size = 10
         @users = []

@@ -91,6 +91,7 @@ module Crons
     def start_processing_whitelisting
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - started processing whilelisting")
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.started_whitelist_status
+      @user_kyc_detail.kyc_confirmed_at = nil
       @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
     end

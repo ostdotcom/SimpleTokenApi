@@ -6,6 +6,17 @@ class User < EstablishSimpleTokenUserDbConnection
       GlobalConstant::User.deactived_status => 3
   }
 
+  scope :sorting_by, -> (sortings) {
+    order_clause = {}
+    sortings.each do |key, val|
+      sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
+      order_clause.merge!(sort_data) if sort_data.present?
+    end
+    order(order_clause)
+  }
+
+  scope :is_active, -> {where(status: GlobalConstant::User.active_status)}
+
   after_commit :memcache_flush
 
   # Array of Properties symbols

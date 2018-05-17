@@ -165,6 +165,17 @@ module GlobalConstant
 
       # ### admin action type ####
 
+      # ### KYC Submitted options ###
+      def kyc_submitted_yes
+        'yes'
+      end
+
+      def kyc_submitted_no
+        'no'
+      end
+
+      # ### KYC Submitted options ###
+
       # Get mapped cynopsis status from response status of cynopsis call
       #
       # * Author: Aman
@@ -229,6 +240,11 @@ module GlobalConstant
                                                        ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type],
                                                        ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type]
                 ]
+            },
+            "kyc_submitted" => {
+                "all" => [],
+                "#{kyc_submitted_yes}" => [kyc_submitted_yes],
+                "#{kyc_submitted_no}" => [kyc_submitted_no]
             }
         }
       end

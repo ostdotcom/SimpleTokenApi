@@ -450,6 +450,7 @@
   :optional:
     - :filters
     - :sortings
+    - :search
     - :page_number
     - :page_size
 

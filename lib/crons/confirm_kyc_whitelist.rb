@@ -480,7 +480,7 @@ module Crons
 
       # If kyc whitelist log is of whitelisting then also put kyc_confirmed_time in user_kyc_details
       # phase with 0 value can come in callback event for unwhitelisting .
-      return if @kyc_whitelist_log == 0
+      return if @kyc_whitelist_log.phase == 0
 
       r = get_prospective_user_extended_detail_ids
       return unless r.success?

@@ -40,10 +40,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   }, _suffix: true
 
   enum status: {
-      GlobalConstant::UserKycDetail.unprocessed_whitelist_status => 0,
-      GlobalConstant::UserKycDetail.started_whitelist_status => 1,
-      GlobalConstant::UserKycDetail.done_whitelist_status => 2,
-      GlobalConstant::UserKycDetail.failed_whitelist_status => 3
+      GlobalConstant::UserKycDetail.active_status => 1,
+      GlobalConstant::UserKycDetail.inactive_status => 2
   }, _suffix: true
 
   scope :kyc_admin_and_cynopsis_approved, -> {where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}

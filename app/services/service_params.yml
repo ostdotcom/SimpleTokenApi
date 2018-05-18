@@ -458,7 +458,7 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :user_id
+    - :id
   :optional:
 
 #'AdminManagement::Kyc::Dashboard::Whitelist':

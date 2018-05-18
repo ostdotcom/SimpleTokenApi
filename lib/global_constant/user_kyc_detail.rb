@@ -176,6 +176,19 @@ module GlobalConstant
 
       # ### KYC Submitted options ###
 
+
+      ### Status Start ###
+
+      def active_status
+        'active'
+      end
+
+      def inactive_status
+        'inactive'
+      end
+
+      ### Status End ###
+
       # Get mapped cynopsis status from response status of cynopsis call
       #
       # * Author: Aman

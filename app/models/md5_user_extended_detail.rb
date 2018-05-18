@@ -1,5 +1,10 @@
 class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
 
+  enum status: {
+      GlobalConstant::User.active_status => 1,
+      GlobalConstant::User.inactive_status => 2
+  }
+
   # Encrypt by sha256 algorithm
   #
   # * Author: Aman

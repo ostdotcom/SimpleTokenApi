@@ -88,6 +88,7 @@ Rails.application.routes.draw do
 
     scope 'api/admin/users', controller: 'web/admin/user' do
       match 'list' => :get_users_list, via: :GET
+      match 'delete-user' => :delete_user, via: :POST
     end
 
     scope 'api/admin/admin-user', controller: 'web/admin/super_admin' do

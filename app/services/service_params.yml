@@ -454,6 +454,13 @@
     - :page_number
     - :page_size
 
+'AdminManagement::Users::DeleteUser':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :user_id
+  :optional:
+
 #'AdminManagement::Kyc::Dashboard::Whitelist':
 #  :mandatory:
 #    - :admin_id

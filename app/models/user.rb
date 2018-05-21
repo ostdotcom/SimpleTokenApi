@@ -3,11 +3,12 @@ class User < EstablishSimpleTokenUserDbConnection
   enum status: {
       GlobalConstant::User.active_status => 1,
       GlobalConstant::User.inactive_status => 2,
-      GlobalConstant::User.deactived_status => 3
+      GlobalConstant::User.deleted_status => 3
   }
 
   scope :sorting_by, -> (sortings) {
     order_clause = {}
+    # This sorting is also used in user kyc detail.
     sortings.each do |key, val|
       sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
       order_clause.merge!(sort_data) if sort_data.present?

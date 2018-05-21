@@ -74,7 +74,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user.nil? || @user.status == GlobalConstant::User.deactived_status
+        ) if @user.nil? || @user.status == GlobalConstant::User.deleted_status
 
         r = validate_user_kyc
         return r unless r.success?
@@ -125,7 +125,7 @@ module AdminManagement
                             deleted_by_admin: @admin_id, email: @user.email)
 
         @user.email = nil
-        @user.status = GlobalConstant::User.deactived_status
+        @user.status = GlobalConstant::User.deleted_status
         @user.save!
 
         if @user_kyc_detail.present?

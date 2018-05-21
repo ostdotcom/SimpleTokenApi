@@ -15,8 +15,8 @@ module GlobalConstant
         'inactive'
       end
 
-      def deactived_status
-        'deactived'
+      def deleted_status
+        'deleted'
       end
 
       ### Status End ###

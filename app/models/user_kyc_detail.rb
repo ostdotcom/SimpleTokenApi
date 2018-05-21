@@ -63,6 +63,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   scope :sorting_by, -> (sortings) {
     order_clause = {}
+    # This sorting is also used in user model.
     sortings.each do |key, val|
       sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
       order_clause.merge!(sort_data) if sort_data.present?

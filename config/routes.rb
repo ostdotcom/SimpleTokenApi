@@ -79,6 +79,10 @@ Rails.application.routes.draw do
       match 'contact-us-kyc' => :contact_us_kyc, via: :POST
     end
 
+    scope 'api/home', controller: 'web/static/home' do
+      match 'contact-us-pipe-drive-kyc' => :contact_us_pipe_drive_kyc, via: :POST
+    end
+
     scope 'api/callback', controller: 'rest_api/callback/ops' do
       match 'whitelist-event' => :whitelist_event, via: :GET
     end

@@ -359,6 +359,18 @@
     - :contact_number
   :optional:
 
+'UserManagement::ContactUsPipeDrive::Kyc':
+  :mandatory:
+    - :full_name
+    - :company
+    - :email
+    - :token_sale_start_date
+    - :token_sale_end_date
+    - :need_front_end
+    - :applicant_volume
+  :optional:
+    - :project_description
+
 'UserManagement::VerifyClientHost':
   :mandatory:
     - :domain

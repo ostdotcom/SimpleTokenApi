@@ -118,7 +118,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user_kyc_detail.case_closed_for_admin?
+        ) if !@user_kyc_detail.can_delete?
 
         success
       end

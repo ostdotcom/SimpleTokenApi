@@ -243,7 +243,7 @@ module AdminManagement
 
       # donot allow delete only if admin qualified but cynopsis not rejected
       def can_delete?(user_kyc_detail)
-        return true if user_kyc_detail.blank? || user_kyc_detail.cynopsis_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(user_kyc_detail.admin_status)
+        return true if user_kyc_detail.blank? || user_kyc_detail.can_delete?
         return false
       end
 

@@ -144,6 +144,10 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (kyc_approved? || kyc_denied?) || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
+  def can_delete?
+    self.cynopsis_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(self.admin_status)
+  end
+
   def kyc_pending?
     !kyc_approved? && !kyc_denied?
   end

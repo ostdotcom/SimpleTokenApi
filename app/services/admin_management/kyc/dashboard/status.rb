@@ -71,7 +71,7 @@ module AdminManagement
         # Sets @user_kycs, @total_filtered_kycs
         #
         def fetch_user_kyc_details
-          ar_relation = UserKycDetail.where(client_id: @client_id)
+          ar_relation = UserKycDetail.where(client_id: @client_id, status: GlobalConstant::UserKycDetail.active_status)
           ar_relation = ar_relation.filter_by(@filters)
           ar_relation = ar_relation.sorting_by(@sortings)
 

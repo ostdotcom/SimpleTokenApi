@@ -219,7 +219,7 @@ module AdminManagement
               whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : nil,
               is_case_closed: ukd_present ? @user_kyc_details[u.id].case_closed_for_admin?.to_i : 0,
               case_reopen_inprocess: (ukd_present && @open_edit_cases.include?(@user_kyc_details[u.id].id)).to_i,
-              whitelist_confirmation_pending: ukd_present ? @user_kyc_details[u.id].whitelist_confirmation_pending?.to_i : 0
+              whitelist_confirmation_pending: @client.is_whitelist_setup_done? && ukd_present ? (@user_kyc_details[u.id].kyc_approved? && !@user_kyc_details[u.id].whitelist_confirmation_done?).to_i : 0
           }
         end
 

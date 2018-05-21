@@ -118,7 +118,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user_kyc_detail.case_closed_for_admin? || @user_kyc_detail.whitelist_confirmation_pending?
+        ) if @user_kyc_detail.case_closed_for_admin?
 
         success
       end

@@ -129,7 +129,7 @@ module AdminManagement
       def validate_is_whitelist_in_process
         return success unless @client.is_whitelist_setup_done?
 
-        if @user_kyc_detail.kyc_approved? && @user_kyc_detail.whitelist_confirmation_pending?
+        if @user_kyc_detail.kyc_approved? && !@user_kyc_detail.whitelist_confirmation_done?
 
           return error_with_data(
               'am_k_oekc_6',

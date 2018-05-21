@@ -328,7 +328,7 @@ module AdminManagement
             kyc_status: kyc_status,
             can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i,
             case_reopen_inprocess: is_case_reopening_under_process?,
-            whitelist_confirmation_pending: @user_kyc_detail.whitelist_confirmation_pending?.to_i
+            whitelist_confirmation_pending: whitelist_confirmation_pending.to_i
         }
       end
 
@@ -595,6 +595,18 @@ module AdminManagement
         end
 
         under_process
+      end
+
+      # Is Whitelist confirmation still to happen
+      #
+      # * Author: Aman
+      # * Date: 21/05/2018
+      # * Reviewed By:
+      #
+      # @return [Boolean] - True/False
+      #
+      def whitelist_confirmation_pending
+         (@client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved? && !@user_kyc_detail.whitelist_confirmation_done?)
       end
 
     end

@@ -290,7 +290,7 @@ module AdminManagement
       # Returns[Array] - Action to perform for this user
       #
       def action_to_perform(user_kyc_detail)
-        data = {}
+        data = []
         if can_delete?(user_kyc_detail)
           data << "delete"
           return data

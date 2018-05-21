@@ -26,6 +26,7 @@ module Crons
             where(cynopsis_status: GlobalConstant::UserKycDetail.failed_cynopsis_status).find_in_batches(batch_size: 50) do |batches|
 
           batches.each do |user_kyc_detail|
+            next if user_kyc_detail.inactive_status?
             params_to_retry = {
                 client_id: user_kyc_detail.client_id,
                 id: user_kyc_detail.id,

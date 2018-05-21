@@ -99,7 +99,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user_kyc_detail.blank?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
 
         return error_with_data(
             'am_k_rcu_vuk_2',

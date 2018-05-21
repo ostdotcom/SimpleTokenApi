@@ -116,7 +116,7 @@ module AdminManagement
             'Kyc Details not found or its closed.',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank? || @user_kyc_detail.case_closed_for_admin?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || @user_kyc_detail.case_closed_for_admin?
 
         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
 

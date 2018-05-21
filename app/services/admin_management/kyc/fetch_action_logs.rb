@@ -77,7 +77,7 @@ module AdminManagement
             '',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
 
         r = fetch_and_validate_client
         return r unless r.success?

@@ -102,7 +102,7 @@ module AdminManagement
             'Kyc Details not found or its already open.',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank? || !@user_kyc_detail.case_closed_for_admin?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || !@user_kyc_detail.case_closed_for_admin?
 
         return error_with_data(
             'am_k_oekc_5',

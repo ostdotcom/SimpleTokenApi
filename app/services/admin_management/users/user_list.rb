@@ -136,17 +136,7 @@ module AdminManagement
       # Sets @users, @user_kyc_details, @total_filtered_users
       #
       def fetch_users
-        user_relational_query = User.where(client_id: @client_id).is_active
-
-        query = apply_kyc_submitted_filter
-        user_relational_query = user_relational_query.where(query) if query.present?
-
-        # Include search term in query
-        if @search["q"].present?
-          user_relational_query = user_relational_query.where(["email LIKE (?)", "#{@search["q"]}%"])
-        end
-
-        user_relational_query = user_relational_query.sorting_by(@sortings)
+        user_relational_query = get_model_query
         @total_filtered_users = user_relational_query.count
 
         return if @total_filtered_users < 1
@@ -167,19 +157,26 @@ module AdminManagement
       #
       # Returns [Array] - where_clause
       #
-      def apply_kyc_submitted_filter
-        where_clause = []
+      def get_model_query
+        user_relational_query = User.where(client_id: @client_id).is_active
+        property_val = User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
         # If filter is applied on KYC submitted
         if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["kyc_submitted"].to_s)
-
           if @filters["kyc_submitted"].to_s == kyc_submitted_no
-            where_clause[0] = "properties & ? = 0"
+            user_relational_query = user_relational_query.where("properties & ? = 0", property_val)
           else
-            where_clause[0] = "properties & ? > 0"
+            user_relational_query = user_relational_query.where("properties & ? > 0", property_val)
           end
-          where_clause << User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
         end
-        where_clause
+
+        # Include search term in query
+        if @search["q"].present?
+          user_relational_query = user_relational_query.where(["email LIKE (?)", "#{@search["q"]}%"])
+        end
+
+        user_relational_query = user_relational_query.sorting_by(@sortings)
+
+        user_relational_query
       end
 
       # Find out edit kycs requests which are under process from given cases
@@ -194,7 +191,7 @@ module AdminManagement
         # No Kycs present
         return if @user_kyc_details.blank?
 
-        case_ids = @user_kyc_details.map{|x| x[1].id}
+        case_ids = @user_kyc_details.map {|x| x[1].id}
         @open_edit_cases = EditKycRequests.under_process.where(case_id: case_ids).collect(&:case_id)
       end
 
@@ -209,7 +206,8 @@ module AdminManagement
       def set_api_response_data
         users_list = []
         @users.each do |u|
-          ukd_present = @user_kyc_details[u.id].present?
+          ukd = @user_kyc_details[u.id]
+          ukd_present = ukd.present?
           users_list << {
               user_id: u.id,
               case_id: ukd_present ? @user_kyc_details[u.id].id : 0,
@@ -217,9 +215,9 @@ module AdminManagement
               registration_timestamp: u.created_at.to_i,
               kyc_submitted: ukd_present.to_i,
               whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : nil,
-              is_case_closed: ukd_present ? @user_kyc_details[u.id].case_closed_for_admin?.to_i : 0,
-              case_reopen_inprocess: (ukd_present && @open_edit_cases.include?(@user_kyc_details[u.id].id)).to_i,
-              whitelist_confirmation_pending: @client.is_whitelist_setup_done? && ukd_present ? (@user_kyc_details[u.id].kyc_approved? && !@user_kyc_details[u.id].whitelist_confirmation_done?).to_i : 0
+              can_delete: can_delete?(ukd),
+              reopen_case: can_reopen_case?(ukd),
+              action_under_process: action_under_process(ukd)
           }
         end
 
@@ -241,6 +239,25 @@ module AdminManagement
 
         @api_response_data = data
 
+      end
+
+      # donot allow delete only if admin qualified but cynopsis not rejected
+      def can_delete?(user_kyc_detail)
+        return true if user_kyc_detail.blank? || user_kyc_detail.cynopsis_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(user_kyc_detail.admin_status)
+        return false
+      end
+
+      def action_under_process(user_kyc_detail)
+        return [] if can_delete?(user_kyc_detail)
+        data = []
+        data << "case_reopen_inprocess" if @open_edit_cases.include?(user_kyc_detail.id)
+        data << "whitelist_confirmation_pending" if @client.is_whitelist_setup_done? && user_kyc_detail.kyc_approved? && !user_kyc_detail.whitelist_confirmation_done?
+        return data
+      end
+
+      def can_reopen_case?(user_kyc_detail)
+        return false if can_delete?(user_kyc_detail) || action_under_process(user_kyc_detail).present?
+        return true
       end
 
       # Filters which can be allowed on this page

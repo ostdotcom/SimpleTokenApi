@@ -215,9 +215,7 @@ module AdminManagement
               registration_timestamp: u.created_at.to_i,
               kyc_submitted: ukd_present.to_i,
               whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : nil,
-              can_delete: can_delete?(ukd),
-              reopen_case: can_reopen_case?(ukd),
-              action_under_process: action_under_process(ukd)
+              action_to_perform: action_to_perform(ukd)
           }
         end
 
@@ -258,6 +256,22 @@ module AdminManagement
       def can_reopen_case?(user_kyc_detail)
         return false if can_delete?(user_kyc_detail) || action_under_process(user_kyc_detail).present?
         return true
+      end
+
+      def action_to_perform(user_kyc_detail)
+        data = {}
+        if can_delete?(user_kyc_detail)
+          data << "delete"
+          return data
+        end
+
+        if can_reopen_case?(user_kyc_detail)
+          data << "reopen"
+          return data
+        end
+
+        data += action_under_process(user_kyc_detail)
+        data
       end
 
       # Filters which can be allowed on this page

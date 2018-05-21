@@ -239,12 +239,27 @@ module AdminManagement
 
       end
 
-      # donot allow delete only if admin qualified but cynopsis not rejected
+      # IF reopen case request can be sent for this user
+      #
+      # * Author: Aman
+      # * Date: 15/05/2018
+      # * Reviewed By:
+      #
+      # Returns[Boolean] - True/False
+      #
       def can_delete?(user_kyc_detail)
         return true if user_kyc_detail.blank? || user_kyc_detail.can_delete?
         return false
       end
 
+      # Actions under process
+      #
+      # * Author: Pankaj
+      # * Date: 15/05/2018
+      # * Reviewed By:
+      #
+      # Returns[Array] - keys of action under process
+      #
       def action_under_process(user_kyc_detail)
         return [] if can_delete?(user_kyc_detail)
         data = []
@@ -253,11 +268,27 @@ module AdminManagement
         return data
       end
 
+      # IF reopen case request can be sent for this user
+      #
+      # * Author: Aman
+      # * Date: 15/05/2018
+      # * Reviewed By:
+      #
+      # Returns[Boolean] - True/False
+      #
       def can_reopen_case?(user_kyc_detail)
         return false if can_delete?(user_kyc_detail) || action_under_process(user_kyc_detail).present?
         return true
       end
 
+      # IF reopen case request can be sent for this user
+      #
+      # * Author: Aman
+      # * Date: 15/05/2018
+      # * Reviewed By:
+      #
+      # Returns[Array] - Action to perform for this user
+      #
       def action_to_perform(user_kyc_detail)
         data = {}
         if can_delete?(user_kyc_detail)

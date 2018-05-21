@@ -86,3 +86,6 @@ constants:
 
   memcached:
     instances: <%= ENV['STA_MEMCACHED_INSTANCES'] %>
+
+  pipedrive:
+    api_secret: <%= ENV['PIPEDRIVE_API_KEY'] %>

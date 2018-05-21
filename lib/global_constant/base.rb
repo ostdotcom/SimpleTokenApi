@@ -63,6 +63,10 @@ module GlobalConstant
       Rails.env
     end
 
+    def self.pipedrive
+      @pipedrive ||= fetch_config.fetch('pipedrive', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

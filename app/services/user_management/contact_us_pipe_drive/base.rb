@@ -62,10 +62,10 @@ module UserManagement
         @error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidator.is_valid_email?(@email)
         @error_data[:token_sale_start_date] = 'Token sale start date is required.' if !@token_sale_start_date.present?
         @error_data[:token_sale_end_date] = 'Token sale end date is required.' if !@token_sale_end_date.present?
-        @error_data[:need_front_end] = 'Please provide info whether front-end is required or not' if !@need_front_end.present?
+        @error_data[:need_front_end] = 'Please provide info whether custom front-end is required or not' if !@need_front_end.present?
         @error_data[:applicant_volume] = 'Applicant volume is required.' if !@applicant_volume.present?
 
-        @error_data[:token_sale_end_date] = 'Start date cannot be later than end date' if @token_sale_end_date < @token_sale_start_date
+        @error_data[:token_sale_start_date] = 'Start date cannot be later than end date' if @token_sale_end_date < @token_sale_start_date
 
         return error_with_data(
             'um_pcu_b_1',
@@ -96,7 +96,7 @@ module UserManagement
         request_params[GlobalConstant::PipeDrive::need_front_end_key] = @need_front_end
         request_params[GlobalConstant::PipeDrive::applicant_volume_key] = @applicant_volume
 
-        path = GlobalConstant::PipeDrive::deals_end_point + '?api_token=3558fceca78678c8fd00c25ea25a21e762d8548f'
+        path = GlobalConstant::PipeDrive::deals_end_point + "?api_token=#{GlobalConstant::Base.pipedrive['api_secret']}"
 
         pipe_drive_request = PipeDrive::HttpHelper.new()
 

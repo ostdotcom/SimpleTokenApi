@@ -452,7 +452,6 @@
     - :sortings
     - :search
     - :page_number
-    - :page_size
 
 'AdminManagement::Users::DeleteUser':
   :mandatory:

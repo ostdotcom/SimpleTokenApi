@@ -15,6 +15,7 @@ module AdminManagement
       #
       # @params [Hash] filters (optional)
       # @params [Hash] sortings (optional)
+      # @params [String] search (optional)
       #
       # @return [AdminManagement::Users::UserList]
       #
@@ -28,12 +29,13 @@ module AdminManagement
         @sortings = @params[:sortings]
         @search = @params[:search]
 
+        @page_number = @params[:page_number].to_i || 1
+        @page_size = 10
+
         @client = nil
         @admin = nil
 
-        @page_number = @params[:page_number].to_i || 1
         @total_filtered_users = 0
-        @page_size = 10
         @users = []
         @user_kyc_details = {}
         @open_edit_cases = []

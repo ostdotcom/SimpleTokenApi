@@ -12,7 +12,7 @@ module AdminManagement
       #
       # @params [String] client_id (mandatory) - this is the client id
       # @params [String] admin_id (mandatory) - this is the email entered
-      # @params [String] user_id (mandatory) - User Id which needs to be deleted
+      # @params [String] id (mandatory) - User Id which needs to be deleted
       #
       # @return [AdminManagement::Users::DeleteUser]
       #

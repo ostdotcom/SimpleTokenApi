@@ -171,7 +171,7 @@ module AdminManagement
 
         # Include search term in query
         if @search["q"].present?
-          user_relational_query = user_relational_query.where(["email LIKE (?)", "#{@search["q"]}%"])
+          user_relational_query = user_relational_query.where(["email LIKE (?)", "#{@search["q"].html_safe}%"])
         end
 
         user_relational_query = user_relational_query.sorting_by(@sortings)

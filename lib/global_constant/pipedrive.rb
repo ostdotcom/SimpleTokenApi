@@ -27,6 +27,10 @@ module GlobalConstant
       '39a6b3c6d9a3f3640c17b3dbe9963c020ddc6182'
     end
 
+    def self.company_website_key
+      'dummy_key' #TODO
+    end
+
   end
 
 end

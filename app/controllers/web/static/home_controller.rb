@@ -12,6 +12,11 @@ class Web::Static::HomeController < Web::Static::BaseController
     render_api_response(service_response)
   end
 
+  def contact_us_partners_pipe_drive
+    service_response = UserManagement::ContactUsPipeDrive::Partner.new(params).perform
+    render_api_response(service_response)
+  end
+
   #
   # * Author: Aman
   # * Date: 24/01/2018

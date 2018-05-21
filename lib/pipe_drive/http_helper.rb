@@ -41,9 +41,10 @@ module PipeDrive
                                      {})
           end
 
+          parsed_response = Oj.load(response.to_s)
+
           case response.status
             when 200, 201
-              parsed_response = Oj.load(response.to_s)
               if parsed_response['success']
                 return success_with_data(HashWithIndifferentAccess.new(parsed_response['data']))
               else
@@ -56,7 +57,7 @@ module PipeDrive
             else
               return error_with_data('pd_hh_3',
                                      "Error in API call: #{response.status}",
-                                     'Something Went Wrong.',
+                                     "Something Went Wrong. - #{parsed_response['error']}",
                                      GlobalConstant::ErrorAction.default,
                                      {})
           end

@@ -178,9 +178,12 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   # * Date: 17/05/2018
   #
   def whitelist_confirmation_pending?
-    ([GlobalConstant::UserKycDetail.started_whitelist_status,
-      GlobalConstant::UserKycDetail.done_whitelist_status].include?(whitelist_status) &&
-        kyc_confirmed_at.nil?)
+    # KYC is approved and whitelist status is not done then whitelist confirmation is pending
+    #   ######## OR ##########
+    # Kyc is approved and whitelist status is done but kyc confirmed at time is still not set.
+    kyc_approved? && ([GlobalConstant::UserKycDetail.started_whitelist_status,
+                      GlobalConstant::UserKycDetail.unprocessed_whitelist_status].include?(whitelist_status) ||
+        (whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status && kyc_confirmed_at.nil?))
   end
 
   # Get Key Object

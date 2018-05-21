@@ -62,6 +62,15 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
+        return error_with_data(
+            'am_u_du_4',
+            'Delete not allowed for this client.',
+            'Delete not allowed for this client.',
+            GlobalConstant::ErrorAction.default,
+            {},
+            {}
+        ) if @client.is_st_token_sale_client?
+
         r = fetch_and_validate_admin
         return r unless r.success?
 

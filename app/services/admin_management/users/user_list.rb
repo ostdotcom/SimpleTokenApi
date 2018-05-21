@@ -94,21 +94,11 @@ module AdminManagement
           return error_with_data(
               'am_u_ul_1',
               'Invalid Parameters.',
-              'Invalid Filter type passed',
+              'Invalid Filter type or parameter passed',
               GlobalConstant::ErrorAction.default,
               {},
               {}
-          ) if GlobalConstant::UserKycDetail.filters[key.to_s].blank?
-
-          filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
-          return error_with_data(
-              'am_u_ul_2',
-              'Invalid Filter Parameter value.',
-              'Invalid Filter Parameter value.',
-              GlobalConstant::ErrorAction.default,
-              {},
-              {}
-          ) if filter_data.nil?
+          ) if page_filters[key.to_s].blank? || page_filters[key.to_s].exclude?(val.to_s)
         end
 
         # Validate Sortings
@@ -146,27 +136,27 @@ module AdminManagement
       # Sets @users, @user_kyc_details, @total_filtered_users
       #
       def fetch_users
-        query = apply_kyc_submitted_filter
+        user_relational_query = User.where(client_id: @client_id).is_active
 
-        # Include client_id in query
-        query[0] =  query[0].present? ? "#{query[0]} AND client_id = ?" : "client_id = ?"
-        query << @client_id
+        query = apply_kyc_submitted_filter
+        user_relational_query = user_relational_query.where(query) if query.present?
 
         # Include search term in query
         if @search["q"].present?
-          query[0] += " AND email LIKE (?)"
-          query << "#{@search["q"]}%"
+          user_relational_query = user_relational_query.where(["email LIKE (?)", "#{@search["q"]}%"])
         end
 
-        user_relational_query = User.where(query).is_active.sorting_by(@sortings)
+        user_relational_query = user_relational_query.sorting_by(@sortings)
+        @total_filtered_users = user_relational_query.count
+
+        return if @total_filtered_users < 1
         offset = 0
         offset = @page_size * (@page_number - 1) if @page_number > 1
         @users = user_relational_query.limit(@page_size).offset(offset).all
         # No need to query kyc detail if filter applied is kyc_submitted_no
-        if @filters["kyc_submitted"].to_s != GlobalConstant::UserKycDetail.kyc_submitted_no
+        if @filters["kyc_submitted"].to_s != kyc_submitted_no
           @user_kyc_details = UserKycDetail.where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
         end
-        @total_filtered_users = user_relational_query.count
       end
 
       # Make a query based on Kyc submitted filter applied
@@ -180,10 +170,9 @@ module AdminManagement
       def apply_kyc_submitted_filter
         where_clause = []
         # If filter is applied on KYC submitted
-        if [GlobalConstant::UserKycDetail.kyc_submitted_yes,
-            GlobalConstant::UserKycDetail.kyc_submitted_no].include?(@filters["kyc_submitted"].to_s)
+        if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["kyc_submitted"].to_s)
 
-          if @filters["kyc_submitted"].to_s == GlobalConstant::UserKycDetail.kyc_submitted_no
+          if @filters["kyc_submitted"].to_s == kyc_submitted_no
             where_clause[0] = "properties & ? = 0"
           else
             where_clause[0] = "properties & ? > 0"
@@ -227,7 +216,8 @@ module AdminManagement
               email: u.email,
               registration_timestamp: u.created_at.to_i,
               kyc_submitted: ukd_present.to_i,
-              whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+              whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : nil,
+              is_case_closed: ukd_present ? @user_kyc_details[u.id].case_closed_for_admin?.to_i : 0,
               case_reopen_inprocess: (ukd_present && @open_edit_cases.include?(@user_kyc_details[u.id].id)).to_i,
               whitelist_confirmation_pending: ukd_present ? @user_kyc_details[u.id].whitelist_confirmation_pending?.to_i : 0
           }
@@ -253,6 +243,24 @@ module AdminManagement
 
       end
 
+      # Filters which can be allowed on this page
+      #
+      def page_filters
+        @page_filters ||= {
+            "kyc_submitted" => ["all", kyc_submitted_yes, kyc_submitted_no]
+        }
+      end
+
+      # ### KYC Submitted Filter options ###
+      def kyc_submitted_yes
+        'yes'
+      end
+
+      def kyc_submitted_no
+        'no'
+      end
+
+      # ### KYC Submitted Filter options ###
 
     end
 

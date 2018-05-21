@@ -165,17 +165,6 @@ module GlobalConstant
 
       # ### admin action type ####
 
-      # ### KYC Submitted options ###
-      def kyc_submitted_yes
-        'yes'
-      end
-
-      def kyc_submitted_no
-        'no'
-      end
-
-      # ### KYC Submitted options ###
-
 
       ### Status Start ###
 
@@ -253,15 +242,11 @@ module GlobalConstant
                                                        ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type],
                                                        ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type]
                 ]
-            },
-            "kyc_submitted" => {
-                "all" => [],
-                "#{kyc_submitted_yes}" => [kyc_submitted_yes],
-                "#{kyc_submitted_no}" => [kyc_submitted_no]
             }
         }
       end
 
+      # This is also used in user list sortings
       def sorting
         {
             "sort_by" => {

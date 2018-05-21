@@ -104,7 +104,7 @@ module Crons
           user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
           user_kyc_detail.kyc_confirmed_at = nil
           # todo: record timestamps?? wont affect much
-          user_kyc_detail.last_acted_by = @admin_id
+          user_kyc_detail.last_acted_by = ekr.admin_id
           user_kyc_detail.last_acted_timestamp = Time.now.to_i
 
           user_kyc_detail.save!
@@ -115,7 +115,7 @@ module Crons
 
           send_email(true, ekr)
         else
-          update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.failed_status)
+          update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.failed_status, r.to_json)
           send_email(false, ekr, r.error_display_text, r)
         end
       end
@@ -230,7 +230,8 @@ module Crons
     # * Date: 09/05/2018
     # * Reviewed By:
     #
-    def update_edit_kyc_row(ekr, status)
+    def update_edit_kyc_row(ekr, status, error_response=nil)
+      ekr.debug_data = error_response if error_response.present?
       ekr.status = status
       ekr.save
     end

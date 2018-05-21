@@ -35,7 +35,7 @@ module Crons
       # * Reviewed By: Sunil
       #
       def perform
-        UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).
+        UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).active_kyc.
             where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
 
           batches.each do |user_kyc_detail|
@@ -60,7 +60,6 @@ module Crons
       # Sets @denied_user_ids, @approved_user_id_hash
       #
       def process_user_kyc_details(user_kyc_detail)
-        return if user_kyc_detail.inactive_status?
         is_already_kyc_denied_by_admin = user_kyc_detail.kyc_denied?
 
         r = Cynopsis::Customer.new(client_id: user_kyc_detail.client_id).check_status({rfrID: user_kyc_detail.cynopsis_user_id})

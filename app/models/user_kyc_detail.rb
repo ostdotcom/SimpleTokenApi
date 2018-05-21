@@ -47,6 +47,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   scope :kyc_admin_and_cynopsis_approved, -> {where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
   scope :whitelist_status_unprocessed, -> {where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status)}
 
+  scope :active_kyc, -> {where(status: GlobalConstant::UserKycDetail.active_status)}
+
   scope :filter_by, -> (filters) {
     where_clause = {}
     where_bitwise_clause = {}

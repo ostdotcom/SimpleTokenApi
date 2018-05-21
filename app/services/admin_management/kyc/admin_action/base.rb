@@ -52,18 +52,26 @@ module AdminManagement
 
           @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
 
+          return error_with_data(
+              'am_k_aa_dk_1',
+              'KYC not found',
+              'KYC not found',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
+
           @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
 
           return error_with_data(
-              'am_k_aa_dk_2',
-              'User or KYC is inactive.',
-              'User or KYC is inactive.',
+              'am_k_aa_dk_3',
+              'User not found',
+              'User not found',
               GlobalConstant::ErrorAction.default,
               {}
-          ) if @user.inactive? || @user_kyc_detail.inactive_status?
+          ) if @user.inactive?
 
           return error_with_data(
-              'am_k_aa_dk_1',
+              'am_k_aa_dk_4',
               'Closed case can not be changed.',
               'Closed case can not be changed.',
               GlobalConstant::ErrorAction.default,

@@ -133,9 +133,6 @@ module AdminManagement
           @user_kyc_detail.save!
         end
 
-        UserExtendedDetail.where(user_id: @user_id).update_all(updated_at: Time.now, status: GlobalConstant::User.inactive_status)
-        Md5UserExtendedDetail.where(user_id: @user_id).update_all(updated_at: Time.now, status: GlobalConstant::User.inactive_status)
-
         success
       end
 

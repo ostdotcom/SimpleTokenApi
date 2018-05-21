@@ -137,7 +137,7 @@ module AdminManagement
       #
       def fetch_user_kyc_detail
         @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
-        return err_response('am_k_cd_2') if @user_kyc_detail.blank?
+        return err_response('am_k_cd_2') if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
 
         @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
         return err_response('am_k_cd_3') if @user.blank?

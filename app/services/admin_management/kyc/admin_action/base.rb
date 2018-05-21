@@ -62,6 +62,14 @@ module AdminManagement
 
           @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
 
+          return error_with_data(
+              'am_k_aa_dk_2',
+              'User or KYC is inactive.',
+              'User or KYC is inactive.',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @user.inactive? || @user_kyc_detail.inactive_status?
+
           success
         end
 

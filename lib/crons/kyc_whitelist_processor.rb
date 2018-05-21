@@ -28,7 +28,7 @@ module Crons
       @client_whitelist_objs = ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
       client_ids = @client_whitelist_objs.keys
 
-      UserKycDetail.where(client_id: client_ids).
+      UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
           kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis
       whitelist_status_unprocessed.# records which are not yet processed for whitelisting
       find_in_batches(batch_size: 10) do |u_k_detail_objs|

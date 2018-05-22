@@ -68,6 +68,14 @@ module AdminManagement
           return error_with_data(
               'am_au_i_vas_2',
               'Invite User Error',
+              'Name cannot be blank',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @name.blank?
+
+          return error_with_data(
+              'am_au_i_vas_3',
+              'Invite User Error',
               'Name can be of maximum 100 characters',
               GlobalConstant::ErrorAction.default,
               {}

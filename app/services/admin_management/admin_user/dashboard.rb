@@ -67,7 +67,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admins
-        admin_objs = Admin.not_deleted.where(default_client_id: @client_id).all
+        admin_objs = Admin.not_deleted.where(default_client_id: @client_id).order({id: :desc}).all
         admin_objs.each do |admin|
           @admin_user_count += 1
           next if admin.role != GlobalConstant::Admin.normal_admin_role

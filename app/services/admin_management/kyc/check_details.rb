@@ -168,7 +168,7 @@ module AdminManagement
       def fetch_surround_kyc_ids
         return if @filters.blank? && @sortings.blank?
 
-        ar_relation = UserKycDetail.where(client_id: @client_id)
+        ar_relation = UserKycDetail.where(client_id: @client_id).active_kyc
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation = ar_relation.select(:id)
 

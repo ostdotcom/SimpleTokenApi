@@ -1,6 +1,13 @@
 # ENV variables and their development values
 source set_env_vars.sh
 
+export PIPEDRIVE_API_TOKEN="3558fceca78678c8fd00c25ea25a21e762d8548f"
+export PROJECT_DESCRIPTION_PD_KEY="445d1a8a107f9176d6fef3ab13c1b88ea3c8b742"
+export TOKEN_SALE_START_DATE_PD_KEY="8f6bf239cf21f44007f3cb7536ec9d73bc5046c1"
+export TOKEN_SALE_END_DATE_PD_KEY="8f6bf239cf21f44007f3cb7536ec9d73bc5046c1_until"
+export NEED_FRONT_END_PD_KEY="b8f52fa99548bd23d6cb9c127f430f3efdbb87f7"
+export APPLICANT_VOLUME_PD_KEY="39a6b3c6d9a3f3640c17b3dbe9963c020ddc6182"
+
 ##crons
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1
 rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks lock_key_suffix=1

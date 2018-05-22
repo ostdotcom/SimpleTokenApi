@@ -5,9 +5,9 @@ module UserManagement
       # Initialize
       #
       # @params [String] full_name (mandatory) - full name
-      # @params [String] company_website (mandatory) - company website
-      # @params [Integer] email (mandatory) - email
-      # @params [String] project_description (mandatory) - Project description
+      # @params [String] email (mandatory) - email
+      # @params [String] company (mandatory) - company
+      # @params [String] project_description (optional) - Project description
       #
       # @return [UserManagement::ContactUsPipeDrive::Partner]
       #
@@ -15,23 +15,46 @@ module UserManagement
         super
 
         @full_name = @params[:full_name]
-        @company_website = @params[:company_website]
+        @company = @params[:company]
         @email = @params[:email]
         @project_description = @params[:project_description]
 
         @error_data = {}
       end
 
+      # Perform
+      #
+      # @return [Result::Base]
+      #
+      def perform
+        r = validate_and_sanitize
+        return r unless r.success?
+
+        build_request_params
+
+        r = create_pipe_drive_deal
+        return r unless r.success?
+
+        success
+      end
+
+      private
+
       # Validate
       #
       # @return [Result::Base]
       #
       def validate_and_sanitize
+        r = validate
+        return r unless r.success?
+
         @full_name = @full_name.to_s.strip
-        @company_website = @company_website.to_s.strip
+        @company = @company.to_s.strip
         @email = @email.to_s.strip
+        @project_description = @project_description.to_s.strip
 
         @error_data[:full_name] = 'Full Name is required.' if !@full_name.present?
+        @error_data[:company] = 'Company name is required.' if !@company.present?
         @error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidator.is_valid_email?(@email)
 
         return error_with_data(
@@ -46,18 +69,20 @@ module UserManagement
         success
       end
 
-      # Perform
+      # Build params for request
       #
       # @return [Result::Base]
       #
-      def perform
-        r = validate_and_sanitize
-        return r unless r.success?
+      def build_request_params
+        @request_params = {
+            title: @company,
+            person_id: @full_name + ' ' + @email,
+            org_id: @company
+        }
 
-        r = create_pipe_drive_deal
-        return r unless r.success?
+        @request_params[GlobalConstant::Base.pipedrive['project_description_key']] = @project_description if @project_description
 
-        success
+        @request_params
       end
 
     end

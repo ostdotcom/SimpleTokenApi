@@ -9,7 +9,7 @@ module PipeDrive
 
       # Initialize
       #
-      # @return [PipeDrive::Request::Base]
+      # @return [PipeDrive::HttpHelper]
       #
       def initialize
         @timeouts = {write: 5, connect: 5, read: 5}
@@ -56,8 +56,8 @@ module PipeDrive
               end
             else
               return error_with_data('pd_hh_3',
-                                     "Error in API call: #{response.status}",
-                                     "Something Went Wrong. - #{parsed_response['error']}",
+                                     "Error in API call: #{response.status} - #{parsed_response['error']}",
+                                     "Something Went Wrong.",
                                      GlobalConstant::ErrorAction.default,
                                      {})
           end

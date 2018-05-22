@@ -375,8 +375,8 @@
   :mandatory:
     - :full_name
     - :email
+    - :company
   :optional:
-    - :company_website
     - :project_description
 
 'UserManagement::VerifyClientHost':

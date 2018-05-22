@@ -12,10 +12,6 @@ class Web::Static::HomeController < Web::Static::BaseController
     render_api_response(service_response)
   end
 
-  def contact_us_partners_pipe_drive
-    service_response = UserManagement::ContactUsPipeDrive::Partner.new(params).perform
-    render_api_response(service_response)
-  end
 
   #
   # * Author: Aman
@@ -27,8 +23,23 @@ class Web::Static::HomeController < Web::Static::BaseController
     render_api_response(service_response)
   end
 
+  #
+  # * Author: Santhosh
+  # * Date: 21/05/2018
+  # * Reviewed By:
+  #
   def contact_us_pipe_drive_kyc
     service_response = UserManagement::ContactUsPipeDrive::Kyc.new(params).perform
+    render_api_response(service_response)
+  end
+
+  #
+  # * Author: Santhosh
+  # * Date: 21/05/2018
+  # * Reviewed By:
+  #
+  def contact_us_partners_pipe_drive
+    service_response = UserManagement::ContactUsPipeDrive::Partner.new(params).perform
     render_api_response(service_response)
   end
 

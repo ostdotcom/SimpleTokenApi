@@ -59,12 +59,12 @@ module GlobalConstant
       @public_ops ||= fetch_config.fetch('public_ops', {}).with_indifferent_access
     end
 
-    def self.environment_name
-      Rails.env
-    end
-
     def self.pipedrive
       @pipedrive ||= fetch_config.fetch('pipedrive', {}).with_indifferent_access
+    end
+
+    def self.environment_name
+      Rails.env
     end
 
     private

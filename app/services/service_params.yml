@@ -5,6 +5,18 @@
     - :browser_user_agent
   :optional:
 
+'AdminManagement::Login::SendAdminResetPasswordLink':
+  :mandatory:
+    - :email
+  :optional:
+
+'AdminManagement::Login::AdminResetPassword':
+  :mandatory:
+    - :r_t
+    - :password
+    - :confirm_password
+  :optional:
+
 'AdminManagement::Login::Multifactor::Authenticate':
   :mandatory:
     - :single_auth_cookie_value
@@ -50,7 +62,7 @@
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
     - :filters
     - :sortings
@@ -62,119 +74,60 @@
   :optional:
     - :filters
     - :sortings
-    - :offset
-    - :page_size
-
-'AdminManagement::Kyc::Dashboard::Whitelist':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :filters
-    - :sortings
-    - :offset
-    - :page_size
-
-'AdminManagement::Kyc::Dashboard::SaleAll':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :offset
-    - :page_size
-
-'AdminManagement::Kyc::Dashboard::SaleDaily':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :offset
-    - :page_size
-    - :tab_type
-
-'AdminManagement::Kyc::Dashboard::ContractEvents':
-  :mandatory:
-    - :admin_id
-    - :client_id
-  :optional:
-    - :offset
+    - :page_number
     - :page_size
 
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
 'AdminManagement::Kyc::FetchActionLogs':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
-    - :limit
-    - :offset
+    - :page_number
+    - :page_size
 
 'AdminManagement::Kyc::GetByEmail':
   :mandatory:
     - :admin_id
     - :client_id
-    - :query
+    - :email
   :optional:
 
-'AdminManagement::Kyc::ChangeAddressAndOpenCase':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :ethereum_address
+#'AdminManagement::Kyc::ChangeAddressAndOpenCase':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#    - :case_id
+#  :optional:
+#    - :ethereum_address
 
 'AdminManagement::Kyc::AdminAction::DenyKyc':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
-'AdminManagement::Kyc::AdminAction::DataMismatch':
+'AdminManagement::Kyc::AdminAction::EmailKycIssue':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
     - :email_temp_vars
   :optional:
-
-'AdminManagement::Kyc::AdminAction::DocumentIdIssue':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :email_temp_vars
-
-'AdminManagement::Kyc::AdminAction::SelfieImageIssue':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :email_temp_vars
-
-'AdminManagement::Kyc::AdminAction::ResidencyImageIssue':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :case_id
-  :optional:
-    - :email_temp_vars
 
 'AdminManagement::Kyc::AdminAction::Qualify':
   :mandatory:
     - :admin_id
     - :client_id
-    - :case_id
+    - :id
   :optional:
 
 'AdminManagement::Kyc::CheckDuplicates':
@@ -188,6 +141,7 @@
     - :admin_id
   :optional:
     - :filters
+    - :sortings
 
 'UserManagement::SignUp':
   :mandatory:
@@ -236,6 +190,7 @@
     - :state
     - :postal_code
     - :estimated_participation_amount
+    - :investor_proof_files_path
 
 'UserManagement::DoubleOptIn':
   :mandatory:
@@ -437,3 +392,125 @@
   :mandatory:
     - :client_id
   :optional:
+
+'AdminManagement::Kyc::RetryCynopsisUpload':
+  :mandatory:
+    - :client_id
+    - :id
+  :optional:
+    - :admin_id
+    - :cron_job
+
+'AdminManagement::AdminUser::Dashboard':
+  :mandatory:
+    - :admin_id
+    - :client_id
+  :optional:
+
+'AdminManagement::AdminUser::Invite::Send':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :email
+    - :name
+  :optional:
+
+'AdminManagement::AdminUser::Invite::Resend':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::AdminUser::ResetMfa':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::AdminUser::DeleteAdmin':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::AdminUser::ActivateInvitedAdmin':
+  :mandatory:
+    - :i_t
+    - :password
+    - :confirm_password
+  :optional:
+
+'AdminManagement::AdminUser::GetInviteDetail':
+  :mandatory:
+    - :i_t
+  :optional:
+
+'AdminManagement::Kyc::OpenEditKycCase':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+'AdminManagement::Kyc::UpdateEthereumAddress':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+    - :ethereum_address
+  :optional:
+
+'AdminManagement::Users::UserList':
+  :mandatory:
+    - :admin_id
+    - :client_id
+  :optional:
+    - :filters
+    - :sortings
+    - :search
+    - :page_number
+
+'AdminManagement::Users::DeleteUser':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+
+#'AdminManagement::Kyc::Dashboard::Whitelist':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :filters
+#    - :sortings
+#    - :offset
+#    - :page_size
+#
+#'AdminManagement::Kyc::Dashboard::SaleAll':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :offset
+#    - :page_size
+#
+#'AdminManagement::Kyc::Dashboard::SaleDaily':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :offset
+#    - :page_size
+#    - :tab_type
+#
+#'AdminManagement::Kyc::Dashboard::ContractEvents':
+#  :mandatory:
+#    - :admin_id
+#    - :client_id
+#  :optional:
+#    - :offset
+#    - :page_size

@@ -65,7 +65,7 @@ module Aws
           signature_expiration: Time.now + 1800,
           server_side_encryption: 'aws:kms',
           server_side_encryption_aws_kms_key_id: key_id,
-          content_length_range: (1024 * 200)..(1024 * 1024 * 15) # allow max 15 MB and min 200 kb
+          content_length_range: (1024 * 200)..(1024 * 1024 * 20) # allow max 20 MB and min 200 kb
       }
 
       post = Aws::S3::PresignedPost.new(

@@ -14,7 +14,7 @@ module Crons
     #
     def initialize(params)
       @kyc_whitelist_log = nil
-      @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data =  nil, nil, nil, nil, nil
+      @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data = nil, nil, nil, nil, nil
       @user_id = nil
     end
 
@@ -25,6 +25,13 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
+      # todo: Handle such cases - Transactions can fail.. events might not be present or wrong!!
+      # todo: refine use of attention needed column
+      # if no event present then query contract .. dont call process and record event ?? update kyc whitelist log and user kyc detail status??
+      #
+      # todo: handle nounce issue in ops code base
+      # todo: handle low balance issue in ops and propogate this state to api to prevent next whitelist until balance is sufficient
+
       KycWhitelistLog.
           kyc_whitelist_non_confirmed.
           where("created_at < '#{(Time.now - 5.minutes).to_s(:db)}'").
@@ -32,33 +39,47 @@ module Crons
           find_in_batches(batch_size: 100).each do |batched_records|
 
         batched_records.each do |kyc_whitelist_log|
+          begin
+            initialize_for_iteration(kyc_whitelist_log)
 
-          initialize_for_iteration(kyc_whitelist_log)
+            r = get_tx_info
+            next unless r.success?
 
-          r = get_tx_info
-          next unless r.success?
+            r = query_contract
+            unless r.success?
+              notify_devs(
+                  {ethereum_address: @kyc_whitelist_log.ethereum_address},
+                  "IMMEDIATE ATTENTION NEEDED. Does not exist in contract OR phase mismatch."
+              )
+              next
+            end
 
-          r = query_contract
-          unless r.success?
-            notify_devs(
-              {ethereum_address: @kyc_whitelist_log.ethereum_address},
-              "IMMEDIATE ATTENTION NEEDED. Does not exist in contract OR phase mis match."
+            if pending_status?
+
+              r = process_pending_status_record
+              next unless r.success?
+
+            elsif done_status?
+
+              r = process_done_status_record
+              next unless r.success?
+
+            else
+              fail("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Unreachable Code")
+            end
+
+          rescue StandardError => e
+            kyc_whitelist_log.is_attention_needed = GlobalConstant::KycWhitelistLog.attention_needed
+            kyc_whitelist_log.save! if kyc_whitelist_log.changed?
+
+            return exception_with_data(
+                e,
+                'c_ckw_p_1',
+                'exception in confirm kyc whitelist: ' + e.message,
+                'Something went wrong.',
+                GlobalConstant::ErrorAction.default,
+                {kyc_whitelist_log_id: kyc_whitelist_log.id}
             )
-            next
-          end
-
-          if pending_status?
-
-            r = process_pending_status_record
-            next unless r.success?
-
-          elsif done_status?
-
-            r = process_done_status_record
-            next unless r.success?
-
-          else
-            fail("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Unreachable Code")
           end
 
         end
@@ -77,7 +98,7 @@ module Crons
     #
     def initialize_for_iteration(kyc_whitelist_log)
       @kyc_whitelist_log = kyc_whitelist_log
-      @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data =  nil, nil, nil, nil, nil
+      @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data = nil, nil, nil, nil, nil
       @user_id = nil
     end
 
@@ -95,11 +116,12 @@ module Crons
       # check if the transaction is mined in a block
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
       @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform(
-        {transaction_hash: @kyc_whitelist_log.transaction_hash}
+          {transaction_hash: @kyc_whitelist_log.transaction_hash}
       )
 
+      # todo: get status as well... if trx failed .. mark status as failed
       Rails.logger.info(
-        "user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@tx_info_status.inspect}"
+          "user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@tx_info_status.inspect}"
       )
 
       if @tx_info_status.success?
@@ -113,11 +135,11 @@ module Crons
         handle_error('Block Not Mined')
 
         error_with_data(
-          'l_c_ckw_1',
-          'block not mined',
-          'block not mined',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_1',
+            'block not mined',
+            'block not mined',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
 
       end
@@ -185,14 +207,14 @@ module Crons
       r = record_event
 
       if r.success?
-        @kyc_whitelist_log.mark_confirmed
+        mark_whitelisting_confirmed
       else
         return error_with_data(
-          'l_c_ckw_2',
-          'block not mined',
-          'block not mined',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_2',
+            'block not mined',
+            'block not mined',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -218,16 +240,16 @@ module Crons
       ).first
 
       if contract_event.present? && (contract_event.block_hash == @block_hash)
-        @kyc_whitelist_log.mark_confirmed
+        mark_whitelisting_confirmed
       else
         handle_error('Block Value Mismatch')
 
         return error_with_data(
-          'l_c_ckw_3',
-          'block hash mismatch',
-          'block hash mismatch',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_3',
+            'block hash mismatch',
+            'block hash mismatch',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
@@ -250,11 +272,11 @@ module Crons
         success
       else
         error_with_data(
-          'l_c_ckw_3.1',
-          'phase mismatch',
-          'phase mismatch',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_3.1',
+            'phase mismatch',
+            'phase mismatch',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
     end
@@ -341,21 +363,21 @@ module Crons
     #
     def get_prospective_user_extended_detail_ids
       prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
-        ethereum_address: Md5UserExtendedDetail.get_hashed_value(@kyc_whitelist_log.ethereum_address)
+          ethereum_address: Md5UserExtendedDetail.get_hashed_value(@kyc_whitelist_log.ethereum_address)
       ).pluck(:user_extended_detail_id)
 
       if prospective_user_extended_detail_ids.blank?
         notify_devs(
-          {ethereum_address: @kyc_whitelist_log.ethereum_address},
-          "IMMEDIATE ATTENTION NEEDED. eth address not associated with any user, still trying to confirm kyc whitelisting."
+            {ethereum_address: @kyc_whitelist_log.ethereum_address},
+            "IMMEDIATE ATTENTION NEEDED. eth address not associated with any user, still trying to confirm kyc whitelisting."
         )
 
         return error_with_data(
-          'l_c_ckw_4',
-          'eth address not associated with any user, still trying to confirm kyc whitelisting.',
-          'eth address not associated with any user, still trying to confirm kyc whitelisting.',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_4',
+            'eth address not associated with any user, still trying to confirm kyc whitelisting.',
+            'eth address not associated with any user, still trying to confirm kyc whitelisting.',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
       success_with_data(prospective_user_extended_detail_ids: prospective_user_extended_detail_ids)
@@ -375,59 +397,59 @@ module Crons
     #
     def fetch_user_kyc_detail(prospective_user_extended_detail_ids)
       user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(client_id: @kyc_whitelist_log.client_id,
-        user_extended_detail_id: prospective_user_extended_detail_ids
+                                                                             user_extended_detail_id: prospective_user_extended_detail_ids
       ).all
 
       if user_kyc_details.blank?
         notify_devs(
-          {transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
+            {transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
         )
 
         return error_with_data(
-          'l_c_ckw_5',
-          'no approved user_kyc_detail records found for same address.',
-          'no approved user_kyc_detail records found for same address',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_5',
+            'no approved user_kyc_detail records found for same address.',
+            'no approved user_kyc_detail records found for same address',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       if user_kyc_details.count > 1
         notify_devs(
-          {transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
+            {transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
         )
 
         return error_with_data(
-          'l_c_ckw_6',
-          'multiple approved user_kyc_detail records found for same address.',
-          'multiple approved user_kyc_detail records found for same address',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_6',
+            'multiple approved user_kyc_detail records found for same address.',
+            'multiple approved user_kyc_detail records found for same address',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       user_kyc_detail = user_kyc_details.first
 
-      if user_kyc_detail.whitelist_status != GlobalConstant::UserKycDetail.started_whitelist_status
+      if [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(user_kyc_detail.whitelist_status)
         notify_devs(
-          {transaction_hash: @transaction_hash},
-          "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
+            {transaction_hash: @transaction_hash},
+            "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"
         )
 
         return error_with_data(
-          'l_c_ckw_7',
-          'invalid whitelist status',
-          'invalid whitelist status',
-          GlobalConstant::ErrorAction.default,
-          {}
+            'l_c_ckw_7',
+            'invalid whitelist status',
+            'invalid whitelist status',
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 
       @user_id = user_kyc_detail.user_id
 
-      success
+      success_with_data(user_kyc_detail: user_kyc_detail)
 
     end
 
@@ -445,6 +467,30 @@ module Crons
           },
           subject: 'Error while ConfirmKycWhitelist'
       ).deliver
+    end
+
+    # Method to mark Kyc whitelist log as confirmed
+    #
+    # # * Author: Pankaj
+    # * Date: 17/05/2018
+    # * Reviewed By:
+    #
+    def mark_whitelisting_confirmed
+      @kyc_whitelist_log.mark_confirmed
+
+      # If kyc whitelist log is of whitelisting then also put kyc_confirmed_time in user_kyc_details
+      # phase with 0 value can come in callback event for unwhitelisting .
+      return if @kyc_whitelist_log.phase == 0
+
+      r = get_prospective_user_extended_detail_ids
+      return unless r.success?
+
+      r = fetch_user_kyc_detail(r.data[:prospective_user_extended_detail_ids])
+      return unless r.success?
+
+      user_kyc_detail = r.data[:user_kyc_detail]
+      user_kyc_detail.kyc_confirmed_at = Time.now.to_i
+      user_kyc_detail.save
     end
 
   end

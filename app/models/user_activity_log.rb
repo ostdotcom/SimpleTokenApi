@@ -11,17 +11,21 @@ class UserActivityLog < EstablishSimpleTokenLogDbConnection
              GlobalConstant::UserActivityLog.update_kyc_action => 3,
              GlobalConstant::UserActivityLog.kyc_denied_action => 4,
              GlobalConstant::UserActivityLog.kyc_qualified_action => 5,
-             GlobalConstant::UserActivityLog.data_mismatch_email_sent_action => 6,
-             GlobalConstant::UserActivityLog.document_id_issue_email_sent_action => 7,
-             GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8,
-             GlobalConstant::UserActivityLog.residency_issue_email_sent_action => 9,
+
+             #todo: WEBCODECHANGE
+             # GlobalConstant::UserActivityLog.data_mismatch_email_sent_action => 6,
+             # GlobalConstant::UserActivityLog.document_id_issue_email_sent_action => 7,
+             # GlobalConstant::UserActivityLog.selfie_issue_email_sent_action => 8,
+             # GlobalConstant::UserActivityLog.residency_issue_email_sent_action => 9,
+
              GlobalConstant::UserActivityLog.login_action => 10,
              GlobalConstant::UserActivityLog.kyc_whitelist_attention_needed => 11,
              GlobalConstant::UserActivityLog.kyc_whitelist_processor_error => 12,
              GlobalConstant::UserActivityLog.cynopsis_api_error => 13,
              GlobalConstant::UserActivityLog.update_ethereum_address => 14,
              GlobalConstant::UserActivityLog.open_case => 15,
-             GlobalConstant::UserActivityLog.phase_changed_to_early_access => 16
+             GlobalConstant::UserActivityLog.phase_changed_to_early_access => 16,
+             GlobalConstant::UserActivityLog.kyc_issue_email_sent_action => 17
          }, _suffix: true
 
   # decrypt data if present

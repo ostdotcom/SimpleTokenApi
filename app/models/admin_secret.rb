@@ -2,6 +2,13 @@ class AdminSecret < EstablishSimpleTokenAdminDbConnection
 
   after_commit :memcache_flush
 
+
+  def login_salt_decrypted
+    r = Aws::Kms.new('login', 'admin').decrypt(self.login_salt)
+    return throw 'error as_lse_2' unless r.success?
+
+    r.data[:plaintext]
+  end
   # Get Key Object
   #
   # * Author: Aman

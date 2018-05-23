@@ -27,6 +27,10 @@ module GlobalConstant
         'rejected'
       end
 
+      def failed_cynopsis_status
+        'failed'
+      end
+
       ### Cynopsis Status End ###
 
       def cynopsis_approved_statuses
@@ -123,49 +127,56 @@ module GlobalConstant
       ### whitelist status ####
 
 
-      ### admin action type ####
-
-      def no_admin_action_type
-        'no'
-      end
+      # ### admin action type ####
 
       def data_mismatch_admin_action_type
         'data_mismatch'
       end
 
-      def document_id_issue_admin_action_type
-        'document_id_issue'
+      def document_issue_admin_action_type
+        'document_issue'
       end
 
-      def selfie_issue_admin_action_type
-        'selfie_issue'
+      def other_issue_admin_action_type
+        'other_issue'
       end
 
-      def residency_issue_admin_action_type
-        'residency_issue'
+
+      # def no_admin_action_type
+      #   'no'
+      # end
+      #
+      # def data_mismatch_admin_action_type
+      #   'data_mismatch'
+      # end
+      #
+      # def document_id_issue_admin_action_type
+      #   'document_id_issue'
+      # end
+      #
+      # def selfie_issue_admin_action_type
+      #   'selfie_issue'
+      # end
+      #
+      # def residency_issue_admin_action_type
+      #   'residency_issue'
+      # end
+      #
+
+      # ### admin action type ####
+
+
+      ### Status Start ###
+
+      def active_status
+        'active'
       end
 
-      ### admin action type ####
-
-      ### Edit KYC request status start ####
-
-      def unprocessed_edit_kyc
-        'unprocessed'
+      def inactive_status
+        'inactive'
       end
 
-      def processed_edit_kyc
-        'processed'
-      end
-
-      def failed_edit_kyc
-        'failed'
-      end
-
-      def in_process_edit_kyc
-        'in_process'
-      end
-
-      ### Edit KYC request status end ####
+      ### Status End ###
 
       # Get mapped cynopsis status from response status of cynopsis call
       #
@@ -190,6 +201,60 @@ module GlobalConstant
         end
       end
 
+      def filters
+        {
+            "admin_status" => {
+                "all" => [],
+                "#{unprocessed_admin_status}" => [unprocessed_admin_status],
+                "#{qualified_admin_status}" => [qualified_admin_status],
+                "#{denied_admin_status}" => [denied_admin_status]
+            },
+
+            "cynopsis_status" => {
+                "all" => [],
+                "#{cleared_cynopsis_status}:#{approved_cynopsis_status}" => [cleared_cynopsis_status, approved_cynopsis_status],
+                "#{unprocessed_cynopsis_status}" => [unprocessed_cynopsis_status],
+                "#{pending_cynopsis_status}" => [pending_cynopsis_status],
+                "#{cleared_cynopsis_status}" => [cleared_cynopsis_status],
+                "#{approved_cynopsis_status}" => [approved_cynopsis_status],
+                "#{rejected_cynopsis_status}" => [rejected_cynopsis_status],
+                "#{failed_cynopsis_status}" => [failed_cynopsis_status]
+            },
+            "whitelist_status" => {
+                "all" => [],
+                "#{unprocessed_whitelist_status}" => [unprocessed_whitelist_status],
+                "#{started_whitelist_status}" => [started_whitelist_status],
+                "#{done_whitelist_status}" => [done_whitelist_status],
+                "#{failed_whitelist_status}" => [failed_whitelist_status]
+            },
+            "admin_action_types" => {
+                "all" => {},
+                "no_admin_action" => {admin_action_types: 0},
+                "#{data_mismatch_admin_action_type}" => ["(admin_action_types & ?) = ?",
+                                                         ::UserKycDetail.admin_action_types_config[data_mismatch_admin_action_type],
+                                                         ::UserKycDetail.admin_action_types_config[data_mismatch_admin_action_type]
+                ],
+                "#{document_issue_admin_action_type}" => ["(admin_action_types & ?) = ?",
+                                                          ::UserKycDetail.admin_action_types_config[document_issue_admin_action_type],
+                                                          ::UserKycDetail.admin_action_types_config[document_issue_admin_action_type]
+                ],
+                "#{other_issue_admin_action_type}" => ["(admin_action_types & ?) = ?",
+                                                       ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type],
+                                                       ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type]
+                ]
+            }
+        }
+      end
+
+      # This is also used in user list sortings
+      def sorting
+        {
+            "sort_by" => {
+                'desc' => {id: :desc},
+                'asc' => {id: :asc}
+            }
+        }
+      end
 
     end
 

@@ -1,19 +1,7 @@
 class Web::Admin::KycController < Web::Admin::BaseController
 
   # super admin
-  before_action :authenticate_request, except: [:get_kyc_report]
-  before_action only: [:get_kyc_report] {authenticate_request(true)}
-
-  # enqueue a job to send csv with kyc details
-  #
-  # * Author: Aman
-  # * Date: 18/04/2018
-  # * Reviewed By:
-  #
-  def get_kyc_report
-    service_response = AdminManagement::Report::GetKycReport.new(params).perform
-    render_api_response(service_response)
-  end
+  before_action :authenticate_request
 
   # Check details
   #
@@ -79,10 +67,10 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # * Date: 14/10/2017
   # * Reviewed By: Sunil
   #
-  def whitelist_dashboard
-    service_response = AdminManagement::Kyc::Dashboard::Whitelist.new(params).perform
-    render_api_response(service_response)
-  end
+  # def whitelist_dashboard
+  #   service_response = AdminManagement::Kyc::Dashboard::Whitelist.new(params).perform
+  #   render_api_response(service_response)
+  # end
 
   # Sale All Dashboard
   #
@@ -139,47 +127,14 @@ class Web::Admin::KycController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Admin found data mismatch
+  # Email Admin found kyc data issue
   #
   # * Author: Alpesh
   # * Date: 15/10/2017
   # * Reviewed By: Sunil
   #
-  def data_mismatch
-    service_response = AdminManagement::Kyc::AdminAction::DataMismatch.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Admin found document id improper
-  #
-  # * Author: Alpesh
-  # * Date: 15/10/2017
-  # * Reviewed By: Sunil
-  #
-  def document_id_issue
-    service_response = AdminManagement::Kyc::AdminAction::DocumentIdIssue.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Admin found selfie improper
-  #
-  # * Author: Alpesh
-  # * Date: 15/10/2017
-  # * Reviewed By: Sunil
-  #
-  def selfie_image_issue
-    service_response = AdminManagement::Kyc::AdminAction::SelfieImageIssue.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Admin found residency improper
-  #
-  # * Author: Alpesh
-  # * Date: 21/10/2017
-  # * Reviewed By: Sunil
-  #
-  def residency_image_issue
-    service_response = AdminManagement::Kyc::AdminAction::ResidencyImageIssue.new(params).perform
+  def email_kyc_issue
+    service_response = AdminManagement::Kyc::AdminAction::EmailKycIssue.new(params).perform
     render_api_response(service_response)
   end
 
@@ -222,8 +177,41 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # * Date: 20/11/2017
   # * Reviewed By:
   #
-  def change_address_and_open_case
-    service_response = AdminManagement::Kyc::ChangeAddressAndOpenCase.new(params).perform
+  # def change_address_and_open_case
+  #   service_response = AdminManagement::Kyc::ChangeAddressAndOpenCase.new(params).perform
+  #   render_api_response(service_response)
+  # end
+
+  # Add Udate Kyc Detail in cynopsis in case of failure
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  def retry_cynopsis_upload
+    service_response = AdminManagement::Kyc::RetryCynopsisUpload.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Open Edit KYC case
+  #
+  # * Author: Pankaj
+  # * Date: 07/05/2018
+  # * Reviewed By:
+  #
+  def open_kyc_case
+    service_response = AdminManagement::Kyc::OpenEditKycCase.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Update Ethereum address of Open KYC case
+  #
+  # * Author: Pankaj
+  # * Date: 07/05/2018
+  # * Reviewed By:
+  #
+  def update_ethereum_address
+    service_response = AdminManagement::Kyc::UpdateEthereumAddress.new(params).perform
     render_api_response(service_response)
   end
 

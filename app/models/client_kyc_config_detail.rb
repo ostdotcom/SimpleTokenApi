@@ -69,7 +69,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
         GlobalConstant::ClientKycConfigDetail.document_id_file_path_kyc_field => 2048,
         GlobalConstant::ClientKycConfigDetail.selfie_file_path_kyc_field => 4096,
         GlobalConstant::ClientKycConfigDetail.residence_proof_file_path_kyc_field => 8192,
-        GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field => 16384
+        GlobalConstant::ClientKycConfigDetail.estimated_participation_amount_kyc_field => 16384,
+        GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field => 32768
     }
   end
 
@@ -128,6 +129,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   def memcache_flush
     client_kyc_config_details_memcache_key = ClientKycConfigDetail.get_memcache_key_object.key_template % {client_id: self.client_id}
     Memcache.delete(client_kyc_config_details_memcache_key)
+    ClientSetting.flush_memcache_key_for_template_types_of_client(self.client_id, [GlobalConstant::ClientTemplate.kyc_template_type])
   end
 
 end

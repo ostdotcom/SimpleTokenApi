@@ -5,7 +5,7 @@ class ProcessKycReportJob < ApplicationJob
   include ::Util::ResultHelper
   include ::Util::CsvHelper
 
-  MYSQL_BATCH_SIZE =100
+  MYSQL_BATCH_SIZE = 100
   IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL = 7.days.to_i
   ZIP_FILE_EXPIRY_TIMESTAMP_INTERVAL = 12.hours.to_i
 
@@ -62,10 +62,14 @@ class ProcessKycReportJob < ApplicationJob
   # * Date: 18/04/2018
   # * Reviewed By:
   #
-  # Sets @csv_report_job, @admin, @client_id, @client_kyc_config, @client
+  # Sets @csv_report_job, @admin, @client_id, @client_kyc_config, @client, @filters, @sortings
   #
   def fetch_details
     @csv_report_job = CsvReportJob.where(id: @csv_report_job_id).first
+
+    @filters = @csv_report_job.extra_data[:filters]
+    @sortings = @csv_report_job.extra_data[:sortings]
+
     @admin = Admin.get_from_memcache(@csv_report_job.admin_id)
 
     @client_id = @csv_report_job.client_id
@@ -174,7 +178,7 @@ class ProcessKycReportJob < ApplicationJob
       user_extended_detail_ids = []
       user_ids = []
 
-      user_kyc_details = UserKycDetail.where(client_id: @client_id).order('id').limit(MYSQL_BATCH_SIZE).offset(offset).all
+      user_kyc_details = user_kyc_detail_model_query.limit(MYSQL_BATCH_SIZE).offset(offset).all
       break if user_kyc_details.blank?
 
       user_kyc_details.each do |user_kyc_detail|
@@ -198,10 +202,20 @@ class ProcessKycReportJob < ApplicationJob
     return offset > 0
   end
 
+  def user_kyc_detail_model_query
+    @user_kyc_detail_model_query ||= begin
+      ar_relation = UserKycDetail.where(client_id: @client_id).active_kyc
+      ar_relation = ar_relation.filter_by(@filters)
+      ar_relation = ar_relation.sorting_by(@sortings)
+      ar_relation
+    end
+  end
+
   def format_user_data(user_data)
     row = []
     csv_headers.each do |field_name|
-      row << user_data[field_name.to_sym]
+      data = user_data[field_name.to_sym]
+      row << (data.present? ? data.html_safe : nil)
     end
     row
   end
@@ -225,13 +239,32 @@ class ProcessKycReportJob < ApplicationJob
       if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name)
         user_data[field_name.to_sym] = user_extended_detail[field_name]
       elsif GlobalConstant::ClientKycConfigDetail.encrypted_fields.include?(field_name)
-        if field_name == GlobalConstant::ClientKycConfigDetail.residence_proof_file_path_kyc_field && user_extended_detail.residence_proof_file_path.blank?
-          user_data[field_name.to_sym] = nil
+
+        if GlobalConstant::ClientKycConfigDetail.non_mandatory_fields.include?(field_name) && user_extended_detail[field_name].blank?
+          if field_name == GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field
+            for i in 1..GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+              user_data["#{field_name}_#{i}".to_sym] = nil
+            end
+          else
+            user_data[field_name.to_sym] = nil
+          end
           next
         end
+
         decrypted_data = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
-        decrypted_data = get_url(decrypted_data) if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
-        user_data[field_name.to_sym] = decrypted_data
+
+        if GlobalConstant::ClientKycConfigDetail.image_url_fields.include?(field_name)
+          if field_name == GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field
+            for i in 1..GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+              user_data["#{field_name}_#{i}".to_sym] = get_url(decrypted_data[i - 1])
+            end
+          else
+            user_data[field_name.to_sym] = get_url(decrypted_data)
+          end
+        else
+          user_data[field_name.to_sym] = decrypted_data
+        end
+
       else
         throw "invalid kyc field-#{field_name}"
       end
@@ -271,6 +304,19 @@ class ProcessKycReportJob < ApplicationJob
     @kyc_fields ||= @client_kyc_config.kyc_fields_array - [GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field]
   end
 
+  def headers_for_kyc_form_fields
+    @headers_for_kyc_form_fields ||= begin
+      fields = kyc_form_fields
+      if fields.include?(GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field)
+        fields = fields - [GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field]
+        for i in 1..GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+          fields << "#{GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field}_#{i}"
+        end
+      end
+      fields
+    end
+  end
+
   def other_kyc_fields
     @kyc_status_fields ||=
         begin
@@ -281,7 +327,7 @@ class ProcessKycReportJob < ApplicationJob
   end
 
   def get_url(s3_path)
-    return '' unless s3_path.present?
+    return nil unless s3_path.present?
     s3_manager_obj.get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path, {expires_in: IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL})
   end
 
@@ -302,7 +348,7 @@ class ProcessKycReportJob < ApplicationJob
   end
 
   def csv_headers
-    ['email'] + other_kyc_fields + kyc_form_fields
+    ['email'] + other_kyc_fields + headers_for_kyc_form_fields
   end
 
 end

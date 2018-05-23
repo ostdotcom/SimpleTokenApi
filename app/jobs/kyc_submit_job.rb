@@ -95,12 +95,10 @@ class KycSubmitJob < ApplicationJob
   # * Date: 13/10/2017
   # * Reviewed By: Sunil
   #
-  # Sets @user_kyc_detail, @is_re_submit
+  # Sets @user_kyc_detail
   #
   def find_or_init_user_kyc_detail
     @user_kyc_detail = UserKycDetail.find_or_initialize_by(user_id: @user_id)
-
-    @is_re_submit = @user_kyc_detail.new_record? ? false : true
 
     # don't override the data if user kyc details id is same
     return if @user_kyc_detail.user_extended_detail_id.to_i == @user_extended_detail.id
@@ -110,19 +108,22 @@ class KycSubmitJob < ApplicationJob
     # Update records
     if @user_kyc_detail.new_record?
       @user_kyc_detail.client_id = @user.client_id
-      @user_kyc_detail.kyc_confirmed_at = @action_timestamp
+      # KYC_confirmed_at for now holds data When whitelist is confirmed for ethereum address
+      # TODO: Removed population of data from here.
+      # @user_kyc_detail.kyc_confirmed_at = @action_timestamp
       @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
       @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+      @user_kyc_detail.submission_count = 0
       #  todo: "KYCaas-Changes"
       # if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
       #   @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
       #   @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
       # end
     end
-    @user_kyc_detail.admin_action_type = GlobalConstant::UserKycDetail.no_admin_action_type
+    @user_kyc_detail.admin_action_types = 0
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
-    @user_kyc_detail.is_re_submitted = @is_re_submit.to_i
+    @user_kyc_detail.submission_count += 1
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
@@ -231,7 +232,8 @@ class KycSubmitJob < ApplicationJob
     r = @user_kyc_detail.cynopsis_user_id.blank? ? create_cynopsis_case : update_cynopsis_case
     Rails.logger.info("-- call_cynopsis_api r: #{r.inspect}")
 
-    if !r.success? # cynopsis status will remain unprocessed
+    if !r.success? # cynopsis status will turn failed
+      @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
       log_to_user_activity(r)
       return
     end
@@ -366,7 +368,7 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   # ts - (token sale)
-  # Rails.env[0] - (d/s/p)
+  # Rails.env[0..1] - (de/sa/st/pr)
   #
   def get_cynopsis_user_id
     UserKycDetail.get_cynopsis_user_id(@user_id)

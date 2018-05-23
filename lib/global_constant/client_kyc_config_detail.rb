@@ -67,6 +67,14 @@ module GlobalConstant
         'estimated_participation_amount'
       end
 
+      def investor_proof_files_path_kyc_field
+        'investor_proof_files_path'
+      end
+
+      def max_number_of_investor_proofs_allowed
+        2
+      end
+
       ### kyc fields End ###
 
       def mandatory_fields
@@ -107,7 +115,8 @@ module GlobalConstant
 
             document_id_file_path_kyc_field,
             selfie_file_path_kyc_field,
-            residence_proof_file_path_kyc_field
+            residence_proof_file_path_kyc_field,
+            investor_proof_files_path_kyc_field
         ]
       end
 
@@ -115,7 +124,15 @@ module GlobalConstant
         [
             document_id_file_path_kyc_field,
             selfie_file_path_kyc_field,
-            residence_proof_file_path_kyc_field
+            residence_proof_file_path_kyc_field,
+            investor_proof_files_path_kyc_field
+        ]
+      end
+
+      def non_mandatory_fields
+        [
+            residence_proof_file_path_kyc_field,
+            investor_proof_files_path_kyc_field
         ]
       end
 

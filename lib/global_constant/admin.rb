@@ -11,12 +11,12 @@ module GlobalConstant
         'active'
       end
 
-      def inactive_status
-        'inactive'
+      def invited_status
+        'invited'
       end
 
-      def deactived_status
-        'deactived'
+      def deleted_status
+        'deleted'
       end
 
       ### Status End ###

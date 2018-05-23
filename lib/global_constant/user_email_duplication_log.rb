@@ -16,6 +16,11 @@ module GlobalConstant
       end
 
       ### Status End ###
+      #
+
+      def email_duplicate_type
+        'email'
+      end
 
     end
 

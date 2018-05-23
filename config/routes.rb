@@ -54,6 +54,10 @@ Rails.application.routes.draw do
       match 'login' => :password_auth, via: :POST
       match 'get-ga-url' => :get_ga_url, via: :GET
       match 'mfa' => :multifactor_auth, via: :POST
+      match 'reset-password' => :admin_reset_password, via: :POST
+      match 'send-reset-password-link' => :send_admin_reset_password_link, via: :POST
+      match 'invite-detail' => :invite_detail, via: :GET
+      match 'activate-invite' => :activate_invited_admin, via: :POST
     end
 
     scope 'api/admin/profile', controller: 'web/admin/profile' do
@@ -62,25 +66,45 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
-      match 'get-kyc-report' => :get_kyc_report, via: :GET
+      # match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
+
       # match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
       # match 'run-alt-token-bonus-process' => :run_alt_token_bonus_process, via: :GET
       match 'check-details' => :check_details, via: :GET
-      match 'dashboard' => :dashboard, via: :GET
       match 'fetch-duplicate' => :fetch_duplicate, via: :GET
-      match 'deny-kyc' => :deny_kyc, via: :POST
-      match 'data-mismatch' => :data_mismatch, via: :POST
-      match 'document-id-issue' => :document_id_issue, via: :POST
-      match 'selfie-img-issue' => :selfie_image_issue, via: :POST
-      match 'residency-img-issue' => :residency_image_issue, via: :POST
-      match 'qualify' => :qualify, via: :POST
       match 'kyc-action-logs' => :kyc_action_logs, via: :GET
-      match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
+      # match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
       # match 'sale-daily-dashboard' => :sale_daily_dashboard, via: :GET
       # match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
       # match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
-      match 'get-cases-by-email' => :get_cases_by_email, via: :GET
-      match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
+
+      match 'deny-kyc' => :deny_kyc, via: :POST
+      match 'email-kyc-issue' => :email_kyc_issue, via: :POST
+      match 'qualify' => :qualify, via: :POST
+
+      match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
+      match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
+      match 'dashboard' => :dashboard, via: :GET
+
+      match 'open-case' => :open_kyc_case, via: :POST
+      match 'update-address' => :update_ethereum_address, via: :POST
+    end
+
+    scope 'api/admin/kyc', controller: 'web/admin/super_admin' do
+      match 'get-kyc-report' => :get_kyc_report, via: :GET
+    end
+
+    scope 'api/admin/users', controller: 'web/admin/user' do
+      match 'list' => :get_users_list, via: [:GET, :POST]
+      match 'delete-user' => :delete_user, via: :POST
+    end
+
+    scope 'api/admin/admin-user', controller: 'web/admin/super_admin' do
+      match 'dashboard' => :dashboard, via: :GET
+      match 'invite' => :invite, via: :POST
+      match 'resend-invite' => :resend_invite, via: :POST
+      match 'reset-mfa' => :reset_mfa, via: :POST
+      match 'delete-admin' => :delete_admin, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

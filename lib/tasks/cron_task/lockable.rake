@@ -45,6 +45,21 @@ namespace :cron_task do
       execute_lockable_task
     end
 
+    # Retry failed cynopsis users
+    #
+    # * Author: Aman
+    # * Date: 24/10/2017
+    # * Reviewed By: Sunil
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:upload_failed_cynopsis_users"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:upload_failed_cynopsis_users >> /mnt/simpletoken-api/shared/log/upload_failed_cynopsis_users.log"
+    task :upload_failed_cynopsis_users do |task|
+      @process_name = task
+      @performer_klass = 'Crons::CynopsisProcessors::UploadFailed'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
     # Check Eth balance of whitelister
     #
     # * Author: Aman

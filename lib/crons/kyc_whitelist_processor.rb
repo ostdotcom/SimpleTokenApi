@@ -28,7 +28,7 @@ module Crons
       @client_whitelist_objs = ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
       client_ids = @client_whitelist_objs.keys
 
-      UserKycDetail.where(client_id: client_ids).
+      UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
           kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis
       whitelist_status_unprocessed.# records which are not yet processed for whitelisting
       find_in_batches(batch_size: 10) do |u_k_detail_objs|
@@ -91,6 +91,7 @@ module Crons
     def start_processing_whitelisting
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - started processing whilelisting")
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.started_whitelist_status
+      @user_kyc_detail.kyc_confirmed_at = nil
       @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
     end
@@ -132,7 +133,7 @@ module Crons
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
       else
-        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r})
+        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
       end
 
       r

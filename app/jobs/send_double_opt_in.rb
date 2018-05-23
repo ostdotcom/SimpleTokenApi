@@ -44,23 +44,14 @@ class SendDoubleOptIn < ApplicationJob
   # @return [Result::Base]
   #
   def create_double_opt_in_token
-    db_row = TemporaryToken.find_or_initialize_by(user_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind)
-    if db_row.new_record?
-      t_double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
-      db_row.token = t_double_opt_in_token
-      db_row.save!
-    else
-      t_double_opt_in_token = db_row.token if db_row.status == GlobalConstant::TemporaryToken.active_status
-    end
+    t_double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
+    db_row = TemporaryToken.create!(entity_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind, token: t_double_opt_in_token)
 
-    if t_double_opt_in_token.present?
-      double_opt_in_token_str = "#{db_row.id.to_s}:#{t_double_opt_in_token}"
-      encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
-      r = encryptor_obj.encrypt(double_opt_in_token_str)
-      return unless r.success?
-      @double_opt_in_token = r.data[:ciphertext_blob]
-    end
-
+    double_opt_in_token_str = "#{db_row.id.to_s}:#{t_double_opt_in_token}"
+    encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
+    r = encryptor_obj.encrypt(double_opt_in_token_str)
+    return r unless r.success?
+    @double_opt_in_token = r.data[:ciphertext_blob]
   end
 
   # Send token sale mail

@@ -54,6 +54,7 @@ module UserManagement
       @selfie_file_path = @params[:selfie_file_path] # # S3 Path of Selfie File
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
       @estimated_participation_amount = @params[:estimated_participation_amount]
+      @investor_proof_files_path = @params[:investor_proof_files_path] # # S3 Path of Investor proofs File
 
       @client = nil
       @client_token_sale_details = nil
@@ -144,6 +145,7 @@ module UserManagement
       validate_state
       validate_postal_code
       validate_residence_proof_file_path
+      validate_investor_documents
 
       # IF error, return
       return error_with_data(
@@ -355,6 +357,38 @@ module UserManagement
 
     end
 
+    # Validate Investor documents files
+    #
+    # * Author: Pankaj
+    # * Date: 26/04/2018
+    # * Reviewed By:
+    #
+    #
+    def validate_investor_documents
+      return if @investor_proof_files_path.blank?
+
+      # Investor proofs are not allowed for any client
+      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field)
+        @investor_proof_files_path = nil
+        return
+      end
+
+      # Investor proof files path has to be an array
+      if !@investor_proof_files_path.is_a?(Array)
+        @error_data[:investor_proof_files_path] = 'Investor proof files path has to be an array.'
+        return
+      end
+
+      if @investor_proof_files_path.length > GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
+        @error_data[:investor_proof_files_path] = "Max #{GlobalConstant::ClientKycConfigDetail.number_of_investor_proofs_allowed} documents are allowed as investor proof."
+      end
+
+      # If any of the file does not matches s3 file path
+      @investor_proof_files_path.each do |x|
+          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !(x =~ S3_DOCUMENT_PATH_REGEX)
+      end
+    end
+
     # Fetch user data
     #
     # * Author: Aman
@@ -422,7 +456,8 @@ module UserManagement
           nationality: @nationality,
           document_id_file_path: @document_id_file_path,
           selfie_file_path: @selfie_file_path,
-          residence_proof_file_path: @residence_proof_file_path
+          residence_proof_file_path: @residence_proof_file_path,
+          investor_proof_files_path: @investor_proof_files_path
       }
 
       data_to_md5 = {

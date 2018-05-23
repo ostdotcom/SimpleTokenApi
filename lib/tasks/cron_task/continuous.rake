@@ -84,19 +84,36 @@ namespace :cron_task do
       execute_continuous_task
     end
 
-    # Read and process blocks on ether net
+    # # Read and process blocks on ether net
+    # #
+    # # * Author: Aman
+    # # * Date: 06/11/2017
+    # # * Reviewed By:
+    # #
+    # desc "rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet"
+    # desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:continuous:process_edit_kycs lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_edit_kycs.log"
+    # task :process_edit_kycs do |task|
+    #   @sleep_interval = 5
     #
-    # * Author: Aman
-    # * Date: 06/11/2017
+    #   @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
+    #   @performer_klass = 'Crons::ProcessEditKycRequest'
+    #   @optional_params = {}
+    #   execute_continuous_task
+    # end
+
+    # Open Unwhitelisted KYC cases
+    #
+    # * Author: Pankaj
+    # * Date: 07/05/2018
     # * Reviewed By:
     #
-    desc "rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet"
-    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:continuous:process_edit_kycs lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_edit_kycs.log"
-    task :process_edit_kycs do |task|
+    desc "rake RAILS_ENV=development cron_task:continuous:process_unwhitelist_edit_kycs"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:continuous:process_unwhitelist_edit_kycs lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_unwhitelist_edit_kycs.log"
+    task :process_unwhitelist_edit_kycs do |task|
       @sleep_interval = 5
 
       @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
-      @performer_klass = 'Crons::ProcessEditKycRequest'
+      @performer_klass = 'Crons::ProcessUnwhitelistEditKycRequest'
       @optional_params = {}
       execute_continuous_task
     end

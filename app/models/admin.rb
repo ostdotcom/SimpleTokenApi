@@ -2,14 +2,16 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
   enum status: {
       GlobalConstant::Admin.active_status => 1,
-      GlobalConstant::Admin.inactive_status => 2,
-      GlobalConstant::Admin.deactived_status => 3
+      GlobalConstant::Admin.invited_status => 2,
+      GlobalConstant::Admin.deleted_status => 3
   }
 
   enum role: {
       GlobalConstant::Admin.normal_admin_role => 1,
       GlobalConstant::Admin.super_admin_role => 2
   }
+
+  scope :not_deleted, -> {where(status: [GlobalConstant::Admin.active_status, GlobalConstant::Admin.invited_status])}
 
   after_commit :memcache_flush
 

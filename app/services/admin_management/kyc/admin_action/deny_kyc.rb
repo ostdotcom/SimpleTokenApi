@@ -14,7 +14,7 @@ module AdminManagement
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
         # @params [Integer] client_id (mandatory) - logged in admin's client id
-        # @params [Integer] case_id (mandatory)
+        # @params [Integer] id (mandatory)
         #
         # @return [AdminManagement::Kyc::AdminAction::DenyKyc]
         #
@@ -69,6 +69,8 @@ module AdminManagement
         def update_user_kyc_status
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.denied_admin_status
           @user_kyc_detail.last_acted_by = @admin_id
+          @user_kyc_detail.last_acted_timestamp = Time.now.to_i
+          @user_kyc_detail.admin_action_types = 0
           @user_kyc_detail.save! if @user_kyc_detail.changed?
         end
 

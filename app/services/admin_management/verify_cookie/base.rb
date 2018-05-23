@@ -86,10 +86,10 @@ module AdminManagement
       # @return [Result::Base]
       #
       def validate_token
-        #TODO: Memcache this query
-        @admin = Admin.where(id: @admin_id).first
+        @admin = Admin.get_from_memcache(@admin_id)
+
         return unauthorized_access_response('am_vc_5') unless @admin.present? &&
-          (@admin[:status] == GlobalConstant::Admin.active_status)
+            (@admin[:status] == GlobalConstant::Admin.active_status)
 
         evaluated_token = Admin.get_cookie_token(
             @admin_id,
@@ -113,11 +113,11 @@ module AdminManagement
       #
       def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
         error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
+            err,
+            display_text,
+            display_text,
+            GlobalConstant::ErrorAction.default,
+            {}
         )
       end
 

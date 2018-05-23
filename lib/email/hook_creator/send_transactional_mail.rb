@@ -109,7 +109,7 @@ module Email
             {}
           ) if @template_vars[:double_opt_in_token].blank?
 
-        elsif (GlobalConstant::PepoCampaigns.forgot_password_template == @template_name)
+        elsif ([GlobalConstant::PepoCampaigns.admin_forgot_password_template, GlobalConstant::PepoCampaigns.user_forgot_password_template].include?(@template_name))
 
           return error_with_data(
               'e_hc_stm_5',

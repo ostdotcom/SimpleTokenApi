@@ -3,12 +3,22 @@ class EditKycRequests < EstablishSimpleTokenLogDbConnection
   serialize :debug_data
 
   enum status: {
-      GlobalConstant::UserKycDetail.unprocessed_edit_kyc => 0,
-      GlobalConstant::UserKycDetail.processed_edit_kyc => 1,
-      GlobalConstant::UserKycDetail.failed_edit_kyc => 2,
-      GlobalConstant::UserKycDetail.in_process_edit_kyc => 3
+      GlobalConstant::EditKycRequest.unprocessed_status => 0,
+      GlobalConstant::EditKycRequest.processed_status => 1,
+      GlobalConstant::EditKycRequest.failed_status => 2,
+      GlobalConstant::EditKycRequest.in_process_status => 3,
+      GlobalConstant::EditKycRequest.unwhitelist_in_process_status => 4
   }
 
-  scope :unprocessed, -> { where(status: GlobalConstant::UserKycDetail.unprocessed_edit_kyc) }
+  enum update_action: {
+      GlobalConstant::EditKycRequest.open_case_update_action => 1,
+      GlobalConstant::EditKycRequest.update_ethereum_action => 2
+  }
+
+  scope :unprocessed, -> { where(status: GlobalConstant::EditKycRequest.unprocessed_status) }
+
+  scope :under_process, -> { where(status: [GlobalConstant::EditKycRequest.unprocessed_status,
+                                                      GlobalConstant::EditKycRequest.in_process_status,
+                                                      GlobalConstant::EditKycRequest.unwhitelist_in_process_status])}
 
 end

@@ -203,7 +203,7 @@ module UserManagement
           {
               user_id: @user.id,
               kyc_status: kyc_status,
-              admin_action_type: @user_kyc_detail.admin_action_type,
+              admin_action_types: @user_kyc_detail.admin_action_types_array,
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status
           }
@@ -211,7 +211,7 @@ module UserManagement
           {
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
-              admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
+              admin_action_types: [],
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status
           }
@@ -247,7 +247,7 @@ module UserManagement
           {
               user_id: @user.id,
               kyc_status: kyc_status,
-              admin_action_type: @user_kyc_detail.admin_action_type,
+              admin_action_types: @user_kyc_detail.admin_action_types_array,
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status,
               pos_bonus_percentage: @user_kyc_detail.pos_bonus_percentage,
@@ -257,7 +257,7 @@ module UserManagement
           {
               user_id: @user.id,
               kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
-              admin_action_type: GlobalConstant::UserKycDetail.no_admin_action_type,
+              admin_action_types: [],
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
               pos_bonus_percentage: expected_pos_percentage,

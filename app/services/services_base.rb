@@ -106,7 +106,31 @@ class ServicesBase
         'Client is not active',
         GlobalConstant::ErrorAction.default,
         {}
-    ) if @client.status != GlobalConstant::Client.active_status
+    ) if @client.blank? || @client.status != GlobalConstant::Client.active_status
+
+    success
+  end
+
+  # fetch admin and validate
+  #
+  # * Author: Aman
+  # * Date: 24/04/2018
+  # * Reviewed By:
+  #
+  # Sets @admin
+  #
+  # @return [Result::Base]
+  #
+  def fetch_and_validate_admin
+    @admin = Admin.get_from_memcache(@admin_id)
+
+    return error_with_data(
+        'sb_3',
+        'Admin is not active',
+        'Admin is not active',
+        GlobalConstant::ErrorAction.default,
+        {}
+    ) if @admin.status != GlobalConstant::Admin.active_status
 
     success
   end

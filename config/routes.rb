@@ -82,7 +82,7 @@ Rails.application.routes.draw do
       match 'email-kyc-issue' => :email_kyc_issue, via: :POST
       match 'qualify' => :qualify, via: :POST
 
-      match 'get-cases-by-email' => :get_cases_by_email, via: :GET
+      match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
       match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
 
@@ -95,7 +95,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/users', controller: 'web/admin/user' do
-      match 'list' => :get_users_list, via: :GET
+      match 'list' => :get_users_list, via: [:GET, :POST]
       match 'delete-user' => :delete_user, via: :POST
     end
 

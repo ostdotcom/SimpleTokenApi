@@ -95,3 +95,5 @@ constants:
     token_sale_end_date_key: <%= ENV['TOKEN_SALE_END_DATE_PD_KEY'] %>
     need_front_end_key: <%= ENV['NEED_FRONT_END_PD_KEY'] %>
     applicant_volume_key: <%= ENV['APPLICANT_VOLUME_PD_KEY'] %>
+    kyc_init_stage_id: <%= ENV['KYC_INIT_STAGE_ID'] %>
+    partners_init_stage_id: <%= ENV['PARTNERS_INIT_STAGE_ID'] %>

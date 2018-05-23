@@ -75,7 +75,8 @@ module UserManagement
         @request_params = {
             title: @company,
             person_id: @full_name + ' ' + @email,
-            org_id: @company
+            org_id: @company,
+            stage_id: GlobalConstant::Base.pipedrive['partners_init_stage_id']
         }
 
         @request_params[GlobalConstant::Base.pipedrive['project_description_key']] = @project_description if @project_description

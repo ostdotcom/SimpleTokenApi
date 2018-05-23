@@ -92,7 +92,8 @@ module UserManagement
         @request_params = {
             title: @company,
             person_id: @full_name + ' ' + @email,
-            org_id: @company
+            org_id: @company,
+            stage_id: GlobalConstant::Base.pipedrive['kyc_init_stage_id']
         }
 
         @request_params[GlobalConstant::Base.pipedrive['project_description_key']] = @project_description
@@ -100,7 +101,6 @@ module UserManagement
         @request_params[GlobalConstant::Base.pipedrive['token_sale_end_date_key']] = @token_sale_end_date
         @request_params[GlobalConstant::Base.pipedrive['need_front_end_key']] = @need_front_end
         @request_params[GlobalConstant::Base.pipedrive['applicant_volume_key']] = @applicant_volume
-
         @request_params
       end
 

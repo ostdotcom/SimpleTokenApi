@@ -74,6 +74,8 @@ export TOKEN_SALE_START_DATE_PD_KEY="8f6bf239cf21f44007f3cb7536ec9d73bc5046c1"
 export TOKEN_SALE_END_DATE_PD_KEY="8f6bf239cf21f44007f3cb7536ec9d73bc5046c1_until"
 export NEED_FRONT_END_PD_KEY="b8f52fa99548bd23d6cb9c127f430f3efdbb87f7"
 export APPLICANT_VOLUME_PD_KEY="39a6b3c6d9a3f3640c17b3dbe9963c020ddc6182"
+export KYC_INIT_STAGE_ID=1
+export PARTNERS_INIT_STAGE_ID=25
 
 ##crons
 rake RAILS_ENV=development cron_task:continuous:process_email_service_api_call_hooks lock_key_suffix=1

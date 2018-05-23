@@ -86,7 +86,7 @@ module AdminManagement
         return r unless r.success?
 
         @page_number = 1 if @page_number < 1
-        @page_size = 50 if @page_size == 0 || @page_size > 50
+        @page_size = 10 if @page_size == 0 || @page_size > 10
 
         success
       end

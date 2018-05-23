@@ -133,7 +133,7 @@ module Crons
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
       else
-        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r})
+        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
       end
 
       r

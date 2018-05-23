@@ -146,7 +146,8 @@ module AdminManagement
       def set_api_response_data
 
         @logs_ars.each do |l_ar|
-          data_hash = l_ar.e_data.present? ? LocalCipher.new(activity_log_decyption_salt).decrypt(l_ar.e_data).data[:plaintext] : {}
+          # Frontend needs action data only for action kyc_issue_email_sent_action
+          data_hash = (l_ar.action == GlobalConstant::UserActivityLog.kyc_issue_email_sent_action && l_ar.e_data.present?) ? LocalCipher.new(activity_log_decyption_salt).decrypt(l_ar.e_data).data[:plaintext] : {}
           admin_detail = (@admin_details.present? && l_ar.admin_id.present?) ? @admin_details[l_ar.admin_id] : {}
           activity_data = data_hash
           humanized_action_data = {}

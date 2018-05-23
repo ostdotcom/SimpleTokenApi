@@ -155,8 +155,8 @@ module AdminManagement
         # * Reviewed By:
         #
         def update_kyc_details
-          @email_temp_vars.each do |issue_category, _|
-            @user_kyc_detail.send("set_" + issue_category.to_s)
+          @email_temp_vars.each do |issue_category, issue|
+            @user_kyc_detail.send("set_" + issue_category.to_s) if issue.present?
           end
 
           @user_kyc_detail.last_acted_by = @admin_id

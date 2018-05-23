@@ -45,8 +45,6 @@ module UserManagement
       # @return [Result::Base]
       #
       def validate_and_sanitize
-        r = validate
-        return r unless r.success?
 
         @full_name = @full_name.to_s.strip
         @company = @company.to_s.strip

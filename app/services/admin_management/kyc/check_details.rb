@@ -568,7 +568,7 @@ module AdminManagement
       #
       # @return [Result::Base]
       #
-      def err_response(err, display_text = 'Invalid request.')
+      def err_response(err, display_text = 'Invalid Case.')
         error_with_data(
             err,
             display_text,

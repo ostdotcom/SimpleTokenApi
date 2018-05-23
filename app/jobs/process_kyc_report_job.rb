@@ -204,7 +204,7 @@ class ProcessKycReportJob < ApplicationJob
 
   def user_kyc_detail_model_query
     @user_kyc_detail_model_query ||= begin
-      ar_relation = UserKycDetail.where(client_id: @client_id)
+      ar_relation = UserKycDetail.where(client_id: @client_id).active_kyc
       ar_relation = ar_relation.filter_by(@filters)
       ar_relation = ar_relation.sorting_by(@sortings)
       ar_relation

@@ -8,7 +8,8 @@ namespace :onetimer do
         'Last name' => 'last_name',
         'Birthdate' => 'birthdate',
         'Nationality' => 'nationality',
-        'Document id number' => 'document_id_number'
+        'Document id number' => 'document_id_number',
+        'Passport number' => 'document_id_number'
     }
 
     kms_login_client = Aws::Kms.new('entity_association', 'general_access')

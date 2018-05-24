@@ -1,6 +1,6 @@
 class Web::Admin::UserController < Web::Admin::BaseController
 
-  before_action :authenticate_request
+  before_action {authenticate_request(true)}
 
   # Get users list
   #

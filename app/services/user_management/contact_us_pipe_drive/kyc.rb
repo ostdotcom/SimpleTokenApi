@@ -72,8 +72,10 @@ module UserManagement
         @error_data[:need_front_end] = 'Please provide a valid value for need front-end' if  ['yes', 'no'].exclude?(@need_front_end)
         @error_data[:applicant_volume] = 'Applicant volume is required.' if !@applicant_volume.present?
 
+        date_comparision_result = @token_sale_start_date <=> @token_sale_end_date
+
         if @token_sale_start_date && @token_sale_end_date
-          @error_data[:token_sale_start_date] = 'End date should be greater than start date' if @token_sale_end_date <= @token_sale_start_date
+          @error_data[:token_sale_start_date] = 'End date should be greater than start date' if date_comparision_result <= 0
         end
 
         return error_with_data(

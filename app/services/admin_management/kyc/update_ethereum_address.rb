@@ -221,6 +221,10 @@ module AdminManagement
         @edit_kyc_request.status = GlobalConstant::EditKycRequest.processed_status
         @edit_kyc_request.save!
 
+        @user_kyc_detail.last_acted_by = @admin_id
+        @user_kyc_detail.last_acted_timestamp = Time.now.to_i
+        @user_kyc_detail.save!
+
         log_activity
 
         success

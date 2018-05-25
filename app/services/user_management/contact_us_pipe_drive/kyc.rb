@@ -58,8 +58,10 @@ module UserManagement
         @full_name = @full_name.to_s.strip
         @company = @company.to_s.strip
         @email = @email.to_s.strip
-        @token_sale_start_date = Date.parse(@token_sale_start_date.to_s.strip).strftime('%d-%m-%Y') rescue nil if @token_sale_start_date.present?
-        @token_sale_end_date = Date.parse(@token_sale_end_date.to_s.strip).strftime('%d-%m-%Y') rescue nil if @token_sale_end_date.present?
+        @token_sale_start_date = Date.parse(@token_sale_start_date.to_s.strip) rescue nil if @token_sale_start_date.present?
+        @token_sale_end_date = Date.parse(@token_sale_end_date.to_s.strip) rescue nil if @token_sale_end_date.present?
+
+
         @project_description = @project_description.to_s.strip
         @need_front_end = @need_front_end.to_s.strip.downcase
 
@@ -72,10 +74,8 @@ module UserManagement
         @error_data[:need_front_end] = 'Please provide a valid value for need front-end' if  ['yes', 'no'].exclude?(@need_front_end)
         @error_data[:applicant_volume] = 'Applicant volume is required.' if !@applicant_volume.present?
 
-        date_comparision_result = @token_sale_start_date <=> @token_sale_end_date
-
         if @token_sale_start_date && @token_sale_end_date
-          @error_data[:token_sale_start_date] = 'End date should be greater than start date' if date_comparision_result <= 0
+          @error_data[:token_sale_start_date] = 'End date should be greater than start date' if @token_sale_end_date <= @token_sale_start_date
         end
 
         return error_with_data(
@@ -99,8 +99,8 @@ module UserManagement
         }
 
         @request_params[GlobalConstant::Base.pipedrive['project_description_key']] = @project_description
-        @request_params[GlobalConstant::Base.pipedrive['token_sale_start_date_key']] = @token_sale_start_date
-        @request_params[GlobalConstant::Base.pipedrive['token_sale_end_date_key']] = @token_sale_end_date
+        @request_params[GlobalConstant::Base.pipedrive['token_sale_start_date_key']] = @token_sale_start_date.strftime('%d-%m-%Y')
+        @request_params[GlobalConstant::Base.pipedrive['token_sale_end_date_key']] = @token_sale_end_date.strftime('%d-%m-%Y')
         @request_params[GlobalConstant::Base.pipedrive['need_front_end_key']] = @need_front_end
         @request_params[GlobalConstant::Base.pipedrive['applicant_volume_key']] = @applicant_volume
         @request_params

@@ -6,6 +6,10 @@ Rails.application.routes.draw do
       match 'contact-us-partners' => :contact_us_partners, via: [:GET, :POST]
     end
 
+    scope 'api/home', controller: 'web/static/home' do
+      match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
+    end
+
     match '*permalink', to: 'application#not_found', via: :all
   end
 
@@ -16,6 +20,10 @@ Rails.application.routes.draw do
 
     scope 'api/home', controller: 'web/static/home' do
       match 'contact-us-partners' => :contact_us_partners, via: [:GET, :POST]
+    end
+
+    scope 'api/home', controller: 'web/static/home' do
+      match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
     end
 
     match '*permalink', to: 'application#not_found', via: :all
@@ -101,6 +109,10 @@ Rails.application.routes.draw do
 
     scope 'api/home', controller: 'web/static/home' do
       match 'contact-us-kyc' => :contact_us_kyc, via: :POST
+    end
+
+    scope 'api/home', controller: 'web/static/home' do
+      match '/kyc/contact-us' => :contact_us_pipe_drive_kyc, via: [:GET, :POST]
     end
 
     scope 'api/callback', controller: 'rest_api/callback/ops' do

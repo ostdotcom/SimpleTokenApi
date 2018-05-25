@@ -86,3 +86,14 @@ constants:
 
   memcached:
     instances: <%= ENV['STA_MEMCACHED_INSTANCES'] %>
+
+  pipedrive:
+    deals_end_point: 'https://api.pipedrive.com/v1/deals'
+    api_token: <%= ENV['PIPEDRIVE_API_TOKEN'] %>
+    project_description_key: <%= ENV['PROJECT_DESCRIPTION_PD_KEY'] %>
+    token_sale_start_date_key: <%= ENV['TOKEN_SALE_START_DATE_PD_KEY'] %>
+    token_sale_end_date_key: <%= ENV['TOKEN_SALE_END_DATE_PD_KEY'] %>
+    need_front_end_key: <%= ENV['NEED_FRONT_END_PD_KEY'] %>
+    applicant_volume_key: <%= ENV['APPLICANT_VOLUME_PD_KEY'] %>
+    kyc_init_stage_id: <%= ENV['KYC_INIT_STAGE_ID'] %>
+    partners_init_stage_id: <%= ENV['PARTNERS_INIT_STAGE_ID'] %>

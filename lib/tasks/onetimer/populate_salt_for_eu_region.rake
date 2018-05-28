@@ -119,7 +119,7 @@ namespace :onetimer do
       kms_client = get_kms_client(credentials)
       kms_key_id = ENV['STA_EU_ENTITY_ASSOC_ID']
 
-      row_obj = GeneralSalt.get_user_activity_logging_salt_type
+      row_obj = GeneralSalt.user_activity_logging_salt_type.first
       return if row_obj.eu_salt.present?
 
       r = Aws::Kms.new('entity_association', 'general_access').decrypt(row_obj.salt)

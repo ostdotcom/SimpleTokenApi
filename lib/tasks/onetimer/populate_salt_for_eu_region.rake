@@ -34,6 +34,7 @@ namespace :onetimer do
 
           row_obj.eu_kyc_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -59,6 +60,7 @@ namespace :onetimer do
 
           row_obj.eu_api_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -84,6 +86,7 @@ namespace :onetimer do
 
           row_obj.eu_login_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -109,6 +112,7 @@ namespace :onetimer do
 
           row_obj.eu_login_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -132,6 +136,7 @@ namespace :onetimer do
 
       row_obj.eu_salt = r.data[:ciphertext_blob]
       row_obj.save!(touch: false)
+      puts "updated #{row_obj.class} id-#{row_obj.id}"
     end
 
     def get_kms_client(credentials)

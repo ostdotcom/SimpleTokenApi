@@ -4,6 +4,8 @@ namespace :onetimer do
 
   task :populate_salt_for_eu_region => :environment do
 
+    include ::Util::ResultHelper
+
     def start_backpopulate
       populate_user_kyc_details
       populate_client

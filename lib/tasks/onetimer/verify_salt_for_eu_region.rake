@@ -4,6 +4,8 @@ namespace :onetimer do
 
   task :verify_salt_for_eu_region => :environment do
 
+    include ::Util::ResultHelper
+
     def start_verify
       verify_user_kyc_details
       verify_client

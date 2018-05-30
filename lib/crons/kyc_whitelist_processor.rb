@@ -4,6 +4,8 @@ module Crons
 
     include Util::ResultHelper
 
+    EXPECTED_CONFIRM_WAIT_INTERVAL = 3.minutes.to_i
+
     # initialize
     #
     # * Author: Aman
@@ -158,7 +160,7 @@ module Crons
                                   transaction_hash: @transaction_hash,
                                   nonce: @nonce,
                                   gas_price: @gas_price,
-                                  timestamp: Time.now.to_i + 180,
+                                  timestamp: Time.now.to_i + EXPECTED_CONFIRM_WAIT_INTERVAL,
                                   status: GlobalConstant::KycWhitelistLog.pending_status,
                                   is_attention_needed: 0
                               })

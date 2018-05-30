@@ -140,6 +140,7 @@ module AdminManagement
         if !r.success?
           # dont log activity if it is a cron task
           log_to_user_activity(r) if !is_a_cron_task?
+          save_cynopsis_status
 
           return error_with_data(
               'am_k_rcu_cca_1',

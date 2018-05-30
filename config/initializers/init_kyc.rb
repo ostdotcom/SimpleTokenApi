@@ -2,7 +2,7 @@ class InitKyc
 
   def self.matches?(request)
     if Rails.env.production?
-      ['kyc.ost.com', 'eukyc.ost.com'].include?(request.host)
+      ['kyc.ost.com', 'eukyc.ost.com', 'euroutekyc.ost.com'].include?(request.host)
     elsif Rails.env.sandbox?
       request.host == 'kyc.sandboxost.com'
     elsif Rails.env.staging?

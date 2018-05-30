@@ -10,7 +10,7 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Kedar
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @params [Integer] client_id (mandatory) - client id
     # @params [Integer] user_id (mandatory) - user id
     # @params [Integer] client_id (mandatory) - client id
     # @params [String] first_name (mandatory) - first name

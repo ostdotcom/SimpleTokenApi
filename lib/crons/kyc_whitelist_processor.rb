@@ -16,6 +16,8 @@ module Crons
       @api_data = {}
       @user_kyc_detail = nil
       @transaction_hash = nil
+      @nonce = nil
+      @gas_price = nil
     end
 
     # public method to process hooks
@@ -132,6 +134,9 @@ module Crons
 
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
+        @nonce = r.data[:nonce]
+        @gas_price = r.data[:gas_price]
+
       else
         handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
       end
@@ -151,6 +156,9 @@ module Crons
                                   ethereum_address: @api_data[:address],
                                   phase: @api_data[:phase],
                                   transaction_hash: @transaction_hash,
+                                  nonce: @nonce,
+                                  gas_price: @gas_price,
+                                  timestamp: Time.now.to_i + 180,
                                   status: GlobalConstant::KycWhitelistLog.pending_status,
                                   is_attention_needed: 0
                               })

@@ -61,15 +61,4 @@ class Web::SaasUser::BaseController < Web::WebController
     end
   end
 
-  # Merge Utm Parameter in params
-  #
-  # * Author: Aman
-  # * Date: 21/10/2017
-  # * Reviewed By: Sunil
-  #
-  def merge_utm_to_params
-    cookie_value = Oj.load(cookies[GlobalConstant::Cookie.utm_cookie_name.to_sym], mode: :strict) rescue {}
-    params.merge!('utm_params' => cookie_value)
-  end
-
 end

@@ -97,3 +97,4 @@ constants:
     applicant_volume_key: <%= ENV['APPLICANT_VOLUME_PD_KEY'] %>
     kyc_init_stage_id: <%= ENV['KYC_INIT_STAGE_ID'] %>
     partners_init_stage_id: <%= ENV['PARTNERS_INIT_STAGE_ID'] %>
+    utm_source_key: <%= ENV['UTM_SOURCE_PD_KEY'] %>

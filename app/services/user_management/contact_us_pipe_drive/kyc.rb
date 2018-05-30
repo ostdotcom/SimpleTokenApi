@@ -27,6 +27,7 @@ module UserManagement
         @need_front_end = @params[:need_front_end]
         @applicant_volume = @params[:applicant_volume]
         @project_description = @params[:project_description]
+        @utm_params = @params[:utm_params] || {}
 
         @error_data = {}
       end
@@ -103,6 +104,7 @@ module UserManagement
         @request_params[GlobalConstant::Base.pipedrive['token_sale_end_date_key']] = @token_sale_end_date.strftime('%d-%m-%Y')
         @request_params[GlobalConstant::Base.pipedrive['need_front_end_key']] = @need_front_end
         @request_params[GlobalConstant::Base.pipedrive['applicant_volume_key']] = @applicant_volume
+        @request_params[GlobalConstant::Base.pipedrive['utm_source_key']] = @utm_params[:utm_source]
         @request_params
       end
 

@@ -4,6 +4,8 @@ namespace :onetimer do
 
   task :populate_salt_for_eu_region => :environment do
 
+    include ::Util::ResultHelper
+
     def start_backpopulate
       populate_user_kyc_details
       populate_client
@@ -34,6 +36,7 @@ namespace :onetimer do
 
           row_obj.eu_kyc_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -59,6 +62,7 @@ namespace :onetimer do
 
           row_obj.eu_api_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -84,6 +88,7 @@ namespace :onetimer do
 
           row_obj.eu_login_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -109,6 +114,7 @@ namespace :onetimer do
 
           row_obj.eu_login_salt = r.data[:ciphertext_blob]
           row_obj.save!(touch: false)
+          puts "updated #{row_obj.class} id-#{row_obj.id}"
         end
       end
     end
@@ -119,7 +125,7 @@ namespace :onetimer do
       kms_client = get_kms_client(credentials)
       kms_key_id = ENV['STA_EU_ENTITY_ASSOC_ID']
 
-      row_obj = GeneralSalt.get_user_activity_logging_salt_type
+      row_obj = GeneralSalt.user_activity_logging_salt_type.first
       return if row_obj.eu_salt.present?
 
       r = Aws::Kms.new('entity_association', 'general_access').decrypt(row_obj.salt)
@@ -132,6 +138,7 @@ namespace :onetimer do
 
       row_obj.eu_salt = r.data[:ciphertext_blob]
       row_obj.save!(touch: false)
+      puts "updated #{row_obj.class} id-#{row_obj.id}"
     end
 
     def get_kms_client(credentials)

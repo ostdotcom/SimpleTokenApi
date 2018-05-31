@@ -220,6 +220,11 @@ module GlobalConstant
         'contact_us_ost_partner_autoresponder'
       end
 
+      # email to admins for whitelisting suspended due to low balance
+      def low_balance_whitelisting_suspended_template
+        'low_balance_whitelisting_suspended'
+      end
+
       # All possible templates integrated with email service
       #
       # * Author: Puneet
@@ -251,7 +256,8 @@ module GlobalConstant
           open_case_request_outcome_template,
           contact_us_ost_partner_autoresponder_template,
           contact_us_ost_kyc_autoresponder_template,
-          kyc_report_download_template
+          kyc_report_download_template,
+          low_balance_whitelisting_suspended_template
         ]
       end
 

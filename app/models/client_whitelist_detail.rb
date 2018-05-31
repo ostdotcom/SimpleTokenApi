@@ -61,8 +61,8 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
       Email::HookCreator::SendTransactionalMail.new(
           client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
           email: admin_email,
-          template_name: GlobalConstant::PepoCampaigns.low_whitelister_balance_template,
-          template_vars: {ether_value: self.suspension_type, whitelister_address: self.whitelister_address}
+          template_name: GlobalConstant::PepoCampaigns.low_balance_whitelisting_suspended_template,
+          template_vars: {whitelister_address: self.whitelister_address}
       ).perform
 
     end

@@ -109,7 +109,7 @@ module Crons
 
           user_kyc_detail.save!
 
-          update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.processed_status)
+          update_edit_kyc_row(ekr, GlobalConstant::EditKycRequest.processed_status, nil)
 
           log_activity(ekr)
 
@@ -230,8 +230,8 @@ module Crons
     # * Date: 09/05/2018
     # * Reviewed By:
     #
-    def update_edit_kyc_row(ekr, status, error_response=nil)
-      ekr.debug_data = error_response if error_response.present?
+    def update_edit_kyc_row(ekr, status, debug_data)
+      ekr.debug_data = debug_data
       ekr.status = status
       ekr.save
     end

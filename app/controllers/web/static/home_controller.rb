@@ -2,6 +2,8 @@ class Web::Static::HomeController < Web::Static::BaseController
 
   before_action :verify_recaptcha
 
+  prepend_before_action :merge_utm_to_params, only: [:contact_us_pipe_drive_kyc]
+
   #
   # * Author: Aman
   # * Date: 18/01/2018

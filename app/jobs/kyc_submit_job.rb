@@ -234,6 +234,7 @@ class KycSubmitJob < ApplicationJob
 
     if !r.success? # cynopsis status will turn failed
       @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
+      save_cynopsis_status
       log_to_user_activity(r)
       return
     end

@@ -156,7 +156,6 @@ module AdminManagement
             case_id: @case_id,
             admin_id: @admin_id,
             user_id: @user_kyc_detail.user_id,
-            open_case_only: 1,
             update_action: GlobalConstant::EditKycRequest.open_case_update_action,
             status: GlobalConstant::EditKycRequest.in_process_status
         )

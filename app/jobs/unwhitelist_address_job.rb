@@ -20,7 +20,7 @@ class UnwhitelistAddressJob < ApplicationJob
       return
     end
 
-    r = validate_whitelisting_in_process
+    r = validate_whitelisting_process
     if !r.success?
       notify_errors(r.error_display_text)
       update_edit_kyc_request(GlobalConstant::EditKycRequest.failed_status, r.to_json)
@@ -114,6 +114,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      phase: api_data[:phase]
                                                  })
     Rails.logger.info("Whitelist API Response: #{r.inspect}")
+    get_client_whitelist_detail_obj.mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
     return r unless r.success?
 
     @kyc_whitelist_log = KycWhitelistLog.create!({
@@ -128,7 +129,7 @@ class UnwhitelistAddressJob < ApplicationJob
     success
   end
 
-  # Validate whether Ethereum address is in whitelist process
+  # Validate All whitelisting checks before putting unwhitelisting request
   #
   # * Author: Pankaj
   # * Date: 07/05/2018
@@ -136,7 +137,29 @@ class UnwhitelistAddressJob < ApplicationJob
   #
   # @return [Result::Base]
   #
-  def validate_whitelisting_in_process
+  def validate_whitelisting_process
+    return error_with_data(
+        'uaj_2',
+        "Client Whitelisting information is inactivated. Please contact Ost team.",
+        "Client Whitelisting information is inactivated. Please contact Ost team.",
+        GlobalConstant::ErrorAction.default,
+        {}
+    ) if get_client_whitelist_detail_obj.nil?
+
+    # Check if client whitelisting is running or not
+    unless get_client_whitelist_detail_obj.is_not_suspended?
+      error_msg = "Whitelisting or unWhitelisting is not happening at a moment. "
+      error_msg += "Whitelister eth balance is low." if get_client_whitelist_detail_obj.low_balance_suspended?
+
+      return error_with_data(
+          'uaj_3',
+          "#{error_msg} Please try after sometime.",
+          "#{error_msg} Please try after sometime.",
+          GlobalConstant::ErrorAction.default,
+          {}
+      )
+    end
+
     KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address).all.each do |kwl|
 
       if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
@@ -190,7 +213,7 @@ class UnwhitelistAddressJob < ApplicationJob
   # @return [Ar] ClientWhitelistDetail obj
   #
   def get_client_whitelist_detail_obj
-    ClientWhitelistDetail.where(client_id: @client_id,
+    @cwd_obj ||= ClientWhitelistDetail.where(client_id: @client_id,
                                 status: GlobalConstant::ClientWhitelistDetail.active_status).first
   end
 

@@ -29,7 +29,7 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
-      @client_whitelist_objs = ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
+      @client_whitelist_objs = ClientWhitelistDetail.not_suspended.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
       client_ids = @client_whitelist_objs.keys
 
       UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
@@ -41,6 +41,8 @@ module Crons
           begin
 
             init_iteration_params(user_kyc_detail)
+
+            next unless @client_whitelist_objs[@user_kyc_detail.client_id].is_not_suspended?
 
             # acquire lock over user_kyc_detail
             start_processing_whitelisting
@@ -140,7 +142,13 @@ module Crons
         @gas_price = r.data[:gas_price]
 
       else
-        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
+         if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
+           @client_whitelist_objs[@user_kyc_detail.client_id].mark_client_eth_balance_low
+           @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+           @user_kyc_detail.save
+         else
+           handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
+         end
       end
 
       r

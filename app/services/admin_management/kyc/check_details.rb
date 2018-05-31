@@ -173,13 +173,13 @@ module AdminManagement
         ar_relation = ar_relation.select(:id)
 
         if @sortings.present? && @sortings[:sort_order] == 'asc'
-          kyc_1 = ar_relation.where("id > ?", @case_id).first
-          kyc_2 = ar_relation.where("id < ?", @case_id).last
+          kyc_1 = ar_relation.where("user_extended_detail_id > ?", @user_kyc_detail.user_extended_detail_id).first
+          kyc_2 = ar_relation.where("user_extended_detail_id < ?", @user_kyc_detail.user_extended_detail_id).last
           @next_kyc_id = kyc_1.id if kyc_1.present?
           @previous_kyc_id = kyc_2.id if kyc_2.present?
         else
-          kyc_1 = ar_relation.where("id < ?", @case_id).last
-          kyc_2 = ar_relation.where("id > ?", @case_id).first
+          kyc_1 = ar_relation.where("user_extended_detail_id < ?", @user_kyc_detail.user_extended_detail_id).last
+          kyc_2 = ar_relation.where("user_extended_detail_id > ?", @user_kyc_detail.user_extended_detail_id).first
           @next_kyc_id = kyc_1.id if kyc_1.present?
           @previous_kyc_id = kyc_2.id if kyc_2.present?
         end

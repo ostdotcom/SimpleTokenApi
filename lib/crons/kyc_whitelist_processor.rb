@@ -142,13 +142,8 @@ module Crons
         @gas_price = r.data[:gas_price]
 
       else
-         if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
-           @client_whitelist_objs[@user_kyc_detail.client_id].mark_client_eth_balance_low
-           @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-           @user_kyc_detail.save!
-         else
-           handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
-         end
+        @client_whitelist_objs[@user_kyc_detail.client_id].mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
+        handle_whitelist_error('OpsApi Error', {private_ops_api_response: r.to_json})
       end
 
       r
@@ -240,7 +235,7 @@ module Crons
     def handle_whitelist_error(error_type, error_data)
       notify_devs(error_data, @user_kyc_detail.user_id)
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
-      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
 

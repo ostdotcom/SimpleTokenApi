@@ -122,6 +122,9 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      ethereum_address: api_data[:address],
                                                      phase: api_data[:phase],
                                                      transaction_hash: r.data[:transaction_hash],
+                                                     nonce: r.data[:nonce],
+                                                     gas_price: r.data[:gas_price],
+                                                     next_timestamp: Time.now.to_i + Crons::KycWhitelistProcessor::EXPECTED_CONFIRM_WAIT_INTERVAL,
                                                      status: GlobalConstant::KycWhitelistLog.pending_status,
                                                      is_attention_needed: 0
                                                  })
@@ -147,9 +150,9 @@ class UnwhitelistAddressJob < ApplicationJob
     ) if get_client_whitelist_detail_obj.nil?
 
     # Check if client whitelisting is running or not
-    unless get_client_whitelist_detail_obj.is_not_suspended?
-      error_msg = "Whitelisting or unWhitelisting is not happening at a moment. "
-      error_msg += "Whitelister eth balance is low." if get_client_whitelist_detail_obj.low_balance_suspended?
+    unless get_client_whitelist_detail_obj.no_suspension_type?
+      error_msg = "Whitelisting or unWhitelisting is not happening at the moment. "
+      error_msg += "Whitelister eth balance is low." if get_client_whitelist_detail_obj.low_balance_suspension_type?
 
       return error_with_data(
           'uaj_3',
@@ -162,7 +165,7 @@ class UnwhitelistAddressJob < ApplicationJob
 
     KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address).all.each do |kwl|
 
-      if (kwl.status != GlobalConstant::KycWhitelistLog.confirmed_status)
+      if (GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses.exclude?(kwl.status))
         return error_with_data(
             'uaj_1',
             "Waiting for KYC Whitelist Confirmation. Please try after sometime!",

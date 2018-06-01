@@ -42,7 +42,7 @@ module Crons
 
             init_iteration_params(user_kyc_detail)
 
-            next unless @client_whitelist_objs[@user_kyc_detail.client_id].is_not_suspended?
+            next unless @client_whitelist_objs[@user_kyc_detail.client_id].no_suspension_type?
 
             # acquire lock over user_kyc_detail
             start_processing_whitelisting
@@ -145,7 +145,7 @@ module Crons
          if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
            @client_whitelist_objs[@user_kyc_detail.client_id].mark_client_eth_balance_low
            @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-           @user_kyc_detail.save
+           @user_kyc_detail.save!
          else
            handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
          end

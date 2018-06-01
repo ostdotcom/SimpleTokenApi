@@ -6,11 +6,11 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
        }
 
   enum suspension_type: {
-      GlobalConstant::ClientWhitelistDetail.not_suspended_type => 0,
+      GlobalConstant::ClientWhitelistDetail.no_suspension_type => 0,
       GlobalConstant::ClientWhitelistDetail.low_balance_suspension_type => 1
-  }
+  }, _suffix: true
 
-  scope :not_suspended, -> {where(suspension_type: GlobalConstant::ClientWhitelistDetail.not_suspended_type)}
+  scope :not_suspended, -> {where(suspension_type: GlobalConstant::ClientWhitelistDetail.no_suspension_type)}
 
   after_commit :memcache_flush
 
@@ -75,7 +75,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   # * Reviewed By:
   #
   def mark_client_whitelist_happening
-    self.suspension_type = GlobalConstant::ClientWhitelistDetail.not_suspended_type
+    self.suspension_type = GlobalConstant::ClientWhitelistDetail.no_suspension_type
     self.save!
   end
 

@@ -33,12 +33,12 @@ module Crons
         eth_value_in_wei = r.data['balance']
         eth_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_value_in_wei.to_i).to_f.round(2)
 
-        if eth_value < ETH_BALANCE_TO_STOP && c_w_o.is_not_suspended?
+        if eth_value < ETH_BALANCE_TO_STOP && c_w_o.no_suspension_type?
           c_w_o.mark_client_eth_balance_low
           next
         end
 
-        if c_w_o.low_balance_suspended? && eth_value > ETH_BALANCE_TO_STOP
+        if c_w_o.low_balance_suspension_type? && eth_value > ETH_BALANCE_TO_STOP
           c_w_o.mark_client_whitelist_happening
         end
 

@@ -19,12 +19,12 @@ module GlobalConstant
 
       ### Whitelisting Suspended type Start ###
 
-      def not_suspended_type
-        'is_not_suspended'
+      def no_suspension_type
+        'no'
       end
 
       def low_balance_suspension_type
-        'low_balance_suspended'
+        'low_balance'
       end
 
       ### Whitelisting Suspended type End ###

@@ -124,7 +124,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      transaction_hash: r.data[:transaction_hash],
                                                      nonce: r.data[:nonce],
                                                      gas_price: r.data[:gas_price],
-                                                     next_timestamp: Time.now.to_i + Crons::KycWhitelistProcessor::EXPECTED_CONFIRM_WAIT_INTERVAL,
+                                                     next_timestamp: Time.now.to_i + GlobalConstant::KycWhitelistLog.expected_confirm_wait_interval,
                                                      status: GlobalConstant::KycWhitelistLog.pending_status,
                                                      is_attention_needed: 0
                                                  })

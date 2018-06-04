@@ -30,12 +30,28 @@ class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
   # Returns[Integer] user id .
   #
   def self.get_user_id(client_id, ethereum_address)
+    ukds = get_user_kyc_details(client_id, ethereum_address)
 
+    ukds.first.user_id
+  end
+
+  # Get active qualified user kyc detail objects from unencrypted ethereum address
+  #
+  # * Author: Aman
+  # * Date: 4/06/2018
+  # * Reviewed By:
+  #
+  # str [String] Unencypted ethereum address,
+  #
+  # Returns[Array] USer Kyc Details objects.
+  #
+  def self.get_user_kyc_details(client_id, ethereum_address)
     sha_ethereum = get_hashed_value(ethereum_address)
 
     ued_ids = Md5UserExtendedDetail.where(ethereum_address: sha_ethereum).pluck(:user_extended_detail_id)
+    return [] if ued_ids.blank?
 
-    UserKycDetail.where(client_id: client_id, user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.first.user_id
+    UserKycDetail.where(client_id: client_id, user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.all
   end
 
 end

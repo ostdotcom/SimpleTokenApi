@@ -242,11 +242,6 @@ module Crons
       @kyc_whitelist_log.save!
     end
 
-    def mark_transaction_failed
-      @kyc_whitelist_log.status = Time.now.to_i + time_increment
-      @kyc_whitelist_log.save!
-    end
-
     # Process pending status record
     #
     # * Author: Kedar, Alpesh
@@ -260,8 +255,15 @@ module Crons
       r = record_event
 
       if r.success?
-        mark_whitelisting_confirmed
+        # todo: wait for next iteration before confirming
+        notify_devs(
+            {kyc_whitelist_log_id: @kyc_whitelist_log.id, client_id: @kyc_whitelist_log.client_id},
+            "Event not received but marked successfull by confirm cron"
+        )
       else
+        @kyc_whitelist_log.reload!
+        @kyc_whitelist_log.mark_failed
+
         return error_with_data(
             'l_c_ckw_2',
             'block not mined',
@@ -370,36 +372,6 @@ module Crons
       WhitelistManagement::ProcessAndRecordEvent.new(decoded_token_data: data).perform
     end
 
-    # Get prospective user extended detail ids
-    #
-    # * Author: Kedar, Alpesh
-    # * Date: 25/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    def get_prospective_user_extended_detail_ids
-      prospective_user_extended_detail_ids = Md5UserExtendedDetail.where(
-          ethereum_address: Md5UserExtendedDetail.get_hashed_value(@kyc_whitelist_log.ethereum_address)
-      ).pluck(:user_extended_detail_id)
-
-      if prospective_user_extended_detail_ids.blank?
-        notify_devs(
-            {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
-            "IMMEDIATE ATTENTION NEEDED. eth address not associated with any user, still trying to confirm kyc whitelisting."
-        )
-
-        return error_with_data(
-            'l_c_ckw_4',
-            'eth address not associated with any user, still trying to confirm kyc whitelisting.',
-            'eth address not associated with any user, still trying to confirm kyc whitelisting.',
-            GlobalConstant::ErrorAction.default,
-            {}
-        )
-      end
-      success_with_data(prospective_user_extended_detail_ids: prospective_user_extended_detail_ids)
-    end
-
     # Fetch user kyc detail
     #
     # * Author: Kedar, Alpesh
@@ -413,22 +385,10 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_user_kyc_detail
-      r = get_prospective_user_extended_detail_ids
-
-      unless r.success?
-        @kyc_whitelist_log.mark_is_attention_needed
-        return r
-      end
-
-      prospective_user_extended_detail_ids = r.data[:prospective_user_extended_detail_ids]
-
-      user_kyc_details = UserKycDetail.kyc_admin_and_cynopsis_approved.where(client_id: @kyc_whitelist_log.client_id,
-                                                                             status: GlobalConstant::UserKycDetail.active_status,
-                                                                             user_extended_detail_id: prospective_user_extended_detail_ids
-      ).all
+      user_kyc_details =  Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
-        @kyc_whitelist_log.mark_is_attention_needed
+        @kyc_whitelist_log.mark_failed_with_attention_needed
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
@@ -444,7 +404,7 @@ module Crons
       end
 
       if user_kyc_details.count > 1
-        @kyc_whitelist_log.mark_is_attention_needed
+        @kyc_whitelist_log.mark_failed_with_attention_needed
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
@@ -462,7 +422,7 @@ module Crons
       user_kyc_detail = user_kyc_details.first
 
       if [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(user_kyc_detail.whitelist_status)
-        @kyc_whitelist_log.mark_is_attention_needed
+        @kyc_whitelist_log.mark_failed_with_attention_needed
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. invalid whitelist status-#{user_kyc_detail.whitelist_status} of user kyc detail"

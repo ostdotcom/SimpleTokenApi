@@ -111,9 +111,9 @@ module AdminManagement
               GlobalConstant::ErrorAction.default,
               {},
               {}
-          ) if GlobalConstant::UserKycDetail.sorting[key.to_s].blank?
+          ) if GlobalConstant::User.sorting[key.to_s].blank?
 
-          sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
+          sort_data = GlobalConstant::User.sorting[key.to_s][val.to_s]
           return error_with_data(
               'am_u_ul_4',
               'Invalid Sorting Parameter value.',

@@ -10,7 +10,7 @@ class User < EstablishSimpleTokenUserDbConnection
     order_clause = {}
     # This sorting is also used in user kyc detail.
     sortings.each do |key, val|
-      sort_data = GlobalConstant::UserKycDetail.sorting[key.to_s][val.to_s]
+      sort_data = GlobalConstant::User.sorting[key.to_s][val.to_s]
       order_clause.merge!(sort_data) if sort_data.present?
     end
     order(order_clause)

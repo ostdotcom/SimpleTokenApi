@@ -69,8 +69,12 @@ module GlobalConstant
 
       ### Constants ###
       #
-      def expected_confirm_wait_interval
+      def expected_transaction_mine_time
         3.minutes.to_i
+      end
+
+      def confirm_wait_interval
+        90.seconds.to_i
       end
 
       def extreme_wait_interval

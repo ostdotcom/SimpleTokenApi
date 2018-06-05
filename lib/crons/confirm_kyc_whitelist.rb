@@ -111,25 +111,27 @@ module Crons
     #
     def get_tx_info
       # check if the transaction is mined in a block
+      @transaction_hash = @kyc_whitelist_log.transaction_hash
+
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
-      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @kyc_whitelist_log.transaction_hash})
+      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @transaction_hash})
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@tx_info_status.inspect}")
 
       if @tx_info_status.success?
         @block_hash = @tx_info_status.data[:block_hash]
-        @transaction_hash = @tx_info_status.data[:transaction_hash]
         @block_number = @tx_info_status.data[:block_number].to_i
         @events_data = @tx_info_status.data[:events_data]
         @transaction_status = @tx_info_status.data[:status].to_s.downcase
         success
       else
-        notify_devs({transaction_hash: @transaction_hash, tx_info_status: @tx_info_status}, "Error in get transaction Status")
+        message = "Error in get transaction Status, PublicOps Or Geth may be down"
+        notify_devs({transaction_hash: @transaction_hash, tx_info_status: @tx_info_status}, message)
 
         error_with_data(
             'l_c_ckw_gti_1',
-            'Error in get transaction Status',
-            'Error in get transaction Status',
+            message,
+            message,
             GlobalConstant::ErrorAction.default,
             {}
         )

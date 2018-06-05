@@ -54,16 +54,6 @@ module Crons
               next
             end
 
-            # todo: Confirm with sunil
-            # r = query_contract
-            # unless r.success?
-            #   notify_devs(
-            #       {ethereum_address: @kyc_whitelist_log.ethereum_address},
-            #       "IMMEDIATE ATTENTION NEEDED. Does not exist in contract OR phase mismatch."
-            #   )
-            #   next
-            # end
-
             if pending_whitelist_log_status? || !contract_event_processed?
 
               r = process_pending_status_record
@@ -317,40 +307,19 @@ module Crons
       r = fetch_user_kyc_detail
       return r unless r.success?
 
-      return if @kyc_whitelist_log.phase == 0
-
       user_kyc_detail = r.data[:user_kyc_detail]
-      user_kyc_detail.whitelist_status = GlobalConstant::KycWhitelistLog.failed_status
-      user_kyc_detail.save! if user_kyc_detail.changed?
+
+      if @kyc_whitelist_log.phase == 0
+        AdminManagement::ProcessUnwhitelist.new({kyc_whitelist_log: @kyc_whitelist_log,
+                                                 user_kyc_detail: user_kyc_detail}).perform
+      else
+        user_kyc_detail.whitelist_status = GlobalConstant::KycWhitelistLog.failed_status
+        user_kyc_detail.save! if user_kyc_detail.changed?
+      end
 
       success
     end
 
-
-    # # query contract
-    # #
-    # # * Author: Kedar
-    # # * Date: 13/11/2017
-    # # * Reviewed By: Sunil
-    # #
-    # # @return [Result::Base]
-    # #
-    # def query_contract
-    #   r = OpsApi::Request::GetWhitelistStatus.new.perform(contract_address: get_contract_address, ethereum_address: @kyc_whitelist_log.ethereum_address)
-    #   return r unless r.success?
-    #
-    #   if r.data['phase'].to_i == @kyc_whitelist_log.phase
-    #     success
-    #   else
-    #     error_with_data(
-    #         'l_c_ckw_3.1',
-    #         'phase mismatch',
-    #         'phase mismatch',
-    #         GlobalConstant::ErrorAction.default,
-    #         {}
-    #     )
-    #   end
-    # end
 
     # record event
     #
@@ -385,7 +354,7 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_user_kyc_detail
-      user_kyc_details =  Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
+      user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
         @kyc_whitelist_log.mark_failed_with_attention_needed
@@ -467,16 +436,18 @@ module Crons
     def mark_whitelisting_confirmed
       @kyc_whitelist_log.mark_confirmed
 
-      # If kyc whitelist log is of whitelisting then also put kyc_confirmed_time in user_kyc_details
-      # phase with 0 value can come in callback event for unwhitelisting .
-      return if @kyc_whitelist_log.phase == 0
-
       r = fetch_user_kyc_detail
       return r unless r.success?
 
-      user_kyc_detail = r.data[:user_kyc_detail]
-      user_kyc_detail.kyc_confirmed_at = Time.now.to_i
-      user_kyc_detail.save!
+      if @kyc_whitelist_log.phase == 0
+        AdminManagement::ProcessUnwhitelist.new({kyc_whitelist_log: @kyc_whitelist_log,
+                                                 user_kyc_detail: user_kyc_detail}).perform
+      else
+        user_kyc_detail = r.data[:user_kyc_detail]
+        user_kyc_detail.kyc_confirmed_at = Time.now.to_i
+        user_kyc_detail.save!
+      end
+
     end
 
   end

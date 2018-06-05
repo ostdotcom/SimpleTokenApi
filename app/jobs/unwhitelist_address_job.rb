@@ -35,7 +35,7 @@ class UnwhitelistAddressJob < ApplicationJob
     end
 
     # Mark Edit Kyc Request as unWhitelist in process
-    update_edit_kyc_request(GlobalConstant::EditKycRequest.unwhitelist_in_process_status, {kyc_whitelist_log: @kyc_whitelist_log.id})
+    update_edit_kyc_request(GlobalConstant::EditKycRequest.unwhitelist_in_process_status)
 
   end
 
@@ -163,6 +163,7 @@ class UnwhitelistAddressJob < ApplicationJob
       )
     end
 
+    # todo: This validation has also been done before enqueue.
     KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address).all.each do |kwl|
 
       if (GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses.exclude?(kwl.status))
@@ -174,17 +175,6 @@ class UnwhitelistAddressJob < ApplicationJob
             {}
         )
       end
-
-      # TODO:: Confirm from Sunil. Why to wait for 10 minutes
-      # if kwl.updated_at >= (Time.now - 10.minutes)
-      #   return error_with_data(
-      #       'ua_oc_10',
-      #       "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
-      #       "Existing Kyc White Log ID: #{kwl.id} is just confirmed under 10 minutes. Please try after 10 minutes.",
-      #       GlobalConstant::ErrorAction.default,
-      #       {}
-      #   )
-      # end
 
     end
 

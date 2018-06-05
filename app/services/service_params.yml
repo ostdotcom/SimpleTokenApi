@@ -323,9 +323,11 @@
     - :token_sale_end_date
     - :need_front_end
     - :applicant_volume
+    - :ost_product_communicate
   :optional:
     - :project_description
     - :utm_params
+    - :ost_market_communicate
 
 'UserManagement::ContactUsPipeDrive::Partner':
   :mandatory:

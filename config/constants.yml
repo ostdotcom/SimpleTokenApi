@@ -38,6 +38,7 @@ constants:
       version: 'v2'
     list_ids:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
+      kyc_product_list: <%= ENV['STA_CAMPAIGN_KYC_PRODUCT_LIST']%>
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>
@@ -98,3 +99,5 @@ constants:
     kyc_init_stage_id: <%= ENV['KYC_INIT_STAGE_ID'] %>
     partners_init_stage_id: <%= ENV['PARTNERS_INIT_STAGE_ID'] %>
     utm_source_key: <%= ENV['UTM_SOURCE_PD_KEY'] %>
+    default_kyc_deal_owner: <%= ENV['PD_DEFAULT_KYC_DEAL_OWNER'] %>
+    default_partner_deal_owner: <%= ENV['PD_DEFAULT_PARTNER_DEAL_OWNER'] %>

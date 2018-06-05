@@ -85,7 +85,8 @@ class NewUserRegisterJob < ApplicationJob
         email: @user.email,
         custom_attributes: {
             GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value
-        }
+        },
+        list_id: GlobalConstant::PepoCampaigns.master_list_id
     ).perform
 
   end

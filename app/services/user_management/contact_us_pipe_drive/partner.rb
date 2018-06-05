@@ -80,6 +80,7 @@ module UserManagement
         }
 
         @request_params[GlobalConstant::Base.pipedrive['project_description_key']] = @project_description if @project_description
+        @request_params['user_id'] = GlobalConstant::Base.pipedrive['default_partner_deal_owner']
 
         @request_params
       end

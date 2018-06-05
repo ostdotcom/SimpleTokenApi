@@ -33,6 +33,17 @@ module GlobalConstant
         config[:list_ids][:master_list]
       end
 
+      def kyc_product_list_id
+        config[:list_ids][:kyc_product_list]
+      end
+
+      def allowed_list_ids
+        [
+            GlobalConstant::PepoCampaigns.kyc_product_list_id,
+            GlobalConstant::PepoCampaigns.master_list_id
+        ]
+      end
+
       ########### User Custom Attributes #########
 
       def token_sale_phase_attribute
@@ -51,12 +62,17 @@ module GlobalConstant
         'token_sale_has_purchased'
       end
 
+      def kyc_marketing_attribute
+        'kyc_marketing'
+      end
+
       def allowed_custom_attributes
         [
           token_sale_registered_attribute,
           token_sale_phase_attribute,
           token_sale_kyc_confirmed_attribute,
-          token_sale_has_purchased_attribute
+          token_sale_has_purchased_attribute,
+          kyc_marketing_attribute
         ]
       end
 

@@ -251,13 +251,15 @@ module Crons
             "Event not received but marked successfull by confirm cron"
         )
       else
-        @kyc_whitelist_log.reload!
+        Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - error of record event ::" + r.error_display_text)
+
+        @kyc_whitelist_log.reload
         @kyc_whitelist_log.mark_failed
 
         return error_with_data(
             'l_c_ckw_2',
-            'block not mined',
-            'block not mined',
+            r.error_display_text,
+            r.error_display_text,
             GlobalConstant::ErrorAction.default,
             {}
         )

@@ -48,7 +48,7 @@ module Crons
                           "Whitelist Transaction status has failed with status-#{@transaction_status}")
               next
             end
-            _
+
             if pending_txn_status?
               increment_next_timestamp
               next

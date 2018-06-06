@@ -121,6 +121,7 @@ Rails.application.routes.draw do
 
     scope 'api/home', controller: 'web/static/home' do
       match '/kyc/contact-us' => :contact_us_pipe_drive_kyc, via: [:GET, :POST]
+      match '/alpha3/signup' => :register_for_alpha3, via: :POST
     end
 
     scope 'api/callback', controller: 'rest_api/callback/ops' do

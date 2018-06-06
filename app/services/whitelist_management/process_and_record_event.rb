@@ -94,7 +94,7 @@ module WhitelistManagement
       @block_number = @decoded_token_data[:block_number].to_i
 
       (@decoded_token_data[:events_data] || []).each do |e|
-        next unless e.is_a?(Hash)
+        next if e.blank?
 
         if e[:name] == GlobalConstant::ContractEvent.whitelist_updated_kind
 

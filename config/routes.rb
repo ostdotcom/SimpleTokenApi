@@ -10,6 +10,10 @@ Rails.application.routes.draw do
       match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
     end
 
+    scope 'api/home', controller: 'web/static/home' do
+      match '/alpha3/signup' => :register_for_alpha3, via: :POST
+    end
+
     match '*permalink', to: 'application#not_found', via: :all
   end
 
@@ -24,6 +28,10 @@ Rails.application.routes.draw do
 
     scope 'api/home', controller: 'web/static/home' do
       match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
+    end
+
+    scope 'api/home', controller: 'web/static/home' do
+      match '/alpha3/signup' => :register_for_alpha3, via: :POST
     end
 
     match '*permalink', to: 'application#not_found', via: :all

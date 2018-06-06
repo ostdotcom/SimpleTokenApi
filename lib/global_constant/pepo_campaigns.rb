@@ -37,10 +37,15 @@ module GlobalConstant
         config[:list_ids][:kyc_product_list]
       end
 
+      def alpha_3_list_id
+        config[:list_ids][:alpha_3_users_list]
+      end
+
       def allowed_list_ids
         [
             GlobalConstant::PepoCampaigns.kyc_product_list_id,
-            GlobalConstant::PepoCampaigns.master_list_id
+            GlobalConstant::PepoCampaigns.master_list_id,
+            GlobalConstant::PepoCampaigns.alpha_3_list_id
         ]
       end
 
@@ -66,13 +71,38 @@ module GlobalConstant
         'kyc_marketing'
       end
 
+      def first_name_attribute
+        'First Name'
+      end
+
+      def last_name_attribute
+        'Last Name'
+      end
+
+      def company_name_attribute
+        'company_name'
+      end
+
+      def project_description_attribute
+        'project_description'
+      end
+
+      def kit_marketing_attribute
+        'kit_marketing'
+      end
+
       def allowed_custom_attributes
         [
           token_sale_registered_attribute,
           token_sale_phase_attribute,
           token_sale_kyc_confirmed_attribute,
           token_sale_has_purchased_attribute,
-          kyc_marketing_attribute
+          kyc_marketing_attribute,
+          first_name_attribute,
+          last_name_attribute,
+          company_name_attribute,
+          project_description_attribute,
+          kit_marketing_attribute
         ]
       end
 

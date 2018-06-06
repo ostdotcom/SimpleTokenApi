@@ -45,4 +45,15 @@ class Web::Static::HomeController < Web::Static::BaseController
     render_api_response(service_response)
   end
 
+  # Register user for Alpha 3
+  #
+  # * Author: Pankaj
+  # * Date: 06/06/2018
+  # * Reviewed By:
+  #
+  def register_for_alpha3
+    service_response = UserManagement::Alpha3Registration.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

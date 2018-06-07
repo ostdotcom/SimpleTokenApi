@@ -301,7 +301,7 @@ class ProcessKycReportJob < ApplicationJob
   end
 
   def kyc_form_fields
-    @kyc_fields ||= @client_kyc_config.kyc_fields_array - [GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field]
+    @kyc_fields ||= @client_kyc_config.kyc_fields_array
   end
 
   def headers_for_kyc_form_fields

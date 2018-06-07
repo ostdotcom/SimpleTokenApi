@@ -102,7 +102,7 @@ module AdminManagement
             @curr_page_data << {
                 id: u_k.id,
                 name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
-                kyc_confirmed_at: get_formatted_time(u_k.created_at.to_i),
+                kyc_confirmed_at: get_formatted_time(user_extended_detail.created_at.to_i),
                 admin_status: u_k.admin_status,
                 cynopsis_status: u_k.cynopsis_status,
                 whitelist_status: u_k.whitelist_status,

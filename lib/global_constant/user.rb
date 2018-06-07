@@ -59,6 +59,16 @@ module GlobalConstant
 
       ### Token sale state related pages ####
 
+
+      def sorting
+        {
+            "sort_by" => {
+                'desc' => {id: :desc},
+                'asc' => {id: :asc}
+            }
+        }
+      end
+
     end
 
   end

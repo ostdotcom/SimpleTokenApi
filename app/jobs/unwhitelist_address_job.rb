@@ -114,8 +114,11 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      phase: api_data[:phase]
                                                  })
     Rails.logger.info("Whitelist API Response: #{r.inspect}")
-    get_client_whitelist_detail_obj.mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
-    return r unless r.success?
+
+    unless r.success?
+      get_client_whitelist_detail_obj.mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
+      return r
+    end
 
     @kyc_whitelist_log = KycWhitelistLog.create!({
                                                      client_id: @client_id,

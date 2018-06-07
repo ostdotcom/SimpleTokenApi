@@ -89,7 +89,7 @@ module UserManagement
       }
 
       custom_attributes[GlobalConstant::PepoCampaigns.project_description_attribute] = @project_description if @project_description.present?
-      custom_attributes[GlobalConstant::PepoCampaigns.kit_marketing_attribute] = 1 if @kit_marketing == 1
+      custom_attributes[GlobalConstant::PepoCampaigns.kit_marketing_attribute] = @kit_marketing
 
       Email::HookCreator::AddContact.new(
           client_id: Client::OST_KYC_CLIENT_IDENTIFIER,

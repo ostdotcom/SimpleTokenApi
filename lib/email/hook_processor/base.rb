@@ -123,7 +123,7 @@ module Email
       #
       def add_update_contact_params
         [
-            GlobalConstant::PepoCampaigns.master_list_id,
+            @hook.params[:list_id],
             @hook.email,
             attributes_hash,
             user_settings_hash

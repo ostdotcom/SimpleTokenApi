@@ -298,22 +298,6 @@
     - :user_id
   :optional:
 
-'UserManagement::ContactUs::Partner':
-  :mandatory:
-    - :full_name
-    - :company
-    - :email
-    - :contact_number
-  :optional:
-
-'UserManagement::ContactUs::Kyc':
-  :mandatory:
-    - :full_name
-    - :company
-    - :email
-    - :contact_number
-  :optional:
-
 'UserManagement::ContactUsPipeDrive::Kyc':
   :mandatory:
     - :full_name
@@ -323,9 +307,11 @@
     - :token_sale_end_date
     - :need_front_end
     - :applicant_volume
+    - :ost_product_communicate
   :optional:
     - :project_description
     - :utm_params
+    - :ost_market_communicate
 
 'UserManagement::ContactUsPipeDrive::Partner':
   :mandatory:
@@ -339,6 +325,16 @@
   :mandatory:
     - :domain
   :optional:
+
+'UserManagement::Alpha3Registration':
+  :mandatory:
+    - :first_name
+    - :last_name
+    - :email
+    - :company_name
+  :optional:
+    - :project_description
+    - :kit_marketing
 
 'ClientManagement::VerifyApiCredential':
   :mandatory:

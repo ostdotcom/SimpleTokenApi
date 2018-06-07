@@ -166,7 +166,7 @@ class UnwhitelistAddressJob < ApplicationJob
     # todo: This validation has also been done before enqueue.
     KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address).all.each do |kwl|
 
-      if (GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses.exclude?(kwl.status))
+      if (GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses.include?(kwl.status))
         return error_with_data(
             'uaj_1',
             "Waiting for KYC Whitelist Confirmation. Please try after sometime!",

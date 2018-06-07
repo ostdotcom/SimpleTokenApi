@@ -443,11 +443,12 @@ module Crons
       r = fetch_user_kyc_detail
       return r unless r.success?
 
+      user_kyc_detail = r.data[:user_kyc_detail]
+
       if @kyc_whitelist_log.phase == 0
         AdminManagement::ProcessUnwhitelist.new({kyc_whitelist_log: @kyc_whitelist_log,
                                                  user_kyc_detail: user_kyc_detail}).perform
       else
-        user_kyc_detail = r.data[:user_kyc_detail]
         user_kyc_detail.kyc_confirmed_at = Time.now.to_i
         user_kyc_detail.save!
       end

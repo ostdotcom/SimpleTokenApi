@@ -31,7 +31,7 @@ module GlobalConstant
 
       # Check whether whitelisting error is low eth balance error
       def low_balance_error?(err)
-        err.match('low_eth_balance')
+        err.to_s.match('low_eth_balance')
       end
 
     end

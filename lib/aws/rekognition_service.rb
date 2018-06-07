@@ -185,22 +185,21 @@ module Aws
     #
     def format_compare_faces_response(req_params)
       begin
-        resp = client.compare_faces(req_params)
-        data = {document_has_face: resp.source_image_face.confidence, document_face_bounding_box: resp.source_image_face.bounding_box.to_hash}
+        resp = client.compare_faces(req_params).to_h
+        data = {document_has_face: resp[:source_image_face][:confidence], document_face_bounding_box: resp[:source_image_face][:bounding_box]}
 
-        if resp.face_matches.present?
+        if resp[:face_matches].present?
           data[:face_matches] = []
-          resp.face_matches.each do |x|
-            data[:face_matches] << {similarity_percent: x.similarity,
-                                    bounding_box: x.face.bounding_box.to_hash,
-                                    image_quality: x.face.quality.to_hash}
+          resp[:face_matches].each do |x|
+            data[:face_matches] << {similarity_percent: x[:similarity],
+                                    face_bounding_box: x[:face]}
           end
         end
 
         return success_with_data(data)
 
-      rescue Exception => e
-        return error_with_data("Exception", "", "", "", e.backtrace)
+      rescue => e
+        return error_with_data("Exception", "", "", "", e.message)
       end
 
     end
@@ -213,21 +212,21 @@ module Aws
     #
     def format_detect_text_response(req_params)
       begin
-        resp = client.detect_text(req_params)
-        data = {document_has_text: resp.text_detections.present?}
+        resp = client.detect_text(req_params).to_h
+        data = {document_has_text: resp[:text_detections].present?}
 
-        if resp.text_detections.present?
+        if resp[:text_detections].present?
           data[:detected_text] = []
-          resp.text_detections.each do |x|
-            data[:detected_text] << {text: x.detected_text,
-                                    confidence_percent: x.confidence}
+          resp[:text_detections].each do |x|
+            data[:detected_text] << {text: x[:detected_text],
+                                    confidence_percent: x[:confidence]}
           end
         end
 
         return success_with_data(data)
 
-      rescue Exception => e
-        return error_with_data("Exception", "", "", "", e.backtrace)
+      rescue => e
+        return exception_with_data(e,"Exception", "", "", "", e.message)
       end
 
     end

@@ -184,9 +184,13 @@ module Aws
     # * Reviewed By:
     #
     def format_compare_faces_response(req_params)
+      start_time = current_time_in_milli
       begin
         resp = client.compare_faces(req_params).to_h
-        data = {document_has_face: resp[:source_image_face][:confidence], document_face_bounding_box: resp[:source_image_face][:bounding_box]}
+        end_time = current_time_in_milli
+        data = {document_has_face: resp[:source_image_face][:confidence],
+                document_face_bounding_box: resp[:source_image_face][:bounding_box],
+                request_time: (end_time-start_time)}
 
         if resp[:face_matches].present?
           data[:face_matches] = []
@@ -199,7 +203,8 @@ module Aws
         return success_with_data(data)
 
       rescue => e
-        return error_with_data("Exception", "", "", "", e.message)
+        data = {err: e.message, request_time: (current_time_in_milli-start_time)}
+        return error_with_data("Exception", "", "", "", data)
       end
 
     end
@@ -211,9 +216,11 @@ module Aws
     # * Reviewed By:
     #
     def format_detect_text_response(req_params)
+      start_time = current_time_in_milli
       begin
         resp = client.detect_text(req_params).to_h
-        data = {document_has_text: resp[:text_detections].present?}
+        end_time = current_time_in_milli
+        data = {document_has_text: resp[:text_detections].present?, request_time: (end_time-start_time)}
 
         if resp[:text_detections].present?
           data[:detected_text] = []
@@ -226,9 +233,14 @@ module Aws
         return success_with_data(data)
 
       rescue => e
-        return exception_with_data(e,"Exception", "", "", "", e.message)
+        data = {err: e.message, request_time: (current_time_in_milli-start_time)}
+        return exception_with_data(e,"Exception", "", "", "", data)
       end
 
+    end
+
+    def current_time_in_milli
+      (Time.now.to_f * 1000).to_i
     end
 
   end

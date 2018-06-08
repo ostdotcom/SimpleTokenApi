@@ -4,8 +4,7 @@ namespace :rekognition_poc do
 
   task :compare_document_and_selfie_images => :environment do
 
-    UserKycDetail.select('id, user_id').where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id,
-                        admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).find_in_batches(batch_size: 100) do |batches|
+    UserKycDetail.select('id, user_id').where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id).find_in_batches(batch_size: 100) do |batches|
       batches.each do |user_kyc_detail|
         Rails.logger.info "Case Id: #{user_kyc_detail.id}"
         puts "Case Id: #{user_kyc_detail.id}"

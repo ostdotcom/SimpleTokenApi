@@ -23,6 +23,7 @@ module OpsApi
       # * Reviewed By: Sunil
       #
       # @param [String] ethereum_address (mandatory)
+     # @param [String] contract_address (mandatory)
       #
       # @return [Result::Base] returns an object of Result::Base class
       #

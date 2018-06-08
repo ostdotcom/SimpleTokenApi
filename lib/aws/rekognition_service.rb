@@ -200,6 +200,10 @@ module Aws
           end
         end
 
+        data.merge!({unmatched_faces: resp[:unmatched_faces],
+                     source_image_orientation_correction: resp[:source_image_orientation_correction],
+                     target_image_orientation_correction: resp[:target_image_orientation_correction]})
+
         return success_with_data(data)
 
       rescue => e

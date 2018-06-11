@@ -2,12 +2,13 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   constraints(InitStaticOst) do
-    scope 'api/home', controller: 'web/static/home' do
-      match 'contact-us-partners' => :contact_us_partners, via: [:GET, :POST]
-    end
 
     scope 'api/home', controller: 'web/static/home' do
       match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
+    end
+
+    scope 'api/home', controller: 'web/static/home' do
+      match '/alpha3/signup' => :register_for_alpha3, via: [:GET, :POST]
     end
 
     match '*permalink', to: 'application#not_found', via: :all
@@ -16,14 +17,6 @@ Rails.application.routes.draw do
   constraints(InitSimpleToken) do
     scope 'api/sale', controller: 'web/static/token_sale' do
       match 'details' => :sale_details, via: :GET
-    end
-
-    scope 'api/home', controller: 'web/static/home' do
-      match 'contact-us-partners' => :contact_us_partners, via: [:GET, :POST]
-    end
-
-    scope 'api/home', controller: 'web/static/home' do
-      match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
     end
 
     match '*permalink', to: 'application#not_found', via: :all
@@ -105,10 +98,6 @@ Rails.application.routes.draw do
       match 'resend-invite' => :resend_invite, via: :POST
       match 'reset-mfa' => :reset_mfa, via: :POST
       match 'delete-admin' => :delete_admin, via: :POST
-    end
-
-    scope 'api/home', controller: 'web/static/home' do
-      match 'contact-us-kyc' => :contact_us_kyc, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

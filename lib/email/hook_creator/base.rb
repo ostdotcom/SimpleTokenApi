@@ -76,6 +76,25 @@ module Email
         fail 'sub class to implement'
       end
 
+
+      # Validate list id
+      #
+      # @return [Result::Base]
+      #
+      def validate_list_id
+        if GlobalConstant::PepoCampaigns.allowed_list_ids.include?(@list_id)
+          success
+        else
+          return error_with_data(
+              'e_hc_ack_3',
+              'List id is invalid',
+              'List id is invalid',
+              GlobalConstant::ErrorAction.default,
+              {}
+          )
+        end
+      end
+
       # Validate email
       #
       # * Author: Puneet

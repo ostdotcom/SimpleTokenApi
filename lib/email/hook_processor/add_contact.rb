@@ -102,10 +102,17 @@ module Email
       # @return [Hash]
       #
       def user_settings_hash
-        {
-            GlobalConstant::PepoCampaigns.double_opt_in_status_user_setting => double_opt_in_status_setting_value,
-            GlobalConstant::PepoCampaigns.subscribe_status_user_setting => GlobalConstant::PepoCampaigns.subscribed_value
-        }
+        # This was agreed with PMs
+        if @hook.params[:list_id] != GlobalConstant::PepoCampaigns.master_list_id
+          {
+              GlobalConstant::PepoCampaigns.subscribe_status_user_setting => GlobalConstant::PepoCampaigns.subscribed_value
+          }
+        else
+          {
+              GlobalConstant::PepoCampaigns.double_opt_in_status_user_setting => double_opt_in_status_setting_value,
+              GlobalConstant::PepoCampaigns.subscribe_status_user_setting => GlobalConstant::PepoCampaigns.subscribed_value
+          }
+        end
       end
 
       #

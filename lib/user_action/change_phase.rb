@@ -147,7 +147,8 @@ module UserAction
             email: user.email,
             custom_attributes: {
                 GlobalConstant::PepoCampaigns.token_sale_phase_attribute => user_kyc_detail.token_sale_participation_phase
-            }
+            },
+            list_id: GlobalConstant::PepoCampaigns.master_list_id
         ).perform if @client.is_st_token_sale_client?
 
         if !r.success?

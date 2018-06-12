@@ -61,7 +61,8 @@ module UserManagement
       error_data[:last_name] = 'Last Name is required.' if @last_name.blank?
       error_data[:company_name] = 'Company / Project name is required.' if @company_name.blank?
       error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidator.is_valid_email?(@email)
-      error_data[:project_description] = 'Project Description cannot be more than 1000 characters.' if @project_description.to_s.length > 1000
+      error_data[:project_description] = 'Project Description is required.' if @project_description.blank?
+      error_data[:project_description] = 'Project Description cannot be more than 1000 characters.' if @project_description.length > 1000
 
       return error_with_data(
           'um_cupd_p_1',

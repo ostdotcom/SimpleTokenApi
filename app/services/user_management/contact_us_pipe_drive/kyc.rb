@@ -12,8 +12,9 @@ module UserManagement
       # @params [Date] token_sale_end_date (mandatory) - token sale end date
       # @params [String] need_front_end (mandatory) - Need a custom front end
       # @params [String] applicant_volume (mandatory) - Applicant volume
+      # @params [Integer] ost_product_communicate (mandatory) - option for product related communications
       # @params [String] project_description (optional) - Project description
-      #
+      # @params [Integer] ost_market_communicate (optional) - option for marketing communication
       # @return [UserManagement::ContactUsPipeDrive::Kyc]
       #
       def initialize(params)
@@ -27,6 +28,9 @@ module UserManagement
         @need_front_end = @params[:need_front_end]
         @applicant_volume = @params[:applicant_volume]
         @project_description = @params[:project_description]
+        @utm_params = @params[:utm_params] || {}
+        @ost_product_communicate = @params[:ost_product_communicate]
+        @ost_market_communicate = @params[:ost_market_communicate]
 
         @error_data = {}
       end
@@ -40,6 +44,9 @@ module UserManagement
         return r unless r.success?
 
         build_request_params
+
+        r = handle_email_preferences
+        return r unless r.success?
 
         r = create_pipe_drive_deal
         return r unless r.success?
@@ -64,6 +71,8 @@ module UserManagement
 
         @project_description = @project_description.to_s.strip
         @need_front_end = @need_front_end.to_s.strip.downcase
+        @ost_product_communicate = @ost_product_communicate.to_i
+        @ost_market_communicate = @ost_market_communicate.to_i
 
         @error_data[:full_name] = 'Full Name is required.' if !@full_name.present?
         @error_data[:company] = 'Company is required.' if !@company.present?
@@ -73,6 +82,7 @@ module UserManagement
         @error_data[:need_front_end] = 'Please provide info whether custom front-end is required or not' if !@need_front_end.present?
         @error_data[:need_front_end] = 'Please provide a valid value for need front-end' if  ['yes', 'no'].exclude?(@need_front_end)
         @error_data[:applicant_volume] = 'Applicant volume is required.' if !@applicant_volume.present?
+        @error_data[:ost_product_communicate] = 'Please provide valid option for product communications' if @ost_product_communicate != 1
 
         if @token_sale_start_date && @token_sale_end_date
           @error_data[:token_sale_start_date] = 'End date should be greater than start date' if @token_sale_end_date <= @token_sale_start_date
@@ -90,6 +100,19 @@ module UserManagement
         success
       end
 
+      def handle_email_preferences
+
+        r = Email::HookCreator::AddContact.new(
+              email: @email,
+              client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+              custom_attributes: { GlobalConstant::PepoCampaigns.kyc_marketing_attribute => @ost_market_communicate },
+              list_id: GlobalConstant::PepoCampaigns.kyc_product_list_id
+            ).perform
+
+        return r unless r.success?
+        success
+      end
+
       def build_request_params
         @request_params = {
             title: @company,
@@ -103,6 +126,9 @@ module UserManagement
         @request_params[GlobalConstant::Base.pipedrive['token_sale_end_date_key']] = @token_sale_end_date.strftime('%d-%m-%Y')
         @request_params[GlobalConstant::Base.pipedrive['need_front_end_key']] = @need_front_end
         @request_params[GlobalConstant::Base.pipedrive['applicant_volume_key']] = @applicant_volume
+        @request_params[GlobalConstant::Base.pipedrive['utm_source_key']] = @utm_params[:utm_source]
+        @request_params['user_id'] = GlobalConstant::Base.pipedrive['default_kyc_deal_owner']
+
         @request_params
       end
 

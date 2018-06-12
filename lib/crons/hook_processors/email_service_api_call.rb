@@ -12,7 +12,7 @@ module Crons
       #
       # @param [Boolean] process_failed (optional) : flag which says that we have to only processed failed events
       #
-      # @return [Crons::HooksProcessor::EmailServiceApiCall]
+      # @return [Crons::HookProcessors::EmailServiceApiCall]
       #
       def initialize(params)
         super

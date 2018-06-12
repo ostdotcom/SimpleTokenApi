@@ -36,3 +36,7 @@ simple_token_contract_interactions_<%= Rails.env%>:
 simple_token_client_<%= Rails.env%>:
   <<: *default
   database: simple_token_client_<%= Rails.env%>
+
+simple_token_image_process_poc_<%= Rails.env%>:
+  <<: *default
+  database: simple_token_image_process_poc_<%= Rails.env%>

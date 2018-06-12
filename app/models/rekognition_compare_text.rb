@@ -1,0 +1,2 @@
+class RekognitionCompareText < EstablishImageProcessingPocDbConnection
+end

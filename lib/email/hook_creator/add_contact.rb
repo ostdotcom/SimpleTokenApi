@@ -20,6 +20,7 @@ module Email
       #
       def initialize(params)
         super
+        @list_id = params[:list_id]
       end
 
       # Perform
@@ -47,7 +48,7 @@ module Email
       def validate
 
         return error_with_data(
-          'e_hc_uc_1',
+          'e_hc_ac_1',
           'mandatory param email missing',
           'mandatory param email missing',
           GlobalConstant::ErrorAction.default,
@@ -57,13 +58,16 @@ module Email
         r = validate_for_email_setup
         return r unless r.success?
 
+        r = validate_list_id
+        return r unless r.success?
+
         return error_with_data(
-            'e_hc_uc_2',
+            'e_hc_ac_2',
             'Add contact cannot be done for clients',
             'Add contact cannot be done for clients',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @client.blank? || !@client.is_st_token_sale_client?
+        ) if @client_id.blank? || GlobalConstant::TokenSale.st_token_sale_client_id == @client_id
 
         validate_custom_variables
 
@@ -92,7 +96,8 @@ module Email
       def handle_event
 
         create_hook(
-          custom_attributes: @custom_attributes
+          custom_attributes: @custom_attributes,
+          list_id: @list_id
         )
 
         success

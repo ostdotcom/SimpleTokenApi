@@ -62,7 +62,7 @@ module UserManagement
       error_data[:company_name] = 'Company / Project name is required.' if @company_name.blank?
       error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidator.is_valid_email?(@email)
       error_data[:project_description] = 'Project Description is required.' if @project_description.blank?
-      error_data[:project_description] = 'Project Description cannot be more than 1000 characters.' if @project_description.length > 1000
+      error_data[:project_description] = 'Project Description cannot be more than 2000 characters.' if @project_description.length > 2000
 
       return error_with_data(
           'um_cupd_p_1',
@@ -90,7 +90,7 @@ module UserManagement
           GlobalConstant::PepoCampaigns.company_name_attribute => @company_name
       }
 
-      custom_attributes[GlobalConstant::PepoCampaigns.project_description_attribute] = @project_description if @project_description.present?
+      custom_attributes[GlobalConstant::PepoCampaigns.project_description_attribute] = @project_description
       custom_attributes[GlobalConstant::PepoCampaigns.kit_marketing_attribute] = @kit_marketing
 
       Email::HookCreator::AddContact.new(

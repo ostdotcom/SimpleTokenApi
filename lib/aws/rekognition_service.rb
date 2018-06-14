@@ -84,6 +84,48 @@ module Aws
       format_detect_text_response(req_params)
     end
 
+    # Detect faces in document file and selfie file of user
+    #
+    # * Author: Aniket
+    # * Date: 14/06/2018
+    # * Reviewed By:
+    #
+    def detect_face(user_id, image_file=nil)
+      document_file, selfie_file = nil, nil
+       if image_file.nil?
+           r = fetch_file_names(user_id)
+           return r unless r.success?
+
+           document_file = r.data[:doc_path]
+           selfie_file = r.data[:selfie_path]
+       end
+
+      req_params_document = {
+          image: {
+              s3_object: {
+                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
+                  name: document_file,
+              }
+          }
+      }
+
+      req_params_selfie = {
+          image: {
+              s3_object: {
+                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
+                  name: selfie_file,
+              }
+          }
+      }
+
+      response_doc, response_selfie = {}, {}
+
+      response_doc = process_detect_face(req_params_document, false) unless document_file.include?("/d/")
+      response_selfie = process_detect_face(req_params_selfie, true) unless document_file.include?("/d/")
+
+      return response_doc, response_selfie
+    end
+
     private
 
     # Access key
@@ -242,6 +284,39 @@ module Aws
       end
 
     end
+
+    # Process face detection
+    #
+    # * Author: Aniket
+    # * Date: 14/06/2018
+    # * Reviewed By:
+    #
+    def process_detect_face(req_params, is_selfie)
+
+      start_time = current_time_in_milli
+      begin
+
+        resp = client.detect_faces(req_params).to_h
+        end_time = current_time_in_milli
+
+        data = {}
+        maxConfidence = 0
+        resp[:face_details].each do |face_details|
+          maxConfidence = [face_details[:confidence].to_i, maxConfidence].max
+        end
+
+        data[:confidence] = maxConfidence
+        data[:orientation]= resp[:orientation_correction]
+        data[:request_time] = end_time-start_time
+        data[:debug_data] = resp
+
+        return success_with_data(data)
+      rescue => e
+        data = {debug_data: {err: e.message.to_json, request_time: (current_time_in_milli-start_time)}}
+        return error_with_data("Exception", "", "", "", data)
+      end
+    end
+
 
     def current_time_in_milli
       (Time.now.to_f * 1000).to_i

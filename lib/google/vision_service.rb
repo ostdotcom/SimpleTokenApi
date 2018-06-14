@@ -37,6 +37,11 @@ module Google
                              "", "") if document_file.nil?
 
       api_call_detect_text(document_file)
+
+    rescue => e
+      data = {err: e.message}
+      return exception_with_data(e, "Exception", "", "", "", data)
+
     end
 
     def api_call_detect_text(document_file)
@@ -44,7 +49,7 @@ module Google
       #vision client
       vision_client = client
 
-      image = vision_client.image( get_url(document_file))
+      image = vision_client.image(get_url(document_file))
       # image = vision_client.image(document_file)
 
       annotation = vision_client.annotate(image, text: true)
@@ -79,6 +84,7 @@ module Google
     # @return [Google::Vision]
     #
     def client
+      ## Note:: For authentication define GOOGLE_APPLICATION_CREDENTIALS which is credential file path
       project_id = 'sixth-drive-207107'
       Google::Cloud::Vision.new project: project_id
     end
@@ -111,7 +117,7 @@ module Google
     end
 
 
-    # Method to format detect text reponse
+    # Method to format detect text response
     #
     # * Author: Sachin
     # * Date: 13/06/2018
@@ -119,26 +125,22 @@ module Google
     #
     def format_detect_text_response(annotate_text)
       start_time = current_time_in_milli
-      begin
-        resp_hash = annotate_text.to_h
-        resp = resp_hash[:text].split(' ')
-        end_time = current_time_in_milli
-        data = {document_has_text: !resp.blank?, request_time: (end_time-start_time)}
+      resp_hash = annotate_text.to_h
+      resp = resp_hash[:text].split(' ')
+      end_time = current_time_in_milli
+      # data = {document_has_text: !resp.blank?, request_time: (end_time - start_time)}
+      data = {document_has_text: !resp.blank?, request_time: (end_time - start_time), response_data: annotate_text.to_h[:text]}
 
-        unless resp.blank?
-          data[:detected_text] = []
-          resp.each do |x|
-            data[:detected_text] << {text: x,
-                                     confidence_percent: 100}
-          end
+
+      unless resp.blank?
+        data[:detected_text] = []
+        resp.each do |x|
+          data[:detected_text] << {text: x,
+                                   confidence_percent: 100}
         end
-
-        return success_with_data(data)
-
-      rescue => e
-        data = {err: e.message, request_time: (current_time_in_milli-start_time)}
-        return exception_with_data(e,"Exception", "", "", "", data)
       end
+
+      return success_with_data(data)
 
     end
 
@@ -147,5 +149,4 @@ module Google
     end
 
   end
-
 end

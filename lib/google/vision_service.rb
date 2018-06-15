@@ -18,44 +18,14 @@ module Google
 
     end
 
-    # Detect Text from the document image
-    #
-    # * Author: Sachin
-    # * Date: 13/06/2018
-    # * Reviewed By:
-    #
-    def detect_text(user_id, document_file = nil)
-      if document_file.nil?
-        r = fetch_file_names(user_id)
-        return r unless r.success?
-
-        document_file = r.data[:doc_path]
-      end
-
-      return error_with_data("Files Not found",
-                             "Files Not found", "Files Not found",
-                             "", "") if document_file.nil?
-
-      api_call_detect_text(document_file)
-
-    rescue => e
-      data = {err: e.message}
-      return exception_with_data(e, "Exception", "", "", "", data)
-
-    end
-
     def api_call_detect_text(document_file)
 
       #vision client
       vision_client = client
 
-      image = vision_client.image(get_url(document_file))
-      # image = vision_client.image(document_file)
+      image_object = vision_client.image get_url(document_file)
 
-      annotation = vision_client.annotate(image, text: true)
-
-      # # image.context.languages = ["en"]
-      format_detect_text_response annotation.text
+      format_detect_text_response(image_object)
     end
 
     private
@@ -84,36 +54,11 @@ module Google
     # @return [Google::Vision]
     #
     def client
-      ## Note:: For authentication define GOOGLE_APPLICATION_CREDENTIALS which is credential file path
-      project_id = 'sixth-drive-207107'
+      ## Note:: For authentication define GOOGLE_APPLICATION_CREDENTIALS to define credential file path
+      # and VISION_PROJECT_ID  to define project id environment variables.
+
+      project_id = ENV['VISION_PROJECT_ID']
       Google::Cloud::Vision.new project: project_id
-    end
-
-    # Fetch different files of user
-    #
-    # * Author: Sachin
-    # * Date: 13/06/2018
-    # * Reviewed By:
-    #
-    def fetch_file_names(user_id)
-      ukc = UserKycDetail.where(user_id: user_id).first
-
-      return error_with_data("Not found", "User not found", "User not found", "", "") if ukc.nil?
-
-      ued = UserExtendedDetail.where(id: ukc.user_extended_detail_id).first
-
-      r = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt)
-
-      kyc_salt_d = r.data[:plaintext]
-
-      local_cipher_obj = LocalCipher.new(kyc_salt_d)
-
-      data = {}
-      data[:doc_path] = local_cipher_obj.decrypt(ued.document_id_file_path).data[:plaintext] if ued.document_id_file_path.present?
-      data[:selfie_path] = local_cipher_obj.decrypt(ued.selfie_file_path).data[:plaintext] if ued.selfie_file_path.present?
-      data[:bucket] = GlobalConstant::Aws::Common.kyc_bucket
-
-      success_with_data(data)
     end
 
 
@@ -123,25 +68,17 @@ module Google
     # * Date: 13/06/2018
     # * Reviewed By:
     #
-    def format_detect_text_response(annotate_text)
+    def format_detect_text_response(image_object)
       start_time = current_time_in_milli
-      resp_hash = annotate_text.to_h
-      resp = resp_hash[:text].split(' ')
+      resp_object = image_object.text
       end_time = current_time_in_milli
-      # data = {document_has_text: !resp.blank?, request_time: (end_time - start_time)}
-      data = {document_has_text: !resp.blank?, request_time: (end_time - start_time), response_data: annotate_text.to_h[:text]}
 
+      words_array = resp_object.to_h[:words].map{|x| x[:text]}
 
-      unless resp.blank?
-        data[:detected_text] = []
-        resp.each do |x|
-          data[:detected_text] << {text: x,
-                                   confidence_percent: 100}
-        end
-      end
-
-      return success_with_data(data)
-
+      success_with_data({words_array: words_array, request_time: (end_time - start_time)})
+    rescue => e
+      data = {debug_data: {err: e.message.to_json}, request_time: 0 }
+      error_with_data("Exception", "", "", "", data)
     end
 
     def current_time_in_milli

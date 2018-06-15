@@ -1,0 +1,2 @@
+class VisionCompareText < EstablishImageProcessingPocDbConnection
+end

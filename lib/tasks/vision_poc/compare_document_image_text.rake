@@ -68,7 +68,7 @@ namespace :vision_poc do
         Rails.logger.info "Data Comparison Response: #{comparison_columns.inspect}"
         puts "Data Comparison Response: #{comparison_columns.inspect}"
         insert_row.merge!({debug_data: debug_data.to_json})
-        RekognitionCompareText.create(insert_row)
+        VisionCompareText.create(insert_row)
       end
     end
 

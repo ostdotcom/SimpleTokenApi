@@ -240,7 +240,7 @@ module UserManagement
         # age = (Time.zone.now.beginning_of_day - @birthdate)
         # @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
         # @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
-        @birthdate = @birthdate.to_s(:db)
+        @birthdate = @birthdate.to_date.to_s
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'
       end

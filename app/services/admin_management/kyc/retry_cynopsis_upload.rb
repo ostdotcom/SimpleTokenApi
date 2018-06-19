@@ -234,12 +234,13 @@ module AdminManagement
       # * Reviewed By:
       #
       def cynopsis_params
+        date_of_birth_d = local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
         {
             rfrID: get_cynopsis_user_id,
             first_name: @user_extended_detail.first_name,
             last_name: @user_extended_detail.last_name,
             country_of_residence: local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext].upcase,
-            date_of_birth: Date.parse(local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]).strftime("%d/%m/%Y"),
+            date_of_birth:  Time.zone.strptime(date_of_birth_d, "%Y-%m-%d").strftime("%d/%m/%Y"),
             identification_type: 'PASSPORT',
             identification_number: local_cipher_obj.decrypt(@user_extended_detail.document_id_number).data[:plaintext],
             nationality: local_cipher_obj.decrypt(@user_extended_detail.nationality).data[:plaintext].upcase

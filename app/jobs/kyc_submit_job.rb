@@ -281,7 +281,7 @@ class KycSubmitJob < ApplicationJob
         first_name: @user_extended_detail.first_name,
         last_name: @user_extended_detail.last_name,
         country_of_residence: country_of_residence_d.upcase,
-        date_of_birth: Date.parse(date_of_birth_d).strftime("%d/%m/%Y"),
+        date_of_birth: Time.zone.strptime(date_of_birth_d, "%Y-%m-%d").strftime("%d/%m/%Y"),
         identification_type: 'PASSPORT',
         identification_number: document_id_number_d,
         nationality: nationality_d.upcase

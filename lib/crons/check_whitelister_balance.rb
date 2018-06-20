@@ -3,6 +3,7 @@ module Crons
   class CheckWhitelisterBalance
 
     MIN_ETH_BALANCE = 2
+    ETH_BALANCE_TO_STOP = 0.2
 
     # initialize
     #
@@ -31,6 +32,15 @@ module Crons
         fail "error from ops api - #{r.inspect}" unless r.success?
         eth_value_in_wei = r.data['balance']
         eth_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_value_in_wei.to_i).to_f.round(2)
+
+        if eth_value < ETH_BALANCE_TO_STOP && c_w_o.no_suspension_type?
+          c_w_o.mark_client_eth_balance_low
+          next
+        end
+
+        if c_w_o.low_balance_suspension_type? && eth_value > ETH_BALANCE_TO_STOP
+          c_w_o.mark_client_whitelist_happening
+        end
 
         send_report_email(c_w_o.client_id, whitelister_address, eth_value) if eth_value <= MIN_ETH_BALANCE
       end

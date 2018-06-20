@@ -82,7 +82,7 @@ module Email
       # @return [Result::Base]
       #
       def validate_list_id
-        if GlobalConstant::PepoCampaigns.allowed_list_ids.include?(@list_id)
+        if @list_id.present? && GlobalConstant::PepoCampaigns.allowed_list_ids.include?(@list_id)
           success
         else
           return error_with_data(

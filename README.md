@@ -9,7 +9,6 @@ rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:check_eth_balance_of_whitelister
 rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
 rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
-rake RAILS_ENV=development cron_task:continuous:process_edit_kycs
 rake RAILS_ENV=development cron_task:lockable:upload_failed_cynopsis_users
 
 one-timers

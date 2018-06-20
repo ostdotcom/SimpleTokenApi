@@ -46,7 +46,6 @@ constants:
 
   s3:
     kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>
-    external_data_bucket: <%= ENV['STA_EXTERNAL_DATA_S3_BUCKET_NAME']%>
     report_bucket: <%= ENV['STA_REPORTS_S3_BUCKET_NAME']%>
 
   local_path:

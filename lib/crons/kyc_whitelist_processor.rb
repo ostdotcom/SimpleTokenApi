@@ -16,6 +16,8 @@ module Crons
       @api_data = {}
       @user_kyc_detail = nil
       @transaction_hash = nil
+      @nonce = nil
+      @gas_price = nil
     end
 
     # public method to process hooks
@@ -25,7 +27,7 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
-      @client_whitelist_objs = ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
+      @client_whitelist_objs = ClientWhitelistDetail.not_suspended.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
       client_ids = @client_whitelist_objs.keys
 
       UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
@@ -37,6 +39,8 @@ module Crons
           begin
 
             init_iteration_params(user_kyc_detail)
+
+            next unless @client_whitelist_objs[@user_kyc_detail.client_id].no_suspension_type?
 
             # acquire lock over user_kyc_detail
             start_processing_whitelisting
@@ -132,8 +136,12 @@ module Crons
 
       if r.success?
         @transaction_hash = r.data[:transaction_hash]
+        @nonce = r.data[:nonce]
+        @gas_price = r.data[:gas_price]
+
       else
-        handle_whitelist_error('PrivateOpsApi Error', {private_ops_api_response: r.to_json})
+        @client_whitelist_objs[@user_kyc_detail.client_id].mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
+        handle_whitelist_error('OpsApi Error', {private_ops_api_response: r.to_json})
       end
 
       r
@@ -151,6 +159,9 @@ module Crons
                                   ethereum_address: @api_data[:address],
                                   phase: @api_data[:phase],
                                   transaction_hash: @transaction_hash,
+                                  nonce: @nonce,
+                                  gas_price: @gas_price,
+                                  next_timestamp: Time.now.to_i + GlobalConstant::KycWhitelistLog.expected_transaction_mine_time,
                                   status: GlobalConstant::KycWhitelistLog.pending_status,
                                   is_attention_needed: 0
                               })
@@ -222,7 +233,7 @@ module Crons
     def handle_whitelist_error(error_type, error_data)
       notify_devs(error_data, @user_kyc_detail.user_id)
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Changing user_kyc_detail whitelist_status to failed")
-      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.failed_whitelist_status
+      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.record_timestamps = false
       @user_kyc_detail.save!
 

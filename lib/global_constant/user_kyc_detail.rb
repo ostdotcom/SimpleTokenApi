@@ -250,8 +250,8 @@ module GlobalConstant
       def sorting
         {
             "sort_by" => {
-                'desc' => {id: :desc},
-                'asc' => {id: :asc}
+                'desc' => {user_extended_detail_id: :desc},
+                'asc' => {user_extended_detail_id: :asc}
             }
         }
       end

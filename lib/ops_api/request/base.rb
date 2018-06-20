@@ -66,7 +66,7 @@ module OpsApi
               else
                 # web3_js_error = true is required because when API is down or any exception is raised or response is not 200
                 # front end doesn't need to see invalid ethereum address
-                return error_with_data(parsed_response['err']['code']+':st(poa_r_b_2)',
+                return error_with_data(parsed_response['err']['code'],
                                        "Error in API call: #{response.status} - #{parsed_response['err']['msg']}",
                                        'Something Went Wrong.',
                                        GlobalConstant::ErrorAction.default,

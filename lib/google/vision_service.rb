@@ -70,10 +70,12 @@ module Google
     #
     def format_detect_text_response(image_object)
       start_time = current_time_in_milli
-      resp_object = image_object.text
+      resp_object = image_object.document
       end_time = current_time_in_milli
 
-      words_array = resp_object.to_h[:words].map{|x| x[:text]}
+      puts resp_object
+
+      words_array = resp_object.text
 
       success_with_data({words_array: words_array, request_time: (end_time - start_time)})
     rescue => e

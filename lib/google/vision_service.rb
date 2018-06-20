@@ -23,7 +23,8 @@ module Google
       #vision client
       vision_client = client
 
-      image_object = vision_client.image get_url(document_file)
+      # image_object = vision_client.image get_url(document_file)
+      image_object = vision_client.image document_file
 
       format_detect_text_response(image_object)
     end
@@ -75,9 +76,13 @@ module Google
 
       puts resp_object
 
-      words_array = resp_object.text
+      text_string = resp_object.text
 
-      success_with_data({words_array: words_array, request_time: (end_time - start_time)})
+      words_array = resp_object.words
+
+      orientation = get_orientation(words_array)
+
+      success_with_data({words_array: text_string, request_time: (end_time - start_time), orientation: orientation})
     rescue => e
       data = {debug_data: {err: e.message.to_json}, request_time: 0 }
       error_with_data("Exception", "", "", "", data)
@@ -87,5 +92,46 @@ module Google
       (Time.now.to_f * 1000).to_i
     end
 
+
+    def get_orientation(words_array)
+
+      x_diff = 0
+      y_diff = 0
+
+      (1..(words_array.length-1)).each do |index|
+        x_diff+=words_array[index].bounds[0].x - words_array[index-1].bounds[0].x
+        y_diff+=words_array[index].bounds[0].y - words_array[index-1].bounds[0].y
+      end
+
+      puts x_diff
+      puts y_diff
+
+      max_value = [x_diff.abs,y_diff.abs].max
+
+      # y is greater and positive normal
+      # x is greater and positive right
+      # y is greater and negative inverted
+      # x is greater and negative left
+
+
+      if x_diff == y_diff
+        return 'UNDEFINED'
+      end
+      if  max_value == x_diff.abs
+        if x_diff < 0
+          return 'ROTATE_270'
+        else
+          return 'ROTATE_90'
+        end
+      else
+        if y_diff < 0
+          return 'ROTATE_180'
+        else
+          return 'ROTATE_0'
+        end
+      end
+    end
+
   end
 end
+

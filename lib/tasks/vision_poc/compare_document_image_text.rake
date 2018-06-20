@@ -55,9 +55,9 @@ namespace :vision_poc do
               end
 
               if column_name != :birthdate
-                comparison_columns[column_name] = 100  if words_hash[db_value.downcase] == 1
+                comparison_columns[column_name] = 100 if words_hash[db_value.downcase] == 1
               else
-                comparison_columns[column_name] = 100  if all_dates.include?(Date.parse(actual_date, "%Y-%m-%d"))
+                comparison_columns[column_name] = 100 if all_dates.include?(Date.parse(db_value, "%Y-%m-%d"))
               end
 
               insert_row["#{key}_match_percent".to_sym] = comparison_columns[column_name]
@@ -93,7 +93,7 @@ namespace :vision_poc do
       next if line.blank?
       date_str_array = line.scan(date_regex)
       date_str_array.each do |date_str|
-        dates +=  get_valid_dates(date_str)
+        dates += get_valid_dates(date_str)
       end
     end
     dates.uniq

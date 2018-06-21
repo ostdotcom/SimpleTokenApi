@@ -3,6 +3,7 @@ module Google
   class VisionService
 
     require "google/cloud/vision"
+    require 'open-uri'
 
     include ::Util::ResultHelper
 
@@ -47,9 +48,14 @@ module Google
       #vision client
       vision_client = client
 
+      puts document_file
+
       image_url = get_url(document_file)
 
-      image_object = vision_client.image image_url
+      download = open(image_url)
+      IO.copy_stream(download, ENV['VISION_IMAGE_PATH'])
+
+      image_object = vision_client.image ENV['VISION_IMAGE_PATH']
 
       format_detect_text_response(image_object)
     end

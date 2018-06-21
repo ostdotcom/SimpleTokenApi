@@ -54,6 +54,24 @@ module Google
       format_detect_text_response(image_object)
     end
 
+    # Api call to vision google client
+    #
+    # * Author: Sachin
+    # * Date: 13/06/2018
+    # * Reviewed By:
+    #
+    # @return [Google::Vision]
+    #
+    def api_call_detect_faces(document_file)
+
+      #vision client
+      vision_client = client
+
+      faces_object = vision_client.image document_file
+
+      format_detect_faces_response(faces_object)
+    end
+
     private
 
     # Get Url S3
@@ -72,108 +90,131 @@ module Google
     end
 
 
-    # Method to format detect text response
+    def current_time_in_milli
+      (Time.now.to_f * 1000).to_i
+    end
+
+    # Method to format detect faces response
     #
     # * Author: Sachin
     # * Date: 13/06/2018
     # * Reviewed By:
     #
-    def format_detect_text_response(image_object)
+    def format_detect_faces_response(image_object)
       start_time = current_time_in_milli
-      resp_object = image_object.document
+      resp_object = image_object.faces
       end_time = current_time_in_milli
 
       if (resp_object.nil?)
-        return error_with_data("Exception in image.document", "", "nil response", "", {})
+        return error_with_data("Exception in image.faces", "", "nil response", "", {})
       end
 
-      text_string = resp_object.text
-
-      words_array = resp_object.words
-
-      orientation = get_orientation(words_array)
-
-      success_with_data({words_array: text_string, request_time: (end_time - start_time), orientation: orientation})
+      success_with_data({faces: resp_object.length, request_time: (end_time - start_time)})
     rescue => e
       data = {debug_data: {err: e.message.to_json}, request_time: 0}
       error_with_data("Exception", "", "", "", data)
     end
 
-    def current_time_in_milli
-      (Time.now.to_f * 1000).to_i
+  end
+
+
+
+  # Method to format detect text response
+  #
+  # * Author: Sachin
+  # * Date: 13/06/2018
+  # * Reviewed By:
+  #
+  def format_detect_text_response(image_object)
+    start_time = current_time_in_milli
+    resp_object = image_object.document
+    end_time = current_time_in_milli
+
+    if (resp_object.nil?)
+      return error_with_data("Exception in image.document", "", "nil response", "", {})
     end
 
+    text_string = resp_object.text
 
-    def get_orientation(words_array)
+    words_array = resp_object.words
 
-      orientation_data = {
-          'UNDEFINED' => 0,
-          'ROTATE_0' => 0,
-          'ROTATE_90' => 0,
-          'ROTATE_270' => 0,
-          'ROTATE_180' => 0
-      }
+    orientation = get_orientation(words_array)
+
+    success_with_data({words_array: text_string, request_time: (end_time - start_time), orientation: orientation})
+  rescue => e
+    data = {debug_data: {err: e.message.to_json}, request_time: 0}
+    error_with_data("Exception", "", "", "", data)
+  end
 
 
-      (0..(words_array.length - 1)).each do |index|
+  def get_orientation(words_array)
 
-        x_diff = 0
-        y_diff = 0
-        orientation = nil
+    orientation_data = {
+        'UNDEFINED' => 0,
+        'ROTATE_0' => 0,
+        'ROTATE_90' => 0,
+        'ROTATE_270' => 0,
+        'ROTATE_180' => 0
+    }
 
-        word = words_array[index]
 
-        next if word.nil? || word.text.size < 3
+    (0..(words_array.length - 1)).each do |index|
 
-        x1 = words_array[index].bounds[0].x
-        y1 = words_array[index].bounds[0].y
+      x_diff = 0
+      y_diff = 0
+      orientation = nil
 
-        x2 = words_array[index].bounds[1].x
-        y2 = words_array[index].bounds[1].y
+      word = words_array[index]
 
-        x_diff = (x2 - x1)
-        y_diff = (y2 - y1)
+      next if word.nil? || word.text.size < 3
 
-        # x is greater and positive : normal orientation
-        # x is greater and negative : inverted orientation
-        # y is greater and positive : left orientation
-        # y is greater and negative : right orientation
+      x1 = words_array[index].bounds[0].x
+      y1 = words_array[index].bounds[0].y
 
-        if x_diff.abs == y_diff.abs
-          orientation = 'UNDEFINED'
-        end
+      x2 = words_array[index].bounds[1].x
+      y2 = words_array[index].bounds[1].y
 
-        if x_diff.abs > y_diff.abs
-          if x_diff < 0
-            orientation = 'ROTATE_180'
-          else
-            orientation = 'ROTATE_0'
-          end
+      x_diff = (x2 - x1)
+      y_diff = (y2 - y1)
+
+      # x is greater and positive : normal orientation
+      # x is greater and negative : inverted orientation
+      # y is greater and positive : left orientation
+      # y is greater and negative : right orientation
+
+      if x_diff.abs == y_diff.abs
+        orientation = 'UNDEFINED'
+      end
+
+      if x_diff.abs > y_diff.abs
+        if x_diff < 0
+          orientation = 'ROTATE_180'
         else
-          if y_diff < 0
-            orientation = 'ROTATE_90'
-          else
-            orientation = 'ROTATE_270'
-          end
+          orientation = 'ROTATE_0'
         end
-
-        orientation_data[orientation] += 1
-      end
-
-      max_orientation = nil
-      max_count = 0
-
-      orientation_data.each do |orientation, count|
-        if count > max_count
-          max_orientation = orientation
-          max_count = count
+      else
+        if y_diff < 0
+          orientation = 'ROTATE_90'
+        else
+          orientation = 'ROTATE_270'
         end
       end
 
-      return max_orientation
+      orientation_data[orientation] += 1
     end
 
+    max_orientation = nil
+    max_count = 0
 
+    orientation_data.each do |orientation, count|
+      if count > max_count
+        max_orientation = orientation
+        max_count = count
+      end
+    end
+
+    return max_orientation
   end
 end
+
 

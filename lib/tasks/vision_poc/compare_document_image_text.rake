@@ -57,7 +57,8 @@ namespace :vision_poc do
               if column_name != :birthdate
                 comparison_columns[column_name] = 100 if words_hash[db_value.downcase] == 1
               else
-                comparison_columns[column_name] = 100 if all_dates.include?(Date.parse(db_value, "%Y-%m-%d"))
+                date_of_birth = Date.parse(db_value, "%Y-%m-%d")
+                comparison_columns[column_name] = 100 if all_dates.include?(date_of_birth)
               end
 
               insert_row["#{key}_match_percent".to_sym] = comparison_columns[column_name]
@@ -68,7 +69,7 @@ namespace :vision_poc do
           debug_data = resp.data[:debug_data]
         end
 
-        insert_row.merge!({debug_data: debug_data, date_of_birth: date_of_birth})
+        insert_row.merge!({debug_data: debug_data, date_of_birth: date_of_birth, orientation: resp.data[:orientation]})
         puts insert_row
         VisionCompareText.create!(insert_row)
       end

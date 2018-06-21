@@ -18,13 +18,38 @@ module Google
 
     end
 
+    # Get Google Vision object
+    #
+    # * Author: Sachin
+    # * Date: 13/06/2018
+    # * Reviewed By:
+    #
+    # @return [Google::Vision]
+    #
+    def client
+      ## Note:: For authentication define GOOGLE_APPLICATION_CREDENTIALS to define credential file path
+      # and VISION_PROJECT_ID  to define project id environment variables.
+
+      project_id = ENV['VISION_PROJECT_ID']
+      Google::Cloud::Vision.new project: project_id
+    end
+
+    # Api call to vision google client
+    #
+    # * Author: Sachin
+    # * Date: 13/06/2018
+    # * Reviewed By:
+    #
+    # @return [Google::Vision]
+    #
     def api_call_detect_text(document_file)
 
       #vision client
       vision_client = client
 
-      # image_object = vision_client.image get_url(document_file)
-      image_object = vision_client.image document_file
+      image_url = get_url(document_file)
+
+      image_object = vision_client.image image_url
 
       format_detect_text_response(image_object)
     end
@@ -44,22 +69,6 @@ module Google
 
       Aws::S3Manager.new('kyc', 'admin').
           get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path)
-    end
-
-    # Get Google Vision object
-    #
-    # * Author: Sachin
-    # * Date: 13/06/2018
-    # * Reviewed By:
-    #
-    # @return [Google::Vision]
-    #
-    def client
-      ## Note:: For authentication define GOOGLE_APPLICATION_CREDENTIALS to define credential file path
-      # and VISION_PROJECT_ID  to define project id environment variables.
-
-      project_id = ENV['VISION_PROJECT_ID']
-      Google::Cloud::Vision.new project: project_id
     end
 
 
@@ -108,10 +117,10 @@ module Google
 
       max_value = [x_diff.abs,y_diff.abs].max
 
-      # y is greater and positive normal
-      # x is greater and positive right
-      # y is greater and negative inverted
-      # x is greater and negative left
+      # y is greater and positive : normal orientation
+      # x is greater and positive : right orientation
+      # y is greater and negative : inverted orientation
+      # x is greater and negative : left orientation
 
 
       if x_diff == y_diff

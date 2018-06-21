@@ -83,7 +83,9 @@ module Google
       resp_object = image_object.document
       end_time = current_time_in_milli
 
-      puts resp_object
+      if (resp_object.nil?)
+        return error_with_data("Exception in image.document", "", "nil response", "", {})
+      end
 
       text_string = resp_object.text
 
@@ -93,7 +95,7 @@ module Google
 
       success_with_data({words_array: text_string, request_time: (end_time - start_time), orientation: orientation})
     rescue => e
-      data = {debug_data: {err: e.message.to_json}, request_time: 0 }
+      data = {debug_data: {err: e.message.to_json}, request_time: 0}
       error_with_data("Exception", "", "", "", data)
     end
 
@@ -104,42 +106,73 @@ module Google
 
     def get_orientation(words_array)
 
-      x_diff = 0
-      y_diff = 0
-
-      (1..(words_array.length-1)).each do |index|
-        x_diff+=words_array[index].bounds[0].x - words_array[index-1].bounds[0].x
-        y_diff+=words_array[index].bounds[0].y - words_array[index-1].bounds[0].y
-      end
-
-      puts x_diff
-      puts y_diff
-
-      max_value = [x_diff.abs,y_diff.abs].max
-
-      # y is greater and positive : normal orientation
-      # x is greater and positive : right orientation
-      # y is greater and negative : inverted orientation
-      # x is greater and negative : left orientation
+      orientation_data = {
+          'UNDEFINED' => 0,
+          'ROTATE_0' => 0,
+          'ROTATE_90' => 0,
+          'ROTATE_270' => 0,
+          'ROTATE_180' => 0
+      }
 
 
-      if x_diff == y_diff
-        return 'UNDEFINED'
-      end
-      if  max_value == x_diff.abs
-        if x_diff < 0
-          return 'ROTATE_270'
-        else
-          return 'ROTATE_90'
+      (0..(words_array.length - 1)).each do |index|
+
+        x_diff = 0
+        y_diff = 0
+        orientation = nil
+
+        word = words_array[index]
+
+        next if word.nil? || word.text.size < 3
+
+        x1 = words_array[index].bounds[0].x
+        y1 = words_array[index].bounds[0].y
+
+        x2 = words_array[index].bounds[1].x
+        y2 = words_array[index].bounds[1].y
+
+        x_diff = (x2 - x1)
+        y_diff = (y2 - y1)
+
+        # x is greater and positive : normal orientation
+        # x is greater and negative : inverted orientation
+        # y is greater and positive : left orientation
+        # y is greater and negative : right orientation
+
+        if x_diff.abs == y_diff.abs
+          orientation = 'UNDEFINED'
         end
-      else
-        if y_diff < 0
-          return 'ROTATE_180'
+
+        if x_diff.abs > y_diff.abs
+          if x_diff < 0
+            orientation = 'ROTATE_180'
+          else
+            orientation = 'ROTATE_0'
+          end
         else
-          return 'ROTATE_0'
+          if y_diff < 0
+            orientation = 'ROTATE_90'
+          else
+            orientation = 'ROTATE_270'
+          end
+        end
+
+        orientation_data[orientation] += 1
+      end
+
+      max_orientation = nil
+      max_count = 0
+
+      orientation_data.each do |orientation, count|
+        if count > max_count
+          max_orientation = orientation
+          max_count = count
         end
       end
+
+      return max_orientation
     end
+
 
   end
 end

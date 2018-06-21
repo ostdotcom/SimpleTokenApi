@@ -115,8 +115,6 @@ module Google
       error_with_data("Exception", "", "", "", data)
     end
 
-  end
-
 
 
   # Method to format detect text response
@@ -214,6 +212,8 @@ module Google
     end
 
     return max_orientation
+  end
+
   end
 end
 

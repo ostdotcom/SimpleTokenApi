@@ -35,13 +35,15 @@ class RmagickImageRotation
 
       original_file_name = File.basename(@image_file).gsub(File.extname(@image_file), "")
 
-      new_file_name = "#{Rails.root}/public/#{original_file_name}_#{@angle}.png"
+      new_file_name = "#{Rails.root}/public/#{original_file_name}-#{@angle}.jpg"
 
       image_obj = ImageList.new(@image_file)
 
       image_obj.rotate!(@angle)
 
-      image_obj.format = "PNG"
+      image_obj.strip!
+
+      # image_obj.format = "PNG"
 
       image_obj.write(new_file_name)
 

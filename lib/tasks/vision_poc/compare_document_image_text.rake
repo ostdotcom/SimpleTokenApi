@@ -27,7 +27,7 @@ namespace :vision_poc do
         request_time = resp.data[:request_time]
         puts "Google Vision Request Time: #{resp.data[:request_time]} milliseconds."
 
-        insert_row = {case_id: user_kyc_detail.id, request_time: request_time}
+        insert_row = {case_id: user_kyc_detail.id, request_time: request_time || 0}
 
         comparison_columns = {first_name: 0, last_name: 0, birthdate: 0,
                               document_id_number: 0, nationality: 0}

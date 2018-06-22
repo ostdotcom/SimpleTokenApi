@@ -1,0 +1,2 @@
+class VisionDetectFace < EstablishImageProcessingPocDbConnection
+end

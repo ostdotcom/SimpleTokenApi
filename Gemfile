@@ -35,6 +35,8 @@ gem 'listen', '>= 3.0.5', '< 3.2'
 
 gem 'aws-sdk-rekognition', '1.3.0'
 
+gem 'rmagick', '2.16.0'
+
 gem 'google-cloud-vision', '0.28.0'
 
 group :development, :test do

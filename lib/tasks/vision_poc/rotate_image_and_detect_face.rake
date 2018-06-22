@@ -35,6 +35,7 @@ namespace :vision_poc do
         vision_obj = Google::VisionService.new
         result = vision_obj.validate_image_file_name(document_file)
         next unless result.success?
+        document_file = document_file.split("/").last
 
         compare_text_result = VisionCompareText.select('id, orientation').where(case_id: user_kyc_detail.id).first
 

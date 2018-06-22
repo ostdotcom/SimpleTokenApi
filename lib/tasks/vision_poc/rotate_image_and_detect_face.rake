@@ -55,6 +55,7 @@ namespace :vision_poc do
 
           if rotation_angle[x] == 0
             rotated_image_path = original_image_path
+            puts "Rotation angle: #{rotation_angle[x]}"
           else
             puts "Rotation started, Rotation angle: #{rotation_angle[x]}"
             resp = RmagickImageRotation.new(original_image_path, rotation_angle[x]).perform

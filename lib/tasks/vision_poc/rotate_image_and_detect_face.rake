@@ -35,7 +35,7 @@ namespace :vision_poc do
         vision_obj = Google::VisionService.new
         result = vision_obj.validate_image_file_name(document_file)
         next unless result.success?
-        document_file = document_file.split("/").last
+        downloaded_file_name = document_file.split("/").last
 
         compare_text_result = VisionCompareText.select('id, orientation').where(case_id: user_kyc_detail.id).first
 
@@ -45,7 +45,7 @@ namespace :vision_poc do
           rotation_sequence.unshift(compare_text_result.orientation)
         end
 
-        original_image_path = "#{Rails.root}/public/#{document_file}.jpg"
+        original_image_path = "#{Rails.root}/public/#{downloaded_file_name}.jpg"
         Aws::S3Manager.new('kyc', 'admin').get(original_image_path, document_file, bucket)
         temp_image_files = []
 

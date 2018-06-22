@@ -6,7 +6,7 @@ module Google
 
     include ::Util::ResultHelper
 
-    S3_DOCUMENT_IMAGE_PATH_REGEX = /\A[A-Z0-9\/]+\/i\/[A-Z0-9\/]+\Z/i
+    S3_DOCUMENT_IMAGE_PATH_REGEX = /\A([A-Z0-9\/]*\/)*i\/[A-Z0-9\/]+\Z/i
 
     # Initialize
     #

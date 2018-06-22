@@ -1,6 +1,6 @@
 class RmagickImageRotation
 
-  require 'Rmagick'
+  require 'rmagick'
   include Magick
 
   include ::Util::ResultHelper

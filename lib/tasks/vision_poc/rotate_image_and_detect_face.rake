@@ -32,6 +32,10 @@ namespace :vision_poc do
         document_file = nil
         document_file = local_cipher_obj.decrypt(ued.document_id_file_path).data[:plaintext]
 
+        vision_obj = Google::VisionService.new
+        result = vision_obj.validate_image_file_name(document_file)
+        next unless result.success?
+
         compare_text_result = VisionCompareText.select('id, orientation').where(case_id: user_kyc_detail.id).first
 
         rotation_sequence = rotation_angle.keys
@@ -44,7 +48,7 @@ namespace :vision_poc do
         Aws::S3Manager.new('kyc', 'admin').get(original_image_path, document_file, bucket)
         temp_image_files = []
 
-        insert_in_table = {case_id: user_kyc_detail.id}
+        insert_in_table = {case_id: user_kyc_detail.id, rotation_sequence: rotation_sequence}
         rotation_sequence.each do |x|
           rotated_image_path = ""
 
@@ -60,7 +64,7 @@ namespace :vision_poc do
 
           if rotated_image_path.present?
             temp_image_files << rotated_image_path
-            resp = Google::VisionService.new.api_call_detect_faces(rotated_image_path)
+            resp = vision_obj.api_call_detect_faces(rotated_image_path)
             puts "Rotated Image Path: #{rotated_image_path}, Rotation angle: #{rotation_angle[x]}, Face Detection Response: #{resp.inspect}"
             insert_in_table["rotate_#{rotation_angle[x]}".to_sym] = resp.to_hash
           else

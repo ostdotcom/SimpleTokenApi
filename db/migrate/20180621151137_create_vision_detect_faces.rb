@@ -12,6 +12,7 @@ class CreateVisionDetectFaces < DbMigrationConnection
         t.column :rotate_270, :text
         t.column :rotate_360, :text
         t.column :rotate_0, :text
+        t.column :rotation_sequence, :text
         t.timestamps
       end
 

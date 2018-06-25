@@ -31,6 +31,7 @@ namespace :vision_poc do
 
         document_file = nil
         document_file = local_cipher_obj.decrypt(ued.document_id_file_path).data[:plaintext]
+        selfie_file = local_cipher_obj.decrypt(ued.selfie_file_path).data[:plaintext]
 
         vision_obj = Google::VisionService.new
         result = vision_obj.validate_image_file_name(document_file)
@@ -71,6 +72,16 @@ namespace :vision_poc do
             insert_in_table["rotate_#{rotation_angle[x]}".to_sym] = resp.to_hash
           else
             insert_in_table["rotate_#{rotation_angle[x]}".to_sym] = "Image rotation failed"
+          end
+
+          if compare_text_result.orientation == x
+            result = vision_obj.validate_image_file_name(selfie_file)
+            next unless result.success?
+
+            puts "Start with Aws Comparison, Document image path: #{rotated_image_path}, Rotation angle: #{rotation_angle[x]}"
+            response = Aws::RekognitionService.new.compare_faces(user_kyc_detail.user_id, rotated_image_path, selfie_file)
+            puts "Face Comparison Response: #{response.inspect}"
+            insert_in_table[:aws_face_comparison_response] = response.to_json
           end
 
         end

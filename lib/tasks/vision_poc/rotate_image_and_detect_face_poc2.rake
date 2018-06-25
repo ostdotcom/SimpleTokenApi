@@ -59,7 +59,7 @@ namespace :vision_poc do
           if resp.success?
             selfie_file_name = selfie_file.split("/").last
             selfie_image_path = "#{Rails.root}/public/#{selfie_file_name}-sel.jpg"
-            Aws::S3Manager.new('kyc', 'admin').get(selfie_image_path, document_file, bucket)
+            Aws::S3Manager.new('kyc', 'admin').get(selfie_image_path, selfie_file, bucket)
             temp_image_files << selfie_image_path
             result1 = detect_face_on_vision(rotation_angle.keys, selfie_image_path)
             insert_in_table[:actual_orientation_selfie_match] = result1[:match_orientation]
@@ -109,14 +109,14 @@ namespace :vision_poc do
     }
   end
 
-  def detect_face_on_vision(rotation_sequence, original_image_path)
+  def detect_face_on_vision(rotation_sequence, image_path)
     temp_image_files = []
     vision_obj = Google::VisionService.new
     rotation_sequence.each do |x|
       rotated_image_path = ""
 
       puts "Rotation started, Rotation angle: #{rotation_angle[x]}"
-      resp = RmagickImageRotation.new("#{original_image_path}", rotation_angle[x]).perform
+      resp = RmagickImageRotation.new(image_path, rotation_angle[x]).perform
       rotated_image_path = resp.data[:rotated_image_path]
       puts "Rotation complete, Rotated image: #{rotated_image_path}"
       # Aws::S3Manager.new('kyc', 'user').store("#{document_file}-#{rotation_angle[x]}", File.open(rotated_image_path), bucket)

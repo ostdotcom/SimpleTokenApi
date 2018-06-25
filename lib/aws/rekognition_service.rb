@@ -59,9 +59,9 @@ module Aws
       end
 
       if selfie_local_file_path.present?
-        imageSource = File.open(selfie_local_file_path, "rb")
+        imageTarget = File.open(selfie_local_file_path, "rb")
         req_params[:target_image] = {
-            bytes: imageSource.read()
+            bytes: imageTarget.read()
         }
       end
 

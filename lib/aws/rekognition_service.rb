@@ -22,7 +22,7 @@ module Aws
     # * Date: 07/06/2018
     # * Reviewed By:
     #
-    def compare_faces(user_id, document_local_file_path = nil, selfie_file=nil, similarity_treshold=0, document_file=nil)
+    def compare_faces(user_id, document_local_file_path = nil, selfie_local_file_path = nil, selfie_file=nil, similarity_treshold=0, document_file=nil)
       if document_file.nil? && selfie_file.nil?
         r = fetch_file_names(user_id)
         return r unless r.success?
@@ -33,7 +33,8 @@ module Aws
 
       return error_with_data("Files Not found",
                              "Files Not found", "Files Not found",
-                             "", "") if (document_file.nil? && document_local_file_path.nil?) || selfie_file.nil?
+                             "", "") if (document_file.nil? && document_local_file_path.nil?) ||
+          (selfie_file.nil? && selfie_local_file_path.nil?)
 
       req_params = {
         similarity_threshold: similarity_treshold,
@@ -53,6 +54,13 @@ module Aws
       if document_local_file_path.present?
         imageSource = File.open(document_local_file_path, "rb")
         req_params[:source_image] = {
+            bytes: imageSource.read()
+        }
+      end
+
+      if selfie_local_file_path.present?
+        imageSource = File.open(selfie_local_file_path, "rb")
+        req_params[:target_image] = {
             bytes: imageSource.read()
         }
       end

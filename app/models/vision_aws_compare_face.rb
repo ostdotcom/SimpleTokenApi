@@ -1,0 +1,2 @@
+class VisionAwsCompareFace < EstablishImageProcessingPocDbConnection
+end

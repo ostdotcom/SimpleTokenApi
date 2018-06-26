@@ -4,6 +4,10 @@ namespace :vision_poc do
 
   task :compare_document_image_text => :environment do
 
+    PASSPORT_DETAILS_REGEX = /[A-Z]\w+<*\d[A-Z]{3}\d{7}[A-Z]\d{7}/
+
+    PASSPORT_NAME_REGEX = /([A-Z]+<+)+/
+
     UserKycDetail.select('id, user_id, user_extended_detail_id')
         .where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id)
         .find_in_batches(batch_size: 100) do |batches|
@@ -24,6 +28,7 @@ namespace :vision_poc do
         document_file = local_cipher_obj.decrypt(ued.document_id_file_path).data[:plaintext]
 
         resp = Google::VisionService.new.api_call_detect_text(document_file)
+
         request_time = resp.data[:request_time]
         puts "Google Vision Request Time: #{resp.data[:request_time]} milliseconds."
 
@@ -33,14 +38,18 @@ namespace :vision_poc do
                               document_id_number: 0, nationality: 0}
 
 
+
         debug_data = {}
         date_of_birth = nil
         if resp.success?
-          words_array = resp.data[:words_array]
-          debug_data = {words_array: words_array, not_match_data: {}}
+          detected_text = resp.data[:detected_text]
+          debug_data = {detected_text: detected_text, not_match_data: {}}
 
-          words_hash = construct_lookup_data(words_array)
-          all_dates = get_dates(words_array)
+          passport_detected = check_for_passport(detected_text)
+
+          words_hash = construct_lookup_data(detected_text)
+
+          all_dates = get_dates(detected_text)
 
 
           if words_hash.present?
@@ -75,6 +84,11 @@ namespace :vision_poc do
       end
     end
 
+  end
+
+  def check_for_passport(detected_text)
+    passport_check_string = detected_text.delete(' ')
+    passport_check_string =~ PASSPORT_DETAILS_REGEX && passport_check_string =~ PASSPORT_NAME_REGEX
   end
 
   def construct_lookup_data(paragraph)

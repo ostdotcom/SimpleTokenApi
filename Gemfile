@@ -39,6 +39,8 @@ gem 'rmagick', '2.16.0'
 
 gem 'google-cloud-vision', '0.28.0'
 
+gem 'countries'
+
 group :development, :test do
   # Use Puma as the app server
   gem 'puma', '~> 3.7'

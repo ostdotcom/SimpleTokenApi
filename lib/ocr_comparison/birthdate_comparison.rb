@@ -1,75 +1,27 @@
-module OcrMatch
-  class BirthdateMatch
+module OcrComparison
+  class BirthdateComparison
 
-    # Initialize
-    # @params [Array] words_array(mandatory)
-    # @params [String] match_string(mandatory)
-    #
-    # Sets @words_array, @match_string
-    #
-    # @return [OcrMatch::NameMatch.new()]
-    #
-    #* Author: Tejas
-    #* Date: 28/06/2018
-    #* Reviewed By:
-    #
-    def initialize(words_array, match_string)
-      @words_array = words_array
-      @match_string = match_string
-      @safe_words_array = ""
+    # @return [OcrComparison::BirthdateComparison.new()]
 
-    end
-
-    # Perform
-    #
-    #* Author: Tejas
-    #* Date: 28/06/2018
-    #* Reviewed By:
-    #
-    # @return BOOL
-    #
-
-    def perform
-
-      @safe_words_array = safe_characters(@words_array)
-
-      return 0 if @safe_words_array.blank?
-      return 50 if @match_string.blank?
-
-
-      compare
-    end
-
-    private
-
-    def safe_characters(characters)
-      return if characters.blank?
-      safe_paragraph = ""
-      characters.each_char do |letter|
-        safe_letter = letter.mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/n, '').downcase.to_s
-        safe_letter = letter.parameterize if safe_letter.blank?
-        safe_paragraph += safe_letter.present? ? safe_letter : letter
-      end
-      safe_paragraph
-    end
+  private
 
     def compare
       percent_match = 0
       date_of_birth = Date.strptime(@match_string, "%Y-%m-%d")
       all_possible_date_number_regex_array = all_possible_date_number_regex(date_of_birth)
 
-      if @safe_words_array.match(/#{all_possible_date_number_regex_array.join("|")}/i)
+      if @safe_line_array.match(/#{all_possible_date_number_regex_array.join("|")}/i)
         percent_match = 100
       else
         all_month_name_regex_array = all_month_name_regex(date_of_birth)
-        if @safe_words_array.match(/#{all_month_name_regex_array.join("|")}/i)
+        if @safe_line_array.match(/#{all_month_name_regex_array.join("|")}/i)
           percent_match = 100
         end
       end
 
       if percent_match < 100
         date_of_birth = Date.strptime(@match_string, "%Y-%m-%d").strftime("%y%m%d")
-        obj["#{column_name}_match_percent"] = 100 if @safe_words_array.match(date_of_birth)
+        obj["#{column_name}_match_percent"] = 100 if @safe_line_array.match(date_of_birth)
       end
       percent_match
     end

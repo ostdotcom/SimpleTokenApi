@@ -1,5 +1,5 @@
 module OcrComparison
-  class BirthdateComparison
+  class BirthdateComparison < Base
 
     # @return [OcrComparison::BirthdateComparison.new()]
 

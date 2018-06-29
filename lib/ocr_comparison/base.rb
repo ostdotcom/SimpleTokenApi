@@ -22,7 +22,6 @@ module OcrComparison
     end
 
     def perform
-
       return 0 if @safe_line_array.blank?
       return 50 if @match_string.blank?
 

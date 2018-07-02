@@ -1,0 +1,2 @@
+class UserKycComparisonDetail < ApplicationRecord
+end

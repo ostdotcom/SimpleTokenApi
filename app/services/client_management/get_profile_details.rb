@@ -4,8 +4,8 @@ module ClientManagement
 
     # Initialize
     #
-    # * Author: Aman
-    # * Date: 08/02/2018
+    # * Author: Tejas
+    # * Date: 02/07/2018
     # * Reviewed By:
     #
     # @param [Integer] client_id (mandatory) -  client id
@@ -26,8 +26,8 @@ module ClientManagement
 
     # Perform
     #
-    # * Author: Aman
-    # * Date: 08/02/2018
+    # * Author: Tejas
+    # * Date: 02/07/2018
     # * Reviewed By:
     #
     # @return [Result::Base]
@@ -50,8 +50,8 @@ module ClientManagement
 
     # Fetch Client
     #
-    # * Author: Aman
-    # * Date: 09/01/2018
+    # * Author: Tejas
+    # * Date: 02/07/2018
     # * Reviewed By:
     #
     # Sets @client

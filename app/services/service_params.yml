@@ -355,6 +355,11 @@
      - :client_id
   :optional:
 
+'ClientManagement::DeveloperDetail':
+  :mandatory:
+     - :client_id
+  :optional:
+
 'ClientManagement::PageSetting::Login':
   :mandatory:
     - :client_id

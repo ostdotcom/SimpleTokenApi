@@ -4,6 +4,7 @@ namespace :onetimer do
   # params = {
   #     "client_name" => "pankajkyc.developmentost.com",
   #     "cynopsis" => {
+  #         "username" =>  GlobalConstant::Cynopsis.user_name
   #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
   #         "token" => GlobalConstant::Cynopsis.token,
   #         "base_url" => GlobalConstant::Cynopsis.base_url
@@ -131,7 +132,7 @@ namespace :onetimer do
 
     cynopsis_token_e = r.data[:ciphertext_blob]
 
-    ClientCynopsisDetail.create(client_id: client_id, domain_name: cynopsis_data['domain_name'],
+    ClientCynopsisDetail.create(client_id: client_id,username: cynopsis_data['username'], domain_name: cynopsis_data['domain_name'],
                                 token: cynopsis_token_e, base_url: cynopsis_data['base_url'],
                                 status: GlobalConstant::ClientCynopsisDetail.active_status)
 

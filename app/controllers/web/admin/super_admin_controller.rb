@@ -1,6 +1,10 @@
 class Web::Admin::SuperAdminController < Web::Admin::BaseController
 
-  before_action {authenticate_request(true)}
+  before_action only: [:get_kyc_report, :invite, :resend_invite, :reset_mfa, :delete_admin] do
+    authenticate_request(true)
+  end
+
+  before_action :authenticate_request, only: [:dashboard]
 
   # enqueue a job to send csv with kyc details
   #

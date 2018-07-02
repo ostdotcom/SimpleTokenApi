@@ -79,7 +79,7 @@ module AdminManagement
           }
         end
 
-        @can_invite_new_user = (@admin_user_count >= 20) ? false : true
+        @can_invite_new_user = (@admin.role == GlobalConstant::Admin.super_admin_role && @admin_user_count < 20) ? true : false
       end
 
       # Set API response data

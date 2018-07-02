@@ -180,6 +180,13 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status).pluck(:email)
   end
 
+
+  def self.client_super_admin_emails(client_id)
+    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role ).pluck(:email)
+
+  end
+
+
   private
 
   # Flush Memcache

@@ -134,6 +134,11 @@ Rails.application.routes.draw do
   end
 
 
+  scope 'api/client', controller: 'web/client/profile' do
+    match 'profile' => :profile, via: :GET
+  end
+
+
   match '*permalink', to: 'application#not_found', via: :all
 
 end

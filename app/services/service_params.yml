@@ -350,6 +350,11 @@
     - :client_id
   :optional:
 
+'ClientManagement::GetProfileDetails':
+  :mandatory:
+     - :client_id
+  :optional:
+
 'ClientManagement::PageSetting::Login':
   :mandatory:
     - :client_id

@@ -108,6 +108,11 @@ Rails.application.routes.draw do
       match 'whitelist-event' => :whitelist_event, via: :GET
     end
 
+    scope 'api/admin/client', controller: 'web/client/profile' do
+      match 'profile' => :get_detail, via: :GET
+      match 'developer-details' => :get_developer_detail, via: :GET
+    end
+
     match '*permalink', to: 'application#not_found', via: :all
   end
 
@@ -131,12 +136,6 @@ Rails.application.routes.draw do
     match 'basic-detail' => :basic_detail, via: :GET
     match 'profile' => :profile, via: :GET
     match 'get-token-sale-address' => :get_token_sale_address, via: :GET
-  end
-
-
-  scope 'api/client', controller: 'web/client/profile' do
-    match 'profile' => :get_detail, via: :GET
-    match 'developer-details' => :get_developer_detail, via: :GET
   end
 
 

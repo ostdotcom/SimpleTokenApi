@@ -111,6 +111,7 @@ Rails.application.routes.draw do
     scope 'api/admin/client', controller: 'web/client/profile' do
       match 'profile' => :get_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
+      match 'artifical-intellignce' => :get_artifical_intellignce_setting, via: :GET
     end
 
     match '*permalink', to: 'application#not_found', via: :all

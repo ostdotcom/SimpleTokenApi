@@ -15,6 +15,17 @@ module GlobalConstant
         'inactive'
       end
 
+      def web_status_auto
+        'auto'
+      end
+
+      def web_status_manual
+        'manual'
+      end
+
+      def recommended_fr_percent
+        '70'
+      end
       ### Status End ###
 
       ### OCR comparison column start ###

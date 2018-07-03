@@ -70,6 +70,11 @@ client:
     key_template: 'client_setting_detail_%{client_id}_%{template_type}'
     expiry_in_seconds: 86400
 
+  client_kyc_auto_approve_setting:
+    key_template: 'client_kyc_auto_approve_setting_%{client_id}'
+    expiry_in_seconds: 86400
+
+
 admin:
   admin_details:
     key_template: 'admin_det_%{id}'

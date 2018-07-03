@@ -24,5 +24,15 @@ class Web::Client::ProfileController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
+  # get client details
+  #
+  # * Author: Aniket
+  # * Date: 03/07/2018
+  # * Reviewed By:
+  #
+  def get_artifical_intellignce_setting
+    service_response = ClientManagement::AutoApproveSetting.new(params).perform
+    render_api_response(service_response)
+  end
 
 end

@@ -10,7 +10,7 @@ module AdminManagement
       # * Date: 09/01/2018
       # * Reviewed By:
       #
-      # @params [String] admin_id (mandatory) - this is the email entered
+      # @params [String] admin_id (mandatory) - admin id
       # @params [String] client_id (mandatory) - this is the client id
       #
       # @return [AdminManagement::Profile::GetDetail]

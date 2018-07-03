@@ -350,6 +350,18 @@
     - :client_id
   :optional:
 
+'ClientManagement::GetProfileDetails':
+  :mandatory:
+     - :admin_id
+     - :client_id
+  :optional:
+
+'ClientManagement::DeveloperDetail':
+  :mandatory:
+     - :admin_id
+     - :client_id
+  :optional:
+
 'ClientManagement::PageSetting::Login':
   :mandatory:
     - :client_id

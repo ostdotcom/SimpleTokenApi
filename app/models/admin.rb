@@ -180,6 +180,16 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status).pluck(:email)
   end
 
+  # Get email ids of all super admins of a client
+  #
+  # * Author: Tejas
+  # * Date: 02/07/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] client id
+  #
+  # @return [Array <String>] emails of suoper admin
+  #
 
   def self.client_super_admin_emails(client_id)
     Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role ).pluck(:email)

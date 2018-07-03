@@ -352,11 +352,13 @@
 
 'ClientManagement::GetProfileDetails':
   :mandatory:
+     - :admin_id
      - :client_id
   :optional:
 
 'ClientManagement::DeveloperDetail':
   :mandatory:
+     - :admin_id
      - :client_id
   :optional:
 

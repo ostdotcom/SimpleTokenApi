@@ -9,6 +9,7 @@ module ClientManagement
     # * Reviewed By:
     #
     # @param [Integer] client_id (mandatory) -  client id
+    # @param [Integer] admin_id (mandatory) -  admin id
     #
     # @return [ClientManagement::GetProfileDetails.new()]
     #
@@ -16,10 +17,11 @@ module ClientManagement
       super
 
       @client_id = @params[:client_id]
+      @admin_id = @params[:admin_id]
 
       @client = nil
       @client_web_host = nil
-      @client_super_admin_email = nil
+      @client_super_admin_emails = nil
 
     end
 
@@ -33,20 +35,60 @@ module ClientManagement
     # @return [Result::Base]
     #
     def perform
+
+      r = validate_client_and_admin
+      return r unless r.success?
+
+      fetch_client
+      fetch_client_web_host
+      fetch_client_super_admin_emails
+
+      success_with_data(success_response_data)
+    end
+
+    private
+
+    # Client and Admin validate
+    #
+    # * Author: Tejas
+    # * Date: 02/07/2018
+    # * Reviewed By:
+    #
+    #
+    def validate_client_and_admin
       r = validate
       return r unless r.success?
 
       r = fetch_and_validate_client
       return r unless r.success?
 
-      fetch_client
-      fetch_client_web_host
-      fetch_client_super_admin
+      r = fetch_and_validate_admin
+      return r unless r.success?
 
-      success_with_data(success_response_data)
+      admin = fetch_admin
+
+      return error_with_data(
+          's_cm_pd_1',
+          'client_id is not equal to default client_id',
+          'client_id is not equal to default client_id',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if admin.default_client_id != @client_id
+
+      success
+
     end
 
-    private
+    # Fetch admin
+    #
+    # * Author: Tejas
+    # * Date: 02/07/2018
+    # * Reviewed By:
+    #
+    #
+    def fetch_admin
+      Admin.get_from_memcache(@admin_id)
+    end
 
     # Fetch Client
     #
@@ -78,10 +120,10 @@ module ClientManagement
     # * Date: 02/07/2018
     # * Reviewed By:
     #
-    # Sets @client_super_admin
+    # Sets @client_super_admin_emails
     #
-    def fetch_client_super_admin
-      @client_super_admin_email = Admin.client_super_admin_emails(@client_id)
+    def fetch_client_super_admin_emails
+      @client_super_admin_emails = Admin.client_super_admin_emails(@client_id)
     end
 
 
@@ -97,7 +139,7 @@ module ClientManagement
       {
           name: @client.name,
           domain_name: @client_web_host.domain,
-          super_admin_email_id: @client_super_admin_email
+          super_admin_email_ids: @client_super_admin_emails
       }
     end
 

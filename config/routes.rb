@@ -135,8 +135,8 @@ Rails.application.routes.draw do
 
 
   scope 'api/client', controller: 'web/client/profile' do
-    match 'profile' => :profile, via: :GET
-    match 'developer-detail' => :get_developer_detail, via: :GET
+    match 'profile' => :get_detail, via: :GET
+    match 'developer-details' => :get_developer_detail, via: :GET
   end
 
 

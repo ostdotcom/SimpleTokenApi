@@ -25,6 +25,34 @@ module GlobalConstant
 
       ### Services Type End ###
 
+      ###### Image Processing statuses Start ######
+
+      def unprocessed_image_process_status
+        'unprocessed'
+      end
+
+      def processed_image_process_status
+        'processed'
+      end
+
+      def failed_pdf_image_process_status
+        'failed_pdf'
+      end
+
+      def failed_big_image_process_status
+        'failed_big_image'
+      end
+
+      def failed_file_invalid_image_process_status
+        'failed_file_invalid'
+      end
+
+      def failed_image_process_status
+        'failed'
+      end
+
+      ###### Image Processing statuses End ######
+
     end
 
   end

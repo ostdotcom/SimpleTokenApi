@@ -26,6 +26,8 @@ class KycSubmitJob < ApplicationJob
 
     call_cynopsis_api
 
+    add_kyc_comparison_details
+
     UserActivityLogJob.new().perform({
                                          user_id: @user_id,
                                          action: @action,
@@ -472,6 +474,17 @@ class KycSubmitJob < ApplicationJob
                                              response: response.to_json
                                          }
                                      })
+  end
+
+  # Make entry to user kyc comparison details for image processing and comparisons
+  #
+  # * Author: Pankaj
+  # * Date: 02/07/2018
+  # * Reviewed By:
+  #
+  def add_kyc_comparison_details
+    UserKycComparisonDetail.create!(user_extended_detail_id: @user_extended_detail.id, client_id: @user_kyc_detail.client_id,
+                                    image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status)
   end
 
 end

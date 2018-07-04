@@ -13,7 +13,7 @@ class Web::Client::ProfileController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # get client details
+  # get Developer Detail
   #
   # * Author: Aniket
   # * Date: 02/07/2018
@@ -24,14 +24,25 @@ class Web::Client::ProfileController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # get client details
+  # get Artifical Intellignce Setting
+  #
+  # * Author: Aniket/Tejas
+  # * Date: 03/07/2018
+  # * Reviewed By:
+  #
+  def get_artifical_intellignce_setting
+    service_response = ClientManagement::GetAutoApproveSetting.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Update Artifical Intellignce Setting
   #
   # * Author: Aniket
   # * Date: 03/07/2018
   # * Reviewed By:
   #
-  def get_artifical_intellignce_setting
-    service_response = ClientManagement::AutoApproveSetting.new(params).perform
+  def update_artifical_intellignce_setting
+    service_response = ClientManagement::UpdateAutoApproveSetting.new(params).perform
     render_api_response(service_response)
   end
 

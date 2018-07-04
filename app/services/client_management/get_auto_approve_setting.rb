@@ -1,5 +1,5 @@
 module ClientManagement
-  class AutoApproveSetting < ServicesBase
+  class GetAutoApproveSetting < ServicesBase
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module ClientManagement
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
     #
-    # @return [ClientManagement::AutoApproveSetting.new()]
+    # @return [ClientManagement::GetAutoApproveSetting.new()]
     #
     def initialize(params)
       super
@@ -25,14 +25,14 @@ module ClientManagement
     # Perform
     #
     # * Author: Aniket
-    # * Date: 02/07/2018
+    # * Date: 03/07/2018
     # * Reviewed By:
     #
     # @return [Result::Base]
     #
     def perform
 
-      r = validate_client_and_admin
+      r = validate_and_sanitize
       return r unless r.success?
 
       fetch_client_auto_approve_setting
@@ -43,17 +43,31 @@ module ClientManagement
 
     private
 
+    # Validate And Sanitize
+    #
+    # * Author: Aniket/Tejas
+    # * Date: 03/07/2018
+    # * Reviewed By:
+    #
+    #
+    def validate_and_sanitize
+      r = validate
+      return r unless r.success?
+
+      r = validate_client_and_admin
+      return r unless r.success?
+
+      success
+    end
+
     # Client and Admin validate
     #
     # * Author: Aniket/Tejas
     # * Date: 03/07/2018
     # * Reviewed By:
     #
-    # Sets @client
     #
     def validate_client_and_admin
-      r = validate
-      return r unless r.success?
 
       r = fetch_and_validate_client
       return r unless r.success?
@@ -61,46 +75,23 @@ module ClientManagement
       r = fetch_and_validate_admin
       return r unless r.success?
 
-      admin = fetch_admin
-
-      return error_with_data(
-          's_cm_pd_1',
-          'client_id is not equal to default client_id',
-          'client_id is not equal to default client_id',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) if admin.default_client_id != @client_id
-
       success
 
     end
 
-    # Fetch admin
+    # Fetch Client Auto Approve Setting
     #
     # * Author: Aniket/Tejas
     # * Date: 03/07/2018
     # * Reviewed By:
     #
-    # Sets @client
-    #
-    def fetch_admin
-      Admin.get_from_memcache(@admin_id)
-    end
-
-
-    # Fetch admin
-    #
-    # * Author: Aniket/Tejas
-    # * Date: 03/07/2018
-    # * Reviewed By:
-    #
-    # Sets @client
+    # Sets @client_auto_approve_setting, @ocr_comparison_columns
     #
     def fetch_client_auto_approve_setting
       @client_auto_approve_setting = ClientKycAutoApproveSetting.get_from_memcache(@client_id)
 
       if @client_auto_approve_setting.present?
-        @ocr_comparison_columns = ClientKycAutoApproveSetting.get_bits_info_for_ocr_comparison_columns(@client_auto_approve_setting.ocr_comparison_columns)
+        @ocr_comparison_columns = ClientKycAutoApproveSetting.get_bits_set_for_ocr_comparison_columns(@client_auto_approve_setting.ocr_comparison_columns)
       end
 
     end
@@ -122,7 +113,7 @@ module ClientManagement
          current_status:current_status,
          recommended_setting:{
              fr_match_percent: GlobalConstant::ClientKycAutoApproveSettings.recommended_fr_percent,
-             active_ocr:recommended_active_ocr
+             active_ocr:ClientKycAutoApproveSetting.ocr_comparison_columns_config.keys
          }
       }
 
@@ -130,18 +121,10 @@ module ClientManagement
 
       response[:client_selected_setting] = {
           fr_match_percent: @client_auto_approve_setting.face_match_percent.to_i,
-          active_ocr: @ocr_comparison_columns[:set]
+          active_ocr: @ocr_comparison_columns
       }
 
       response
-    end
-
-    def recommended_active_ocr
-      [GlobalConstant::ClientKycAutoApproveSettings.first_name_ocr_comparison_column,
-       GlobalConstant::ClientKycAutoApproveSettings.last_name_ocr_comparison_column,
-       GlobalConstant::ClientKycAutoApproveSettings.birthdate_ocr_comparison_column,
-       GlobalConstant::ClientKycAutoApproveSettings.nationality_ocr_comparison_column,
-       GlobalConstant::ClientKycAutoApproveSettings.document_id_ocr_comparison_column,]
     end
 
   end

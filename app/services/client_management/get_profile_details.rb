@@ -36,7 +36,7 @@ module ClientManagement
     #
     def perform
 
-      r = validate_client_and_admin
+      r = validate_and_sanitize
       return r unless r.success?
 
       fetch_client
@@ -48,16 +48,31 @@ module ClientManagement
 
     private
 
+    # Validate And Sanitize
+    #
+    # * Author: Aniket/Tejas
+    # * Date: 03/07/2018
+    # * Reviewed By:
+    #
+    #
+    def validate_and_sanitize
+      r = validate
+      return r unless r.success?
+
+      r = validate_client_and_admin
+      return r unless r.success?
+
+      success
+    end
+
     # Client and Admin validate
     #
-    # * Author: Tejas
-    # * Date: 02/07/2018
+    # * Author: Aniket/Tejas
+    # * Date: 03/07/2018
     # * Reviewed By:
     #
     #
     def validate_client_and_admin
-      r = validate
-      return r unless r.success?
 
       r = fetch_and_validate_client
       return r unless r.success?
@@ -65,29 +80,8 @@ module ClientManagement
       r = fetch_and_validate_admin
       return r unless r.success?
 
-      admin = fetch_admin
-
-      return error_with_data(
-          's_cm_pd_1',
-          'client_id is not equal to default client_id',
-          'client_id is not equal to default client_id',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) if admin.default_client_id != @client_id
-
       success
 
-    end
-
-    # Fetch admin
-    #
-    # * Author: Tejas
-    # * Date: 02/07/2018
-    # * Reviewed By:
-    #
-    #
-    def fetch_admin
-      Admin.get_from_memcache(@admin_id)
     end
 
     # Fetch Client

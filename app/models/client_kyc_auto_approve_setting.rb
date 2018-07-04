@@ -76,10 +76,8 @@ class ClientKycAutoApproveSetting < EstablishSimpleTokenClientDbConnection
   # * Reviewed By
   #
   def memcache_flush
-    client_memcache_key = ClientKycAutoApproveSetting.get_memcache_key_object.key_template % {id: self.id}
+    client_memcache_key = ClientKycAutoApproveSetting.get_memcache_key_object.key_template % {client_id: self.id}
     Memcache.delete(client_memcache_key)
 
-    api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: self.api_key}
-    Memcache.delete(api_memcache_key)
   end
 end

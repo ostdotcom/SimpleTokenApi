@@ -112,6 +112,7 @@ Rails.application.routes.draw do
       match 'profile' => :get_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
       match 'artifical-intellignce' => :get_artifical_intellignce_setting, via: :GET
+      match 'update-artifical-intellignce' => :update_artifical_intellignce_setting, via: :POST
     end
 
     match '*permalink', to: 'application#not_found', via: :all

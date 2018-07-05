@@ -1,7 +1,10 @@
-module OcrComparison
-  class DocumentIdNameComparison < Base
+module Ocr
 
-    # @return [OcrComparison::DocumentIdNameComparison.new()]
+  module FieldComparison
+
+    class DocumentIdNameComparison < Base
+
+    # @return [Ocr::FieldComparison::DocumentIdNameComparison.new()]
 
     private
 
@@ -30,12 +33,6 @@ module OcrComparison
           else
             if current_letter_matches > 3
               # concern_case_ids << case_id
-              puts "**************************************************"
-              puts "doc_id-#{safe_match_string}"
-              puts "line-#{line}"
-              puts "current_letter_matches-#{current_letter_matches}"
-              puts "**************************************************"
-
             end
 
             start_index = start_index + 1
@@ -61,5 +58,6 @@ module OcrComparison
     end
 
 
-  end
+    end
+    end
 end

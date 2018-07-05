@@ -1,5 +1,8 @@
-module OcrComparison
-  # OcrComparison::TestClass.test
+module Ocr
+
+  module FieldComparison
+
+  # Ocr::TestClass::FieldComparison.test
   class TestClass
     def self.test
 
@@ -35,5 +38,7 @@ module OcrComparison
 
     end
   end
+  end
+
 end
 

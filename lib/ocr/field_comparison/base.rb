@@ -1,4 +1,7 @@
-module OcrComparison
+module Ocr
+
+  module FieldComparison
+
   class Base
 
     # Initialize
@@ -7,7 +10,7 @@ module OcrComparison
     #
     # Sets @words_array, @match_string
     #
-    # @return [OcrComparison::Base.new()]
+    # @return [Ocr::FieldComparison::Base.new()]
     #
     #* Author: Aniket
     #* Date: 28/06/2018
@@ -48,5 +51,6 @@ module OcrComparison
 
     end
 
+  end
   end
 end

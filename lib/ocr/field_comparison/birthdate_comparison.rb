@@ -1,7 +1,10 @@
-module OcrComparison
+module Ocr
+
+  module FieldComparison
+
   class BirthdateComparison < Base
 
-    # @return [OcrComparison::BirthdateComparison.new()]
+    # @return [Ocr::FieldComparison::BirthdateComparison.new()]
 
   private
 
@@ -124,4 +127,6 @@ module OcrComparison
     end
 
   end
+  end
+
 end

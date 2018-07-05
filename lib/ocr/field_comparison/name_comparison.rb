@@ -1,7 +1,10 @@
-module OcrComparison
+module Ocr
+
+  module FieldComparison
+
   class NameComparison < Base
 
-    # @return [OcrComparison::NameComparison.new()]
+    # @return [Ocr::FieldComparison::NameComparison.new()]
 
     private
 
@@ -71,4 +74,6 @@ module OcrComparison
     end
 
   end
+  end
+
 end

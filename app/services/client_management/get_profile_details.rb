@@ -103,7 +103,7 @@ module ClientManagement
     def success_response_data
       {
           name: @client.name,
-          domain_name: @client_web_host.domain,
+          domain_name: @client_web_host.try(:domain),
           super_admin_email_ids: @client_super_admin_emails
       }
     end

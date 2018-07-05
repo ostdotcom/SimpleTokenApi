@@ -104,10 +104,7 @@ module ClientManagement
             api_key: @client.api_key,
             api_secret: @api_secret_d,
             aml_login_url: @client_cynopsis.base_url,
-            aml_username: @client_cynopsis.username,
-            meta:{
-                env: Rails.env
-            }
+            aml_username: @client_cynopsis.email_id
         }
       end
 

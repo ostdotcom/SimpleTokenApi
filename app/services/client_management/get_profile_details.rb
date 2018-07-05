@@ -6,12 +6,12 @@ module ClientManagement
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # @param [Integer] client_id (mandatory) -  client id
     # @param [Integer] admin_id (mandatory) -  admin id
     #
-    # @return [ClientManagement::GetProfileDetails.new()]
+    # @return [ClientManagement::GetProfileDetails]
     #
     def initialize(params)
       super
@@ -22,24 +22,21 @@ module ClientManagement
       @client = nil
       @client_web_host = nil
       @client_super_admin_emails = nil
-
     end
-
 
     # Perform
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # @return [Result::Base]
     #
     def perform
 
-      r = validate_client_and_admin
+      r = validate_and_sanitize
       return r unless r.success?
 
-      fetch_client
       fetch_client_web_host
       fetch_client_super_admin_emails
 
@@ -52,10 +49,11 @@ module ClientManagement
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
+    # Sets @client
     #
-    def validate_client_and_admin
+    def validate_and_sanitize
       r = validate
       return r unless r.success?
 
@@ -65,48 +63,16 @@ module ClientManagement
       r = fetch_and_validate_admin
       return r unless r.success?
 
-      admin = fetch_admin
-
-      return error_with_data(
-          's_cm_pd_1',
-          'client_id is not equal to default client_id',
-          'client_id is not equal to default client_id',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) if admin.default_client_id != @client_id
-
       success
-
     end
 
-    # Fetch admin
+    # todo: which domain name
     #
-    # * Author: Tejas
-    # * Date: 02/07/2018
-    # * Reviewed By:
-    #
-    #
-    def fetch_admin
-      Admin.get_from_memcache(@admin_id)
-    end
-
-    # Fetch Client
-    #
-    # * Author: Tejas
-    # * Date: 02/07/2018
-    # * Reviewed By:
-    #
-    # Sets @client
-    #
-    def fetch_client
-      @client = Client.get_from_memcache(@client_id)
-    end
-
     # Fetch Client Web Host
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # Sets @client_web_host
     #
@@ -118,7 +84,7 @@ module ClientManagement
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # Sets @client_super_admin_emails
     #
@@ -126,12 +92,11 @@ module ClientManagement
       @client_super_admin_emails = Admin.client_super_admin_emails(@client_id)
     end
 
-
     # Api response data
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # returns [Hash] api response data
     #

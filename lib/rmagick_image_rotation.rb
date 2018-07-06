@@ -11,14 +11,17 @@ class RmagickImageRotation
   # * Date: 20/06/2018
   # * Reviewed By:
   #
+  # @param [String] file_directory - File directory to store new file
   # @param [String] image_path - Original Image path
   # @param [Integer] rotation_angle - Rotation Angle to rotate image with
   #
   # @return [RmagickImageRotation]
   #
-  def initialize(image_path, rotation_angle)
+  def initialize(file_directory, image_path, rotation_angle)
+    @directory = file_directory
     @image_file = image_path
-    @angle = rotation_angle
+    @rotation_angle = rotation_angle
+    @angle = GlobalConstant::ImageProcessing.rotation_angles[@rotation_angle]
   end
 
   # Perform Rotation operation on the image
@@ -35,7 +38,7 @@ class RmagickImageRotation
 
       original_file_name = File.basename(@image_file).gsub(File.extname(@image_file), "")
 
-      new_file_name = "#{Rails.root}/public/#{original_file_name}-#{@angle}.jpg"
+      new_file_name = "#{@directory}/#{original_file_name}-#{@rotation_angle}.jpg"
 
       image_obj = ImageList.new(@image_file)
 

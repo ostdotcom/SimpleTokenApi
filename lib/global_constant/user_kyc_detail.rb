@@ -165,6 +165,18 @@ module GlobalConstant
 
       # ### admin action type ####
 
+      ######### Documents REGEX START ############
+
+      def s3_document_path_regex
+        /\A[A-Z0-9\/]+\Z/i
+      end
+
+      def s3_document_image_path_regex
+        /\A([A-Z0-9\/]*\/)*i\/[A-Z0-9\/]+\Z/i
+      end
+
+      ######### Documents REGEX END ############
+
 
       ### Status Start ###
 

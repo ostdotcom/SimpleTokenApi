@@ -35,23 +35,60 @@ module GlobalConstant
         'processed'
       end
 
-      def failed_pdf_image_process_status
-        'failed_pdf'
+      def failed_invalid_document_file
+        'invalid_document'
       end
 
-      def failed_big_image_process_status
-        'failed_big_image'
+      def failed_invalid_selfie_file
+        'invalid_selfie'
       end
 
-      def failed_file_invalid_image_process_status
-        'failed_file_invalid'
+      def failed_vision_detect_text
+        'vision_dt_failed'
       end
 
-      def failed_image_process_status
-        'failed'
+      def failed_aws_compare_faces
+        'aws_cf_failed'
+      end
+
+      def failed_unmatched_faces
+        'aws_cf_unmatched_faces'
       end
 
       ###### Image Processing statuses End ######
+
+      ########## Rotation angles START ###########
+
+      def rotation_angle_0
+        'rotate-0'
+      end
+
+      def rotation_angle_90
+        'rotate-90'
+      end
+
+      def rotation_angle_180
+        'rotate-180'
+      end
+
+      def rotation_angle_270
+        'rotate-270'
+      end
+
+      def rotation_angles
+        {
+            rotation_angle_0 => 0,
+            rotation_angle_90 => 90,
+            rotation_angle_180 => 180,
+            rotation_angle_270 => 270
+        }
+      end
+
+      def rotation_sequence
+        [rotation_angle_0, rotation_angle_90, rotation_angle_270, rotation_angle_180]
+      end
+
+      ########## Rotation angles End ###########
 
     end
 

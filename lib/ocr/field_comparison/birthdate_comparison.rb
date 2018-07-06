@@ -6,25 +6,45 @@ module Ocr
 
     # @return [Ocr::FieldComparison::BirthdateComparison.new()]
 
-  private
+    # Initialize
+    # * Author: Aniket
+    #* Date: 06/06/2018
+    #* Reviewed By:
+    #
+    def initialize(params)
+      super
+
+    end
+
+    # Perform
+    # * Author: Aniket
+    #* Date: 06/06/2018
+    #* Reviewed By:
+    #
+    def perform
+      super
+    end
+
+
+    private
 
     def compare
       percent_match = 0
       date_of_birth = Date.strptime(@match_string, "%Y-%m-%d")
       all_possible_date_number_regex_array = all_possible_date_number_regex(date_of_birth)
 
-      if @safe_line_array.match(/#{all_possible_date_number_regex_array.join("|")}/i)
+      if @paragraph.match(/#{all_possible_date_number_regex_array.join("|")}/i)
         percent_match = 100
       else
         all_month_name_regex_array = all_month_name_regex(date_of_birth)
-        if @safe_line_array.match(/#{all_month_name_regex_array.join("|")}/i)
+        if @paragraph.match(/#{all_month_name_regex_array.join("|")}/i)
           percent_match = 100
         end
       end
 
       if percent_match < 100
         date_of_birth = Date.strptime(@match_string, "%Y-%m-%d").strftime("%y%m%d")
-        obj["#{column_name}_match_percent"] = 100 if @safe_line_array.match(date_of_birth)
+        obj["#{column_name}_match_percent"] = 100 if @paragraph.match(date_of_birth)
       end
       percent_match
     end

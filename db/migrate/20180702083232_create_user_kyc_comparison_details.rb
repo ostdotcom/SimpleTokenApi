@@ -12,7 +12,7 @@ class CreateUserKycComparisonDetails < DbMigrationConnection
         t.column :first_name_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :last_name_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :birthdate_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
-        t.column :document_id_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
+        t.column :document_id_number_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :nationality_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :big_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :small_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0

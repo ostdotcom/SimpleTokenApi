@@ -2,40 +2,55 @@ module Ocr
 
   module FieldComparison
 
-  class Base
+    class Base
 
-    # Initialize
-    # @params [Array] words_array(mandatory)
-    # @params [String] match_string(mandatory)
-    #
-    # Sets @words_array, @match_string
-    #
-    # @return [Ocr::FieldComparison::Base.new()]
-    #
-    #* Author: Aniket
-    #* Date: 28/06/2018
-    #* Reviewed By:
-    #
-    def initialize(params)
+      # Initialize
+      #
+      # * Author: Aniket
+      # * Date: 28/06/2018
+      # * Reviewed By:
+      #
+      # @params [String] Safe paragraph downcased- paragraph(mandatory)
+      # @params [String] Safe string to match downcased- match_string(mandatory)
+      #
+      # @return [Ocr::FieldComparison::Base]
+      #
+      def initialize(params)
+        @paragraph = params[:paragraph]
+        @match_string = params[:match_string]
+      end
 
-      @paragraph = params[:paragraph]
-      @match_string = params[:match_string]
+      # Perform
+      #
+      # * Author: Aniket
+      # * Date: 06/06/2018
+      # * Reviewed By:
+      #
+      # @return [Integer]
+      #
+      def perform
+        compare
+      end
 
-    end
+      private
 
-    def perform
+      # * Author: Aniket
+      # * Date: 06/06/2018
+      # * Reviewed By:
+      #
+      # @return [Boolean]
+      #
+      # refer for different formats - https://en.wikipedia.org/wiki/Machine-readable_passport
+      #
+      def is_machine_readable_passport_line?(line)
+        line.count('<') > 3
+      end
 
-      compare
 
-    end
-
-
-    private
-
-    def compare
+      def compare
         fail 'compare method is not implemented'
-    end
+      end
 
-  end
+    end
   end
 end

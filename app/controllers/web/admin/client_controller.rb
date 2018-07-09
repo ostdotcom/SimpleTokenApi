@@ -23,26 +23,16 @@ class Web::Admin::ClientController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # get Artifical Intellignce Setting
+  # get Auto Approve Setting
   #
   # * Author: Aniket/Tejas
   # * Date: 03/07/2018
   # * Reviewed By:
   #
-  def get_artifical_intellignce_setting
+  def get_auto_approve_setting
     service_response = ClientManagement::GetAutoApproveSetting.new(params).perform
     render_api_response(service_response)
   end
 
-  # Update Artifical Intellignce Setting
-  #
-  # * Author: Aniket
-  # * Date: 03/07/2018
-  # * Reviewed By:
-  #
-  def update_artifical_intellignce_setting
-    service_response = ClientManagement::UpdateAutoApproveSetting.new(params).perform
-    render_api_response(service_response)
-  end
 
 end

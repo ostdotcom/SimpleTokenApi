@@ -60,19 +60,19 @@ module GlobalConstant
       ########## Rotation angles START ###########
 
       def rotation_angle_0
-        'rotate-0'
+        'rotate_0'
       end
 
       def rotation_angle_90
-        'rotate-90'
+        'rotate_90'
       end
 
       def rotation_angle_180
-        'rotate-180'
+        'rotate_180'
       end
 
       def rotation_angle_270
-        'rotate-270'
+        'rotate_270'
       end
 
       def rotation_angles
@@ -89,7 +89,6 @@ module GlobalConstant
       end
 
       ########## Rotation angles End ###########
-
     end
 
   end

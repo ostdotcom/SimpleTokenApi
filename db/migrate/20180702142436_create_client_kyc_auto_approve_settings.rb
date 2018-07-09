@@ -5,7 +5,7 @@ class CreateClientKycAutoApproveSettings < DbMigrationConnection
       create_table :client_kyc_auto_approve_settings do |t|
         t.column :client_id, :integer, limit: 8, null: false
         t.column :face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
-        t.column :ocr_comparison_columns, :integer, null: false, default: 0
+        t.column :ocr_comparison_fields, :integer, null: false, default: 0
         t.column :status, :tinyint, limit: 1, null: false
         t.timestamps
       end

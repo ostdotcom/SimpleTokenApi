@@ -5,31 +5,28 @@ module Ocr
     include ::Util::ResultHelper
 
     # Initialize
+    #
+    # * Author: Aniket/Tejas
+    # * Date: 04/07/2018
+    # * Reviewed By: Aman
+    #
     # @params [String] paragraph (mandatory) - paragraph
     # @params [Hash] document_details (mandatory) - details of user
     # @params [Array] dimensions (optional) - dimensions of words
     #
-    # Sets @paragraph, @dimensions, @document_details, @rotation_angle, @comparison_percent, @result_hash
+    # Sets @paragraph, @dimensions, @document_details, @comparison_percent, @result_hash
     #
     # @return [Ocr::CompareDocument]
     #
-    #* Author: Aniket/Tejas
-    #* Date: 04/07/2018
-    #* Reviewed By:
-    #
-
     def initialize(params)
       @paragraph = params[:paragraph].to_s
-      @dimensions = params[:dimensions]
       @document_details = params[:document_details]
 
-      @result_hash = {
-          document_details: @document_details
-      }
+      @dimensions = params[:dimensions]
+
+      @result_hash = {}
 
       @comparison_percent = {}
-      @rotation_angle = nil
-
     end
 
     def perform
@@ -58,16 +55,8 @@ module Ocr
     #
     # @return [filtered_string]
     #
-    def safe_characters(characters)
-
-      return characters if characters.blank?
-      safe_paragraph = ""
-      characters.each_char do |letter|
-        safe_letter = letter.mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/n, '').downcase.to_s
-        safe_letter = letter.parameterize if safe_letter.blank?
-        safe_paragraph += safe_letter.present? ? safe_letter : letter
-      end
-      safe_paragraph
+    def safe_characters(paragraph)
+      Util::CommonValidateAndSanitize.safe_paragraph(paragraph)
     end
 
     # get percent match for first name
@@ -82,12 +71,13 @@ module Ocr
       first_name = @document_details[:first_name]
       return if first_name.blank?
 
+      first_name = safe_characters(first_name)
+
       params  = {
-          paragraph:@safe_paragraph,
+          paragraph: @safe_paragraph,
           match_string: first_name
       }
 
-      first_name = safe_characters(first_name)
       first_name_percentage = Ocr::FieldComparison::NameComparison.new(params).perform
       @comparison_percent[:first_name] = first_name_percentage
 
@@ -105,12 +95,13 @@ module Ocr
       last_name = @document_details[:last_name]
       return if last_name.blank?
 
+      last_name = safe_characters(last_name)
+
       params  = {
           paragraph:@safe_paragraph,
           match_string: last_name
       }
 
-      last_name = safe_characters(last_name)
       last_name_percentage = Ocr::FieldComparison::NameComparison.new(params).perform
       @comparison_percent[:last_name] = last_name_percentage
 
@@ -133,7 +124,6 @@ module Ocr
           match_string: birthdate
       }
 
-      birthdate = safe_characters(birthdate)
       birthdate_percentage = Ocr::FieldComparison::BirthdateComparison.new(params).perform
       @comparison_percent[:birthdate] = birthdate_percentage
 
@@ -151,13 +141,14 @@ module Ocr
       document_id = @document_details[:document_id]
       return if document_id.blank?
 
+      document_id = safe_characters(document_id)
+
       params  = {
           paragraph:@safe_paragraph,
           match_string: document_id
       }
 
-      document_id = safe_characters(document_id)
-      document_id_percentage = Ocr::FieldComparison::DocumentIdNameComparison.new(params).perform
+      document_id_percentage = Ocr::FieldComparison::DocumentIdNumberComparison.new(params).perform
       @comparison_percent[:document_id] = document_id_percentage
     end
 
@@ -167,7 +158,6 @@ module Ocr
     #* Date: 05/07/2018
     #* Reviewed By:
     #
-    # Sets @rotation_angle
     #
     def get_orientation
       return if @dimensions.blank?
@@ -177,8 +167,7 @@ module Ocr
       }
 
       rotation_angle = Ocr::GetOrientation.new(params).get_orientation
-      @rotation_angle = rotation_angle
-
+      @result_hash[:rotation_angle] = rotation_angle
     end
 
     # Api response data
@@ -191,8 +180,6 @@ module Ocr
     #
     def success_response_data
       @result_hash[:comparison_percent] = @comparison_percent
-      @result_hash[:rotation_angle] = @rotation_angle
-
       @result_hash
     end
 

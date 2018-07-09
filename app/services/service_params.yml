@@ -371,7 +371,6 @@
      - :ocr_auto_approve_fields
      - :fr_match_percent
 
-
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id

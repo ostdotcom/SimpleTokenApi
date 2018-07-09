@@ -13,18 +13,18 @@ module Ocr
     #
     def initialize(params)
       @words_array = params[:words_array]
-
     end
 
     # Perform
     # * Author: Aniket
-    #* Date: 06/06/2018
-    #* Reviewed By:
+    # * Date: 06/06/2018
+    # * Reviewed By:
+    #
+    # @returns [String] Orientation of the document.
     #
     def perform
       get_orientation
     end
-
 
     def get_orientation
 
@@ -36,46 +36,33 @@ module Ocr
           GlobalConstant::ImageProcessing.rotation_angle_180 => 0
       }
 
-      (0..(@words_array.length - 1)).each do |index|
 
-        x_diff = 0
-        y_diff = 0
-        orientation = nil
-
-        word = @words_array[index]
-
+      @words_array.each do |word|
         next if word.nil? || word.text.size < 3
 
-        x1 = @words_array[index].bounds[0].x
-        y1 = @words_array[index].bounds[0].y
+        x_diff, y_diff = 0, 0
+        orientation = nil
 
-        x2 = @words_array[index].bounds[1].x
-        y2 = @words_array[index].bounds[1].y
+        x1 = word.bounds[0].x
+        y1 = word.bounds[0].y
+
+        x2 = word.bounds[1].x
+        y2 = word.bounds[1].y
 
         x_diff = (x2 - x1)
         y_diff = (y2 - y1)
 
-        # x is greater and positive : normal orientation
-        # x is greater and negative : inverted orientation
-        # y is greater and positive : left orientation
-        # y is greater and negative : right orientation
+        # x diff is greater than y diff and positive : normal orientation
+        # x diff is greater than y diff and negative : inverted orientation
+        # y diff is greater than x diff positive : left orientation
+        # y diff is greater than x diff and negative : right orientation
 
         if x_diff.abs == y_diff.abs
           orientation = 'UNDEFINED'
-        end
-
-        if x_diff.abs > y_diff.abs
-          if x_diff < 0
-            orientation = GlobalConstant::ImageProcessing.rotation_angle_180
-          else
-            orientation = GlobalConstant::ImageProcessing.rotation_angle_0
-          end
+        elsif x_diff.abs > y_diff.abs
+          orientation = x_diff < 0 ? GlobalConstant::ImageProcessing.rotation_angle_180 : GlobalConstant::ImageProcessing.rotation_angle_0
         else
-          if y_diff < 0
-            orientation = GlobalConstant::ImageProcessing.rotation_angle_90
-          else
-            orientation = GlobalConstant::ImageProcessing.rotation_angle_270
-          end
+          orientation = y_diff < 0 ? GlobalConstant::ImageProcessing.rotation_angle_90 : GlobalConstant::ImageProcessing.rotation_angle_270
         end
 
         orientation_data[orientation] += 1

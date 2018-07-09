@@ -6,12 +6,12 @@ module ClientManagement
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # @param [Integer] client_id (mandatory) -  client id
     # @param [Integer] admin_id (mandatory) -  admin id
     #
-    # @return [ClientManagement::GetProfileDetails.new()]
+    # @return [ClientManagement::GetProfileDetails]
     #
     def initialize(params)
       super
@@ -22,15 +22,13 @@ module ClientManagement
       @client = nil
       @client_web_host = nil
       @client_super_admin_emails = nil
-
     end
-
 
     # Perform
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # @return [Result::Base]
     #
@@ -39,7 +37,6 @@ module ClientManagement
       r = validate_and_sanitize
       return r unless r.success?
 
-      fetch_client
       fetch_client_web_host
       fetch_client_super_admin_emails
 
@@ -50,29 +47,15 @@ module ClientManagement
 
     # Validate And Sanitize
     #
-    # * Author: Aniket/Tejas
-    # * Date: 03/07/2018
-    # * Reviewed By:
+    # * Author: Tejas
+    # * Date: 02/07/2018
+    # * Reviewed By: Aman
     #
+    # Sets @client
     #
     def validate_and_sanitize
       r = validate
       return r unless r.success?
-
-      r = validate_client_and_admin
-      return r unless r.success?
-
-      success
-    end
-
-    # Client and Admin validate
-    #
-    # * Author: Aniket/Tejas
-    # * Date: 03/07/2018
-    # * Reviewed By:
-    #
-    #
-    def validate_client_and_admin
 
       r = fetch_and_validate_client
       return r unless r.success?
@@ -81,26 +64,15 @@ module ClientManagement
       return r unless r.success?
 
       success
-
     end
 
-    # Fetch Client
-    #
-    # * Author: Tejas
-    # * Date: 02/07/2018
-    # * Reviewed By:
-    #
-    # Sets @client
-    #
-    def fetch_client
-      @client = Client.get_from_memcache(@client_id)
-    end
+    # todo: which domain name
 
     # Fetch Client Web Host
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # Sets @client_web_host
     #
@@ -112,7 +84,7 @@ module ClientManagement
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # Sets @client_super_admin_emails
     #
@@ -120,19 +92,18 @@ module ClientManagement
       @client_super_admin_emails = Admin.client_super_admin_emails(@client_id)
     end
 
-
     # Api response data
     #
     # * Author: Tejas
     # * Date: 02/07/2018
-    # * Reviewed By:
+    # * Reviewed By: Aman
     #
     # returns [Hash] api response data
     #
     def success_response_data
       {
           name: @client.name,
-          domain_name: @client_web_host.domain,
+          domain_name: @client_web_host.try(:domain),
           super_admin_email_ids: @client_super_admin_emails
       }
     end

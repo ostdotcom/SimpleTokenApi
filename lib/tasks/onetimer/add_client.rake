@@ -4,7 +4,7 @@ namespace :onetimer do
   # params = {
   #     "client_name" => "pankajkyc.developmentost.com",
   #     "cynopsis" => {
-  #         "username" =>  GlobalConstant::Cynopsis.user_name
+  #         "email_id" =>  '',
   #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
   #         "token" => GlobalConstant::Cynopsis.token,
   #         "base_url" => GlobalConstant::Cynopsis.base_url
@@ -90,6 +90,7 @@ namespace :onetimer do
     kyc_config = params["kyc_config"]
 
     fail 'token cannot be blank for cynopsis' if cynopsis_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
+    fail "cynopsis email id(#{cynopsis_data['email_id']}) is not valid "  if cynopsis_data['email_id'].blank? || !Util::CommonValidator.is_valid_email?(cynopsis_data['email_id'])
 
     if pepo_campaign_data.present?
       fail 'api_key cannot be blank for pepo_campaign' if pepo_campaign_data['api_key'].blank?
@@ -132,7 +133,7 @@ namespace :onetimer do
 
     cynopsis_token_e = r.data[:ciphertext_blob]
 
-    ClientCynopsisDetail.create(client_id: client_id,username: cynopsis_data['username'], domain_name: cynopsis_data['domain_name'],
+    ClientCynopsisDetail.create(client_id: client_id,email_id: cynopsis_data['email_id'], domain_name: cynopsis_data['domain_name'],
                                 token: cynopsis_token_e, base_url: cynopsis_data['base_url'],
                                 status: GlobalConstant::ClientCynopsisDetail.active_status)
 

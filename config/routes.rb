@@ -58,6 +58,13 @@ Rails.application.routes.draw do
       match 'detail' => :get_detail, via: :GET
     end
 
+    scope 'api/admin/client', controller: 'web/admin/client' do
+      match 'profile' => :get_profile_detail, via: :GET
+      match 'developer-details' => :get_developer_detail, via: :GET
+      match 'artifical-intellignce' => :get_artifical_intellignce_setting, via: :GET
+      match 'update-artifical-intellignce' => :update_artifical_intellignce_setting, via: :POST
+    end
+
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
       # match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
 
@@ -106,13 +113,6 @@ Rails.application.routes.draw do
 
     scope 'api/callback', controller: 'rest_api/callback/ops' do
       match 'whitelist-event' => :whitelist_event, via: :GET
-    end
-
-    scope 'api/admin/client', controller: 'web/client/profile' do
-      match 'profile' => :get_detail, via: :GET
-      match 'developer-details' => :get_developer_detail, via: :GET
-      match 'artifical-intellignce' => :get_artifical_intellignce_setting, via: :GET
-      match 'update-artifical-intellignce' => :update_artifical_intellignce_setting, via: :POST
     end
 
     match '*permalink', to: 'application#not_found', via: :all

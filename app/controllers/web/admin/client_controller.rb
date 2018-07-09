@@ -1,14 +1,13 @@
-class Web::Client::ProfileController < Web::Admin::BaseController
+class Web::Admin::ClientController < Web::Admin::BaseController
   before_action :authenticate_request
 
-
-  # get client details
+  # get client profile details
   #
   # * Author: Tejas
   # * Date: 02/07/2018
   # * Reviewed By:
   #
-  def get_detail
+  def get_profile_detail
     service_response = ClientManagement::GetProfileDetails.new(params).perform
     render_api_response(service_response)
   end

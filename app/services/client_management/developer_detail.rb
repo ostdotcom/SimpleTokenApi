@@ -11,7 +11,7 @@ module ClientManagement
       # @param [Integer] admin_id (mandatory) -  admin id
       # @param [Integer] client_id (mandatory) -  client id
       #
-      # @return [ClientManagement::DeveloperDetail.new()]
+      # @return [ClientManagement::DeveloperDetail]
       #
       def initialize(params)
         super
@@ -22,38 +22,33 @@ module ClientManagement
         @client = nil
         @api_secret_d = nil
         @client_cynopsyis = nil
-
-
       end
 
       # Perform
       #
       # * Author: Aniket
       # * Date: 02/07/2018
-      # * Reviewed By:
+      # * Reviewed By: Aman
       #
       # @return [Result::Base]
       #
       def perform
-
         r = validate_and_sanitize
         return r unless r.success?
 
-        fetch_client
         fetch_api_keys
         fetch_client_cynopsis
 
         success_with_data(success_response_data)
-
       end
 
       private
 
       # Validate And Sanitize
       #
-      # * Author: Aniket/Tejas
-      # * Date: 03/07/2018
-      # * Reviewed By:
+      # * Author: Aniket
+      # * Date: 02/07/2018
+      # * Reviewed By: Aman
       #
       #
       def validate_and_sanitize
@@ -82,26 +77,13 @@ module ClientManagement
         return r unless r.success?
 
         success
-
-      end
-
-      # Fetch Client
-      #
-      # * Author: Aniket
-      # * Date: 02/07/2018
-      # * Reviewed By:
-      #
-      # Sets @client
-      #
-      def fetch_client
-        @client = Client.get_from_memcache(@client_id)
       end
 
       # Fetch Secret Decrypt
       #
       # * Author: Aniket
       # * Date: 02/07/2018
-      # * Reviewed By:
+      # * Reviewed By: Aman
       #
       # Sets @api_secret_d
       #
@@ -115,7 +97,7 @@ module ClientManagement
       #
       # * Author: Aniket
       # * Date: 02/07/2018
-      # * Reviewed By:
+      # * Reviewed By: Aman
       #
       # Sets @client_cynopsis
       #
@@ -123,12 +105,11 @@ module ClientManagement
         @client_cynopsis = ClientCynopsisDetail.get_from_memcache(@client_id)
       end
 
-
       # Api response data
       #
       # * Author: Aniket
       # * Date: 02/07/2018
-      # * Reviewed By:
+      # * Reviewed By: Aman
       #
       # returns [Hash] api response data
       #
@@ -137,10 +118,7 @@ module ClientManagement
             api_key: @client.api_key,
             api_secret: @api_secret_d,
             aml_login_url: @client_cynopsis.base_url,
-            aml_username: @client_cynopsis.username,
-            meta:{
-                env:Rails.env
-            }
+            aml_username: @client_cynopsis.email_id
         }
       end
 

@@ -184,16 +184,15 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
   # * Author: Tejas
   # * Date: 02/07/2018
-  # * Reviewed By:
+  # * Reviewed By: Aman
   #
   # @param [Integer] client id
   #
-  # @return [Array <String>] emails of suoper admin
+  # @return [Array <String>] emails of super admin
   #
 
   def self.client_super_admin_emails(client_id)
     Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role ).pluck(:email)
-
   end
 
 

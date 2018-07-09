@@ -6,9 +6,9 @@ namespace :onetimer do
   # * Date: 18/06/2018
   # * Reviewed By:
   #
-  # rake RAILS_ENV=development onetimer:backpopulate_birthdate
+  # rake RAILS_ENV=development onetimer:backpopulate_birthdate_in_user_extended_details
   #
-  task :backpopulate_birthdate => :environment do
+  task :backpopulate_birthdate_in_user_extended_details => :environment do
 
     UserExtendedDetail.find_in_batches(batch_size: 100) do |ueds|
 

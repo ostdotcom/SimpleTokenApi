@@ -26,7 +26,7 @@ class KycSubmitJob < ApplicationJob
 
     call_cynopsis_api
 
-    # add_kyc_comparison_details
+    add_kyc_comparison_details
 
     UserActivityLogJob.new().perform({
                                          user_id: @user_id,

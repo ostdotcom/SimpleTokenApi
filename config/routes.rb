@@ -61,6 +61,7 @@ Rails.application.routes.draw do
     scope 'api/admin/client', controller: 'web/admin/client' do
       match 'profile' => :get_profile_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
+      match 'auto-approve-setting' => :get_auto_approve_setting, via: :GET
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
@@ -103,6 +104,10 @@ Rails.application.routes.draw do
       match 'resend-invite' => :resend_invite, via: :POST
       match 'reset-mfa' => :reset_mfa, via: :POST
       match 'delete-admin' => :delete_admin, via: :POST
+    end
+
+    scope 'api/admin/client', controller: 'web/admin/super_admin' do
+      match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

@@ -354,6 +354,21 @@
      - :client_id
   :optional:
 
+'ClientManagement::GetAutoApproveSetting':
+  :mandatory:
+     - :admin_id
+     - :client_id
+  :optional:
+
+'ClientManagement::UpdateAutoApproveSetting':
+  :mandatory:
+     - :admin_id
+     - :client_id
+     - :approve_status
+  :optional:
+     - :auto_approve_fields
+     - :fr_match_percent
+
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id

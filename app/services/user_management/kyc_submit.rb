@@ -2,7 +2,7 @@ module UserManagement
 
   class KycSubmit < ServicesBase
 
-    S3_DOCUMENT_PATH_REGEX = /\A[A-Z0-9\/]+\Z/i
+    S3_DOCUMENT_PATH_REGEX = GlobalConstant::UserKycDetail.s3_document_path_regex
 
     # Initialize
     #

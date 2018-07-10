@@ -129,6 +129,7 @@ class KycSubmitJob < ApplicationJob
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
+    @user_kyc_detail.last_reopened_at = nil
     @user_kyc_detail.save!
   end
 

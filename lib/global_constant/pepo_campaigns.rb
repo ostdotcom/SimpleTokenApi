@@ -91,6 +91,15 @@ module GlobalConstant
         'kit_marketing'
       end
 
+      def country_attribute
+        'country'
+      end
+
+      def alpha2_participant_attribute
+        'alpha2_participant'
+      end
+
+
       def allowed_custom_attributes
         [
           token_sale_registered_attribute,

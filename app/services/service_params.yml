@@ -328,13 +328,11 @@
 
 'UserManagement::Alpha3Registration':
   :mandatory:
-    - :first_name
-    - :last_name
+    - :country
+    - :alpha2_participant
     - :email
     - :company_name
   :optional:
-    - :project_description
-    - :kit_marketing
 
 'ClientManagement::VerifyApiCredential':
   :mandatory:

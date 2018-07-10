@@ -3,17 +3,13 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   enum image_processing_status: {
     GlobalConstant::ImageProcessing.unprocessed_image_process_status => 0,
     GlobalConstant::ImageProcessing.processed_image_process_status => 1,
-    GlobalConstant::ImageProcessing.failed_invalid_document_file => 2,
-    GlobalConstant::ImageProcessing.failed_invalid_selfie_file => 3,
-    GlobalConstant::ImageProcessing.failed_vision_detect_text => 4,
-    GlobalConstant::ImageProcessing.failed_aws_compare_faces => 5,
-    GlobalConstant::ImageProcessing.failed_unmatched_faces => 6
+    GlobalConstant::ImageProcessing.failed_image_process_status => 2
   }
 
 
-  def self.auto_approve_failed_reason
+  def self.auto_approve_failed_reason_config
 
-    @auto_approve_failed_reason ||= {
+    @aafr ||= {
         GlobalConstant::KycAutoApproveFailedReason.document_file_invalid => 1,
         GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid => 2,
         GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch=> 4,
@@ -22,13 +18,15 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
         GlobalConstant::KycAutoApproveFailedReason.investor_proof => 32,
         GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc => 64,
         GlobalConstant::KycAutoApproveFailedReason.token_sale_ended => 128,
-        GlobalConstant::KycAutoApproveFailedReason.unexpected => 256
+        GlobalConstant::KycAutoApproveFailedReason.unexpected => 256,
+        GlobalConstant::KycAutoApproveFailedReason.unmatched_faces_in_selfie => 512
     }
 
+    @aafr
   end
 
   def auto_approve_failed_reason_array
-    @auto_approve_failed_reason_array = UserKycComparisonDetail.get_bits_set_for_auto_approve_failed_reason(auto_approve_failed_reason)
+    UserKycComparisonDetail.get_bits_set_for_auto_approve_failed_reason(auto_approve_failed_reason)
   end
 
   # Bitwise columns config
@@ -39,7 +37,7 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        auto_approve_failed_reason: auto_approve_failed_reason
+        auto_approve_failed_reason: auto_approve_failed_reason_config
     }
   end
 

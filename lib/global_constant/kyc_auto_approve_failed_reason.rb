@@ -40,6 +40,10 @@ module GlobalConstant
         'unexpected_reason'
       end
 
+      def unmatched_faces_in_selfie
+        'unmatched_selfie_faces'
+      end
+
     end
 
   end

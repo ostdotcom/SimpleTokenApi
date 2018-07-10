@@ -138,7 +138,7 @@ module Ocr
     # Sets @comparison_percent[:document_id]
     #
     def compare_document_id
-      document_id = @document_details[:document_id]
+      document_id = @document_details[:document_id_number]
       return if document_id.blank?
 
       document_id = safe_characters(document_id)
@@ -149,7 +149,7 @@ module Ocr
       }
 
       document_id_percentage = Ocr::FieldComparison::DocumentIdNumberComparison.new(params).perform
-      @comparison_percent[:document_id] = document_id_percentage
+      @comparison_percent[:document_id_number] = document_id_percentage
     end
 
     # get percent match for rotation angle

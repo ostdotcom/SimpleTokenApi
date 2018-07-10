@@ -31,7 +31,7 @@ module Util
     #
     # @return [string] Returns paragraph with characters in utf-8
     #
-    def safe_paragraph(paragraph)
+    def self.safe_paragraph(paragraph)
       return paragraph if paragraph.blank?
       safe_paragraph = ""
       paragraph.each_char do |letter|

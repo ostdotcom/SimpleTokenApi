@@ -46,11 +46,10 @@ class RmagickImageRotation
 
       image_obj.strip!
 
-      # image_obj.format = "PNG"
-
       image_obj.write(new_file_name)
 
-      return success_with_data(rotated_image_path: new_file_name)
+      return success_with_data(rotated_image_path: new_file_name, rotation_angle: @rotation_angle,
+                               width: image_obj.columns, height: image_obj.rows)
     rescue => e
       return exception_with_data(e, "swr", "Something went wrong", "Something went wrong", "", "", e.message)
     end

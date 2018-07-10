@@ -47,9 +47,9 @@ module ClientManagement
 
       update_auto_approve_setting
 
-      trigger_reprocess_kyc_auto_approve_rescue_task if can_trigger_rescue_task
+      # trigger_reprocess_kyc_auto_approve_rescue_task if can_trigger_rescue_task
 
-      success
+      success_with_data(success_response_data)
     end
 
 
@@ -236,6 +236,30 @@ module ClientManagement
       end
 
       ocr_comparison_value
+    end
+
+    # Api response data
+    #
+    # * Author: Aniket/Tejas
+    # * Date: 03/07/2018
+    # * Reviewed By:
+    #
+    # returns [Hash] api response data
+    #
+    def success_response_data
+
+      {
+          approve_status: @auto_approve_status,
+          recommended_setting: {
+              fr_match_percent: GlobalConstant::ClientKycAutoApproveSetting.recommended_fr_percent,
+              auto_approve_fields: ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
+          },
+          client_kyc_auto_approve_setting:{
+              fr_match_percent: @fr_match_percent,
+              auto_approve_fields: @ocr_auto_approve_fields
+          }
+      }
+
     end
 
     # Check whether rescue task can trigger or not

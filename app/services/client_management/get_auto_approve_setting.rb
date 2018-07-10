@@ -104,10 +104,10 @@ module ClientManagement
                            GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status
 
       response = {
-          current_status: current_status,
+          approve_status: current_status,
           recommended_setting: {
               fr_match_percent: GlobalConstant::ClientKycAutoApproveSetting.recommended_fr_percent,
-              active_ocr: ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
+              auto_approve_fields: ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
           }
       }
 
@@ -115,7 +115,7 @@ module ClientManagement
 
       response[:client_kyc_auto_approve_setting] = {
           fr_match_percent: @client_auto_approve_setting.face_match_percent.to_i,
-          active_ocr: @client_auto_approve_setting.ocr_comparison_fields_array
+          auto_approve_fields: @client_auto_approve_setting.ocr_comparison_fields_array
       }
 
       response

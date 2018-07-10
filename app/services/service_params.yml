@@ -366,9 +366,9 @@
   :mandatory:
      - :admin_id
      - :client_id
-     - :auto_approve_status
+     - :approve_status
   :optional:
-     - :ocr_auto_approve_fields
+     - :auto_approve_fields
      - :fr_match_percent
 
 'ClientManagement::DeveloperDetail':

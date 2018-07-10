@@ -16,15 +16,13 @@ class CreateUserKycComparisonDetails < DbMigrationConnection
         t.column :nationality_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :big_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :small_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
-        t.column :has_residence_proof, :tinyint, null: false, default: 0
         t.column :image_processing_status, :tinyint, null: false, default: 0
-        t.column :kyc_auto_approved_status, :tinyint, null: false, default: 0
+        t.column :auto_approve_failed_reason, :integer, default: 0
         t.column :client_kyc_auto_approve_settings_id, :integer, null: false, default: 0
         t.timestamps
       end
 
       add_index :user_kyc_comparison_details, :user_extended_detail_id, unique: true, name: 'uniq_user_extended_id'
-      add_index :user_kyc_comparison_details, [:client_id, :kyc_auto_approved_status], name: 'client_auto_approve_kyc_indx'
     end
 
   end

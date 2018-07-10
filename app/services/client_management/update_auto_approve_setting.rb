@@ -9,7 +9,7 @@ module ClientManagement
     #
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
-    # @param [String] auto_approve_status (mandatory) - auto approve status (auto/manual)
+    # @param [String] approve_status (mandatory) - approve status (auto/manual)
     # @param [Array] ocr_auto_approve_fields (optional) - ocr auto approve fields
     # @param [Integer] fr_match_percent (optional) - Facial Recogition match percent
     #
@@ -21,8 +21,8 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
 
-      @auto_approve_status = @params[:auto_approve_status]
-      @ocr_auto_approve_fields = @params[:ocr_auto_approve_fields]
+      @auto_approve_status = @params[:approve_status]
+      @ocr_auto_approve_fields = @params[:auto_approve_fields]
       @fr_match_percent = @params[:fr_match_percent].to_i
 
     end

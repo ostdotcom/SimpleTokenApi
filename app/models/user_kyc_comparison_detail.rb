@@ -7,9 +7,8 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   }
 
 
-  def self.auto_approve_failed_reason_config
-
-    @aafr ||= {
+  def self.auto_approve_failed_reasons_config
+    @auto_approve_failed_reasons_config ||= {
         GlobalConstant::KycAutoApproveFailedReason.document_file_invalid => 1,
         GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid => 2,
         GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch=> 4,
@@ -18,15 +17,13 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
         GlobalConstant::KycAutoApproveFailedReason.investor_proof => 32,
         GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc => 64,
         GlobalConstant::KycAutoApproveFailedReason.token_sale_ended => 128,
-        GlobalConstant::KycAutoApproveFailedReason.unexpected => 256,
+        GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 256,
         GlobalConstant::KycAutoApproveFailedReason.unmatched_faces_in_selfie => 512
     }
-
-    @aafr
   end
 
-  def auto_approve_failed_reason_array
-    UserKycComparisonDetail.get_bits_set_for_auto_approve_failed_reason(auto_approve_failed_reason)
+  def auto_approve_failed_reasons_array
+    @auto_approve_failed_reasons_array = UserKycComparisonDetail.get_bits_set_for_auto_approve_failed_reasons(auto_approve_failed_reasons)
   end
 
   # Bitwise columns config
@@ -37,7 +34,7 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        auto_approve_failed_reason: auto_approve_failed_reason_config
+        auto_approve_failed_reason: auto_approve_failed_reasons_config
     }
   end
 
@@ -51,10 +48,10 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   # * Date: 04/07/2018
   # * Reviewed By
   #
-  def self.auto_approve_failed_reason_bit_value(reasons_array)
+  def self.auto_approve_failed_reasons_bit_value(reasons_array)
     ocr_comparison_value = 0
     reasons_array.each do |reason|
-      ocr_comparison_value += UserKycComparisonDetail.auto_approve_failed_reason[reason]
+      ocr_comparison_value += UserKycComparisonDetail.auto_approve_failed_reasons[reason]
     end
 
     ocr_comparison_value

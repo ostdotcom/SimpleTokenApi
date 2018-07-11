@@ -24,12 +24,13 @@ class ReprocessKycAutoApproveJob < ApplicationJob
 
   def process_user_kyc_details
     UserKycDetail.
-        where(client_id: @client_id, status: GlobalConstant::UserKycDetail.active_status).
+        where(client_id: @client_id, status: GlobalConstant::UserKycDetail.active_status,
+              admin_status: GlobalConstant::UserKycDetail.unprocessed_admin_status).
         order({client_id: :desc}).
         find_in_batches(batch_size: 100) do |ukds|
 
       ukds.each do |ukd|
-        if (ukd.admin_status == GlobalConstant::UserKycDetail.unprocessed_admin_status) && (ukd.last_reopened_at.to_i <= 0)
+        if (!ukd.has_been_auto_approved? && ukd.last_reopened_at.to_i == 0  && ukd.admin_action_types_array.blank?)
           trigger_auto_approve_update_rescue_task(ukd.user_extended_detail_id)
         end
       end

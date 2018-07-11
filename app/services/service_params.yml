@@ -129,6 +129,7 @@
     - :client_id
     - :id
   :optional:
+    - :is_auto_approve
 
 'AdminManagement::Kyc::CheckDuplicates':
   :mandatory:

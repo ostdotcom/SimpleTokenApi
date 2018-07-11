@@ -47,6 +47,8 @@ module AdminManagement
           r = fetch_and_validate_client
           return r unless r.success?
 
+          # this method has been overridden by qualify action
+          #
           r = fetch_and_validate_admin
           return r unless r.success?
 

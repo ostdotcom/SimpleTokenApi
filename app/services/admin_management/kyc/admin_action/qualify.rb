@@ -16,10 +16,13 @@ module AdminManagement
         # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] id (mandatory)
         #
+        # @params [Integer] is_auto_approve (Optional) - if its an auto approve qualify
+        #
         # @return [AdminManagement::Kyc::AdminAction::Qualify]
         #
         def initialize(params)
           super
+          @is_auto_approve = params[:is_auto_approve]
         end
 
         # Deny KYC by admin
@@ -58,15 +61,79 @@ module AdminManagement
           r = super
           return r unless r.success?
 
+          r = validate_if_case_closed_for_auto_approve_admin_action?
+          return r unless r.success?
+
           return success unless is_duplicate_kyc_approved_user?
 
           error_with_data(
-              'am_k_aa_qf_1',
+              GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc,
               'Duplicate Kyc User for approval.',
               'Duplicate Kyc User for approval.',
               GlobalConstant::ErrorAction.default,
               {}
           )
+        end
+
+        # If this request is by auto approve process to qualify the admin
+        #
+        # * Author: Aman
+        # * Date: 10/07/2018
+        # * Reviewed By:
+        #
+        # @return [Boolean] return true if auto approve qualify action
+        #
+        def is_auto_approve_admin?
+          @is_auto_approve && @admin_id == Admin::AUTO_APPROVE_ADMIN_ID
+        end
+
+        # fetch admin and validate. -1 Admin Id is for auto approve. dummy admin obj is initialized
+        #
+        # * Author: Aman
+        # * Date: 10/07/2018
+        # * Reviewed By:
+        #
+        # Sets @admin
+        #
+        # @return [Result::Base]
+        #
+        def fetch_and_validate_admin
+          if is_auto_approve_admin?
+            @admin = Admin.new(id: @admin_id)
+            success
+          else
+            super
+          end
+        end
+
+        # check if auto approve action can be performed on this case
+        #
+        # * Author: Aman
+        # * Date: 10/08/2018
+        # * Reviewed By:
+        #
+        # @return [Boolean]
+        #
+        def validate_if_case_closed_for_auto_approve_admin_action?
+          return success if !is_auto_approve_admin?
+
+          return error_with_data(
+              'am_k_aa_q_iccfa_1',
+              'Case has already been auto approved',
+              'Case has already been auto approved',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @user_kyc_detail.has_been_auto_approved?
+
+          return error_with_data(
+              'am_k_aa_q_iccfa_2',
+              'Case cannot be auto approved',
+              'Case cannot be auto approved',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) if @user_kyc_detail.last_reopened_at.to_i > 0
+
+          return success
         end
 
         # Check if Duplicate KYC Approved User
@@ -99,11 +166,19 @@ module AdminManagement
         # * Date: 15/10/2017
         # * Reviewed By: Sunil
         #
+        #
         def update_user_kyc_status
+          if is_auto_approve_admin?
+            @user_kyc_detail.send("set_" + GlobalConstant::UserKycDetail.auto_approved)
+          else
+            @user_kyc_detail.send("set_" + GlobalConstant::UserKycDetail.manual_approved)
+          end
+
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
           @user_kyc_detail.last_acted_by = @admin_id
           @user_kyc_detail.last_acted_timestamp = Time.now.to_i
           @user_kyc_detail.admin_action_types = 0
+
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
           @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
         end

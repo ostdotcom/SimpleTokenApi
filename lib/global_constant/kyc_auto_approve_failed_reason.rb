@@ -36,7 +36,7 @@ module GlobalConstant
         'selfie_file_invalid'
       end
 
-      def unexpected
+      def unexpected_reason
         'unexpected_reason'
       end
 

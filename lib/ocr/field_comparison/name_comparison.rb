@@ -63,20 +63,18 @@ module Ocr
       # @return [Boolean]
       #
       def passport_name_matched?(line)
-        return false if !is_machine_readable_passport_line?(line)
 
-        # remove any space in the Machine-readable_passport line
-        formatted_line = line.gsub(/ /,'').to_s
-        return false if  formatted_line.!match(/p</)
 
         # remove any extra characters before the Machine-readable_passport line
-        formatted_line = formatted_line.sub(/[^p]*p</, '')
+        formatted_line = sanitize_machine_readable_passport_line(line)
+
+        return false if formatted_line.blank?
 
         # passport has the name starting from 6th character
         # https://en.wikipedia.org/wiki/Machine-readable_passport
         # space is also used as a separator in case if api inserts a space in between
         #
-        all_words = formatted_line.to_s[3..-1].split("<")
+        all_words = formatted_line[5..-1].to_s.split("<")
         all_words_in_name = @match_string.split(" ")
 
         return true if (all_words_in_name - all_words).blank?

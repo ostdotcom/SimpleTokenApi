@@ -34,18 +34,23 @@ module Ocr
 
       private
 
+      # Get filtered passport line
+      # remove any extra characters before the Machine-readable_passport line
+      #
       # * Author: Aniket
-      # * Date: 06/06/2018
+      # * Date: 11/07/2018
       # * Reviewed By:
       #
-      # @return [Boolean]
+      # @return [String]
       #
       # refer for different formats - https://en.wikipedia.org/wiki/Machine-readable_passport
       #
-      def is_machine_readable_passport_line?(line)
-        line.count('<') > 3
-      end
+      def sanitize_machine_readable_passport_line(line)
+        return "" if line.count('<') < 3
 
+        pos = line.index('p<')
+        pos.nil? ? "" : line[pos..-1].gsub(/ /, '')
+      end
 
       def compare
         fail 'compare method is not implemented'

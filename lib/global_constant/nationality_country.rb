@@ -89,7 +89,7 @@ module GlobalConstant
     #
 
     def self.fetch_country_nationality_mapping
-      @fetch_file_contents ||= File.open("#{Rails.root}/lib/Nationality_and_country_mapping.csv",
+      @fetch_file_contents ||= File.open("#{Rails.root}/lib/nationality_and_country_mapping.csv",
                                          "rb").read.split("\n")
     end
 

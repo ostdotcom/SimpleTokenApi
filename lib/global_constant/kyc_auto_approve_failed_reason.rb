@@ -28,6 +28,12 @@ module GlobalConstant
         'token_sale_ended'
       end
 
+      def case_closed_for_auto_approve
+        'case_closed_for_auto_approve'
+      end
+
+
+
       def document_file_invalid
         'document_file_invalid'
       end
@@ -42,6 +48,20 @@ module GlobalConstant
 
       def unmatched_faces_in_selfie
         'unmatched_selfie_faces'
+      end
+
+
+      def auto_approve_fail_reasons
+        [
+            ocr_unmatch,
+            fr_unmatch,
+            residency_proof,
+            investor_proof,
+            duplicate_kyc,
+            token_sale_ended,
+            case_closed_for_auto_approve
+
+        ]
       end
 
     end

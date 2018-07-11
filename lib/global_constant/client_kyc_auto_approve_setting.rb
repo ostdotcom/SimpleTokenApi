@@ -36,23 +36,23 @@ module GlobalConstant
       ### OCR comparison column start ###
 
       def first_name_ocr_comparison_field
-        'first_name_match'
+        'first_name'
       end
 
       def last_name_ocr_comparison_field
-        'last_name_match'
+        'last_name'
       end
 
       def birthdate_ocr_comparison_field
-        'birthdate_match'
+        'birthdate'
       end
 
       def nationality_ocr_comparison_field
-        'nationality_match'
+        'nationality'
       end
 
       def document_id_number_ocr_comparison_field
-        'document_id_number_match'
+        'document_id_number'
       end
 
       ### OCR comparison column End ###

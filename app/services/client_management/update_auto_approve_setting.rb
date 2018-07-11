@@ -123,7 +123,7 @@ module ClientManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_auto_approve_fields: "Select atlease one field"}
+          {auto_approve_fields: "Select at least one field"}
       ) if @ocr_auto_approve_fields.count < 1
 
       remaining_fields = @ocr_auto_approve_fields - ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
@@ -134,7 +134,7 @@ module ClientManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_auto_approve_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
+          {auto_approve_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
       ) if remaining_fields.count > 0
 
       return error_with_data(

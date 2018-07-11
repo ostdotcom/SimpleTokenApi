@@ -40,8 +40,6 @@ module Ocr
 
       compare_document_id
 
-      compare_nationality
-
       get_orientation
 
       success_with_data(success_response_data)
@@ -152,22 +150,6 @@ module Ocr
 
       document_id_percentage = Ocr::FieldComparison::DocumentIdNumberComparison.new(params).perform
       @comparison_percent[:document_id_number] = document_id_percentage
-    end
-
-    def compare_nationality
-
-      nationality = @document_details[:nationality]
-      return if nationality.blank?
-
-      nationality = safe_characters(nationality)
-
-      params  = {
-          paragraph:@safe_paragraph,
-          match_string: nationality
-      }
-
-      nationality_percentage = Ocr::FieldComparison::NationalityComparison.new(params).perform
-      @comparison_percent[:nationality] = nationality_percentage
     end
 
     # get percent match for rotation angle

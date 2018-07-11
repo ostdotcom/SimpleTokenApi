@@ -4,30 +4,7 @@ module Ocr
 
     class NationalityComparison < Base
 
-      # Initialize
-      #
-      # * Author: Tejas
-      # * Date: 09/07/2018
-      # * Reviewed By:
-      #
-      # @return [Ocr::FieldComparison::NationalityComparison]
-      #
-
-      def initialize(params)
-        super
-      end
-
-      # Perform
-      #
-      # * Author: Tejas
-      # * Date: 09/07/2018
-      # * Reviewed By:
-      #
-      # @return [Integer]
-
-      def perform
-        super
-      end
+      # @return [Ocr::FieldComparison::NationalityComparison.new()]
 
       private
 
@@ -41,61 +18,45 @@ module Ocr
       #
 
       def compare
-        @paragraph =  Util::CommonValidateAndSanitize.safe_paragraph(@paragraph)
-        iso_map = GlobalConstant::NationalityCountry.nationality_iso_map
-        iso_code = iso_map[@match_string.to_s.upcase]
-        country_map = GlobalConstant::NationalityCountry.nationality_country_map
-        country = country_map[@match_string.to_s.upcase]
-
-        @paragraph.split("\n").each do |line|
-          # full word match in a line
-          next if line.blank?
-          return 100 if line.match(/#{@match_string}/i)
-
-          # country match in the line
-          country.present? && country.each do |entry|
-            return 100 if entry.present? and line.match(/#{entry}/i)
+        @match_string = safe_characters(@match_string)
+        return 100 if @safe_line_array.match(/#{@match_string}/i)
+        if ['american', 'U.S. TERRITORY'.downcase].include?(@match_string.downcase)
+          usa_states.each{|uss| return 100 if @safe_line_array.match(/#{uss}/i)}
+        else
+          country = nationalities_mapping[@match_string.downcase]
+          return 0 if country.blank?
+          country.each do |entry|
+            return 100 if entry.present? and @safe_line_array.match(/#{entry}/i)
           end
-
-          # check for american and u.s. territory and canada
-          if ['american', 'u.s. territory'].include?(@match_string.downcase)
-            usa_states.each{|uss| return 100 if line.match(/#{uss}/i)}
-          elsif ['canadian'].include?(@match_string.downcase)
-            canada_states.each{|uss| return 100 if line.match(/#{uss}/i)}
-          end
-
-          # check for ISO in machine-readable passport
-          # remove any space in the Machine-readable_passport line
-          next if iso_code.blank?
-          next unless line.downcase.match(/p</)
-          return 100 if passport_nationality_matched?(line, iso_code)
-
         end
         0
       end
 
-
-
-      # words split by "{<}, {\s}" in a machine readable passport line has all the words in a name
+      # Nationalities Mapping
       #
-      # * Author: Aniket
-      # * Date: 06/06/2018
+      # * Author: Tejas
+      # * Date: 02/07/2018
       # * Reviewed By:
       #
-      # @return [Boolean]
+      # @return [Hash] nationality_map
+      #
 
-      def passport_nationality_matched?(line, iso_code)
-        return false if !is_machine_readable_passport_line?(line)
+      def nationalities_mapping
 
-        # remove any extra characters before the Machine-readable_passport line
-        line = line.sub(/[^p]*p</, '')
+        @nationality_map ||= {}
+        if @nationality_map.blank?
+          file = File.open("#{Rails.root}/country_nationality.csv", "rb")
+          file.each do |row|
+            sp = row.gsub("\r\n", "").split(",")
+            @nationality_map[sp[1].downcase] ||= []
+            @nationality_map[sp[1].downcase] << sp[0]
+          end
+          # return 0 if @nationality_map.blank?
+        end
 
-        passport_iso = line.to_s[0..2]
-        return true if passport_iso.downcase == iso_code.downcase
-        return false
+        @nationality_map
+
       end
-
-
 
       # Usa States
       #
@@ -105,6 +66,7 @@ module Ocr
       #
       # @return [String]
       #
+
       def usa_states
         return ['USA','United States Minor Outlying Islands','United States of America',
                 'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida',
@@ -114,67 +76,6 @@ module Ocr
                 'Carolina','Tennessee','Texas','Utah','Vermont','Virginia',
                 'Washington','West Virginia','Wisconsin','Wyoming','CAROLINA', 'Pennsylvania', 'Rhode Island']
       end
-
-      # Canada States
-      #
-      # * Author: Tejas
-      # * Date: 10/07/2018
-      # * Reviewed By:
-      #
-      # @return [String]
-      #
-      def canada_states
-        return ['Alberta','British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador	',
-        'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Northwest Territories',
-        'Nunavut', 'Yukon']
-      end
-
     end
   end
 end
-
-
-
-# def compare
-#   iso_map = GlobalConstant::NationalityCountry.nationality_iso_map
-#   iso_code = iso_map[@match_string.to_s.upcase]
-#   country_map = GlobalConstant::NationalityCountry.nationality_country_map
-#   country = country_map[@match_string.to_s.upcase]
-#
-#   @paragraph.split("\n").each do |line|
-#     # full word match in a line
-#     next if line.blank?
-#     return 100 if line.match(/#{@match_string}/i)
-#
-#     # country match in the line
-#     country.present? && country.each do |entry|
-#       return 100 if entry.present? and line.match(/#{entry}/i)
-#     end
-#
-#     # check for american and u.s. territory and canada
-#     if ['american', 'u.s. territory'].include?(@match_string.downcase)
-#       usa_states.each{|uss| return 100 if line.match(/#{uss}/i)}
-#     elsif ['canadian'].include?(@match_string.downcase)
-#       canada_states.each{|uss| return 100 if line.match(/#{uss}/i)}
-#     end
-#
-#
-#     # check for ISO in machine-readable passport
-#     # remove any space in the Machine-readable_passport line
-#
-#     next if iso_code.blank?
-#     return 100 if passport_nationality_matched?(line, iso_code)
-#
-#     #
-#     # next unless line.downcase.match(/p</)
-#     # # remove any extra characters before the Machine-readable_passport line
-#     # formatted_line = line.sub(/[^p]*p</, '')
-#     # next if formatted_line.blank?
-#     # passport_iso_code = line.to_s[2..4]
-#     # return 100 if passport_iso_code == iso_code
-#
-#   end
-#   0
-# end
-#
-

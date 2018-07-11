@@ -434,7 +434,20 @@ class VisionCompareText < EstablishImageProcessingPocDbConnection
     safe_paragraph
   end
 
+  def self.nationalities_mapping
 
+    @nationality_map ||= {}
+    if @nationality_map.blank?
+      file = File.open("#{Rails.root}/country_nationality.csv", "rb")
+      file.each do |row|
+        sp = row.gsub("\r\n", "").split(",")
+        @nationality_map[sp[1].downcase] = sp[0]
+      end
+    end
+
+    return @nationality_map
+
+  end
 
   def self.usa_states
     return ['USA','United States Minor Outlying Islands','United States of America',

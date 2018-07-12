@@ -2,7 +2,7 @@ module ClientManagement
   class UpdateAutoApproveSetting < ServicesBase
 
     TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR = 1
-    MIN_OCR_FIELDS_SELECTION_COUNT = 1
+    MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT = 1
     MIN_FR_MATCH_PERCENT = 20
 
     # Initialize
@@ -14,7 +14,7 @@ module ClientManagement
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
     # @param [String] approve_type (mandatory) - approve status (auto/manual)
-    # @param [Array] ocr_fields (mandatory) - ocr auto approve fields
+    # @param [Array] ocr_comparison_fields (mandatory) - ocr auto approve fields
     # @param [Integer] fr_match_percent (mandatory) - Facial Recogition match percent
     #
     # @return [ClientManagement::UpdateAutoApproveSetting]
@@ -26,7 +26,7 @@ module ClientManagement
       @admin_id = @params[:admin_id]
 
       @approve_type = @params[:approve_type]
-      @ocr_fields = @params[:ocr_fields]
+      @ocr_comparison_fields = @params[:ocr_comparison_fields]
       @fr_match_percent = @params[:fr_match_percent].to_i
 
     end
@@ -73,7 +73,7 @@ module ClientManagement
       r = validate_client_and_admin
       return r unless r.success?
 
-      r = validate_ocr_fields
+      r = validate_ocr_comparison_fields
       return r unless r.success?
 
       success
@@ -97,7 +97,7 @@ module ClientManagement
       success
     end
 
-    def validate_ocr_fields
+    def validate_ocr_comparison_fields
       return error_with_data(
           's_cm_uaas_vof_1',
           'Invalid parameters',
@@ -113,25 +113,25 @@ module ClientManagement
           'Invalid ocr fields data',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if !@ocr_fields.is_a?(Array)
+      ) if !@ocr_comparison_fields.is_a?(Array)
 
       return error_with_data(
           's_cm_uaas_vof_3',
-          'Invalid values for ocr_fields',
+          'Invalid values for ocr_comparison_fields',
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_fields: "Select at least one field"}
-      ) if @ocr_fields.count < MIN_OCR_FIELDS_SELECTION_COUNT
+          {ocr_comparison_fields: "Select at least one field"}
+      ) if @ocr_comparison_fields.count < MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT
 
-      remaining_fields = @ocr_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
+      remaining_fields = @ocr_comparison_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
       return error_with_data(
           's_cm_uaas_vof_4',
-          'Invalid values for ocr_fields',
+          'Invalid values for ocr_comparison_fields',
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
+          {ocr_comparison_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
       ) if remaining_fields.count > 0
 
       return error_with_data(
@@ -159,8 +159,8 @@ module ClientManagement
     def fetch_and_validate_auto_approve_setting
       @saved_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
 
-      modified_fields = @ocr_fields - @saved_auto_approve_setting.ocr_comparison_fields_array
-      modified_fields += @saved_auto_approve_setting.ocr_comparison_fields_array - @ocr_fields
+      modified_fields = @ocr_comparison_fields - @saved_auto_approve_setting.ocr_comparison_fields_array
+      modified_fields += @saved_auto_approve_setting.ocr_comparison_fields_array - @ocr_comparison_fields
 
       if modified_fields.count == 0 &&
          @fr_match_percent == @saved_auto_approve_setting.face_match_percent.to_i &&
@@ -223,7 +223,7 @@ module ClientManagement
     #
     def ocr_comparison_bit_value
       ocr_comparison_value = 0
-      @ocr_fields.each do |ocr_field|
+      @ocr_comparison_fields.each do |ocr_field|
         ocr_comparison_value += ClientKycPassSetting.ocr_comparison_fields_config[ocr_field]
       end
 
@@ -243,7 +243,7 @@ module ClientManagement
       {
           client_kyc_pass_setting: {
               fr_match_percent: @fr_match_percent,
-              ocr_fields: @ocr_fields,
+              ocr_comparison_fields: @ocr_comparison_fields,
               approve_type: @approve_type
           }
       }

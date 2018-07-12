@@ -102,7 +102,7 @@ module ClientManagement
           client_kyc_pass_setting: {
               approve_type: @client_kyc_pass_setting.approve_type,
               fr_match_percent: @client_kyc_pass_setting.face_match_percent.to_i,
-              orc_fields: @client_kyc_pass_setting.ocr_comparison_fields_array
+              ocr_comparison_fields: @client_kyc_pass_setting.ocr_comparison_fields_array
           }
       }
     end

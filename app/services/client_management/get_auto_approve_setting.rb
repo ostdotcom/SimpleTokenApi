@@ -18,7 +18,7 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
 
-      @client_auto_approve_setting = nil
+      @client_kyc_pass_setting = nil
     end
 
     # Perform
@@ -82,10 +82,10 @@ module ClientManagement
     # * Date: 03/07/2018
     # * Reviewed By:
     #
-    # Sets @client_auto_approve_setting
+    # Sets @client_kyc_pass_setting
     #
     def fetch_client_auto_approve_setting
-      @client_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
+      @client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
     end
 
 
@@ -98,27 +98,13 @@ module ClientManagement
     # returns [Hash] api response data
     #
     def success_response_data
-
-      current_status = @client_auto_approve_setting.present? ?
-                           GlobalConstant::ClientKycPassSetting.auto_approve_web_status :
-                           GlobalConstant::ClientKycPassSetting.manual_approve_web_status
-
-      response = {
-          approve_status: current_status,
-          recommended_setting: {
-              fr_match_percent: GlobalConstant::ClientKycPassSetting.recommended_fr_percent,
-              auto_approve_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys
+      {
+          client_kyc_pass_setting: {
+              approve_type: @client_kyc_pass_setting.approve_type,
+              fr_match_percent: @client_kyc_pass_setting.face_match_percent.to_i,
+              orc_fields: @client_kyc_pass_setting.ocr_comparison_fields_array
           }
       }
-
-      return response if @client_auto_approve_setting.blank?
-
-      response[:client_kyc_auto_approve_setting] = {
-          fr_match_percent: @client_auto_approve_setting.face_match_percent.to_i,
-          auto_approve_fields: @client_auto_approve_setting.ocr_comparison_fields_array
-      }
-
-      response
     end
 
   end

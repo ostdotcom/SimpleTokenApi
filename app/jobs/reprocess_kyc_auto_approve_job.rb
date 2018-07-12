@@ -30,7 +30,7 @@ class ReprocessKycAutoApproveJob < ApplicationJob
         find_in_batches(batch_size: 100) do |ukds|
 
       ukds.each do |ukd|
-        if (!ukd.has_been_auto_approved? && ukd.last_reopened_at.to_i == 0  && ukd.admin_action_types_array.blank?)
+        if (!ukd.has_been_auto_approved?)
           trigger_auto_approve_update_rescue_task(ukd.user_extended_detail_id)
         end
       end

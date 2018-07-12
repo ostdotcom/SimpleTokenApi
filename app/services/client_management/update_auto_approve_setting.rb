@@ -1,6 +1,10 @@
 module ClientManagement
   class UpdateAutoApproveSetting < ServicesBase
 
+    TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR = 1
+    MIN_OCR_FIELDS_SELECTION_COUNT = 1
+    MIN_FR_MATCH_PERCENT = 20
+
     # Initialize
     #
     # * Author: Aniket
@@ -9,9 +13,9 @@ module ClientManagement
     #
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
-    # @param [String] approve_status (mandatory) - approve status (auto/manual)
-    # @param [Array] ocr_auto_approve_fields (optional) - ocr auto approve fields
-    # @param [Integer] fr_match_percent (optional) - Facial Recogition match percent
+    # @param [String] approve_type (mandatory) - approve status (auto/manual)
+    # @param [Array] ocr_fields (mandatory) - ocr auto approve fields
+    # @param [Integer] fr_match_percent (mandatory) - Facial Recogition match percent
     #
     # @return [ClientManagement::UpdateAutoApproveSetting]
     #
@@ -21,8 +25,8 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
 
-      @auto_approve_status = @params[:approve_status]
-      @ocr_auto_approve_fields = @params[:auto_approve_fields]
+      @approve_type = @params[:approve_type]
+      @ocr_fields = @params[:ocr_fields]
       @fr_match_percent = @params[:fr_match_percent].to_i
 
     end
@@ -43,11 +47,11 @@ module ClientManagement
       r = fetch_and_validate_auto_approve_setting
       return r unless r.success?
 
-      inactive_auto_approve_setting
+      inactive_kyc_pass_setting
 
-      update_auto_approve_setting
+      create_kyc_pass_setting
 
-      # trigger_reprocess_kyc_auto_approve_rescue_task if can_trigger_rescue_task
+      trigger_reprocess_kyc_auto_approve_rescue_task
 
       success_with_data(success_response_data)
     end
@@ -97,44 +101,37 @@ module ClientManagement
       return error_with_data(
           's_cm_uaas_vof_1',
           'Invalid parameters',
-          'Invalid auto approve status',
+          'Invalid approve type',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if [GlobalConstant::ClientKycPassSetting.manual_approve_web_status,
-            GlobalConstant::ClientKycPassSetting.auto_approve_web_status].exclude?(@auto_approve_status)
-
-      if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
-        @ocr_auto_approve_fields = []
-        @fr_match_percent = nil
-        return success
-      end
-
+      ) if [GlobalConstant::ClientKycPassSetting.manual_approve_type,
+            GlobalConstant::ClientKycPassSetting.auto_approve_type].exclude?(@approve_type)
+      
       return error_with_data(
           's_cm_uaas_vof_2',
           'Invalid parameters',
-          'Invalid auto approve fields data',
+          'Invalid ocr fields data',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if !@ocr_auto_approve_fields.is_a?(Array)
+      ) if !@ocr_fields.is_a?(Array)
 
       return error_with_data(
           's_cm_uaas_vof_3',
-          'Invalid values for ocr_auto_approve_fields',
+          'Invalid values for ocr_fields',
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {auto_approve_fields: "Select at least one field"}
-      ) if @ocr_auto_approve_fields.count < 1
+          {ocr_fields: "Select at least one field"}
+      ) if @ocr_fields.count < MIN_OCR_FIELDS_SELECTION_COUNT
 
-      remaining_fields = @ocr_auto_approve_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
-
+      remaining_fields = @ocr_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
       return error_with_data(
           's_cm_uaas_vof_4',
-          'Invalid values for ocr_auto_approve_fields',
+          'Invalid values for ocr_fields',
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {auto_approve_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
+          {ocr_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
       ) if remaining_fields.count > 0
 
       return error_with_data(
@@ -143,8 +140,8 @@ module ClientManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {fr_match_percent: "FR percent should be greater than 0"}
-      ) if @fr_match_percent == 0
+          {fr_match_percent: "FR percent cannot be less than #{MIN_FR_MATCH_PERCENT}"}
+      ) if @fr_match_percent < MIN_FR_MATCH_PERCENT
 
       success
     end
@@ -162,32 +159,32 @@ module ClientManagement
     def fetch_and_validate_auto_approve_setting
       @saved_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
 
-      if @saved_auto_approve_setting.blank?
+      modified_fields = @ocr_fields - @saved_auto_approve_setting.ocr_comparison_fields_array
+      modified_fields += @saved_auto_approve_setting.ocr_comparison_fields_array - @ocr_fields
+
+      if modified_fields.count == 0 &&
+         @fr_match_percent == @saved_auto_approve_setting.face_match_percent.to_i &&
+         @approve_type == @saved_auto_approve_setting.approve_type
         return error_with_data(
             's_cm_uaas_fvaas_1',
             'Invalid parameters',
-            'Invalid auto approve status',
+            'Modified ocr fields and FR match percent are already active',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
-
-      else
-        modified_fields = @ocr_auto_approve_fields - @saved_auto_approve_setting.ocr_comparison_fields_array
-        modified_fields += @saved_auto_approve_setting.ocr_comparison_fields_array - @ocr_auto_approve_fields
-
-        return error_with_data(
-            's_cm_uaas_fvaas_2',
-            'Invalid parameters',
-            'Modified ocr auto approve fields are already active',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if modified_fields.count == 0
-
+        )
       end
+
+      difference = Time.now.to_i - @saved_auto_approve_setting.created_at.to_i #in sec
+      return error_with_data(
+          's_cm_uaas_fvaas_2',
+          'AI Settings cannot be updated',
+          "AI Settings can be updated only once in #{TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR} hours",
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if difference < TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR.hours.to_i
 
       success
     end
-
 
     # Update Inactive Auto Approve Setting
     #
@@ -196,30 +193,25 @@ module ClientManagement
     # * Reviewed By:
     #
     #
-    def inactive_auto_approve_setting
-
-      if @saved_auto_approve_setting.present?
-        @saved_auto_approve_setting.status = GlobalConstant::ClientKycPassSetting.inactive_status
-        @saved_auto_approve_setting.save!
-      end
+    def inactive_kyc_pass_setting
+      @saved_auto_approve_setting.status = GlobalConstant::ClientKycPassSetting.inactive_status
+      @saved_auto_approve_setting.save!
     end
 
-    # Set Auto Approve Setting
+    # Make entry of kyc pass setting
     #
     # * Author: Aniket
     # * Date: 04/07/2018
     # * Reviewed By
     #
-    def update_auto_approve_setting
-      return if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
-
+    def create_kyc_pass_setting
       db_entity = {
           client_id: @client_id,
           face_match_percent: @fr_match_percent,
           ocr_comparison_fields: ocr_comparison_bit_value,
+          approve_type: @approve_type,
           status: GlobalConstant::ClientKycPassSetting.active_status
       }
-
       ClientKycPassSetting.create!(db_entity)
     end
 
@@ -231,7 +223,7 @@ module ClientManagement
     #
     def ocr_comparison_bit_value
       ocr_comparison_value = 0
-      @ocr_auto_approve_fields.each do |ocr_field|
+      @ocr_fields.each do |ocr_field|
         ocr_comparison_value += ClientKycPassSetting.ocr_comparison_fields_config[ocr_field]
       end
 
@@ -249,38 +241,13 @@ module ClientManagement
     def success_response_data
 
       {
-          approve_status: @auto_approve_status,
-          recommended_setting: {
-              fr_match_percent: GlobalConstant::ClientKycPassSetting.recommended_fr_percent,
-              auto_approve_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys
-          },
-          client_kyc_auto_approve_setting:{
+          client_kyc_pass_setting: {
               fr_match_percent: @fr_match_percent,
-              auto_approve_fields: @ocr_auto_approve_fields
+              ocr_fields: @ocr_fields,
+              approve_type: @approve_type
           }
       }
 
-    end
-
-    # Check whether rescue task can trigger or not
-    #
-    # * Author: Aniket
-    # * Date: 06/07/2018
-    # * Reviewed By
-    #
-    def can_trigger_rescue_task
-
-      return false if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
-
-      return true if @saved_auto_approve_setting.blank?
-
-      removed_ocr_fields = @saved_auto_approve_setting.ocr_comparison_fields_array - @ocr_auto_approve_fields
-
-      if (@fr_match_percent < @saved_auto_approve_setting.face_match_percent.to_i) || (removed_ocr_fields.count > 0)
-        return true
-      end
-
-      false
     end
 
     # Trigger rescue task for auto approve user

@@ -17,17 +17,7 @@ module GlobalConstant
 
       ### Status End ###
 
-      ### Kyc pass setting status for front Start ###
-
-      def auto_approve_web_status
-        'auto'
-      end
-
-      def manual_approve_web_status
-        'manual'
-      end
-
-      ### Kyc Approve Type Status ###
+      ### Kyc approve type Start ###
 
       def auto_approve_type
         'auto'
@@ -37,11 +27,7 @@ module GlobalConstant
         'manual'
       end
 
-      ### Kyc Auto approve setting status for front End ###
-
-      def recommended_fr_percent
-        '70'
-      end
+      ### Kyc approve type End ###
 
       ### OCR comparison column start ###
 

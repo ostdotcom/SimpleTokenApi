@@ -23,9 +23,10 @@ class AutoApproveUpdateJob < ApplicationJob
 
     compute_auto_approval
 
-    count = @user_kyc_comparison_detail.auto_approve_failed_reasons_array -
-            GlobalConstant::KycAutoApproveFailedReason.auto_approve_fail_reasons
-    if count == 0
+    failed_reason_count = (@user_kyc_comparison_detail.auto_approve_failed_reasons_array &
+        GlobalConstant::KycAutoApproveFailedReason.auto_approve_fail_reasons).count
+
+    if failed_reason_count == 0 && @client_kyc_pass_setting.approve_type == GlobalConstant::ClientKycPassSetting.auto_approve_type
       # qualify service call
       qualify_params = {
           case_id: @user_kyc_detail.id,
@@ -47,7 +48,7 @@ class AutoApproveUpdateJob < ApplicationJob
 
     end
 
-    @user_kyc_comparison_detail.client_kyc_auto_approve_settings_id = @client_auto_approve_setting.id
+    @user_kyc_comparison_detail.client_kyc_auto_approve_settings_id = @client_kyc_pass_setting.id
     @user_kyc_comparison_detail.save!
   end
 
@@ -73,7 +74,7 @@ class AutoApproveUpdateJob < ApplicationJob
   # * Date: 11/07/2018
   # * Reviewed By:
   #
-  # Sets @user_kyc_comparison_detail, @user_kyc_detail, @client_token_sale_detail, @client_auto_approve_setting, @user_extended_detail
+  # Sets @user_kyc_comparison_detail, @user_kyc_detail, @client_token_sale_detail, @client_kyc_pass_setting, @user_extended_detail
   #
   def fetch_and_validate_models
     @user_kyc_comparison_detail = UserKycComparisonDetail.where(user_extended_detail_id: @user_extended_detail_id).first
@@ -90,13 +91,11 @@ class AutoApproveUpdateJob < ApplicationJob
     return false if !(@user_kyc_comparison_detail.image_processing_status ==
         GlobalConstant::ImageProcessing.processed_image_process_status)
 
-    @client_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
-    return false if @client_auto_approve_setting.blank?
+    @client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
 
     @user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
                                            user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
                                            status: GlobalConstant::UserKycDetail.active_status)
-
     return false if @user_kyc_detail.blank?
 
     @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@user_kyc_detail.client_id)
@@ -128,13 +127,12 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.investor_proof)
     end
 
-    if UserExtendedDetail.is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id,
-                                                          @user_extended_detail_id)
+    if UserExtendedDetail.is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id, @user_extended_detail_id)
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc)
     end
 
     # todo: unmatched_faces_in_selfie
-    fr_match_percent = @client_auto_approve_setting.face_match_percent.to_i
+    fr_match_percent = @client_kyc_pass_setting.face_match_percent.to_i
 
     if (@user_kyc_comparison_detail.big_face_match_percent < fr_match_percent) &&
         (@user_kyc_comparison_detail.small_face_match_percent < fr_match_percent)
@@ -142,7 +140,7 @@ class AutoApproveUpdateJob < ApplicationJob
     end
 
 
-    @client_auto_approve_setting.ocr_comparison_fields_array.each do |compare_field_name|
+    @client_kyc_pass_setting.ocr_comparison_fields_array.each do |compare_field_name|
       key = "#{compare_field_name}_match_percent"
       if @user_kyc_comparison_detail[key.to_sym] < 100
         @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch)

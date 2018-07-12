@@ -367,10 +367,10 @@
   :mandatory:
      - :admin_id
      - :client_id
-     - :approve_status
-  :optional:
-     - :auto_approve_fields
+     - :approve_type
+     - :ocr_fields
      - :fr_match_percent
+  :optional:
 
 'ClientManagement::DeveloperDetail':
   :mandatory:

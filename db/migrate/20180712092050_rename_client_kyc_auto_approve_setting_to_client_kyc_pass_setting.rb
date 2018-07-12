@@ -1,8 +1,8 @@
 class RenameClientKycAutoApproveSettingToClientKycPassSetting < DbMigrationConnection
   def up
-    run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
+    run_migration_for_db(EstablishSimpleTokenClientDbConnection.config_key) do
       rename_table :client_kyc_auto_approve_settings, :client_kyc_pass_settings
-      add_column :client_kyc_pass_settings, :approve_type, :tinyint, after: :ocr_comparison_columns, default: 0
+      add_column :client_kyc_pass_settings, :approve_type, :tinyint, after: :ocr_comparison_fields, default: 0
     end
   end
 

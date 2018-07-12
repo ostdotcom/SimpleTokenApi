@@ -85,7 +85,7 @@ module ClientManagement
     # Sets @client_auto_approve_setting
     #
     def fetch_client_auto_approve_setting
-      @client_auto_approve_setting = ClientKycAutoApproveSetting.get_active_setting_from_memcache(@client_id)
+      @client_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
     end
 
 
@@ -100,14 +100,14 @@ module ClientManagement
     def success_response_data
 
       current_status = @client_auto_approve_setting.present? ?
-                           GlobalConstant::ClientKycAutoApproveSetting.auto_approve_web_status :
-                           GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status
+                           GlobalConstant::ClientKycPassSetting.auto_approve_web_status :
+                           GlobalConstant::ClientKycPassSetting.manual_approve_web_status
 
       response = {
           approve_status: current_status,
           recommended_setting: {
-              fr_match_percent: GlobalConstant::ClientKycAutoApproveSetting.recommended_fr_percent,
-              auto_approve_fields: ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
+              fr_match_percent: GlobalConstant::ClientKycPassSetting.recommended_fr_percent,
+              auto_approve_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys
           }
       }
 

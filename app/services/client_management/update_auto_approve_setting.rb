@@ -100,10 +100,10 @@ module ClientManagement
           'Invalid auto approve status',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if [GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status,
-            GlobalConstant::ClientKycAutoApproveSetting.auto_approve_web_status].exclude?(@auto_approve_status)
+      ) if [GlobalConstant::ClientKycPassSetting.manual_approve_web_status,
+            GlobalConstant::ClientKycPassSetting.auto_approve_web_status].exclude?(@auto_approve_status)
 
-      if @auto_approve_status == GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status
+      if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
         @ocr_auto_approve_fields = []
         @fr_match_percent = nil
         return success
@@ -126,7 +126,7 @@ module ClientManagement
           {auto_approve_fields: "Select at least one field"}
       ) if @ocr_auto_approve_fields.count < 1
 
-      remaining_fields = @ocr_auto_approve_fields - ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
+      remaining_fields = @ocr_auto_approve_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
 
       return error_with_data(
           's_cm_uaas_vof_4',
@@ -160,7 +160,7 @@ module ClientManagement
     # Sets @saved_auto_approve_setting
     #
     def fetch_and_validate_auto_approve_setting
-      @saved_auto_approve_setting = ClientKycAutoApproveSetting.get_active_setting_from_memcache(@client_id)
+      @saved_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
 
       if @saved_auto_approve_setting.blank?
         return error_with_data(
@@ -169,7 +169,7 @@ module ClientManagement
             'Invalid auto approve status',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @auto_approve_status == GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status
+        ) if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
 
       else
         modified_fields = @ocr_auto_approve_fields - @saved_auto_approve_setting.ocr_comparison_fields_array
@@ -199,7 +199,7 @@ module ClientManagement
     def inactive_auto_approve_setting
 
       if @saved_auto_approve_setting.present?
-        @saved_auto_approve_setting.status = GlobalConstant::ClientKycAutoApproveSetting.inactive_status
+        @saved_auto_approve_setting.status = GlobalConstant::ClientKycPassSetting.inactive_status
         @saved_auto_approve_setting.save!
       end
     end
@@ -211,16 +211,16 @@ module ClientManagement
     # * Reviewed By
     #
     def update_auto_approve_setting
-      return if @auto_approve_status == GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status
+      return if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
 
       db_entity = {
           client_id: @client_id,
           face_match_percent: @fr_match_percent,
           ocr_comparison_fields: ocr_comparison_bit_value,
-          status: GlobalConstant::ClientKycAutoApproveSetting.active_status
+          status: GlobalConstant::ClientKycPassSetting.active_status
       }
 
-      ClientKycAutoApproveSetting.create!(db_entity)
+      ClientKycPassSetting.create!(db_entity)
     end
 
     # Get OCR Comparison Bitwise Value
@@ -232,7 +232,7 @@ module ClientManagement
     def ocr_comparison_bit_value
       ocr_comparison_value = 0
       @ocr_auto_approve_fields.each do |ocr_field|
-        ocr_comparison_value += ClientKycAutoApproveSetting.ocr_comparison_fields_config[ocr_field]
+        ocr_comparison_value += ClientKycPassSetting.ocr_comparison_fields_config[ocr_field]
       end
 
       ocr_comparison_value
@@ -251,8 +251,8 @@ module ClientManagement
       {
           approve_status: @auto_approve_status,
           recommended_setting: {
-              fr_match_percent: GlobalConstant::ClientKycAutoApproveSetting.recommended_fr_percent,
-              auto_approve_fields: ClientKycAutoApproveSetting.ocr_comparison_fields_config.keys
+              fr_match_percent: GlobalConstant::ClientKycPassSetting.recommended_fr_percent,
+              auto_approve_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys
           },
           client_kyc_auto_approve_setting:{
               fr_match_percent: @fr_match_percent,
@@ -270,7 +270,7 @@ module ClientManagement
     #
     def can_trigger_rescue_task
 
-      return false if @auto_approve_status == GlobalConstant::ClientKycAutoApproveSetting.manual_approve_web_status
+      return false if @auto_approve_status == GlobalConstant::ClientKycPassSetting.manual_approve_web_status
 
       return true if @saved_auto_approve_setting.blank?
 

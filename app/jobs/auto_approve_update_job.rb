@@ -90,7 +90,7 @@ class AutoApproveUpdateJob < ApplicationJob
     return false if !(@user_kyc_comparison_detail.image_processing_status ==
         GlobalConstant::ImageProcessing.processed_image_process_status)
 
-    @client_auto_approve_setting = ClientKycAutoApproveSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
+    @client_auto_approve_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
     return false if @client_auto_approve_setting.blank?
 
     @user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,

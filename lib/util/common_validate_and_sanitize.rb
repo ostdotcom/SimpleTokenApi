@@ -2,6 +2,8 @@ module Util
 
   class CommonValidateAndSanitize
 
+    # Util::CommonValidateAndSanitize
+
     # for integer array
     #
     # * Author: Kedar
@@ -40,7 +42,20 @@ module Util
         safe_paragraph += safe_letter.present? ? safe_letter.downcase.to_s : letter.downcase.to_s
       end
       safe_paragraph
-    end 
+    end
+
+    # convert words separated by space to allow multiple or 0 spaces in between words
+    #
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
+    #
+    # @return [string] Returns regex separated by space to allow multiple or 0 spaces in between word
+    #
+    def self.get_words_regex_for_multi_space_support(word)
+      return word if word.blank?
+      return word.gsub(/ +/, ' *')
+    end
 
   end
 

@@ -42,34 +42,40 @@ module Ocr
 
       def compare
 
-        iso_map = GlobalConstant::NationalityCountry.nationality_iso_map
-        iso_code = iso_map[@match_string.to_s.upcase]
+        iso_code = GlobalConstant::NationalityCountry.nationality_iso_map[@match_string.to_s.upcase]
+        country = GlobalConstant::NationalityCountry.nationality_country_map[@match_string.to_s.upcase]
 
-        country_map = GlobalConstant::NationalityCountry.nationality_country_map
-        country = country_map[@match_string.to_s.upcase]
+        regex_match_string = Util::CommonValidateAndSanitize.get_words_regex_for_multi_space_support(@match_string)
+
+        regex_countries = country.blank? ? [] :
+                              country.map {|x| Util::CommonValidateAndSanitize.get_words_regex_for_multi_space_support(x)}
+
 
         @paragraph.split("\n").each do |line|
           # full word match in a line
           next if line.blank?
-          return 100 if line.match(/#{@match_string}/i)
-
+          return 100 if line.match(/#{regex_match_string}/i)
           # country match in the line
-          country.present? && country.each do |entry|
-            return 100 if entry.present? and line.match(/#{entry}/i)
-          end
-
-          # check for american and u.s. territory and canada
-          if ['american', 'u.s. territory'].include?(@match_string)
-            usa_states.each{|uss| return 100 if line.match(/#{uss}/i)}
-          elsif ['canadian'].include?(@match_string)
-            canada_states.each{|uss| return 100 if line.match(/#{uss}/i)}
+          regex_countries.each do |entry|
+            return 100 if line.match(/#{entry}/i)
           end
 
           # check for ISO in machine-readable passport
           # remove any space in the Machine-readable_passport line
           next if iso_code.blank?
           return 100 if passport_nationality_matched?(line, iso_code)
+        end
 
+        # check for american and u.s. territory and canada
+        if ['american', 'u.s. territory'].include?(@match_string.downcase)
+          GlobalConstant::NationalityCountry.regex_usa_states.each do |state|
+            return 100 if @paragraph.match(/#{state}/i)
+          end
+
+        elsif ['canadian'].include?(@match_string.downcase)
+          GlobalConstant::NationalityCountry.regex_canada_states.each do |state|
+            return 100 if @paragraph.match(/#{state}/i)
+          end
         end
         0
       end
@@ -91,37 +97,7 @@ module Ocr
         return false
       end
 
-      # Usa States
-      #
-      # * Author: Tejas
-      # * Date: 02/07/2018
-      # * Reviewed By:
-      #
-      # @return [String]
-      #
-      def usa_states
-        return ['USA','United States Minor Outlying Islands','United States of America',
-                'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida',
-                'Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland',
-                'Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana Nebraska','Nevada','New Hampshire',
-                'New Jersey','New Mexico','New York','Dakota','Ohio','Oklahoma','Oregon',
-                'Carolina','Tennessee','Texas','Utah','Vermont','Virginia',
-                'Washington','West Virginia','Wisconsin','Wyoming','CAROLINA', 'Pennsylvania', 'Rhode Island']
-      end
 
-      # Canada States
-      #
-      # * Author: Tejas
-      # * Date: 10/07/2018
-      # * Reviewed By:
-      #
-      # @return [String]
-      #
-      def canada_states
-        return ['Alberta','British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador	',
-                'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Northwest Territories',
-                'Nunavut', 'Yukon']
-      end
 
     end
   end

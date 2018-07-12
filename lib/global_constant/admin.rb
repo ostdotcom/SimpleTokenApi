@@ -2,6 +2,7 @@
 module GlobalConstant
 
   class Admin
+    # GlobalConstant::Admin
 
     class << self
 
@@ -29,6 +30,10 @@ module GlobalConstant
 
       def super_admin_role
         'super_admin'
+      end
+
+      def auto_approved_admin_name
+        'Auto Approved'
       end
 
       ### Role End ###

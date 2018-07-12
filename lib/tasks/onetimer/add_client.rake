@@ -128,6 +128,11 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
+    ClientKycPassSetting.create(client_id: client_id,face_match_percent: 100, ocr_comparison_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys,
+                                approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
+                                status: GlobalConstant::ClientKycPassSetting.active_status)
+
+
     r = LocalCipher.new(api_salt_d).encrypt(cynopsis_data['token'])
     return r unless r.success?
 

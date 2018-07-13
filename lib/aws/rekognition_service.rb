@@ -24,10 +24,6 @@ module Aws
     #
     def compare_faces(document_file, selfie_file, similarity_treshold=0)
 
-      return error_with_data("Files Not found",
-                             "Files Not found", "Files Not found",
-                             "", "") if document_file.nil? || selfie_file.nil?
-
       req_params = {
         similarity_threshold: similarity_treshold,
         source_image: {
@@ -54,10 +50,6 @@ module Aws
     # * Reviewed By:
     #
     def detect_text(document_file)
-
-      return error_with_data("Files Not found",
-                             "Files Not found", "Files Not found",
-                             "", "") if document_file.nil?
 
       req_params = {
           image: {

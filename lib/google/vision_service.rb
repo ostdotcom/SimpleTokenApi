@@ -27,7 +27,6 @@ module Google
     # @return [Result::Base]
     #
     def detect_text(image_path)
-      return nil if image_path.blank?
 
       image_object = client.image image_path
 
@@ -58,7 +57,6 @@ module Google
     # @return [Result::Base]
     #
     def detect_faces(image_path)
-      return nil if image_path.blank?
 
       image_object = client.image image_path
 
@@ -95,7 +93,7 @@ module Google
       ## Note:: For authentication define GOOGLE_APPLICATION_CREDENTIALS to define credential file path
       # and VISION_PROJECT_ID  to define project id environment variables.
 
-      project_id = ENV['VISION_PROJECT_ID']
+      project_id = GlobalConstant::Base.google_vision['project_id']
       Google::Cloud::Vision.new project: project_id
     end
 

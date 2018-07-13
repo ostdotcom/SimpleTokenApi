@@ -52,6 +52,8 @@ module Crons
       # Delete file directory once complete process is done
       FileUtils.rm_rf(file_directory)
 
+      trigger_auto_approval
+
       success
 
     end
@@ -442,6 +444,19 @@ module Crons
       make_ocr_comparisons({paragraph: paragraph}, user_unmatched_data)
 
       success
+    end
+
+    # Trigger Auto approval for the processed image
+    #
+    # * Author: Pankaj
+    # * Date: 09/07/2018
+    # * Reviewed By:
+    #
+    def trigger_auto_approval
+
+      return if @user_kyc_comparison_detail.image_processing_status != GlobalConstant::ImageProcessing.processed_image_process_status
+
+      AutoApproveUpdateJob.perform({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
     end
 
   end

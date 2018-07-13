@@ -13,12 +13,14 @@ module Crons
     # @return [Result::Base]
     #
     def initialize(params)
+      # todo: migration for lock_id
+      @cron_identifier = params[:cron_identifier].to_s
       @user_kyc_comparison_detail = nil
       @decrypted_user_data = {}
       @zero_rotated_document = {}
       @new_doc_s3_file_name = nil
       @new_selfie_s3_file_name = nil
-      @ocr_unmatched = ["first_name", "last_name", "document_id_number", "birthdate", "nationality"]
+      @ocr_unmatched = ClientKycPassSetting::ocr_comparison_fields_config.keys
     end
 
     # Perform
@@ -37,25 +39,35 @@ module Crons
 
       return success if @user_kyc_comparison_detail.nil?
 
-      r = fetch_and_decrypt_user_data
-      return r unless r.success?
+      begin
+        r = fetch_and_decrypt_user_data
+        return r unless r.success?
 
-      r = process_document_id_image
-      return r unless r.success?
+        r = process_document_id_image
+        raise r.to_json unless r.success?
 
-      process_selfie_image
+        process_selfie_image
 
-      make_face_comparisons
+        make_face_comparisons
 
-      update_user_comparison_record(nil, GlobalConstant::ImageProcessing.processed_image_process_status)
+        trigger_auto_approval
 
-      # Delete file directory once complete process is done
-      FileUtils.rm_rf(file_directory)
+        update_user_comparison_record(nil, GlobalConstant::ImageProcessing.processed_image_process_status)
 
-      trigger_auto_approval
+        success
+      rescue => e
+        update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unexpected_reason, GlobalConstant::ImageProcessing.failed_image_process_status)
 
-      success
+        ApplicationMailer.notify(
+            body: e.backtrace,
+            data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
+            subject: "Exception in ProcessUserSubmittedImages"
+        ).deliver
 
+      ensure
+        # Delete file directory once complete process is done
+        Util::FileSystem.delete_directory(file_directory)
+      end
     end
 
     private
@@ -69,12 +81,11 @@ module Crons
     # @sets @user_kyc_comparison_detail
     #
     def fetch_unprocessed_user_kyc_record
-      lock_id = Time.now.to_i
-      UserKycComparisonDetail.connection.execute("update user_kyc_comparison_details set lock_id=#{lock_id}
-          where lock_id IS NULL AND
-          image_processing_status = #{UserKycComparisonDetail.image_processing_statuses[GlobalConstant::ImageProcessing.unprocessed_image_process_status]}
-          LIMIT 1")
-      @user_kyc_comparison_detail = UserKycComparisonDetail.where(lock_id: lock_id).last
+      UserKycComparisonDetail.where('lock_id IS NULL').
+          where(image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status).
+          order({id: :asc}).limit(1).update_all(lock_id: table_lock_id)
+
+      @user_kyc_comparison_detail = UserKycComparisonDetail.where(lock_id: table_lock_id).last
     end
 
     # Fetch user extended details and decrypt user data for further processing
@@ -91,25 +102,22 @@ module Crons
       user_extended_detail = UserExtendedDetail.where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
 
       r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
-
       kyc_salt_d = r.data[:plaintext]
-
       local_cipher_obj = LocalCipher.new(kyc_salt_d)
 
-      @decrypted_user_data[:document_file] = local_cipher_obj.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
-      r = validate_image_file_name(@decrypted_user_data[:document_file])
+      @decrypted_user_data[:document_id_file_path] = local_cipher_obj.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
+      r = validate_image_file_name(@decrypted_user_data[:document_id_file_path])
       unless r.success?
         update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.document_file_invalid,
                                       GlobalConstant::ImageProcessing.failed_image_process_status)
         return r
       end
 
-      @decrypted_user_data[:selfie_file] = local_cipher_obj.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
-      @decrypted_user_data[:first_name] = local_cipher_obj.decrypt(user_extended_detail.first_name).data[:plaintext]
-      @decrypted_user_data[:last_name] = local_cipher_obj.decrypt(user_extended_detail.last_name).data[:plaintext]
-      @decrypted_user_data[:birthdate] = local_cipher_obj.decrypt(user_extended_detail.birthdate).data[:plaintext]
-      @decrypted_user_data[:document_id_number] = local_cipher_obj.decrypt(user_extended_detail.document_id_number).data[:plaintext]
-      @decrypted_user_data[:nationality] = local_cipher_obj.decrypt(user_extended_detail.nationality).data[:plaintext]
+      @decrypted_user_data[:selfie_file_path] = local_cipher_obj.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
+
+      ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
+        @decrypted_user_data[field_name.to_sym] = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
+      end
 
       success
     end
@@ -142,8 +150,7 @@ module Crons
     # * Reviewed By:
     #
     def update_user_comparison_record(failed_reason, image_processing_status)
-      @user_kyc_comparison_detail.auto_approve_failed_reason = @user_kyc_comparison_detail.auto_approve_failed_reason |
-          UserKycComparisonDetail.auto_approve_failed_reason_config[failed_reason] if failed_reason.present?
+      @user_kyc_comparison_detail.auto_approve_failed_reason = @user_kyc_comparison_detail.send("set_#{failed_reason}") if failed_reason.present?
       @user_kyc_comparison_detail.image_processing_status = image_processing_status if image_processing_status.present?
       @user_kyc_comparison_detail.save!
     end
@@ -155,20 +162,16 @@ module Crons
     # * Reviewed By:
     #
     def process_document_id_image
-      document_path = download_image(@decrypted_user_data[:document_file])
+      # todo: downgrade iamge size
+      original_downloaded_document_path = download_image(@decrypted_user_data[:document_id_file_path])
 
       # Rotate image at 0 degree angle to remove its metadata
-      oriented_doc = RmagickImageRotation.new(file_directory, document_path, GlobalConstant::ImageProcessing.rotation_angle_0).perform
+      oriented_doc_result = RmagickImageRotation.new(file_directory, original_downloaded_document_path, GlobalConstant::ImageProcessing.rotation_angle_0).perform
 
       # If first rotation of image failed then close the process
-      unless oriented_doc.data[:rotated_image_path].present?
-        # TODO: Send email to admins.
-        update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unexpected,
-                                      GlobalConstant::ImageProcessing.failed_image_process_status)
-        return error_with_data("cr_pusi_3", "Something went wrong", "Something went wrong", nil, nil)
-      end
+      return oriented_doc_result unless oriented_doc_result.success?
 
-      @zero_rotated_document = oriented_doc.data
+      @zero_rotated_document = oriented_doc_result.data
 
       # Make a google vision call for detect text
       puts "Vision detect text started"
@@ -178,6 +181,7 @@ module Crons
 
       # Detect text failed so no more vision calls would happen for document
       correct_oriented_doc = @zero_rotated_document
+
       if r.success?
         ocr_result = make_ocr_comparisons(r.data, @decrypted_user_data).data
 
@@ -188,17 +192,23 @@ module Crons
           rotation_sequence.unshift(ocr_result[:rotation_angle])
         end
 
-        resp = rotate_image_and_detect_faces('document', rotation_sequence, document_path)
+        resp = rotate_image_and_detect_faces('document', rotation_sequence, original_downloaded_document_path)
         # TODO: notify devs
         correct_oriented_doc = resp.data
       end
 
       if correct_oriented_doc.present?
-        @new_doc_s3_file_name = upload_image(@decrypted_user_data[:document_file],
+        @new_doc_s3_file_name = upload_image(@decrypted_user_data[:document_id_file_path],
                                              correct_oriented_doc[:rotation_angle], correct_oriented_doc[:rotated_image_path])
-        correct_oriented_doc.delete(:rotated_image_path)
-        @user_kyc_comparison_detail.document_dimensions = correct_oriented_doc
-        @user_kyc_comparison_detail.save
+
+        document_dimensions = {
+            width: correct_oriented_doc[:width],
+            height: correct_oriented_doc[:height],
+            rotation_angle: correct_oriented_doc[:rotation_angle]
+        }
+
+        @user_kyc_comparison_detail.document_dimensions = document_dimensions
+        @user_kyc_comparison_detail.save!
       end
 
       make_aws_text_detect_call
@@ -213,13 +223,13 @@ module Crons
     # * Reviewed By:
     #
     def process_selfie_image
-      r = validate_image_file_name(@decrypted_user_data[:selfie_file])
+      r = validate_image_file_name(@decrypted_user_data[:selfie_file_path])
       unless r.success?
         update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid, nil)
         return r
       end
 
-      selfie_path = download_image(@decrypted_user_data[:selfie_file])
+      selfie_path = download_image(@decrypted_user_data[:selfie_file_path])
 
       # Rotate images and make vision detect face calls
       resp = rotate_image_and_detect_faces('selfie', GlobalConstant::ImageProcessing.rotation_sequence, selfie_path)
@@ -227,13 +237,19 @@ module Crons
       if resp.success?
         correct_oriented_selfie = resp.data
 
-        @new_selfie_s3_file_name = upload_image(@decrypted_user_data[:selfie_file],
+        @new_selfie_s3_file_name = upload_image(@decrypted_user_data[:selfie_file_path],
                                                 correct_oriented_selfie[:rotation_angle], correct_oriented_selfie[:rotated_image_path])
-        correct_oriented_selfie.delete(:rotated_image_path)
-        @user_kyc_comparison_detail.selfie_dimensions = correct_oriented_selfie
+
+        selfie_dimensions = {
+            width: correct_oriented_selfie[:width],
+            height: correct_oriented_selfie[:height],
+            rotation_angle: correct_oriented_selfie[:rotation_angle]
+        }
+
+        @user_kyc_comparison_detail.selfie_dimensions = selfie_dimensions
         @user_kyc_comparison_detail.save!
       else
-        @new_selfie_s3_file_name = @decrypted_user_data[:selfie_file]
+        @new_selfie_s3_file_name = @decrypted_user_data[:selfie_file_path]
       end
 
       success
@@ -319,14 +335,13 @@ module Crons
     #
     # @return String - Downloaded image path
     #
-    def download_image(file_name)
-      puts "#{file_name} - Image downloading started"
-      downloaded_file_name = file_name.split("/").last
-      image_path = "#{file_directory}/#{downloaded_file_name}.jpg"
+    def download_image(s3_file_path)
+      puts "#{s3_file_path} - Image downloading started"
+      downloaded_file_name = s3_file_path.split("/").last
+      local_image_path = "#{file_directory}/#{downloaded_file_name}.jpg"
 
-      Aws::S3Manager.new('kyc', 'admin').get(image_path, file_name, GlobalConstant::Aws::Common.kyc_bucket)
-
-      image_path
+      Aws::S3Manager.new('kyc', 'admin').get(local_image_path, s3_file_path, GlobalConstant::Aws::Common.kyc_bucket)
+      local_image_path
     end
 
     # Upload images to s3
@@ -338,9 +353,10 @@ module Crons
     # @return String - S3 file name
     #
     def upload_image(file_name, rotation_angle, image_path)
-      s3_file_name =  "#{file_name}-#{rotation_angle}"
+      s3_file_name = "#{file_name}_#{rotation_angle}"
       puts "#{s3_file_name} - Image uploading started"
 
+      # todo: admin can upload image ?
       Aws::S3Manager.new('kyc', 'user').
           store(s3_file_name, File.open(image_path), GlobalConstant::Aws::Common.kyc_bucket)
 
@@ -358,9 +374,9 @@ module Crons
     def file_directory
       # Make directory if not exisits
       if @dir.nil?
-        d = Rails.public_path.to_s + '/' + "#{@user_kyc_comparison_detail.id}"
-        Dir.mkdir(d)
-        @dir = d
+        # todo: bring file path from config
+        @dir = Rails.public_path.to_s + '/' + "#{@user_kyc_comparison_detail.id}"
+        Util::FileSystem.check_and_create_directory(@dir)
       end
       @dir
     end
@@ -377,6 +393,12 @@ module Crons
                                  service_used: service,
                                  input_params: input,
                                  debug_data: debug_data)
+    rescue => e
+      ApplicationMailer.notify(
+          body: e.backtrace,
+          data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
+          subject: "Could not create ImageProcessingLog"
+      ).deliver
     end
 
     # Do face comparison between selfie and document images
@@ -390,6 +412,7 @@ module Crons
       puts "AWS compare faces started"
 
       resp = Aws::RekognitionService.new.compare_faces(@new_doc_s3_file_name, @new_selfie_s3_file_name)
+      # todo: unmatched_faces_in_selfie
 
       # If face comparison response has unmatched faces then mark it as failed
       if resp.data.present? && resp.data[:unmatched_faces].present?
@@ -397,6 +420,7 @@ module Crons
       elsif resp.success?
         # Check for bigger face and smaller face percentages
         max_height = 0
+        # todo: second max height
         resp.data[:face_matches].present? && resp.data[:face_matches].each do |fm|
           if fm[:face_bounding_box][:bounding_box][:height] >= max_height
             max_height = fm[:face_bounding_box][:bounding_box][:height]
@@ -424,7 +448,7 @@ module Crons
     #
     def make_aws_text_detect_call
       # No unmatched columns found
-      return if @ocr_unmatched.blank? || @new_doc_s3_file_name.nil?
+      return if @ocr_unmatched.blank? || @new_doc_s3_file_name.blank?
       puts "AWS detect text started"
 
       resp = Aws::RekognitionService.new.detect_text(@new_doc_s3_file_name)
@@ -436,7 +460,7 @@ module Crons
 
       # Make ocr comparisons
       user_unmatched_data = {}
-      @ocr_unmatched.each{|x| user_unmatched_data[x.to_sym] = @decrypted_user_data[x.to_sym]}
+      @ocr_unmatched.each {|x| user_unmatched_data[x.to_sym] = @decrypted_user_data[x.to_sym]}
       paragraph = ""
       resp.data[:detected_text].each do |dt|
         paragraph += dt[:text] + "\n"
@@ -446,6 +470,18 @@ module Crons
       success
     end
 
+    # Lock Id for table
+    #
+    # * Author: Pankaj
+    # * Date: 02/07/2018
+    # * Reviewed By:
+    #
+    # @eturns [String] table lock id
+    #
+    def table_lock_id
+      @table_lock_id ||= "#{@cron_identifier}_#{Time.now.to_i}"
+    end
+
     # Trigger Auto approval for the processed image
     #
     # * Author: Pankaj
@@ -453,9 +489,6 @@ module Crons
     # * Reviewed By:
     #
     def trigger_auto_approval
-
-      return if @user_kyc_comparison_detail.image_processing_status != GlobalConstant::ImageProcessing.processed_image_process_status
-
       AutoApproveUpdateJob.perform({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
     end
 

@@ -30,15 +30,13 @@ class RmagickImageRotation
   # * Date: 20/06/2018
   # * Reviewed By:
   #
-  # @return [String] rotated_image_path - Image path after rotation
+  # @return [Result::Base] rotated_image_path - Image path after rotation
   #
   def perform
     begin
-      file = File.open(@image_file)
-
       original_file_name = File.basename(@image_file).gsub(File.extname(@image_file), "")
 
-      new_file_name = "#{@directory}/#{original_file_name}-#{@rotation_angle}.jpg"
+      new_file_name = "#{@directory}/#{original_file_name}_#{@rotation_angle}.jpg"
 
       image_obj = ImageList.new(@image_file)
 

@@ -16,7 +16,7 @@ module Util
     end
 
     def create_write_dir
-      Util::FileSystem.check_and_create_directory(csv_file_name)
+      Util::FileSystem.check_and_create_directory_for_file(csv_file_name)
     end
 
     def csv

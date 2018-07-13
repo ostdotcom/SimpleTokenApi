@@ -14,8 +14,7 @@ module Google
     #
     # @return [Google::VisionService]
     #
-    def initialize()
-
+    def initialize
     end
 
     # Detect text from the image

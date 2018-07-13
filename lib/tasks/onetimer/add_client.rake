@@ -128,9 +128,14 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
-    ClientKycPassSetting.create(client_id: client_id,face_match_percent: 100, ocr_comparison_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys,
+    ckps_obj = ClientKycPassSetting.new(client_id: client_id,face_match_percent: 100,
                                 approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
                                 status: GlobalConstant::ClientKycPassSetting.active_status)
+
+    ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
+      ckps_obj.send("set_#{key}")
+    end
+    ckps_obj.save!
 
 
     r = LocalCipher.new(api_salt_d).encrypt(cynopsis_data['token'])

@@ -96,6 +96,19 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     @admin_action_types_array = UserKycDetail.get_bits_set_for_admin_action_types(admin_action_types)
   end
 
+  # last qualified by admin type
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  # @returns [String] returns the last qualify type
+  #
+  def last_qualify_type
+    @last_qualify_type = qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
+                             GlobalConstant::UserKycDetail.manually_approved_qualify_type : qualify_types_array[0]
+  end
+
   # Array of Qualify types
   #
   # * Author: Aman

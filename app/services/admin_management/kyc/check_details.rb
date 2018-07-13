@@ -362,9 +362,13 @@ module AdminManagement
       # @return [String]
       #
       def last_acted_by
-        (@user_kyc_detail.last_acted_by.to_i > 0) ?
-            Admin.where(id: @user_kyc_detail.last_acted_by).first.name :
-            ''
+        if (@user_kyc_detail.last_acted_by.to_i > 0)
+          return Admin.where(id: @user_kyc_detail.last_acted_by).first.name
+        elsif (@user_kyc_detail.last_acted_by.to_i == Admin::AUTO_APPROVE_ADMIN_ID )
+          GlobalConstant::Admin.auto_approved_admin_name
+        else
+          return ''
+        end
       end
 
       # Decrypt date of birth

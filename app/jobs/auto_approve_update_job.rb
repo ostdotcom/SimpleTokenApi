@@ -48,7 +48,7 @@ class AutoApproveUpdateJob < ApplicationJob
 
     end
 
-    @user_kyc_comparison_detail.client_kyc_auto_approve_settings_id = @client_kyc_pass_setting.id
+    @user_kyc_comparison_detail.client_kyc_pass_settings_id = @client_kyc_pass_setting.id
     @user_kyc_comparison_detail.save!
   end
 

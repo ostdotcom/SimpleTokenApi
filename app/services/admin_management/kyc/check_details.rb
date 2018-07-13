@@ -67,6 +67,8 @@ module AdminManagement
 
         set_api_response_data
 
+        set_dummy_data
+
         success_with_data(@api_response_data)
       end
 
@@ -315,6 +317,7 @@ module AdminManagement
       def case_detail
         {
             admin_status: @user_kyc_detail.admin_status,
+            qualify_types: @user_kyc_detail.qualify_types_array,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
             retry_cynopsis: (@user_kyc_detail.cynopsis_status == GlobalConstant::UserKycDetail.failed_cynopsis_status).to_i,
             submission_count: @user_kyc_detail.submission_count.to_i,
@@ -323,7 +326,7 @@ module AdminManagement
             last_acted_by: last_acted_by,
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
-            last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map{|x| x.humanize},
+            last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map {|x| x.humanize},
             is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
             kyc_status: kyc_status,
             can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i,
@@ -364,7 +367,7 @@ module AdminManagement
       def last_acted_by
         if (@user_kyc_detail.last_acted_by.to_i > 0)
           return Admin.where(id: @user_kyc_detail.last_acted_by).first.name
-        elsif (@user_kyc_detail.last_acted_by.to_i == Admin::AUTO_APPROVE_ADMIN_ID )
+        elsif (@user_kyc_detail.last_acted_by.to_i == Admin::AUTO_APPROVE_ADMIN_ID)
           GlobalConstant::Admin.auto_approved_admin_name
         else
           return ''
@@ -610,11 +613,47 @@ module AdminManagement
       # @return [Boolean] - True/False
       #
       def whitelist_confirmation_pending
-         (@client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved? && !@user_kyc_detail.whitelist_confirmation_done?)
+        (@client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved? && !@user_kyc_detail.whitelist_confirmation_done?)
+      end
+
+
+      def set_dummy_data
+
+        @api_response_data[:user_kyc_comparison_detail] = {
+            image_processing_status: "complete",
+            auto_approve_failed_reasons: GlobalConstant::KycAutoApproveFailedReason.auto_approve_fail_reasons,
+            document_dimension: {
+                rotation_angle: "ROTATE_180",
+                width: 3024,
+                height: 4032
+            },
+            selfie_dimension: {
+                rotation_angle: "ROTATE_180",
+                width: 3024,
+                height: 4032
+            },
+            face_match_percent: 74
+        }
+
+        @api_response_data[:ai_pass_detail] = {
+            fr_pass_status: false,
+            ocr_match_status: false,
+            first_name_pass: false,
+            last_name_pass: false,
+            nationality_pass: false,
+            birthdate_pass: false,
+            document_id_number_pass: false
+        }
+
+        @api_response_data[:client_kyc_pass_setting] = {
+            fr_match_percent: 80,
+            ocr_comparison_fields: ClientKycPassSetting.ocr_comparison_fields_config.keys,
+            approve_type: 'auto'
+        }
+
       end
 
     end
 
   end
-
 end

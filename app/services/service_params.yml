@@ -368,7 +368,7 @@
      - :admin_id
      - :client_id
      - :approve_type
-     - :ocr_fields
+     - :ocr_comparison_fields
      - :fr_match_percent
   :optional:
 

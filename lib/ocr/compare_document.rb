@@ -87,9 +87,9 @@ module Ocr
 
     # get percent match for last name
     #
-    #* Author: Aniket
-    #* Date: 05/07/2018
-    #* Reviewed By:
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
     #
     # Sets @comparison_percent[:last_name]
     #
@@ -104,16 +104,16 @@ module Ocr
           match_string: last_name
       }
 
-      last_name_percentage = Ocr::FieldComparison::NameComparison.new(params).perform
+      last_name _percentage = Ocr::FieldComparison::NameComparison.new(params).perform
       @comparison_percent[:last_name] = last_name_percentage
 
     end
 
     # get percent match for birthdate
     #
-    #* Author: Aniket
-    #* Date: 05/07/2018
-    #* Reviewed By:
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
     #
     # Sets @comparison_percent[:birthdate]
     #
@@ -133,9 +133,9 @@ module Ocr
 
     # get percent match for document id
     #
-    #* Author: Aniket
-    #* Date: 05/07/2018
-    #* Reviewed By:
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
     #
     # Sets @comparison_percent[:document_id]
     #
@@ -154,6 +154,14 @@ module Ocr
       @comparison_percent[:document_id_number] = document_id_percentage
     end
 
+    # get percent match f or nationality
+    #
+    # * Author: Tejas
+    # * Date: 12/07/2018
+    # * Reviewed By:
+    #
+    # Sets @comparison_percent[:nationality]
+    #
     def compare_nationality
 
       nationality = @document_details[:nationality]
@@ -172,9 +180,9 @@ module Ocr
 
     # get percent match for rotation angle
     #
-    #* Author: Aniket
-    #* Date: 05/07/2018
-    #* Reviewed By:
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
     #
     #
     def get_orientation

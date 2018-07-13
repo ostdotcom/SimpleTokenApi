@@ -50,6 +50,26 @@ namespace :cron_task do
       execute_continuous_task
     end
 
+
+    # Process User Submitted Images Call hooks
+    #
+    # * Author: Tejas
+    # * Date: 12/07/2018
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1"
+    desc "*/1 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/process_user_submitted_images_call_hooks.log"
+    task :process_user_submitted_images_call_hooks do |task|
+      @sleep_interval = 1
+
+      cron_identifier = ENV['cron_identifier'].to_s
+      @process_name = "#{task}_#{cron_identifier}"
+      @performer_klass = 'Crons::ProcessUserSubmittedImages'
+      @optional_params = {cron_identifier: cron_identifier}
+      execute_continuous_task
+    end
+
+
     # Process User KYC Whitelist Call hooks
     #
     # * Author: Aman

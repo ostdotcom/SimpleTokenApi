@@ -280,7 +280,7 @@ module AdminManagement
         }
 
 
-        automation_passed = @user_kyc_detail.qualify_types.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+        automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
 
         ai_pass_details = {
             fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),

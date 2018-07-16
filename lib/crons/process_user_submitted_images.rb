@@ -50,9 +50,9 @@ module Crons
 
         make_face_comparisons
 
-        trigger_auto_approval
-
         update_user_comparison_record(nil, GlobalConstant::ImageProcessing.processed_image_process_status)
+
+        trigger_auto_approval
 
         success
       rescue => e

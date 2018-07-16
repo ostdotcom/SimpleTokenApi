@@ -1,2 +1,0 @@
-class RekognitionCompareFace < EstablishImageProcessingPocDbConnection
-end

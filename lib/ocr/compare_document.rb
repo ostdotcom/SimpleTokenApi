@@ -104,7 +104,7 @@ module Ocr
           match_string: last_name
       }
 
-      last_name _percentage = Ocr::FieldComparison::NameComparison.new(params).perform
+      last_name_percentage = Ocr::FieldComparison::NameComparison.new(params).perform
       @comparison_percent[:last_name] = last_name_percentage
 
     end

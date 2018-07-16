@@ -1,5 +1,8 @@
 class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
 
+  serialize :document_dimensions, Hash
+  serialize :selfie_dimensions, Hash
+
   after_commit :memcache_flush
 
   enum image_processing_status: {
@@ -22,8 +25,7 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
         GlobalConstant::KycAutoApproveFailedReason.investor_proof => 32,
         GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc => 64,
         GlobalConstant::KycAutoApproveFailedReason.token_sale_ended => 128,
-        GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 256,
-        GlobalConstant::KycAutoApproveFailedReason.unmatched_faces_in_selfie => 512
+        GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 256
     }
   end
 
@@ -39,7 +41,7 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        auto_approve_failed_reason: auto_approve_failed_reasons_config
+        auto_approve_failed_reasons: auto_approve_failed_reasons_config
     }
   end
 

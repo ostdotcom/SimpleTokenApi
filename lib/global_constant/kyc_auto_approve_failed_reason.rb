@@ -46,10 +46,6 @@ module GlobalConstant
         'unexpected_reason'
       end
 
-      def unmatched_faces_in_selfie
-        'unmatched_selfie_faces'
-      end
-
 
       def auto_approve_fail_reasons
         [

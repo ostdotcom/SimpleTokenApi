@@ -13,7 +13,6 @@ module Crons
     # @return [Result::Base]
     #
     def initialize(params)
-      # todo: migration for lock_id
       @cron_identifier = params[:cron_identifier].to_s
       @user_kyc_comparison_detail = nil
       @decrypted_user_data = {}
@@ -150,7 +149,7 @@ module Crons
     # * Reviewed By:
     #
     def update_user_comparison_record(failed_reason, image_processing_status)
-      @user_kyc_comparison_detail.auto_approve_failed_reason = @user_kyc_comparison_detail.send("set_#{failed_reason}") if failed_reason.present?
+      @user_kyc_comparison_detail.auto_approve_failed_reasons = @user_kyc_comparison_detail.send("set_#{failed_reason}") if failed_reason.present?
       @user_kyc_comparison_detail.image_processing_status = image_processing_status if image_processing_status.present?
       @user_kyc_comparison_detail.save!
     end
@@ -412,12 +411,9 @@ module Crons
       puts "AWS compare faces started"
 
       resp = Aws::RekognitionService.new.compare_faces(@new_doc_s3_file_name, @new_selfie_s3_file_name)
-      # todo: unmatched_faces_in_selfie
 
       # If face comparison response has unmatched faces then mark it as failed
-      if resp.data.present? && resp.data[:unmatched_faces].present?
-        update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unmatched_faces_in_selfie, nil)
-      elsif resp.success?
+      if resp.success?
         # Check for bigger face and smaller face percentages
         max_height = 0
         # todo: second max height
@@ -432,7 +428,6 @@ module Crons
         end
         @user_kyc_comparison_detail.save!
       end
-      #TODO: Check for match in invalid parameters error so that failed is marked
 
       add_image_process_log(GlobalConstant::ImageProcessing.aws_rekognition_compare_face,
                             {document: @new_doc_s3_file_name, selfie: @new_selfie_s3_file_name}, resp.to_json)
@@ -480,6 +475,7 @@ module Crons
     #
     def table_lock_id
       @table_lock_id ||= "#{@cron_identifier}_#{Time.now.to_i}"
+      @table_lock_id
     end
 
     # Trigger Auto approval for the processed image
@@ -489,7 +485,7 @@ module Crons
     # * Reviewed By:
     #
     def trigger_auto_approval
-      AutoApproveUpdateJob.perform({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
+      AutoApproveUpdateJob.perform_now({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
     end
 
   end

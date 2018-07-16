@@ -7,8 +7,8 @@ class CreateUserKycComparisonDetails < DbMigrationConnection
         t.column :user_extended_detail_id, :bigint, null: false
         t.column :client_id, :integer, null: false
         t.column :lock_id, :integer, null: true
-        t.column :document_dimensions, :string, null: false
-        t.column :selfie_dimensions, :string, null: false
+        t.column :document_dimensions, :string, null: true
+        t.column :selfie_dimensions, :string, null: true
         t.column :first_name_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :last_name_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :birthdate_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
@@ -17,7 +17,7 @@ class CreateUserKycComparisonDetails < DbMigrationConnection
         t.column :big_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :small_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :image_processing_status, :tinyint, null: false, default: 0
-        t.column :auto_approve_failed_reason, :integer, default: 0
+        t.column :auto_approve_failed_reasons, :integer, default: 0
         t.column :client_kyc_auto_approve_settings_id, :integer, null: false, default: 0
         t.timestamps
       end

@@ -91,12 +91,12 @@ class AutoApproveUpdateJob < ApplicationJob
     return false if @user_kyc_comparison_detail.image_processing_status !=
         GlobalConstant::ImageProcessing.processed_image_process_status
 
-    @client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
-
     @user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
                                            user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
-                                           status: GlobalConstant::UserKycDetail.active_status)
+                                           status: GlobalConstant::UserKycDetail.active_status).first
     return false if @user_kyc_detail.blank?
+
+    @client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
 
     @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@user_kyc_detail.client_id)
     @user_extended_detail = UserExtendedDetail.where(id: @user_extended_detail_id).first
@@ -131,7 +131,6 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc)
     end
 
-    # todo: unmatched_faces_in_selfie
     fr_match_percent = @client_kyc_pass_setting.face_match_percent.to_i
 
     if (@user_kyc_comparison_detail.big_face_match_percent < fr_match_percent) &&

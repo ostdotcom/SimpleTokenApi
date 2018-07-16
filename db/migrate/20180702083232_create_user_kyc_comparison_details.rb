@@ -17,7 +17,7 @@ class CreateUserKycComparisonDetails < DbMigrationConnection
         t.column :big_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :small_face_match_percent, :decimal, precision:5, scale:2, null: false, default: 0
         t.column :image_processing_status, :tinyint, null: false, default: 0
-        t.column :auto_approve_failed_reasons, :integer, default: 0
+        t.column :auto_approve_failed_reason, :integer, default: 0
         t.column :client_kyc_auto_approve_settings_id, :integer, null: false, default: 0
         t.timestamps
       end

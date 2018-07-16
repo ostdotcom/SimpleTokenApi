@@ -40,11 +40,19 @@ class RmagickImageRotation
 
       image_obj = ImageList.new(@image_file)
 
+      is_big_image = image_obj.filesize > 10000000 # File size is greater than 10MB
+
+      image_obj.density = "200x200"
+
       image_obj.rotate!(@angle)
 
       image_obj.strip!
 
-      image_obj.write(new_file_name)
+      if is_big_image # File size is greater than 10MB, reduce quality to 80%
+        image_obj.write(new_file_name){self.quality = 80}
+      else
+        image_obj.write(new_file_name)
+      end
 
       return success_with_data(rotated_image_path: new_file_name, rotation_angle: @rotation_angle,
                                width: image_obj.columns, height: image_obj.rows)

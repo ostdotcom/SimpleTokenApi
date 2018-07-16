@@ -66,7 +66,6 @@ module ClientManagement
       success
     end
 
-    # todo: which domain name
 
     # Fetch Client Web Host
     #

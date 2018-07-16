@@ -148,9 +148,9 @@ module AdminManagement
         #
         def update_user_kyc_status
           if is_auto_approve_admin?
-            @user_kyc_detail.send("set_" + GlobalConstant::UserKycDetail.auto_approved)
+            @user_kyc_detail.send("set_" + GlobalConstant::UserKycDetail.auto_approved_qualify_type)
           else
-            @user_kyc_detail.send("set_" + GlobalConstant::UserKycDetail.manual_approved)
+            @user_kyc_detail.send("set_" + GlobalConstant::UserKycDetail.manually_approved_qualify_type)
           end
 
           @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status

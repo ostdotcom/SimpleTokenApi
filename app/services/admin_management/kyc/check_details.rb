@@ -282,7 +282,7 @@ module AdminManagement
 
         automation_passed = @user_kyc_detail.qualify_types.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
 
-        ai_pass_details= {
+        ai_pass_details = {
             fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
             ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
             automation_passed: automation_passed
@@ -667,7 +667,11 @@ module AdminManagement
       # Sets @client_kyc_pass_setting
       #
       def fetch_client_pass_setting
-        @client_kyc_pass_setting = ClientKycPassSetting.where(id: @user_kyc_comparison_detail.client_kyc_pass_settings_id).first
+        @client_kyc_pass_setting ||= if @user_kyc_comparison_detail.client_kyc_pass_settings_id.to_i > 0
+                                     ClientKycPassSetting.where(id: @user_kyc_comparison_detail.client_kyc_pass_settings_id).first
+                                   else
+                                     ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
+                                   end
       end
 
       # Fetch user kyc comparison setting

@@ -79,22 +79,6 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   end
 
 
-  # Get OCR Comparison Bitwise Value
-  #
-  # * Author: Aniket
-  # * Date: 04/07/2018
-  # * Reviewed By:
-  #
-  def self.auto_approve_failed_reasons_bit_value(reasons_array)
-    ocr_comparison_value = 0
-    reasons_array.each do |reason|
-      ocr_comparison_value += UserKycComparisonDetail.auto_approve_failed_reasons[reason]
-    end
-
-    ocr_comparison_value
-  end
-
-
   # Flush Memcache
   #
   # * Author: Aniket/Tejas

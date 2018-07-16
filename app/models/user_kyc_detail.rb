@@ -104,8 +104,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   # @returns [String] returns the last qualify type
   #
-  def last_qualify_type
-    @last_qualify_type = qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
+  def last_qualified_type
+    qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
                              GlobalConstant::UserKycDetail.manually_approved_qualify_type : qualify_types_array[0]
   end
 

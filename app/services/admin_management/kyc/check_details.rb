@@ -355,7 +355,7 @@ module AdminManagement
       def case_detail
         {
             admin_status: @user_kyc_detail.admin_status,
-            last_qualify_type: @user_kyc_detail.last_qualify_type,
+            last_qualified_type: @user_kyc_detail.last_qualified_type,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
             retry_cynopsis: (@user_kyc_detail.cynopsis_status == GlobalConstant::UserKycDetail.failed_cynopsis_status).to_i,
             submission_count: @user_kyc_detail.submission_count.to_i,

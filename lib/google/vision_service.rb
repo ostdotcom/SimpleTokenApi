@@ -49,13 +49,13 @@ module Google
       #vision client
       vision_client = client
 
-      resp = validate_image_file_name(document_file)
-      return resp unless resp.success?
+      # resp = validate_image_file_name(document_file)
+      # return resp unless resp.success?
+      #
+      # Aws::S3Manager.new('kyc', 'admin').get(ENV['VISION_IMAGE_PATH'], document_file,
+      #                                        GlobalConstant::Aws::Common.kyc_bucket)
 
-      Aws::S3Manager.new('kyc', 'admin').get(ENV['VISION_IMAGE_PATH'], document_file,
-                                             GlobalConstant::Aws::Common.kyc_bucket)
-
-      image_object = vision_client.image ENV['VISION_IMAGE_PATH']
+      image_object = vision_client.image document_file
 
       format_detect_text_response(image_object)
     end
@@ -87,7 +87,7 @@ module Google
 
       if !(document_file =~ S3_DOCUMENT_IMAGE_PATH_REGEX)
         data = {debug_data: {error_type: 'invalid_file_type'}, request_time: 0}
-        return error_with_data("Exception in s3 document type", "", "s3 path invalid", "", data)
+        return error_with_data("pdf_file", "pdf_file", "pdf_file", "", data)
       end
 
       return success

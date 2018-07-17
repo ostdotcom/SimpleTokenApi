@@ -17,15 +17,17 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
 
   def self.auto_approve_failed_reasons_config
     @auto_approve_failed_reasons_config ||= {
-        GlobalConstant::KycAutoApproveFailedReason.document_file_invalid => 1,
-        GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid => 2,
-        GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch=> 4,
-        GlobalConstant::KycAutoApproveFailedReason.fr_unmatch => 8,
-        GlobalConstant::KycAutoApproveFailedReason.residency_proof => 16,
-        GlobalConstant::KycAutoApproveFailedReason.investor_proof => 32,
-        GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc => 64,
-        GlobalConstant::KycAutoApproveFailedReason.token_sale_ended => 128,
-        GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 256
+        GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 1,
+        GlobalConstant::KycAutoApproveFailedReason.document_file_invalid => 2,
+        GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid => 4,
+
+        GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch=> 8,
+        GlobalConstant::KycAutoApproveFailedReason.fr_unmatch => 16,
+        GlobalConstant::KycAutoApproveFailedReason.residency_proof => 32,
+        GlobalConstant::KycAutoApproveFailedReason.investor_proof => 64,
+        GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc => 128,
+        GlobalConstant::KycAutoApproveFailedReason.token_sale_ended => 256,
+        GlobalConstant::KycAutoApproveFailedReason.case_closed_for_auto_approve => 512
     }
   end
 

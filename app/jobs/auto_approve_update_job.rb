@@ -29,7 +29,7 @@ class AutoApproveUpdateJob < ApplicationJob
     if failed_reason_count == 0 && @client_kyc_pass_setting.approve_type == GlobalConstant::ClientKycPassSetting.auto_approve_type
       # qualify service call
       qualify_params = {
-          case_id: @user_kyc_detail.id,
+          id: @user_kyc_detail.id,
           admin_id: Admin::AUTO_APPROVE_ADMIN_ID,
           client_id: @user_kyc_detail.client_id,
           is_auto_approve: true

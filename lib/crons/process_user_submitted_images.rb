@@ -115,7 +115,11 @@ module Crons
       @decrypted_user_data[:selfie_file_path] = local_cipher_obj.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
 
       ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
-        @decrypted_user_data[field_name.to_sym] = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
+        if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name.to_s)
+          @decrypted_user_data[field_name.to_sym] = user_extended_detail[field_name]
+        else
+          @decrypted_user_data[field_name.to_sym] = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
+        end
       end
 
       success

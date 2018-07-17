@@ -133,7 +133,7 @@ class AutoApproveUpdateJob < ApplicationJob
 
     fr_match_percent = @client_kyc_pass_setting.face_match_percent.to_i
 
-    if (@user_kyc_comparison_detail.big_face_match_percent < fr_match_percent) &&
+    if (@user_kyc_comparison_detail.big_face_match_percent < fr_match_percent) ||
         (@user_kyc_comparison_detail.small_face_match_percent < fr_match_percent)
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.fr_unmatch)
     end

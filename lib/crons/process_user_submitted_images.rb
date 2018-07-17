@@ -34,8 +34,6 @@ module Crons
 
       fetch_unprocessed_user_kyc_record
 
-      puts @user_kyc_comparison_detail
-
       return success if @user_kyc_comparison_detail.nil?
 
       begin
@@ -102,9 +100,9 @@ module Crons
 
       r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
       kyc_salt_d = r.data[:plaintext]
-      local_cipher_obj = LocalCipher.new(kyc_salt_d)
+      get_local_cipher_object(kyc_salt_d)
 
-      @decrypted_user_data[:document_id_file_path] = local_cipher_obj.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
+      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
       r = validate_image_file_name(@decrypted_user_data[:document_id_file_path])
       unless r.success?
         update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.document_file_invalid,
@@ -112,13 +110,13 @@ module Crons
         return r
       end
 
-      @decrypted_user_data[:selfie_file_path] = local_cipher_obj.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
+      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
 
       ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
         if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name.to_s)
           @decrypted_user_data[field_name.to_sym] = user_extended_detail[field_name]
         else
-          @decrypted_user_data[field_name.to_sym] = local_cipher_obj.decrypt(user_extended_detail[field_name]).data[:plaintext]
+          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(user_extended_detail[field_name]).data[:plaintext]
         end
       end
 
@@ -165,7 +163,6 @@ module Crons
     # * Reviewed By:
     #
     def process_document_id_image
-      # todo: downgrade iamge size
       original_downloaded_document_path = download_image(@decrypted_user_data[:document_id_file_path])
 
       # Rotate image at 0 degree angle to remove its metadata
@@ -179,8 +176,9 @@ module Crons
       # Make a google vision call for detect text
       puts "Vision detect text started"
       r = Google::VisionService.new.detect_text(@zero_rotated_document[:rotated_image_path])
+      log_resp = r.success? ? {paragraph: r.data[:paragraph], request_time: r.data[:request_time]} : r.to_json
       add_image_process_log(GlobalConstant::ImageProcessing.google_vision_detect_text,
-                            {rotation_angle: GlobalConstant::ImageProcessing.rotation_angle_0}, r.to_json)
+                            {rotation_angle: GlobalConstant::ImageProcessing.rotation_angle_0}, log_resp)
 
       # Detect text failed so no more vision calls would happen for document
       correct_oriented_doc = @zero_rotated_document
@@ -196,7 +194,6 @@ module Crons
         end
 
         resp = rotate_image_and_detect_faces('document', rotation_sequence, original_downloaded_document_path)
-        # TODO: notify devs
         correct_oriented_doc = resp.data
       end
 
@@ -317,8 +314,9 @@ module Crons
         if rotated_image.present?
           puts "#{rotate_angle} - Vision detect face started"
           r = Google::VisionService.new.detect_faces(rotated_image[:rotated_image_path])
+          log_resp = r.success? ? {faces: r.data[:faces], request_time: r.data[:request_time]} : r.to_json
           add_image_process_log(GlobalConstant::ImageProcessing.google_vision_detect_face,
-                                {rotation_angle: rotate_angle, image_type: image_type}, r.to_json)
+                                {rotation_angle: rotate_angle, image_type: image_type}, log_resp)
           # Break this loop if its an error
           return error_with_data("cr_pusi_5", "Detect face failed", "Detect face failed", nil, zero_rotated_image) unless r.success?
           # If face is detected then stop further calls
@@ -377,11 +375,23 @@ module Crons
     def file_directory
       # Make directory if not exisits
       if @dir.nil?
-        # todo: bring file path from config
-        @dir = Rails.public_path.to_s + '/' + "#{@user_kyc_comparison_detail.id}"
+        shared_dir = GlobalConstant::Base.kyc_app['shared_directory']
+        @dir = shared_dir.to_s + '/' + "#{@user_kyc_comparison_detail.id}"
         Util::FileSystem.check_and_create_directory(@dir)
       end
       @dir
+    end
+
+    # Get local cipher object
+    #
+    # * Author: Pankaj
+    # * Date: 02/07/2018
+    # * Reviewed By:
+    #
+    # @return [LocalCipher]
+    #
+    def get_local_cipher_object(kyc_salt=nil)
+      @lco ||= LocalCipher.new(kyc_salt)
     end
 
     # Make an entry in image process log
@@ -391,11 +401,11 @@ module Crons
     # * Reviewed By:
     #
     def add_image_process_log(service, input, debug_data)
-      # TODO: Encrypt debug data with local cipher
+      encr_data = get_local_cipher_object.encrypt(debug_data.to_json).data[:ciphertext_blob]
       ImageProcessingLog.create!(user_kyc_comparison_detail_id: @user_kyc_comparison_detail.id,
                                  service_used: service,
                                  input_params: input,
-                                 debug_data: debug_data)
+                                 debug_data: encr_data)
     rescue => e
       ApplicationMailer.notify(
           body: e.backtrace,
@@ -420,21 +430,26 @@ module Crons
       if resp.success?
         # Check for bigger face and smaller face percentages
         max_height = 0
-        # todo: second max height
+        @user_kyc_comparison_detail.big_face_match_percent = nil
         resp.data[:face_matches].present? && resp.data[:face_matches].each do |fm|
           if fm[:face_bounding_box][:bounding_box][:height] >= max_height
             max_height = fm[:face_bounding_box][:bounding_box][:height]
             @user_kyc_comparison_detail.small_face_match_percent = @user_kyc_comparison_detail.big_face_match_percent
             @user_kyc_comparison_detail.big_face_match_percent = fm[:similarity_percent]
           else
-            @user_kyc_comparison_detail.small_face_match_percent = fm[:similarity_percent]
+            @user_kyc_comparison_detail.small_face_match_percent ||= fm[:similarity_percent]
           end
         end
+        @user_kyc_comparison_detail.small_face_match_percent ||= 0
+        @user_kyc_comparison_detail.big_face_match_percent ||= 0
         @user_kyc_comparison_detail.save!
       end
 
+      log_resp = resp.success? ? {face_matches: resp.data[:face_matches], document_has_face: resp.data[:document_has_face],
+                                  document_face_bounding_box: resp.data[:document_face_bounding_box],
+                                  request_time: resp.data[:request_time]} : resp.to_json
       add_image_process_log(GlobalConstant::ImageProcessing.aws_rekognition_compare_face,
-                            {document: @new_doc_s3_file_name, selfie: @new_selfie_s3_file_name}, resp.to_json)
+                            {document: @new_doc_s3_file_name, selfie: @new_selfie_s3_file_name}, log_resp)
 
       success
     end
@@ -451,9 +466,9 @@ module Crons
       puts "AWS detect text started"
 
       resp = Aws::RekognitionService.new.detect_text(@new_doc_s3_file_name)
-
+      log_resp = resp.success? ? {detected_text: resp.data[:detected_text], request_time: resp.data[:request_time]} : resp.to_json
       add_image_process_log(GlobalConstant::ImageProcessing.aws_rekognition_detect_text,
-                            {document: @new_doc_s3_file_name}, resp.to_json)
+                            {document: @new_doc_s3_file_name}, log_resp)
 
       return unless resp.success?
 

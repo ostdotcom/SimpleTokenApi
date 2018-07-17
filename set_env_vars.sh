@@ -81,3 +81,5 @@ export PD_DEFAULT_PARTNER_DEAL_OWNER=4702408
 
 export GOOGLE_APPLICATION_CREDENTIALS="/Users/pankaj/simpleTokenWorkspace/google-OCR-f9059f1a12dd.json"
 export VISION_PROJECT_ID="ost-kyc-ocr"
+
+export APP_SHARED_DIRECTORY="/Users/pankaj/simpleTokenWorkspace"

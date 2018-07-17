@@ -105,3 +105,6 @@ constants:
   google_vision:
     project_id: <%= ENV['VISION_PROJECT_ID'] %>
     credentials_json: <%= ENV['GOOGLE_APPLICATION_CREDENTIALS'] %>
+
+  kyc_app:
+    shared_directory: <%= ENV['APP_SHARED_DIRECTORY'] %>

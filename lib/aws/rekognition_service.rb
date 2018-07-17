@@ -140,12 +140,11 @@ module Aws
       begin
         resp = client.compare_faces(req_params).to_h
         end_time = current_time_in_milli
-        data = {document_has_face: resp[:source_image_face][:confidence],
+        data = {face_matches: [], document_has_face: resp[:source_image_face][:confidence],
                 document_face_bounding_box: resp[:source_image_face][:bounding_box],
                 request_time: (end_time-start_time)}
 
         if resp[:face_matches].present?
-          data[:face_matches] = []
           resp[:face_matches].each do |x|
             data[:face_matches] << {similarity_percent: x[:similarity],
                                     face_bounding_box: x[:face]}
@@ -176,10 +175,9 @@ module Aws
       begin
         resp = client.detect_text(req_params).to_h
         end_time = current_time_in_milli
-        data = {document_has_text: resp[:text_detections].present?, request_time: (end_time-start_time)}
+        data = {detected_text: [], document_has_text: resp[:text_detections].present?, request_time: (end_time-start_time)}
 
         if resp[:text_detections].present?
-          data[:detected_text] = []
           resp[:text_detections].each do |x|
             data[:detected_text] << {text: x[:detected_text],
                                     confidence_percent: x[:confidence]}

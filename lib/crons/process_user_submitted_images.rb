@@ -273,6 +273,7 @@ module Crons
       r = Ocr::CompareDocument.new(compare_params).perform
       rotation_angle = r.data[:rotation_angle]
       puts r.to_json
+
       if r.success? && r.data[:comparison_percent].present?
         r.data[:comparison_percent].each do |column, value|
           @user_kyc_comparison_detail["#{column.to_s}_match_percent".to_sym] = value
@@ -357,7 +358,6 @@ module Crons
       s3_file_name = "#{file_name}_#{rotation_angle}"
       puts "#{s3_file_name} - Image uploading started"
 
-      # todo: admin can upload image ?
       Aws::S3Manager.new('kyc', 'user').
           store(s3_file_name, File.open(image_path), GlobalConstant::Aws::Common.kyc_bucket)
 
@@ -428,18 +428,26 @@ module Crons
 
       # If face comparison response has unmatched faces then mark it as failed
       if resp.success?
-        # Check for bigger face and smaller face percentages
-        max_height = 0
+
+        max_height, second_max_height = 0, 0
+
         @user_kyc_comparison_detail.big_face_match_percent = nil
         resp.data[:face_matches].present? && resp.data[:face_matches].each do |fm|
-          if fm[:face_bounding_box][:bounding_box][:height] >= max_height
-            max_height = fm[:face_bounding_box][:bounding_box][:height]
+          current_height = fm[:face_bounding_box][:bounding_box][:height]
+
+          # Check for bigger face and smaller face percentages
+          if current_height >= max_height
+            second_max_height = max_height
             @user_kyc_comparison_detail.small_face_match_percent = @user_kyc_comparison_detail.big_face_match_percent
+
+            max_height = current_height
             @user_kyc_comparison_detail.big_face_match_percent = fm[:similarity_percent]
-          else
-            @user_kyc_comparison_detail.small_face_match_percent ||= fm[:similarity_percent]
+          elsif current_height >= second_max_height
+            second_max_height = current_height
+            @user_kyc_comparison_detail.small_face_match_percent = fm[:similarity_percent]
           end
         end
+
         @user_kyc_comparison_detail.small_face_match_percent ||= 0
         @user_kyc_comparison_detail.big_face_match_percent ||= 0
         @user_kyc_comparison_detail.save!

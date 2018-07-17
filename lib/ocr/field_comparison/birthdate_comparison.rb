@@ -34,23 +34,49 @@ module Ocr
       # * Date: 06/06/2018
       # * Reviewed By:
       #
-      # @ returns [Integer] 100 if dob match found
+      # @returns [Integer] 100 if dob match found
       #
       def compare
         percent_match = 0
-        date_of_birth = Date.strptime(@match_string, "%Y-%m-%d")
-        all_possible_date_number_regex_array = all_possible_date_number_regex(date_of_birth)
+
+        return 100 if passport_line_has_birthdate_match?
+
+        all_possible_date_number_regex_array = all_possible_date_number_regex
 
         if @paragraph.match(/#{all_possible_date_number_regex_array.join("|")}/i)
           percent_match = 100
         else
-          all_month_name_regex_array = all_month_name_regex(date_of_birth)
+          all_month_name_regex_array = all_month_name_regex
           if @paragraph.match(/#{all_month_name_regex_array.join("|")}/i)
             percent_match = 100
           end
         end
 
         percent_match
+      end
+
+      # check if birthdate in format YYMMDD is present in second machine readable line
+      #
+      # * Author: Aniket
+      # * Date: 06/06/2018
+      # * Reviewed By:
+      #
+      # @returns [Boolean] gives true if dob match found
+      #
+      def passport_line_has_birthdate_match?
+        last_line_was_passport_line = false
+
+        @paragraph.split("\n").each do |line|
+          is_passport_line = is_machine_readable_passport_line?(line)
+
+          next unless is_passport_line || last_line_was_passport_line
+          formatted_line = line.gsub(/ /, '')
+
+          return true if formatted_line.match(/#{year_short}#{month}#{day}/i)
+          last_line_was_passport_line = is_passport_line
+        end
+
+        return false
       end
 
       # Get all possible regex number formats of a date (with month as integer)
@@ -61,20 +87,12 @@ module Ocr
       #
       # @returns [Array] all regex format of a date in number format
       #
-      def all_possible_date_number_regex(date_obj)
+      def all_possible_date_number_regex
         formats = []
-        month = date_obj.month
-        month = "0?#{month}" if month < 10
-
-        day = date_obj.day
-        day = "0?#{day}" if day < 10
-
-        year = date_obj.strftime("%Y")
-        year_short = date_obj.strftime("%y")
 
         # All possible formats includes these delimeters
-        delimeters = ['/', '-', '.', ' ', ',', '']
 
+        delimeters = ['/', '-', '\.', ' ']
 
         delimeters.each do |delimeter|
           # \s* makes sure that any whitepace character (0 or more) if present is neglected
@@ -90,12 +108,12 @@ module Ocr
           formats << "#{month}#{delimeter}#{year_short}#{delimeter}#{day}"
         end
 
-        # special uncommon formats
-        formats << "#{day}.#{month} #{year}"
-        formats << "#{day}:#{month}-#{year}"
-        formats << "#{month}/#{day} #{year}"
-        formats << "#{day} #{month}-#{year}"
-        formats << "#{day}#{month}/#{year}"
+        # special uncommon formats not used
+        # formats << "#{day}\.#{month} #{year}"   count - 8
+        # formats << "#{day}:#{month}-#{year}"    count - 1
+        # formats << "#{month}/#{day} #{year}"    count - 1
+        # formats << "#{day} #{month}-#{year}"    count - 2
+        # formats << "#{day}#{month}/#{year}"     count - 3
 
         return regex_from_formats(formats)
       end
@@ -120,23 +138,16 @@ module Ocr
       #
       # @returns [Array] all regex format of a date with month name
       #
-      def all_month_name_regex(date_obj)
+      def all_month_name_regex
         formats = []
 
-        day = date_obj.day
-        day = "0?#{day}" if day < 10
-
-        year = date_obj.strftime("%Y")
-        year_short = date_obj.strftime("%y")
-
-        month_name = date_obj.strftime("%B")
-        month_name_short = date_obj.strftime("%b")
-
-        # Space/Slash/Pipe (0 or more occurences followed by a local month name string(\w*))
-        month_str_regex_back = "([\s\/\|]*)(\\w*)"
+        # Space/Slash/Pipe (0 or more occurences followed by a local month name string([a-z]*))
+        # [a-z] can be replaced by [[:alpha:]] but then regex matching is very slow
+        #
+        month_str_regex_back = "([\s\/\|]*)([a-z]*)" # [a-z] can be replaced by [[:alpha:]] but then regex matching is very slow
 
         # local month name string(\w*) followed by  Space/Slash/Pipe (0 or more occurences)
-        month_str_regex_front = "(\\w*)([\s\/\|]*)"
+        month_str_regex_front = "([a-z]*)([\s\/\|]*)"
 
         # regex for full month name in english
         month_regex = "#{month_str_regex_front}#{month_name}#{month_str_regex_back}"
@@ -144,45 +155,79 @@ module Ocr
         # regex for short month name in english
         month_regex_short = "#{month_str_regex_front}#{month_name_short}#{month_str_regex_back}"
 
-        str_delimeters = '-, /.'
+        str_delimeters = ['/', '-', '\.', ' ']
 
-        # todo: test delimeter_regex usage with valid and invalid test cases
-
-        delimeter_regex = "[#{str_delimeters}]*"
-
-        # ALL COMBINATION IS REPETED TWICE FOR year & year_short
-        formats << "#{day}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{year}"
-        formats << "#{day}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{year_short}"
-
-        formats << "#{year}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{day}"
-        formats << "#{year_short}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{day}"
+        str_delimeters.each do |str_delimeter|
+          delimeter_regex = "\s*#{str_delimeter}\s*"
 
 
-        formats << "#{month_regex}#{delimeter_regex}#{day}#{delimeter_regex}#{year}"
-        formats << "#{month_regex}#{delimeter_regex}#{day}#{delimeter_regex}#{year_short}"
+          # ALL COMBINATION IS REPETED TWICE FOR year & year_short
+          formats << "#{day}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{year}"
+          formats << "#{day}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{year_short}"
 
-        formats << "#{month_regex}#{delimeter_regex}#{year}#{delimeter_regex}#{day}"
-        formats << "#{month_regex}#{delimeter_regex}#{year_short}#{delimeter_regex}#{day}"
-
-
-        # ABOVE COMBINATION IS REPETED FOR month_regex_short
-
-        formats << "#{day}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{year}"
-        formats << "#{day}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{year_short}"
-
-        formats << "#{year}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{day}"
-        formats << "#{year_short}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{day}"
-
-        formats << "#{month_regex_short}#{delimeter_regex}#{day}#{delimeter_regex}#{year}"
-        formats << "#{month_regex_short}#{delimeter_regex}#{day}#{delimeter_regex}#{year_short}"
-
-        formats << "#{month_regex_short}#{delimeter_regex}#{year}#{delimeter_regex}#{day}"
-        formats << "#{month_regex_short}#{delimeter_regex}#{year_short}#{delimeter_regex}#{day}"
+          formats << "#{year}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{day}"
+          formats << "#{year_short}#{delimeter_regex}#{month_regex}#{delimeter_regex}#{day}"
 
 
-        # Add UNUSUAL FORMATS if any
+          formats << "#{month_regex}#{delimeter_regex}#{day}#{delimeter_regex}#{year}"
+          formats << "#{month_regex}#{delimeter_regex}#{day}#{delimeter_regex}#{year_short}"
+
+          formats << "#{month_regex}#{delimeter_regex}#{year}#{delimeter_regex}#{day}"
+          formats << "#{month_regex}#{delimeter_regex}#{year_short}#{delimeter_regex}#{day}"
+
+
+          # ABOVE COMBINATION IS REPETED FOR month_regex_short
+
+          formats << "#{day}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{year}"
+          formats << "#{day}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{year_short}"
+
+          formats << "#{year}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{day}"
+          formats << "#{year_short}#{delimeter_regex}#{month_regex_short}#{delimeter_regex}#{day}"
+
+          formats << "#{month_regex_short}#{delimeter_regex}#{day}#{delimeter_regex}#{year}"
+          formats << "#{month_regex_short}#{delimeter_regex}#{day}#{delimeter_regex}#{year_short}"
+
+          formats << "#{month_regex_short}#{delimeter_regex}#{year}#{delimeter_regex}#{day}"
+          formats << "#{month_regex_short}#{delimeter_regex}#{year_short}#{delimeter_regex}#{day}"
+        end
 
         return regex_from_formats(formats)
+      end
+
+      def day
+        @day ||= begin
+          v = date_obj.day
+          v = "0#{v}" if v < 10
+          v
+        end
+      end
+
+      def month
+        @month ||= begin
+          v = date_obj.month
+          v = "0#{v}" if v < 10
+          v
+        end
+      end
+
+      def month_name
+        @month_name ||= date_obj.strftime("%B")
+      end
+
+      def month_name_short
+        @month_name_short ||= date_obj.strftime("%b")
+      end
+
+      def year_short
+        @year_short ||= date_obj.strftime("%y")
+      end
+
+      def year
+        @year ||= date_obj.strftime("%Y")
+      end
+
+      def date_obj
+        @date_obj ||= Date.strptime(@match_string, "%Y-%m-%d")
       end
 
     end

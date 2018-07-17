@@ -46,10 +46,23 @@ module Ocr
       # refer for different formats - https://en.wikipedia.org/wiki/Machine-readable_passport
       #
       def sanitize_machine_readable_passport_line(line)
-        return "" if line.count('<') < 3
+        return "" unless is_machine_readable_passport_line?(line)
 
         pos = line.index('p<')
         pos.nil? ? "" : line[pos..-1].gsub(/ /, '')
+      end
+
+      # check if its is a machine readable passport line
+      #
+      # * Author: Amam
+      # * Date: 17/07/2018
+      # * Reviewed By:
+      #
+      # @return [Boolean]
+      #
+      #
+      def is_machine_readable_passport_line?(line)
+        line.count('<') >= 3
       end
 
       def compare

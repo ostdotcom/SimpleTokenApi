@@ -562,8 +562,9 @@ module AdminManagement
       #
       def document_id_file_url
         rotation_angle = @user_kyc_comparison_detail.document_dimensions[:rotation_angle].to_s
-        document_id_file_path_d += "_#{rotation_angle}" if rotation_angle.present?
-        get_url(document_id_file_path_d)
+        doc_file_path = document_id_file_path_d
+        doc_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        get_url(doc_file_path)
       end
 
       # get selfie url
@@ -574,8 +575,9 @@ module AdminManagement
       #
       def selfie_file_url
         rotation_angle = @user_kyc_comparison_detail.selfie_dimensions[:rotation_angle].to_s
-        selfie_file_path_d += "_#{rotation_angle}" if rotation_angle.present?
-        get_url(selfie_file_path_d)
+        selfie_file_path = selfie_file_path_d
+        selfie_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        get_url(selfie_file_path)
       end
 
       # get residence url

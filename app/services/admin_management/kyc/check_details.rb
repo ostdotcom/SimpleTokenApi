@@ -284,14 +284,17 @@ module AdminManagement
 
         if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
           automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+
           ai_pass_details = {
               fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
               ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
-              automation_passed: automation_passed
+              automation_passed: automation_passed,
+              ocr_match_fields: {
+              }
           }
 
-          ClientKycPassSetting.ocr_comparison_fields_config.keys do |key|
-            ai_pass_details["#{key}_pass".to_sym] = @user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100
+          ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
+            ai_pass_details[:ocr_match_fields][key] = (@user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100)
           end
 
         end
@@ -674,10 +677,10 @@ module AdminManagement
       #
       def fetch_client_pass_setting
         @client_kyc_pass_setting ||= if @user_kyc_comparison_detail.client_kyc_pass_settings_id.to_i > 0
-                                     ClientKycPassSetting.where(id: @user_kyc_comparison_detail.client_kyc_pass_settings_id).first
-                                   else
-                                     ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
-                                   end
+                                       ClientKycPassSetting.where(id: @user_kyc_comparison_detail.client_kyc_pass_settings_id).first
+                                     else
+                                       ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
+                                     end
       end
 
       # Fetch user kyc comparison setting

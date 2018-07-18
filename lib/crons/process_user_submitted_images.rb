@@ -376,7 +376,7 @@ module Crons
       # Make directory if not exisits
       if @dir.nil?
         shared_dir = GlobalConstant::Base.kyc_app['shared_directory']
-        @dir = shared_dir.to_s + '/' + "#{@user_kyc_comparison_detail.id}"
+        @dir = shared_dir.to_s + "/app_data/#{Rails.env}/images" + "/#{@user_kyc_comparison_detail.id}"
         Util::FileSystem.check_and_create_directory(@dir)
       end
       @dir

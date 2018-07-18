@@ -280,16 +280,20 @@ module AdminManagement
         }
 
 
-        automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+        ai_pass_details = {}
 
-        ai_pass_details = {
-            fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
-            ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
-            automation_passed: automation_passed
-        }
+        if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
+          automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+          ai_pass_details = {
+              fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
+              ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
+              automation_passed: automation_passed
+          }
 
-        ClientKycPassSetting.ocr_comparison_fields_config.keys do |key|
-          ai_pass_details["#{key}_pass".to_sym] = @user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100
+          ClientKycPassSetting.ocr_comparison_fields_config.keys do |key|
+            ai_pass_details["#{key}_pass".to_sym] = @user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100
+          end
+
         end
 
         @api_response_data = {

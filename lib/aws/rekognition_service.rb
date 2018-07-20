@@ -140,6 +140,37 @@ module Aws
       return response_doc, response_selfie
     end
 
+    # Detect labels from the document image
+    #
+    # * Author: Pankaj
+    # * Date: 07/06/2018
+    # * Reviewed By:
+    #
+    def detect_labels(document_local_file_path = nil, document_file=nil)
+
+      return error_with_data("Files Not found",
+                             "Files Not found", "Files Not found",
+                             "", "") if document_local_file_path.nil? && document_file.nil?
+
+      req_params = {
+          image: {
+              s3_object: {
+                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
+                  name: document_file,
+              }
+          }
+      }
+
+      if document_local_file_path.present?
+        imageSource = File.open(document_local_file_path, "rb")
+        req_params[:image] = {
+            bytes: imageSource.read()
+        }
+      end
+
+      format_detect_labels_response(req_params)
+    end
+
     private
 
     # Access key
@@ -287,6 +318,29 @@ module Aws
           resp[:text_detections].each do |x|
             data[:detected_text] << {text: x[:detected_text],
                                     confidence_percent: x[:confidence]}
+          end
+        end
+
+        return success_with_data(data)
+
+      rescue => e
+        data = {err: e.message, request_time: (current_time_in_milli-start_time)}
+        return exception_with_data(e,"Exception", "", "", "", data)
+      end
+
+    end
+
+    def format_detect_labels_response(req_params)
+      start_time = current_time_in_milli
+      begin
+        resp = client.detect_labels(req_params).to_h
+        end_time = current_time_in_milli
+        data = {labels: [], request_time: (end_time-start_time)}
+
+        if resp[:labels].present?
+          resp[:labels].each do |x|
+            data[:labels] << {name: x[:name],
+                                     confidence: x[:confidence]}
           end
         end
 

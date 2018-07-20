@@ -2,6 +2,7 @@ module ClientManagement
   class UpdateAutoApproveSetting < ServicesBase
 
     TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR = 1
+    TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES = 5
     MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT = 1
     MIN_FR_MATCH_PERCENT = 20
 
@@ -175,13 +176,15 @@ module ClientManagement
       end
 
       difference = Time.now.to_i - @saved_auto_approve_setting.created_at.to_i #in sec
+      # TODO: UPDATE diplay_text
+      # AI Settings can be updated only once in #{TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR} hours
       return error_with_data(
           's_cm_uaas_fvaas_2',
           'AI Settings cannot be updated',
-          "AI Settings can be updated only once in #{TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR} hours",
+          "AI Settings can be updated only once in #{TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES} minutes",
           GlobalConstant::ErrorAction.default,
           {}
-      ) if difference < TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR.hours.to_i
+      ) if difference < TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES.minutes.to_i
 
       success
     end

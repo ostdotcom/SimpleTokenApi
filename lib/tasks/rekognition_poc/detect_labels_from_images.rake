@@ -4,8 +4,9 @@ namespace :rekognition_poc do
 
   task :detect_labels_from_images => :environment do
     bucket = GlobalConstant::Aws::Common.kyc_bucket
+    S3_DOCUMENT_IMAGE_PATH_REGEX = /\A([A-Z0-9\/]*\/)*i\/[A-Z0-9\/]+\Z/i
 
-    UserKycDetail.select('id, user_id, user_extended_detail_id').where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id).find_in_batches(batch_size: 100) do |batches|
+    UserKycDetail.select('id, user_id, user_extended_detail_id').where("id > 93").where(client_id: GlobalConstant::TokenSale.st_token_sale_client_id).find_in_batches(batch_size: 100) do |batches|
       batches.each do |user_kyc_detail|
         Rails.logger.info "Case Id: #{user_kyc_detail.id}"
         puts "Case Id: #{user_kyc_detail.id}"
@@ -25,6 +26,7 @@ namespace :rekognition_poc do
         begin
           if doc_s3_path.present?
             puts "Downloading Document"
+            raise "Invalid document" if !(doc_s3_path =~ S3_DOCUMENT_IMAGE_PATH_REGEX)
             downloaded_doc = "#{Rails.public_path.to_s}/#{doc_s3_path.split('/').last}-doc.jpg"
             Aws::S3Manager.new('kyc', 'admin').get(downloaded_doc, doc_s3_path, bucket)
             temp_files << downloaded_doc
@@ -45,6 +47,7 @@ namespace :rekognition_poc do
 
           if selfie_path.present?
             puts "Downloading Selfie"
+            raise "Invalid selfie" if !(selfie_path =~ S3_DOCUMENT_IMAGE_PATH_REGEX)
             downloaded_selfie = "#{Rails.public_path.to_s}/#{selfie_path.split('/').last}-sel.jpg"
             Aws::S3Manager.new('kyc', 'admin').get(downloaded_selfie, selfie_path, bucket)
             temp_files << downloaded_selfie

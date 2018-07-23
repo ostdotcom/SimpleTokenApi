@@ -37,6 +37,8 @@ module UserManagement
       r = validate
       return r unless r.success?
 
+      # File path should always start with client id. There is a validation for it in KycSubmit
+      #
       # NOTE:: path should contain only [a-z A-Z 0-9 /] character sets
       @images.each do |k, v|
         content_type = v

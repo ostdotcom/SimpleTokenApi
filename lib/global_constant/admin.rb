@@ -33,7 +33,7 @@ module GlobalConstant
       end
 
       def auto_approved_admin_name
-        'Auto Approved'
+        ''
       end
 
       ### Role End ###

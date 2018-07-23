@@ -267,34 +267,40 @@ module AdminManagement
             ocr_comparison_fields: @client_kyc_pass_setting.ocr_comparison_fields_array
         }
 
-        auto_approve_failed_reasons = @user_kyc_comparison_detail.auto_approve_failed_reasons_array &
-            GlobalConstant::KycAutoApproveFailedReason.auto_approve_fail_reasons
-
+        ai_pass_details = {}
         user_kyc_comparison_detail = {
-            image_processing_status: @user_kyc_comparison_detail.image_processing_status,
-            failed_reason: auto_approve_failed_reasons,
-            document_dimensions: @user_kyc_comparison_detail.document_dimensions,
-            selfie_dimensions: @user_kyc_comparison_detail.selfie_dimensions,
-            face_match_percent: [@user_kyc_comparison_detail.big_face_match_percent,
-                                 @user_kyc_comparison_detail.small_face_match_percent].min
+            image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status
         }
 
+        if @user_kyc_comparison_detail.present?
 
-        ai_pass_details = {}
+          auto_approve_failed_reasons = @user_kyc_comparison_detail.auto_approve_failed_reasons_array &
+              GlobalConstant::KycAutoApproveFailedReason.auto_approve_fail_reasons
 
-        if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
-          automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
-
-          ai_pass_details = {
-              fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
-              ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
-              automation_passed: automation_passed,
-              ocr_match_fields: {
-              }
+          user_kyc_comparison_detail = {
+              image_processing_status: @user_kyc_comparison_detail.image_processing_status,
+              failed_reason: auto_approve_failed_reasons,
+              document_dimensions: @user_kyc_comparison_detail.document_dimensions,
+              selfie_dimensions: @user_kyc_comparison_detail.selfie_dimensions,
+              face_match_percent: [@user_kyc_comparison_detail.big_face_match_percent,
+                                   @user_kyc_comparison_detail.small_face_match_percent].min
           }
 
-          ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
-            ai_pass_details[:ocr_match_fields][key] = (@user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100)
+          if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
+            automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+
+            ai_pass_details = {
+                fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
+                ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
+                automation_passed: automation_passed,
+                ocr_match_fields: {
+                }
+            }
+
+            ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
+              ai_pass_details[:ocr_match_fields][key] = (@user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100)
+            end
+
           end
 
         end
@@ -564,9 +570,11 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def document_id_file_url
-        rotation_angle = @user_kyc_comparison_detail.document_dimensions[:rotation_angle].to_s
         doc_file_path = document_id_file_path_d
-        doc_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        if @user_kyc_comparison_detail.present?
+          rotation_angle = @user_kyc_comparison_detail.document_dimensions[:rotation_angle].to_s
+          doc_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        end
         get_url(doc_file_path)
       end
 
@@ -577,9 +585,11 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def selfie_file_url
-        rotation_angle = @user_kyc_comparison_detail.selfie_dimensions[:rotation_angle].to_s
         selfie_file_path = selfie_file_path_d
-        selfie_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        if @user_kyc_comparison_detail.present?
+          rotation_angle = @user_kyc_comparison_detail.selfie_dimensions[:rotation_angle].to_s
+          selfie_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        end
         get_url(selfie_file_path)
       end
 
@@ -676,7 +686,7 @@ module AdminManagement
       # Sets @client_kyc_pass_setting
       #
       def fetch_client_pass_setting
-        @client_kyc_pass_setting ||= if @user_kyc_comparison_detail.client_kyc_pass_settings_id.to_i > 0
+        @client_kyc_pass_setting ||= if @user_kyc_comparison_detail.present? && @user_kyc_comparison_detail.client_kyc_pass_settings_id.to_i > 0
                                        ClientKycPassSetting.where(id: @user_kyc_comparison_detail.client_kyc_pass_settings_id).first
                                      else
                                        ClientKycPassSetting.get_active_setting_from_memcache(@client_id)

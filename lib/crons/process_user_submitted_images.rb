@@ -16,7 +16,7 @@ module Crons
       @cron_identifier = params[:cron_identifier].to_s
       @user_kyc_comparison_detail = nil
       @decrypted_user_data = {}
-      @zero_rotated_document = {}
+      @zero_rotated_documents = {}
       @new_doc_s3_file_name = nil
       @new_selfie_s3_file_name = nil
       @ocr_unmatched = ClientKycPassSetting::ocr_comparison_fields_config.keys
@@ -103,12 +103,6 @@ module Crons
       get_local_cipher_object(kyc_salt_d)
 
       @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
-      r = validate_image_file_name(@decrypted_user_data[:document_id_file_path])
-      unless r.success?
-        update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.document_file_invalid,
-                                      GlobalConstant::ImageProcessing.failed_image_process_status)
-        return r
-      end
 
       @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
 
@@ -132,10 +126,6 @@ module Crons
     # @return [Result::Base]
     #
     def validate_image_file_name(document_file)
-
-      if !(document_file =~ GlobalConstant::UserKycDetail.s3_document_path_regex)
-        return error_with_data("cr_pusi_1", "invalid_file", "invalid_file", nil, {})
-      end
 
       if !(document_file =~ GlobalConstant::UserKycDetail.s3_document_image_path_regex)
         return error_with_data("cr_pusi_2", "invalid_type", "invalid_type", nil, {})
@@ -163,25 +153,23 @@ module Crons
     # * Reviewed By:
     #
     def process_document_id_image
-      original_downloaded_document_path = download_image(@decrypted_user_data[:document_id_file_path])
+      doc_type = "document"
+      resp = perform_validation_and_basic_operation_on_files(@decrypted_user_data[:document_id_file_path], doc_type)
+      return resp unless resp.success?
 
-      # Rotate image at 0 degree angle to remove its metadata
-      oriented_doc_result = RmagickImageRotation.new(file_directory, original_downloaded_document_path, GlobalConstant::ImageProcessing.rotation_angle_0).perform
+      original_downloaded_document_image = resp.data[:original_downloaded_image]
+      converted_from_pdf = resp.data[:converted_from_pdf]
 
-      # If first rotation of image failed then close the process
-      return oriented_doc_result unless oriented_doc_result.success?
-
-      @zero_rotated_document = oriented_doc_result.data
-
+      zero_rotated_document = @zero_rotated_documents[doc_type]
       # Make a google vision call for detect text
       puts "Vision detect text started"
-      r = Google::VisionService.new.detect_text(@zero_rotated_document[:rotated_image_path])
+      r = Google::VisionService.new.detect_text(zero_rotated_document[:rotated_image_path])
       log_resp = r.success? ? {paragraph: r.data[:paragraph], request_time: r.data[:request_time]} : r.to_json
       add_image_process_log(GlobalConstant::ImageProcessing.google_vision_detect_text,
                             {rotation_angle: GlobalConstant::ImageProcessing.rotation_angle_0}, log_resp)
 
       # Detect text failed so no more vision calls would happen for document
-      correct_oriented_doc = @zero_rotated_document
+      correct_oriented_doc = zero_rotated_document
 
       if r.success?
         ocr_result = make_ocr_comparisons(r.data, @decrypted_user_data).data
@@ -193,7 +181,7 @@ module Crons
           rotation_sequence.unshift(ocr_result[:rotation_angle])
         end
 
-        resp = rotate_image_and_detect_faces('document', rotation_sequence, original_downloaded_document_path)
+        resp = rotate_image_and_detect_faces(doc_type, rotation_sequence, original_downloaded_document_image)
         correct_oriented_doc = resp.data
       end
 
@@ -203,9 +191,10 @@ module Crons
 
         document_dimensions = {
             width: correct_oriented_doc[:width],
-            height: correct_oriented_doc[:height],
-            rotation_angle: correct_oriented_doc[:rotation_angle]
+            height: correct_oriented_doc[:height]
         }
+        converted_from_pdf ? document_dimensions.merge!(pdf_rotation_angle: correct_oriented_doc[:rotation_angle]) :
+            document_dimensions.merge!(rotation_angle: correct_oriented_doc[:rotation_angle])
 
         @user_kyc_comparison_detail.document_dimensions = document_dimensions
         @user_kyc_comparison_detail.save!
@@ -223,16 +212,15 @@ module Crons
     # * Reviewed By:
     #
     def process_selfie_image
-      r = validate_image_file_name(@decrypted_user_data[:selfie_file_path])
-      unless r.success?
-        update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid, nil)
-        return r
-      end
+      doc_type = "selfie"
+      res = perform_validation_and_basic_operation_on_files(@decrypted_user_data[:selfie_file_path], doc_type)
+      return res unless res.success?
 
-      selfie_path = download_image(@decrypted_user_data[:selfie_file_path])
+      selfie_path = res.data[:original_downloaded_image]
+      converted_from_pdf = res.data[:converted_from_pdf]
 
       # Rotate images and make vision detect face calls
-      resp = rotate_image_and_detect_faces('selfie', GlobalConstant::ImageProcessing.rotation_sequence, selfie_path)
+      resp = rotate_image_and_detect_faces(doc_type, GlobalConstant::ImageProcessing.rotation_sequence, selfie_path)
       # If rotation and detect face fails then go with old selfie doc
       if resp.success?
         correct_oriented_selfie = resp.data
@@ -242,9 +230,10 @@ module Crons
 
         selfie_dimensions = {
             width: correct_oriented_selfie[:width],
-            height: correct_oriented_selfie[:height],
-            rotation_angle: correct_oriented_selfie[:rotation_angle]
+            height: correct_oriented_selfie[:height]
         }
+        converted_from_pdf ? selfie_dimensions.merge!(pdf_rotation_angle: correct_oriented_selfie[:rotation_angle]) :
+            selfie_dimensions.merge!(rotation_angle: correct_oriented_selfie[:rotation_angle])
 
         @user_kyc_comparison_detail.selfie_dimensions = selfie_dimensions
         @user_kyc_comparison_detail.save!
@@ -299,16 +288,14 @@ module Crons
       rotation_sequence.each do |rotate_angle|
         rotated_image = nil
         # Don't perform rotation once again for 0 angle, has already been done
-        if image_type == 'document' && rotate_angle == GlobalConstant::ImageProcessing.rotation_angle_0
-          zero_rotated_image = @zero_rotated_document
-          rotated_image = @zero_rotated_document
+        if rotate_angle == GlobalConstant::ImageProcessing.rotation_angle_0
+          zero_rotated_image = @zero_rotated_documents[image_type]
+          rotated_image = @zero_rotated_documents[image_type]
         else
           puts "#{rotate_angle} - Image Rotation started"
-          resp = RmagickImageRotation.new(file_directory, original_file, rotate_angle).perform
+          resp = FileProcessing::RmagickImageRotation.new(file_directory, original_file, rotate_angle).perform
           return error_with_data("cr_pusi_4", "Rotate image failed", "Rotate image failed", nil, zero_rotated_image) unless resp.success?
           rotated_image = resp.data
-          # Set zero rotated image to send if in case face is not detected in any of the images
-          zero_rotated_image = rotated_image if rotate_angle == GlobalConstant::ImageProcessing.rotation_angle_0
         end
 
         # Call Vision detect face
@@ -337,13 +324,14 @@ module Crons
     #
     # @return String - Downloaded image path
     #
-    def download_image(s3_file_path)
+    def download_file(s3_file_path, is_image)
       puts "#{s3_file_path} - Image downloading started"
       downloaded_file_name = s3_file_path.split("/").last
-      local_image_path = "#{file_directory}/#{downloaded_file_name}.jpg"
+      local_file_path = "#{file_directory}/#{downloaded_file_name}"
+      local_file_path += ".jpg" if is_image
 
-      Aws::S3Manager.new('kyc', 'admin').get(local_image_path, s3_file_path, GlobalConstant::Aws::Common.kyc_bucket)
-      local_image_path
+      Aws::S3Manager.new('kyc', 'admin').get(local_file_path, s3_file_path, GlobalConstant::Aws::Common.kyc_bucket)
+      local_file_path
     end
 
     # Upload images to s3
@@ -513,6 +501,57 @@ module Crons
     #
     def trigger_auto_approval
       AutoApproveUpdateJob.perform_now({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
+    end
+
+    # Convert pdf to image
+    #
+    # * Author: Pankaj
+    # * Date: 09/07/2018
+    # * Reviewed By:
+    #
+    def convert_to_image(pdf_file_path)
+      puts "Convert pdf to image - #{pdf_file_path}"
+      pdf_file = download_file(pdf_file_path, false)
+
+      FileProcessing::PdfToImage.new(file_directory, pdf_file).perform
+    end
+
+    # Perform basic validation on files and convert them into zero rotated images if required
+    #
+    # * Author: Pankaj
+    # * Date: 09/07/2018
+    # * Reviewed By:
+    #
+    def perform_validation_and_basic_operation_on_files(s3_file_name, doc_type)
+      converted_from_pdf = false
+      res_val = validate_image_file_name(s3_file_name)
+      if !res_val.success? && res_val.error_message == "invalid_type"
+        image_result = convert_to_image(s3_file_name)
+        unless image_result.success?
+          if doc_type == "document"
+            update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.document_file_invalid,
+                                          GlobalConstant::ImageProcessing.failed_image_process_status)
+          else
+            update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.selfie_file_invalid, nil)
+          end
+          return image_result
+        end
+        original_downloaded_image = image_result.data[:image_path]
+        converted_from_pdf = true
+      else
+        original_downloaded_image = download_file(s3_file_name, true)
+      end
+
+      # Rotate image at 0 degree angle to remove its metadata
+      strip_image_result = FileProcessing::RmagickImageRotation.new(file_directory, original_downloaded_image,
+                                                     GlobalConstant::ImageProcessing.rotation_angle_0).perform
+
+      # If first rotation of image failed then close the process
+      return strip_image_result unless strip_image_result.success?
+
+      @zero_rotated_documents[doc_type] = strip_image_result.data
+
+      success_with_data({original_downloaded_image: original_downloaded_image, converted_from_pdf: converted_from_pdf})
     end
 
   end

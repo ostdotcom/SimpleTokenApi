@@ -169,7 +169,7 @@ module ClientManagement
         return error_with_data(
             's_cm_uaas_fvaas_1',
             'Invalid parameters',
-            'Modified ocr fields and FR match percent are already active',
+            'Modified OCR fields and FR match percent are already active',
             GlobalConstant::ErrorAction.default,
             {}
         )

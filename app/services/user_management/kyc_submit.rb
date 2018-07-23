@@ -332,7 +332,7 @@ module UserManagement
       if !@document_id_file_path.present?
         @error_data[:document_id_file_path] = 'Identification document image is required.'
       else
-        @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !(@document_id_file_path =~ S3_DOCUMENT_PATH_REGEX)
+        @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !s3_kyc_folder_belongs_to_client?(@document_id_file_path)
       end
     end
 
@@ -341,7 +341,7 @@ module UserManagement
       if !@selfie_file_path.present?
         @error_data[:selfie_file_path] = 'Selfie is required.'
       else
-        @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !(@selfie_file_path =~ S3_DOCUMENT_PATH_REGEX)
+        @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !s3_kyc_folder_belongs_to_client?(@selfie_file_path)
       end
     end
 
@@ -352,7 +352,7 @@ module UserManagement
       end
 
       if @residence_proof_file_path.present?
-        @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !(@residence_proof_file_path =~ S3_DOCUMENT_PATH_REGEX)
+        @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !s3_kyc_folder_belongs_to_client?(@residence_proof_file_path)
       end
 
     end
@@ -385,8 +385,20 @@ module UserManagement
 
       # If any of the file does not matches s3 file path
       @investor_proof_files_path.each do |x|
-          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !(x =~ S3_DOCUMENT_PATH_REGEX)
+          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
       end
+    end
+
+    # S3 Kyc Folder belongs to the client
+    #
+    # * Author: Aman
+    # * Date: 23/07/2018
+    # * Reviewed By:
+    #
+    # @return [Boolean]
+    #
+    def s3_kyc_folder_belongs_to_client?(file_path)
+      file_path.starts_with?("#{@client_id}/") && (!(file_path =~ S3_DOCUMENT_PATH_REGEX).nil?)
     end
 
     # Fetch user data

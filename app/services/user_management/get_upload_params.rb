@@ -73,11 +73,20 @@ module UserManagement
       r = fetch_and_validate_client
       return r unless r.success?
 
+      return error_with_data(
+          'um_gup_1',
+          'Invalid parameters',
+          'Invalid parameters',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if (@pdfs.blank? && @images.blank?) || (@pdfs.present? && !@pdfs.is_a?(Hash)) ||
+          (@images.present? && !@images.is_a?(Hash))
+
       @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
       #  todo: "KYCaas-Changes"
       return error_with_data(
-          'um_gup_3',
+          'um_gup_2',
           'The token sale ended, it is no longer possible to submit personal information.',
           'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
@@ -99,7 +108,7 @@ module UserManagement
           (pdf_content_types - ['application/pdf']).any?
 
       return error_with_data(
-          'um_gup_1',
+          'um_gup_3',
           'invalid content types.',
           'Only JPEG, PDF and PNG files are allowed.',
           GlobalConstant::ErrorAction.default,

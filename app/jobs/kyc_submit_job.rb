@@ -245,6 +245,7 @@ class KycSubmitJob < ApplicationJob
 
     response_hash = ((r.data || {})[:response] || {})
     @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
+    @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
     save_cynopsis_status
     # upload_documents
   end
@@ -301,7 +302,6 @@ class KycSubmitJob < ApplicationJob
   #
   def save_cynopsis_status
     Rails.logger.info('-- save_cynopsis_status')
-    @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
     @user_kyc_detail.cynopsis_status = @cynopsis_status
     @user_kyc_detail.save!
   end
@@ -376,7 +376,8 @@ class KycSubmitJob < ApplicationJob
   # Rails.env[0..1] - (de/sa/st/pr)
   #
   def get_cynopsis_user_id
-    UserKycDetail.get_cynopsis_user_id(@user_id)
+    @get_cynopsis_user_id ||= @user_kyc_detail.cynopsis_user_id.present? ? @user_kyc_detail.cynopsis_user_id.to_s :
+                                  UserKycDetail.get_cynopsis_user_id(@user_id)
   end
 
   # Get decrypted country

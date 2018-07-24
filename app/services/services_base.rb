@@ -80,7 +80,7 @@ class ServicesBase
 
     return error_with_data('sb_1',
                                       "Mandatory parameter(s) #{missing_mandatory_params.join(", ")} missing.",
-                                      'Something Went Wrong.',
+                                      "Mandatory parameter(s) #{missing_mandatory_params.join(", ")} missing.",
                                       GlobalConstant::ErrorAction.mandatory_params_missing,
                                       {}) if missing_mandatory_params.any?
 

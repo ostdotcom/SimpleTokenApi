@@ -42,7 +42,7 @@ module FileProcessing
         image = Magick::Image::from_blob(original_pdf) do
           self.format = 'PDF'
           self.quality = 100
-          self.density = 350
+          self.density = 300
         end
         image_obj = image[0]
         image_obj.format = 'JPG'

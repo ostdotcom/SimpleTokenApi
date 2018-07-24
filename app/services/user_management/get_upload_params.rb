@@ -79,8 +79,9 @@ module UserManagement
           'Invalid parameters',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if (@pdfs.blank? && @images.blank?) || (@pdfs.present? && !@pdfs.is_a?(Hash)) ||
-          (@images.present? && !@images.is_a?(Hash))
+      ) if (@pdfs.blank? && @images.blank?) ||
+          (@pdfs.present? && !@pdfs.is_a?(Hash) && !@pdfs.is_a?(ActionController::Parameters)) ||
+          (@images.present? && !@images.is_a?(Hash) && !@images.is_a?(ActionController::Parameters))
 
       @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 

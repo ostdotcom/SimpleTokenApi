@@ -318,7 +318,14 @@ module UserManagement
     # @return [String] token sale participation phase
     #
     def token_sale_participation_phase_for_user
-      @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
+      @token_sale_participation_phase_for_user ||= @user_kyc_detail.present? ?
+                                                        @user_kyc_detail.token_sale_participation_phase :
+                                                        GlobalConstant::TokenSale.early_access_token_sale_phase
+
+
+      # public sale phase no longer  used
+      # @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
+
     end
 
     # User Kyc Status

@@ -110,7 +110,7 @@ module ClientManagement
       return error_with_data(
           's_cm_uaas_vof_2',
           'Invalid parameters',
-          'Invalid ocr fields data',
+          'Invalid Optical Character Recognition fields data',
           GlobalConstant::ErrorAction.default,
           {}
       ) if !@ocr_comparison_fields.is_a?(Array)
@@ -118,10 +118,10 @@ module ClientManagement
       return error_with_data(
           's_cm_uaas_vof_3',
           'Invalid values for ocr_comparison_fields',
-          '',
+          'Select at least one Optical Character Recognition field',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_comparison_fields: "Select at least one field"}
+          {ocr_comparison_fields: "Select at least one Optical Character Recognition field"}
       ) if @ocr_comparison_fields.count < MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT
 
       remaining_fields = @ocr_comparison_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
@@ -131,16 +131,16 @@ module ClientManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_comparison_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
+          {ocr_comparison_fields: "Invalid Optical Character Recognition fields-#{remaining_fields.join(',')} selected"}
       ) if remaining_fields.count > 0
 
       return error_with_data(
           's_cm_uaas_vof_5',
-          'Invalid Fr percent',
-          '',
+          'Invalid Facial Recognition percent',
+          "Facial Recognition percent cannot be less than #{MIN_FR_MATCH_PERCENT}",
           GlobalConstant::ErrorAction.default,
           {},
-          {fr_match_percent: "FR percent cannot be less than #{MIN_FR_MATCH_PERCENT}"}
+          {fr_match_percent: "Facial Recognition percent cannot be less than #{MIN_FR_MATCH_PERCENT}"}
       ) if @fr_match_percent < MIN_FR_MATCH_PERCENT
 
       success

@@ -80,7 +80,7 @@ module Crons
     def fetch_unprocessed_user_kyc_record
       UserKycComparisonDetail.where('lock_id IS NULL').
           where(image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status).
-          order({id: :asc}).limit(1).update_all(lock_id: table_lock_id)
+          order({id: :desc}).limit(1).update_all(lock_id: table_lock_id)
 
       @user_kyc_comparison_detail = UserKycComparisonDetail.where(lock_id: table_lock_id).last
     end

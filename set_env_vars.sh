@@ -95,4 +95,4 @@ export VISION_PROJECT_ID="ost-kyc-ocr"
 
 export APP_SHARED_DIRECTORY="/Users/pankaj/simpleTokenWorkspace"
 
-export ADDENDUM_CLIENT_IDS='[1]'
+export ADDENDUM_CLIENT_IDS='[]'

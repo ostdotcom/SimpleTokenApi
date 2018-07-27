@@ -1,7 +1,7 @@
 module ClientManagement
   class UpdateAutoApproveSetting < ServicesBase
 
-    TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES = 60
+    TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES = 5
     MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT = 1
     MIN_FR_MATCH_PERCENT = 20
 
@@ -24,6 +24,7 @@ module ClientManagement
 
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
+      @addendum_client_ids = GlobalConstant::Base.kyc_app['addendum_client_ids']
 
       @approve_type = @params[:approve_type]
       @ocr_comparison_fields = @params[:ocr_comparison_fields]
@@ -67,6 +68,9 @@ module ClientManagement
     #
     #
     def validate_and_sanitize
+      r = addendum_client_id_present?
+      return r unless r.success?
+
       r = validate
       return r unless r.success?
 
@@ -76,6 +80,18 @@ module ClientManagement
       r = validate_ocr_comparison_fields
       return r unless r.success?
 
+      success
+    end
+
+
+    def addendum_client_id_present?
+      return error_with_data(
+          's_cm_uaas_acip_1',
+          'Invalid client id',
+          "Kindly, Sign the addendum to use the Artificial Intelligence feature.",
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @addendum_client_ids.include?(@client_id.to_i)
       success
     end
 

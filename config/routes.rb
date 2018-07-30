@@ -110,6 +110,10 @@ Rails.application.routes.draw do
       match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
     end
 
+    scope 'api/admin/preview', controller: 'web/admin/preview' do
+      match 'client-detail' => :client_detail, via: :GET
+    end
+
     scope 'api/home', controller: 'web/static/home' do
       match '/kyc/contact-us' => :contact_us_pipe_drive_kyc, via: [:GET, :POST]
     end

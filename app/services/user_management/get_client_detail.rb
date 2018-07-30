@@ -73,7 +73,11 @@ module UserManagement
           GlobalConstant::ClientTemplate.sign_up_template_type,
           GlobalConstant::ClientTemplate.reset_password_template_type,
           GlobalConstant::ClientTemplate.change_password_template_type,
-          GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
+          GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type,
+
+          GlobalConstant::ClientTemplate.kyc_template_type,
+          GlobalConstant::ClientTemplate.dashboard_template_type,
+          GlobalConstant::ClientTemplate.verification_template_type
       ].exclude?(@template_type)
 
       success

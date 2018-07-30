@@ -241,7 +241,7 @@ module UserManagement
           @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
 
           age = (Time.zone.now.end_of_day - @birthdate)
-          @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
+          @error_data[:birthdate] = 'Min Age required is 18 years' if age < 18.year
           # Cynopsis does not accept date less than 01/01/1900
           @error_data[:birthdate] = 'Enter date on or after 01/01/1900' if @birthdate.year < 1900
 

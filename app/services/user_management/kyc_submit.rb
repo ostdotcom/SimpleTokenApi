@@ -236,11 +236,19 @@ module UserManagement
     def validate_birthdate
       begin
         @birthdate = @birthdate.to_s.strip
-        @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
-        # age = (Time.zone.now.beginning_of_day - @birthdate)
-        # @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
-        # @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
-        @birthdate = @birthdate.to_date.to_s
+        if @birthdate.match(/\d{1,2}\/\d{1,2}\/\d{4,4}\z/)
+          # if year is %y format then date changes to LMT zone (2 digit dates have issue)
+          @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
+
+          age = (Time.zone.now.end_of_day - @birthdate)
+          @error_data[:birthdate] = 'Min Age required is 18 years' if age < 18.year
+          # Cynopsis does not accept date less than 01/01/1900
+          @error_data[:birthdate] = 'Enter date on or after 01/01/1900' if @birthdate.year < 1900
+
+          @birthdate = @birthdate.to_date.to_s
+        else
+          @error_data[:birthdate] = "Invalid Birth Date Format.Valid Format(dd/mm/yyyy)"
+        end
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'
       end

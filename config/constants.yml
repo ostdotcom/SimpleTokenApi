@@ -108,3 +108,4 @@ constants:
 
   kyc_app:
     shared_directory: <%= ENV['APP_SHARED_DIRECTORY'] %>
+    addendum_client_ids: <%= ENV['ADDENDUM_CLIENT_IDS'] %>

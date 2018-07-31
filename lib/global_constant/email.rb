@@ -6,19 +6,11 @@ module GlobalConstant
     class << self
 
       def default_from
-        begin
-          if Rails.env.production?
-            'kyc.notifier@ost.com'
-          elsif  Rails.env.sandbox?
-            'sandbox.notifier@ost.com'
-          else
-            'staging.notifier@ost.com'
-          end
-        end
+        'kyc.notifier@ost.com'
       end
 
       def default_to
-        ['bala@ost.com', 'sunil@ost.com', 'pankaj@ost.com', 'aman@ost.com']
+        ['bala@ost.com', 'sunil@ost.com', 'pankaj@ost.com', 'aman@ost.com', 'aniket@ost.com', 'tejas@ost.com']
       end
 
       def default_pm_to

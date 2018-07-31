@@ -14,15 +14,23 @@ module Util
       {filepath: zipfile_name}
     end
 
-
     def self.delete_file(filepath)
       File.delete(filepath)
     end
 
-    def self.check_and_create_directory(local_file_path)
+    def self.check_and_create_directory_for_file(local_file_path)
       dir = File.dirname(local_file_path)
+      check_and_create_directory(dir)
+      dir
+    end
+
+    def self.check_and_create_directory(dir)
       FileUtils.mkdir_p(dir) unless File.directory?(dir)
       dir
+    end
+
+    def self.delete_directory(dir)
+      FileUtils.rm_rf(dir)
     end
 
     def self.create_csv_zip(folder)

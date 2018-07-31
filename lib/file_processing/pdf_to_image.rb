@@ -1,4 +1,4 @@
-module ImageProcessing
+module FileProcessing
 
   class PdfToImage
     require 'rmagick'
@@ -15,7 +15,7 @@ module ImageProcessing
     # @param [String] file_directory - File directory to store new file
     # @param [String] file_name - Original PDF file name
     #
-    # @return [ImageProcessing::PdfToImage]
+    # @return [FileProcessing::PdfToImage]
     #
     def initialize(file_directory, file_name)
       @directory = file_directory
@@ -42,7 +42,7 @@ module ImageProcessing
         image = Magick::Image::from_blob(original_pdf) do
           self.format = 'PDF'
           self.quality = 100
-          self.density = 350
+          self.density = 300
         end
         image_obj = image[0]
         image_obj.format = 'JPG'

@@ -210,7 +210,13 @@ module AdminManagement
         # @return [String]
         #
         def last_acted_by(last_acted_by_id)
-          (last_acted_by_id > 0) ? @admin_details[last_acted_by_id].name : nil
+          if (last_acted_by_id > 0)
+            return @admin_details[last_acted_by_id].name
+          elsif (last_acted_by_id == Admin::AUTO_APPROVE_ADMIN_ID )
+            return GlobalConstant::Admin.auto_approved_admin_name
+          else
+            return nil
+          end
         end
 
         # Get Duplicate type of user if present

@@ -2,8 +2,13 @@ user:
   user_details:
     key_template: 'u_det_%{id}'
     expiry_in_seconds: 86400
+
   user_kyc_details:
     key_template: 'u_kyc_det_%{user_id}'
+    expiry_in_seconds: 86400
+
+  user_kyc_comparison_detail:
+    key_template: 'user_kyc_comparison_detail_by_ued_%{user_extended_detail_id}'
     expiry_in_seconds: 86400
 
 alternate_token:
@@ -69,6 +74,11 @@ client:
   client_setting_detail:
     key_template: 'client_setting_detail_%{client_id}_%{template_type}'
     expiry_in_seconds: 86400
+
+  client_kyc_pass_active_setting:
+    key_template: 'client_kyc_pass_active_setting_%{client_id}'
+    expiry_in_seconds: 86400
+
 
 admin:
   admin_details:

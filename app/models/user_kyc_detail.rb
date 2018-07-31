@@ -84,19 +84,56 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #     GlobalConstant::UserKycDetail.residency_issue_admin_action_type => 4
   # }, _suffix: true
 
-  # Array of Properties symbols
+  # Array of Admin action types
   #
   # * Author: Aman
   # * Date: 25/04/2018
   # * Reviewed By:
   #
-  # @returns [Array<Symbol>] returns Array of properties bits set for user
+  # @returns [Array<Symbol>] returns Array of admin action bits set for user
   #
   def admin_action_types_array
     @admin_action_types_array = UserKycDetail.get_bits_set_for_admin_action_types(admin_action_types)
   end
 
-  # properties config
+  # last qualified by admin type
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  # @returns [String] returns the last qualify type
+  #
+  def last_qualified_type
+    qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
+                             GlobalConstant::UserKycDetail.manually_approved_qualify_type : qualify_types_array[0]
+  end
+
+  # Array of Qualify types
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  # @returns [Array<Symbol>] returns Array of Qualify types bits set for user
+  #
+  def qualify_types_array
+    @admin_action_types_array = UserKycDetail.get_bits_set_for_qualify_types(qualify_types)
+  end
+
+  # Check if case was ever auto approved
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if auto approved bit is set
+  #
+  def has_been_auto_approved?
+    qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+  end
+
+  # Admin action types config
   #
   # * Author: Aman
   # * Date: 25/04/2018
@@ -110,6 +147,19 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     }
   end
 
+  # qualify type config
+  #
+  # * Author: Aman
+  # * Date: 25/04/2018
+  # * Reviewed By:
+  #
+  def self.qualify_types_config
+    @ukd_qualify_types_config_con ||= {
+        GlobalConstant::UserKycDetail.auto_approved_qualify_type => 1,
+        GlobalConstant::UserKycDetail.manually_approved_qualify_type => 2
+    }
+  end
+
   # Bitwise columns config
   #
   # * Author: Aman
@@ -118,7 +168,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        admin_action_types: admin_action_types_config
+        admin_action_types: admin_action_types_config,
+        qualify_types: qualify_types_config
     }
   end
 
@@ -144,6 +195,10 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   def case_closed_for_admin?
     (kyc_approved? || kyc_denied?) || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
+  end
+
+  def case_closed_for_auto_approve?
+    case_closed_for_admin? || last_reopened_at.to_i > 0 || admin_action_types_array.present?
   end
 
   def can_delete?

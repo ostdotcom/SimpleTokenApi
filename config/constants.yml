@@ -92,3 +92,11 @@ constants:
     utm_source_key: <%= ENV['UTM_SOURCE_PD_KEY'] %>
     default_kyc_deal_owner: <%= ENV['PD_DEFAULT_KYC_DEAL_OWNER'] %>
     default_partner_deal_owner: <%= ENV['PD_DEFAULT_PARTNER_DEAL_OWNER'] %>
+
+  google_vision:
+    project_id: <%= ENV['VISION_PROJECT_ID'] %>
+    credentials_json: <%= ENV['GOOGLE_APPLICATION_CREDENTIALS'] %>
+
+  kyc_app:
+    shared_directory: <%= ENV['APP_SHARED_DIRECTORY'] %>
+    addendum_client_ids: <%= ENV['ADDENDUM_CLIENT_IDS'] %>

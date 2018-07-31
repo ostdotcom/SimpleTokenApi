@@ -1,6 +1,6 @@
 class Web::Admin::SuperAdminController < Web::Admin::BaseController
 
-  before_action only: [:get_kyc_report, :invite, :resend_invite, :reset_mfa, :delete_admin] do
+  before_action only: [:get_kyc_report, :invite, :resend_invite, :reset_mfa, :delete_admin, :update_auto_approve_setting] do
     authenticate_request(true)
   end
 
@@ -75,6 +75,17 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
   #
   def delete_admin
     service_response = AdminManagement::AdminUser::DeleteAdmin.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Update Auto Approve Setting
+  #
+  # * Author: Aniket
+  # * Date: 03/07/2018
+  # * Reviewed By:
+  #
+  def update_auto_approve_setting
+    service_response = ClientManagement::UpdateAutoApproveSetting.new(params).perform
     render_api_response(service_response)
   end
 

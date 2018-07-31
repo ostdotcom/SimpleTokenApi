@@ -37,6 +37,8 @@ module AdminManagement
         @kyc_salt_d = nil
         @client_kyc_config_detail = nil
 
+        @user_kyc_comparison_detail, @client_kyc_pass_setting = nil, nil
+
         @api_response_data = {}
       end
 
@@ -64,6 +66,10 @@ module AdminManagement
 
         r = decrypt_kyc_salt
         return r unless r.success?
+
+        fetch_user_kyc_comparison_detail
+
+        fetch_client_pass_setting
 
         set_api_response_data
 
@@ -255,9 +261,56 @@ module AdminManagement
             previous_page_payload: previous_page_payload
         }
 
+        client_kyc_pass_setting = {
+            approve_type: @client_kyc_pass_setting.approve_type,
+            fr_match_percent: @client_kyc_pass_setting.face_match_percent.to_i,
+            ocr_comparison_fields: @client_kyc_pass_setting.ocr_comparison_fields_array
+        }
+
+        ai_pass_details = {}
+        user_kyc_comparison_detail = {
+            image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status
+        }
+
+        if @user_kyc_comparison_detail.present?
+
+          auto_approve_failed_reasons = @user_kyc_comparison_detail.auto_approve_failed_reasons_array &
+              GlobalConstant::KycAutoApproveFailedReason.auto_approve_fail_reasons
+
+          user_kyc_comparison_detail = {
+              image_processing_status: @user_kyc_comparison_detail.image_processing_status,
+              failed_reason: auto_approve_failed_reasons,
+              document_dimensions: @user_kyc_comparison_detail.document_dimensions,
+              selfie_dimensions: @user_kyc_comparison_detail.selfie_dimensions,
+              face_match_percent: [@user_kyc_comparison_detail.big_face_match_percent,
+                                   @user_kyc_comparison_detail.small_face_match_percent].min
+          }
+
+          if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
+            automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
+
+            ai_pass_details = {
+                fr_pass_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.fr_unmatch),
+                ocr_match_status: @user_kyc_comparison_detail.auto_approve_failed_reasons_array.exclude?(GlobalConstant::KycAutoApproveFailedReason.ocr_unmatch),
+                automation_passed: automation_passed,
+                ocr_match_fields: {
+                }
+            }
+
+            ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
+              ai_pass_details[:ocr_match_fields][key] = (@user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100)
+            end
+
+          end
+
+        end
+
         @api_response_data = {
             user_detail: user_detail,
             case_detail: case_detail,
+            client_kyc_pass_setting: client_kyc_pass_setting,
+            user_kyc_comparison_detail: user_kyc_comparison_detail,
+            ai_pass_detail: ai_pass_details,
             meta: meta
         }
       end
@@ -315,6 +368,7 @@ module AdminManagement
       def case_detail
         {
             admin_status: @user_kyc_detail.admin_status,
+            last_qualified_type: @user_kyc_detail.last_qualified_type,
             cynopsis_status: @user_kyc_detail.cynopsis_status,
             retry_cynopsis: (@user_kyc_detail.cynopsis_status == GlobalConstant::UserKycDetail.failed_cynopsis_status).to_i,
             submission_count: @user_kyc_detail.submission_count.to_i,
@@ -323,7 +377,7 @@ module AdminManagement
             last_acted_by: last_acted_by,
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
-            last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map{|x| x.humanize},
+            last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map {|x| x.humanize},
             is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
             kyc_status: kyc_status,
             can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i,
@@ -362,9 +416,13 @@ module AdminManagement
       # @return [String]
       #
       def last_acted_by
-        (@user_kyc_detail.last_acted_by.to_i > 0) ?
-            Admin.where(id: @user_kyc_detail.last_acted_by).first.name :
-            ''
+        if (@user_kyc_detail.last_acted_by.to_i > 0)
+          return Admin.where(id: @user_kyc_detail.last_acted_by).first.name
+        elsif (@user_kyc_detail.last_acted_by.to_i == Admin::AUTO_APPROVE_ADMIN_ID)
+          GlobalConstant::Admin.auto_approved_admin_name
+        else
+          return ''
+        end
       end
 
       # Decrypt date of birth
@@ -512,7 +570,12 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def document_id_file_url
-        get_url(document_id_file_path_d)
+        doc_file_path = document_id_file_path_d
+        if @user_kyc_comparison_detail.present?
+          rotation_angle = @user_kyc_comparison_detail.document_dimensions[:rotation_angle].to_s
+          doc_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        end
+        get_url(doc_file_path)
       end
 
       # get selfie url
@@ -522,7 +585,12 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def selfie_file_url
-        get_url(selfie_file_path_d)
+        selfie_file_path = selfie_file_path_d
+        if @user_kyc_comparison_detail.present?
+          rotation_angle = @user_kyc_comparison_detail.selfie_dimensions[:rotation_angle].to_s
+          selfie_file_path += "_#{rotation_angle}" if rotation_angle.present?
+        end
+        get_url(selfie_file_path)
       end
 
       # get residence url
@@ -606,11 +674,38 @@ module AdminManagement
       # @return [Boolean] - True/False
       #
       def whitelist_confirmation_pending
-         (@client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved? && !@user_kyc_detail.whitelist_confirmation_done?)
+        (@client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved? && !@user_kyc_detail.whitelist_confirmation_done?)
+      end
+
+      # Fetch client pass setting
+      #
+      # * Author: Aniket
+      # * Date: 12/07/2018
+      # * Reviewed By:
+      #
+      # Sets @client_kyc_pass_setting
+      #
+      def fetch_client_pass_setting
+        @client_kyc_pass_setting ||= if @user_kyc_comparison_detail.present? && @user_kyc_comparison_detail.client_kyc_pass_settings_id.to_i > 0
+                                       ClientKycPassSetting.where(id: @user_kyc_comparison_detail.client_kyc_pass_settings_id).first
+                                     else
+                                       ClientKycPassSetting.get_active_setting_from_memcache(@client_id)
+                                     end
+      end
+
+      # Fetch user kyc comparison setting
+      #
+      # * Author: Aniket
+      # * Date: 12/07/2018
+      # * Reviewed By:
+      #
+      # Sets @user_kyc_comparison_detail
+      #
+      def fetch_user_kyc_comparison_detail
+        @user_kyc_comparison_detail = UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
       end
 
     end
 
   end
-
 end

@@ -129,6 +129,7 @@
     - :client_id
     - :id
   :optional:
+    - :is_auto_approve
 
 'AdminManagement::Kyc::CheckDuplicates':
   :mandatory:
@@ -354,6 +355,21 @@
   :mandatory:
      - :admin_id
      - :client_id
+  :optional:
+
+'ClientManagement::GetAutoApproveSetting':
+  :mandatory:
+     - :admin_id
+     - :client_id
+  :optional:
+
+'ClientManagement::UpdateAutoApproveSetting':
+  :mandatory:
+     - :admin_id
+     - :client_id
+     - :approve_type
+     - :ocr_comparison_fields
+     - :fr_match_percent
   :optional:
 
 'ClientManagement::DeveloperDetail':

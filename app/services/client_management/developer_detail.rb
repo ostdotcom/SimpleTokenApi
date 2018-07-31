@@ -44,17 +44,31 @@ module ClientManagement
 
       private
 
-      # Client and Admin validate
+      # Validate And Sanitize
       #
       # * Author: Aniket
       # * Date: 02/07/2018
       # * Reviewed By: Aman
       #
-      # Sets @client
       #
       def validate_and_sanitize
         r = validate
         return r unless r.success?
+
+        r = validate_client_and_admin
+        return r unless r.success?
+
+        success
+      end
+
+      # Client and Admin validate
+      #
+      # * Author: Aniket/Tejas
+      # * Date: 03/07/2018
+      # * Reviewed By:
+      #
+      #
+      def validate_client_and_admin
 
         r = fetch_and_validate_client
         return r unless r.success?

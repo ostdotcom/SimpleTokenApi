@@ -22,19 +22,7 @@ module Aws
     # * Date: 07/06/2018
     # * Reviewed By:
     #
-    def compare_faces(user_id, document_local_file_path = nil, selfie_local_file_path = nil, selfie_file=nil, similarity_treshold=0, document_file=nil)
-      if document_file.nil? && selfie_file.nil?
-        r = fetch_file_names(user_id)
-        return r unless r.success?
-
-        document_file = r.data[:doc_path]
-        selfie_file = r.data[:selfie_path]
-      end
-
-      return error_with_data("Files Not found",
-                             "Files Not found", "Files Not found",
-                             "", "") if (document_file.nil? && document_local_file_path.nil?) ||
-          (selfie_file.nil? && selfie_local_file_path.nil?)
+    def compare_faces(document_file, selfie_file, similarity_treshold=0)
 
       req_params = {
         similarity_threshold: similarity_treshold,
@@ -51,19 +39,6 @@ module Aws
           }
         }
       }
-      if document_local_file_path.present?
-        imageSource = File.open(document_local_file_path, "rb")
-        req_params[:source_image] = {
-            bytes: imageSource.read()
-        }
-      end
-
-      if selfie_local_file_path.present?
-        imageTarget = File.open(selfie_local_file_path, "rb")
-        req_params[:target_image] = {
-            bytes: imageTarget.read()
-        }
-      end
 
       format_compare_faces_response(req_params)
     end
@@ -74,17 +49,7 @@ module Aws
     # * Date: 07/06/2018
     # * Reviewed By:
     #
-    def detect_text(user_id, document_file=nil)
-      if document_file.nil?
-        r = fetch_file_names(user_id)
-        return r unless r.success?
-
-        document_file = r.data[:doc_path]
-      end
-
-      return error_with_data("Files Not found",
-                             "Files Not found", "Files Not found",
-                             "", "") if document_file.nil?
+    def detect_text(document_file)
 
       req_params = {
           image: {
@@ -96,79 +61,6 @@ module Aws
       }
 
       format_detect_text_response(req_params)
-    end
-
-    # Detect faces in document file and selfie file of user
-    #
-    # * Author: Aniket
-    # * Date: 14/06/2018
-    # * Reviewed By:
-    #
-    def detect_face(user_id, image_file=nil)
-      document_file, selfie_file = nil, nil
-       if image_file.nil?
-           r = fetch_file_names(user_id)
-           return r unless r.success?
-
-           document_file = r.data[:doc_path]
-           selfie_file = r.data[:selfie_path]
-       end
-
-      req_params_document = {
-          image: {
-              s3_object: {
-                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
-                  name: document_file,
-              }
-          }
-      }
-
-      req_params_selfie = {
-          image: {
-              s3_object: {
-                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
-                  name: selfie_file,
-              }
-          }
-      }
-
-      response_doc, response_selfie = {}, {}
-
-      response_doc = process_detect_face(req_params_document, false) unless document_file.include?("/d/")
-      response_selfie = process_detect_face(req_params_selfie, true) unless document_file.include?("/d/")
-
-      return response_doc, response_selfie
-    end
-
-    # Detect labels from the document image
-    #
-    # * Author: Pankaj
-    # * Date: 07/06/2018
-    # * Reviewed By:
-    #
-    def detect_labels(document_local_file_path = nil, document_file=nil)
-
-      return error_with_data("Files Not found",
-                             "Files Not found", "Files Not found",
-                             "", "") if document_local_file_path.nil? && document_file.nil?
-
-      req_params = {
-          image: {
-              s3_object: {
-                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
-                  name: document_file,
-              }
-          }
-      }
-
-      if document_local_file_path.present?
-        imageSource = File.open(document_local_file_path, "rb")
-        req_params[:image] = {
-            bytes: imageSource.read()
-        }
-      end
-
-      format_detect_labels_response(req_params)
     end
 
     private
@@ -237,33 +129,6 @@ module Aws
       )
     end
 
-    # Fetch different files of user
-    #
-    # * Author: Pankaj
-    # * Date: 07/06/2018
-    # * Reviewed By:
-    #
-    def fetch_file_names(user_id)
-      ukc = UserKycDetail.where(user_id: user_id).first
-
-      return error_with_data("Not found", "User not found", "User not found", "", "") if ukc.nil?
-
-      ued = UserExtendedDetail.where(id: ukc.user_extended_detail_id).first
-
-      r = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt)
-
-      kyc_salt_d = r.data[:plaintext]
-
-      local_cipher_obj = LocalCipher.new(kyc_salt_d)
-
-      data = {}
-      data[:doc_path] = local_cipher_obj.decrypt(ued.document_id_file_path).data[:plaintext] if ued.document_id_file_path.present?
-      data[:selfie_path] = local_cipher_obj.decrypt(ued.selfie_file_path).data[:plaintext] if ued.selfie_file_path.present?
-      data[:bucket] = GlobalConstant::Aws::Common.kyc_bucket
-
-      success_with_data(data)
-    end
-
     # Method to format compare faces response
     #
     # * Author: Pankaj
@@ -275,12 +140,11 @@ module Aws
       begin
         resp = client.compare_faces(req_params).to_h
         end_time = current_time_in_milli
-        data = {document_has_face: resp[:source_image_face][:confidence],
+        data = {face_matches: [], document_has_face: resp[:source_image_face][:confidence],
                 document_face_bounding_box: resp[:source_image_face][:bounding_box],
                 request_time: (end_time-start_time)}
 
         if resp[:face_matches].present?
-          data[:face_matches] = []
           resp[:face_matches].each do |x|
             data[:face_matches] << {similarity_percent: x[:similarity],
                                     face_bounding_box: x[:face]}
@@ -311,10 +175,9 @@ module Aws
       begin
         resp = client.detect_text(req_params).to_h
         end_time = current_time_in_milli
-        data = {document_has_text: resp[:text_detections].present?, request_time: (end_time-start_time)}
+        data = {detected_text: [], document_has_text: resp[:text_detections].present?, request_time: (end_time-start_time)}
 
         if resp[:text_detections].present?
-          data[:detected_text] = []
           resp[:text_detections].each do |x|
             data[:detected_text] << {text: x[:detected_text],
                                     confidence_percent: x[:confidence]}
@@ -328,61 +191,6 @@ module Aws
         return exception_with_data(e,"Exception", "", "", "", data)
       end
 
-    end
-
-    def format_detect_labels_response(req_params)
-      start_time = current_time_in_milli
-      begin
-        resp = client.detect_labels(req_params).to_h
-        end_time = current_time_in_milli
-        data = {labels: [], request_time: (end_time-start_time)}
-
-        if resp[:labels].present?
-          resp[:labels].each do |x|
-            data[:labels] << {name: x[:name],
-                                     confidence: x[:confidence]}
-          end
-        end
-
-        return success_with_data(data)
-
-      rescue => e
-        data = {err: e.message, request_time: (current_time_in_milli-start_time)}
-        return exception_with_data(e,"Exception", "", "", "", data)
-      end
-
-    end
-
-    # Process face detection
-    #
-    # * Author: Aniket
-    # * Date: 14/06/2018
-    # * Reviewed By:
-    #
-    def process_detect_face(req_params, is_selfie)
-
-      start_time = current_time_in_milli
-      begin
-
-        resp = client.detect_faces(req_params).to_h
-        end_time = current_time_in_milli
-
-        data = {}
-        maxConfidence = 0
-        resp[:face_details].each do |face_details|
-          maxConfidence = [face_details[:confidence].to_i, maxConfidence].max
-        end
-
-        data[:confidence] = maxConfidence
-        data[:orientation]= resp[:orientation_correction]
-        data[:request_time] = end_time-start_time
-        data[:debug_data] = resp
-
-        return success_with_data(data)
-      rescue => e
-        data = {debug_data: {err: e.message.to_json, request_time: (current_time_in_milli-start_time)}}
-        return error_with_data("Exception", "", "", "", data)
-      end
     end
 
 

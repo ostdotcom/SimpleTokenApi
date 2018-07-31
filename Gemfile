@@ -6,7 +6,7 @@ git_source(:github) do |repo_name|
 end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.4'
+gem 'rails', '5.1.6'
 gem 'mysql2', '0.4.9'
 gem 'oj', '3.3.8'
 gem 'rake', '12.1.0'
@@ -31,7 +31,7 @@ gem 'jwt', '2.1.0'
 gem 'sidekiq', '5.0.5'
 gem 'redis-namespace', '1.5.3'
 
-gem 'listen', '>= 3.0.5', '< 3.2'
+gem 'listen', '3.1.5'
 
 gem 'aws-sdk-rekognition', '1.3.0'
 
@@ -41,7 +41,7 @@ gem 'google-cloud-vision', '0.28.0'
 
 group :development, :test do
   # Use Puma as the app server
-  gem 'puma', '~> 3.7'
+  gem 'puma', '3.11.4'
 
   gem 'pry'
 

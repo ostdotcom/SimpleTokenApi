@@ -71,7 +71,21 @@ export UTM_SOURCE_PD_KEY="9805965225b6995f5214ec550417d70cfb2fe9a8"
 export PD_DEFAULT_KYC_DEAL_OWNER=4545343
 export PD_DEFAULT_PARTNER_DEAL_OWNER=4702408
 
+export VISION_KEYFILE_JSON='{
+   "type": "service_account",
+   "project_id": "ost-kyc-ocr",
+   "private_key_id": "f9059f1a12dda3afa269fbc202ab9e26ddf71163",
+   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCc54Ql7EIdi6sI\nuHCwciXbayTGdxuTa+Dcj/m0u8Y6WPFdwUoVL77wsJuFXqU8ydh8sPjjol741GLt\ncOBEgLAE8srgjekVxsdwcdrJg0YECxadorNGPCOIWZu3JqkVf0hUDkffDxQiRd/a\nLVxF2yV11KaXne9+U+C3fWDFj4LSKH3NuUAjis1SMYL8EBoytr/LZOz+bZsTOlnS\nABDQ74goOufvoY2RMiVJ1gMQvCZ9LEDEnrxFN4ynAEl6W8BIk2KZmDazUWJbZDjR\no/L1up3XiZtUNR17sEr2BXJvIiFWLhyP70o2koe37FYVNBJPX2sc4VmqdRaHdUUq\nRbmLukH/AgMBAAECggEAD+ZB9NnRBU9u4G5YNPkMLwTXcCkHqVOoMJGCWzcf6i+z\nHa4FhMoWzisHR2eE1PkbL997CQ4eE5bqA2eJwkdMDuRPfJvEv8kp0pIm+n6L7ML2\n4rhm9DoJ27pA1jlbrur7+FCOJeNQRfzQpzorfIStchg/XWPKrgFv5wgUc1CMkCET\npUK1sF//gRhu2+Sal6ZMbfcXx72NsCbTWdNQALI3qACzdJgpmKqTGL7QyDXzhit1\nKsnL6c0WahnNyn2CLGwbo9WB/o7tErhaDi5l+2f4D9EBO+4FYu50x642q0+prFz+\nwaAnAxpJOmAqVRU+5Qd3Cj5khLw1aClgL1yyqnGP2QKBgQDNOPEIojeeE6CR3A/T\n3u9VvykWX0QSxmSyDu2nkIec6Ide7mToTTarrHM6TQFTo6irQx87wEyMf8IfK4hm\n2RMqIr9vCT1aW+sMSEOUNGPFBMCSwc0ZCrX8VsXVI/IsH9km55Z/fBLhgXEj3IEs\nZ2/ERGMFddArIUEaRlhTklVAqwKBgQDDugtyeyF2NVsDsVlrIZfXq1dpCPb6m4fY\nYo9GrF8dxv4R9LkwKX4zrPZ7PiGamlV3lTKcBQ2IGzUSb2MvupUSpoaGNOTmlxFf\nKy9oSML+6uAfParFYMFEP00/QP9tDujdgJthBNjWaU+5ji1KRoUjytSl4oIQ+DvJ\naVkQHxYL/QKBgDUFVSDJ6Fyq7X1BwcUXf/ZDYTYqfsfrAfEO8k+sg50CZpccOG3c\nJRfNgie55XHagqVcviEN2bki+OBcuuz3gIAOYi8pz/Qcc2nE8dDEiFJKnAZOk9K4\ndbQwJwSeON81i0EF7FgbkjU44CZHvgfe4X1vvbWXbqT1/n/vVLqiv+vpAoGAA+T3\nxVdd2xREs1YcCV2pv8jQ/G4JPANMOKn9X9KeMeF7vK+535Nzx2NxpBIgaQsZGEAH\nucL/+e1QqQU+W/zCapSVqKX0yAHJfrNFRjXsa1YRD44Sj8rVDZ6U0uVgL7NUPtQI\nQ23tQpbl1zNVA11T2Np4ULSpEd1ekytdckysC6ECgYAla5xbGRVjJBLMQyweaPal\nCpsRqvqBcVSZNZkGVYgOhN41pn73SNeBPqK1v9aW7LWkPurq1tcBGP07bQdvuCr7\nacrjqdD+RDCiPQb9UcdfbLwsUW+z/OjoTchuyxZgC+Vde6FXEAhxNV/HFvaSYlju\nyt+QQVxKudA0hl/fTfwwkQ==\n-----END PRIVATE KEY-----\n",
+   "client_email": "ocr-root-account@ost-kyc-ocr.iam.gserviceaccount.com",
+   "client_id": "104240026348483388246",
+   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+   "token_uri": "https://accounts.google.com/o/oauth2/token",
+   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ocr-root-account%40ost-kyc-ocr.iam.gserviceaccount.com"
+ }
+'
+export VISION_PROJECT_ID="ost-kyc-ocr"
 
-export GOOGLE_APPLICATION_CREDENTIALS=""
-export VISION_PROJECT_ID=""
-export VISION_IMAGE_PATH=""
+export APP_SHARED_DIRECTORY="/Users/pankaj/simpleTokenWorkspace"
+
+export ADDENDUM_CLIENT_IDS='[]'

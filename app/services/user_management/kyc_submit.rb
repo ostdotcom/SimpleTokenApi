@@ -2,7 +2,7 @@ module UserManagement
 
   class KycSubmit < ServicesBase
 
-    S3_DOCUMENT_PATH_REGEX = /\A[A-Z0-9\/]+\Z/i
+    S3_DOCUMENT_PATH_REGEX = GlobalConstant::UserKycDetail.s3_document_path_regex
 
     # Initialize
     #
@@ -236,11 +236,19 @@ module UserManagement
     def validate_birthdate
       begin
         @birthdate = @birthdate.to_s.strip
-        @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
-        # age = (Time.zone.now.beginning_of_day - @birthdate)
-        # @error_data[:birthdate] = 'Min Age required is 18' if age < 18.year
-        # @error_data[:birthdate] = 'Invalid Birth Date.' if age >= 200.year
-        @birthdate = @birthdate.to_date.to_s
+        if @birthdate.match(/\d{1,2}\/\d{1,2}\/\d{4,4}\z/)
+          # if year is %y format then date changes to LMT zone (2 digit dates have issue)
+          @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
+
+          age = (Time.zone.now.end_of_day - @birthdate)
+          @error_data[:birthdate] = 'Min Age required is 18 years' if age < 18.year
+          # Cynopsis does not accept date less than 01/01/1900
+          @error_data[:birthdate] = 'Enter date on or after 01/01/1900' if @birthdate.year < 1900
+
+          @birthdate = @birthdate.to_date.to_s
+        else
+          @error_data[:birthdate] = "Invalid Birth Date Format.Valid Format(dd/mm/yyyy)"
+        end
       rescue ArgumentError
         @error_data[:birthdate] = 'Invalid Birth Date.'
       end
@@ -332,7 +340,7 @@ module UserManagement
       if !@document_id_file_path.present?
         @error_data[:document_id_file_path] = 'Identification document image is required.'
       else
-        @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !(@document_id_file_path =~ S3_DOCUMENT_PATH_REGEX)
+        @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !s3_kyc_folder_belongs_to_client?(@document_id_file_path)
       end
     end
 
@@ -341,7 +349,7 @@ module UserManagement
       if !@selfie_file_path.present?
         @error_data[:selfie_file_path] = 'Selfie is required.'
       else
-        @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !(@selfie_file_path =~ S3_DOCUMENT_PATH_REGEX)
+        @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !s3_kyc_folder_belongs_to_client?(@selfie_file_path)
       end
     end
 
@@ -352,7 +360,7 @@ module UserManagement
       end
 
       if @residence_proof_file_path.present?
-        @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !(@residence_proof_file_path =~ S3_DOCUMENT_PATH_REGEX)
+        @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !s3_kyc_folder_belongs_to_client?(@residence_proof_file_path)
       end
 
     end
@@ -385,8 +393,20 @@ module UserManagement
 
       # If any of the file does not matches s3 file path
       @investor_proof_files_path.each do |x|
-          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !(x =~ S3_DOCUMENT_PATH_REGEX)
+          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
       end
+    end
+
+    # S3 Kyc Folder belongs to the client
+    #
+    # * Author: Aman
+    # * Date: 23/07/2018
+    # * Reviewed By:
+    #
+    # @return [Boolean]
+    #
+    def s3_kyc_folder_belongs_to_client?(file_path)
+      file_path.starts_with?("#{@client_id}/") && (!(file_path =~ S3_DOCUMENT_PATH_REGEX).nil?)
     end
 
     # Fetch user data

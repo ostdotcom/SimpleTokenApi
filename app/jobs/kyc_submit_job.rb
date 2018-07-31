@@ -26,6 +26,8 @@ class KycSubmitJob < ApplicationJob
 
     call_cynopsis_api
 
+    add_kyc_comparison_details
+
     UserActivityLogJob.new().perform({
                                          user_id: @user_id,
                                          action: @action,
@@ -121,12 +123,14 @@ class KycSubmitJob < ApplicationJob
       #   @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
       # end
     end
+    @user_kyc_detail.qualify_types = 0
     @user_kyc_detail.admin_action_types = 0
     @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
     @user_kyc_detail.submission_count += 1
     @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
     @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
     @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
+    @user_kyc_detail.last_reopened_at = nil
     @user_kyc_detail.save!
   end
 
@@ -241,6 +245,7 @@ class KycSubmitJob < ApplicationJob
 
     response_hash = ((r.data || {})[:response] || {})
     @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
+    @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
     save_cynopsis_status
     # upload_documents
   end
@@ -297,7 +302,6 @@ class KycSubmitJob < ApplicationJob
   #
   def save_cynopsis_status
     Rails.logger.info('-- save_cynopsis_status')
-    @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
     @user_kyc_detail.cynopsis_status = @cynopsis_status
     @user_kyc_detail.save!
   end
@@ -372,7 +376,8 @@ class KycSubmitJob < ApplicationJob
   # Rails.env[0..1] - (de/sa/st/pr)
   #
   def get_cynopsis_user_id
-    UserKycDetail.get_cynopsis_user_id(@user_id)
+    @get_cynopsis_user_id ||= @user_kyc_detail.cynopsis_user_id.present? ? @user_kyc_detail.cynopsis_user_id.to_s :
+                                  UserKycDetail.get_cynopsis_user_id(@user_id)
   end
 
   # Get decrypted country
@@ -472,6 +477,17 @@ class KycSubmitJob < ApplicationJob
                                              response: response.to_json
                                          }
                                      })
+  end
+
+  # Make entry to user kyc comparison details for image processing and comparisons
+  #
+  # * Author: Pankaj
+  # * Date: 02/07/2018
+  # * Reviewed By:
+  #
+  def add_kyc_comparison_details
+    UserKycComparisonDetail.create!(user_extended_detail_id: @user_extended_detail.id, client_id: @user_kyc_detail.client_id,
+                                    image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status)
   end
 
 end

@@ -45,7 +45,7 @@ module ClientManagement
 
     private
 
-    # Client and Admin validate
+    # Validate And Sanitize
     #
     # * Author: Tejas
     # * Date: 02/07/2018
@@ -66,8 +66,7 @@ module ClientManagement
       success
     end
 
-    # todo: which domain name
-    #
+
     # Fetch Client Web Host
     #
     # * Author: Tejas

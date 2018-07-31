@@ -122,6 +122,7 @@ module AdminManagement
       @user_kyc_detail.kyc_confirmed_at = nil
       @user_kyc_detail.last_acted_by = @edit_kyc_request.admin_id
       @user_kyc_detail.last_acted_timestamp = Time.now.to_i
+      @user_kyc_detail.last_reopened_at = Time.now.to_i
       @user_kyc_detail.save!
 
       update_edit_kyc_row(GlobalConstant::EditKycRequest.processed_status)

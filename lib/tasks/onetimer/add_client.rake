@@ -128,12 +128,23 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
+    ckps_obj = ClientKycPassSetting.new(client_id: client_id, face_match_percent: 100,
+                                        approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
+                                        status: GlobalConstant::ClientKycPassSetting.active_status,
+                                        created_at: Time.now - ClientManagement::UpdateAutoApproveSetting::TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES.minutes)
+
+    ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
+      ckps_obj.send("set_#{key}")
+    end
+    ckps_obj.save!
+
+
     r = LocalCipher.new(api_salt_d).encrypt(cynopsis_data['token'])
     return r unless r.success?
 
     cynopsis_token_e = r.data[:ciphertext_blob]
 
-    ClientCynopsisDetail.create(client_id: client_id,email_id: cynopsis_data['email_id'], domain_name: cynopsis_data['domain_name'],
+    ClientCynopsisDetail.create(client_id: client_id, email_id: cynopsis_data['email_id'], domain_name: cynopsis_data['domain_name'],
                                 token: cynopsis_token_e, base_url: cynopsis_data['base_url'],
                                 status: GlobalConstant::ClientCynopsisDetail.active_status)
 
@@ -161,9 +172,9 @@ namespace :onetimer do
     ethereum_deposit_address_e = nil
 
     if ethereum_deposit_address.present?
-        encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
-        r = encryptor_obj.encrypt(ethereum_deposit_address)
-        fail r unless r.success?
+      encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
+      r = encryptor_obj.encrypt(ethereum_deposit_address)
+      fail r unless r.success?
       ethereum_deposit_address_e = r.data[:ciphertext_blob]
     end
 

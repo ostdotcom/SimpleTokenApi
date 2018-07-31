@@ -37,6 +37,8 @@ module UserManagement
       r = validate
       return r unless r.success?
 
+      # File path should always start with client id. There is a validation for it in KycSubmit
+      #
       # NOTE:: path should contain only [a-z A-Z 0-9 /] character sets
       @images.each do |k, v|
         content_type = v
@@ -71,11 +73,21 @@ module UserManagement
       r = fetch_and_validate_client
       return r unless r.success?
 
+      return error_with_data(
+          'um_gup_1',
+          'Invalid parameters',
+          'Invalid parameters',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if (@pdfs.blank? && @images.blank?) ||
+          (@pdfs.present? && !@pdfs.is_a?(Hash) && !@pdfs.is_a?(ActionController::Parameters)) ||
+          (@images.present? && !@images.is_a?(Hash) && !@images.is_a?(ActionController::Parameters))
+
       @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
       #  todo: "KYCaas-Changes"
       return error_with_data(
-          'um_gup_3',
+          'um_gup_2',
           'The token sale ended, it is no longer possible to submit personal information.',
           'The token sale ended, it is no longer possible to submit personal information.',
           GlobalConstant::ErrorAction.default,
@@ -97,7 +109,7 @@ module UserManagement
           (pdf_content_types - ['application/pdf']).any?
 
       return error_with_data(
-          'um_gup_1',
+          'um_gup_3',
           'invalid content types.',
           'Only JPEG, PDF and PNG files are allowed.',
           GlobalConstant::ErrorAction.default,

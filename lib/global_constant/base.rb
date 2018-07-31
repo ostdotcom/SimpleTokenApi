@@ -67,6 +67,14 @@ module GlobalConstant
       Rails.env
     end
 
+    def self.google_vision
+      @vision ||= fetch_config.fetch('google_vision', {}).with_indifferent_access
+    end
+
+    def self.kyc_app
+      @kyc_app ||= fetch_config.fetch('kyc_app', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

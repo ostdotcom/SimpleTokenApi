@@ -116,6 +116,7 @@ Rails.application.routes.draw do
 
     scope 'api/callback', controller: 'rest_api/callback/ops' do
       match 'whitelist-event' => :whitelist_event, via: :GET
+      match 'whitelist-contract-addresses' => :whitelist_contract_addresses, via: :GET
     end
 
     match '*permalink', to: 'application#not_found', via: :all

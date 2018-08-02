@@ -115,7 +115,7 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.case_closed_for_auto_approve)
     end
 
-    if !@client_token_sale_detail.has_token_sale_ended?
+    if @client_token_sale_detail.has_token_sale_ended?
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.token_sale_ended)
     end
 

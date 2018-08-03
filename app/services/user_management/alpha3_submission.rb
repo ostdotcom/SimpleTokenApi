@@ -86,7 +86,7 @@ class Alpha3Submission < ServicesBase
     end
 
     #Param company_name is used as organization_name in campaign
-    error_data[:company_name] = "company name length should be less than 2000" if @company_name > MAX_ATTRIBUTE_CHARACTER_LENGTH
+    error_data[:company_name] = "company name length should be less than 2000" if @company_name.length > MAX_ATTRIBUTE_CHARACTER_LENGTH
 
     return error_with_data(
         'um_cupd_p_1',

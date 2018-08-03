@@ -195,8 +195,8 @@ namespace :onetimer do
     )
 
     ClientKycConfigDetail.add_config(client_id: client_id,kyc_fields: kyc_config["kyc_fields"],
-                                     residency_proof_nationalities: kyc_config["residency_proof_nationalities"],
-                                     blacklisted_countries: kyc_config["blacklisted_countries"]
+                                     residency_proof_nationalities: kyc_config["residency_proof_nationalities"].map(&:upcase),
+                                     blacklisted_countries: kyc_config["blacklisted_countries"].map(&:upcase)
                                      )
 
     puts "client_id: #{client_id}"

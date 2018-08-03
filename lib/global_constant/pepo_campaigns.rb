@@ -146,7 +146,15 @@ module GlobalConstant
           last_name_attribute,
           company_name_attribute,
           project_description_attribute,
-          kit_marketing_attribute
+          kit_marketing_attribute,
+          name_poc_attribute,
+          team_bio_attribute,
+          video_url_attribute,
+          url_blog_attribute,
+          project_url_attribute,
+          tech_doc_attribute,
+          twitter_handle_attribute,
+          organization_name_attribute
         ]
       end
 

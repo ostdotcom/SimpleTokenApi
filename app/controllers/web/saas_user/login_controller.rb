@@ -13,8 +13,7 @@ class Web::SaasUser::LoginController < Web::SaasUser::BaseController
   # * Reviewed By: Sunil
   #
   def sign_up
-    geo_ip_obj = Util::GeoIpUtil.new(ip_address: ip_address)
-    geoip_country = geo_ip_obj.get_country_name.to_s.downcase
+    geoip_country = GlobalConstant::CountryNationality.get_maxmind_country_from_ip(ip_address: ip_address).to_s.downcase
 
     service_response = UserManagement::SignUp.new(
         params.merge(

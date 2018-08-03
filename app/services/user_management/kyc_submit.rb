@@ -266,9 +266,12 @@ module UserManagement
     end
 
     def validate_country
+      blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
       @country = @country.to_s.strip.upcase
       if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
         @error_data[:country] = 'Country is required.'
+      elsif blacklisted_countries.include?(@country)
+        @error_data[:country] = 'This Country is blacklisted by client'
       end
     end
 

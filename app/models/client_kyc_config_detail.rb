@@ -19,6 +19,9 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
 
     fail 'Invalid kyc fields' if (params[:kyc_fields] - ClientKycConfigDetail.kyc_fields_config.keys).present?
 
+    fail 'Invalid blacklisted_countries' if !params[:blacklisted_countries].is_a?(Array) ||
+        (params[:blacklisted_countries] - GlobalConstant::CountryNationality.countries).present?
+
     fail 'Invalid residency_proof_nationalities' if !params[:residency_proof_nationalities].is_a?(Array) ||
         (params[:residency_proof_nationalities] - GlobalConstant::CountryNationality.nationalities).present?
 
@@ -31,7 +34,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
     ClientKycConfigDetail.create!(
         client_id: params[:client_id],
         kyc_fields: kyc_field_bit_value,
-        residency_proof_nationalities: params[:residency_proof_nationalities]
+        residency_proof_nationalities: params[:residency_proof_nationalities].map(&:upcase),
+        blacklisted_countries: params[:blacklisted_countries].map(&:upcase)
     )
 
   end

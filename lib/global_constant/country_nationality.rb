@@ -17,7 +17,7 @@ module GlobalConstant
       geoip_country = get_maxmind_country_from_ip(ip_address)
       return [] if geoip_country.blank?
       blacklisted_country = maxmind_to_cynopsis_country_hash[geoip_country.upcase]
-      blacklisted_country
+      blacklisted_country.present? ? blacklisted_country : []
     end
 
     # Get Maxmind Country From Ip

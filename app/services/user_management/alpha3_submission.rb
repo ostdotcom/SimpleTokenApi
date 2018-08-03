@@ -77,7 +77,6 @@ class Alpha3Submission < ServicesBase
      GlobalConstant::PepoCampaigns.team_bio_attribute,
      GlobalConstant::PepoCampaigns.video_url_attribute,
      GlobalConstant::PepoCampaigns.url_blog_attribute,
-     GlobalConstant::PepoCampaigns.company_name_attribute,
      GlobalConstant::PepoCampaigns.project_url_attribute,
      GlobalConstant::PepoCampaigns.tech_doc_attribute,
      GlobalConstant::PepoCampaigns.twitter_handle_attribute].each do |attribute|
@@ -86,6 +85,8 @@ class Alpha3Submission < ServicesBase
 
     end
 
+    #Param company_name is used as organization_name in campaign
+    error_data[:company_name] = "company name length should be less than 2000" if @company_name > MAX_ATTRIBUTE_CHARACTER_LENGTH
 
     return error_with_data(
         'um_cupd_p_1',
@@ -112,7 +113,7 @@ class Alpha3Submission < ServicesBase
         GlobalConstant::PepoCampaigns.team_bio_attribute => @team_bio,
         GlobalConstant::PepoCampaigns.video_url_attribute => @video_url,
         GlobalConstant::PepoCampaigns.url_blog_attribute => @url_blog,
-        GlobalConstant::PepoCampaigns.company_name_attribute => @company_name, #duplicate attribute
+        GlobalConstant::PepoCampaigns.organization_name_attribute => @company_name, #duplicate attribute
         GlobalConstant::PepoCampaigns.project_url_attribute => @project_url,
         GlobalConstant::PepoCampaigns.tech_doc_attribute => @tech_doc,
         GlobalConstant::PepoCampaigns.twitter_handle_attribute => @twitter_handle,

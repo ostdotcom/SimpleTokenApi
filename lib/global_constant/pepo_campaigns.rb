@@ -129,6 +129,10 @@ module GlobalConstant
         'twitter_handle'
       end
 
+      def organization_name_attribute
+        'organization_name'
+      end
+
       ########### OST Email Attributes End #########
 
       def allowed_custom_attributes

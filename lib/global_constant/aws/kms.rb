@@ -11,10 +11,6 @@ module GlobalConstant
           GlobalConstant::Base.kms[purpose]['id']
         end
 
-        def get_key_arn_for(purpose)
-          GlobalConstant::Base.kms[purpose]['arn']
-        end
-
       end
 
     end

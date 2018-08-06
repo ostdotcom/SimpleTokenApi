@@ -1,8 +1,7 @@
 module ClientManagement
   class UpdateAutoApproveSetting < ServicesBase
 
-    TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR = 1
-    TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES = 5
+    TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES = 60
     MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT = 1
     MIN_FR_MATCH_PERCENT = 20
 
@@ -25,6 +24,7 @@ module ClientManagement
 
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
+      @addendum_client_ids = GlobalConstant::Base.kyc_app['addendum_client_ids']
 
       @approve_type = @params[:approve_type]
       @ocr_comparison_fields = @params[:ocr_comparison_fields]
@@ -68,6 +68,9 @@ module ClientManagement
     #
     #
     def validate_and_sanitize
+      r = addendum_client_id_present?
+      return r unless r.success?
+
       r = validate
       return r unless r.success?
 
@@ -77,6 +80,18 @@ module ClientManagement
       r = validate_ocr_comparison_fields
       return r unless r.success?
 
+      success
+    end
+
+
+    def addendum_client_id_present?
+      return error_with_data(
+          's_cm_uaas_acip_1',
+          'Invalid client id',
+          "Kindly, Sign the addendum to use the Artificial Intelligence feature.",
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @addendum_client_ids.include?(@client_id.to_i)
       success
     end
 
@@ -111,7 +126,7 @@ module ClientManagement
       return error_with_data(
           's_cm_uaas_vof_2',
           'Invalid parameters',
-          'Invalid ocr fields data',
+          'Invalid Optical Character Recognition fields data',
           GlobalConstant::ErrorAction.default,
           {}
       ) if !@ocr_comparison_fields.is_a?(Array)
@@ -119,10 +134,10 @@ module ClientManagement
       return error_with_data(
           's_cm_uaas_vof_3',
           'Invalid values for ocr_comparison_fields',
-          '',
+          'Select at least one Optical Character Recognition field',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_comparison_fields: "Select at least one field"}
+          {ocr_comparison_fields: "Select at least one Optical Character Recognition field"}
       ) if @ocr_comparison_fields.count < MIN_OCR_COMPARISON_FIELDS_SELECTION_COUNT
 
       remaining_fields = @ocr_comparison_fields - ClientKycPassSetting.ocr_comparison_fields_config.keys
@@ -132,16 +147,16 @@ module ClientManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {ocr_comparison_fields: "Invalid fields-#{remaining_fields.join(',')} selected"}
+          {ocr_comparison_fields: "Invalid Optical Character Recognition fields-#{remaining_fields.join(',')} selected"}
       ) if remaining_fields.count > 0
 
       return error_with_data(
           's_cm_uaas_vof_5',
-          'Invalid Fr percent',
-          '',
+          'Invalid Facial Recognition percent',
+          "Facial Recognition percent cannot be less than #{MIN_FR_MATCH_PERCENT}",
           GlobalConstant::ErrorAction.default,
           {},
-          {fr_match_percent: "FR percent cannot be less than #{MIN_FR_MATCH_PERCENT}"}
+          {fr_match_percent: "Facial Recognition percent cannot be less than #{MIN_FR_MATCH_PERCENT}"}
       ) if @fr_match_percent < MIN_FR_MATCH_PERCENT
 
       success
@@ -169,22 +184,20 @@ module ClientManagement
         return error_with_data(
             's_cm_uaas_fvaas_1',
             'Invalid parameters',
-            'Modified OCR fields and FR match percent are already active',
+            'You are choosing to save existing settings.',
             GlobalConstant::ErrorAction.default,
             {}
         )
       end
 
-      difference = Time.now.to_i - @saved_auto_approve_setting.created_at.to_i #in sec
-      # TODO: UPDATE diplay_text
-      # AI Settings can be updated only once in #{TIMEFRAME_FOR_SETTING_UPDATE_IN_HOUR} hours
+      difference = TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES - ((Time.now.to_i - @saved_auto_approve_setting.created_at.to_i)/60) #in minutes
       return error_with_data(
           's_cm_uaas_fvaas_2',
-          'AI Settings cannot be updated',
-          "AI Settings can be updated only once in #{TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES} minutes",
+          'Artificla Intelligence Settings cannot be updated',
+          "Artificial Intelligence Settings can be updated after #{difference} minutes",
           GlobalConstant::ErrorAction.default,
           {}
-      ) if difference < TIMEFRAME_FOR_SETTING_UPDATE_IN_MINUTES.minutes.to_i
+      ) if difference > 0
 
       success
     end

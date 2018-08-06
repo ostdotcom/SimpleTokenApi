@@ -41,6 +41,8 @@ module Ocr
       # remove special characters from the document id and paragraph
 
       @match_string.gsub!(/[- \. \/]/, '')
+      return 0 if @match_string.blank?
+
       @paragraph.gsub!(/[- \. \/]/, '')
 
       @paragraph.split("\n").each do |line|

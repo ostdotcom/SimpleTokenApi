@@ -3,7 +3,7 @@ module UserManagement
   class Alpha3Submission < ServicesBase
 
     MAX_ATTRIBUTE_CHARACTER_LENGTH = 2000
-
+    URL_VALIDATOR_URL = /^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i
 
     # Initialize
     #
@@ -119,14 +119,7 @@ module UserManagement
 
     def is_valid_url?(url)
       return true if url.blank?
-
-      uri = URI.parse(url)
-      if uri.class == URI::HTTPS || uri.class == URI::HTTP
-        return true
-      end
-      return false
-    rescue
-      return false
+      0 == (url =~ URL_VALIDATOR_URL)
     end
 
     # Create Hook to sync data in Email Service

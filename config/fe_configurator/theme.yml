@@ -1,0 +1,145 @@
+company-logo:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'https://s3.amazonaws.com/asset.pepomail.com/common-assets/images/logo-watermark-black-final.png'
+
+company-logo-size-percent:
+  data_kind: 'number'
+  validations:
+    mandatory: 0
+  default_value: 100
+
+company-favicon:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: 'https://s3.amazonaws.com/asset.pepomail.com/common-assets/images/logo-watermark-black-final.png'
+
+background-gradient:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '(to bottom, #000000 0%, #ffffff 135px, #ffffff 100%)'
+
+primary-button-text-color:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+primary-button-text-color-active:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+primary-button-background:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+primary-button-background-active:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+primary-button-border-color:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+primary-button-border-color-active:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+secondary-button-text-color:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+secondary-button-text-color-active:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+secondary-button-background:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FFFFFF'
+
+secondary-button-background-active:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+secondary-button-border-color:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+secondary-button-border-color-active:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+footer-text-color:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FEB202'
+
+footer-link-color:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#FFFFFF'
+
+footer-background:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+footer-text:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'Copyright &copy; 2018 Company. All Rights Reserved. <a href="https://domain.com/terms-and-conditions.html"
+                    title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> & <a href="https://domain.com/privacy.html"
+                    title="Privacy Policy" target="_blank" rel="nofollow">Privacy Policy</a>'
+
+terms-condition-link:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'https://domain.com/terms-n-conditions.html'
+
+gtm-pixel:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: ''
+
+fb-pixel-id:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: ''
+
+fb-pixel-version:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: ''

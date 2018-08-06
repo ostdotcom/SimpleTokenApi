@@ -1,0 +1,25 @@
+page-title:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'One Step Away to Access the Token Sale'
+
+page-subtitle:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'You will need the following items to complete the registration'
+
+eth-address-instruction-text:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: 'Make sure to use your Ethereum Wallet address and not addresses from exchanges like Coinbase, Poloniex, Kraken.'
+
+document-id-instruction-text:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: 'A valid government issued passport is
+                  required. A national ID or a license are
+                  not accepted for the verification process.'

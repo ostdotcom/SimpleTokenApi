@@ -17,9 +17,10 @@ module UserManagement
     # @params [String] video_url (mandatory) - video url
     # @params [String] url_blog (mandatory) - url blog
     # @params [String] company_name (Optional) - company name
-    # @params [Integer] project_url (Optional) - project url
-    # @params [Integer] tech_doc (Optional) - tech doc
-    # @params [Integer] twitter_handle (Optional) - twitter handle
+    # @params [String] project_url (Optional) - project url
+    # @params [String] tech_doc (Optional) - tech doc
+    # @params [String] twitter_handle (Optional) - twitter handle
+    # @params [Integer] kit_marketing (Optional) - true/false
     #
     # @return [UserManagement::Alpha3Registration]
     #
@@ -35,7 +36,7 @@ module UserManagement
       @tech_doc = @params[:tech_doc].to_s.strip
       @url_blog = @params[:url_blog].to_s.strip
       @twitter_handle = @params[:twitter_handle].to_s.strip
-
+      @kit_marketing = @params[:kit_marketing].to_i
     end
 
     # Perform
@@ -139,8 +140,9 @@ module UserManagement
           GlobalConstant::PepoCampaigns.project_url_attribute => @project_url,
           GlobalConstant::PepoCampaigns.tech_doc_attribute => @tech_doc,
           GlobalConstant::PepoCampaigns.twitter_handle_attribute => @twitter_handle,
-
       }
+
+      custom_attributes[GlobalConstant::PepoCampaigns.kit_marketing_attribute] = @kit_marketing if @kit_marketing == 1
 
       Email::HookCreator::AddContact.new(
           client_id: Client::OST_KYC_CLIENT_IDENTIFIER,

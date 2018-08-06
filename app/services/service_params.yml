@@ -349,6 +349,7 @@
     - :project_url
     - :tech_doc
     - :twitter_handle
+    - :kit_marketing
 
 'ClientManagement::VerifyApiCredential':
   :mandatory:

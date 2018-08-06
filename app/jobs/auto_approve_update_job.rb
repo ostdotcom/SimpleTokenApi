@@ -94,7 +94,8 @@ class AutoApproveUpdateJob < ApplicationJob
     @user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
                                            user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
                                            status: GlobalConstant::UserKycDetail.active_status).first
-    return false if @user_kyc_detail.blank?
+
+    return false if @user_kyc_detail.blank? || @user_kyc_detail.has_been_auto_approved?
 
     @client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
 
@@ -115,7 +116,7 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.case_closed_for_auto_approve)
     end
 
-    if !@client_token_sale_detail.has_token_sale_ended?
+    if @client_token_sale_detail.has_token_sale_ended?
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.token_sale_ended)
     end
 

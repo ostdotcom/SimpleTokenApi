@@ -1,0 +1,66 @@
+dashboard-title-text-color:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+sale-timer-text-color:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#000000'
+
+sale-timer-background-gradient:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: '(to bottom, #000000 0%, #ffffff 135px, #ffffff 100%)'
+
+dashboard-middle-banner-text-color:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#597a84'
+
+dashboard-middle-banner-background:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#aee1e3'
+
+dashboard-middle-banner-title-text:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'Set gas limit to 150,000'
+
+dashboard-middle-banner-body-text:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+  default_value: 'DO NOT USE Coinbase, Kraken or any other exchange to purchase ST. Minimum Purchase 0.1 ETH For more details, refer to this post.'
+
+dashboard-bottom-banner-text-color:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#ffffff'
+
+dashboard-bottom-banner-background:
+  data_kind: 'color'
+  validations:
+    mandatory: 1
+  default_value: '#aee1e3'
+
+telegram-button-theme:
+  data_kind: 'text'
+  validations:
+    mandatory: 1
+    includes: ['light', 'dark']
+  default_value: 'light'
+
+telegram-link:
+  data_kind: 'text'
+  validations:
+    mandatory: 0
+  default_value: 'https://t.me/ostdotcom'

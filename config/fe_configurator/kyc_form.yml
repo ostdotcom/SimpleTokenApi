@@ -1,10 +1,10 @@
-page-title:
+kyc-form-title:
   data_kind: 'text'
   validations:
     mandatory: 1
   default_value: 'One Step Away to Access the Token Sale'
 
-page-subtitle:
+kyc-form-subtitle:
   data_kind: 'text'
   validations:
     mandatory: 1
@@ -23,3 +23,15 @@ document-id-instruction-text:
   default_value: 'A valid government issued passport is
                   required. A national ID or a license are
                   not accepted for the verification process.'
+
+kyc-form-popup-checkboxes:
+  data_kind: 'array'
+  validations:
+    max-length: 10
+    mandatory: 0
+  default_value: ['All the information I have entered is true and complete.',
+                  'I am not restricted under any law from providing this information or purchasing Simple Tokens.',
+                  'I act on my own behalf, unless I have notified you in writing.',
+                  'I have read, understood and agree to <a href="privacy" target="_blank" class="modal-ext-link">Privacy Policy</a>. I acknowledge
+                    this may change. I also understand that any purchase of Simple Tokens will be subject to additional terms and conditions.',
+                  'I agree that I will send payment from, and receive any Simple Tokens to, the digital wallet address I have entered on this website.']

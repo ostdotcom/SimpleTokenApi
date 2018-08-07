@@ -110,7 +110,7 @@ module GlobalConstant
       nationality_md5_map[md5_nationality] || ''
     end
 
-    # private
+    private
 
 
     # Generate MD5 to cynopsis country name hash

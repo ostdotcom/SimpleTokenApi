@@ -1,0 +1,2 @@
+class PublishedEntity < EstablishSimpleTokenCustomizationDbConnection
+end

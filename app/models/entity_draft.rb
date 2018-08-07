@@ -1,0 +1,2 @@
+class EntityDraft < EstablishSimpleTokenCustomizationDbConnection
+end

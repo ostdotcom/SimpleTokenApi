@@ -9,7 +9,7 @@ class CreatePublishedEntities < DbMigrationConnection
         t.timestamps
       end
 
-      add_index :published_entities, [:client_id, :entity_type], unique: false, name: 'client_id'
+      add_index :published_entities, [:client_id, :entity_type], unique: false, name: 'client_id_entity_type'
     end
   end
 

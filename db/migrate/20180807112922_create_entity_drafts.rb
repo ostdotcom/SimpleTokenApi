@@ -9,7 +9,7 @@ class CreateEntityDrafts < DbMigrationConnection
         t.column :last_updated_admin_id, :integer, limit: 8, null: false
         t.column :entity_type, :tinyint, limit: 4, null: false
         t.column :data, :text, null: true
-        t.column :activated_at, :integer, limit: 11, null: false
+        t.column :activated_at, :integer, null: false
         t.column :status, :tinyint, limit: 4, null: false
         t.timestamps
       end

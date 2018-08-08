@@ -225,7 +225,7 @@ module Crons
 
       if time_since_row_entry > GlobalConstant::KycWhitelistLog.extreme_wait_interval
         notify_devs(
-            {kyc_whitelist_log: kyc_whitelist_log, tx_info_status: @tx_info_status},
+            {kyc_whitelist_log: @kyc_whitelist_log, tx_info_status: @tx_info_status},
             "IMMEDIATE ATTENTION NEEDED. Transaction is pending for too long. Time Interval- #{(time_since_row_entry / 60)} minutes"
         )
       end

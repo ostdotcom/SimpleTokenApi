@@ -13,9 +13,9 @@ class EntityDraft < EstablishSimpleTokenCustomizationDbConnection
   }
 
   enum status: {
-      GlobalConstant::EntityDraft.active_status => 0,
       GlobalConstant::EntityDraft.draft_status => 1,
-      GlobalConstant::EntityDraft.deleted_status => 2
+      GlobalConstant::EntityDraft.active_status => 2,
+      GlobalConstant::EntityDraft.deleted_status => 3
   }
 
 end

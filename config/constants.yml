@@ -36,6 +36,7 @@ constants:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
       kyc_product_list: <%= ENV['STA_CAMPAIGN_KYC_PRODUCT_LIST']%>
       alpha_3_users_list: <%= ENV['STA_CAMPAIGN_ALPHA3_USER_LIST']%>
+      alpha_3_submission_list: <%= ENV['STA_CAMPAIGN_ALPHA3_SUBMISSION_LIST']%>
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>

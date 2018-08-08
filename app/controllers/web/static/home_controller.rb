@@ -35,4 +35,15 @@ class Web::Static::HomeController < Web::Static::BaseController
     render_api_response(service_response)
   end
 
+  # Submission user for Alpha 3
+  #
+  # * Author: Aniket, Tejas
+  # * Date: 03/08/2018
+  # * Reviewed By:
+  #
+  def submission_for_alpha3
+    service_response = UserManagement::Alpha3Submission.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

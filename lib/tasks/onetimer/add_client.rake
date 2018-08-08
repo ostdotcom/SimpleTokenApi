@@ -66,6 +66,15 @@ namespace :onetimer do
   #             'TUNISIAN',
   #             'NI-VANUATU',
   #             'YEMENI'
+  #         ],
+  #         "blacklisted_countries" => [
+  #             'BOSNIA AND HERZEGOVINA',
+  #             'CONGO',
+  #             'ERITREA',
+  #             'ETHIOPIA',
+  #             'IRAN',
+  #             'IRAQ',
+  #             'CUBA'
   #         ]
   #
   #     }
@@ -186,9 +195,10 @@ namespace :onetimer do
         status: GlobalConstant::ClientTokenSaleDetail.active_status
     )
 
-    ClientKycConfigDetail.add_config(kyc_fields: kyc_config["kyc_fields"],
+    ClientKycConfigDetail.add_config(client_id: client_id,kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"],
-                                     client_id: client_id)
+                                     blacklisted_countries: kyc_config["blacklisted_countries"]
+                                     )
 
     puts "client_id: #{client_id}"
     puts "api-key: #{api_key}"

@@ -1,16 +1,12 @@
 constants:
   kms:
     login:
-      arn: <%= ENV['STA_LOGIN_KMS_ARN']%>
       id: <%= ENV['STA_LOGIN_KMS_ID']%>
     kyc:
-      arn: <%= ENV['STA_KYC_KMS_ARN']%>
       id: <%= ENV['STA_KYC_KMS_ID']%>
     entity_association:
-      arn: <%= ENV['STA_ENTITY_ASSOC_ARN']%>
       id: <%= ENV['STA_ENTITY_ASSOC_ID']%>
     saas:
-      arn: <%= ENV['STA_SAAS_KMS_ARN']%>
       id: <%= ENV['STA_SAAS_KMS_ID']%>
 
   cynopsis:
@@ -40,6 +36,7 @@ constants:
       master_list: <%= ENV['STA_CAMPAIGN_MASTER_LIST']%>
       kyc_product_list: <%= ENV['STA_CAMPAIGN_KYC_PRODUCT_LIST']%>
       alpha_3_users_list: <%= ENV['STA_CAMPAIGN_ALPHA3_USER_LIST']%>
+      alpha_3_submission_list: <%= ENV['STA_CAMPAIGN_ALPHA3_SUBMISSION_LIST']%>
 
   redis:
     url: <%= ENV['STA_REDIS_ENDPOINT'] %>
@@ -56,19 +53,12 @@ constants:
       active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
       token_sale_ethereum_address: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS']%>'
       simple_token_contract_address: '<%= ENV['STA_SIMPLE_TOKEN_CONTRACT_ADDRESS']%>'
-    user_register_dates:
-      early_access_register_end_date:  <%= ENV['STA_EARLY_ACCESS_REGISTER_END_DATE'] %>
-    sale_dates:
-      early_access_start_date: <%= ENV['STA_EARLY_ACCESS_START_DATE'] %>
-      general_access_start_date: <%= ENV['STA_GENERAL_ACCESS_START_DATE'] %>
-      general_access_end_date: <%= ENV['STA_GENERAL_ACCESS_END_DATE'] %>
     default_client_id: <%= ENV['SIMPLE_TOKEN_SALE_CLIENT_ID'] %>
 
   st_foundation_contracts:
     token_sale: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS'] %>'
 
   recaptcha:
-    site_key: <%= ENV['STA_RECAPTCHA_SITE_KEY'] %>
     secret_key: <%= ENV['STA_RECAPTCHA_SECRET'] %>
 
   secret_encryptor:

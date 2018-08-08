@@ -121,7 +121,7 @@ module UserManagement
       validate_first_name
       validate_last_name
       validate_birthdate
-      validate_country
+
       validate_ethereum_address
       validate_document_id_number
       validate_nationality
@@ -139,6 +139,7 @@ module UserManagement
           {}
       ) if @client_kyc_config_detail.blank?
 
+      validate_country
       validate_estimated_participation_amount
       validate_street_address
       validate_city

@@ -34,7 +34,7 @@ module Util
         rand_no = rand.to_s[2..6].to_s #generate 5 digit random string
         timestamp = Time.now.to_i.to_s
 
-        Digest::MD5.hexdigest(rand_no + timestamp)
+        Digest::SHA256.hexdigest(rand_no + timestamp)[0...11]
       end
 
     end

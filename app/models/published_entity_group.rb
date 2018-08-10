@@ -1,0 +1,3 @@
+class PublishedGroupEntity < EstablishSimpleTokenCustomizationDbConnection
+
+end

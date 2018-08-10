@@ -56,14 +56,14 @@ module AdminManagement
       # Sets @admin, @client
       #
       def validate_and_sanitize
-        # r = validate
-        # return r unless r.success?
+        r = validate
+        return r unless r.success?
 
-        # r = fetch_and_validate_admin
-        # return r unless r.success?
-        #
-        # r = fetch_and_validate_client
-        # return r unless r.success?
+        r = fetch_and_validate_admin
+        return r unless r.success?
+
+        r = fetch_and_validate_client
+        return r unless r.success?
 
         r = fetch_and_validate_entity
         return r unless r.success?
@@ -166,13 +166,11 @@ module AdminManagement
         end
       end
 
-      # Update entity with page data
+      # Update or create entity with page data
       #
       # * Author: Aniket
       # * Date: 08/08/2018
       # * Reviewed By:
-      #
-      # Sets @page_yml
       #
       def update_entity
 

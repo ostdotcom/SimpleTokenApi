@@ -16,9 +16,11 @@ module Util
     # @return [Util::HtmlSanitizer]
     #
     def initialize(params)
-      @elements = params[:elements] ||= ['html', 'p', 'body', 'a', 'i', 'br', 'b', 'u']
-      @attributes = params[:attributes] ||= {'a': ['href', 'target']}
+      @elements = params[:elements] ||= []
+      @attributes = params[:attributes] ||= {} #{'a': ['href', 'target']}
       @html = params[:html]
+
+      @elements |= ['html', 'p', 'body']
     end
 
     def perform

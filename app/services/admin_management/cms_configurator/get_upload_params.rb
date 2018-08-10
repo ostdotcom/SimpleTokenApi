@@ -13,7 +13,7 @@ module AdminManagement
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @param [Hash] images (mandatory)
       #
-      # @return [UserManagement::GetUploadParams]
+      # @return [CmsConfigurator::GetUploadParams]
       #
       def initialize(params)
         super

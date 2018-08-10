@@ -113,6 +113,7 @@ Rails.application.routes.draw do
 
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do
       match 'upload-params' => :get_image_upload_params, via: :GET
+      match ':entity_type/update' => :update_params, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

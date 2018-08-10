@@ -24,6 +24,18 @@ module Util
         Md5UserExtendedDetail.get_hashed_value(r.data[:plaintext])
       end
 
+      # Generate md5
+      #
+      # * Author: Aniket
+      # * Date: 09/08/2018
+      # * Reviewed By:
+      #
+      def self.get_uuid
+        rand_no = rand.to_s[2..6].to_s #generate 5 digit random string
+        timestamp = Time.now.to_i.to_s
+
+        Digest::MD5.hexdigest(rand_no + timestamp)
+      end
 
     end
   end

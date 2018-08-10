@@ -519,6 +519,16 @@
     - :id
   :optional:
 
+'AdminManagement::CmsConfigurator::UpdateEntity':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+    - :uuid
+    - :entity_type
+    - :form_data
+  :optional:
+
 #'AdminManagement::Kyc::Dashboard::Whitelist':
 #  :mandatory:
 #    - :admin_id

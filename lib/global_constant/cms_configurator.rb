@@ -39,6 +39,10 @@ module GlobalConstant
         'array'
       end
 
+      def value_html
+        'html'
+      end
+
       ######### YML keys and values end#############
 
 

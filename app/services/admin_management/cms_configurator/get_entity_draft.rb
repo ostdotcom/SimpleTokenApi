@@ -97,7 +97,7 @@ module AdminManagement
             'Invalid entity type',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @entity_type.blank? || !GlobalConstant::EntityDraft.allowed_entity_types_from_fe.include?(@entity_type)
+        ) if @entity_type.blank? || !GlobalConstant::EntityGroup.allowed_entity_types_from_fe.include?(@entity_type)
 
         success
       end

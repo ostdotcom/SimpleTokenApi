@@ -41,10 +41,10 @@ class PublishedEntityGroup < EstablishSimpleTokenCustomizationDbConnection
   #
   # @return [Object] group_entity_drafts - All entities of group
   #
-  def fetch_group_entity_drafts(client_id)
+  def self.fetch_group_entity_drafts(client_id)
     peg = PublishedEntityGroup.where(client_id: client_id).first
     entity_drafts = {}
-    PublishedEntityGroup.where(entity_group_id: peg.entity_group_id).all.each do |gd|
+    EntityGroupDraft.where(entity_group_id: peg.entity_group_id).all.each do |gd|
       entity_drafts[gd.entity_type] = gd.entity_draft_id
     end
     entity_drafts

@@ -5,9 +5,8 @@ module GlobalConstant
     class << self
 
       ### Entity type Start ###
-
       def theme_entity_type
-        'common'
+        'theme'
       end
 
       def login_entity_type
@@ -31,7 +30,7 @@ module GlobalConstant
       end
 
       def kyc_form_entity_type
-        'kyc'
+        'kyc_form'
       end
 
       def verification_entity_type

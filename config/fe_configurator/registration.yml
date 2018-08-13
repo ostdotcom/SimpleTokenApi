@@ -1,4 +1,4 @@
-policy-text:
+policy_text:
   data_kind: 'text'
   validations:
     required: 1
@@ -7,8 +7,8 @@ policy-text:
                   and acknowledge and consent to our <a href="https://domain.com/privacy.html"
                   title="Privacy Policy" target="_blank">Privacy Policy</a>'
 
-policy-text-link-color:
-  data_kind: 'text'
+policy_text_link_color:
+  data_kind: 'color'
   validations:
     required: 1
   default_value: '#FEB202'

@@ -1,65 +1,65 @@
-dashboard-title-text-color:
+dashboard_title_text_color:
   data_kind: 'color'
   validations:
     required: 1
   default_value: '#000000'
 
-sale-timer-text-color:
+sale_timer_text_color:
   data_kind: 'color'
   validations:
     required: 1
   default_value: '#000000'
 
-sale-timer-background-gradient:
+sale_timer_background_gradient:
   data_kind: 'text'
   validations:
     required: 1
   default_value: '(to bottom, #000000 0%, #ffffff 135px, #ffffff 100%)'
 
-dashboard-middle-banner-text-color:
+dashboard_middle_banner_text_color:
   data_kind: 'color'
   validations:
     required: 1
   default_value: '#597a84'
 
-dashboard-middle-banner-background:
+dashboard_middle_banner_background:
   data_kind: 'color'
   validations:
     required: 1
   default_value: '#aee1e3'
 
-dashboard-middle-banner-title-text:
+dashboard_middle_banner_title_text:
   data_kind: 'text'
   validations:
     required: 1
   default_value: 'Set gas limit to 150,000'
 
-dashboard-middle-banner-body-text:
+dashboard_middle_banner_body_text:
   data_kind: 'text'
   validations:
     required: 1
   default_value: 'DO NOT USE Coinbase, Kraken or any other exchange to purchase ST. Minimum Purchase 0.1 ETH For more details, refer to this post.'
 
-dashboard-bottom-banner-text-color:
+dashboard_bottom_banner_text_color:
   data_kind: 'color'
   validations:
     required: 1
   default_value: '#ffffff'
 
-dashboard-bottom-banner-background:
+dashboard_bottom_banner_background:
   data_kind: 'color'
   validations:
     required: 1
   default_value: '#aee1e3'
 
-telegram-button-theme:
+telegram_button_theme:
   data_kind: 'text'
   validations:
     required: 1
     includes: ['light', 'dark']
   default_value: 'light'
 
-telegram-link:
+telegram_link:
   data_kind: 'text'
   validations:
     required: 0

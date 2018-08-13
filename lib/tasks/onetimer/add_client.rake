@@ -2,6 +2,11 @@ namespace :onetimer do
 
 
   # params = {
+  #     "super_admin" => {
+  #         "email" => "aman@ost.com",
+  #         "password" => "aman@123",
+  #         "name" => "aman"
+  #     },
   #     "client_name" => "pankajkyc.developmentost.com",
   #     "cynopsis" => {
   #         "email_id" =>  '',
@@ -91,6 +96,7 @@ namespace :onetimer do
   task :add_client => :environment do
 
     params = JSON.parse(ENV['params'])
+    super_admin = params["super_admin"]
     cynopsis_data = params["cynopsis"]
     pepo_campaign_data = params["pepo_campaign"]
     whitelist_data = params["whitelist"]
@@ -108,6 +114,11 @@ namespace :onetimer do
 
     if whitelist_data.present? && (whitelist_data['contract_address'].blank? || whitelist_data['whitelister_address'].blank?)
       fail 'contract_address or  whitelister_address cannot be blank for whitelist_data'
+    end
+
+    if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
+      super_admin['name'].blank? || !Util::CommonValidator.is_valid_email?(super_admin['email'])
+      fail 'Invalid Super Admin Email'
     end
 
     setup_properties_val = 1
@@ -136,6 +147,8 @@ namespace :onetimer do
                            setup_properties: setup_properties_val, api_key: api_key, api_salt: api_salt_e,
                            api_secret: api_secret_e)
     client_id = client.id
+
+    super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'],true)
 
     ckps_obj = ClientKycPassSetting.new(client_id: client_id, face_match_percent: 100,
                                         approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
@@ -173,9 +186,12 @@ namespace :onetimer do
                                  whitelister_address: whitelist_data['whitelister_address'],
                                  status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
 
-    ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
-                                status: GlobalConstant::ClientWebHostDetail.active_status) if web_host_data.present?
+    if web_host_data.present?
+      ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
+                                  status: GlobalConstant::ClientWebHostDetail.active_status)
 
+      ClientManagement::SetupDefaultClientCustomDraft.new(admin_id: super_admin_obj.id, client_id: client_id).perform
+    end
 
     ethereum_deposit_address = token_sale_details['ethereum_deposit_address']
     ethereum_deposit_address_e = nil

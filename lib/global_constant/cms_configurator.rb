@@ -48,7 +48,7 @@ module GlobalConstant
       def get_entity_config(entity_type)
         puts "entity_typesssssssss : #{entity_type}"
         if entity_type == GlobalConstant::EntityDraft.theme_entity_type
-         return get_theme_yml
+          return get_theme_yml
         elsif entity_type == GlobalConstant::EntityDraft.kyc_form_entity_type
           return get_kyc_form_yml
         elsif entity_type == GlobalConstant::EntityDraft.dashboard_entity_type
@@ -57,6 +57,33 @@ module GlobalConstant
           return get_registration_yml
         else
           return {}
+        end
+      end
+
+      def custom_default_template_data
+        @custom_default_template_data ||= begin
+          default_template_data = {}
+          default_template_data[GlobalConstant::EntityGroupDraft.theme_entity_type] = {}
+          default_template_data[GlobalConstant::EntityGroupDraft.registration_entity_type] = {}
+          default_template_data[GlobalConstant::EntityGroupDraft.kyc_form_entity_type] = {}
+          default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type] = {}
+
+          get_theme_yml.each do |key, data|
+            default_template_data[GlobalConstant::EntityGroupDraft.theme_entity_type][key] = data[:default_value]
+          end
+
+          get_registration_yml.each do |key, data|
+            default_template_data[GlobalConstant::EntityGroupDraft.registration_entity_type][key] = data[:default_value]
+          end
+
+          get_kyc_form_yml.each do |key, data|
+            default_template_data[GlobalConstant::EntityGroupDraft.kyc_form_entity_type][key] = data[:default_value]
+          end
+
+          get_dashboard_yml.each do |key, data|
+            default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type][key] = data[:default_value]
+          end
+          default_template_data
         end
       end
 

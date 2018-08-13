@@ -378,6 +378,12 @@
     - :twitter_handle
     - :kit_marketing
 
+'ClientManagement::SetupDefaultClientCustomDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
 'ClientManagement::VerifyApiCredential':
   :mandatory:
     - :api_key

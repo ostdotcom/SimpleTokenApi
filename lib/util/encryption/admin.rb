@@ -32,9 +32,9 @@ module Util
       #
       def self.get_uuid
         rand_no = rand.to_s[2..6].to_s #generate 5 digit random string
-        timestamp = Time.now.to_i.to_s
+        timestamp = Time.now.to_f.to_s
 
-        Digest::SHA256.hexdigest(rand_no + timestamp)[0...11]
+        Digest::SHA256.hexdigest(rand_no + '-' + timestamp)
       end
 
     end

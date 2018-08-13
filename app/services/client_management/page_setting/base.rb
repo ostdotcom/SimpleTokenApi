@@ -85,6 +85,7 @@ module ClientManagement
         @client_template_obj = ClientTemplate.get_from_memcache_by_client_id_and_template_type(@client_id, page_template_type)
       end
 
+
       # page template type to fetch info for
       #
       # * Author: Aman
@@ -119,6 +120,7 @@ module ClientManagement
         @client_template_obj.data
       end
 
+
       # response data
       #
       # * Author: Aman
@@ -129,8 +131,8 @@ module ClientManagement
       #
       def template_info_response
         {
-          common_data: common_data,
-          page_data: page_data
+            common_data: common_data,
+            page_data: page_data
         }
       end
 

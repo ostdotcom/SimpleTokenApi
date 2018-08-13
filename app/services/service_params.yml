@@ -337,6 +337,20 @@
     - :project_description
     - :kit_marketing
 
+'UserManagement::Alpha3Submission':
+  :mandatory:
+    - :email
+    - :name_poc
+    - :team_bio
+    - :video_url
+    - :url_blog
+  :optional:
+    - :company_name
+    - :project_url
+    - :tech_doc
+    - :twitter_handle
+    - :kit_marketing
+
 'ClientManagement::VerifyApiCredential':
   :mandatory:
     - :api_key

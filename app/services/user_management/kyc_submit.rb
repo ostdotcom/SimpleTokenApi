@@ -121,7 +121,7 @@ module UserManagement
       validate_first_name
       validate_last_name
       validate_birthdate
-      validate_country
+
       validate_ethereum_address
       validate_document_id_number
       validate_nationality
@@ -139,6 +139,7 @@ module UserManagement
           {}
       ) if @client_kyc_config_detail.blank?
 
+      validate_country
       validate_estimated_participation_amount
       validate_street_address
       validate_city
@@ -274,9 +275,12 @@ module UserManagement
     end
 
     def validate_country
+      blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
       @country = @country.to_s.strip.upcase
       if !@country.present? || !GlobalConstant::CountryNationality.countries.include?(@country)
         @error_data[:country] = 'Country is required.'
+      elsif blacklisted_countries.include?(@country)
+        @error_data[:country] = 'This Country is blacklisted by client'
       end
     end
 

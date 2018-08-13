@@ -124,8 +124,7 @@ module SaasManagement
     #
     def enqueue_job
       if @user_ip_address.present?
-        geo_ip_obj = Util::GeoIpUtil.new(ip_address: @user_ip_address)
-        @geoip_country = geo_ip_obj.get_country_name.to_s.downcase
+        @geoip_country = GlobalConstant::CountryNationality.get_maxmind_country_from_ip(ip_address: @user_ip_address).to_s.downcase
       end
 
       BgJob.enqueue(

@@ -89,6 +89,9 @@ namespace :onetimer do
     token_sale_details = params["token_sale_details"]
     kyc_config = params["kyc_config"]
 
+    fail 'Whitelist cannot be setup if Ethereum Address is not selected for kyc form' if whitelist_data.present? &&
+        kyc_config["kyc_fields"].include?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
+
     fail 'token cannot be blank for cynopsis' if cynopsis_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
     fail "cynopsis email id(#{cynopsis_data['email_id']}) is not valid "  if cynopsis_data['email_id'].blank? || !Util::CommonValidator.is_valid_email?(cynopsis_data['email_id'])
 
@@ -160,10 +163,6 @@ namespace :onetimer do
 
     end
 
-    ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
-                                 whitelister_address: whitelist_data['whitelister_address'],
-                                 status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
-
     ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
                                 status: GlobalConstant::ClientWebHostDetail.active_status) if web_host_data.present?
 
@@ -189,6 +188,11 @@ namespace :onetimer do
     ClientKycConfigDetail.add_config(kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"],
                                      client_id: client_id)
+
+    ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
+                                 whitelister_address: whitelist_data['whitelister_address'],
+                                 status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
+
 
     puts "client_id: #{client_id}"
     puts "api-key: #{api_key}"

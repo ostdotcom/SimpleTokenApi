@@ -14,7 +14,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   def self.add_config(params)
 
     fail 'mandatory kyc fields missing' if !params[:kyc_fields].is_a?(Array) ||
-        (GlobalConstant::ClientKycConfigDetail.mandatory_fields - params[:kyc_fields]).present?
+        (GlobalConstant::ClientKycConfigDetail.mandatory_client_fields - params[:kyc_fields]).present?
 
     fail 'Invalid kyc fields' if (params[:kyc_fields] - ClientKycConfigDetail.kyc_fields_config.keys).present?
 

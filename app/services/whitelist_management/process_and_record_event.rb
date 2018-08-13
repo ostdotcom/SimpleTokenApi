@@ -482,7 +482,7 @@ module WhitelistManagement
     def kyc_approved_template_vars
       {
           token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-          is_sale_active: @client_token_sale_details.has_token_sale_started? #GlobalConstant::TokenSale.is_general_sale_interval?
+          is_sale_active: @client_token_sale_details.has_token_sale_started?
       }
     end
 

@@ -1,10 +1,14 @@
 module GlobalConstant
 
-  class EntityDraft
+  class EntityGroup
 
     class << self
 
       ### Status start ###
+
+      def incomplete_status
+        'incomplete'
+      end
 
       def active_status
         'active'
@@ -12,10 +16,6 @@ module GlobalConstant
 
       def deleted_status
         'deleted'
-      end
-
-      def draft_status
-        'draft'
       end
 
       ### Status End ###

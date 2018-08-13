@@ -1,8 +1,9 @@
 class EntityGroup < EstablishSimpleTokenCustomizationDbConnection
 
   enum status: {
-      GlobalConstant::EntityDraft.active_status => 1,
-      GlobalConstant::EntityDraft.deleted_status => 2
+      GlobalConstant::EntityGroup.incomplete_status => 1,
+      GlobalConstant::EntityGroup.active_status => 2,
+      GlobalConstant::EntityGroup.deleted_status => 3
   }
 
 end

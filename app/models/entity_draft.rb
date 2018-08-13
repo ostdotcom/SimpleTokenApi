@@ -4,18 +4,6 @@ class EntityDraft < EstablishSimpleTokenCustomizationDbConnection
 
   after_commit :memcache_flush
 
-  enum entity_type: {
-      GlobalConstant::EntityDraft.theme_entity_type => 1,
-      GlobalConstant::EntityDraft.login_entity_type => 2,
-      GlobalConstant::EntityDraft.registration_entity_type => 3,
-      GlobalConstant::EntityDraft.reset_password_entity_type => 4,
-      GlobalConstant::EntityDraft.change_password_entity_type => 5,
-      GlobalConstant::EntityDraft.token_sale_blocked_region_entity_type => 6,
-      GlobalConstant::EntityDraft.kyc_form_entity_type => 7,
-      GlobalConstant::EntityDraft.dashboard_entity_type => 8,
-      GlobalConstant::EntityDraft.verification_entity_type => 9
-  }
-
   enum status: {
       GlobalConstant::EntityDraft.draft_status => 1,
       GlobalConstant::EntityDraft.active_status => 2,

@@ -18,10 +18,6 @@ module GlobalConstant
         'login'
       end
 
-      def sign_up_entity_type
-        'sign_up'
-      end
-
       def reset_password_entity_type
         'reset_password'
       end

@@ -7,7 +7,7 @@ class EntityDraft < EstablishSimpleTokenCustomizationDbConnection
   enum entity_type: {
       GlobalConstant::EntityDraft.theme_entity_type => 1,
       GlobalConstant::EntityDraft.login_entity_type => 2,
-      GlobalConstant::EntityDraft.sign_up_entity_type => 3,
+      GlobalConstant::EntityDraft.registration_entity_type => 3,
       GlobalConstant::EntityDraft.reset_password_entity_type => 4,
       GlobalConstant::EntityDraft.change_password_entity_type => 5,
       GlobalConstant::EntityDraft.token_sale_blocked_region_entity_type => 6,
@@ -31,7 +31,7 @@ class EntityDraft < EstablishSimpleTokenCustomizationDbConnection
   # @return [MemcacheKey] Key Object
   #
   def self.get_memcache_key_object
-    MemcacheKey.new('admin.admin_entity_draft')
+    MemcacheKey.new('customization.entity_draft')
   end
 
   # Get/Set Active Memcache data for admin entity draft

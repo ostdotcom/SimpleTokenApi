@@ -18,8 +18,9 @@ module ClientManagement
         @client_id = @params[:client_id]
 
         @client = nil
-        @common_client_template_obj = nil
-        @client_template_obj = nil
+        @group_entities = nil
+        @common_theme_entity_obj = nil
+        @entity_draft_obj = nil
       end
 
       # Perform
@@ -37,11 +38,13 @@ module ClientManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
-        fetch_common_template
+        fetch_client_published_entities
 
-        fetch_current_page_template
+        fetch_theme_entity
 
-        success_with_data(template_info_response)
+        fetch_current_page_published_entity
+
+        success_with_data(current_page_entity_response)
       end
 
       private
@@ -61,39 +64,51 @@ module ClientManagement
         success
       end
 
-      #  fetch common template info for client
+      #  Fetch client published entity drafts
       #
-      # * Author: Aman
-      # * Date: 08/02/2018
+      # * Author: Pankaj
+      # * Date: 10/08/2018
       # * Reviewed By:
       #
-      # Sets @common_client_template_obj
+      # Sets @group_entities
       #
-      def fetch_common_template
-        @common_client_template_obj = ClientTemplate.get_from_memcache_by_client_id_and_template_type(@client_id, GlobalConstant::ClientTemplate.common_template_type)
+      def fetch_client_published_entities
+        @group_entities = PublishedEntityGroup.get_published_entity_drafts_from_memcache(@client_id)
       end
 
-      #  fetch page template info for client
+      #  Fetch theme entity from published entity
       #
-      # * Author: Aman
-      # * Date: 08/02/2018
+      # * Author: Pankaj
+      # * Date: 10/08/2018
       # * Reviewed By:
       #
-      # Sets @client_template_obj
+      # Sets @common_theme_entity_obj
       #
-      def fetch_current_page_template
-        @client_template_obj = ClientTemplate.get_from_memcache_by_client_id_and_template_type(@client_id, page_template_type)
+      def fetch_theme_entity
+        @common_theme_entity_obj = EntityDraft.get_entity_draft_from_memcache(@group_entities[GlobalConstant::EntityDraft.theme_entity_type])
+      end
+
+      #  Fetch current page published entity
+      #
+      # * Author: Pankaj
+      # * Date: 10/08/2018
+      # * Reviewed By:
+      #
+      # Sets @entity_draft_obj
+      #
+      def fetch_current_page_published_entity
+        @entity_draft_obj = EntityDraft.get_entity_draft_from_memcache(@group_entities[page_entity_type])
       end
 
 
-      # page template type to fetch info for
+      # page entity type to fetch info for
       #
-      # * Author: Aman
-      # * Date: 08/02/2018
+      # * Author: Pankaj
+      # * Date: 13/08/2018
       # * Reviewed By:
       #
-      def page_template_type
-        fail 'method not implemented page_template_type'
+      def page_entity_type
+        fail 'method not implemented page_entity_type'
       end
 
       # gives common_template_data_for_page
@@ -105,7 +120,7 @@ module ClientManagement
       # @return [Hash] common template data
       #
       def common_data
-        @common_client_template_obj.data
+        @common_theme_entity_obj.data
       end
 
       # gives template_data_for_page
@@ -117,19 +132,19 @@ module ClientManagement
       # @return [Hash] template data for specific page
       #
       def page_data
-        @client_template_obj.data
+        @entity_draft_obj.data
       end
 
 
-      # response data
+      # Current page complete entity response
       #
-      # * Author: Aman
-      # * Date: 08/02/2018
+      # * Author: Pankaj
+      # * Date: 13/08/2018
       # * Reviewed By:
       #
       # @return [Hash]
       #
-      def template_info_response
+      def current_page_entity_response
         {
             common_data: common_data,
             page_data: page_data

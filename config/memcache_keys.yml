@@ -79,7 +79,6 @@ client:
     key_template: 'client_kyc_pass_active_setting_%{client_id}'
     expiry_in_seconds: 86400
 
-
 admin:
   admin_details:
     key_template: 'admin_det_%{id}'
@@ -87,6 +86,12 @@ admin:
   admin_secret_details:
     key_template: 'admin_secrets_det_%{id}'
     expiry_in_seconds: 86400
-  admin_entity_draft:
-    key_template: 'admin_entity_draft_%{id}'
+
+customization:
+  entity_draft:
+    key_template: 'entity_draft_%{id}'
     expiry_in_seconds: 86400
+
+  client_published_entity_group:
+      key_template: 'published_group_%{client_id}'
+      expiry_in_seconds: 86400

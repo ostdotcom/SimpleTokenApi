@@ -31,14 +31,14 @@ module ClientManagement
 
       private
 
-      # page template type to fetch info for
+      # page entity type to fetch info for
       #
-      # * Author: Aman
-      # * Date: 08/02/2018
+      # * Author: Pankaj
+      # * Date: 13/08/2018
       # * Reviewed By:
       #
-      def page_template_type
-        GlobalConstant::ClientTemplate.change_password_template_type
+      def page_entity_type
+        GlobalConstant::EntityDraft.change_password_entity_type
       end
 
     end

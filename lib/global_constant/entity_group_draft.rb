@@ -27,7 +27,7 @@ module GlobalConstant
       end
 
       def kyc_form_entity_type
-        'kyc_form'
+        'kyc'
       end
 
       def verification_entity_type
@@ -39,7 +39,7 @@ module GlobalConstant
       end
 
       def registration_entity_type
-        'registration'
+        'sign_up'
       end
 
       ### Entity type End ###

@@ -38,7 +38,7 @@ module ClientManagement
       # * Reviewed By:
       #
       def page_entity_type
-        GlobalConstant::EntityDraft.kyc_form_entity_type
+        GlobalConstant::EntityGroupDraft.kyc_form_entity_type
       end
 
     end

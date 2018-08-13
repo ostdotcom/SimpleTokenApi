@@ -103,21 +103,21 @@ class ClientSetting
 
   def page_setting_class
     case @template_type
-      when GlobalConstant::EntityDraft.login_entity_type
+      when GlobalConstant::EntityGroupDraft.login_entity_type
         ClientManagement::PageSetting::Login
-      when GlobalConstant::EntityDraft.registration_entity_type
+      when GlobalConstant::EntityGroupDraft.registration_entity_type
         ClientManagement::PageSetting::SignUp
-      when GlobalConstant::EntityDraft.reset_password_entity_type
+      when GlobalConstant::EntityGroupDraft.reset_password_entity_type
         ClientManagement::PageSetting::ResetPassword
-      when GlobalConstant::EntityDraft.change_password_entity_type
+      when GlobalConstant::EntityGroupDraft.change_password_entity_type
         ClientManagement::PageSetting::ChangePassword
-      when GlobalConstant::EntityDraft.token_sale_blocked_region_entity_type
+      when GlobalConstant::EntityGroupDraft.token_sale_blocked_region_entity_type
         ClientManagement::PageSetting::TokenSaleBlockedRegion
-      when GlobalConstant::EntityDraft.verification_entity_type
+      when GlobalConstant::EntityGroupDraft.verification_entity_type
         ClientManagement::PageSetting::Verification
-      when GlobalConstant::EntityDraft.kyc_form_entity_type
+      when GlobalConstant::EntityGroupDraft.kyc_form_entity_type
         ClientManagement::PageSetting::Kyc
-      when GlobalConstant::EntityDraft.dashboard_entity_type
+      when GlobalConstant::EntityGroupDraft.dashboard_entity_type
         ClientManagement::PageSetting::Dashboard
       else
         fail 'invalid template type'

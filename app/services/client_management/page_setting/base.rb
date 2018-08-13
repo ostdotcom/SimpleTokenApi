@@ -85,7 +85,7 @@ module ClientManagement
       # Sets @common_theme_entity_obj
       #
       def fetch_theme_entity
-        @common_theme_entity_obj = EntityDraft.get_entity_draft_from_memcache(@group_entities[GlobalConstant::EntityDraft.theme_entity_type])
+        @common_theme_entity_obj = EntityDraft.get_entity_draft_from_memcache(@group_entities[GlobalConstant::EntityGroupDraft.theme_entity_type])
       end
 
       #  Fetch current page published entity

@@ -38,7 +38,7 @@ module ClientManagement
       # * Reviewed By:
       #
       def page_entity_type
-        GlobalConstant::EntityDraft.dashboard_entity_type
+        GlobalConstant::EntityGroupDraft.dashboard_entity_type
       end
 
     end

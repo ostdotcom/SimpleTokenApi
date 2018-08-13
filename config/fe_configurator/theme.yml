@@ -50,13 +50,13 @@ primary_button_background_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: '#000000'
 
 primary_button_border_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: '#000000'
 
 secondary_button_text_color:
   data_kind: 'color'

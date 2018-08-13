@@ -38,7 +38,7 @@ module ClientManagement
       # * Reviewed By:
       #
       def page_entity_type
-        GlobalConstant::EntityDraft.change_password_entity_type
+        GlobalConstant::EntityGroupDraft.change_password_entity_type
       end
 
     end

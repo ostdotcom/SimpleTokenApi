@@ -38,7 +38,7 @@ module ClientManagement
       # * Reviewed By:
       #
       def page_entity_type
-        GlobalConstant::EntityDraft.verification_entity_type
+        GlobalConstant::EntityGroupDraft.verification_entity_type
       end
 
     end

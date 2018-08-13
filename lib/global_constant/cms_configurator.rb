@@ -45,6 +45,21 @@ module GlobalConstant
 
       ######### YML keys and values end#############
 
+      def get_entity_config(entity_type)
+        puts "entity_typesssssssss : #{entity_type}"
+        if entity_type == GlobalConstant::EntityDraft.theme_entity_type
+         return get_theme_yml
+        elsif entity_type == GlobalConstant::EntityDraft.kyc_form_entity_type
+          return get_kyc_form_yml
+        elsif entity_type == GlobalConstant::EntityDraft.dashboard_entity_type
+          return get_dashboard_yml
+        elsif entity_type == GlobalConstant::EntityDraft.registration_entity_type
+          return get_registration_yml
+        else
+          return {}
+        end
+      end
+
 
       def get_dashboard_yml
         @dashboard_yml ||= YAML.load_file(open(Rails.root.to_s + '/config/fe_configurator/dashboard.yml'))

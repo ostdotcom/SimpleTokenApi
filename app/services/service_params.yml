@@ -144,6 +144,33 @@
     - :filters
     - :sortings
 
+'AdminManagement::CmsConfigurator::GetEntityDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :entity_type
+    - :id
+    - :uuid
+  :optional:
+
+'AdminManagement::CmsConfigurator::ResetUserDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :entity_type
+    - :id
+    - :uuid
+  :optional:
+
+'AdminManagement::CmsConfigurator::PublishUserDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :entity_type
+    - :id
+    - :uuid
+  :optional:
+
 'UserManagement::SignUp':
   :mandatory:
     - :client_id

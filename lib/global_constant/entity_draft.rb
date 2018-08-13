@@ -6,8 +6,12 @@ module GlobalConstant
 
       ### Entity type Start ###
 
+      def allowed_entity_types_from_fe
+        [dashboard_entity_type,kyc_form_entity_type,theme_entity_type,registration_entity_type]
+      end
+
       def theme_entity_type
-        'common'
+        'theme'
       end
 
       def login_entity_type
@@ -31,7 +35,7 @@ module GlobalConstant
       end
 
       def kyc_form_entity_type
-        'kyc'
+        'kyc_form'
       end
 
       def verification_entity_type
@@ -40,6 +44,10 @@ module GlobalConstant
 
       def dashboard_entity_type
         'dashboard'
+      end
+
+      def registration_entity_type
+        'registration'
       end
 
       ### Entity type End ###

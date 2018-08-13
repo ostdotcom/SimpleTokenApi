@@ -1,6 +1,5 @@
 company-logo:
   data_kind: 'text'
-  data_type: 'color'
   validations:
     required: 1
   default_value: 'https://s3.amazonaws.com/asset.pepomail.com/common-assets/images/logo-watermark-black-final.png'

@@ -3,6 +3,7 @@ class CreateEntityGroups < DbMigrationConnection
   def up
     run_migration_for_db(EstablishSimpleTokenCustomizationDbConnection.config_key) do
       create_table :entity_groups do |t|
+        t.column :client_id, :integer, limit: 8, null: false
         t.column :uuid, :string, limit: 32, null: false
         t.column :creator_admin_id, :integer, limit: 8, null: false
         t.column :status, :tinyint, limit: 4, null: false

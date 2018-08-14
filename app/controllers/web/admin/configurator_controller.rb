@@ -24,7 +24,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  def get_entity_draft
+  def get_draft_config
     service_response = AdminManagement::CmsConfigurator::GetEntityDraft.new(params).perform
     render_api_response(service_response)
   end

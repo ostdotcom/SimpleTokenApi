@@ -24,7 +24,7 @@ module AdminManagement
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
         @entity_type = @params[:entity_type]
-        @gid = @params[:id].to_i
+        @gid = @params[:gid].to_i
         @uuid = @params[:uuid]
 
         @client_settings = nil

@@ -64,3 +64,13 @@ telegram_link:
   validations:
     required: 0
   default_value: 'https://t.me/ostdotcom'
+
+ethereum_deposit_popup_checkboxes:
+  data_kind: 'array'
+  validations:
+    max_length: 10
+    required: 0
+    element:
+      data_kind: 'html'
+      max_length: 200
+  default_value: []

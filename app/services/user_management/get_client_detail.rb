@@ -69,11 +69,11 @@ module UserManagement
           GlobalConstant::ErrorAction.default,
           {}
       ) if [
-          GlobalConstant::ClientTemplate.login_template_type,
-          GlobalConstant::ClientTemplate.sign_up_template_type,
-          GlobalConstant::ClientTemplate.reset_password_template_type,
-          GlobalConstant::ClientTemplate.change_password_template_type,
-          GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
+          GlobalConstant::EntityGroupDraft.login_entity_type,
+          GlobalConstant::EntityGroupDraft.registration_entity_type,
+          GlobalConstant::EntityGroupDraft.reset_password_entity_type,
+          GlobalConstant::EntityGroupDraft.change_password_entity_type,
+          GlobalConstant::EntityGroupDraft.token_sale_blocked_region_entity_type
       ].exclude?(@template_type)
 
       success

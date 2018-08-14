@@ -87,7 +87,8 @@ module UserManagement
           'Invalid Template Type',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if @template_type.present? && [GlobalConstant::ClientTemplate.kyc_template_type, GlobalConstant::ClientTemplate.verification_template_type].exclude?(@template_type)
+      ) if @template_type.present? && [GlobalConstant::EntityGroupDraft.kyc_form_entity_type,
+                                       GlobalConstant::EntityGroupDraft.verification_entity_type].exclude?(@template_type)
 
       success
     end
@@ -103,7 +104,7 @@ module UserManagement
     #
     def validate_user_state
       if @user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property) &&
-          @template_type == GlobalConstant::ClientTemplate.kyc_template_type
+          @template_type == GlobalConstant::EntityGroupDraft.kyc_form_entity_type
 
         @has_double_opt_in = true
 

@@ -184,7 +184,7 @@ module AdminManagement
                 can_reset: can_reset,
                 can_publish: can_publish
             },
-            client_settings: @client_settings
+            client_settings: @client_settings.data
         }
       end
 

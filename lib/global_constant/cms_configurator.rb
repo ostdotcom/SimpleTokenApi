@@ -46,17 +46,17 @@ module GlobalConstant
       ######### YML keys and values end#############
 
       def get_entity_config(entity_type)
-        puts "entity_typesssssssss : #{entity_type}"
-        if entity_type == GlobalConstant::EntityGroupDraft.theme_entity_type
-          return get_theme_yml
-        elsif entity_type == GlobalConstant::EntityGroupDraft.kyc_form_entity_type
-          return get_kyc_form_yml
-        elsif entity_type == GlobalConstant::EntityGroupDraft.dashboard_entity_type
-          return get_dashboard_yml
-        elsif entity_type == GlobalConstant::EntityGroupDraft.registration_entity_type
-          return get_registration_yml
+        case entity_type
+        when GlobalConstant::EntityDraft.theme_entity_type
+          get_theme_yml
+        when GlobalConstant::EntityDraft.kyc_form_entity_type
+          get_kyc_form_yml
+        when GlobalConstant::EntityDraft.dashboard_entity_type
+          get_dashboard_yml
+        when GlobalConstant::EntityDraft.registration_entity_type
+          get_registration_yml
         else
-          return {}
+          Fail "invalid entity type-#{entity_type}"
         end
       end
 

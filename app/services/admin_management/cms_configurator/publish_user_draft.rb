@@ -24,7 +24,7 @@ module AdminManagement
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
         @entity_type = @params[:entity_type]
-        @id = @params[:id]
+        @gid = @params[:id]
         @uuid = @params[:uuid]
 
       end
@@ -45,9 +45,7 @@ module AdminManagement
         r = publish_entity_draft
         return r unless r.success?
 
-        api_response
-
-        success_with_data(@api_response)
+        success_with_data(success_response_data)
 
       end
 
@@ -77,15 +75,24 @@ module AdminManagement
         success
       end
 
+      # Validate Entity Type
+      #
+      # * Author: Tejas
+      # * Date: 14/08/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+
       def validate_entity_type
 
         return error_with_data(
-            'am_cc_pud_1',
-            'Invalid entity type',
+            'am_cc_pud_vet_1',
+            'Data not found',
             'Invalid entity type',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @entity_type.blank? || !GlobalConstant::EntityDraft.allowed_entity_types.include?(@entity_type)
+        ) if GlobalConstant::EntityGroup.allowed_entity_types_from_fe.exclude?(@entity_type)
 
         success
       end
@@ -96,51 +103,88 @@ module AdminManagement
       # * Date: 08/08/2018
       # * Reviewed By:
       #
-      # @return [Hash]
+      # @return [Resut::Base]
+      #
+      # Sets @entity_draft, @entity_group
       #
       def publish_entity_draft
 
-        if @id.present? && @uuid.present?
+        @entity_group = EntityGroup.get_entity_group_from_memcache(@gid)
 
-          @entity_draft = EntityDraft.where(id:@id, uuid:@uuid).first
+        return error_with_data(
+            'am_cc_pud_ped_1',
+            'Invalid rquest parameters',
+            'Invalid URL',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if (@entity_group.blank?) || (@entity_group.client_id != @client_id) || (@entity_group.uuid != @uuid)
 
-          return error_with_data(
-              'am_cc_rud_2',
-              'Data not found',
-              'Entity draft not available',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if @entity_draft.blank?
+        return error_with_data(
+            'am_cc_pud_ped_2',
+            'This draft was Active',
+            'Invalid Draft Request',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if (@entity_group.status != GlobalConstant::EntityGroup.incomplete_status) &&
+            (@admin.role == GlobalConstant::Admin.super_admin_role)
 
-          return error_with_data(
-              'am_cc_rud_3',
-              'uuid not matched with table uuid',
-              'Invalid uuid',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if @entity_draft.uuid != @uuid
+        entity_draft_ids_for_gid = EntityGroupDraft.get_group_entities_from_memcache(@gid).values
 
-          #verify that this validation is correct of not
+        ApplicationMailer.notify(
+            to: GlobalConstant::Email.default_to,
+            body: 'Group Entities not found for the given group id',
+            data: {client_id: @client_id, admin_id: @admin_id, entity_type: @entity_type, group_id: @gid},
+            subject: "Exception::Something went wrong while Get Entity Group Draft request."
+        ).deliver if entity_draft_ids_for_gid.blank?
 
-          return error_with_data(
-              'am_cc_gtet_4',
-              'This draft is already published',
-              'Invalid status for publishing the draft',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if @entity_draft.status != GlobalConstant::EntityDraft.draft_status
+        return error_with_data(
+            'am_cc_pud_ped_3',
+            'No Draft is present for this admin',
+            'Invalid Draft Request',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if entity_draft_ids_for_gid.blank?
 
-          @entity_draft.status = GlobalConstant::EntityDraft.active_status
-          @entity_draft.save
+        @entity_draft = EntityDraft.where(id: [entity_draft_ids_for_gid]).pluck("status")
 
-          PublishedEntity.create!(
-              client_id: @entity_draft.client_id,
-              draft_id: @entity_draft.id,
-              entity_type: @entity_draft.entity_type
-          )
+        ApplicationMailer.notify(
+            to: GlobalConstant::Email.default_to,
+            body: 'Deleted status found for the given entity_draft_id',
+            data: {client_id: @client_id, admin_id: @admin_id, last_updated_admin_id: @admin_id},
+            subject: "Exception::Something went wrong while Get Entity Draft request."
+        ).deliver if @entity_draft.include?("deleted")
 
-        end
+        return error_with_data(
+            'am_cc_pud_ped_4',
+            'Deleted status found for the given entity_draft_id',
+            'Invalid Draft Request',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @entity_draft.include?("deleted")
 
+        EntityDraft.where(id: [entity_draft_ids_for_gid]).update(status: GlobalConstant::EntityGroup.active_status)
+
+        @entity_group.status = GlobalConstant::EntityGroup.active_status
+        @entity_group.save
+
+        PublishedEntityGroup.where(client_id: @client_id).update(entity_group_id: @gid)
+
+        success
+
+      end
+
+      # Api response data
+      #
+      # * Author: Tejas
+      # * Date: 14/08/2018
+      # * Reviewed By:
+      #
+      # returns [Hash] api response data
+      #
+      def success_response_data
+        {
+
+        }
       end
 
     end

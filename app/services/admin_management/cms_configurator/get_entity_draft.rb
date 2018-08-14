@@ -13,11 +13,10 @@ module AdminManagement
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] admin_id (mandatory) - logged in admin's id
       # @params [String] entity_type (mandatory) - entity type
+      # @params [Integer] id (mandatory) - id of the entity_draft table
+      # @params [String] uuid (mandatory) - uuid of the admin
       #
-      # @params [Integer] id (optional) - id of the entity_draft table
-      # @params [String] uuid (optional) - uuid of the admin
-      #
-      # @return [AdminManagement::CmsConfigurator::GetThemeEntityType]
+      # @return [AdminManagement::CmsConfigurator::GetEntityDraft]
       #
       def initialize(params)
         super
@@ -25,9 +24,11 @@ module AdminManagement
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
         @entity_type = @params[:entity_type]
-        @entity_group_id = @params[:id]
+        @gid = @params[:id].to_i
         @uuid = @params[:uuid]
 
+        @client_settings = nil
+        @entity_draft = nil
       end
 
       # Perform
@@ -46,11 +47,10 @@ module AdminManagement
         r = fetch_entity_draft
         return r unless r.success?
 
-        r = api_response
+        r = fetch_client_setting
         return r unless r.success?
 
-        success_with_data(@api_response)
-
+        success_with_data(api_response)
       end
 
       private
@@ -76,30 +76,91 @@ module AdminManagement
         r = validate_entity_type
         return r unless r.success?
 
-        #  todo: "KYCaas-Changes"
-        # return error_with_data(
-        #     'am_cc_gtet_2',
-        #     'The token sale ended, it is no longer possible to submit personal information.',
-        #     'The token sale ended, it is no longer possible to submit personal information.',
-        #     GlobalConstant::ErrorAction.default,
-        #     {},
-        #     {}
-        # ) if @client_settings.has_token_sale_ended?
-
         success
       end
 
+      # Validate Entity Type
+      #
+      # * Author: Tejas
+      # * Date: 08/08/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def validate_entity_type
 
         return error_with_data(
-            'am_cc_gtet_1',
+            'am_cc_get_vet_1',
             'Data not found',
             'Invalid entity type',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @entity_type.blank? || !GlobalConstant::EntityGroup.allowed_entity_types_from_fe.include?(@entity_type)
+        ) if GlobalConstant::EntityGroup.allowed_entity_types_from_fe.exclude?(@entity_type)
 
         success
+      end
+
+      # Fetch Entity Draft
+      #
+      # * Author: Tejas
+      # * Date: 08/08/2018
+      # * Reviewed By:
+      #
+      # @return [@entity_draft]
+      #
+      def fetch_entity_draft
+
+        @entity_group = EntityGroup.get_entity_group_from_memcache(@gid)
+
+        return error_with_data(
+            'am_cc_gtet_fet_1',
+            'Invalid rquest parameters',
+            'Invalid URL',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if (@entity_group.blank?) || (@entity_group.client_id != @client_id) || (@entity_group.uuid != @uuid)
+
+
+        return error_with_data(
+            'am_cc_gtet_fet_2',
+            'This draft was deleted',
+            'Invalid Draft Request',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @entity_group.status != GlobalConstant::EntityDraft.active_status
+
+        group_entities = EntityGroupDraft.get_group_entities_from_memcache(@gid)
+
+        ApplicationMailer.notify(
+            to: GlobalConstant::Email.default_to,
+            body: 'Group Entities not found for the given group id',
+            data: {client_id: @client_id, admin_id: @admin_id, entity_type: @entity_type, group_id: @gid},
+            subject: "Exception::Something went wrong while Get Entity Group Draft request."
+        ).deliver if group_entities.blank?
+
+        return error_with_data(
+            'am_cc_rud_res_3',
+            'No Draft is present for this admin',
+            'Invalid Draft Request',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if group_entities.blank?
+
+        @entity_draft = EntityDraft.get_entity_draft_from_memcache(group_entities[@entity_type])
+
+        success
+      end
+
+      # Fetch Client Setting data
+      #
+      # * Author: Tejas
+      # * Date: 08/08/2018
+      # * Reviewed By:
+      #
+      # @return [Hash]
+      #
+      def fetch_client_setting
+        @client_settings = ClientManagement::GetClientSetting.new(client_id: @client_id).perform
       end
 
       # Api Response
@@ -110,109 +171,21 @@ module AdminManagement
       #
       # @return [Hash]
       #
-      def fetch_entity_draft
-
-        if @id.present? && @uuid.present?
-          puts "In IF"
-          @entity_draft = EntityDraft.where(id:@id).first
-          return error_with_data(
-              'am_cc_gtet_2',
-              'Data not found',
-              'Invalid entity draft',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if @entity_draft.blank?
-
-          puts "@uuid : #{@uuid} #{@uuid.class}"
-          puts "@entity_draft.uuid : #{@entity_draft.uuid} #{@entity_draft.uuid.class}"
-
-          return error_with_data(
-              'am_cc_gtet_3',
-              'uuid not matched with table uuid',
-              'Invalid uuid',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if @entity_draft.uuid != @uuid.to_i
-
-          return error_with_data(
-              'am_cc_gtet_4',
-              'This draft is already deleted',
-              'Invalid status for getting the Entity draft',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if @entity_draft.status == GlobalConstant::EntityDraft.deleted_status
-
-        else
-          puts "In else"
-          @entity_draft = EntityDraft.where(creator_admin_id: @admin_id,
-                                           entity_type: @entity_type,
-                                            status: GlobalConstant::EntityDraft.draft_status).last
-
-          if @entity_draft.blank?
-            published_entity = PublishedGroupEntity.where(client_id: @client_id).first
-
-            if published_entity.blank?
-              ApplicationMailer.notify(
-                  to: GlobalConstant::Email.default_to,
-                  body: error_message + published_entity.inspect,
-                  data: {client_id: @client_id, creator_admin_id: @admin_id, entity_type: @entity_type},
-                  subject: "Exception::Something went wrong while Get Entity Draft request."
-              ).deliver
-            end # send email
-            entity_draft_id_from_entity_group_drafts = EntityGroupDraft.where(entity_group_id: published_entity.entity_group_id,
-                                                                              entity_type: @entity_type).first
-
-            @entity_draft = EntityDraft.where(id: entity_draft_id_from_entity_group_drafts.entity_draft_id).first
-            # return exception
-            return error_with_data(
-                'am_cc_gtet_5',
-                'Invalid request parameter',
-                'Invalid request parameter',
-                GlobalConstant::ErrorAction.default,
-                {}
-            ) if @entity_draft.status != GlobalConstant::EntityDraft.active_status
-          end
-        end
-        #exception here if @entity_draft.blank?
-        success
-      end
-
       def api_response
-        url_id = @entity_draft.id
-        url_uuid = @entity_draft.uuid
 
-        puts "@entity_type : #{@entity_type}"
+        can_reset = @entity_group.status == GlobalConstant::EntityGroup.incomplete_status ? 1 : 0
+        can_publish = (@entity_group.status == GlobalConstant::EntityGroup.incomplete_status) &&
+            (@admin.role == GlobalConstant::Admin.super_admin_role) ? 1 : 0
 
-        @client_settings = ClientManagement::GetClientSetting.new(client_id: @client_id).perform
-
-        @api_response = {
+        {
             entity_config: GlobalConstant::CmsConfigurator.get_entity_config(@entity_type),
             form_data: @entity_draft.data,
-            urls: {
-                upload_params_url: "/api/admin/configurator/upload-params",
-                current_page_url: "/admin/configurator/#{@entity_type}?id=#{url_id}&uuid=#{url_uuid}",
-                reset_url: "/api/admin/configurator/reset?id=#{url_id}&uuid=#{url_uuid}",
-                publish_url: "/api/admin/configurator/publish?id=#{url_id}&uuid=#{url_uuid}",
-                post_url: "/api/admin/configurator/#{@entity_type}/update?id=#{url_id}&uuid=#{url_uuid}",
-                accordian_config: {
-                  kyc_form: {
-                  id: "form",
-                  preview_url: "kyc.ost.com/admin/preview?page=#{@entity_type}&id=#{url_id}&uuid=#{url_uuid}&a_accrd=form"
-                  },
-                  kyc_form_popup: {
-                    id: "popup",
-                    preview_url: "kyc.ost.com/admin/preview?page=#{@entity_type}&id=#{url_id}&uuid=#{url_uuid}&a_accrd=popup"
-                  }
-                }
-              },
             rules: {
-            can_reset: 1,
-            can_publish: 1
+                can_reset: can_reset,
+                can_publish: can_publish
             },
             client_settings: @client_settings
-          }
-        # puts "api_response : #{@api_response}"
-        success
+        }
       end
 
     end

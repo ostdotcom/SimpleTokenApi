@@ -114,9 +114,10 @@ Rails.application.routes.draw do
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do
       match 'upload-params' => :get_image_upload_params, via: :GET
       match ':entity_type/update' => :update_params, via: :POST
-      match ':entity_type/theme' => :get_theme_entity_type, via: :GET
+      match ':entity_type/theme' => :get_entity_draft, via: :GET
       match 'reset' => :reset_user_draft, via: :POST
       match 'publish' => :publish_user_draft, via: :POST
+      match 'create' => :create_user_group, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

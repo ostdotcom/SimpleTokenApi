@@ -171,6 +171,12 @@
     - :uuid
   :optional:
 
+'AdminManagement::CmsConfigurator::CreateUserGroup':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
 'UserManagement::SignUp':
   :mandatory:
     - :client_id

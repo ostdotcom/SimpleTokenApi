@@ -24,7 +24,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  def get_theme_entity_type
+  def get_entity_draft
     service_response = AdminManagement::CmsConfigurator::GetEntityDraft.new(params).perform
     render_api_response(service_response)
   end
@@ -36,6 +36,11 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
 
   def publish_user_draft
     service_response = AdminManagement::CmsConfigurator::PublishUserDraft.new(params).perform
+    render_api_response(service_response)
+  end
+
+  def create_user_group
+    service_response = AdminManagement::CmsConfigurator::CreateUserGroup.new(params).perform
     render_api_response(service_response)
   end
 

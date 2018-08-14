@@ -2,115 +2,115 @@ company_logo:
   data_kind: 'text'
   validations:
     required: 1
-  default_value: 'https://s3.amazonaws.com/asset.pepomail.com/common-assets/images/logo-watermark-black-final.png'
+  default_value: 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/company/company-logo.png'
 
 company_logo_size_percent:
   data_kind: 'number'
   validations:
     required: 0
-  default_value: 100
+  default_value: 15
 
 company_favicon:
   data_kind: 'text'
   validations:
     required: 0
-  default_value: 'https://s3.amazonaws.com/asset.pepomail.com/common-assets/images/logo-watermark-black-final.png'
+  default_value: 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/company/company-logo.png'
 
 background_gradient:
-  data_kind: 'text'
+  data_kind: 'array'
   validations:
     required: 1
-  default_value: '(to bottom, #000000 0%, #ffffff 135px, #ffffff 100%)'
+  default_value: [["rgb(243,249,244)", '0'], [ "rgb(255,255,255)", '20']]
 
 primary_button_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(255,255,255)'
 
 primary_button_background_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(228,176,48)'
 
 primary_button_border_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(228,176,48)'
 
 primary_button_text_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(255,255,255)'
 
 primary_button_background_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(212,163,38)'
 
 primary_button_border_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(212,163,38)'
 
 secondary_button_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(127,145,131)'
 
 secondary_button_background_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FFFFFF'
+  default_value: 'rgb(255,255,255)'
 
 secondary_button_border_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(127,145,131)'
 
 secondary_button_text_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(255,255,255)'
 
 secondary_button_background_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(127,145,131)'
 
 secondary_button_border_color_active:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(127,145,131)'
 
 footer_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FEB202'
+  default_value: 'rgb(158,169,167)'
 
 footer_link_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#FFFFFF'
+  default_value: 'rgb(158,169,167)'
 
 footer_background_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(229,239,232)'
 
 footer_text:
   data_kind: 'text'

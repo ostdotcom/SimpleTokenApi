@@ -47,13 +47,13 @@ module GlobalConstant
 
       def get_entity_config(entity_type)
         case entity_type
-        when GlobalConstant::EntityDraft.theme_entity_type
+        when GlobalConstant::EntityGroupDraft.theme_entity_type
           get_theme_yml
-        when GlobalConstant::EntityDraft.kyc_form_entity_type
+        when GlobalConstant::EntityGroupDraft.kyc_form_entity_type
           get_kyc_form_yml
-        when GlobalConstant::EntityDraft.dashboard_entity_type
+        when GlobalConstant::EntityGroupDraft.dashboard_entity_type
           get_dashboard_yml
-        when GlobalConstant::EntityDraft.registration_entity_type
+        when GlobalConstant::EntityGroupDraft.registration_entity_type
           get_registration_yml
         else
           Fail "invalid entity type-#{entity_type}"

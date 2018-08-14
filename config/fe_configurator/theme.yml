@@ -20,7 +20,7 @@ background_gradient:
   data_kind: 'array'
   validations:
     required: 1
-  default_value: [["rgb(243,249,244)", '0'], [ "rgb(255,255,255)", '20']]
+  default_value: [{color: "rgb(243,249,244)", gradient: 0}, {color: "rgb(255,255,255)", gradient: 20}]
 
 primary_button_text_color:
   data_kind: 'color'

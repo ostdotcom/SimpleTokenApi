@@ -14,15 +14,13 @@ eth_address_instruction_text:
   data_kind: 'text'
   validations:
     required: 0
-  default_value: 'Make sure to use your Ethereum Wallet address and not addresses from exchanges like Coinbase, Poloniex, Kraken.'
+  default_value: 'Make sure to use your Ethereum Wallet address and not addresses<br>from exchanges like Coinbase, Poloniex, Kraken.'
 
 document_id_instruction_text:
   data_kind: 'text'
   validations:
     required: 0
-  default_value: 'A valid government issued passport is
-                  required. A national ID or a license are
-                  not accepted for the verification process.'
+  default_value: 'A valid government issued passport is required. A national ID<br>or a license are not accepted for the verification process.'
 
 kyc_form_popup_checkboxes:
   data_kind: 'array'
@@ -33,8 +31,8 @@ kyc_form_popup_checkboxes:
       data_kind: 'html'
       max_length: 200
   default_value: ['All the information I have entered is true and complete.',
-                  'I am not restricted under any law from providing this information or purchasing Simple Tokens.',
+                  'I am not restricted under any law from providing this information or purchasing Company Tokens.',
                   'I act on my own behalf, unless I have notified you in writing.',
-                  'I have read, understood and agree to <a href="privacy" target="_blank" class="modal-ext-link">Privacy Policy</a>. I acknowledge
-                    this may change. I also understand that any purchase of Simple Tokens will be subject to additional terms and conditions.',
-                  'I agree that I will send payment from, and receive any Simple Tokens to, the digital wallet address I have entered on this website.']
+                  'I have read, understood and agree to <a href="https://domain.com/privacy.html" rel="nofollow" target="_blank" >Privacy Policy</a>. I acknowledge
+                    this may change. I also understand that any purchase of Company Tokens will be subject to additional terms and conditions.',
+                  'I agree that I will send payment from, and receive any Company Tokens to, the digital wallet address I have entered on this website.']

@@ -2,31 +2,31 @@ dashboard_title_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(145,192,173)'
 
 sale_timer_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#000000'
+  default_value: 'rgb(255,255,255)'
 
 sale_timer_background_gradient:
   data_kind: 'text'
   validations:
     required: 1
-  default_value: '(to bottom, #000000 0%, #ffffff 135px, #ffffff 100%)'
+  default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 20}]
 
 dashboard_middle_banner_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#597a84'
+  default_value: 'rgb(255,255,255)'
 
 dashboard_middle_banner_background:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#aee1e3'
+  default_value: 'rgb(108,155,169)'
 
 dashboard_middle_banner_title_text:
   data_kind: 'text'
@@ -44,7 +44,7 @@ dashboard_bottom_banner_text_color:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#ffffff'
+  default_value: 'rgb(255,255,255)'
 
 dashboard_bottom_banner_background:
   data_kind: 'color'

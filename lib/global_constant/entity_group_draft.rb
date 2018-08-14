@@ -11,7 +11,7 @@ module GlobalConstant
       end
 
       def registration_entity_type
-        'sign_up'
+        'registration'
       end
 
       def dashboard_entity_type
@@ -21,7 +21,6 @@ module GlobalConstant
       def kyc_form_entity_type
         'kyc'
       end
-
 
       def login_entity_type
         'login'

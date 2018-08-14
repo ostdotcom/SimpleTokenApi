@@ -160,11 +160,13 @@ module Email
       #   Hash, response data from server
       #
       def send_transactional_email(email, template, email_vars)
+        email_variables = email_vars.reverse_merge({environment: Rails.env})
+
         endpoint = "/api/#{@version}/send/"
         custom_params = {
           "email" => email,
           "template" => template,
-          "email_vars" => email_vars.to_json
+          "email_vars" => email_variables.to_json
         }
         make_post_request(endpoint, custom_params)
       end

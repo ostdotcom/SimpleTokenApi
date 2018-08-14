@@ -158,7 +158,7 @@
     - :client_id
     - :admin_id
     - :entity_type
-    - :id
+    - :gid
     - :uuid
   :optional:
 
@@ -167,7 +167,7 @@
     - :client_id
     - :admin_id
     - :entity_type
-    - :id
+    - :gid
     - :uuid
   :optional:
 

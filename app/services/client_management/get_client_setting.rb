@@ -106,6 +106,8 @@ module ClientManagement
           is_st_token_sale_client: @client.is_st_token_sale_client?,
           is_whitelist_setup_done: @client.is_whitelist_setup_done?,
           token_sale_details: {
+              token_name: @client_token_sale_details.token_name,
+              token_symbol: @client_token_sale_details.token_symbol,
               sale_start_timestamp: @client_token_sale_details.sale_start_timestamp,
               sale_end_timestamp: @client_token_sale_details.sale_end_timestamp,
               has_ethereum_deposit_address: @client_token_sale_details.ethereum_deposit_address.present?

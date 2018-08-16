@@ -245,6 +245,16 @@
     - :client_id
     - :template_type
   :optional:
+    - :in_preview_mode
+    - :gid
+
+'UserManagement::PreviewDummyUser':
+  :mandatory:
+    - :client_id
+    - :template_type
+    - :in_preview_mode
+    - :gid
+  :optional:
 
 'UserManagement::BtSubmit':
   :mandatory:
@@ -435,41 +445,49 @@
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::Dashboard':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::ChangePassword':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::Verification':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::Kyc':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::ResetPassword':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::SignUp':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::TokenSaleBlockedRegion':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'AdminManagement::Kyc::RetryCynopsisUpload':
   :mandatory:

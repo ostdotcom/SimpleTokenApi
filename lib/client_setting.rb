@@ -9,13 +9,15 @@ class ClientSetting
   # * Reviewed By:
   #
   # @param [Integer] client_id - client id
-  # @param [String] template_type - template type for page
+  # @param [String] entity_type - entity type for page draft
+  # @param [Integer] entity_group_id - Entity group id for which preview draft has to be fetched.
   #
   # @return [ClientSetting]
   #
-  def initialize(client_id, template_type)
+  def initialize(client_id, entity_type, entity_group_id=0)
     @client_id = client_id
-    @template_type = template_type
+    @entity_type = entity_type
+    @entity_group_id = entity_group_id
 
     @client_setting = nil
     @page_setting = nil
@@ -49,7 +51,7 @@ class ClientSetting
   #
   def fetch_client_setting_data
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
-    memcache_template_key = memcache_key_object.key_template % {client_id: @client_id, template_type: @template_type}
+    memcache_template_key = memcache_key_object.key_template % {client_id: @client_id, entity_type: @entity_type}
 
     r = Memcache.get_set_memcached(memcache_template_key, memcache_key_object.expiry) do
 
@@ -93,8 +95,8 @@ class ClientSetting
   # @return [Result::Base]
   #
   def fetch_page_settings
-    return success if @template_type.blank?
-    r = page_setting_class.new(client_id: @client_id).perform
+    return success if @entity_type.blank?
+    r = page_setting_class.new(client_id: @client_id, entity_group_id: @entity_group_id).perform
     return r unless r.success?
 
     @page_setting = r.data
@@ -102,7 +104,9 @@ class ClientSetting
   end
 
   def page_setting_class
-    case @template_type
+    case @entity_type
+      when GlobalConstant::EntityGroupDraft.theme_entity_type
+        ClientManagement::PageSetting::Login
       when GlobalConstant::EntityGroupDraft.login_entity_type
         ClientManagement::PageSetting::Login
       when GlobalConstant::EntityGroupDraft.registration_entity_type
@@ -150,10 +154,10 @@ class ClientSetting
   #
   # @return [Hash] hash of client settings data
   #
-  def self.flush_memcache_key_for_template_types_of_client(client_id, templates_to_flush= GlobalConstant::ClientTemplate.page_specific_template_types)
+  def self.flush_memcache_key_for_entity_types_of_client(client_id, templates_to_flush= GlobalConstant::ClientTemplate.page_specific_entity_types)
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
-    templates_to_flush.each do |template_type|
-      memcache_template_key = memcache_key_object.key_template % {client_id: client_id, template_type: template_type}
+    templates_to_flush.each do |entity_type|
+      memcache_template_key = memcache_key_object.key_template % {client_id: client_id, entity_type: entity_type}
       Memcache.delete(memcache_template_key)
     end
   end

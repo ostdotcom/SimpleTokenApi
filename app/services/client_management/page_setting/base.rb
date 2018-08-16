@@ -16,6 +16,7 @@ module ClientManagement
         super
 
         @client_id = @params[:client_id]
+        @entity_group_id = @params[:entity_group_id]
 
         @client = nil
         @group_entities = nil
@@ -38,11 +39,11 @@ module ClientManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
-        fetch_client_published_entities
+        fetch_group_entities
 
         fetch_theme_entity
 
-        fetch_current_page_published_entity
+        fetch_current_page_entity_draft
 
         success_with_data(current_page_entity_response)
       end
@@ -62,6 +63,22 @@ module ClientManagement
         return r unless r.success?
 
         success
+      end
+
+      #  Fetch Group entities
+      #
+      # * Author: Pankaj
+      # * Date: 16/08/2018
+      # * Reviewed By:
+      #
+      # Sets @group_entities
+      #
+      def fetch_group_entities
+        if @entity_group_id.to_i > 0
+          @group_entities = EntityGroupDraft.get_group_entities_from_memcache(@entity_group_id)
+        else
+          fetch_client_published_entities
+        end
       end
 
       #  Fetch client published entity drafts
@@ -96,7 +113,7 @@ module ClientManagement
       #
       # Sets @entity_draft_obj
       #
-      def fetch_current_page_published_entity
+      def fetch_current_page_entity_draft
         @entity_draft_obj = EntityDraft.get_entity_draft_from_memcache(@group_entities[page_entity_type])
       end
 

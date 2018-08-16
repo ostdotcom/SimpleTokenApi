@@ -120,6 +120,11 @@ Rails.application.routes.draw do
       match 'create' => :create_user_group, via: :POST
     end
 
+    scope 'api/admin/preview', controller: 'web/admin/user_preview' do
+      match 'client-detail' => :client_detail, via: :GET
+      match 'dummy-user' => :dummy_user_preview, via: :GET
+    end
+
     scope 'api/home', controller: 'web/static/home' do
       match '/kyc/contact-us' => :contact_us_pipe_drive_kyc, via: [:GET, :POST]
     end

@@ -30,7 +30,7 @@ module Util
       puts "is_valid_html : #{is_valid_html}"
       is_valid_html
     rescue
-      puts "error occored while converting html"
+      puts "error occored while converting html : #{@html}"
       false
     end
 
@@ -95,8 +95,7 @@ module Util
 
     def valid_attributes?(ele_name, ele_attributes)
       allowed_attributes = @attributes[ele_name.to_sym] || []
-      puts "ele_name : #{ele_name}\nelement_attributes : #{attributes.keys}\nattributes_required: #{allowed_attributes}"
-
+      puts "ele_name : #{ele_name}\nelement_attributes : #{ele_attributes.keys}\nattributes_required: #{allowed_attributes}"
       (ele_attributes.keys - allowed_attributes).length == 0
     end
 

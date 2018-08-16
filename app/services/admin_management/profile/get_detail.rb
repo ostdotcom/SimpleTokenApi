@@ -21,7 +21,7 @@ module AdminManagement
         @admin_id = @params[:admin_id]
         @client_id = @params[:client_id]
 
-        @client = nil
+        @client, @client_kyc_config_detail_obj = nil, nil
       end
 
       # Perform
@@ -40,6 +40,8 @@ module AdminManagement
         fetch_client
 
         fetch_admin
+
+        fetch_kyc_config_detail
 
         success_with_data(success_response_data)
 
@@ -72,6 +74,18 @@ module AdminManagement
         @admin = Admin.get_from_memcache(@admin_id)
       end
 
+      # Fetch token sale details
+      #
+      # * Author: Aman
+      # * Date: 16/08/2018
+      # * Reviewed By:
+      #
+      # Sets @client_kyc_config_detail_obj
+      #
+      def fetch_kyc_config_detail
+        @client_kyc_config_detail_obj = ClientKycConfigDetail.get_from_memcache(@client_id)
+      end
+
       # Api response data
       #
       # * Author: Aman
@@ -90,6 +104,9 @@ module AdminManagement
                 email: @admin.email,
                 name: @admin.name,
                 role: @admin.role
+            },
+            kyc_config_detail: {
+                has_ethereum_address_field: @client_kyc_config_detail_obj.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
             }
         }
       end

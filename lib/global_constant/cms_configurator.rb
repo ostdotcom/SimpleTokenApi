@@ -56,8 +56,18 @@ module GlobalConstant
         when GlobalConstant::EntityGroupDraft.registration_entity_type
           get_registration_yml
         else
-          Fail "invalid entity type-#{entity_type}"
+          raise "invalid entity type-#{entity_type}"
         end
+      end
+
+      def get_entity_config_for_fe(entity_type)
+        config = get_entity_config(entity_type)
+        config.present? && config.each do |key, value|
+          new_val = (value['data_kind'] == 'array') ? "#{key}[]" : key
+          config[key].merge!('data_key_name' => new_val)
+          config[key].delete("default_value")
+        end
+        config
       end
 
       def custom_default_template_data

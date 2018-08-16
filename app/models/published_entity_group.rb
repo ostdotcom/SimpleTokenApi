@@ -1,3 +1,3 @@
-class PublishedGroupEntity < EstablishSimpleTokenCustomizationDbConnection
+class PublishedEntityGroup < EstablishSimpleTokenCustomizationDbConnection
 
 end

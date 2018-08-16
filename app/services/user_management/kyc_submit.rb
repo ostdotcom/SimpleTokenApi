@@ -307,6 +307,11 @@ module UserManagement
     end
 
     def validate_ethereum_address
+      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
+        @ethereum_address = nil
+        return
+      end
+
       @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
 
       unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
@@ -398,7 +403,7 @@ module UserManagement
 
       # If any of the file does not matches s3 file path
       @investor_proof_files_path.each do |x|
-          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
+        @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
       end
     end
 
@@ -506,6 +511,7 @@ module UserManagement
       end
 
       data_to_md5.each do |key, value|
+        next if value.blank?
         md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.get_hashed_value(value)
       end
 

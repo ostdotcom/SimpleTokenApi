@@ -117,17 +117,6 @@ module UserManagement
     #
     def validate_and_sanitize
 
-      # Sanitize fields, validate and assign error
-      validate_first_name
-      validate_last_name
-      validate_birthdate
-
-      validate_ethereum_address
-      validate_document_id_number
-      validate_nationality
-      validate_document_id_file_path
-      validate_selfie_file_path
-
       @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
 
       return error_with_data(
@@ -138,6 +127,17 @@ module UserManagement
           {},
           {}
       ) if @client_kyc_config_detail.blank?
+
+      # Sanitize fields, validate and assign error
+      validate_first_name
+      validate_last_name
+      validate_birthdate
+
+      validate_ethereum_address
+      validate_document_id_number
+      validate_nationality
+      validate_document_id_file_path
+      validate_selfie_file_path
 
       validate_country
       validate_estimated_participation_amount

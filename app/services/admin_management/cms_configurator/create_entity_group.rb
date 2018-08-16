@@ -2,18 +2,18 @@ module AdminManagement
 
   module CmsConfigurator
 
-    class CreateUserGroup < ServicesBase
+    class CreateEntityGroup < ServicesBase
 
       # Initialize
       #
       # * Author: Tejas
-      # * Date: 08/08/2018
+      # * Date: 14/08/2018
       # * Reviewed By:
       #
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] admin_id (mandatory) - logged in admin's id
       #
-      # @return [AdminManagement::CmsConfigurator::CreateUserGroup]
+      # @return [AdminManagement::CmsConfigurator::CreateEntityGroup]
       #
       def initialize(params)
         super
@@ -21,12 +21,13 @@ module AdminManagement
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
 
+        @entity_group = nil
       end
 
       # Perform
       #
       # * Author: Tejas
-      # * Date: 08/08/2018
+      # * Date: 14/08/2018
       # * Reviewed By:
       #
       # @return [Result::Base]
@@ -36,7 +37,7 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        r = create_new_user_group
+        r = create_entity_group
         return r unless r.success?
 
         success_with_data(success_response_data)
@@ -48,7 +49,7 @@ module AdminManagement
       # Validate
       #
       # * Author: Tejas
-      # * Date: 08/08/2018
+      # * Date: 14/08/2018
       # * Reviewed By:
       #
       # @return [Result::Base]
@@ -63,40 +64,57 @@ module AdminManagement
         r = fetch_and_validate_admin
         return r unless r.success?
 
+        r = validate_client_web_host
+        return r unless r.success?
+
         success
       end
 
-      # Create New User Group
+      # Validate Client Web Host
       #
       # * Author: Tejas
       # * Date: 14/08/2018
       # * Reviewed By:
       #
+      # @return [Result::Base]
+      #
+      def validate_client_web_host
+        return error_with_data(
+            'am_cc_ceg_vcwh_4',
+            'This client dose not have web_host setup.',
+            'This client dose not have web_host setup.',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if !@client_id.is_web_host_setup_done?
+      end
+
+      # Create Entity Group
+      #
+      # * Author: Tejas
+      # * Date: 14/08/2018
+      # * Reviewed By:
+      #
+      # sets @entity_group
+      #
       # @return [Resut::Base]
       #
-      def create_new_user_group
+      def create_entity_group
 
-        EntityGroup.create!(
+        @entity_group = EntityGroup.create!(
             client_id: @client_id,
             uuid: Util::Encryption::Admin.get_uuid,
             creator_admin_id: @admin_id,
-            status: GlobalConstant::EntityGroup.incomplete_status,
-            activated_at: Time.now.to_i
+            status: GlobalConstant::EntityGroup.incomplete_status
         )
 
-        entity_group_id = EntityGroup.last
-        entity_type = 1
         published_entity_group_id_to_draft_id_hash = PublishedEntityGroup.get_published_entity_drafts_from_memcache(@client_id)
 
-        EntityGroupDraft.entity_types.keys.each do |entity|
+        published_entity_group_id_to_draft_id_hash.each do |entity_type, draft_id|
 
-          entity_draft_id = published_entity_group_id_to_draft_id_hash[entity]
-
-          EntityGroupDraft.create!(entity_group_id: entity_group_id.id,
+          EntityGroupDraft.create!(entity_group_id: @entity_group.id,
                                    entity_type: entity_type,
-                                   entity_draft_id: entity_draft_id
+                                   entity_draft_id: draft_id
                                    )
-          entity_type += 1
 
         end
 
@@ -112,11 +130,9 @@ module AdminManagement
       # returns [Hash] api response data
       #
       def success_response_data
-        entity_group_id = EntityGroup.last
-
         {
-          id: entity_group_id.id,
-          uuid: entity_group_id.uuid
+          id: @entity_group.id,
+          uuid: @entity_group.uuid
         }
       end
 

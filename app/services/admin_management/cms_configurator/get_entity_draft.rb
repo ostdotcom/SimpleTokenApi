@@ -13,7 +13,7 @@ module AdminManagement
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] admin_id (mandatory) - logged in admin's id
       # @params [String] entity_type (mandatory) - entity type
-      # @params [Integer] id (mandatory) - id of the entity_draft table
+      # @params [Integer] gid (mandatory) - id of the entity_group table
       # @params [String] uuid (mandatory) - uuid of the admin
       #
       # @return [AdminManagement::CmsConfigurator::GetEntityDraft]
@@ -90,7 +90,7 @@ module AdminManagement
       def validate_entity_type
 
         return error_with_data(
-            'am_cc_get_vet_1',
+            'am_cc_ged_vet_1',
             'Data not found',
             'Invalid entity type',
             GlobalConstant::ErrorAction.default,
@@ -113,7 +113,7 @@ module AdminManagement
         @entity_group = EntityGroup.get_entity_group_from_memcache(@gid)
 
         return error_with_data(
-            'am_cc_gtet_fet_1',
+            'am_cc_ged_fed_1',
             'Invalid rquest parameters',
             'Invalid URL',
             GlobalConstant::ErrorAction.default,
@@ -122,29 +122,31 @@ module AdminManagement
 
 
         return error_with_data(
-            'am_cc_gtet_fet_2',
+            'am_cc_ged_fed_2',
             'This draft was deleted',
             'Invalid Draft Request',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @entity_group.status != GlobalConstant::EntityDraft.active_status
+        ) if @entity_group.status == GlobalConstant::EntityGroup.deleted_status
 
         group_entities = EntityGroupDraft.get_group_entities_from_memcache(@gid)
 
-        ApplicationMailer.notify(
-            to: GlobalConstant::Email.default_to,
-            body: 'Group Entities not found for the given group id',
-            data: {client_id: @client_id, admin_id: @admin_id, entity_type: @entity_type, group_id: @gid},
-            subject: "Exception::Something went wrong while Get Entity Group Draft request."
-        ).deliver if group_entities.blank?
+        if group_entities.blank?
+          ApplicationMailer.notify(
+              to: GlobalConstant::Email.default_to,
+              body: 'Group Entities not found for the given group id',
+              data: {client_id: @client_id, admin_id: @admin_id, entity_type: @entity_type, group_id: @gid},
+              subject: "Exception::Something went wrong while Get Entity Group Draft request."
+          ).deliver
 
-        return error_with_data(
-            'am_cc_rud_res_3',
-            'No Draft is present for this admin',
-            'Invalid Draft Request',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if group_entities.blank?
+          return error_with_data(
+              'am_cc_ged_fed_3',
+              'No Draft is present for this admin',
+              'Invalid Draft Request',
+              GlobalConstant::ErrorAction.default,
+              {}
+          )
+        end
 
         @entity_draft = EntityDraft.get_entity_draft_from_memcache(group_entities[@entity_type])
 

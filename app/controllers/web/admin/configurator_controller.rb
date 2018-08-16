@@ -13,14 +13,14 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Update configurator params
+  # Update configurator entity draft
   #
   # * Author: Aniket
   # * Date: 06/08/2018
   # * Reviewed By:
   #
-  def update_params
-    service_response = AdminManagement::CmsConfigurator::UpdateParams.new(params).perform
+  def update_entity_draft
+    service_response = AdminManagement::CmsConfigurator::UpdateEntityDraft.new(params).perform
     render_api_response(service_response)
   end
 

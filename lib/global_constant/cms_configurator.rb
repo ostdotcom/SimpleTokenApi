@@ -19,6 +19,18 @@ module GlobalConstant
         'validations'
       end
 
+      def element_key
+        'element'
+      end
+
+      def max_length_key
+        'max-length'
+      end
+
+      def max_key
+        'max'
+      end
+
       def value_color
         'color'
       end
@@ -41,6 +53,10 @@ module GlobalConstant
 
       def value_html
         'html'
+      end
+
+      def value_gradient
+        'gradient'
       end
 
       ######### YML keys and values end#############

@@ -26,6 +26,7 @@ module Util
     def perform
       nokogiri_html = Nokogiri::HTML(@html)
       is_valid_html = trigger_function(nokogiri_html)
+
       puts "is_valid_html : #{is_valid_html}"
       is_valid_html
     rescue
@@ -92,11 +93,11 @@ module Util
       false
     end
 
-    def valid_attributes?(ele_name, attributes)
-      ele_attributes = @attributes[ele_name.to_sym] || []
-      puts "ele_name : #{ele_name}\nelement_attributes : #{attributes.keys}\nattributes_required: #{ele_attributes}"
+    def valid_attributes?(ele_name, ele_attributes)
+      allowed_attributes = @attributes[ele_name.to_sym] || []
+      puts "ele_name : #{ele_name}\nelement_attributes : #{attributes.keys}\nattributes_required: #{allowed_attributes}"
 
-      (ele_attributes - attributes.keys).length == 0
+      (ele_attributes.keys - allowed_attributes).length == 0
     end
 
   end

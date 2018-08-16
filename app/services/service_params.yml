@@ -558,11 +558,11 @@
     - :id
   :optional:
 
-'AdminManagement::CmsConfigurator::UpdateEntity':
+'AdminManagement::CmsConfigurator::UpdateEntityDraft':
   :mandatory:
     - :admin_id
     - :client_id
-    - :id
+    - :gid
     - :uuid
     - :entity_type
     - :form_data

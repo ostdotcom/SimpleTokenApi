@@ -11,9 +11,11 @@ sale_timer_text_color:
   default_value: 'rgb(255,255,255)'
 
 sale_timer_background_gradient:
-  data_kind: 'text'
+  data_kind: 'array'
   validations:
     required: 1
+  element:
+    data_kind: 'gradient'
   default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 20}]
 
 dashboard_middle_banner_text_color:
@@ -70,7 +72,8 @@ ethereum_deposit_popup_checkboxes:
   validations:
     max_length: 10
     required: 0
-    element:
-      data_kind: 'html'
+  element:
+    data_kind: 'html'
+    validations:
       max_length: 200
   default_value: []

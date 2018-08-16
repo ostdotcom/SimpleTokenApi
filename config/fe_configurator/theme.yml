@@ -20,6 +20,8 @@ background_gradient:
   data_kind: 'array'
   validations:
     required: 1
+  element:
+    data_kind: 'gradient'
   default_value: [{color: "rgb(243,249,244)", gradient: 0}, {color: "rgb(255,255,255)", gradient: 20}]
 
 primary_button_text_color:

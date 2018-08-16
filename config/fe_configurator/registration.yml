@@ -2,6 +2,10 @@ policy_texts:
   data_kind: 'array'
   validations:
     required: 1
+  element:
+    data_kind: 'html'
+    validations:
+      max_length: 200
   default_value: ['By checking this box, you agree to our <a href="https://domain.com/terms-and-conditions.html"
                   title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a>
                   and acknowledge and consent to our <a href="https://domain.com/privacy.html"

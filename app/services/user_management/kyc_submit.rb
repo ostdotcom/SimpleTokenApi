@@ -17,7 +17,7 @@ module UserManagement
     # @params [String] last_name (mandatory) - last name
     # @params [String] birthdate (mandatory) - birth date
     # @params [String] country (mandatory) - country
-    # @params [String] ethereum_address (mandatory) - ethereum address
+    # @params [String] ethereum_address (optional) - ethereum address
     # @params [String] document_id_number (mandatory) - document_id number
     # @params [String] nationality (mandatory) - document_id country
     # @params [String] document_id_file_path (mandatory) - document_id file
@@ -47,7 +47,7 @@ module UserManagement
       @state = @params[:state]
       @country = @params[:country] # required and one of allowed
       @postal_code = @params[:postal_code]
-      @ethereum_address = @params[:ethereum_address] # required and regex
+      @ethereum_address = @params[:ethereum_address] # regex
       @document_id_number = @params[:document_id_number] # required
       @nationality = @params[:nationality] # required and one of allowed
       @document_id_file_path = @params[:document_id_file_path] # S3 Path of document_id File

@@ -212,12 +212,12 @@
     - :last_name
     - :birthdate
     - :country
-    - :ethereum_address
     - :document_id_number
     - :nationality
     - :document_id_file_path
     - :selfie_file_path
   :optional:
+    - :ethereum_address
     - :residence_proof_file_path
     - :street_address
     - :city

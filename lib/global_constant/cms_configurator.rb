@@ -24,7 +24,7 @@ module GlobalConstant
       end
 
       def max_length_key
-        'max-length'
+        'max_length'
       end
 
       def max_key

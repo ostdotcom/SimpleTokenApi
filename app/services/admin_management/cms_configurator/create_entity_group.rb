@@ -131,7 +131,7 @@ module AdminManagement
       #
       def success_response_data
         {
-          id: @entity_group.id,
+          gid: @entity_group.id,
           uuid: @entity_group.uuid
         }
       end

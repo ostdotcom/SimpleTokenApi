@@ -7,9 +7,11 @@ export STA_DEFAULT_DB_HOST="127.0.0.1"
 export STA_DEFAULT_AWS_REGION="us-east-1"
 export STA_KYC_S3_BUCKET_NAME='kyc.stagingsimpletoken.org'
 export STA_REPORTS_S3_BUCKET_NAME='reports.stagingsimpletoken.org'
+export STA_CLIENT_ASSETS_S3_BUCKET_NAME='cwa.ostkyc.com'
 export STA_LOGIN_KMS_ID="eab8148d-fd9f-451d-9eb9-16c115645635"
 export STA_KYC_KMS_ID="5734c3ab-c4ae-4424-a464-2253a4754296"
 export STA_ENTITY_ASSOC_ID="c9faf079-68b0-4186-8231-eb331fcd365d"
+export STA_CLIENT_ASSETS_CDN_URL="https://d27ixhmpjdysfk.cloudfront.net"
 
 export STA_USER_AWS_ACCESS_KEY="AKIAJUDRALNURKAVS5IQ"
 export STA_USER_AWS_SECRET_KEY="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"

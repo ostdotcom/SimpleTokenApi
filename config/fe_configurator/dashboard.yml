@@ -35,12 +35,14 @@ dashboard_middle_banner_title_text:
   data_kind: 'text'
   validations:
     required: 1
+    max_length: 50
   default_value: 'Set gas limit to 150,000'
 
 dashboard_middle_banner_body_text:
   data_kind: 'text'
   validations:
     required: 1
+    max_length: 100
   default_value: 'DO NOT USE Coinbase, Kraken or any other exchange to purchase ST. Minimum Purchase 0.1 ETH For more details.'
 
 dashboard_bottom_banner_text_color:
@@ -66,6 +68,7 @@ telegram_link:
   data_kind: 'text'
   validations:
     required: 0
+    max_length: 50
   default_value: 'https://t.me/ostdotcom'
 
 ethereum_deposit_popup_checkboxes:
@@ -76,5 +79,5 @@ ethereum_deposit_popup_checkboxes:
   element:
     data_kind: 'html'
     validations:
-      max_length: 200
+      max_length: 300
   default_value: []

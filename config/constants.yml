@@ -44,6 +44,7 @@ constants:
   s3:
     kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>
     report_bucket: <%= ENV['STA_REPORTS_S3_BUCKET_NAME']%>
+    client_assets_bucket: <%= ENV['STA_CLIENT_ASSETS_S3_BUCKET_NAME']%>
 
   local_path:
     geo_ip_file: <%= ENV['STA_GEOIP_FILE_WITH_PATH'] %>

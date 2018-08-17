@@ -59,13 +59,14 @@ module Aws
     # @return [Resul::Base]
     #
     def get_presigned_post_url_for(content_type, s3_path, bucket, options = {})
+      max_size = options[:max_size].present? ? options[:max_size] : (1024 * 1024 * 20)
       post_policy = {
           key: s3_path,
           content_type: content_type,
           signature_expiration: Time.now + 1800,
           server_side_encryption: 'aws:kms',
           server_side_encryption_aws_kms_key_id: key_id,
-          content_length_range: (1024 * 200)..(1024 * 1024 * 20) # allow max 20 MB and min 200 kb
+          content_length_range: (1024 * 200)..max_size # allow max 20 MB and min 200 kb
       }
 
       post = Aws::S3::PresignedPost.new(

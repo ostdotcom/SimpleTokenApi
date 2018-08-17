@@ -118,6 +118,7 @@ footer_text:
   data_kind: 'text'
   validations:
     required: 1
+    max_length: 100
   default_value: 'Copyright &copy; 2018 Company. All Rights Reserved. <a href="https://domain.com/terms-and-conditions.html"
                     title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> & <a href="https://domain.com/privacy.html"
                     title="Privacy Policy" target="_blank" rel="nofollow">Privacy Policy</a>'
@@ -126,6 +127,7 @@ terms_condition_link:
   data_kind: 'text'
   validations:
     required: 1
+    max_length: 50
   default_value: 'https://domain.com/terms-n-conditions.html'
 
 gtm_pixel_id:

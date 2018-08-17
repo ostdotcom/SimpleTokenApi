@@ -119,7 +119,7 @@ module GlobalConstant
       end
 
       def get_kyc_form_yml
-        @kyc_form_yml ||= YAML.load_file(open(Rails.root.to_s + '/config/fe_configurator/kyc_form.yml'))
+        @kyc_form_yml ||= YAML.load_file(open(Rails.root.to_s + '/config/fe_configurator/kyc.yml'))
 
       end
 

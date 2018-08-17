@@ -86,6 +86,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         ) if !@client.is_web_host_setup_done?
+        success
       end
 
       # Create Entity Group

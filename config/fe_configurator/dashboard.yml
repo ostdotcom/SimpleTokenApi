@@ -39,7 +39,7 @@ dashboard_middle_banner_title_text:
   default_value: 'Set gas limit to 150,000'
 
 dashboard_middle_banner_body_text:
-  data_kind: 'text'
+  data_kind: 'html'
   validations:
     required: 1
     max_length: 100
@@ -60,12 +60,12 @@ dashboard_bottom_banner_background:
 telegram_button_theme:
   data_kind: 'text'
   validations:
-    required: 1
+    required: 0
     includes: ['light', 'dark']
   default_value: 'light'
 
 telegram_link:
-  data_kind: 'text'
+  data_kind: 'link'
   validations:
     required: 0
     max_length: 50

@@ -101,6 +101,7 @@ module ClientManagement
     #
     # @return [Hash] hash of client's kyc setting
     #
+    # Note: This data is used in GlobalConstant::CmsConfigurator.get_client_blocked_fields
     def response_data
       {
           is_st_token_sale_client: @client.is_st_token_sale_client?,

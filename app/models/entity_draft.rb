@@ -48,6 +48,5 @@ class EntityDraft < EstablishSimpleTokenCustomizationDbConnection
   def memcache_flush
     admin_memcache_key = EntityDraft.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(admin_memcache_key)
-    GlobalConstant::CmsConfigurator.data_kind_key
   end
 end

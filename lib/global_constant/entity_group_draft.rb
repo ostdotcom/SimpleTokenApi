@@ -18,7 +18,7 @@ module GlobalConstant
         'dashboard'
       end
 
-      def kyc_form_entity_type
+      def kyc_entity_type
         'kyc'
       end
 
@@ -43,7 +43,7 @@ module GlobalConstant
       end
 
       def allowed_entity_types_from_fe
-        [theme_entity_type, registration_entity_type, kyc_form_entity_type, dashboard_entity_type]
+        [theme_entity_type, registration_entity_type, kyc_entity_type, dashboard_entity_type]
       end
 
 

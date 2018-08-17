@@ -23,7 +23,7 @@ module AdminManagement
 
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
-        @entity_type = @params[:entity_type]
+        @entity_type = @params[:entity_type].to_s.strip.downcase
         @gid = @params[:gid].to_i
         @uuid = @params[:uuid]
 
@@ -180,7 +180,7 @@ module AdminManagement
             (@admin.role == GlobalConstant::Admin.super_admin_role) ? 1 : 0
 
         {
-            entity_config: GlobalConstant::CmsConfigurator.get_entity_config_for_fe(@entity_type),
+            entity_config: GlobalConstant::CmsConfigurator.get_entity_config_for_fe(@entity_type, @client_settings.data),
             form_data: @entity_draft.data,
             rules: {
                 can_reset: can_reset,

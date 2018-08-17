@@ -7,7 +7,7 @@ class EntityGroupDraft < EstablishSimpleTokenCustomizationDbConnection
       GlobalConstant::EntityGroupDraft.reset_password_entity_type => 4,
       GlobalConstant::EntityGroupDraft.change_password_entity_type => 5,
       GlobalConstant::EntityGroupDraft.token_sale_blocked_region_entity_type => 6,
-      GlobalConstant::EntityGroupDraft.kyc_form_entity_type => 7,
+      GlobalConstant::EntityGroupDraft.kyc_entity_type => 7,
       GlobalConstant::EntityGroupDraft.dashboard_entity_type => 8,
       GlobalConstant::EntityGroupDraft.verification_entity_type => 9
   }

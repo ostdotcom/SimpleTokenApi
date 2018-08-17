@@ -23,7 +23,7 @@ module AdminManagement
 
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
-        @entity_type = @params[:entity_type]
+        @entity_type = @params[:entity_type].to_s.strip.downcase
         @gid = @params[:gid]
         @uuid = @params[:uuid]
 

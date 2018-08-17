@@ -7,7 +7,7 @@ company_logo:
 company_logo_size_percent:
   data_kind: 'number'
   validations:
-    required: 0
+    required: 1
   default_value: 15
 
 company_favicon:
@@ -115,19 +115,19 @@ footer_background_color:
   default_value: 'rgb(229,239,232)'
 
 footer_text:
-  data_kind: 'text'
+  data_kind: 'html'
   validations:
     required: 1
-    max_length: 100
+    max_length: 500
   default_value: 'Copyright &copy; 2018 Company. All Rights Reserved. <a href="https://domain.com/terms-and-conditions.html"
                     title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> & <a href="https://domain.com/privacy.html"
                     title="Privacy Policy" target="_blank" rel="nofollow">Privacy Policy</a>'
 
 terms_condition_link:
-  data_kind: 'text'
+  data_kind: 'link'
   validations:
     required: 1
-    max_length: 50
+    max_length: 100
   default_value: 'https://domain.com/terms-n-conditions.html'
 
 gtm_pixel_id:

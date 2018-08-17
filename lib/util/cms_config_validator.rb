@@ -30,6 +30,7 @@ module Util
 
           else
             puts 'unknown data_kind'
+          raise ""
         end
 
       end
@@ -60,8 +61,8 @@ module Util
 
         param = {
             elements:['a','br','u','i','b'],
-            attributes:{'a':['href','target']},
-            html:html_text
+            attributes:{'a':['href','target', 'rel']},
+            html: html_text
         }
         Util::HtmlSanitizer.new(param).perform
       end

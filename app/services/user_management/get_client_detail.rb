@@ -135,7 +135,7 @@ module UserManagement
         [
           GlobalConstant::EntityGroupDraft.theme_entity_type,
           GlobalConstant::EntityGroupDraft.registration_entity_type,
-          GlobalConstant::EntityGroupDraft.kyc_form_entity_type,
+          GlobalConstant::EntityGroupDraft.kyc_entity_type,
           GlobalConstant::EntityGroupDraft.dashboard_entity_type
         ]
       else

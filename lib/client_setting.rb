@@ -146,7 +146,7 @@ class ClientSetting
         ClientManagement::PageSetting::TokenSaleBlockedRegion
       when GlobalConstant::EntityGroupDraft.verification_entity_type
         ClientManagement::PageSetting::Verification
-      when GlobalConstant::EntityGroupDraft.kyc_form_entity_type
+      when GlobalConstant::EntityGroupDraft.kyc_entity_type
         ClientManagement::PageSetting::Kyc
       when GlobalConstant::EntityGroupDraft.dashboard_entity_type
         ClientManagement::PageSetting::Dashboard

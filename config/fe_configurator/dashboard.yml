@@ -16,7 +16,7 @@ sale_timer_background_gradient:
     required: 1
   element:
     data_kind: 'gradient'
-  default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 20}]
+  default_value: [{color: "rgb(145,192,173)", gradient: 0}, rgb(145,192,173)", gradient: 50}, rgb(145,192,173)", gradient: 51}, {color: "rgb(167,205,189)", gradient: 100}]
 
 dashboard_middle_banner_text_color:
   data_kind: 'color'
@@ -40,7 +40,7 @@ dashboard_middle_banner_body_text:
   data_kind: 'text'
   validations:
     required: 1
-  default_value: 'DO NOT USE Coinbase, Kraken or any other exchange to purchase ST. Minimum Purchase 0.1 ETH For more details, refer to this post.'
+  default_value: 'DO NOT USE Coinbase, Kraken or any other exchange to purchase ST. Minimum Purchase 0.1 ETH For more details.'
 
 dashboard_bottom_banner_text_color:
   data_kind: 'color'

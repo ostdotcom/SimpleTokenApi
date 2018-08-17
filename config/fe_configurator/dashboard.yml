@@ -16,7 +16,8 @@ sale_timer_background_gradient:
     required: 1
   element:
     data_kind: 'gradient'
-  default_value: [{color: "rgb(145,192,173)", gradient: 0}, rgb(145,192,173)", gradient: 50}, rgb(145,192,173)", gradient: 51}, {color: "rgb(167,205,189)", gradient: 100}]
+  default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(145,192,173)", gradient: 50},
+            {color: "rgb(145,192,173)", gradient: 51}, {color: "rgb(167,205,189)", gradient: 100}]
 
 dashboard_middle_banner_text_color:
   data_kind: 'color'

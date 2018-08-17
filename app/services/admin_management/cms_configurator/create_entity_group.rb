@@ -85,7 +85,7 @@ module AdminManagement
             'This client dose not have web_host setup.',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if !@client_id.is_web_host_setup_done?
+        ) if !@client.is_web_host_setup_done?
       end
 
       # Create Entity Group

@@ -26,22 +26,6 @@ class EntityGroupDraft < EstablishSimpleTokenCustomizationDbConnection
     MemcacheKey.new('customization.group_entities')
   end
 
-  # Get All Draft Ids of Entity Group Id
-  #
-  # * Author: Tejas
-  # * Date: 13/08/2018
-  # * Reviewed By:
-  #
-  # @return [Hash]
-  #
-  def self.get_all_draft_ids_of_entity_group_id(entity_group_id)
-    entity_drafts = {}
-    EntityGroupDraft.where(entity_group_id: entity_group_id).all.each do |egd|
-      entity_drafts[egd.entity_type] = egd.entity_draft_id
-    end
-    entity_drafts
-  end
-
   # Get/Set Active group entities from memcache for admin entity group draft
   #
   # * Author: Tejas
@@ -55,8 +39,15 @@ class EntityGroupDraft < EstablishSimpleTokenCustomizationDbConnection
   def self.get_group_entities_from_memcache(entity_group_id)
     memcache_key_object = EntityGroupDraft.get_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {entity_group_id: entity_group_id}, memcache_key_object.expiry) do
-      get_all_draft_ids_of_entity_group_id(entity_group_id)
+      EntityGroupDraft.where(entity_group_id: entity_group_id).index_by(&:entity_type)
     end
+  end
+
+  def self.get_group_entity_draft_ids_from_memcache(entity_group_id)
+    edg = get_group_entities_from_memcache(entity_group_id)
+    ed_type = {}
+    edg.each{|key, val| ed_type[key] = val.entity_draft_id}
+    ed_type
   end
 
   # Flush Memcache

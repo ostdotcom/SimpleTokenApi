@@ -127,7 +127,7 @@ module AdminManagement
             {}
         ) if (@entity_group.status != GlobalConstant::EntityGroup.incomplete_status)
 
-        entity_draft_ids_for_gid = EntityGroupDraft.get_group_entities_from_memcache(@gid).values
+        entity_draft_ids_for_gid = EntityGroupDraft.get_group_entity_draft_ids_from_memcache(@gid).values
 
         if entity_draft_ids_for_gid.blank?
           ApplicationMailer.notify(

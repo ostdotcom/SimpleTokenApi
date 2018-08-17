@@ -129,7 +129,7 @@ module AdminManagement
             {}
         ) if @entity_group.status == GlobalConstant::EntityGroup.deleted_status
 
-        group_entities = EntityGroupDraft.get_group_entities_from_memcache(@gid)
+        group_entities = EntityGroupDraft.get_group_entity_draft_ids_from_memcache(@gid)
 
         if group_entities.blank?
           ApplicationMailer.notify(

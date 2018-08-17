@@ -75,7 +75,7 @@ module ClientManagement
       #
       def fetch_group_entities
         if @entity_group_id.to_i > 0
-          @group_entities = EntityGroupDraft.get_group_entities_from_memcache(@entity_group_id)
+          @group_entities = EntityGroupDraft.get_group_entity_draft_ids_from_memcache(@entity_group_id)
         else
           fetch_client_published_entities
         end

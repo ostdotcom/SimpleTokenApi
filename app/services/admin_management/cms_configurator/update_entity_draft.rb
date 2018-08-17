@@ -28,7 +28,6 @@ module AdminManagement
         @uuid = @params[:uuid].to_s.strip
         @entity_type = @params[:entity_type].to_s.strip
         @form_data = @params[:form_data]
-
       end
 
       # Perform
@@ -44,7 +43,10 @@ module AdminManagement
         r = validate_and_sanitize
         return r unless r.success?
 
-        r = update_entity
+        fetch_entity_draft
+        fetch_entity_group_draft
+
+        r = update_entity_draft
         return r unless r.success?
 
         success_with_data({})
@@ -76,9 +78,6 @@ module AdminManagement
         r = fetch_and_validate_entity_group
         return r unless r.success?
 
-        r = fetch_and_validate_entity_draft
-        return r unless r.success?
-
         r = fetch_and_validate_form_data
         return r unless r.success?
 
@@ -94,7 +93,6 @@ module AdminManagement
       # Sets @entity_group
       #
       def validate_entity_type
-
         return error_with_data(
             'am_cc_ued_vet_1',
             'Data not found',
@@ -118,18 +116,19 @@ module AdminManagement
       def fetch_and_validate_entity_group
         @entity_group = EntityGroup.get_entity_group_from_memcache(@gid)
         if @entity_group
-          error_data = {}
-          error_data[:entity_group_client_id] = "client_id is not same for entity_group_id: #{@gid}" if @entity_group.client_id.to_i != @client_id
-          error_data[:entity_group_uuid] = "uuid is not same for entity_group_id: #{@gid}" if @entity_group.uuid.to_s != @uuid
-          error_data[:entity_group_status] = "Entity group status should be #{GlobalConstant::EntityGroup.incomplete_status}" if @entity_group.status != GlobalConstant::EntityGroup.incomplete_status
 
-          return error_with_data(
-              's_cc_ued_fave_1',
-              'invalid entity params',
-              "Entity group params not matching for gid: #{@gid}",
-              GlobalConstant::ErrorAction.default,
-              error_data
-          ) if error_data.present?
+          if (@entity_group.client_id.to_i != @client_id ||
+              @entity_group.uuid.to_s != @uuid ||
+              @entity_group.status != GlobalConstant::EntityGroup.incomplete_status)
+
+            return error_with_data(
+                's_cc_ued_fave_1',
+                'invalid entity params',
+                "Params not matching for gid: #{@gid}",
+                GlobalConstant::ErrorAction.default,
+                {}
+            )
+          end
 
           return success
         end
@@ -143,51 +142,15 @@ module AdminManagement
         )
       end
 
-      # Fetch and validate entity draft
-      #
-      # * Author: Aniket
-      # * Date: 07/08/2018
-      # * Reviewed By:
-      #
-      # Sets @entity_draft
-      #
-      def fetch_and_validate_entity_draft
-        entity_draft_id = EntityGroupDraft.get_all_draft_ids_of_entity_group_id(@gid)[@entity_type]
-        @entity_draft = EntityDraft.get_entity_draft_from_memcache(entity_draft_id)
-
-        return error_with_data(
-            's_cc_ued_fed_1',
-            'Entity draft not available',
-            "Entity draft not available for entity_draft_id: #{entity_draft_id}",
-            GlobalConstant::ErrorAction.default,
-            error_data
-        ) if @entity_draft.blank?
-
-        error_data = {}
-        error_data[:entity_draft_status] = "Entity draft status is invalid for entity draft: #{entity_draft_id}" if @entity_draft.status != GlobalConstant::EntityDraft.draft_status
-
-        return error_with_data(
-            's_cc_ue_fed_2',
-            'Entity group not available',
-            "Entity group not available for gid: #{@gid}",
-            GlobalConstant::ErrorAction.default,
-            error_data
-        ) if error_data.present?
-
-        success
-      end
-
       # Fetch and validate page yml
       #
       # * Author: Aniket
       # * Date: 07/08/2018
       # * Reviewed By:
       #
-      # Sets @page_yml
-      #
       def fetch_and_validate_form_data
         error_data = {}
-        fetch_entity_type_yml
+        @page_yml = GlobalConstant::CmsConfigurator.get_entity_config(@entity_type)
 
         @page_yml.each do |key, value|
           is_mandatory = value[GlobalConstant::CmsConfigurator.validations_key][GlobalConstant::CmsConfigurator.required_key].to_i
@@ -216,41 +179,76 @@ module AdminManagement
         success
       end
 
-      # Fetch page yml
+      # Fetch entity group draft
+      #
+      # * Author: Aniket
+      # * Date: 17/08/2018
+      # * Reviewed By:
+      #
+      # Sets @entity_draft
+      #
+      def fetch_entity_group_draft
+        @entity_group_draft = EntityGroupDraft.get_group_entities_from_memcache(@gid)[@entity_type]
+      end
+
+      # Fetch entity draft
       #
       # * Author: Aniket
       # * Date: 07/08/2018
       # * Reviewed By:
       #
-      # Sets @page_yml
+      # Sets @entity_draft
       #
-      def fetch_entity_type_yml
-        @page_yml = begin
-          case @entity_type
-            when GlobalConstant::EntityGroupDraft.kyc_form_entity_type
-              GlobalConstant::CmsConfigurator.get_kyc_form_yml
-
-            when GlobalConstant::EntityGroupDraft.dashboard_entity_type
-              GlobalConstant::CmsConfigurator.get_dashboard_yml
-
-            else
-              nil
-          end
-        end
+      def fetch_entity_draft
+        @entity_draft = EntityDraft.get_entity_draft_from_memcache(@entity_group_draft.entity_draft_id)
       end
 
-      # Update or create entity with page data
+      # Update or create entity draft with page data
       #
       # * Author: Aniket
       # * Date: 08/08/2018
       # * Reviewed By:
       #
-      def update_entity
-        @entity_draft.last_updated_admin_id = @admin_id
-        @entity_draft.data = @form_data
-        @entity_draft.save!
+      def update_entity_draft
+        if @entity_draft.status == GlobalConstant::EntityDraft.active_status
+          create_entity_draft
+          update_entity_group_draft
+        else
+          @entity_draft.last_updated_admin_id = @admin_id
+          @entity_draft.data = @form_data
+          @entity_draft.save!
+        end
 
         success
+      end
+
+      # Create entity draft with page data
+      #
+      # * Author: Aniket
+      # * Date: 17/08/2018
+      # * Reviewed By:
+      #
+      def create_entity_draft
+        params = {
+            client_id: @client_id,
+            last_updated_admin_id: @admin_id,
+            data: @form_data,
+            status: GlobalConstant::EntityDraft.draft_status
+        }
+
+        @entity_draft = EntityDraft.create!(params)
+
+      end
+
+      # Update entity group draft with page data
+      #
+      # * Author: Aniket
+      # * Date: 17/08/2018
+      # * Reviewed By:
+      #
+      def update_entity_group_draft
+        @entity_group_draft.entity_draft_id = @entity_draft.id
+        @entity_group_draft.save! if @entity_group_draft.changed?
       end
 
     end

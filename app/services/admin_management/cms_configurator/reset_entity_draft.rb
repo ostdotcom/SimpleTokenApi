@@ -156,7 +156,7 @@ module AdminManagement
             {}
         ) if @entity_draft.status == GlobalConstant::EntityDraft.deleted_status
 
-        published_entity_groups_draft_id = PublishedEntityGroup.get_published_entity_drafts_from_memcache(@client_id)[@entity_type]
+        published_entity_groups_draft_id = PublishedEntityGroup.fetch_published_draft_ids(@client_id)[@entity_type]
 
         if @entity_draft.status == GlobalConstant::EntityDraft.active_status
           return error_with_data(

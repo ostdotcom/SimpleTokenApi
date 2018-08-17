@@ -99,7 +99,3 @@ customization:
   group_entities:
         key_template: 'group_entities_%{entity_group_id}'
         expiry_in_seconds: 86400
-
-  client_published_entity_group:
-      key_template: 'published_group_%{client_id}'
-      expiry_in_seconds: 86400

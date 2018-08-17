@@ -49,25 +49,52 @@ class ClientSetting
   #
   # @return [Result::Base]
   #
-  def fetch_client_setting_data
+  def fetch_published_client_setting_data_from_memcache
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
     memcache_template_key = memcache_key_object.key_template % {client_id: @client_id, entity_type: @entity_type}
 
     r = Memcache.get_set_memcached(memcache_template_key, memcache_key_object.expiry) do
-
-      r = fetch_client_settings
-      return r unless r.success?
-
-      r = fetch_page_settings
-      return r unless r.success?
-
-      success_with_data(success_response_data)
+      fetch_client_and_page_settings
     end
 
     # clear memcache if r is error?
     Memcache.delete(memcache_template_key) unless r.success?
 
     return r
+  end
+
+  # Fetch client and page settings
+  #
+  # * Author: Pankaj
+  # * Date: 16/08/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def fetch_client_and_page_settings
+    r = fetch_client_settings
+    return r unless r.success?
+
+    r = fetch_page_settings
+    return r unless r.success?
+
+    success_with_data(success_response_data)
+  end
+
+  # Fetch clients settings data
+  #
+  # * Author: Pankaj
+  # * Date: 16/08/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def fetch_client_setting_data
+    if @entity_group_id.to_i > 0
+      fetch_client_and_page_settings
+    else
+      fetch_published_client_setting_data_from_memcache
+    end
   end
 
   # Fetch clients Sale setting data
@@ -150,13 +177,12 @@ class ClientSetting
   # * Reviewed By:
   #
   # @param [Integer] client_id (mandatory) - client id
-  # @param [Array] templates_to_flush (optional) - template types to flush
   #
   # @return [Hash] hash of client settings data
   #
-  def self.flush_memcache_key_for_entity_types_of_client(client_id, templates_to_flush= GlobalConstant::ClientTemplate.page_specific_entity_types)
+  def self.flush_client_Settings_cache(client_id)
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
-    templates_to_flush.each do |entity_type|
+    EntityGroupDraft.entity_types.each_key do |entity_type|
       memcache_template_key = memcache_key_object.key_template % {client_id: client_id, entity_type: entity_type}
       Memcache.delete(memcache_template_key)
     end

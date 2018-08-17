@@ -107,7 +107,7 @@ module AdminManagement
             status: GlobalConstant::EntityGroup.incomplete_status
         )
 
-        published_entity_group_id_to_draft_id_hash = PublishedEntityGroup.get_published_entity_drafts_from_memcache(@client_id)
+        published_entity_group_id_to_draft_id_hash = PublishedEntityGroup.fetch_published_draft_ids(@client_id)
 
         published_entity_group_id_to_draft_id_hash.each do |entity_type, draft_id|
 

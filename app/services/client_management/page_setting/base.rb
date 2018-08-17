@@ -90,7 +90,7 @@ module ClientManagement
       # Sets @group_entities
       #
       def fetch_client_published_entities
-        @group_entities = PublishedEntityGroup.get_published_entity_drafts_from_memcache(@client_id)
+        @group_entities = PublishedEntityGroup.fetch_published_draft_ids(@client_id)
       end
 
       #  Fetch theme entity from published entity

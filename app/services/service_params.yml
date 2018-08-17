@@ -172,7 +172,6 @@
   :mandatory:
     - :client_id
     - :admin_id
-    - :entity_type
     - :gid
     - :uuid
   :optional:

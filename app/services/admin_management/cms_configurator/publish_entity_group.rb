@@ -12,7 +12,6 @@ module AdminManagement
       #
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] admin_id (mandatory) - logged in admin's id
-      # @params [String] entity_type (mandatory) - entity type
       # @params [Integer] gid (mandatory) - id of the entity_group table
       # @params [Integer] uuid (mandatory) - uuid of the admin
       #
@@ -23,7 +22,6 @@ module AdminManagement
 
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
-        @entity_type = @params[:entity_type]
         @gid = @params[:gid]
         @uuid = @params[:uuid]
 
@@ -45,7 +43,7 @@ module AdminManagement
         r = publish_entity_group
         return r unless r.success?
 
-        success_with_data(success_response_data)
+        success_with_data({})
 
       end
 
@@ -68,31 +66,6 @@ module AdminManagement
 
         r = fetch_and_validate_admin
         return r unless r.success?
-
-        r = validate_entity_type
-        return r unless r.success?
-
-        success
-      end
-
-      # Validate Entity Type
-      #
-      # * Author: Tejas
-      # * Date: 14/08/2018
-      # * Reviewed By:
-      #
-      # @return [Result::Base]
-      #
-
-      def validate_entity_type
-
-        return error_with_data(
-            'am_cc_peg_vet_1',
-            'Data not found',
-            'Invalid entity type',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if GlobalConstant::EntityGroupDraft.allowed_entity_types_from_fe.exclude?(@entity_type)
 
         success
       end
@@ -122,7 +95,7 @@ module AdminManagement
         return error_with_data(
             'am_cc_peg_peg_2',
             'Cannot publish this group',
-            'Invalid Draft Request',
+            'Cannot publish this group',
             GlobalConstant::ErrorAction.default,
             {}
         ) if (@entity_group.status != GlobalConstant::EntityGroup.incomplete_status)
@@ -133,7 +106,7 @@ module AdminManagement
           ApplicationMailer.notify(
               to: GlobalConstant::Email.default_to,
               body: 'Group Entities not found for the given group id',
-              data: {client_id: @client_id, admin_id: @admin_id, entity_type: @entity_type, group_id: @gid},
+              data: {client_id: @client_id, admin_id: @admin_id, group_id: @gid},
               subject: "Exception::Something went wrong while Get Entity Group Draft request."
           ).deliver
 
@@ -156,20 +129,6 @@ module AdminManagement
 
         success
 
-      end
-
-      # Api response data
-      #
-      # * Author: Tejas
-      # * Date: 14/08/2018
-      # * Reviewed By:
-      #
-      # returns [Hash] api response data
-      #
-      def success_response_data
-        {
-
-        }
       end
 
     end

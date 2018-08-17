@@ -45,7 +45,7 @@ module AdminManagement
         r = reset_entity_draft
         return r unless r.success?
 
-        success_with_data(success_response_data)
+        success_with_data({})
 
       end
 
@@ -121,8 +121,8 @@ module AdminManagement
 
         return error_with_data(
             'am_cc_red_red_2',
-            'This draft was Active',
-            'Invalid Draft Request',
+            'Active group draft cannot be reset.',
+            'Active group draft cannot be reset.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if @entity_group.status != GlobalConstant::EntityGroup.incomplete_status
@@ -132,7 +132,7 @@ module AdminManagement
         if entity_group_draft.blank?
           ApplicationMailer.notify(
               to: GlobalConstant::Email.default_to,
-              body: 'Entitie Group draft not found for the given group id',
+              body: 'Entity Group draft not found for the given group and entity type',
               data: {client_id: @client_id, admin_id: @admin_id, entity_type: @entity_type, group_id: @gid},
               subject: "Exception::Something went wrong while Get Entity Group Draft request."
           ).deliver
@@ -154,46 +154,17 @@ module AdminManagement
             'Invalid Draft Request',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @entity_draft.status == GlobalConstant::EntityDraft.deleted_status
+        ) if @entity_draft.blank? || @entity_draft.status == GlobalConstant::EntityDraft.deleted_status
 
         published_entity_groups_draft_id = PublishedEntityGroup.fetch_published_draft_ids(@client_id)[@entity_type]
 
-        if @entity_draft.status == GlobalConstant::EntityDraft.active_status
-          return error_with_data(
-              'am_cc_red_red_4',
-              'This draft is already reset.',
-              'IThis draft is already reset.',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if published_entity_groups_draft_id == @entity_draft.id
+        entity_group_draft.entity_draft_id = published_entity_groups_draft_id
+        entity_group_draft.save!
 
-          entity_group_draft.entity_draft_id = published_entity_groups_draft_id
-          entity_group_draft.save!
-
-        else
-          entity_group_draft.entity_draft_id = published_entity_groups_draft_id
-          entity_group_draft.save!
-
-          @entity_draft.status = GlobalConstant::EntityGroup.deleted_status
-          @entity_draft.last_updated_admin_id = @admin_id
-          @entity_draft.save!
-        end
+        @entity_draft.update(status: GlobalConstant::EntityGroup.deleted_status,
+                             last_updated_admin_id: @admin_id) if @entity_draft.status == GlobalConstant::EntityDraft.draft_status
 
         success
-      end
-
-      # Api response data
-      #
-      # * Author: Tejas
-      # * Date: 14/08/2018
-      # * Reviewed By:
-      #
-      # returns [Hash] api response data
-      #
-      def success_response_data
-        {
-
-        }
       end
 
     end

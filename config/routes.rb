@@ -115,9 +115,9 @@ Rails.application.routes.draw do
       match 'upload-params' => :get_image_upload_params, via: :GET
       match ':entity_type/update' => :update_entity_draft, via: :POST
       match ':entity_type/config' => :get_draft_config, via: :GET
-      match 'reset' => :reset_entity_draft, via: :POST
-      match 'publish' => :publish_entity_group, via: :POST
-      match 'create' => :create_entity_group, via: :POST
+      match ':entity_type/reset' => :reset_entity_draft, via: :POST
+      match 'publish-group' => :publish_entity_group, via: :POST
+      match 'create-group' => :create_entity_group, via: :POST
     end
 
     scope 'api/admin/preview', controller: 'web/admin/user_preview' do

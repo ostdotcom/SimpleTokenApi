@@ -19,6 +19,12 @@ sale_timer_background_gradient:
   default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(145,192,173)", gradient: 50},
             {color: "rgb(145,192,173)", gradient: 51}, {color: "rgb(167,205,189)", gradient: 100}]
 
+dashboard_middle_banner_link_color:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(228,176,48)'
+
 dashboard_middle_banner_text_color:
   data_kind: 'color'
   validations:
@@ -55,7 +61,7 @@ dashboard_bottom_banner_background:
   data_kind: 'color'
   validations:
     required: 1
-  default_value: '#aee1e3'
+  default_value: 'rgb(174,225,227)'
 
 telegram_button_theme:
   data_kind: 'text'

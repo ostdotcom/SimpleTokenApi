@@ -68,10 +68,10 @@ module UserManagement
     def user_kyc_data
       {
         user_id: @user.id,
-        kyc_status: GlobalConstant::UserKycDetail.kyc_pending_status,
+        kyc_status: GlobalConstant::UserKycDetail.kyc_approved_status,
         admin_action_types: [],
         token_sale_participation_phase: GlobalConstant::TokenSale.early_access_token_sale_phase,
-        whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+        whitelist_status: GlobalConstant::UserKycDetail.done_whitelist_status
       }
     end
 

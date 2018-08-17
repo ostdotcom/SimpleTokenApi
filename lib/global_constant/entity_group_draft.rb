@@ -19,7 +19,7 @@ module GlobalConstant
       end
 
       def kyc_form_entity_type
-        'kyc-form'
+        'kyc'
       end
 
       def login_entity_type

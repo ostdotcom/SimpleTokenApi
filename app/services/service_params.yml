@@ -144,6 +144,12 @@
     - :filters
     - :sortings
 
+'AdminManagement::CmsConfigurator::GetUploadParams':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :images
+
 'AdminManagement::CmsConfigurator::GetEntityDraft':
   :mandatory:
     - :client_id
@@ -175,6 +181,16 @@
   :mandatory:
     - :client_id
     - :admin_id
+  :optional:
+
+'AdminManagement::CmsConfigurator::UpdateEntityDraft':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :gid
+    - :uuid
+    - :entity_type
+    - :form_data
   :optional:
 
 'UserManagement::SignUp':
@@ -574,16 +590,6 @@
     - :admin_id
     - :client_id
     - :id
-  :optional:
-
-'AdminManagement::CmsConfigurator::UpdateEntityDraft':
-  :mandatory:
-    - :admin_id
-    - :client_id
-    - :gid
-    - :uuid
-    - :entity_type
-    - :form_data
   :optional:
 
 #'AdminManagement::Kyc::Dashboard::Whitelist':

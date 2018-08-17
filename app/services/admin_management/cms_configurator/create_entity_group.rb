@@ -80,7 +80,7 @@ module AdminManagement
       #
       def validate_client_web_host
         return error_with_data(
-            'am_cc_ceg_vcwh_4',
+            'am_cc_ceg_vcwh_1',
             'This client dose not have web_host setup.',
             'This client dose not have web_host setup.',
             GlobalConstant::ErrorAction.default,

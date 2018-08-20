@@ -298,15 +298,20 @@ module AdminManagement
         success
       end
 
-      def basic_validations(text, validations)
-        max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
-        return "Length cannot be more than #{max_length}" if max_length && text.length > max_length
+      def basic_validations(entity_value, validations)
+        if entity_value.is_a?(Array)
+          max_count = validations[GlobalConstant::CmsConfigurator.max_count_key]
+          return "Entities cannot be more than #{max_count}" if max_count && entity_value.length > max_count
+        else
+          max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
+          return "Length cannot be more than #{max_length}" if max_length && entity_value.length > max_length
+        end
 
         min_length = validations[GlobalConstant::CmsConfigurator.min_length_key]
-        return "Length cannot be less than #{min_length}" if min_length && text.length < min_length
+        return "Length cannot be less than #{min_length}" if min_length && entity_value.length < min_length
 
         includes_validation = validations[GlobalConstant::CmsConfigurator.includes_key]
-        return "Entered Value is not allowed" if includes_validation && includes_validation.include?(text)
+        return "Entered Value is not allowed" if includes_validation && includes_validation.include?(entity_value)
 
         ""
       end

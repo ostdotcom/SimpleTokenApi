@@ -19,15 +19,21 @@ module Util
       @elements = params[:elements] ||= []
       @attributes = params[:attributes] ||= {} #{'a': ['href', 'target']}
       @html = params[:html]
-
-      @elements |= ['html', 'p', 'body']
     end
 
     def perform
-      nokogiri_html = Nokogiri::HTML(@html)
-      trigger_function(nokogiri_html)
+      nokogiri_html = Nokogiri::HTML.fragment(@html) do |config|
+        config.options = Nokogiri::XML::ParseOptions::STRICT
+      end
+
+      if nokogiri_html.errors.length > 0
+        noko_error = nokogiri_html.errors.first
+        return noko_error.message.gsub("#{noko_error.line}:#{noko_error.column}: ERROR: ","")
+      else
+        return trigger_function(nokogiri_html)
+      end
     rescue
-      "Error occored while converting html : #{@html}"
+      "Error occurred while converting html."
     end
 
 
@@ -35,6 +41,9 @@ module Util
 
       if obj.class == Nokogiri::HTML::Document
         return trigger_function(obj.children)
+
+      elsif obj.class == Nokogiri::HTML::DocumentFragment
+          return trigger_function(obj.children)
 
       elsif obj.class == Nokogiri::XML::DTD
         return ""
@@ -62,10 +71,8 @@ module Util
 
     def valid_nodeset?(node_set)
       node_set.each_with_index do |obj, index|
-        puts "index : #{index} and obj : #{obj}"
         error_text = trigger_function(obj)
         if error_text.present?
-          puts "returning false for #{obj}"
           return error_text
         end
       end

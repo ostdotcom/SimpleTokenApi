@@ -42,6 +42,10 @@ module GlobalConstant
         'min_length'
       end
 
+      def max_count_key
+        'max_count'
+      end
+
       def includes_key
         'includes'
       end

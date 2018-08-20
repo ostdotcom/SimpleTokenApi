@@ -134,7 +134,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         ) if (@entity_group.client_id.to_i != @client_id || @entity_group.uuid.to_s != @uuid ||
-            @entity_group.status != GlobalConstant::EntityGroup.deleted_status)
+            @entity_group.status != GlobalConstant::EntityGroup.incomplete_status)
 
         return error_with_data(
             's_cc_ued_fave_3',

@@ -31,6 +31,7 @@ module AdminManagement
 
         @entity_group, @entity_group_draft, @entity_draft = nil, nil, nil
         @client_settings = nil
+        @store_data = {}
       end
 
       # Perform
@@ -181,6 +182,7 @@ module AdminManagement
               next
             end
 
+            is_valid = false
             data_kind = value[GlobalConstant::CmsConfigurator.data_kind_key]
             case data_kind
               when GlobalConstant::CmsConfigurator.value_color
@@ -194,6 +196,8 @@ module AdminManagement
                 if error_text.present?
                   error_data[key.to_sym] = error_text
                   have_error  = true
+                else
+                  is_valid = true
                 end
 
               when GlobalConstant::CmsConfigurator.value_html
@@ -201,6 +205,8 @@ module AdminManagement
                 if error_text.present?
                   error_data[key.to_sym] = error_text
                   have_error  = true
+                else
+                  is_valid = true
                 end
 
 
@@ -239,6 +245,8 @@ module AdminManagement
                       if error_text.present?
                         error_data[key.to_sym][index] = error_text
                         have_error  = true
+                      else
+                        is_valid = true
                       end
 
                     when GlobalConstant::CmsConfigurator.value_html
@@ -246,6 +254,8 @@ module AdminManagement
                       if error_text.present?
                         error_data[key.to_sym][index] = error_text
                         have_error  = true
+                      else
+                        is_valid = true
                       end
 
                     when GlobalConstant::CmsConfigurator.value_gradient
@@ -267,6 +277,7 @@ module AdminManagement
                 end
 
             end
+            @store_data[key.to_sym] = form_text if is_valid
           end
         end
 
@@ -374,7 +385,7 @@ module AdminManagement
           update_entity_group_draft
         else
           @entity_draft.last_updated_admin_id = @admin_id
-          @entity_draft.data = @form_data
+          @entity_draft.data = @store_data
           @entity_draft.save!
         end
 
@@ -391,7 +402,7 @@ module AdminManagement
         params = {
             client_id: @client_id,
             last_updated_admin_id: @admin_id,
-            data: @form_data,
+            data: @store_data,
             status: GlobalConstant::EntityDraft.draft_status
         }
 

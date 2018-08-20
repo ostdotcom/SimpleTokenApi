@@ -100,3 +100,9 @@ constants:
   kyc_app:
     shared_directory: <%= ENV['APP_SHARED_DIRECTORY'] %>
     addendum_client_ids: <%= ENV['ADDENDUM_CLIENT_IDS'] %>
+
+  kyc_api_base_domain:
+    development: "http://kyc.developmentost.com:8080"
+    staging: "https://kyc.stagingost.com"
+    sandbox: "https://kyc.sandboxost.com"
+    production: "https://kyc.ost.com"

@@ -1,6 +1,6 @@
 class Web::Admin::ConfiguratorController < Web::Admin::BaseController
 
-  before_action only: [:publish_entity_group] do
+  before_action only: [:publish_entity_group, :fetch_published_version] do
     authenticate_request(true)
   end
 
@@ -69,6 +69,28 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   #
   def create_entity_group
     service_response = AdminManagement::CmsConfigurator::CreateEntityGroup.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Index
+  #
+  # * Author: Tejas
+  # * Date: 14/08/2018
+  # * Reviewed By:
+  #
+  def index
+    service_response = AdminManagement::CmsConfigurator::Index.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Fetch Published Version
+  #
+  # * Author: Tejas
+  # * Date: 14/08/2018
+  # * Reviewed By:
+  #
+  def fetch_published_version
+    service_response = AdminManagement::CmsConfigurator::FetchPublishedVersion.new(params).perform
     render_api_response(service_response)
   end
 

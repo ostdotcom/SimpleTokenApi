@@ -192,6 +192,25 @@
     - :form_data
   :optional:
 
+'AdminManagement::CmsConfigurator::Index':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+'AdminManagement::CmsConfigurator::GetPublishedDraft':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'AdminManagement::CmsConfigurator::FetchPublishedVersion':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :api_key
+    - :api_secret
+  :optional:
+
 'UserManagement::SignUp':
   :mandatory:
     - :client_id
@@ -422,6 +441,7 @@
     - :request_time
     - :url_path
     - :request_parameters
+    - :allow_web_based_client
   :optional:
 
 'ClientManagement::GetClientSetting':

@@ -15,6 +15,7 @@ module ClientManagement
     # @param [String] request_time (mandatory) - request time in rfc3339 format -> '2016-02-18T16:40:50+05:30'
     # @param [String] url_path (mandatory) - path of request url
     # @param [Hash] request_parameters (mandatory) - request parameters
+    # @param [Boolean] allow_web_based_client (mandatory) - validate web based clients
     #
     # @return [ClientManagement::VerifyApiCredential]
     #
@@ -26,6 +27,7 @@ module ClientManagement
       @request_time = @params[:request_time]
       @url_path = @params[:url_path]
       @request_parameters = @params[:request_parameters]
+      @allow_web_based_client = @params[:allow_web_based_client]
 
       @parsed_request_time = nil
       @api_secret_d = nil
@@ -115,7 +117,8 @@ module ClientManagement
     def validate_client
 
       return invalid_credentials_response('um_vac_2') unless @client.present? &&
-          @client.status == GlobalConstant::Client.active_status && !@client.is_web_host_setup_done?
+          @client.status == GlobalConstant::Client.active_status &&
+          (@allow_web_based_client || !@client.is_web_host_setup_done?)
 
       return invalid_credentials_response('um_vac_3') if @client.is_st_token_sale_client?
 
@@ -129,7 +132,12 @@ module ClientManagement
           {}
       ) unless r.success?
 
+      puts "generate_signature : #{generate_signature}"
+      puts "@signature : #{@signature}"
+
       return invalid_credentials_response('um_vac_5') unless generate_signature == @signature
+
+      puts "@allow_web_based_client : #{@allow_web_based_client}"
 
       success
     end

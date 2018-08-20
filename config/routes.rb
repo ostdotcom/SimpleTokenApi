@@ -44,6 +44,10 @@ Rails.application.routes.draw do
       match 'get-detail' => :get_detail, via: :GET
     end
 
+    scope 'api/v1/setting', controller: 'rest_api/saas_api/setting' do
+      match 'configurator/get-published-draft' => :get_published_draft, via: :GET
+    end
+
     scope 'api/admin', controller: 'web/admin/login' do
       match 'login' => :password_auth, via: :POST
       match 'get-ga-url' => :get_ga_url, via: :GET
@@ -112,12 +116,17 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do
+      match '/' => :index, via: :GET
       match 'upload-params' => :get_image_upload_params, via: :GET
       match ':entity_type/update' => :update_entity_draft, via: :POST
       match ':entity_type/config' => :get_draft_config, via: :GET
       match ':entity_type/reset' => :reset_entity_draft, via: :POST
       match 'publish-group' => :publish_entity_group, via: :POST
       match 'create-group' => :create_entity_group, via: :POST
+    end
+
+    scope 'api/admin/configurator', controller: 'web/admin/configurator' do
+      match 'fetch-published-version' => :fetch_published_version, via: :GET
     end
 
     scope 'api/admin/preview', controller: 'web/admin/user_preview' do

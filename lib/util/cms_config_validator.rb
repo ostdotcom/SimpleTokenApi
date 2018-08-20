@@ -22,7 +22,7 @@ module Util
       def validate_html(html_text)
         param = {
             elements:['a','br','u','i','b'],
-            attributes:{'a':['href','target', 'rel']},
+            attributes:{'a':['href','target', 'rel', 'title']},
             html: html_text
         }
         Util::HtmlSanitizer.new(param).perform

@@ -230,11 +230,9 @@ module AdminManagement
                 ele_validations = element[GlobalConstant::CmsConfigurator.validations_key]
 
                 form_text.each_with_index do |obj, index|
-                  error_data[key.to_sym] = [] if error_data[key.to_sym].blank?
-
                   err_msg = basic_validations(obj,ele_validations)
                   if err_msg.present?
-                    error_data[key.to_sym][index] = err_msg
+                    error_data["#{key.to_sym}[#{index}]"] = err_msg
                     have_error  = true
                     next
                   end
@@ -243,7 +241,7 @@ module AdminManagement
                     when GlobalConstant::CmsConfigurator.value_text
                       error_text = Util::CmsConfigValidator.validate_text(obj)
                       if error_text.present?
-                        error_data[key.to_sym][index] = error_text
+                        error_data["#{key.to_sym}[#{index}]"] = error_text
                         have_error  = true
                       else
                         is_valid = true
@@ -252,26 +250,25 @@ module AdminManagement
                     when GlobalConstant::CmsConfigurator.value_html
                       error_text = Util::CmsConfigValidator.validate_html(obj)
                       if error_text.present?
-                        error_data[key.to_sym][index] = error_text
+                        error_data["#{key.to_sym}[#{index}]"] = error_text
                         have_error  = true
                       else
                         is_valid = true
                       end
 
                     when GlobalConstant::CmsConfigurator.value_gradient
-                      error_data[key.to_sym][index] = {} if error_data[key.to_sym][index].blank?
 
                       gradient = obj[GlobalConstant::CmsConfigurator.value_gradient]
-                      is_valid = Util::CmsConfigValidator.validate_number(gradient)
-                      if !is_valid
-                        error_data[key.to_sym][index][GlobalConstant::CmsConfigurator.value_gradient] = "Invalid number passed."
-                        have_error  = true
-                      end
+                      is_gradient_valid = Util::CmsConfigValidator.validate_number(gradient)
+
                       color = obj[GlobalConstant::CmsConfigurator.value_color]
-                      is_valid = Util::CmsConfigValidator.validate_color(color)
-                      if !is_valid
-                        error_data[key.to_sym][index][GlobalConstant::CmsConfigurator.value_color] = "Invalid color passed."
+                      is_color_valid = Util::CmsConfigValidator.validate_color(color)
+
+                      if !is_gradient_valid || !is_color_valid
+                        error_data["#{key.to_sym}[#{index}]"] = "Invalid color/gradient passed."
                         have_error  = true
+                      else
+                        is_valid = true
                       end
                   end
                 end

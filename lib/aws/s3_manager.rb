@@ -88,13 +88,13 @@ module Aws
     #
     # @return [Resul::Base]
     #
-    def get_presigned_post_url_for_client_assets(content_type, s3_path, bucket)
+    def get_presigned_post_url_for_client_assets(content_type, s3_path, bucket, content_length_range)
       post_policy = {
           key: s3_path,
           content_type: content_type,
           signature_expiration: Time.now + 1800,
           acl: 'public-read',
-          content_length_range: (1024 * 50)..(1024 * 1024 * 2) # allow max 2 MB and min 50 kb
+          content_length_range: content_length_range
       }
 
       post = Aws::S3::PresignedPost.new(

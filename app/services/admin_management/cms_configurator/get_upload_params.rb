@@ -43,8 +43,9 @@ module AdminManagement
         # NOTE:: path should contain only [a-z A-Z 0-9 /] character sets
         @images.each do |k, v|
           content_type = v
-          key = "c_assets/#{@client.id}/#{Time.now.to_i}-logo.#{content_type.split('/')[1]}"
-          @upload_params[k] = get_upload_params_for(content_type, key)
+          k_n = k.split("_")[1]
+          key = "c_assets/#{Rails.env[0..2]}/#{@client.name.gsub(" ", "-")}/#{Time.now.to_i}-#{k_n}.#{content_type.split('/')[1]}"
+          @upload_params[k] = get_upload_params_for(content_type, key, get_content_length_range(k))
         end
 
         success_with_data(@upload_params)
@@ -105,12 +106,34 @@ module AdminManagement
       #
       # @return [Hash]
       #
-      def get_upload_params_for(content_type, key)
+      def get_upload_params_for(content_type, key, content_length_range)
 
         post = Aws::S3Manager.new('login', 'admin').get_presigned_post_url_for_client_assets(content_type, key,
-                                                                             GlobalConstant::Aws::Common.client_assets_bucket)
+                                                                             GlobalConstant::Aws::Common.client_assets_bucket,
+                                                                                             content_length_range)
 
         {url: post.url, fields: post.fields}
+      end
+
+      # get_content_length_range
+      #
+      # * Author: Pankaj
+      # * Date: 20/08/2018
+      # * Reviewed By:
+      #
+      # @param [String] entity_key
+      #
+      # @return [Range]
+      #
+      def get_content_length_range(entity_key)
+        case entity_key
+          when GlobalConstant::CmsConfigurator.company_logo_key
+            (1024 * 50)..(1024 * 1024 * 2) # allow max 2 MB and min 50 kb
+          when GlobalConstant::CmsConfigurator.company_favicon_key
+            (1024 * 2)..(1024 * 200) # allow max 200 kb and min 2 kb
+          else
+            raise "Invalid key"
+        end
       end
 
     end

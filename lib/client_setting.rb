@@ -180,7 +180,7 @@ class ClientSetting
   #
   # @return [Hash] hash of client settings data
   #
-  def self.flush_client_Settings_cache(client_id)
+  def self.flush_client_settings_cache(client_id)
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
     EntityGroupDraft.entity_types.each_key do |entity_type|
       memcache_template_key = memcache_key_object.key_template % {client_id: client_id, entity_type: entity_type}

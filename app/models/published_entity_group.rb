@@ -28,6 +28,6 @@ class PublishedEntityGroup < EstablishSimpleTokenCustomizationDbConnection
   # * Reviewed By:
   #
   def clear_client_settings_cache
-    ClientSetting.flush_client_Settings_cache(self.client_id)
+    ClientSetting.flush_client_settings_cache(self.client_id)
   end
 end

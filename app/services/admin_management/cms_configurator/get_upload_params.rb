@@ -43,7 +43,7 @@ module AdminManagement
         # NOTE:: path should contain only [a-z A-Z 0-9 /] character sets
         @images.each do |k, v|
           content_type = v
-          key = "c_assets/#{@client.name}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
+          key = "c_assets/#{@client.id}/#{Time.now.to_i}-logo.#{content_type.split('/')[1]}"
           @upload_params[k] = get_upload_params_for(content_type, key)
         end
 
@@ -107,9 +107,8 @@ module AdminManagement
       #
       def get_upload_params_for(content_type, key)
 
-        post = Aws::S3Manager.new('login', 'admin').get_presigned_post_url_for(content_type, key,
-                                                                             GlobalConstant::Aws::Common.client_assets_bucket,
-                                                                             {max_size: (1024*1024*2)})
+        post = Aws::S3Manager.new('login', 'admin').get_presigned_post_url_for_client_assets(content_type, key,
+                                                                             GlobalConstant::Aws::Common.client_assets_bucket)
 
         {url: post.url, fields: post.fields}
       end

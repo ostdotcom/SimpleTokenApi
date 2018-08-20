@@ -59,14 +59,42 @@ module Aws
     # @return [Resul::Base]
     #
     def get_presigned_post_url_for(content_type, s3_path, bucket, options = {})
-      max_size = options[:max_size].present? ? options[:max_size] : (1024 * 1024 * 20)
       post_policy = {
           key: s3_path,
           content_type: content_type,
           signature_expiration: Time.now + 1800,
           server_side_encryption: 'aws:kms',
           server_side_encryption_aws_kms_key_id: key_id,
-          content_length_range: (1024 * 200)..max_size # allow max 20 MB and min 200 kb
+          content_length_range: (1024 * 200)..(1024 * 1024 * 20) # allow max 20 MB and min 200 kb
+      }
+
+      post = Aws::S3::PresignedPost.new(
+          credentials_obj,
+          region,
+          bucket,
+          post_policy
+      )
+    end
+
+    # Get signed url for
+    #
+    # * Author: Pankaj
+    # * Date: 16/10/2018
+    # * Reviewed By:
+    #
+    # @param [String] content_type - upload file content type
+    # @param [String] s3_path - upload file path in bucket
+    # @param [String] bucket - upload bucket
+    #
+    # @return [Resul::Base]
+    #
+    def get_presigned_post_url_for_client_assets(content_type, s3_path, bucket)
+      post_policy = {
+          key: s3_path,
+          content_type: content_type,
+          signature_expiration: Time.now + 1800,
+          acl: 'public-read',
+          content_length_range: (1024 * 50)..(1024 * 1024 * 2) # allow max 2 MB and min 50 kb
       }
 
       post = Aws::S3::PresignedPost.new(

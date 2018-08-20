@@ -46,6 +46,10 @@ module GlobalConstant
         'max_count'
       end
 
+      def min_count_key
+        'min_count'
+      end
+
       def includes_key
         'includes'
       end
@@ -60,10 +64,6 @@ module GlobalConstant
 
       def value_text
         'text'
-      end
-
-      def value_file
-        'file'
       end
 
       def value_number
@@ -111,9 +111,7 @@ module GlobalConstant
         case entity_type
           when GlobalConstant::EntityGroupDraft.dashboard_entity_type
             if !token_sale_details[:has_ethereum_deposit_address]
-              blocked_fields += ["dashboard_middle_banner_text_color", "dashboard_middle_banner_background",
-                                 "dashboard_middle_banner_title_text", "dashboard_middle_banner_body_text",
-                                 "ethereum_deposit_popup_checkboxes"]
+              blocked_fields += ["ethereum_deposit_popup_checkboxes"]
             end
 
           when GlobalConstant::EntityGroupDraft.kyc_entity_type

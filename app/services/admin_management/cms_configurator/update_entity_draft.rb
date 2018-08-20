@@ -27,6 +27,8 @@ module AdminManagement
         @gid = @params[:gid].to_i
         @uuid = @params[:uuid].to_s.strip
         @entity_type = @params[:entity_type].to_s.strip.downcase
+
+        # Note: @form_data includes all params data(client_id, admin_id , controller etc)
         @form_data = @params[:form_data]
 
         @entity_group, @entity_group_draft, @entity_draft = nil, nil, nil
@@ -156,136 +158,71 @@ module AdminManagement
       #
       def fetch_and_validate_form_data
         error_data = {}
-        have_error = false
         entity_config = fetch_entity_config_for_fe
 
-        entity_config.each do |key, value|
-          is_mandatory = value[GlobalConstant::CmsConfigurator.validations_key][GlobalConstant::CmsConfigurator.required_key].to_i
-          form_text = @form_data[key.to_sym]
-          puts form_text
+        entity_config.each do |key, entity_config|
+          next if entity_config[GlobalConstant::CmsConfigurator.not_eligible_key].to_i == 1
 
-          if value[GlobalConstant::CmsConfigurator.not_eligible_key].to_i == 1
-            @form_data.delete(key.to_sym)
+          entity_error_data = {}
 
-          elsif is_mandatory == 1 && form_text.blank?
+          entity_val = @form_data[key.to_sym]
+          puts entity_val
+
+          # max_length, min_length, required, includes
+          entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
+          data_kind = entity_config[GlobalConstant::CmsConfigurator.data_kind_key]
+          is_mandatory = entity_validations[GlobalConstant::CmsConfigurator.required_key].to_i
+
+          error_key = key.to_sym
+
+          if is_mandatory == 1 && entity_val.blank?
             puts "error : Mandatory_blank key: #{key}"
-            error_data[key.to_sym] = "This field cannot be blank"
-            have_error  = true
-          elsif form_text.present?
-            validations = value[GlobalConstant::CmsConfigurator.validations_key]
+            entity_error_data[error_key] = "This field cannot be blank"
+          elsif entity_val.present?
+            if data_kind == GlobalConstant::CmsConfigurator.value_array
+              err_msg = basic_validations(entity_val, entity_validations)
+              if err_msg.present?
+                entity_error_data[error_key] = err_msg
+                # make it blank so no other validation on element level is performed
+                entity_val = []
+              end
 
-            err_msg = basic_validations(form_text, validations)
+              element_config = entity_config[GlobalConstant::CmsConfigurator.element_key]
+              element_data_kind = element_config[GlobalConstant::CmsConfigurator.data_kind_key]
+              element_validations = element_config[GlobalConstant::CmsConfigurator.validations_key]
 
-            if err_msg.present?
-              error_data[key.to_sym] = err_msg
-              have_error  = true
-              next
+              entity_val.each_with_index do |element_val, index|
+                err_msg = validate_element(element_val, element_data_kind, element_validations)
+                entity_error_data["#{error_key.to_s}[#{index}]".to_sym] = err_msg if err_msg.present?
+              end
+
+            else
+              err_msg = validate_element(entity_val, data_kind, entity_validations)
+              entity_error_data[error_key] = err_msg if err_msg.present?
             end
+          end
 
-            is_valid = false
-            data_kind = value[GlobalConstant::CmsConfigurator.data_kind_key]
-            case data_kind
-              when GlobalConstant::CmsConfigurator.value_color
-                 is_valid = Util::CmsConfigValidator.validate_color(form_text)
-                 if !is_valid
-                   error_data[key.to_sym] = "Invalid color passed."
-                   have_error  = true
-                 end
-              when GlobalConstant::CmsConfigurator.value_text
-                error_text = Util::CmsConfigValidator.validate_text(form_text)
-                if error_text.present?
-                  error_data[key.to_sym] = error_text
-                  have_error  = true
-                else
-                  is_valid = true
-                end
-
-              when GlobalConstant::CmsConfigurator.value_html
-                error_text = Util::CmsConfigValidator.validate_html(form_text)
-                if error_text.present?
-                  error_data[key.to_sym] = error_text
-                  have_error  = true
-                else
-                  is_valid = true
-                end
-
-
-              when GlobalConstant::CmsConfigurator.value_number
-                is_valid = Util::CmsConfigValidator.validate_number(form_text)
-                if !is_valid
-                  error_data[key.to_sym] = "Invalid number passed."
-                  have_error  = true
-                end
-
-              when GlobalConstant::CmsConfigurator.value_link
-                is_valid = Util::CmsConfigValidator.validate_url(form_text)
-                if !is_valid
-                  error_data[key.to_sym] = "Invalid URL passed."
-                  have_error  = true
-                end
-
-              when GlobalConstant::CmsConfigurator.value_array
-                element = value[GlobalConstant::CmsConfigurator.element_key]
-                ele_data_kind = element[GlobalConstant::CmsConfigurator.data_kind_key]
-                ele_validations = element[GlobalConstant::CmsConfigurator.validations_key]
-
-                form_text.each_with_index do |obj, index|
-                  err_msg = basic_validations(obj,ele_validations)
-                  if err_msg.present?
-                    error_data["#{key.to_sym}[#{index}]"] = err_msg
-                    have_error  = true
-                    next
-                  end
-
-                  case ele_data_kind
-                    when GlobalConstant::CmsConfigurator.value_text
-                      error_text = Util::CmsConfigValidator.validate_text(obj)
-                      if error_text.present?
-                        error_data["#{key.to_sym}[#{index}]"] = error_text
-                        have_error  = true
-                      else
-                        is_valid = true
-                      end
-
-                    when GlobalConstant::CmsConfigurator.value_html
-                      error_text = Util::CmsConfigValidator.validate_html(obj)
-                      if error_text.present?
-                        error_data["#{key.to_sym}[#{index}]"] = error_text
-                        have_error  = true
-                      else
-                        is_valid = true
-                      end
-
-                    when GlobalConstant::CmsConfigurator.value_gradient
-
-                      gradient = obj[GlobalConstant::CmsConfigurator.value_gradient]
-                      is_gradient_valid = Util::CmsConfigValidator.validate_number(gradient)
-
-                      color = obj[GlobalConstant::CmsConfigurator.value_color]
-                      is_color_valid = Util::CmsConfigValidator.validate_color(color)
-
-                      if !is_gradient_valid || !is_color_valid
-                        error_data["#{key.to_sym}[#{index}]"] = "Invalid color/gradient passed."
-                        have_error  = true
-                      else
-                        is_valid = true
-                      end
-                  end
-                end
-
-            end
-            @store_data[key.to_sym] = form_text if is_valid
+          if entity_error_data.blank?
+            @store_data[key.to_sym] = entity_val
+          else
+            error_data.merge!(entity_error_data)
           end
         end
 
         case @entity_type
           when GlobalConstant::EntityGroupDraft.theme_entity_type
             theme_error_data = theme_related_validations
-            if theme_error_data.present?
-              error_data = theme_error_data.merge(error_data)
-              have_error  = true
-            end
+            error_data.reverse_merge!(theme_error_data) if theme_error_data.present?
+            break
+
+            key = GlobalConstant::CmsConfigurator.company_logo_key
+            @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s
+
+            key = GlobalConstant::CmsConfigurator.company_favicon_key
+            company_favicon = @store_data[key]
+            @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s if company_favicon.present?
         end
+
 
         return error_with_data(
             's_cc_up_favfd_1',
@@ -293,27 +230,61 @@ module AdminManagement
             "Validation failed",
             GlobalConstant::ErrorAction.default,
             error_data
-        ) if have_error
+        ) if error_data.present?
 
         success
       end
+
+      def validate_element(entity_val, data_kind, entity_validations)
+        err_msg = basic_validations(entity_val, entity_validations)
+        return err_msg if err_msg.present?
+
+        case data_kind
+          when GlobalConstant::CmsConfigurator.value_color
+            Util::CmsConfigValidator.validate_color(entity_val)
+          when GlobalConstant::CmsConfigurator.value_text
+            Util::CmsConfigValidator.validate_text(entity_val)
+          when GlobalConstant::CmsConfigurator.value_html
+            Util::CmsConfigValidator.validate_html(entity_val)
+          when GlobalConstant::CmsConfigurator.value_number
+            Util::CmsConfigValidator.validate_number(entity_val)
+          when GlobalConstant::CmsConfigurator.value_link
+            Util::CmsConfigValidator.validate_url(entity_val)
+          when GlobalConstant::CmsConfigurator.value_gradient
+            return 'Invalid Gradient option' if !entity_val.is_a?(Hash)
+
+            color = entity_val[GlobalConstant::CmsConfigurator.value_color]
+            err_msg_color = Util::CmsConfigValidator.validate_color(color)
+            return err_msg_color if err_msg_color.present?
+
+            gradient = entity_val[GlobalConstant::CmsConfigurator.value_gradient]
+            err_msg_gradient = Util::CmsConfigValidator.validate_number(gradient)
+            err_msg_gradient
+          else
+            fail "Invalid Data kind - #{data_kind}"
+        end
+      end
+
 
       def basic_validations(entity_value, validations)
         if entity_value.is_a?(Array)
           max_count = validations[GlobalConstant::CmsConfigurator.max_count_key]
           return "Entities cannot be more than #{max_count}" if max_count && entity_value.length > max_count
+
+          min_count = validations[GlobalConstant::CmsConfigurator.min_count_key]
+          return "Entities cannot be less than #{min_count}" if min_count && entity_value.length < min_count
         else
           max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
           return "Length cannot be more than #{max_length}" if max_length && entity_value.length > max_length
+
+          min_length = validations[GlobalConstant::CmsConfigurator.min_length_key]
+          return "Length cannot be less than #{min_length}" if min_length && entity_value.length < min_length
         end
 
-        min_length = validations[GlobalConstant::CmsConfigurator.min_length_key]
-        return "Length cannot be less than #{min_length}" if min_length && entity_value.length < min_length
-
         includes_validation = validations[GlobalConstant::CmsConfigurator.includes_key]
-        return "Entered Value is not allowed" if includes_validation && includes_validation.include?(entity_value)
+        return "Entered Value is not allowed" if includes_validation && includes_validation.exclude?(entity_value)
 
-        ""
+        return nil
       end
 
       # Validate theme related config.
@@ -323,19 +294,19 @@ module AdminManagement
       # * Reviewed By:
       #
       def theme_related_validations
+        # todo logo full url
         theme_error_data = {}
 
         company_logo = @form_data[GlobalConstant::CmsConfigurator.company_logo_key]
-        theme_error_data[GlobalConstant::CmsConfigurator.company_logo_key.to_sym] = "Wrong company logo URL." if
-            company_logo.match(/(c_assets)/i).blank?
+
+        theme_error_data[GlobalConstant::CmsConfigurator.company_logo_key.to_sym] = "Wrong company logo URL." if company_logo.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
 
         company_favicon = @form_data[GlobalConstant::CmsConfigurator.company_favicon_key]
+
         if company_favicon.present?
-          theme_error_data[GlobalConstant::CmsConfigurator.company_favicon_key.to_sym] = "Wrong company favicon URL." if
-          company_favicon.match(/(c_assets)/i).blank?
+          theme_error_data[GlobalConstant::CmsConfigurator.company_favicon_key.to_sym] = "Wrong company favicon URL." if company_favicon.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
         end
 
-        puts theme_error_data
         theme_error_data
       end
 

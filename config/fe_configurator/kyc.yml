@@ -41,6 +41,7 @@ kyc_form_popup_checkboxes:
     data_kind: 'html'
     validations:
       max_length: 400
+      min_lengh: 1
   default_value: ['All the information I have entered is true and complete.',
                   'I am not restricted under any law from providing this information or purchasing Company Tokens.',
                   'I act on my own behalf, unless I have notified you in writing.',

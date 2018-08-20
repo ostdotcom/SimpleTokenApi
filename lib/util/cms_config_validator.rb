@@ -6,13 +6,11 @@ module Util
     class << self
 
       def validate_color(color_text)
-        color_text.match(COLOR_MATCH_REGEX).present?
+        color_text.to_s.match(COLOR_MATCH_REGEX).present? ? nil : "Invalid color passed."
       end
 
       def validate_number(number_text)
-        true if Integer(number_text)
-      rescue
-        false
+        nil if Integer(number_text) rescue "Invalid number passed."
       end
 
       def validate_text(text)
@@ -29,9 +27,7 @@ module Util
       end
 
       def validate_url(link_text)
-        true if URI.parse(link_text)
-      rescue
-        false
+        nil if URI.parse(link_text) rescue "Invalid URL passed."
       end
 
     end

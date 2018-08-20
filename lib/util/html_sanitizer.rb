@@ -22,9 +22,7 @@ module Util
     end
 
     def perform
-      nokogiri_html = Nokogiri::HTML.fragment(@html) do |config|
-        config.options = Nokogiri::XML::ParseOptions::STRICT
-      end
+      nokogiri_html = Nokogiri::HTML.fragment(@html)
 
       if nokogiri_html.errors.length > 0
         noko_error = nokogiri_html.errors.first

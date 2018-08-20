@@ -4,6 +4,8 @@ module AdminManagement
 
     class GetUploadParams < ServicesBase
 
+      CLIENT_ASSET_FILE_PATH_REGEX = /^c_assets\/[A-Z0-9\-\/\.]*$/i
+
       # Initialize
       #
       # * Author: Pankaj
@@ -40,7 +42,8 @@ module AdminManagement
 
         # File path should always start with client id. There is a validation for it in KycSubmit
         #
-        # NOTE:: path should contain only [a-z A-Z 0-9 /] character sets
+        # NOTE: path should contain only [a-z A-Z 0-9 /] character sets
+        # CLIENT_ASSET_FILE_PATH_REGEX should be modified if path is changed
         @images.each do |k, v|
           content_type = v
           k_n = k.split("_")[1]

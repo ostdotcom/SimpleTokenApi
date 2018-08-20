@@ -24,7 +24,7 @@ class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
     end
 
     user_extended_detail_ids = Md5UserExtendedDetail.
-        where(where_clause + where_clause_values).
+        where([where_clause] + where_clause_values).
         pluck(:user_extended_detail_id)
 
     user_extended_detail_ids.delete(user_extended_detail_id)

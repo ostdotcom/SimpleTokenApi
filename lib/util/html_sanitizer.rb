@@ -25,78 +25,69 @@ module Util
 
     def perform
       nokogiri_html = Nokogiri::HTML(@html)
-      is_valid_html = trigger_function(nokogiri_html)
-
-      puts "is_valid_html : #{is_valid_html}"
-      is_valid_html
+      trigger_function(nokogiri_html)
     rescue
-      puts "error occored while converting html : #{@html}"
-      false
+      "Error occored while converting html : #{@html}"
     end
 
 
     def trigger_function(obj)
-      puts "\ntrigger function for : #{obj}"
 
       if obj.class == Nokogiri::HTML::Document
-        puts "NOKOGIRI_CLASS_DOCUMENT"
         return trigger_function(obj.children)
 
       elsif obj.class == Nokogiri::XML::DTD
-        puts "NOKOGIRI_CLASS_DTD \nreturning: true"
-        return true
+        return ""
 
       elsif obj.class == Nokogiri::XML::Element
-        puts "NOKOGIRI_CLASS_ELEMENT"
         return valid_element?(obj)
 
       elsif obj.class == Nokogiri::XML::Text
-        puts "NOKOGIRI_CLASS_TEXT \nreturning: true"
-        return true
+        return ""
 
       elsif obj.class == Nokogiri::XML::Attr
-        puts "NOKOGIRI_CLASS_ATTR"
-        return valid_attr?(obj.name, obj.attributes)
+        invalid_attributes = valid_attributes?(obj.name, obj.attributes)
+        if invalid_attributes.length > 0
+          attribute_text  = invalid_attributes.length ==1 ? "attribute" : "attributes"
+          return "#{obj.name} tag having extra #{attribute_text}: #{invalid_attributes}"
+        end
+        return ""
 
       elsif obj.class == Nokogiri::XML::NodeSet
-        puts "NOKOGIRI_CLASS_NODESET"
         return valid_nodeset?(obj)
-      else
-        puts "\nnokogiri class not found"
       end
+
+      ""
     end
 
     def valid_nodeset?(node_set)
-      puts "node_set : #{node_set}"
       node_set.each_with_index do |obj, index|
         puts "index : #{index} and obj : #{obj}"
-        is_success = trigger_function(obj)
-        if !is_success
+        error_text = trigger_function(obj)
+        if error_text.present?
           puts "returning false for #{obj}"
-          return false
+          return error_text
         end
       end
-      true
+      ""
     end
 
     def valid_element?(element)
-      puts "element : #{element} and class: #{element.name}"
       if @elements.include?(element.name)
-        if !valid_attributes?(element.name, element.attributes)
-          puts "returning false because attributes didn't match"
-          return false
+        invalid_attributes = valid_attributes?(element.name, element.attributes)
+        if invalid_attributes.length > 0
+          attribute_text  = invalid_attributes.length ==1 ? "attribute" : "attributes"
+          return "Tag #{element.name} having extra #{attribute_text}: #{invalid_attributes}"
         end
-        puts "triggering : #{element.children}"
         return trigger_function(element.children)
       end
-      puts "element //#{element.name}// not allowed"
-      false
+
+      "#{element.name} tag not allowed."
     end
 
     def valid_attributes?(ele_name, ele_attributes)
       allowed_attributes = @attributes[ele_name.to_sym] || []
-      puts "ele_name : #{ele_name}\nelement_attributes : #{ele_attributes.keys}\nattributes_required: #{allowed_attributes}"
-      (ele_attributes.keys - allowed_attributes).length == 0
+      (ele_attributes.keys - allowed_attributes)
     end
 
   end

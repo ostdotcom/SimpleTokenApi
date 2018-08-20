@@ -7,6 +7,13 @@ module GlobalConstant
 
       ######### YML keys and values #############
 
+      def company_favicon_key
+        'company_favicon'
+      end
+      def company_logo_key
+        'company_logo'
+      end
+
       def not_eligible_key
         'not_eligible'
       end
@@ -29,6 +36,14 @@ module GlobalConstant
 
       def max_length_key
         'max_length'
+      end
+
+      def min_length_key
+        'min_length'
+      end
+
+      def includes_key
+        'includes'
       end
 
       def max_key

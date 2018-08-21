@@ -19,8 +19,7 @@ sale_timer_background_gradient:
     validations:
       max_count: 4
       min_count: 4
-  default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(145,192,173)", gradient: 50},
-            {color: "rgb(145,192,173)", gradient: 51}, {color: "rgb(167,205,189)", gradient: 100}]
+  default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 100}]
 
 dashboard_middle_banner_link_color:
   data_kind: 'color'

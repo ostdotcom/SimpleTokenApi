@@ -8,6 +8,8 @@ company_logo_size_percent:
   data_kind: 'number'
   validations:
     required: 1
+    max: 100
+    min: 1
   default_value: 15
 
 company_favicon:

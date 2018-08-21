@@ -179,7 +179,7 @@ module AdminManagement
             entity_error_data[error_key] = "This field cannot be blank"
           elsif entity_val.present?
             if data_kind == GlobalConstant::CmsConfigurator.value_array
-              err_msg = basic_validations(entity_val, entity_validations)
+              err_msg = basic_validations(entity_val, data_kind, entity_validations)
               if err_msg.present?
                 entity_error_data[error_key] = err_msg
                 # make it blank so no other validation on element level is performed
@@ -223,7 +223,7 @@ module AdminManagement
       end
 
       def validate_element(entity_val, data_kind, entity_validations)
-        err_msg = basic_validations(entity_val, entity_validations)
+        err_msg = basic_validations(entity_val, data_kind, entity_validations)
         return err_msg if err_msg.present?
 
         case data_kind
@@ -253,14 +253,23 @@ module AdminManagement
       end
 
 
-      def basic_validations(entity_value, validations)
-        if entity_value.is_a?(Array)
+      def basic_validations(entity_value, data_kind, validations)
+        if data_kind == GlobalConstant::CmsConfigurator.value_array
           max_count = validations[GlobalConstant::CmsConfigurator.max_count_key]
           return "Entities cannot be more than #{max_count}" if max_count && entity_value.length > max_count
 
           min_count = validations[GlobalConstant::CmsConfigurator.min_count_key]
           return "Entities cannot be less than #{min_count}" if min_count && entity_value.length < min_count
+        elsif data_kind == GlobalConstant::CmsConfigurator.value_number
+
+          max = validations[GlobalConstant::CmsConfigurator.max_key]
+          return "Number cannot be more than #{max}" if max && entity_value > max_length
+
+          min = validations[GlobalConstant::CmsConfigurator.min_key]
+          return "Number cannot be less than #{min}" if min && entity_value < min_length
+
         else
+
           max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
           return "Length cannot be more than #{max_length}" if max_length && entity_value.length > max_length
 

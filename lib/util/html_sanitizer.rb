@@ -62,7 +62,7 @@ module Util
     end
 
     def valid_nodeset?(node_set)
-      node_set.each_with_index do |obj, _|
+      node_set.each do |obj|
         error_text = trigger_function(obj)
         return error_text if error_text.present?
       end
@@ -74,7 +74,7 @@ module Util
         invalid_attributes = get_invalid_attributes(element.name, element.attributes)
         if invalid_attributes.length > 0
           attribute_text = invalid_attributes.length == 1 ? "attribute" : "attributes"
-          return "Tag #{element.name} having extra #{attribute_text}: #{invalid_attributes}"
+          return "#{element.name} Tag having extra #{attribute_text}: #{invalid_attributes.join(', ')}"
         end
         return element.children.present? ? trigger_function(element.children) : nil
       end

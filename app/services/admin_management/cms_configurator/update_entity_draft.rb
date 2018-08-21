@@ -296,17 +296,16 @@ module AdminManagement
       # * Reviewed By:
       #
       def theme_related_validations
-        # todo logo full url
         theme_error_data = {}
 
         company_logo = @form_data[GlobalConstant::CmsConfigurator.company_logo_key]
-
-        theme_error_data[GlobalConstant::CmsConfigurator.company_logo_key.to_sym] = "Wrong company logo URL." if company_logo.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
+        theme_error_data[GlobalConstant::CmsConfigurator.company_logo_key.to_sym] = "Wrong company logo URL." if
+            company_logo.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
 
         company_favicon = @form_data[GlobalConstant::CmsConfigurator.company_favicon_key]
-
         if company_favicon.present?
-          theme_error_data[GlobalConstant::CmsConfigurator.company_favicon_key.to_sym] = "Wrong company favicon URL." if company_favicon.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
+          theme_error_data[GlobalConstant::CmsConfigurator.company_favicon_key.to_sym] = "Wrong company favicon URL." if
+              company_favicon.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
         end
 
         theme_error_data

@@ -263,10 +263,10 @@ module AdminManagement
         elsif data_kind == GlobalConstant::CmsConfigurator.value_number
 
           max = validations[GlobalConstant::CmsConfigurator.max_key]
-          return "Number cannot be more than #{max}" if max && entity_value > max
+          return "Number cannot be more than #{max}" if max && entity_value && entity_value.to_i > max
 
           min = validations[GlobalConstant::CmsConfigurator.min_key]
-          return "Number cannot be less than #{min}" if min && entity_value < min
+          return "Number cannot be less than #{min}" if min && entity_value && entity_value.to_i < min
 
         else
 

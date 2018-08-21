@@ -18,7 +18,7 @@ sale_timer_background_gradient:
     data_kind: 'gradient'
     validations:
       max_count: 4
-      min_count: 4
+      min_count: 2
   default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 100}]
 
 dashboard_middle_banner_link_color:
@@ -43,14 +43,14 @@ dashboard_middle_banner_title_text:
   data_kind: 'text'
   validations:
     required: 1
-    max_length: 50
+    max_length: 100
   default_value: 'Set gas limit to 150,000'
 
 dashboard_middle_banner_body_text:
   data_kind: 'html'
   validations:
     required: 0
-    max_length: 100
+    max_length: 400
   default_value: 'DO NOT USE Coinbase, Kraken or any other exchange to purchase ST. Minimum Purchase 0.1 ETH For more details.'
 
 dashboard_bottom_banner_text_color:

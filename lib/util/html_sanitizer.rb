@@ -37,20 +37,14 @@ module Util
 
     def trigger_function(obj)
 
-      if obj.class == Nokogiri::HTML::Document
+      if obj.class == Nokogiri::HTML::DocumentFragment
         return trigger_function(obj.children)
-
-      elsif obj.class == Nokogiri::HTML::DocumentFragment
-        return trigger_function(obj.children)
-
-      elsif obj.class == Nokogiri::XML::DTD
-        return ""
 
       elsif obj.class == Nokogiri::XML::Element
         return valid_element?(obj)
 
       elsif obj.class == Nokogiri::XML::Text
-        return ""
+        return nil
 
       elsif obj.class == Nokogiri::XML::Attr
         invalid_attributes = get_invalid_attributes(obj.name, obj.attributes)
@@ -82,8 +76,8 @@ module Util
           attribute_text = invalid_attributes.length == 1 ? "attribute" : "attributes"
           return "Tag #{element.name} having extra #{attribute_text}: #{invalid_attributes}"
         end
-        return trigger_function(element.children)
-      end1
+        return element.children.present? ? trigger_function(element.children) : nil
+      end
 
       "#{element.name} tag not allowed."
     end

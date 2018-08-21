@@ -289,6 +289,10 @@ module AdminManagement
         return nil
       end
 
+      def cloudfront_domain
+        GlobalConstant::Aws::Common.client_assets_cdn_url
+      end
+
       # Validate theme related config.
       #
       # * Author: Aniket

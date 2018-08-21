@@ -230,6 +230,7 @@ module AdminManagement
             'Validation failed',
             "Validation failed",
             GlobalConstant::ErrorAction.default,
+            {},
             error_data
         ) if error_data.present?
 

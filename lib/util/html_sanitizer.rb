@@ -26,12 +26,12 @@ module Util
 
       if nokogiri_html.errors.length > 0
         noko_error = nokogiri_html.errors.first
-        return noko_error.message.gsub("#{noko_error.line}:#{noko_error.column}: ERROR: ","")
+        return noko_error.message.gsub("#{noko_error.line}:#{noko_error.column}: ERROR: ", "")
       else
         return trigger_function(nokogiri_html)
       end
     rescue
-      "Error occurred while converting html."
+      "Error occurred while parsing."
     end
 
 
@@ -41,7 +41,7 @@ module Util
         return trigger_function(obj.children)
 
       elsif obj.class == Nokogiri::HTML::DocumentFragment
-          return trigger_function(obj.children)
+        return trigger_function(obj.children)
 
       elsif obj.class == Nokogiri::XML::DTD
         return ""
@@ -53,44 +53,42 @@ module Util
         return ""
 
       elsif obj.class == Nokogiri::XML::Attr
-        invalid_attributes = valid_attributes?(obj.name, obj.attributes)
+        invalid_attributes = get_invalid_attributes(obj.name, obj.attributes)
         if invalid_attributes.length > 0
-          attribute_text  = invalid_attributes.length ==1 ? "attribute" : "attributes"
-          return "#{obj.name} tag having extra #{attribute_text}: #{invalid_attributes}"
+          attribute_text = invalid_attributes.length == 1 ? "attribute" : "attributes"
+          return "#{obj.name} tag has invalid #{attribute_text}: #{invalid_attributes.join(', ')}"
         end
-        return ""
+        return nil
 
       elsif obj.class == Nokogiri::XML::NodeSet
         return valid_nodeset?(obj)
       end
 
-      ""
+      nil
     end
 
     def valid_nodeset?(node_set)
-      node_set.each_with_index do |obj, index|
+      node_set.each_with_index do |obj, _|
         error_text = trigger_function(obj)
-        if error_text.present?
-          return error_text
-        end
+        return error_text if error_text.present?
       end
-      ""
+      nil
     end
 
     def valid_element?(element)
       if @elements.include?(element.name)
-        invalid_attributes = valid_attributes?(element.name, element.attributes)
+        invalid_attributes = get_invalid_attributes(element.name, element.attributes)
         if invalid_attributes.length > 0
-          attribute_text  = invalid_attributes.length ==1 ? "attribute" : "attributes"
+          attribute_text = invalid_attributes.length == 1 ? "attribute" : "attributes"
           return "Tag #{element.name} having extra #{attribute_text}: #{invalid_attributes}"
         end
         return trigger_function(element.children)
-      end
+      end1
 
       "#{element.name} tag not allowed."
     end
 
-    def valid_attributes?(ele_name, ele_attributes)
+    def get_invalid_attributes(ele_name, ele_attributes)
       allowed_attributes = @attributes[ele_name.to_sym] || []
       (ele_attributes.keys - allowed_attributes)
     end

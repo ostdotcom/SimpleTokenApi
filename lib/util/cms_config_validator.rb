@@ -21,6 +21,7 @@ module Util
         param = {
             elements:['a','br','span','em','strong'],
             attributes:{'a':['href','target', 'rel', 'title'], 'span':['style']},
+            attribute_value:{'style':'text-decoration: underline;'},
             html: html_text
         }
         Util::HtmlSanitizer.new(param).perform

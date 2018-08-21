@@ -18,7 +18,8 @@ module Util
     def initialize(params)
       @elements = params[:elements] ||= []
       @attributes = params[:attributes] ||= {} #{'a': ['href', 'target']}
-      @html = params[:html]
+      @attribute_value = params[:attribute_value]
+      @html = params[:html].to_s.strip
     end
 
     def perform
@@ -30,8 +31,8 @@ module Util
       else
         return trigger_function(nokogiri_html)
       end
-    rescue
-      "Error occurred while parsing."
+      rescue
+        "Error occurred while parsing."
     end
 
 
@@ -75,11 +76,21 @@ module Util
         if invalid_attributes.length > 0
           attribute_text = invalid_attributes.length == 1 ? "attribute" : "attributes"
           return "#{element.name} Tag having extra #{attribute_text}: #{invalid_attributes.join(', ')}"
+        else
+          return "Invalid attribute value." if !valid_attribute_value?(element.attributes)
         end
         return element.children.present? ? trigger_function(element.children) : nil
       end
 
       "#{element.name} tag not allowed."
+    end
+
+    def valid_attribute_value?(attributes)
+      attributes.each do |key, val|
+        allowed_val = @attribute_value[key.to_sym]
+        return false if allowed_val.present? && val.value.to_s.gsub(allowed_val,"").present?
+      end
+      true
     end
 
     def get_invalid_attributes(ele_name, ele_attributes)

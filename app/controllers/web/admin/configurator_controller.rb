@@ -23,7 +23,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def update_entity_draft
-    params.merge!(form_data: params)
+    params[:form_data] = HashWithIndifferentAccess.new(params.to_unsafe_hash)
     service_response = AdminManagement::CmsConfigurator::UpdateEntityDraft.new(params).perform
     render_api_response(service_response)
   end

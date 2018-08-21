@@ -165,8 +165,7 @@ module AdminManagement
 
           entity_error_data = {}
 
-          entity_val = @form_data[key.to_sym]
-          puts entity_val
+          entity_val = JSON.parse(@form_data[key.to_sym].to_json)
 
           # max_length, min_length, required, includes
           entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
@@ -209,21 +208,7 @@ module AdminManagement
           end
         end
 
-        case @entity_type
-          when GlobalConstant::EntityGroupDraft.theme_entity_type
-            theme_error_data = theme_related_validations
-            if theme_error_data.present?
-              error_data.reverse_merge!(theme_error_data)
-            else
-              key = GlobalConstant::CmsConfigurator.company_logo_key
-              @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s
-
-              key = GlobalConstant::CmsConfigurator.company_favicon_key
-              company_favicon = @store_data[key]
-              @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s if company_favicon.present?
-            end
-        end
-
+        error_data.reverse_merge!(validate_uploaded_files_path)
 
         return error_with_data(
             's_cc_up_favfd_1',
@@ -289,30 +274,37 @@ module AdminManagement
         return nil
       end
 
+      # Cloudfront domain url
+      #
+      # * Author: Aniket
+      # * Date: 17/08/2018
+      # * Reviewed By:
+      #
       def cloudfront_domain
         GlobalConstant::Aws::Common.client_assets_cdn_url
       end
 
-      # Validate theme related config.
+      # Validate uploaded files path
       #
       # * Author: Aniket
-      # * Date: 20/08/2018
+      # * Date: 17/08/2018
       # * Reviewed By:
       #
-      def theme_related_validations
-        theme_error_data = {}
-
-        company_logo = @form_data[GlobalConstant::CmsConfigurator.company_logo_key]
-        theme_error_data[GlobalConstant::CmsConfigurator.company_logo_key.to_sym] = "Wrong company logo URL." if
-            company_logo.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
-
-        company_favicon = @form_data[GlobalConstant::CmsConfigurator.company_favicon_key]
-        if company_favicon.present?
-          theme_error_data[GlobalConstant::CmsConfigurator.company_favicon_key.to_sym] = "Wrong company favicon URL." if
-              company_favicon.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
+      def validate_uploaded_files_path
+        err = {}
+        GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
+            [GlobalConstant::CmsConfigurator.company_logo_key,
+              GlobalConstant::CmsConfigurator.company_favicon_key].each do |key|
+          asset_url = @store_data[key.to_sym].to_s.gsub(cloudfront_domain, "")
+          if asset_url.present?
+            if asset_url.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
+              err[key.to_sym] = "Filepath is invalid."
+              next
+            end
+            @store_data[key.to_sym] = cloudfront_domain + asset_url
+          end
         end
-
-        theme_error_data
+        return err
       end
 
       # Fetch entity config

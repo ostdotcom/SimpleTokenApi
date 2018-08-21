@@ -45,7 +45,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/v1/setting', controller: 'rest_api/saas_api/setting' do
-      match 'configurator/get-published-draft' => :get_published_draft, via: :GET
+      match 'configurator/get-published-draft' => :get_published_drafts, via: :GET
     end
 
     scope 'api/admin', controller: 'web/admin/login' do

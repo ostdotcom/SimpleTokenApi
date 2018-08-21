@@ -11,6 +11,8 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
   # * Reviewed By:
   #
   def authenticate_request(allow_web_based_client=false)
+    Rails.logger.info("allow_web_based_client-#{allow_web_based_client}")
+
     request_parameters = request.request_method == 'GET' ? request.query_parameters : request.request_parameters
 
     service_response = ClientManagement::VerifyApiCredential.new(

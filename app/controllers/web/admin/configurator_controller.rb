@@ -4,6 +4,8 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
     authenticate_request(true)
   end
 
+  skip_before_action :sanitize_params, only: [:update_entity_draft]
+
 
   # Get upload params for client logo and favicon configuration
   #
@@ -23,7 +25,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def update_entity_draft
-    params[:form_data] = HashWithIndifferentAccess.new(params.to_unsafe_hash)
+    params[:form_data] = hashify_params_recursively(params)
     service_response = AdminManagement::CmsConfigurator::UpdateEntityDraft.new(params).perform
     render_api_response(service_response)
   end

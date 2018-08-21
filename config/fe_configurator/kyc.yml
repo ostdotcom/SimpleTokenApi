@@ -24,13 +24,6 @@ document_id_instruction_text:
     max_length: 200
   default_value: 'A valid government issued passport is required. A national ID<br>or a license are not accepted for the verification process.'
 
-show_kyc_confirm_popup:
-  data_kind: 'number'
-  validations:
-    required: 1
-    includes: [0, 1]
-  default_value: 1
-
 kyc_form_popup_checkboxes:
   data_kind: 'array'
   validations:

@@ -174,6 +174,15 @@ module AdminManagement
       # @return [Hash]
       #
       def api_response
+        form_data = @entity_draft.data
+
+        if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
+          form_data[:show_kyc_confirm_popup] = form_data[:kyc_form_popup_checkboxes].present?.to_i
+        end
+
+        if @entity_type == GlobalConstant::EntityGroupDraft.dashboard_entity_type
+          form_data[:show_ethereum_address_confirm_popup] = form_data[:ethereum_deposit_popup_checkboxes].present?.to_i
+        end
 
         can_reset = @entity_group.status == GlobalConstant::EntityGroup.incomplete_status ? 1 : 0
         can_publish = (@entity_group.status == GlobalConstant::EntityGroup.incomplete_status) &&
@@ -181,7 +190,7 @@ module AdminManagement
 
         {
             entity_config: GlobalConstant::CmsConfigurator.get_entity_config_for_fe(@entity_type, @client_settings.data),
-            form_data: @entity_draft.data,
+            form_data: form_data,
             rules: {
                 can_reset: can_reset,
                 can_publish: can_publish

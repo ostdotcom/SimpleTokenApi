@@ -80,13 +80,6 @@ telegram_link:
     max_length: 50
   default_value: 'https://t.me/ostdotcom'
 
-show_ethereum_address_confirm_popup:
-  data_kind: 'number'
-  validations:
-    required: 1
-    includes: [0, 1]
-  default_value: 1
-
 ethereum_deposit_popup_checkboxes:
   data_kind: 'array'
   validations:

@@ -212,15 +212,16 @@ module AdminManagement
         case @entity_type
           when GlobalConstant::EntityGroupDraft.theme_entity_type
             theme_error_data = theme_related_validations
-            error_data.reverse_merge!(theme_error_data) if theme_error_data.present?
-            break
+            if theme_error_data.present?
+              error_data.reverse_merge!(theme_error_data)
+            else
+              key = GlobalConstant::CmsConfigurator.company_logo_key
+              @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s
 
-            key = GlobalConstant::CmsConfigurator.company_logo_key
-            @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s
-
-            key = GlobalConstant::CmsConfigurator.company_favicon_key
-            company_favicon = @store_data[key]
-            @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s if company_favicon.present?
+              key = GlobalConstant::CmsConfigurator.company_favicon_key
+              company_favicon = @store_data[key]
+              @store_data[key.to_sym] = cloudfront_domain + @store_data[key.to_sym].to_s if company_favicon.present?
+            end
         end
 
 

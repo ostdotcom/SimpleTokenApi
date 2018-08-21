@@ -4,6 +4,8 @@ class RestApi::SaasApi::SettingController < RestApi::SaasApi::BaseController
     authenticate_request(true)
   end
 
+  skip_before_action :authenticate_request, only: [:get_published_drafts]
+
   # Get Published Draft
   #
   # * Author: Tejas

@@ -24,6 +24,9 @@ background_gradient:
     min_count: 2
   element:
     data_kind: 'gradient'
+    validations:
+      max_count: 2
+      min_count: 2
   default_value: [{color: "rgb(243,249,244)", gradient: 0}, {color: "rgb(255,255,255)", gradient: 20}]
 
 primary_button_text_color:

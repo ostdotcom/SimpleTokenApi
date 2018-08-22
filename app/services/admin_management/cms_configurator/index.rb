@@ -66,29 +66,6 @@ module AdminManagement
         r = fetch_and_validate_admin
         return r unless r.success?
 
-        r = validate_client_web_host
-        return r unless r.success?
-
-        success
-      end
-
-      # Validate Client Web Host
-      #
-      # * Author: Tejas
-      # * Date: 14/08/2018
-      # * Reviewed By:
-      #
-      # @return [Result::Base]
-      #
-      def validate_client_web_host
-        return error_with_data(
-            'am_cc_i_vcwh_1',
-            'This client dose not have web_host setup.',
-            'This client dose not have web_host setup.',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if !@client.is_web_host_setup_done?
-
         success
       end
 

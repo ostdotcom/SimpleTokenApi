@@ -165,7 +165,9 @@ module AdminManagement
 
           entity_error_data = {}
 
-          entity_val = JSON.parse(@form_data[key.to_sym].to_json.strip)
+          entity_val = JSON.parse(@form_data[key.to_sym].to_json)
+          entity_val.to_s.strip! if entity_val.is_a?(String)
+
 
           # max_length, min_length, required, includes
           entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
@@ -194,7 +196,7 @@ module AdminManagement
               entity_val.each_with_index do |element_val, index|
                 e_key = "#{entity_key.to_s}[#{index}]"
                 err = validate_element(e_key, element_val, element_data_kind, element_validations)
-                err.each{|k,v| entity_error_data.merge!({k => v}) if v.present?}
+                err.each {|k, v| entity_error_data.merge!({k => v}) if v.present?}
               end
 
             else
@@ -204,7 +206,7 @@ module AdminManagement
           end
 
           if entity_error_data.blank?
-            @store_data[key.to_sym] = entity_val
+            @store_data[key.to_sym] = entity_val if entity_val.present?
           else
             error_data.merge!(entity_error_data)
           end
@@ -304,8 +306,8 @@ module AdminManagement
       def validate_uploaded_files_path
         err = {}
         GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
-          [GlobalConstant::CmsConfigurator.company_logo_key,
-           GlobalConstant::CmsConfigurator.company_favicon_key].each do |key|
+            [GlobalConstant::CmsConfigurator.company_logo_key,
+             GlobalConstant::CmsConfigurator.company_favicon_key].each do |key|
               asset_url = @store_data[key.to_sym].to_s.gsub(cloudfront_domain, "")
               if asset_url.present?
                 if asset_url.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
@@ -330,7 +332,7 @@ module AdminManagement
         arr.each do |x|
           if x.is_a?(Hash)
             new_h = {}
-            x.each{|k, v| new_h[k.to_s.strip] = v.to_s.strip}
+            x.each {|k, v| new_h[k.to_s.strip] = v.to_s.strip}
             new_arr << new_h
           elsif x.is_a?(Array)
             new_arr << deep_sanitize_array(x)

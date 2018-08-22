@@ -152,19 +152,19 @@ module GlobalConstant
           default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type] = {}
 
           get_theme_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.theme_entity_type][key] = data["default_value"]
+            default_template_data[GlobalConstant::EntityGroupDraft.theme_entity_type][key.to_sym] = data["default_value"]
           end
 
           get_registration_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.registration_entity_type][key] = data["default_value"]
+            default_template_data[GlobalConstant::EntityGroupDraft.registration_entity_type][key.to_sym] = data["default_value"]
           end
 
           get_kyc_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.kyc_entity_type][key] = data["default_value"]
+            default_template_data[GlobalConstant::EntityGroupDraft.kyc_entity_type][key.to_sym] = data["default_value"]
           end
 
           get_dashboard_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type][key] = data["default_value"]
+            default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type][key.to_sym] = data["default_value"]
           end
           default_template_data
         end

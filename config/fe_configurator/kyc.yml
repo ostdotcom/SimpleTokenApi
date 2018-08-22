@@ -10,6 +10,7 @@ kyc_form_subtitle:
   validations:
     required: 1
     max_length: 80
+
   default_value: 'You will need the following items to complete the registration'
 
 eth_address_instruction_text:
@@ -17,6 +18,7 @@ eth_address_instruction_text:
   validations:
     required: 0
     max_length: 400
+    min_length: 1
   default_value: 'Make sure to use your Ethereum Wallet address and not addresses<br>from exchanges like Coinbase, Poloniex, Kraken.'
 
 document_id_instruction_text:
@@ -24,6 +26,7 @@ document_id_instruction_text:
   validations:
     required: 0
     max_length: 400
+    min_length: 1
   default_value: 'A valid government issued passport is required. A national ID<br>or a license are not accepted for the verification process.'
 
 kyc_form_popup_checkboxes:
@@ -32,12 +35,12 @@ kyc_form_popup_checkboxes:
     max_count: 10
     required: 0
     max_length: 400
-    min_lengh: 1
+    min_length: 1
   element:
     data_kind: 'html'
     validations:
       max_length: 400
-      min_lengh: 1
+      min_length: 1
   default_value: ['All the information I have entered is true and complete.',
                   'I am not restricted under any law from providing this information or purchasing Company Tokens.',
                   'I act on my own behalf, unless I have notified you in writing.',

@@ -425,6 +425,12 @@
     - :twitter_handle
     - :kit_marketing
 
+'ClientManagement::MigrateClientCustomDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
 'ClientManagement::SetupDefaultClientCustomDraft':
   :mandatory:
     - :client_id

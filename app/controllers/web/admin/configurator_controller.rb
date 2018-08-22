@@ -6,7 +6,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
 
   skip_before_action :sanitize_params, only: [:update_entity_draft]
 
-  before_action :validate_configurator_settings, except: [:fetch_published_version, :index]
+  before_action :validate_configurator_settings, except: [:index]
 
   include ::Util::ResultHelper
 

@@ -140,7 +140,7 @@ module AdminManagement
         @entity_draft_ids = {}
 
         EntityGroupDraft.entity_types.each do |entity_type, _|
-          entity_data = @entity_type_and_data_hash[entity_type]
+          entity_data = @entity_type_and_data_hash[entity_type].deep_symbolize_keys
 
           obj = EntityDraft.create!(client_id: @client_id,
                                     last_updated_admin_id: @admin_id,

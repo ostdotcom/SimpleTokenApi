@@ -32,6 +32,7 @@ kyc_form_popup_checkboxes:
     max_count: 10
     required: 0
     max_length: 400
+    min_lengh: 1
   element:
     data_kind: 'html'
     validations:

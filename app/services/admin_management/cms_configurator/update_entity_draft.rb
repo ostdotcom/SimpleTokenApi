@@ -165,24 +165,25 @@ module AdminManagement
 
           entity_error_data = {}
 
-          entity_val = JSON.parse(@form_data[key.to_sym].to_json.strip)
+          # entity_val = JSON.parse(@form_data[key.to_sym].to_json.strip)
+          entity_val = @form_data[key.to_sym]
 
           # max_length, min_length, required, includes
           entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
           data_kind = entity_config[GlobalConstant::CmsConfigurator.data_kind_key]
           is_mandatory = entity_validations[GlobalConstant::CmsConfigurator.required_key].to_i
 
-          error_key = key.to_sym
+          entity_key = key.to_sym
 
           if is_mandatory == 1 && entity_val.blank?
             puts "error : Mandatory_blank key: #{key}"
-            entity_error_data[error_key] = "This field cannot be blank"
+            entity_error_data[entity_key] = "This field cannot be blank"
           elsif entity_val.present?
             if data_kind == GlobalConstant::CmsConfigurator.value_array
               entity_val = deep_sanitize_array(entity_val)
               err_msg = basic_validations(entity_val, data_kind, entity_validations)
               if err_msg.present?
-                entity_error_data[error_key] = err_msg
+                entity_error_data[entity_key] = err_msg
                 # make it blank so no other validation on element level is performed
                 entity_val = []
               end
@@ -192,13 +193,14 @@ module AdminManagement
               element_validations = element_config[GlobalConstant::CmsConfigurator.validations_key]
 
               entity_val.each_with_index do |element_val, index|
-                err_msg = validate_element(element_val, element_data_kind, element_validations)
-                entity_error_data["#{error_key.to_s}[#{index}]".to_sym] = err_msg if err_msg.present?
+                e_key = "#{entity_key.to_s}[#{index}]"
+                err = validate_element(e_key, element_val, element_data_kind, element_validations)
+                err.each{|k,v| entity_error_data.merge!({k => v}) if v.present?}
               end
 
             else
-              err_msg = validate_element(entity_val, data_kind, entity_validations)
-              entity_error_data[error_key] = err_msg if err_msg.present?
+              err = validate_element(entity_key, entity_val, data_kind, entity_validations)
+              entity_error_data.merge!(err) if err[entity_key].present?
             end
           end
 
@@ -223,31 +225,31 @@ module AdminManagement
         success
       end
 
-      def validate_element(entity_val, data_kind, entity_validations)
+      def validate_element(entity_key, entity_val, data_kind, entity_validations)
         err_msg = basic_validations(entity_val, data_kind, entity_validations)
-        return err_msg if err_msg.present?
+        return {entity_key => err_msg} if err_msg.present?
 
         case data_kind
           when GlobalConstant::CmsConfigurator.value_color
-            Util::CmsConfigValidator.validate_color(entity_val)
+            {entity_key => Util::CmsConfigValidator.validate_color(entity_val)}
           when GlobalConstant::CmsConfigurator.value_text
-            Util::CmsConfigValidator.validate_text(entity_val)
+            {entity_key => Util::CmsConfigValidator.validate_text(entity_val)}
           when GlobalConstant::CmsConfigurator.value_html
-            Util::CmsConfigValidator.validate_html(entity_val)
+            {entity_key => Util::CmsConfigValidator.validate_html(entity_val)}
           when GlobalConstant::CmsConfigurator.value_number
-            Util::CmsConfigValidator.validate_number(entity_val)
+            {entity_key => Util::CmsConfigValidator.validate_number(entity_val)}
           when GlobalConstant::CmsConfigurator.value_link
-            Util::CmsConfigValidator.validate_url(entity_val)
+            {entity_key => Util::CmsConfigValidator.validate_url(entity_val)}
           when GlobalConstant::CmsConfigurator.value_gradient
-            return 'Invalid Gradient option' if !entity_val.is_a?(Hash)
+            return {"#{entity_key}[color]" => 'Invalid Gradient option'} if !entity_val.is_a?(Hash)
 
+            err_data = {}
             color = entity_val[GlobalConstant::CmsConfigurator.value_color]
-            err_msg_color = Util::CmsConfigValidator.validate_color(color)
-            return err_msg_color if err_msg_color.present?
+            err_data["#{entity_key}[color]"] = Util::CmsConfigValidator.validate_color(color)
 
             gradient = entity_val[GlobalConstant::CmsConfigurator.value_gradient]
-            err_msg_gradient = Util::CmsConfigValidator.validate_number(gradient)
-            err_msg_gradient
+            err_data["#{entity_key}[gradient]"] = Util::CmsConfigValidator.validate_number(gradient)
+            err_data
           else
             fail "Invalid Data kind - #{data_kind}"
         end
@@ -325,6 +327,7 @@ module AdminManagement
       #
       def deep_sanitize_array(arr)
         new_arr = []
+        puts arr.inspect
         arr.each do |x|
           if x.is_a?(Hash)
             new_h = {}

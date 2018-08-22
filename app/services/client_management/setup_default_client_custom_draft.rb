@@ -93,8 +93,8 @@ module ClientManagement
       @entity_draft_ids = {}
       @default_template_data = GlobalConstant::CmsConfigurator.custom_default_template_data
 
-      EntityGroupDraft.entity_types.each do |entity_type|
-        entity_data = @default_template_data[entity_type] || {}
+      EntityGroupDraft.entity_types.each do |entity_type, _|
+        entity_data = @default_template_data[entity_type.to_s] || {}
         obj = EntityDraft.create!(client_id: @client_id,
                                   last_updated_admin_id: @admin_id,
                                   data: entity_data,

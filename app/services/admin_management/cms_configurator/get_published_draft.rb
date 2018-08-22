@@ -58,6 +58,14 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
+        return error_with_data(
+            'am_cc_gpd_v_1',
+            'Client does not have a web host support',
+            'Client does not have a web host support',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if !@client.is_web_host_setup_done?
+
         success
       end
 

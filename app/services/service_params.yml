@@ -279,14 +279,11 @@
     - :client_id
     - :template_type
   :optional:
-    - :in_preview_mode
-    - :gid
 
-'UserManagement::PreviewDummyUser':
+'AdminManagement::CmsConfigurator::PreviewEntityDraft':
   :mandatory:
     - :client_id
     - :template_type
-    - :in_preview_mode
     - :gid
   :optional:
 

@@ -96,4 +96,15 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Get user detail for opening kyc page and dashboard in preview mode
+  #
+  # * Author: Pankaj
+  # * Date: 16/08/2018
+  # * Reviewed By:
+  #
+  def preview_entity_draft
+    service_response = AdminManagement::CmsConfigurator::PreviewEntityDraft.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

@@ -123,15 +123,8 @@ Rails.application.routes.draw do
       match ':entity_type/reset' => :reset_entity_draft, via: :POST
       match 'publish-group' => :publish_entity_group, via: :POST
       match 'create-group' => :create_entity_group, via: :POST
-    end
-
-    scope 'api/admin/configurator', controller: 'web/admin/configurator' do
       match 'fetch-published-version' => :fetch_published_version, via: :GET
-    end
-
-    scope 'api/admin/preview', controller: 'web/admin/user_preview' do
-      match 'client-detail' => :client_detail, via: :GET
-      match 'dummy-user' => :dummy_user_preview, via: :GET
+      match 'preview' => :preview_entity_draft, via: :GET
     end
 
     scope 'api/home', controller: 'web/static/home' do

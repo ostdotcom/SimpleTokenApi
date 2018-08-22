@@ -6,6 +6,10 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
 
   skip_before_action :sanitize_params, only: [:update_entity_draft]
 
+  before_action :validate_configurator_settings, except: [:fetch_published_version, :index]
+
+  include ::Util::ResultHelper
+
 
   # Get upload params for client logo and favicon configuration
   #
@@ -105,6 +109,32 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   def preview_entity_draft
     service_response = AdminManagement::CmsConfigurator::PreviewEntityDraft.new(params).perform
     render_api_response(service_response)
+  end
+
+  private
+
+  # Validate configurator settings of client
+  #
+  # * Author: Pankaj
+  # * Date: 22/08/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def validate_configurator_settings
+    client = Client.get_from_memcache(params[:client_id])
+    if !client.is_web_host_setup_done?
+      delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
+      service_response = error_with_data(
+          "Unauthorized access",
+          "Client don't have configurator access.",
+          "Client don't have configurator access.",
+          GlobalConstant::ErrorAction.default,
+          {}
+      )
+      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
+      render_api_response(service_response)
+    end
   end
 
 end

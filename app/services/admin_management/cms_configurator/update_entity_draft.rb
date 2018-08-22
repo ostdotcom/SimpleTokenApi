@@ -179,7 +179,7 @@ module AdminManagement
             entity_error_data[error_key] = "This field cannot be blank"
           elsif entity_val.present?
             if data_kind == GlobalConstant::CmsConfigurator.value_array
-              entity_val, err_msg = basic_validations(entity_val, data_kind, entity_validations)
+              err_msg = basic_validations(entity_val, data_kind, entity_validations)
               if err_msg.present?
                 entity_error_data[error_key] = err_msg
                 # make it blank so no other validation on element level is performed
@@ -223,30 +223,30 @@ module AdminManagement
       end
 
       def validate_element(entity_val, data_kind, entity_validations)
-        entity_val, err_msg = basic_validations(entity_val, data_kind, entity_validations)
+        err_msg = basic_validations(entity_val, data_kind, entity_validations)
         return err_msg if err_msg.present?
 
         case data_kind
           when GlobalConstant::CmsConfigurator.value_color
-            return entity_val, Util::CmsConfigValidator.validate_color(entity_val)
+            return Util::CmsConfigValidator.validate_color(entity_val)
           when GlobalConstant::CmsConfigurator.value_text
-            return entity_val, Util::CmsConfigValidator.validate_text(entity_val)
+            return Util::CmsConfigValidator.validate_text(entity_val)
           when GlobalConstant::CmsConfigurator.value_html
-            return entity_val, Util::CmsConfigValidator.validate_html(entity_val)
+            return Util::CmsConfigValidator.validate_html(entity_val)
           when GlobalConstant::CmsConfigurator.value_number
-            return entity_val, Util::CmsConfigValidator.validate_number(entity_val)
+            return Util::CmsConfigValidator.validate_number(entity_val)
           when GlobalConstant::CmsConfigurator.value_link
-            return entity_val, Util::CmsConfigValidator.validate_url(entity_val)
+            return Util::CmsConfigValidator.validate_url(entity_val)
           when GlobalConstant::CmsConfigurator.value_gradient
-            return entity_val, 'Invalid Gradient option' if !entity_val.is_a?(Hash)
+            return 'Invalid Gradient option' if !entity_val.is_a?(Hash)
 
             color = entity_val[GlobalConstant::CmsConfigurator.value_color]
             err_msg_color = Util::CmsConfigValidator.validate_color(color)
-            return entity_val, err_msg_color if err_msg_color.present?
+            return err_msg_color if err_msg_color.present?
 
             gradient = entity_val[GlobalConstant::CmsConfigurator.value_gradient]
             err_msg_gradient = Util::CmsConfigValidator.validate_number(gradient)
-            return entity_val, err_msg_gradient
+            return err_msg_gradient
           else
             fail "Invalid Data kind - #{data_kind}"
         end
@@ -254,42 +254,38 @@ module AdminManagement
 
 
       def basic_validations(entity_value, data_kind, validations)
-        modified_entity_value = entity_value
-
         if data_kind == GlobalConstant::CmsConfigurator.value_array
           max_count = validations[GlobalConstant::CmsConfigurator.max_count_key]
-          return modified_entity_value, "Entities cannot be more than #{max_count}" if
-              max_count && modified_entity_value.length > max_count
+          return "Entities cannot be more than #{max_count}" if
+              max_count && entity_value.length > max_count
 
           min_count = validations[GlobalConstant::CmsConfigurator.min_count_key]
-          return modified_entity_value, "Entities cannot be less than #{min_count}" if
-              min_count && modified_entity_value.length < min_count
+          return "Entities cannot be less than #{min_count}" if
+              min_count && entity_value.length < min_count
 
         elsif data_kind == GlobalConstant::CmsConfigurator.value_number
-          modified_entity_value = entity_value.to_i
           max = validations[GlobalConstant::CmsConfigurator.max_key]
-          return modified_entity_value, "Number cannot be more than #{max}" if
-              max && modified_entity_value && modified_entity_value > max
+          return "Number cannot be more than #{max}" if
+              max && entity_value.to_i > max
 
           min = validations[GlobalConstant::CmsConfigurator.min_key]
-          return modified_entity_value, "Number cannot be less than #{min}" if
-              min && modified_entity_value && modified_entity_value < min
+          return "Number cannot be less than #{min}" if
+              min && entity_value.to_i < min
 
         else
-          modified_entity_value = entity_value.to_s.strip
           max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
-          return modified_entity_value, "Length cannot be more than #{max_length}" if
-              max_length && modified_entity_value.length > max_length
+          return "Length cannot be more than #{max_length}" if
+              max_length && entity_value.length > max_length
 
           min_length = validations[GlobalConstant::CmsConfigurator.min_length_key]
-          return modified_entity_value, "Length cannot be less than #{min_length}" if
-              min_length && modified_entity_value.length < min_length
+          return "Length cannot be less than #{min_length}" if
+              min_length && entity_value.length < min_length
         end
 
         includes_validation = validations[GlobalConstant::CmsConfigurator.includes_key]
-        return modified_entity_value, "Entered Value is not allowed" if includes_validation && includes_validation.exclude?(modified_entity_value)
+        return "Entered Value is not allowed" if includes_validation && includes_validation.exclude?(entity_value)
 
-        return modified_entity_value, nil
+        nil
       end
 
       # Cloudfront domain url

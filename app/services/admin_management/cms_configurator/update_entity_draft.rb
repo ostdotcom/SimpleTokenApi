@@ -165,8 +165,7 @@ module AdminManagement
 
           entity_error_data = {}
 
-          # entity_val = JSON.parse(@form_data[key.to_sym].to_json.strip)
-          entity_val = @form_data[key.to_sym]
+          entity_val = JSON.parse(@form_data[key.to_sym].to_json.strip)
 
           # max_length, min_length, required, includes
           entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]

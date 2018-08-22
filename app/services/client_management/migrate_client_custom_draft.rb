@@ -14,8 +14,8 @@ module ClientManagement
     #
     def initialize(params)
       super
-      @client_id = params[:client_id]
-      @admin_id = params[:admin_id]
+      @client_id = @params[:client_id]
+      @admin_id = @params[:admin_id]
 
       @entity_group, @entity_draft_ids = nil, nil
       @client_templates = {}
@@ -217,7 +217,7 @@ module ClientManagement
           kyc_form_popup_checkboxes: kyc_form_popup_checkboxes
       }
 
-      @client_drafts_data[GlobalConstant::EntityGroupDraft.kyc_form_entity_type] = kyc_draft_data
+      @client_drafts_data[GlobalConstant::EntityGroupDraft.kyc_entity_type] = kyc_draft_data
 
       ###################################################################################################################################################
 

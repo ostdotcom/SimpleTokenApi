@@ -191,12 +191,12 @@ module AdminManagement
               element_validations = element_config[GlobalConstant::CmsConfigurator.validations_key]
 
               entity_val.each_with_index do |element_val, index|
-                entity_val, err_msg = validate_element(element_val, element_data_kind, element_validations)
+                err_msg = validate_element(element_val, element_data_kind, element_validations)
                 entity_error_data["#{error_key.to_s}[#{index}]".to_sym] = err_msg if err_msg.present?
               end
 
             else
-              entity_val, err_msg = validate_element(entity_val, data_kind, entity_validations)
+              err_msg = validate_element(entity_val, data_kind, entity_validations)
               entity_error_data[error_key] = err_msg if err_msg.present?
             end
           end
@@ -228,15 +228,15 @@ module AdminManagement
 
         case data_kind
           when GlobalConstant::CmsConfigurator.value_color
-            return Util::CmsConfigValidator.validate_color(entity_val)
+            Util::CmsConfigValidator.validate_color(entity_val)
           when GlobalConstant::CmsConfigurator.value_text
-            return Util::CmsConfigValidator.validate_text(entity_val)
+            Util::CmsConfigValidator.validate_text(entity_val)
           when GlobalConstant::CmsConfigurator.value_html
-            return Util::CmsConfigValidator.validate_html(entity_val)
+            Util::CmsConfigValidator.validate_html(entity_val)
           when GlobalConstant::CmsConfigurator.value_number
-            return Util::CmsConfigValidator.validate_number(entity_val)
+            Util::CmsConfigValidator.validate_number(entity_val)
           when GlobalConstant::CmsConfigurator.value_link
-            return Util::CmsConfigValidator.validate_url(entity_val)
+            Util::CmsConfigValidator.validate_url(entity_val)
           when GlobalConstant::CmsConfigurator.value_gradient
             return 'Invalid Gradient option' if !entity_val.is_a?(Hash)
 
@@ -246,7 +246,7 @@ module AdminManagement
 
             gradient = entity_val[GlobalConstant::CmsConfigurator.value_gradient]
             err_msg_gradient = Util::CmsConfigValidator.validate_number(gradient)
-            return err_msg_gradient
+            err_msg_gradient
           else
             fail "Invalid Data kind - #{data_kind}"
         end
@@ -256,36 +256,31 @@ module AdminManagement
       def basic_validations(entity_value, data_kind, validations)
         if data_kind == GlobalConstant::CmsConfigurator.value_array
           max_count = validations[GlobalConstant::CmsConfigurator.max_count_key]
-          return "Entities cannot be more than #{max_count}" if
-              max_count && entity_value.length > max_count
+          return "Entities cannot be more than #{max_count}" if max_count && entity_value.length > max_count
 
           min_count = validations[GlobalConstant::CmsConfigurator.min_count_key]
-          return "Entities cannot be less than #{min_count}" if
-              min_count && entity_value.length < min_count
-
+          return "Entities cannot be less than #{min_count}" if min_count && entity_value.length < min_count
         elsif data_kind == GlobalConstant::CmsConfigurator.value_number
+
           max = validations[GlobalConstant::CmsConfigurator.max_key]
-          return "Number cannot be more than #{max}" if
-              max && entity_value.to_i > max
+          return "Number cannot be more than #{max}" if max && entity_value && entity_value.to_i > max
 
           min = validations[GlobalConstant::CmsConfigurator.min_key]
-          return "Number cannot be less than #{min}" if
-              min && entity_value.to_i < min
+          return "Number cannot be less than #{min}" if min && entity_value && entity_value.to_i < min
 
         else
+
           max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
-          return "Length cannot be more than #{max_length}" if
-              max_length && entity_value.length > max_length
+          return "Length cannot be more than #{max_length}" if max_length && entity_value.length > max_length
 
           min_length = validations[GlobalConstant::CmsConfigurator.min_length_key]
-          return "Length cannot be less than #{min_length}" if
-              min_length && entity_value.length < min_length
+          return "Length cannot be less than #{min_length}" if min_length && entity_value.length < min_length
         end
 
         includes_validation = validations[GlobalConstant::CmsConfigurator.includes_key]
         return "Entered Value is not allowed" if includes_validation && includes_validation.exclude?(entity_value)
 
-        nil
+        return nil
       end
 
       # Cloudfront domain url
@@ -307,8 +302,8 @@ module AdminManagement
       def validate_uploaded_files_path
         err = {}
         GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
-            [GlobalConstant::CmsConfigurator.company_logo_key,
-             GlobalConstant::CmsConfigurator.company_favicon_key].each do |key|
+          [GlobalConstant::CmsConfigurator.company_logo_key,
+           GlobalConstant::CmsConfigurator.company_favicon_key].each do |key|
               asset_url = @store_data[key.to_sym].to_s.gsub(cloudfront_domain, "")
               if asset_url.present?
                 if asset_url.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?

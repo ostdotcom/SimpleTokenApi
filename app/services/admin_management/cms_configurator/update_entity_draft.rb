@@ -165,7 +165,7 @@ module AdminManagement
 
           entity_error_data = {}
 
-          entity_val = JSON.parse(@form_data[key.to_sym].to_json)
+          entity_val = JSON.parse(@form_data[key.to_sym].to_json.strip)
 
           # max_length, min_length, required, includes
           entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
@@ -179,6 +179,7 @@ module AdminManagement
             entity_error_data[error_key] = "This field cannot be blank"
           elsif entity_val.present?
             if data_kind == GlobalConstant::CmsConfigurator.value_array
+              entity_val = deep_sanitize_array(entity_val)
               err_msg = basic_validations(entity_val, data_kind, entity_validations)
               if err_msg.present?
                 entity_error_data[error_key] = err_msg
@@ -314,6 +315,28 @@ module AdminManagement
               end
             end
         return err
+      end
+
+      # Deep Sanitize array elements
+      #
+      # * Author: Pankaj
+      # * Date: 22/08/2018
+      # * Reviewed By:
+      #
+      def deep_sanitize_array(arr)
+        new_arr = []
+        arr.each do |x|
+          if x.is_a?(Hash)
+            new_h = {}
+            x.each{|k, v| new_h[k.to_s.strip] = v.to_s.strip}
+            new_arr << new_h
+          elsif x.is_a?(Array)
+            new_arr << deep_sanitize_array(x)
+          else
+            new_arr << x.to_s.strip
+          end
+        end
+        new_arr
       end
 
       # Fetch entity config

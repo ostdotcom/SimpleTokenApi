@@ -36,6 +36,8 @@ module UserManagement
 
       @client_setting = r.data
 
+      set_live_sale_for_client
+
       fetch_user
 
       success_with_data(api_response)
@@ -73,6 +75,21 @@ module UserManagement
         token_sale_participation_phase: GlobalConstant::TokenSale.early_access_token_sale_phase,
         whitelist_status: GlobalConstant::UserKycDetail.done_whitelist_status
       }
+    end
+
+    # Set client sale as live always
+    #
+    # * Author: Pankaj
+    # * Date: 16/08/2018
+    # * Reviewed By:
+    #
+    # Sets @client_setting
+    #
+    def set_live_sale_for_client
+      @client_setting[:client_setting][:token_sale_details].merge!(
+          sale_start_timestamp: Time.now.to_i,
+          sale_end_timestamp: (Time.now + 1.month).to_i
+      )
     end
 
   end

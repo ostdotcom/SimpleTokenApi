@@ -411,14 +411,8 @@ module AdminManagement
 
 
       def get_response_data
-        params = {
-            client_id: @client_id,
-            admin_id: @admin_id,
-            entity_type: @entity_type,
-            gid: @gid,
-            uuid: @uuid
-        }
-        AdminManagement::CmsConfigurator::GetEntityDraft.new(params).perform
+        @params.delete(:form_data)
+        AdminManagement::CmsConfigurator::GetEntityDraft.new(@params).perform
       end
 
     end

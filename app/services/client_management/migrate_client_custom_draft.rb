@@ -92,7 +92,7 @@ module ClientManagement
 
 
       background_gradient = []
-      background_gradient_style = common_template[:background_gradient_style].scan(/to bottom,\s*([^)]*)/i)[0][0]
+      background_gradient_style = common_template[:background_gradient_style].scan(/to bottom,\s*([^)]*)/i)[0][0] rescue "#ffffff 0%, #ffffff 20%,"
       background_gradients_arr = background_gradient_style.split(',').map {|x| x.split(/\s+/)}
       background_gradients_arr.map {|x| x.delete("")}
       background_gradients_arr.each do |a|

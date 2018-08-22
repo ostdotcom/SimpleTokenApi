@@ -98,7 +98,8 @@ module AdminManagement
         {
             client_setup: {
                 has_email_setup: @client.is_email_setup_done?,
-                has_whitelist_setup: @client.is_whitelist_setup_done?
+                has_whitelist_setup: @client.is_whitelist_setup_done?,
+                web_host_setup_done: @client.is_web_host_setup_done?
             },
             admin: {
                 email: @admin.email,

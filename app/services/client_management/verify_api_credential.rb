@@ -132,12 +132,7 @@ module ClientManagement
           {}
       ) unless r.success?
 
-      puts "generate_signature : #{generate_signature}"
-      puts "@signature : #{@signature}"
-
       return invalid_credentials_response('um_vac_5') unless generate_signature == @signature
-
-      puts "@allow_web_based_client : #{@allow_web_based_client}"
 
       success
     end

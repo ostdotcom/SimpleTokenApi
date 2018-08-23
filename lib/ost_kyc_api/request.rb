@@ -217,23 +217,12 @@ module OstKycApi
       request_params = base_params(endpoint, custom_params)
       raw_url = get_api_url(endpoint) + "?#{request_params.to_query}"
 
-      begin
-        Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
-          result = URI.parse(raw_url).read
-          return parse_api_response(result)
-        end
-      rescue OpenURI::HTTPError => e
-        if e.to_s == '401 Unauthorized'
-          return error_with_internal_code(e.message, 'simple token api error', GlobalConstant::ErrorCode.ok,
-                                          {}, {}, 'Invalid Credentials')
-
-        end
-        return exception_with_internal_code(e, 'Timeout Error', "Error: #{e.message}", GlobalConstant::ErrorCode.ok)
-      rescue Timeout::Error => e
-        return exception_with_internal_code(e, 'Timeout Error', "Error: #{e.message}", GlobalConstant::ErrorCode.ok)
-      rescue => e
-        return exception_with_internal_code(e, 'Something Went Wrong', "Exception: #{e.message}", GlobalConstant::ErrorCode.ok)
+      result = handle_with_exception do
+        response = URI.parse(raw_url).read
+        parse_api_response(response)
       end
+
+      return result
     end
 
     # Make Post Request
@@ -248,23 +237,46 @@ module OstKycApi
     def make_post_request(endpoint, custom_params = {})
       request_params = base_params(endpoint, custom_params)
       uri = post_api_uri(endpoint)
+
+      result = handle_with_exception do
+        http = setup_request(uri)
+        result = http.post(uri.path, request_params.to_query)
+        parse_api_response(result.body)
+      end
+
+      return result
+
+    end
+
+    # Handle With Exception
+    #
+    # returns [Result::Base]
+    #
+    def handle_with_exception
       begin
         Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
-          http = setup_request(uri)
-          result = http.post(uri.path, request_params.to_query)
-          return parse_api_response(result.body)
+          yield
         end
       rescue OpenURI::HTTPError => e
         if e.to_s == '401 Unauthorized'
           return error_with_internal_code(e.message, 'simple token api error', GlobalConstant::ErrorCode.ok,
                                           {}, {}, 'Invalid Credentials')
-
         end
-        return exception_with_internal_code(e, 'Timeout Error', "Error: #{e.message}", GlobalConstant::ErrorCode.ok)
+        return error_with_internal_code(e.message,
+                                        'simple token api error: SWR', GlobalConstant::ErrorCode.ok,
+                                        {}, {}, 'Something Went Wrong')
       rescue Timeout::Error => e
-        return exception_with_internal_code(e, 'Timeout Error', "Error: #{e.message}", GlobalConstant::ErrorCode.ok)
-      rescue => e
-        return exception_with_internal_code(e, 'Something Went Wrong', "Exception: #{e.message}", GlobalConstant::ErrorCode.ok)
+        return error_with_internal_code(e.message,
+                                        'simple token api error: Time Out Error', GlobalConstant::ErrorCode.ok,
+                                        {}, {}, 'Time Out Error')
+
+      rescue Exception => e
+
+        ApplicationMailer.notify(
+            body: {exception: {message: e.message, backtrace: e.backtrace}},
+            data: {environment: @environment},
+            subject: "Something Went Wrong in : #{self.class}"
+        ).deliver
       end
     end
 
@@ -286,8 +298,11 @@ module OstKycApi
       else
         # API Error
         Rails.logger.info("=*=Simple-Token-API-ERROR=*= #{response_data.inspect}")
-        error_with_internal_code(response_data['err']['code'], 'simple token api error', GlobalConstant::ErrorCode.ok, {}, response_data['err']['error_data'], response_data['err']['display_text'])
-
+        error_with_internal_code(response_data['err']['code'],
+                                 'simple token api error',
+                                 GlobalConstant::ErrorCode.ok,
+                                 {}, response_data['err']['error_data'],
+                                 response_data['err']['display_text'])
       end
     end
 

@@ -106,7 +106,7 @@ module GlobalConstant
                    else
                      raise "invalid entity type-#{entity_type}"
                  end
-        config.dup
+        config.deep_dup
       end
 
       #
@@ -166,7 +166,7 @@ module GlobalConstant
           end
           default_template_data
         end
-        @custom_default_template_data.dup
+        @custom_default_template_data.deep_dup
       end
 
 

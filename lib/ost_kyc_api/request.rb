@@ -256,7 +256,7 @@ module OstKycApi
         end
       rescue OpenURI::HTTPError => e
         if e.to_s == '401 Unauthorized'
-          return error_with_internal_code(e.message, 'simple token api error', GlobalConstant::ErrorCode.unauthorized_access,
+          return error_with_internal_code(e.message, 'simple token api error', GlobalConstant::ErrorCode.ok,
                                           {}, {}, 'Invalid Credentials')
 
         end

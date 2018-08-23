@@ -79,10 +79,10 @@ module AdminManagement
       #
       def fetch_entity_group_id
 
-        @entity_group = EntityGroup.where(client_id: @client_id, creator_admin_id: @admin_id,
-                                          status: GlobalConstant::EntityGroup.incomplete_status).last
+        @entity_group = EntityGroup.where(client_id: @client_id, creator_admin_id: @admin_id).last
 
-        if !@entity_group.blank?
+        if @entity_group.present? &&
+            @entity_group.status == GlobalConstant::EntityGroup.incomplete_status
           @gid = @entity_group.id
           @uuid = @entity_group.uuid
         end

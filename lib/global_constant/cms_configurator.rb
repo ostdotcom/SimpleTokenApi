@@ -34,10 +34,6 @@ module GlobalConstant
         'element'
       end
 
-      def max_key
-        'max'
-      end
-
       def min_key
         'min'
       end

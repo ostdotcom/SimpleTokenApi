@@ -10,6 +10,7 @@ module GlobalConstant
       def company_favicon_key
         'company_favicon'
       end
+
       def company_logo_key
         'company_logo'
       end
@@ -93,18 +94,19 @@ module GlobalConstant
       ######### YML keys and values end#############
 
       def get_entity_config(entity_type)
-        case entity_type
-          when GlobalConstant::EntityGroupDraft.theme_entity_type
-            get_theme_yml
-          when GlobalConstant::EntityGroupDraft.kyc_entity_type
-            get_kyc_yml
-          when GlobalConstant::EntityGroupDraft.dashboard_entity_type
-            get_dashboard_yml
-          when GlobalConstant::EntityGroupDraft.registration_entity_type
-            get_registration_yml
-          else
-            raise "invalid entity type-#{entity_type}"
-        end
+        config = case entity_type
+                   when GlobalConstant::EntityGroupDraft.theme_entity_type
+                     get_theme_yml
+                   when GlobalConstant::EntityGroupDraft.kyc_entity_type
+                     get_kyc_yml
+                   when GlobalConstant::EntityGroupDraft.dashboard_entity_type
+                     get_dashboard_yml
+                   when GlobalConstant::EntityGroupDraft.registration_entity_type
+                     get_registration_yml
+                   else
+                     raise "invalid entity type-#{entity_type}"
+                 end
+        config.dup
       end
 
       #
@@ -164,6 +166,7 @@ module GlobalConstant
           end
           default_template_data
         end
+        @custom_default_template_data.dup
       end
 
 

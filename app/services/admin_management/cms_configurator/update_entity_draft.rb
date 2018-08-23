@@ -165,7 +165,7 @@ module AdminManagement
 
           entity_error_data = {}
 
-          entity_val = JSON.parse(@form_data[key.to_sym].to_json)
+          entity_val = Oj.load(@form_data[key.to_sym].to_json, {})
           entity_val.to_s.strip! if entity_val.is_a?(String)
 
 

@@ -433,7 +433,7 @@ module UserManagement
       @uploaded_files.each do |key, s3_files|
         s3_files.each do |s3_file_path|
           threads << Thread.new(key, s3_file_path) do |k, v|
-            puts "#{k} => File verification starts at #{Time.now.to_f}"
+            Rails.logger.info "#{k} => File verification starts at #{Time.now.to_f}"
             file_size = s3_bucket.object(v).data.content_length rescue 0
             if file_size.zero?
               @error_data[k] = "File is not present on S3"
@@ -443,7 +443,7 @@ module UserManagement
               @error_data[k] = "Max file size should be 20MB"
             end
 
-            puts "#{k} => File verified at #{Time.now.to_f}"
+            Rails.logger.info "#{k} => File verified at #{Time.now.to_f}"
           end
         end
       end

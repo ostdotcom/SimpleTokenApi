@@ -245,7 +245,7 @@ module ClientManagement
 
       ethereum_deposit_popup_checkboxes = dashboard_template[:ethereum_confirm_checkbox_points_html].map {|x| sanitize_html(x)}
 
-      middle_banner_text = dashboard_template[:ethereum_deposit_text_html].to_s
+      middle_banner_text = dashboard_template[:ethereum_deposit_text_html].gsub("& ", "&amp; ").to_s
       middle_banner_text = middle_banner_text.present? ? middle_banner_text : 'DO NOT use Coinbase, Kraken or any other exchange to purchase Tokens'
 
       middle_banner_href_style = middle_banner_text.scan(/a\s+href=.*style="([^"]*)"/im)[0][0] rescue nil
@@ -381,7 +381,7 @@ module ClientManagement
 
     def sanitize_html(text)
       # will work only  for footer
-      footer_sub_text = text.gsub(/<\s*footer\s+style=[^>]*>/i, '')
+      footer_sub_text = text.gsub("& ", "&amp; ").gsub(/<\s*footer\s+style=[^>]*>/i, '')
 
       footer_sub_text1 = footer_sub_text.gsub(/style="([^"]*)"/, '')
       footer_sub_text2 = footer_sub_text1.gsub(/title="([^"]*)"/, '')

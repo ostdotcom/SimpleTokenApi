@@ -55,6 +55,7 @@ module UserManagement
       @residence_proof_file_path = @params[:residence_proof_file_path] # # S3 Path of residence_proof_file File
       @estimated_participation_amount = @params[:estimated_participation_amount]
       @investor_proof_files_path = @params[:investor_proof_files_path] # # S3 Path of Investor proofs File
+      @uploaded_files = {}
 
       @client = nil
       @client_token_sale_details = nil
@@ -147,6 +148,8 @@ module UserManagement
       validate_postal_code
       validate_residence_proof_file_path
       validate_investor_documents
+
+      validate_uploaded_files
 
       # IF error, return
       return error_with_data(
@@ -350,7 +353,8 @@ module UserManagement
       if !@document_id_file_path.present?
         @error_data[:document_id_file_path] = 'Identification document image is required.'
       else
-        @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !s3_kyc_folder_belongs_to_client?(@document_id_file_path)
+        return @error_data[:document_id_file_path] = 'Invalid S3 path for Identification document image' if !s3_kyc_folder_belongs_to_client?(@document_id_file_path)
+        @uploaded_files[:document_id_file_path] = [@document_id_file_path]
       end
     end
 
@@ -359,7 +363,8 @@ module UserManagement
       if !@selfie_file_path.present?
         @error_data[:selfie_file_path] = 'Selfie is required.'
       else
-        @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !s3_kyc_folder_belongs_to_client?(@selfie_file_path)
+        return @error_data[:selfie_file_path] = 'Invalid S3 path for Selfie' if !s3_kyc_folder_belongs_to_client?(@selfie_file_path)
+        @uploaded_files[:selfie_file_path] = [@selfie_file_path]
       end
     end
 
@@ -370,7 +375,8 @@ module UserManagement
       end
 
       if @residence_proof_file_path.present?
-        @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !s3_kyc_folder_belongs_to_client?(@residence_proof_file_path)
+        return @error_data[:residence_proof_file_path] = 'Invalid S3 path for residence proof file' if !s3_kyc_folder_belongs_to_client?(@residence_proof_file_path)
+        @uploaded_files[:residence_proof_file_path] = [@residence_proof_file_path]
       end
 
     end
@@ -402,9 +408,46 @@ module UserManagement
       end
 
       # If any of the file does not matches s3 file path
+      @uploaded_files[:investor_proof_files_path] = []
       @investor_proof_files_path.each do |x|
-        @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
+        if !s3_kyc_folder_belongs_to_client?(x)
+          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file'
+          next
+        end
+        @uploaded_files[:investor_proof_files_path] << x
       end
+    end
+
+    # Validate all uploaded files exists on s3 and falls in content length range or not
+    #
+    # * Author: Pankaj
+    # * Date: 28/08/2018
+    # * Reviewed By:
+    #
+    # @return [Boolean]
+    #
+    def validate_uploaded_files
+      threads = []
+      s3_manager = Aws::S3Manager.new('kyc', 'admin')
+      s3_bucket = s3_manager.get_s3_bucket_object(GlobalConstant::Aws::Common.kyc_bucket)
+      @uploaded_files.each do |key, s3_files|
+        s3_files.each do |s3_file_path|
+          threads << Thread.new(key, s3_file_path) do |k, v|
+            puts "#{k} => File verification starts at #{Time.now.to_f}"
+            file_size = s3_bucket.object(v).data.content_length rescue 0
+            if file_size.zero?
+              @error_data[k] = "File is not present on S3"
+            elsif file_size < s3_manager.min_file_size
+              @error_data[k] = "Minimum file size should be 200kB"
+            elsif file_size > s3_manager.max_file_size
+              @error_data[k] = "Max file size should be 20MB"
+            end
+
+            puts "#{k} => File verified at #{Time.now.to_f}"
+          end
+        end
+      end
+      threads.each {|t| t.join}
     end
 
     # S3 Kyc Folder belongs to the client

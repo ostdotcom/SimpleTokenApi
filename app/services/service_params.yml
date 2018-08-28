@@ -386,6 +386,19 @@
      - :fr_match_percent
   :optional:
 
+'ClientManagement::UpdateSaleSetting':
+  :mandatory:
+     - :admin_id
+     - :client_id
+     - :sale_start_timestamp
+     - :sale_end_timestamp
+  :optional:
+
+'ClientManagement::GetSaleSetting':
+  :mandatory:
+     - :client_id
+  :optional:
+
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id

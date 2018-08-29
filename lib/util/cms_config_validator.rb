@@ -60,10 +60,13 @@ module Util
       def validate_html(html_text, validations)
         # unescapeHTML is doing here, because we are doing escapeHTML in before_filter for update_entity_draft method
         html_text = CGI.unescapeHTML(html_text)
+        html_text.to_s.strip
 
-        r = basic_validate_and_sanitize_string(html_text, validations)
-        return r if !r.success?
-        html_text = r.data[:sanitized_val]
+        #removing max length validations for html fields.
+        # r = basic_validate_and_sanitize_string(html_text, validations)
+        # return r if !r.success?
+        # html_text = r.data[:sanitized_val]
+        #
 
         success_with_data(sanitized_val: Sanitize.fragment(html_text, custom_sanitizer_config))
       end

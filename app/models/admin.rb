@@ -77,7 +77,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
                           admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status, role: admin_role)
     admin_obj.save!(validate: false)
-
+    admin_obj
   end
 
   # Get encrypted password

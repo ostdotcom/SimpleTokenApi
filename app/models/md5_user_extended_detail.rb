@@ -46,6 +46,8 @@ class Md5UserExtendedDetail < EstablishSimpleTokenUserDbConnection
   # Returns[Array] USer Kyc Details objects.
   #
   def self.get_user_kyc_details(client_id, ethereum_address)
+    return [] if ethereum_address.blank?
+
     sha_ethereum = get_hashed_value(ethereum_address)
 
     ued_ids = Md5UserExtendedDetail.where(ethereum_address: sha_ethereum).pluck(:user_extended_detail_id)

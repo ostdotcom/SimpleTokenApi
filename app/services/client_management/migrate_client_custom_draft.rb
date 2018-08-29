@@ -381,7 +381,7 @@ module ClientManagement
 
     def sanitize_html(text)
       # will work only  for footer
-      footer_sub_text = text.gsub("& ", "&amp; ").gsub(/<\s*footer\s+style=[^>]*>/i, '')
+      footer_sub_text = text.gsub("& ", "&amp; ").gsub("&copy;","©").gsub(/<\s*footer\s+style=[^>]*>/i, '')
 
       footer_sub_text1 = footer_sub_text.gsub(/style="([^"]*)"/, '')
       footer_sub_text2 = footer_sub_text1.gsub(/title="([^"]*)"/, '')

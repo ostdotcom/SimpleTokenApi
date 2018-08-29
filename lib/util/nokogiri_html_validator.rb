@@ -1,10 +1,11 @@
 module Util
-  class HtmlSanitizer
+  class NokogiriHtmlValidator
 
     # Initialize
     #
     # @params (Array) elements (optional) - Html tags
     # @params (Hash) attributes (optional) - Html tag attributes
+    # @params (Hash) attribute_value (optional) - Allowed values for tag attributes
     # @params (String) html () - Html string
     #
     # * Author: Aniket
@@ -13,12 +14,12 @@ module Util
     #
     # Set @elements, @attributes, @html
     #
-    # @return [Util::HtmlSanitizer]
+    # @return [Util::NokogiriHtmlValidator]
     #
     def initialize(params)
       @elements = params[:elements] ||= []
       @attributes = params[:attributes] ||= {} #{'a': ['href', 'target']}
-      @attribute_value = params[:attribute_value]
+      @attribute_value = params[:attribute_value] #{'style': "text-decoration: underline;"}
       @html = params[:html].to_s.strip
     end
 

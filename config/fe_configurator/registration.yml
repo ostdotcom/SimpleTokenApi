@@ -3,7 +3,7 @@ policy_texts:
   validations:
     required: 1
     max_count: 4
-    min_count: 2
+    min_count: 1
     max_length: 400
     min_length: 1
   element:

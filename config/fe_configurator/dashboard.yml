@@ -20,12 +20,13 @@ sale_timer_background_gradient:
     color:
       data_kind: 'color'
       validations:
-        required: 0
+        required: 1
     gradient:
       data_kind: 'number'
       validations:
         max: 100
         min: 0
+        required: 1
   default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 100}]
 
 dashboard_middle_banner_link_color:
@@ -51,6 +52,7 @@ dashboard_middle_banner_title_text:
   validations:
     required: 1
     max_length: 100
+    min_length: 1
   default_value: 'Set gas limit to 150,000'
 
 dashboard_middle_banner_body_text:
@@ -96,6 +98,4 @@ ethereum_deposit_popup_checkboxes:
   element:
     data_kind: 'html'
     validations:
-      max_length: 400
-      min_length: 1
   default_value: []

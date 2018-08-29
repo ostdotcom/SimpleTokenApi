@@ -134,7 +134,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   def memcache_flush
     client_kyc_config_details_memcache_key = ClientKycConfigDetail.get_memcache_key_object.key_template % {client_id: self.client_id}
     Memcache.delete(client_kyc_config_details_memcache_key)
-    ClientSetting.flush_memcache_key_for_template_types_of_client(self.client_id)
+    ClientSetting.flush_client_settings_cache(self.client_id)
   end
 
 end

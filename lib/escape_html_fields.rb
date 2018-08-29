@@ -71,6 +71,7 @@ class EscapeHtmlFields
     # * Reviewed By:
     #
     def escape_html_fields_recursively(entity_val, entity_config)
+      entity_config = entity_config || {}
       sanitized_val = nil
 
       if entity_val.is_a?(String)

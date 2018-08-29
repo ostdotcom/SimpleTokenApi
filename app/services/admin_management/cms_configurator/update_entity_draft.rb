@@ -242,6 +242,15 @@ module AdminManagement
                            success_with_data(sanitized_val: sanitized_data)
         end
         return result_obj
+      rescue => e
+        return exception_with_data(
+            e,
+            'am_cc_ued_vasfr_1',
+            'Invalid Data type ' + e.message,
+            '',
+            GlobalConstant::ErrorAction.default,
+            {err: 'Invalid Data type'}
+        )
       end
 
       # Validate fields on the basis of data_type

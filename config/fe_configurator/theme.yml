@@ -26,13 +26,18 @@ background_gradient:
   data_kind: 'array'
   validations:
     required: 1
-    max_count: 2
+    max_count: 3
     min_count: 2
   element:
-    data_kind: 'gradient'
-    validations:
-      max_count: 2
-      min_count: 2
+    color:
+      data_kind: 'color'
+      validations:
+        required: 0
+    gradient:
+      data_kind: 'number'
+      validations:
+        max: 100
+        min: 0
   default_value: [{color: "rgb(243,249,244)", gradient: 0}, {color: "rgb(255,255,255)", gradient: 20}]
 
 primary_button_text_color:
@@ -131,14 +136,14 @@ footer_text:
     required: 1
     max_length: 500
   default_value: 'Copyright &copy; 2018 Company. All Rights Reserved. <a href="https://domain.com/terms-and-conditions.html"
-                    title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> & <a href="https://domain.com/privacy.html"
+                    title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> &amp; <a href="https://domain.com/privacy.html"
                     title="Privacy Policy" target="_blank" rel="nofollow">Privacy Policy</a>'
 
 terms_condition_link:
   data_kind: 'link'
   validations:
     required: 1
-    max_length: 100
+    max_length: 500
   default_value: 'https://domain.com/terms-n-conditions.html'
 
 gtm_pixel_id:

@@ -153,7 +153,7 @@ module AdminManagement
       # Fetch and validate page yml
       #
       # * Author: Aniket
-      # * Date: 07/08/2018
+      # * Date: 28/08/2018
       # * Reviewed By:
       #
       def fetch_and_validate_form_data
@@ -162,53 +162,13 @@ module AdminManagement
 
         entity_config.each do |key, entity_config|
           next if entity_config[GlobalConstant::CmsConfigurator.not_eligible_key].to_i == 1
-
-          entity_error_data = {}
-
           entity_val = Oj.load(@form_data[key.to_sym].to_json, {})
-          entity_val.to_s.strip! if entity_val.is_a?(String)
-
-
-          # max_length, min_length, required, includes
-          entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
-          data_kind = entity_config[GlobalConstant::CmsConfigurator.data_kind_key]
-          is_mandatory = entity_validations[GlobalConstant::CmsConfigurator.required_key].to_i
-
-          entity_key = key.to_sym
-
-          if is_mandatory == 1 && entity_val.blank?
-            puts "error : Mandatory_blank key: #{key}"
-            entity_error_data[entity_key] = "This field cannot be blank"
-          elsif entity_val.present?
-            if data_kind == GlobalConstant::CmsConfigurator.value_array
-              entity_val = deep_sanitize_array(entity_val)
-              err_msg = basic_validations(entity_val, data_kind, entity_validations)
-              if err_msg.present?
-                entity_error_data[entity_key] = err_msg
-                # make it blank so no other validation on element level is performed
-                entity_val = []
-              end
-
-              element_config = entity_config[GlobalConstant::CmsConfigurator.element_key]
-              element_data_kind = element_config[GlobalConstant::CmsConfigurator.data_kind_key]
-              element_validations = element_config[GlobalConstant::CmsConfigurator.validations_key]
-
-              entity_val.each_with_index do |element_val, index|
-                e_key = "#{entity_key.to_s}[#{index}]"
-                err = validate_element(e_key, element_val, element_data_kind, element_validations)
-                err.each {|k, v| entity_error_data.merge!({k => v}) if v.present?}
-              end
-
-            else
-              err = validate_element(entity_key, entity_val, data_kind, entity_validations)
-              entity_error_data.merge!(err) if err[entity_key].present?
-            end
-          end
-
-          if entity_error_data.blank?
-            @store_data[key.to_sym] = entity_val if entity_val.present?
+          r = validate_and_sanitize_field_recursively(entity_val, entity_config)
+          if r.success?
+            sanitized_val = r.data[:sanitized_val]
+            @store_data[key.to_sym] = sanitized_val if sanitized_val.present?
           else
-            error_data.merge!(entity_error_data)
+            error_data.merge!({"#{key}": r.error_data[:err]})
           end
         end
 
@@ -220,81 +180,147 @@ module AdminManagement
             "Validation failed",
             GlobalConstant::ErrorAction.default,
             {},
-            error_data
+            format_error_for_update_config(error_data)
         ) if error_data.present?
 
         success
       end
 
-      def validate_element(entity_key, entity_val, data_kind, entity_validations)
-        err_msg = basic_validations(entity_val, data_kind, entity_validations)
-        return {entity_key => err_msg} if err_msg.present?
-
-        case data_kind
-          when GlobalConstant::CmsConfigurator.value_color
-            {entity_key => Util::CmsConfigValidator.validate_color(entity_val)}
-          when GlobalConstant::CmsConfigurator.value_text
-            {entity_key => Util::CmsConfigValidator.validate_text(entity_val)}
-          when GlobalConstant::CmsConfigurator.value_html
-            {entity_key => Util::CmsConfigValidator.validate_html(entity_val)}
-          when GlobalConstant::CmsConfigurator.value_number
-            {entity_key => Util::CmsConfigValidator.validate_number(entity_val)}
-          when GlobalConstant::CmsConfigurator.value_link
-            {entity_key => Util::CmsConfigValidator.validate_url(entity_val)}
-          when GlobalConstant::CmsConfigurator.value_gradient
-            return {"#{entity_key}[color]" => 'Invalid Gradient option'} if !entity_val.is_a?(Hash)
-
-            err_data = {}
-            color = entity_val[GlobalConstant::CmsConfigurator.value_color]
-            err_data["#{entity_key}[color]"] = Util::CmsConfigValidator.validate_color(color)
-
-            gradient = entity_val[GlobalConstant::CmsConfigurator.value_gradient]
-            err_data["#{entity_key}[gradient]"] = Util::CmsConfigValidator.validate_number(gradient)
-            err_data
-          else
-            fail "Invalid Data kind - #{data_kind}"
-        end
-      end
-
-
-      def basic_validations(entity_value, data_kind, validations)
-        if data_kind == GlobalConstant::CmsConfigurator.value_array
-          max_count = validations[GlobalConstant::CmsConfigurator.max_count_key]
-          return "Entities cannot be more than #{max_count}" if max_count && entity_value.length > max_count
-
-          min_count = validations[GlobalConstant::CmsConfigurator.min_count_key]
-          return "Entities cannot be less than #{min_count}" if min_count && entity_value.length < min_count
-        elsif data_kind == GlobalConstant::CmsConfigurator.value_number
-
-          max = validations[GlobalConstant::CmsConfigurator.max_key]
-          return "Number cannot be more than #{max}" if max && entity_value && entity_value.to_i > max
-
-          min = validations[GlobalConstant::CmsConfigurator.min_key]
-          return "Number cannot be less than #{min}" if min && entity_value && entity_value.to_i < min
-
-        else
-
-          max_length = validations[GlobalConstant::CmsConfigurator.max_length_key]
-          return "Length cannot be more than #{max_length}" if max_length && entity_value.length > max_length
-
-          min_length = validations[GlobalConstant::CmsConfigurator.min_length_key]
-          return "Length cannot be less than #{min_length}" if min_length && entity_value.length < min_length
-        end
-
-        includes_validation = validations[GlobalConstant::CmsConfigurator.includes_key]
-        return "Entered Value is not allowed" if includes_validation && includes_validation.exclude?(entity_value)
-
-        return nil
-      end
-
-      # Cloudfront domain url
+      # validate and sanitize fields recursively
       #
       # * Author: Aniket
-      # * Date: 17/08/2018
+      # * Date: 28/08/2018
       # * Reviewed By:
       #
-      def cloudfront_domain
-        GlobalConstant::Aws::Common.client_assets_cdn_url
+      def validate_and_sanitize_field_recursively(entity_val, entity_config)
+        result_obj = nil
+
+        # max_length, min_length, required, includes
+        entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
+        is_mandatory = entity_validations[GlobalConstant::CmsConfigurator.required_key].to_i if entity_validations.present?
+        return error_result_obj("This field cannot be blank") if is_mandatory == 1 && entity_val.blank?
+        return success_with_data(sanatize_val:nil) if entity_val.nil?
+
+        if entity_val.is_a? String
+          # if the entity_val is a string, sanitize it directly to remove script tags etc
+          result_obj = validate_and_sanitize_field(entity_val, entity_config)
+
+        elsif entity_val.is_a?(Hash) || entity_val.is_a?(ActionController::Parameters)
+          err_data, sanitized_data = {}, {}
+          entity_val.each do |key, val|
+            r = validate_and_sanitize_field_recursively(val, entity_config[key])
+
+            unless r.success?
+              err_data[key.to_sym] = r.error_data[:err]
+            else
+              sanitized_data[key.to_sym] = r.data[:sanitized_val]
+            end
+
+          end
+          result_obj = err_data.present? ? error_result_obj(err_data) :
+                           success_with_data(sanitized_val: sanitized_data)
+
+        elsif entity_val.is_a?(Array)
+          err_data, sanitized_data = {}, []
+
+          r = Util::CmsConfigValidator.basic_validate_array(entity_val, entity_config[GlobalConstant::CmsConfigurator.validations_key])
+          return r if !r.success?
+
+          entity_val.each_with_index do |val, index|
+            r = validate_and_sanitize_field_recursively(val, entity_config[GlobalConstant::CmsConfigurator.element_key])
+
+            if r.success?
+              sanitized_data << r.data[:sanitized_val]
+            else
+              err_data[index] = r.error_data[:err]
+              # insert a nil value so that the sequence of values is maintained
+              sanitized_data << nil
+            end
+          end
+
+          result_obj = err_data.present? ? error_result_obj(err_data) :
+                           success_with_data(sanitized_val: sanitized_data)
+        end
+        return result_obj
+      rescue => e
+        return exception_with_data(
+            e,
+            'am_cc_ued_vasfr_1',
+            'Invalid Data type ' + e.message,
+            '',
+            GlobalConstant::ErrorAction.default,
+            {err: 'Invalid Data type'}
+        )
+      end
+
+      # Validate fields on the basis of data_type
+      #
+      # * Author: Aniket
+      # * Date: 28/08/2018
+      # * Reviewed By:
+      #
+      def validate_and_sanitize_field(entity_val, entity_config)
+        data_kind = entity_config[GlobalConstant::CmsConfigurator.data_kind_key]
+        validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
+        response_data = nil
+
+        case data_kind
+          when GlobalConstant::CmsConfigurator.value_text
+            response_data = Util::CmsConfigValidator.validate_text(entity_val, validations)
+
+          when GlobalConstant::CmsConfigurator.value_html
+            response_data = Util::CmsConfigValidator.validate_html(entity_val, validations)
+
+          when GlobalConstant::CmsConfigurator.value_color
+            response_data = Util::CmsConfigValidator.validate_color(entity_val, validations)
+
+          when GlobalConstant::CmsConfigurator.value_number
+            response_data = Util::CmsConfigValidator.validate_number(entity_val, validations)
+
+          when GlobalConstant::CmsConfigurator.value_link
+            response_data = Util::CmsConfigValidator.validate_url(entity_val, validations)
+        end
+        response_data
+      end
+
+      # Format deep error hash in single level hash
+      #
+      # * Author: Aniket
+      # * Date: 28/08/2018
+      # * Reviewed By:
+      #
+      def format_error_for_update_config(error_data)
+        formatted_errors = {}
+        error_data.each do |key, val|
+          formatted_errors.merge!(get_error(val, key))
+        end
+        formatted_errors
+      end
+
+      # Format deep error hash in single level hash recursively
+      #
+      # * Author: Aniket
+      # * Date: 28/08/2018
+      # * Reviewed By:
+      #
+      def get_error(error, prefix)
+        err = {}
+        if error.is_a? String
+          # if the passed_param is a string, sanitize it directly to remove script tags etc
+          err["#{prefix}"] = error
+        elsif error.is_a?(Hash)
+          # if the passed_param is a hash, sanitize the values.
+          # we are not sanitizing keys, as not known keys will not be accessed - assumption
+          error.each do |err_key, err_val|
+            err.merge!(get_error(err_val, "#{prefix}[#{err_key}]"))
+          end
+        elsif error.is_a? Array
+          # if passed_param is a array, sanitize each element
+          error.each_with_index do |err_val, index|
+            err.merge!(get_error(err_val, "#{prefix}[#{index}]"))
+          end
+        end
+        err
       end
 
       # Validate uploaded files path
@@ -317,30 +343,18 @@ module AdminManagement
                 @store_data[key.to_sym] = cloudfront_domain + asset_url
               end
             end
-        return err
+
+        err
       end
 
-      # Deep Sanitize array elements
+      # Cloudfront domain url
       #
-      # * Author: Pankaj
-      # * Date: 22/08/2018
+      # * Author: Aniket
+      # * Date: 17/08/2018
       # * Reviewed By:
       #
-      def deep_sanitize_array(arr)
-        new_arr = []
-        puts arr.inspect
-        arr.each do |x|
-          if x.is_a?(Hash)
-            new_h = {}
-            x.each {|k, v| new_h[k.to_s.strip] = v.to_s.strip}
-            new_arr << new_h
-          elsif x.is_a?(Array)
-            new_arr << deep_sanitize_array(x)
-          else
-            new_arr << x.to_s.strip
-          end
-        end
-        new_arr
+      def cloudfront_domain
+        GlobalConstant::Aws::Common.client_assets_cdn_url
       end
 
       # Fetch entity config
@@ -351,7 +365,6 @@ module AdminManagement
       #
       def fetch_entity_config_for_fe
         @client_settings = ClientManagement::GetClientSetting.new({client_id: @client_id}).perform
-
         GlobalConstant::CmsConfigurator.get_entity_config_for_fe(@entity_type, @client_settings.data)
       end
 
@@ -427,10 +440,33 @@ module AdminManagement
         @entity_group_draft.save! if @entity_group_draft.changed?
       end
 
-
+      # Get response data for frontend
+      #
+      # * Author: Aniket
+      # * Date: 17/08/2018
+      # * Reviewed By:
+      #
       def get_response_data
         @params.delete(:form_data)
         AdminManagement::CmsConfigurator::GetEntityDraft.new(@params).perform
+      end
+
+      # returns error object
+      # AdminManagement::CmsConfigurator.fetch_and_validate_form_data expect error in error_data for key :err
+      #
+      # * Author: Aniket
+      # * Date: 28/08/2018
+      # * Reviewed By:
+      #
+      def error_result_obj(error)
+        error_with_data(
+            'am_cc_ued_ero_1',
+            'Invalid fields value',
+            '',
+            GlobalConstant::ErrorAction.default,
+            {},
+            {err:error}
+        )
       end
 
     end

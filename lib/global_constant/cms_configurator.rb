@@ -211,14 +211,14 @@ module GlobalConstant
       end
 
       def company_logo_file_formats
-        @company_favicon_range ||= begin
+        @company_logo_ff ||= begin
           validations = get_theme_yml[company_logo_key][validations_key]
           validations[accept_key]
         end
       end
 
       def company_favicon_file_formats
-        @company_favicon_range ||= begin
+        @company_fav_ff ||= begin
           validations = get_theme_yml[company_favicon_key][validations_key]
           validations[accept_key]
         end

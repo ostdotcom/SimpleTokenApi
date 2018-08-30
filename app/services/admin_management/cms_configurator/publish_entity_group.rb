@@ -43,7 +43,7 @@ module AdminManagement
         r = publish_entity_group
         return r unless r.success?
 
-        success_with_data({})
+        success_with_data(api_response)
 
       end
 
@@ -129,6 +129,18 @@ module AdminManagement
 
         success
 
+      end
+
+      # API response
+      #
+      # * Author: Pankaj
+      # * Date: 30/08/2018
+      # * Reviewed By:
+      #
+      def api_response
+        {
+            published_url: ClientWebHostDetail.get_from_memcache_by_client_id(@client_id).domain
+        }
       end
 
     end

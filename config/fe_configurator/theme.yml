@@ -4,6 +4,7 @@ company_logo:
     required: 1
     min_bytes: 1024
     max_bytes: 2097152
+    accept: ['image/jpeg', 'image/png', 'image/jpg', 'image/ico']
   default_value: 'c_assets/sta/default/logo.jpeg'
 
 company_logo_size_percent:
@@ -20,7 +21,8 @@ company_favicon:
     required: 0
     min_bytes: 1024
     max_bytes: 204800
-  default_value:
+    accept: ['image/jpeg', 'image/png', 'image/jpg', 'image/ico']
+  default_value: ''
 
 background_gradient:
   data_kind: 'array'

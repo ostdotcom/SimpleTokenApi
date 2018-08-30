@@ -202,7 +202,7 @@ module ClientManagement
 
       kyc_template = @client_templates[GlobalConstant::ClientTemplate.kyc_template_type].data
 
-      kyc_form_title = 'Update Your Registration Details'
+      kyc_form_title = 'Getting Closer to Accessing the Token Sale'
       kyc_form_subtitle = 'You will need to supply the following information to complete your registration'
 
       eth_address_instruction_text = sanitize_html(kyc_template[:ethereum_address_info_html])

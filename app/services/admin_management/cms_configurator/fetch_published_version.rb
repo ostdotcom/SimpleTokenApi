@@ -51,7 +51,7 @@ module AdminManagement
         create_entity_group_draft
         create_published_entity_group
 
-        success
+        success_with_data(api_response)
       end
 
       private
@@ -175,6 +175,18 @@ module AdminManagement
       #
       def create_published_entity_group
         PublishedEntityGroup.where(client_id: @client_id).update(entity_group_id: @entity_group.id)
+      end
+
+      # API response
+      #
+      # * Author: Pankaj
+      # * Date: 30/08/2018
+      # * Reviewed By:
+      #
+      def api_response
+        {
+            published_url: ClientWebHostDetail.get_from_memcache_by_client_id(@client_id).domain
+        }
       end
 
     end

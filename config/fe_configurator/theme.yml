@@ -2,9 +2,9 @@ company_logo:
   data_kind: 'text'
   validations:
     required: 1
-    min_bytes: 51200
+    min_bytes: 1024
     max_bytes: 2097152
-  default_value: 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/company/company-logo.png'
+  default_value: 'c_assets/sta/default/logo.jpeg'
 
 company_logo_size_percent:
   data_kind: 'number'
@@ -18,9 +18,9 @@ company_favicon:
   data_kind: 'text'
   validations:
     required: 0
-    min_bytes: 2048
+    min_bytes: 1024
     max_bytes: 204800
-  default_value: 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/company/company-logo.png'
+  default_value:
 
 background_gradient:
   data_kind: 'array'

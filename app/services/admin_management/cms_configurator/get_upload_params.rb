@@ -131,9 +131,9 @@ module AdminManagement
       def get_content_length_range(entity_key)
         case entity_key
           when GlobalConstant::CmsConfigurator.company_logo_key
-            (1024 * 50)..(1024 * 1024 * 2) # allow max 2 MB and min 50 kb
+            GlobalConstant::CmsConfigurator.company_logo_file_size_range
           when GlobalConstant::CmsConfigurator.company_favicon_key
-            (1024 * 2)..(1024 * 200) # allow max 200 kb and min 2 kb
+            GlobalConstant::CmsConfigurator.company_favicon_file_size_range
           else
             raise "Invalid key"
         end

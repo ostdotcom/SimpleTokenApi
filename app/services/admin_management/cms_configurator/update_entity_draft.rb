@@ -334,13 +334,13 @@ module AdminManagement
         GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
             [GlobalConstant::CmsConfigurator.company_logo_key,
              GlobalConstant::CmsConfigurator.company_favicon_key].each do |key|
-              asset_url = @store_data[key.to_sym].to_s.gsub(cloudfront_domain, "")
+              asset_url = @store_data[key.to_sym].to_s.gsub(cloudfront_domain_prefix, "")
               if asset_url.present?
                 if asset_url.match(AdminManagement::CmsConfigurator::GetUploadParams::CLIENT_ASSET_FILE_PATH_REGEX).blank?
                   err[key.to_sym] = "Filepath is invalid."
                   next
                 end
-                @store_data[key.to_sym] = cloudfront_domain + asset_url
+                @store_data[key.to_sym] = cloudfront_domain_prefix + asset_url
               end
             end
 
@@ -348,13 +348,14 @@ module AdminManagement
       end
 
       # Cloudfront domain url
+      # domain ends with '/'
       #
       # * Author: Aniket
       # * Date: 17/08/2018
       # * Reviewed By:
       #
-      def cloudfront_domain
-        GlobalConstant::Aws::Common.client_assets_cdn_url
+      def cloudfront_domain_prefix
+        "#{GlobalConstant::Aws::Common.client_assets_cdn_url}/"
       end
 
       # Fetch entity config

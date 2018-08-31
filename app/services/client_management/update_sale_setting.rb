@@ -96,57 +96,24 @@ module ClientManagement
     #
     def validate_date
       begin
-        @sale_start_timestamp = @sale_start_timestamp.to_s.strip
-        @sale_end_timestamp = @sale_end_timestamp.to_s.strip
-        if @sale_start_timestamp.match(/\d{1,2}\/\d{1,2}\/\d{4,4}\z/) && @sale_end_timestamp.match(/\d{1,2}\/\d{1,2}\/\d{4,4}\z/)
-          # if year is %y format then date changes to LMT zone (2 digit dates have issue)
-          @sale_start_timestamp = Time.zone.strptime(@sale_start_timestamp, "%d/%m/%Y")
-          @sale_end_timestamp = Time.zone.strptime(@sale_end_timestamp, "%d/%m/%Y")
+        @sale_start_timestamp = @sale_start_timestamp
+        @sale_end_timestamp = @sale_end_timestamp
 
-          puts "@sale_start_timestamp : #{@sale_start_timestamp}"
-          puts "@sale_end_timestamp : #{@sale_end_timestamp}"
-
-          time_diff = (@sale_end_timestamp - @sale_start_timestamp)
-          validate_to = (@sale_end_timestamp - Time.zone.now)
-
-          puts "time_diff : #{time_diff}"
-          puts "validate_to : #{validate_to}"
-
-          return error_with_data(
-              'cm_uss_vd_1',
-              'Invalid Date in the field from and to',
-              'Invalid Date',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if (time_diff <= 0)
-
-          return error_with_data(
-              'cm_uss_vd_2',
-              'The to date cannot be less that today date',
-              'Invalid Date in the field to',
-              GlobalConstant::ErrorAction.default,
-              {}
-          ) if (validate_to <= 0)
-
-          @sale_start_timestamp = @sale_start_timestamp.to_date.to_time.to_i
-          @sale_end_timestamp = @sale_end_timestamp.to_date.to_time.to_i
-        else
-          return error_with_data(
-              'cm_uss_vd_3',
-              'Invalid Date Format.Valid Format(dd/mm/yyyy)',
-              'Invalid Date',
-              GlobalConstant::ErrorAction.default,
-              {}
-          )
-        end
-      rescue ArgumentError
         return error_with_data(
-            'cm_uss_vd_4',
-            'Invalid Date',
+            'cm_uss_vd_1',
+            'Invalid Date in the field from and to',
             'Invalid Date',
             GlobalConstant::ErrorAction.default,
             {}
-        )
+        ) if (@sale_end_timestamp <= @sale_start_timestamp)
+
+        return error_with_data(
+            'cm_uss_vd_2',
+            'The to date cannot be less that today date',
+            'Invalid Date in the field to',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if (@sale_end_timestamp <= Time.zone.now.to_i)
       end
       success
     end
@@ -160,7 +127,8 @@ module ClientManagement
     # sets @Client_token_sale_detail
     #
     def update_sale_setting
-      @Client_token_sale_detail = ClientTokenSaleDetail.where(client_id: @client_id).update(sale_start_timestamp: @sale_start_timestamp, sale_end_timestamp: @sale_end_timestamp)
+      @Client_token_sale_detail = ClientTokenSaleDetail.where(client_id: @client_id).
+          update(sale_start_timestamp: @sale_start_timestamp, sale_end_timestamp: @sale_end_timestamp)
     end
 
     # Api response data

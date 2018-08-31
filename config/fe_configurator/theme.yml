@@ -139,7 +139,7 @@ footer_text:
     required: 1
     max_length: 400
     min_length: 1
-  default_value: 'Copyright © 2018 Company. All Rights Reserved. Terms &amp; Conditions'
+  default_value: 'Copyright © 2018 Company. All Rights Reserved. Terms &amp; Conditions and Privacy Policy'
 
 terms_condition_link:
   data_kind: 'link'

@@ -139,12 +139,16 @@ module AdminManagement
         ) if (@entity_group.client_id.to_i != @client_id || @entity_group.uuid.to_s != @uuid ||
             @entity_group.status == GlobalConstant::EntityGroup.deleted_status)
 
+        err_data = {}
+        err_data[:is_published] = 1  if @entity_group.status == GlobalConstant::EntityGroup.active_status
         return error_with_data(
             's_cc_ued_fave_3',
             'invalid entity params',
-            "This version has already been published and cannot be updated",
+            "This version has already been published and cannot be updated. To make changes to a published
+                        version, please create a new draft.",
             GlobalConstant::ErrorAction.default,
-            {}
+            {},
+            err_data
         ) if @entity_group.status != GlobalConstant::EntityGroup.incomplete_status
 
         success

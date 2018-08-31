@@ -95,26 +95,23 @@ module ClientManagement
     # @return [Result::Base]
     #
     def validate_date
-      begin
-        @sale_start_timestamp = @sale_start_timestamp
-        @sale_end_timestamp = @sale_end_timestamp
 
-        return error_with_data(
-            'cm_uss_vd_1',
-            'Invalid Date in the field from and to',
-            'Invalid Date',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if (@sale_end_timestamp <= @sale_start_timestamp)
+      return error_with_data(
+          'cm_uss_vd_1',
+          'Invalid Date in the field from and to',
+          'Invalid Date',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if (@sale_end_timestamp <= @sale_start_timestamp)
 
-        return error_with_data(
-            'cm_uss_vd_2',
-            'The to date cannot be less that today date',
-            'Invalid Date in the field to',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if (@sale_end_timestamp <= Time.zone.now.to_i)
-      end
+      return error_with_data(
+          'cm_uss_vd_2',
+          'The to date cannot be less that today date',
+          'Invalid Date in the field to',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if (@sale_end_timestamp <= Time.zone.now.to_i)
+
       success
     end
 

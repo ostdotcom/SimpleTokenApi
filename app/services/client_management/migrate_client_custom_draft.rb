@@ -79,6 +79,8 @@ module ClientManagement
       common_template = @client_templates[GlobalConstant::ClientTemplate.common_template_type].data
       token_sale_blocked_region_template = @client_templates[GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type].data
 
+      account_name = common_template[:account_name]
+      account_name_short = common_template[:account_name_short]
 
       company_logo = common_template[:header][:logo][:src]
       company_logo_size_percent = 15
@@ -86,7 +88,7 @@ module ClientManagement
 
 
       if Rails.env.staging?
-        company_logo = 'https://s3.amazonaws.com/cwa.stagingkyc.com/c_assets/sta/simpletoken/sample_logo.png'
+        company_logo = "#{GlobalConstant::Aws::Common.client_assets_cdn_url}/c_assets/sta/default/logo.jpeg"
         company_favicon = ''
       end
 
@@ -189,8 +191,8 @@ module ClientManagement
 
       signup_template = @client_templates[GlobalConstant::ClientTemplate.sign_up_template_type].data
 
-      checkbox_html = signup_template[:checkbox_html]
-      policy_texts = [sanitize_html(checkbox_html)]
+      checkbox_html_list = signup_template[:checkbox_html_list] || [signup_template[:checkbox_html]]
+      policy_texts = checkbox_html_list.map {|x| sanitize_html(x) }
 
 
       signup_draft_data = {
@@ -202,8 +204,8 @@ module ClientManagement
 
       kyc_template = @client_templates[GlobalConstant::ClientTemplate.kyc_template_type].data
 
-      kyc_form_title = 'Getting Closer to Accessing the Token Sale'
-      kyc_form_subtitle = 'You will need to supply the following information to complete your registration'
+      kyc_form_title = kyc_template[:kyc_title] ||  'Getting Closer to Accessing the Token Sale'
+      kyc_form_subtitle = kyc_template[:kyc_subtitle] || 'You will need to supply the following information to complete your registration'
 
       eth_address_instruction_text = sanitize_html(kyc_template[:ethereum_address_info_html])
       document_id_instruction_text = sanitize_html(kyc_template[:document_info_html])

@@ -10,7 +10,4 @@ policy_texts:
     data_kind: 'html'
     validations:
       required: 1
-  default_value: ['By checking this box, you agree to our <a href="https://domain.com/terms-and-conditions.html"
-                  title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a>
-                  and acknowledge and consent to our <a href="https://domain.com/privacy.html"
-                  title="Privacy Policy" target="_blank">Privacy Policy</a>']
+  default_value: ['I agree to the Terms &amp; Conditions and Privacy Policy']

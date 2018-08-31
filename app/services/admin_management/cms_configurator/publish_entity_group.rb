@@ -138,8 +138,10 @@ module AdminManagement
       # * Reviewed By:
       #
       def api_response
+        client_domain = ClientWebHostDetail.get_from_memcache_by_client_id(@client_id).domain
+        client_domain = "https://#{client_domain}"
         {
-            published_url: ClientWebHostDetail.get_from_memcache_by_client_id(@client_id).domain
+            published_url: client_domain
         }
       end
 

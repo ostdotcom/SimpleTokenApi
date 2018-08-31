@@ -7,9 +7,8 @@ Rails.application.routes.draw do
       match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
     end
 
-    scope 'api/home', controller: 'web/static/home' do
-      match '/alpha3/signup' => :register_for_alpha3, via: [:GET, :POST]
-      match '/alpha3/submission' => :submission_for_alpha3, via: [:GET, :POST]
+    scope 'api/home/alpha', controller: 'web/static/home' do
+      match '/4/signup' => :register_for_alpha4, via: [:GET, :POST]
     end
 
     match '*permalink', to: 'application#not_found', via: :all

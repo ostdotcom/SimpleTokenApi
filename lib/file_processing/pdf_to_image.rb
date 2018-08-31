@@ -36,13 +36,13 @@ module FileProcessing
 
         new_file_name = "#{@directory}/#{original_file_name}.jpg"
 
-        original_pdf = File.open(@file_name, 'rb').read
-        image = Magick::Image::from_blob(original_pdf) do
+        pdf = ::Magick::ImageList.new(@file_name + "[0]") do
           self.format = 'PDF'
           self.quality = 100
           self.density = 300
         end
-        image_obj = image[0]
+
+        image_obj = pdf[0]
         image_obj.format = 'JPG'
         image_obj.background_color = "white"
         image_obj.alpha Magick::RemoveAlphaChannel

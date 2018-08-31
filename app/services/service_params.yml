@@ -401,7 +401,7 @@
     - :domain
   :optional:
 
-'UserManagement::Alpha3Registration':
+'UserManagement::Alpha4Registration':
   :mandatory:
     - :first_name
     - :last_name
@@ -409,20 +409,6 @@
     - :company_name
   :optional:
     - :project_description
-    - :kit_marketing
-
-'UserManagement::Alpha3Submission':
-  :mandatory:
-    - :email
-    - :name_poc
-    - :team_bio
-    - :video_url
-    - :url_blog
-  :optional:
-    - :company_name
-    - :project_url
-    - :tech_doc
-    - :twitter_handle
     - :kit_marketing
 
 'ClientManagement::MigrateClientCustomDraft':

@@ -1,11 +1,11 @@
 module UserManagement
 
-  class Alpha3Registration < ServicesBase
+  class Alpha4Registration < ServicesBase
 
     # Initialize
     #
-    # * Author: Pankaj
-    # * Date: 06/06/2018
+    # * Author: Tejas
+    # * Date: 23/08/2018
     # * Reviewed By:
     #
     # @params [String] first_name (mandatory) - first name
@@ -15,7 +15,7 @@ module UserManagement
     # @params [String] project_description (Optional) - Project description
     # @params [Integer] kit_marketing (Optional) - kit marketing emails selected
     #
-    # @return [UserManagement::Alpha3Registration]
+    # @return [UserManagement::Alpha4Registration]
     #
     def initialize(params)
       super
@@ -30,8 +30,8 @@ module UserManagement
 
     # Perform
     #
-    # * Author: Pankaj
-    # * Date: 06/06/2018
+    # * Author: Tejas
+    # * Date: 23/08/2018
     # * Reviewed By:
     #
     # @return [Result::Base]
@@ -48,6 +48,10 @@ module UserManagement
     private
 
     # Validate
+    #
+    # * Author: Tejas
+    # * Date: 23/08/2018
+    # * Reviewed By:
     #
     # @return [Result::Base]
     #
@@ -78,8 +82,8 @@ module UserManagement
 
     # Create Hook to sync data in Email Service
     #
-    # * Author: Pankaj
-    # * Date: 06/06/2018
+    # * Author: Tejas
+    # * Date: 23/08/2018
     # * Reviewed By:
     #
     def create_email_service_api_call_hook
@@ -97,7 +101,7 @@ module UserManagement
           client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
           email: @email,
           custom_attributes: custom_attributes,
-          list_id: GlobalConstant::PepoCampaigns.alpha_3_list_id
+          list_id: GlobalConstant::PepoCampaigns.alpha_4_list_id
       ).perform
 
     end

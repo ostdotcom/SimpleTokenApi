@@ -13,7 +13,7 @@ company_logo_size_percent:
     required: 1
     max: 100
     min: 1
-  default_value: 15
+  default_value: 10
 
 company_favicon:
   data_kind: 'text'
@@ -41,7 +41,7 @@ background_gradient:
         required: 1
         max: 100
         min: 0
-  default_value: [{color: "rgb(243,249,244)", gradient: 0}, {color: "rgb(255,255,255)", gradient: 20}]
+  default_value: [{color: "rgb(243, 249, 244)", gradient: 40}, {color: "rgb(215, 232, 218)", gradient: 50}]
 
 primary_button_text_color:
   data_kind: 'color'
@@ -139,9 +139,7 @@ footer_text:
     required: 1
     max_length: 400
     min_length: 1
-  default_value: 'Copyright &copy; 2018 Company. All Rights Reserved. <a href="https://domain.com/terms-and-conditions.html"
-                    title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> &amp; <a href="https://domain.com/privacy.html"
-                    title="Privacy Policy" target="_blank" rel="nofollow">Privacy Policy</a>'
+  default_value: 'Copyright © 2018 Company. All Rights Reserved. Terms &amp; Conditions'
 
 terms_condition_link:
   data_kind: 'link'

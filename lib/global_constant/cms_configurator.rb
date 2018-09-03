@@ -165,7 +165,7 @@ module GlobalConstant
             default_val = data["default_value"]
             next if default_val.blank?
 
-            if [company_logo_key, company_favicon].include?(key)
+            if [company_logo_key, company_favicon_key].include?(key)
               default_val = "#{GlobalConstant::Aws::Common.client_assets_cdn_url}/" + default_val
             end
 

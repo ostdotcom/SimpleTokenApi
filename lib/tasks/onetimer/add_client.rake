@@ -204,6 +204,8 @@ namespace :onetimer do
 
     ClientTokenSaleDetail.create!(
         client_id: client_id,
+        token_name: token_sale_details['token_name'],
+        token_symbol: token_sale_details['token_symbol'],
         sale_start_timestamp: token_sale_details['sale_start_timestamp'],
         sale_end_timestamp: token_sale_details['sale_end_timestamp'],
         ethereum_deposit_address: ethereum_deposit_address_e,

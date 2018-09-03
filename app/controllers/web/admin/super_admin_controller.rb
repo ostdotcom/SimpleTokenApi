@@ -1,7 +1,7 @@
 class Web::Admin::SuperAdminController < Web::Admin::BaseController
 
   before_action only: [:get_kyc_report, :invite, :resend_invite, :reset_mfa, :delete_admin,
-                       :update_auto_approve_setting, :update_sale_setting] do
+                       :update_auto_approve_setting, :update_sale_setting, :update_country_setting] do
     authenticate_request(true)
   end
 
@@ -101,6 +101,15 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-
+  # Update Country Setting
+  #
+  # * Author: Tejas
+  # * Date: 27/08/2018
+  # * Reviewed By:
+  #
+  def update_country_setting
+    service_response = ClientManagement::UpdateCountrySetting.new(params).perform
+    render_api_response(service_response)
+  end
 
 end

@@ -19,8 +19,8 @@ module ClientManagement
 
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
-      @sale_start_timestamp = @params[:sale_start_timestamp]
-      @sale_end_timestamp = @params[:sale_end_timestamp]
+      @sale_start_timestamp = @params[:sale_start_timestamp].to_i
+      @sale_end_timestamp = @params[:sale_end_timestamp].to_i
 
       @client_token_sale_detail = nil
 
@@ -104,13 +104,13 @@ module ClientManagement
           {}
       ) if (@sale_end_timestamp <= @sale_start_timestamp)
 
-      return error_with_data(
-          'cm_uss_vd_2',
-          'The to date cannot be less that today date',
-          'Invalid Date in the field to',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) if (@sale_end_timestamp <= Time.zone.now.to_i)
+      # return error_with_data(
+      #     'cm_uss_vd_2',
+      #     'The to date cannot be less that today date',
+      #     'Invalid Date in the field to',
+      #     GlobalConstant::ErrorAction.default,
+      #     {}
+      # ) if (@sale_end_timestamp <= Time.zone.now.to_i)
 
       success
     end
@@ -121,11 +121,14 @@ module ClientManagement
     # * Date: 27/08/2018
     # * Reviewed By:
     #
-    # sets @Client_token_sale_detail
+    # sets @client_token_sale_detail
     #
     def update_sale_setting
-      @Client_token_sale_detail = ClientTokenSaleDetail.where(client_id: @client_id).
-          update(sale_start_timestamp: @sale_start_timestamp, sale_end_timestamp: @sale_end_timestamp)
+      @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
+
+      @client_token_sale_detail.sale_start_timestamp =  @sale_start_timestamp
+      @client_token_sale_detail.sale_end_timestamp = @sale_end_timestamp
+      @client_token_sale_detail.save! if @client_token_sale_detail.changed?
     end
 
     # Api response data

@@ -1,5 +1,5 @@
 module ClientManagement
-  class GetSaleSetting < ServicesBase
+  class GetCountrySetting < ServicesBase
 
     # Initialize
     #
@@ -9,14 +9,14 @@ module ClientManagement
     #
     # @param [Integer] client_id (mandatory) -  client id
     #
-    # @return [ClientManagement::GetSaleSetting]
+    # @return [ClientManagement::GetCountrySetting]
     #
     def initialize(params)
       super
 
       @client_id = @params[:client_id]
 
-      @client_token_sale_detail = nil
+      @client_kyc_config_details = nil
 
     end
 
@@ -33,7 +33,7 @@ module ClientManagement
       r = validate_and_sanitize
       return r unless r.success?
 
-      get_sale_setting
+      get_country_setting
 
       success_with_data(success_response_data)
     end
@@ -58,16 +58,16 @@ module ClientManagement
       success
     end
 
-    # Get Sale Setting
+    # Get Country Setting
     #
     # * Author: Tejas
     # * Date: 27/08/2018
     # * Reviewed By:
     #
-    # sets @client_token_sale_detail
+    # sets @client_kyc_config_details
     #
-    def get_sale_setting
-      @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
+    def get_country_setting
+      @client_kyc_config_details = ClientKycConfigDetail.get_from_memcache(@client_id)
     end
 
     # Api response data
@@ -80,8 +80,8 @@ module ClientManagement
     #
     def success_response_data
       {
-          sale_start_timestamp: @client_token_sale_detail.sale_start_timestamp,
-          sale_end_timestamp: @client_token_sale_detail.sale_end_timestamp
+          blacklisted_countries: @client_kyc_config_details.blacklisted_countries,
+          residency_proof_nationalities: @client_kyc_config_details.residency_proof_nationalities
       }
     end
 

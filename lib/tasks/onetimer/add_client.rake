@@ -21,8 +21,6 @@ namespace :onetimer do
   #         "domain" => "pepokyc.developmentost.com"
   #     },
   #     "token_sale_details" => {
-  #         "sale_start_timestamp" => 1514811600,
-  #         "sale_end_timestamp" => 1519064686,
   #         "ethereum_deposit_address" => "0xEc9859B0B3B4652aD5e264776a79E544b76aman2",
   #     },
   #     "kyc_config" => {
@@ -42,41 +40,7 @@ namespace :onetimer do
   #             # "city",
   #             "state",
   #             # "postal_code"
-  #         ],
-  #         "residency_proof_nationalities" => [
-  #             'CHINESE',
-  #             'NEW ZEALANDER',
-  #             'AFGHANI',
-  #             'BOSNIAN',
-  #             'CENTRAL AFRICAN',
-  #             'CONGOLESE',
-  #             'CUBAN',
-  #             'ERITREAN',
-  #             'ETHIOPIAN',
-  #             'IRANIAN',
-  #             'IRAQI',
-  #             'LEBANESE',
-  #             'LIBYAN',
-  #             'NORTH KOREAN',
-  #             'SOMALI',
-  #             'SOUTH SUDANESE',
-  #             'SUDANESE',
-  #             'SRI LANKAN',
-  #             'SYRIAN',
-  #             'TUNISIAN',
-  #             'NI-VANUATU',
-  #             'YEMENI'
-  #         ],
-  #         "blacklisted_countries" => [
-  #             'BOSNIA AND HERZEGOVINA',
-  #             'CONGO',
-  #             'ERITREA',
-  #             'ETHIOPIA',
-  #             'IRAN',
-  #             'IRAQ',
-  #             'CUBA'
   #         ]
-  #
   #     }
   # }
 
@@ -189,15 +153,15 @@ namespace :onetimer do
 
     ClientTokenSaleDetail.create!(
         client_id: client_id,
-        sale_start_timestamp: token_sale_details['sale_start_timestamp'],
-        sale_end_timestamp: token_sale_details['sale_end_timestamp'],
+        sale_start_timestamp: Time.now.to_i,
+        sale_end_timestamp: Time.now.to_i + 1.month.to_i,
         ethereum_deposit_address: ethereum_deposit_address_e,
         status: GlobalConstant::ClientTokenSaleDetail.active_status
     )
 
     ClientKycConfigDetail.add_config(client_id: client_id,kyc_fields: kyc_config["kyc_fields"],
-                                     residency_proof_nationalities: kyc_config["residency_proof_nationalities"],
-                                     blacklisted_countries: kyc_config["blacklisted_countries"]
+                                     residency_proof_nationalities: [],
+                                     blacklisted_countries: []
                                      )
 
     puts "client_id: #{client_id}"

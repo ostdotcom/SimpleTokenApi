@@ -64,6 +64,7 @@ Rails.application.routes.draw do
       match 'developer-details' => :get_developer_detail, via: :GET
       match 'auto-approve-setting' => :get_auto_approve_setting, via: :GET
       match 'get-sale-setting' => :get_sale_setting, via: :GET
+      match 'get-country-setting' => :get_country_setting, via: :GET
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
@@ -111,6 +112,7 @@ Rails.application.routes.draw do
     scope 'api/admin/client', controller: 'web/admin/super_admin' do
       match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
       match 'update-sale-setting' => :update_sale_setting, via: :POST
+      match 'update-country-setting' => :update_country_setting, via: :POST
     end
 
     scope 'api/home', controller: 'web/static/home' do

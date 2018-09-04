@@ -105,7 +105,7 @@ module ClientManagement
         val = 20 if val.match(/px/)
         background_gradient << {color: rgb_color(a[0]), gradient: val.to_i}
       end
-      background_gradient = background_gradient[0..1]
+      background_gradient = background_gradient[0..2]
 
       primary_button_style = common_template[:primary_button_style].scan(/btn-primary *({[a-z0-9#-:;\s]*})/i)[0][0]
 
@@ -113,7 +113,7 @@ module ClientManagement
       primary_button_background_color = primary_button_style.scan(/background(-color)?:\s*([^;]*)/i)[0][1]
       primary_button_text_color = primary_button_style.scan(/[{;\s]+color:\s*([^;]*)/i)[0][0]
 
-      primary_button_style_active = common_template[:primary_button_style].scan(/.btn-primary:active[^{]* *({[a-z0-9#-:;\s!]*})/i)[0][0]
+      primary_button_style_active = common_template[:primary_button_style].scan(/.btn-primary:active[^{]* *({[a-z0-9#-:;\s!]*})/i)[0][0] rescue common_template[:primary_button_style].scan(/.client-primary-btn:active[^{]* *({[a-z0-9#-:;\s!]*})/i)[0][0]
       primary_button_border_color_active = primary_button_style_active.scan(/border-color:\s*([^;]*)/i)[0][0]
       primary_button_background_color_active = primary_button_style_active.scan(/background(-color)?:\s*([^;]*)/i)[0][1]
       primary_button_text_color_active = primary_button_style_active.scan(/[{;\s]+color:\s*([^;]*)/i)[0][0]

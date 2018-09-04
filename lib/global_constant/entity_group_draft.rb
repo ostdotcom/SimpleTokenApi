@@ -18,10 +18,6 @@ module GlobalConstant
         'dashboard'
       end
 
-      def kyc_entity_type
-        'kyc'
-      end
-
       def login_entity_type
         'login'
       end
@@ -36,6 +32,10 @@ module GlobalConstant
 
       def token_sale_blocked_region_entity_type
         'token_sale_blocked_region'
+      end
+
+      def kyc_entity_type
+        'kyc'
       end
 
       def verification_entity_type

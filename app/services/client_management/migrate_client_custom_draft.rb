@@ -193,8 +193,8 @@ module ClientManagement
 
       signup_template = @client_templates[GlobalConstant::ClientTemplate.sign_up_template_type].data
 
-      checkbox_html = signup_template[:checkbox_html]
-      policy_texts = [sanitize_html(checkbox_html)]
+      checkbox_html_list = signup_template[:checkbox_html_list] || [signup_template[:checkbox_html]]
+      policy_texts = checkbox_html_list.map {|x| sanitize_html(x) }
 
 
       signup_draft_data = {
@@ -206,8 +206,8 @@ module ClientManagement
 
       kyc_template = @client_templates[GlobalConstant::ClientTemplate.kyc_template_type].data
 
-      kyc_form_title = 'Update Your Registration Details'
-      kyc_form_subtitle = 'You will need to supply the following information to complete your registration'
+      kyc_form_title = kyc_template[:kyc_title] ||  'Getting Closer to Accessing the Token Sale'
+      kyc_form_subtitle = kyc_template[:kyc_subtitle] || 'You will need to supply the following information to complete your registration'
 
       eth_address_instruction_text = sanitize_html(kyc_template[:ethereum_address_info_html])
       document_id_instruction_text = sanitize_html(kyc_template[:document_info_html])
@@ -249,7 +249,7 @@ module ClientManagement
 
       ethereum_deposit_popup_checkboxes = dashboard_template[:ethereum_confirm_checkbox_points_html].map {|x| sanitize_html(x)}
 
-      middle_banner_text = dashboard_template[:ethereum_deposit_text_html].to_s
+      middle_banner_text = dashboard_template[:ethereum_deposit_text_html].gsub("& ", "&amp; ").to_s
       middle_banner_text = middle_banner_text.present? ? middle_banner_text : 'DO NOT use Coinbase, Kraken or any other exchange to purchase Tokens'
 
       middle_banner_href_style = middle_banner_text.scan(/a\s+href=.*style="([^"]*)"/im)[0][0] rescue nil
@@ -385,7 +385,7 @@ module ClientManagement
 
     def sanitize_html(text)
       # will work only  for footer
-      footer_sub_text = text.gsub(/<\s*footer\s+style=[^>]*>/i, '')
+      footer_sub_text = text.gsub("& ", "&amp; ").gsub("&copy;","©").gsub(/<\s*footer\s+style=[^>]*>/i, '')
 
       footer_sub_text1 = footer_sub_text.gsub(/style="([^"]*)"/, '')
       footer_sub_text2 = footer_sub_text1.gsub(/title="([^"]*)"/, '')

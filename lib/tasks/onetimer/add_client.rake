@@ -219,7 +219,7 @@ namespace :onetimer do
 
     ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
                                  whitelister_address: whitelist_data['whitelister_address'],
-                                 status: GlobalConstant::ClientPepoCampaignDetail.active_status) if whitelist_data.present?
+                                 status: GlobalConstant::ClientWhitelistDetail.active_status) if whitelist_data.present?
 
 
     puts "client_id: #{client_id}"

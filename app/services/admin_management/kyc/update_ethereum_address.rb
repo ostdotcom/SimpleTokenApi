@@ -29,6 +29,7 @@ module AdminManagement
         @user_extended_details = nil
         @old_ethereum_address = nil
         @old_md5_ethereum_address = nil
+        @client_kyc_config_detail = nil
       end
 
       # Perform
@@ -66,6 +67,8 @@ module AdminManagement
       # * Date: 04/05/2018
       # * Reviewed By:
       #
+      # sets @client_kyc_config_detail, @client, @admin
+      #
       # @return [Result::Base]
       #
       def validate_and_sanitize
@@ -95,6 +98,16 @@ module AdminManagement
             {}
         ) if @admin.default_client_id != @client.id
 
+        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+
+        return error_with_data(
+            'am_k_uea_3',
+            'Invalid Request',
+            'Invalid Request. Ethereum address not supported for client',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client_kyc_config_detail.kyc_fields_array.exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
+
         r = validate_ethereum_address
         return r unless r.success?
 
@@ -102,7 +115,7 @@ module AdminManagement
         edit_kyc_request = EditKycRequests.under_process.where(case_id: @case_id).first
 
         return error_with_data(
-            'am_k_uea_3',
+            'am_k_uea_4',
             'Edit request is in process for this case.',
             'Edit request is in process for this case.',
             GlobalConstant::ErrorAction.default,
@@ -111,7 +124,7 @@ module AdminManagement
 
         @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
         return error_with_data(
-            'am_k_uea_4',
+            'am_k_uea_5',
             'Kyc Details not found or its closed.',
             'Kyc Details not found or its closed.',
             GlobalConstant::ErrorAction.default,

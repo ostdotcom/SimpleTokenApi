@@ -12,4 +12,53 @@ class EntityGroupDraft < EstablishSimpleTokenCustomizationDbConnection
       GlobalConstant::EntityGroupDraft.verification_entity_type => 9
   }
 
+  after_commit :memcache_flush
+
+  # Get Key Object
+  #
+  # * Author: Tejas
+  # * Date: 13/08/2018
+  # * Reviewed By:
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('customization.group_entities')
+  end
+
+  # Get/Set Active group entities from memcache for admin entity group draft
+  #
+  # * Author: Tejas
+  # * Date: 13/08/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] entity_group_id - entity_group_id
+  #
+  # @return [Hash]
+  #
+  def self.get_group_entities_from_memcache(entity_group_id)
+    memcache_key_object = EntityGroupDraft.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {entity_group_id: entity_group_id}, memcache_key_object.expiry) do
+      EntityGroupDraft.where(entity_group_id: entity_group_id).index_by(&:entity_type)
+    end
+  end
+
+  def self.get_group_entity_draft_ids_from_memcache(entity_group_id)
+    edg = get_group_entities_from_memcache(entity_group_id)
+    ed_type = {}
+    edg.each{|key, val| ed_type[key] = val.entity_draft_id}
+    ed_type
+  end
+
+  # Flush Memcache
+  #
+  # * Author: Tejas
+  # * Date: 13/08/2018
+  # * Reviewed By:
+  #
+  def memcache_flush
+    entity_group_draft_memcache_key = EntityGroupDraft.get_memcache_key_object.key_template % {entity_group_id: self.entity_group_id}
+    Memcache.delete(entity_group_draft_memcache_key)
+  end
+
 end

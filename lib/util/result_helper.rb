@@ -113,6 +113,79 @@ module Util
       @c_tstmp ||= current_time.to_i
     end
 
+    # Success with data
+    #
+    # * Author: Kedar
+    # * Date: 09/10/2017
+    # * Reviewed By: Sunil Khedar
+    #
+    # @param [Hash] data (mandatory) - data to be sent in the response
+    #
+    # @return [Result::Base]
+    #
+    def success_result(data)
+      # Allow only Hash data to pass ahead
+      data = {} unless Util::CommonValidator.is_a_hash?(data)
+
+      Result::Base.success({
+                               data: data
+                           })
+    end
+
+    # Error with internal code
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @param [String] code (mandatory) - error code
+    # @param [String] msg (mandatory) - error message
+    # @param [Integer] internal_code (mandatory) - internal code, on which conditions can be made
+    # @param [String] data (optional) - error data
+    # @param [Hash] extended_data[:tracking_data] (optional) - tracking data to be sent in the response
+    # @param [Hash] extended_data[:segmentation_data] (optional) - segmentation data to be sent in the response
+    #
+    # @return [Result::Base] returns an object of Result::Base class
+    #
+    def error_with_internal_code(code, msg, internal_code, data = {}, error_data = {}, error_display_text= '')
+
+      Result::Base.error(
+          {
+              error: code,
+              error_message: msg,
+              error_display_text: error_display_text || msg,
+              data: data,
+              http_code: internal_code,
+              error_data: error_data
+          })
+    end
+
+    # Exception with internal code
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @param [Exception] e (mandatory) - Exception object
+    # @param [String] code (mandatory) - error code
+    # @param [String] msg (mandatory) - error message
+    # @param [Integer] internal_code (mandatory) - internal code, on which conditions can be made
+    # @param [String] data (optional) - error data
+    #
+    # @return [Result::Base] returns an object of Result::Base class
+    #
+    def exception_with_internal_code(e, code, msg, internal_code, data = {})
+
+      Result::Base.exception(
+          e, {
+          error: code,
+          error_message: msg,
+          data: data,
+          http_code: internal_code
+      }
+      )
+    end
+
   end
 
 end

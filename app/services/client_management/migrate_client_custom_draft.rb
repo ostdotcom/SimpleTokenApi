@@ -79,6 +79,8 @@ module ClientManagement
       common_template = @client_templates[GlobalConstant::ClientTemplate.common_template_type].data
       token_sale_blocked_region_template = @client_templates[GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type].data
 
+      account_name = common_template[:account_name]
+      account_name_short = common_template[:account_name_short]
 
       company_logo = common_template[:header][:logo][:src]
 
@@ -90,7 +92,7 @@ module ClientManagement
       company_favicon = common_template[:header][:favicon_src] || company_logo
 
       if Rails.env.staging?
-        company_logo = 'https://s3.amazonaws.com/cwa.stagingkyc.com/c_assets/sta/simpletoken/sample_logo.png'
+        company_logo = "#{GlobalConstant::Aws::Common.client_assets_cdn_url}/c_assets/sta/default/logo.jpeg"
         company_favicon = ''
       end
 

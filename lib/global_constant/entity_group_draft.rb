@@ -10,6 +10,18 @@ module GlobalConstant
         'theme'
       end
 
+      def registration_entity_type
+        'registration'
+      end
+
+      def dashboard_entity_type
+        'dashboard'
+      end
+
+      def kyc_entity_type
+        'kyc'
+      end
+
       def login_entity_type
         'login'
       end
@@ -26,21 +38,15 @@ module GlobalConstant
         'token_sale_blocked_region'
       end
 
-      def kyc_entity_type
-        'kyc'
-      end
-
       def verification_entity_type
         'verification'
       end
 
-      def dashboard_entity_type
-        'dashboard'
+      def allowed_entity_types_from_fe
+        [theme_entity_type, registration_entity_type, kyc_entity_type, dashboard_entity_type]
       end
 
-      def registration_entity_type
-        'registration'
-      end
+
 
       ### Entity type End ###
 

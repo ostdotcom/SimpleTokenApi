@@ -75,6 +75,10 @@ module GlobalConstant
       @kyc_app ||= fetch_config.fetch('kyc_app', {}).with_indifferent_access
     end
 
+    def self.kyc_api_base_domain
+      @kyc_api_base_domain ||= fetch_config.fetch('kyc_api_base_domain', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

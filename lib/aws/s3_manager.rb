@@ -76,6 +76,54 @@ module Aws
       )
     end
 
+    # Get signed url for
+    #
+    # * Author: Pankaj
+    # * Date: 16/10/2018
+    # * Reviewed By:
+    #
+    # @param [String] content_type - upload file content type
+    # @param [String] s3_path - upload file path in bucket
+    # @param [String] bucket - upload bucket
+    #
+    # @return [Resul::Base]
+    #
+    def get_presigned_post_url_for_client_assets(content_type, s3_path, bucket, content_length_range)
+      post_policy = {
+          key: s3_path,
+          content_type: content_type,
+          signature_expiration: Time.now + 1800,
+          acl: 'public-read',
+          content_length_range: content_length_range
+      }
+
+      post = Aws::S3::PresignedPost.new(
+          credentials_obj,
+          region,
+          bucket,
+          post_policy
+      )
+    end
+
+    def upload_file_presigned_url(s3_name, file_path)
+      s3 = resource
+      obj = s3.bucket(GlobalConstant::Aws::Common.kyc_bucket).object(s3_name)
+      url = URI.parse(obj.presigned_url(:put, {
+          server_side_encryption: 'aws:kms',
+          ssekms_key_id: key_id,
+          content_type: 'image/jpg',
+          content_length: (1024)
+      }))
+
+      puts url
+      Net::HTTP.start(url.host) do |http|
+        http.send_request("PUT", url.request_uri, File.read(file_path), {
+          # This is required, or Net::HTTP will add a default unsigned content-type.
+          "content-type" => "image/jpg",
+        })
+      end
+    end
+
     # upload data in s3
     #
     # * Author: Aman
@@ -119,7 +167,7 @@ module Aws
           key: s3_path)
     end
 
-    private
+    # private
 
     # Client
     #
@@ -131,6 +179,14 @@ module Aws
     #
     def client
       @client ||= Aws::S3::Client.new(
+          access_key_id: access_key,
+          secret_access_key: secret_key,
+          region: region
+      )
+    end
+
+    def resource
+      @resource ||= Aws::S3::Resource.new(
           access_key_id: access_key,
           secret_access_key: secret_key,
           region: region

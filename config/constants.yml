@@ -43,6 +43,8 @@ constants:
   s3:
     kyc_bucket: <%= ENV['STA_KYC_S3_BUCKET_NAME']%>
     report_bucket: <%= ENV['STA_REPORTS_S3_BUCKET_NAME']%>
+    client_assets_bucket: <%= ENV['STA_CLIENT_ASSETS_S3_BUCKET_NAME']%>
+    client_assets_cdn: <%= ENV['STA_CLIENT_ASSETS_CDN_URL']%>
 
   local_path:
     geo_ip_file: <%= ENV['STA_GEOIP_FILE_WITH_PATH'] %>
@@ -98,3 +100,9 @@ constants:
   kyc_app:
     shared_directory: <%= ENV['APP_SHARED_DIRECTORY'] %>
     addendum_client_ids: <%= ENV['ADDENDUM_CLIENT_IDS'] %>
+
+  kyc_api_base_domain:
+    development: "http://kyc.developmentost.com:8080"
+    staging: "https://kyc.stagingost.com"
+    sandbox: "https://kyc.sandboxost.com"
+    production: "https://kyc.ost.com"

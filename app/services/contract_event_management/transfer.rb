@@ -2,6 +2,8 @@ module ContractEventManagement
 
   class Transfer < Base
 
+    # Todo: Only active for Simple token client. Ethereum Address has to be optional
+
     # initialize
     #
     # * Author: Aman

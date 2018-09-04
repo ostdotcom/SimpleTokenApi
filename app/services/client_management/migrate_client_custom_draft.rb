@@ -88,11 +88,11 @@ module ClientManagement
         company_logo = 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/simple_token/simple-token-dashboard-logo-1x.png'
       end
 
-      company_logo_size_percent = 15
+      company_logo_size_percent = 35
       company_favicon = common_template[:header][:favicon_src] || company_logo
 
       if Rails.env.staging?
-        company_logo = "#{GlobalConstant::Aws::Common.client_assets_cdn_url}/c_assets/sta/default/logo.jpeg"
+        company_logo = 'https://s3.amazonaws.com/cwa.stagingkyc.com/c_assets/sta/simpletoken/sample_logo.png'
         company_favicon = ''
       end
 

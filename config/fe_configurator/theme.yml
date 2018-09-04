@@ -13,7 +13,7 @@ company_logo_size_percent:
     required: 1
     max: 100
     min: 1
-  default_value: 10
+  default_value: 30
 
 company_favicon:
   data_kind: 'text'

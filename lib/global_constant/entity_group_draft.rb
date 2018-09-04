@@ -26,8 +26,8 @@ module GlobalConstant
         'token_sale_blocked_region'
       end
 
-      def kyc_form_entity_type
-        'kyc_form'
+      def kyc_entity_type
+        'kyc'
       end
 
       def verification_entity_type

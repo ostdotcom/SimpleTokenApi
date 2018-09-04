@@ -250,7 +250,7 @@ module ClientManagement
       ethereum_deposit_popup_checkboxes = dashboard_template[:ethereum_confirm_checkbox_points_html].map {|x| sanitize_html(x)}
 
       middle_banner_text = dashboard_template[:ethereum_deposit_text_html].gsub("& ", "&amp; ").to_s
-      middle_banner_text = middle_banner_text.present? ? middle_banner_text : 'DO NOT use Coinbase, Kraken or any other exchange to purchase Tokens'
+      middle_banner_text = middle_banner_text.present? ? middle_banner_text : 'Set Gas Limit to 200,000.<br/>DO NOT use Coinbase, Kraken or any other exchange to purchase Tokens'
 
       middle_banner_href_style = middle_banner_text.scan(/a\s+href=.*style="([^"]*)"/im)[0][0] rescue nil
       dashboard_middle_banner_link_color = middle_banner_href_style.scan(/[^-]*color:\s*([^;]*)/im)[0][0] rescue 'feb202'
@@ -363,7 +363,7 @@ module ClientManagement
 
     def rgb_color(hex_color)
       arr = []
-      hex_color = hex_color.gsub("#", '')
+      hex_color = hex_color.gsub("#", '').strip
 
       if hex_color.length == 6
         arr << hex_color[0..1]

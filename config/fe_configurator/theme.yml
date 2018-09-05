@@ -21,7 +21,7 @@ company_favicon:
     required: 0
     min_bytes: 1024
     max_bytes: 204800
-    accept: ['image/jpeg', 'image/png', 'image/jpg', 'image/x-icon']
+    accept: ['image/jpeg', 'image/png', 'image/jpg', 'image/x-icon', 'image/vnd.microsoft.icon']
   default_value: ''
 
 background_gradient:

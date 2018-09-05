@@ -80,6 +80,8 @@ module ClientManagement
     #
     def success_response_data
       {
+          countires: GlobalConstant::CountryNationality.countries,
+          nationalities: GlobalConstant::CountryNationality.nationalities,
           blacklisted_countries: @client_kyc_config_details.blacklisted_countries,
           residency_proof_nationalities: @client_kyc_config_details.residency_proof_nationalities
       }

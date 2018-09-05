@@ -87,6 +87,28 @@ module ClientManagement
       end
 
       company_logo_size_percent = 35
+      if Rails.env.production?
+        company_logo_size_percent = case @client_id
+                                      when 1
+                                        51
+                                      when 2
+                                        35
+                                      when 6
+                                        50
+                                      when 7
+                                        35
+                                      when 8
+                                        30
+                                      when 9
+                                        100
+                                      when 10
+                                        80
+                                      else
+                                        35
+                                    end
+      end
+
+
       company_favicon = common_template[:header][:favicon_src] || company_logo
 
       if Rails.env.staging?
@@ -194,7 +216,7 @@ module ClientManagement
       signup_template = @client_templates[GlobalConstant::ClientTemplate.sign_up_template_type].data
 
       checkbox_html_list = signup_template[:checkbox_html_list] || [signup_template[:checkbox_html]]
-      policy_texts = checkbox_html_list.map {|x| sanitize_html(x) }
+      policy_texts = checkbox_html_list.map {|x| sanitize_html(x)}
 
 
       signup_draft_data = {
@@ -206,7 +228,7 @@ module ClientManagement
 
       kyc_template = @client_templates[GlobalConstant::ClientTemplate.kyc_template_type].data
 
-      kyc_form_title = kyc_template[:kyc_title] ||  'Getting Closer to Accessing the Token Sale'
+      kyc_form_title = kyc_template[:kyc_title] || 'Getting Closer to Accessing the Token Sale'
       kyc_form_subtitle = kyc_template[:kyc_subtitle] || 'You will need to supply the following information to complete your registration'
 
       eth_address_instruction_text = sanitize_html(kyc_template[:ethereum_address_info_html])
@@ -385,7 +407,7 @@ module ClientManagement
 
     def sanitize_html(text)
       # will work only  for footer
-      footer_sub_text = text.gsub("& ", "&amp; ").gsub("&copy;","©").gsub(/<\s*footer\s+style=[^>]*>/i, '')
+      footer_sub_text = text.gsub("& ", "&amp; ").gsub("&copy;", "©").gsub(/<\s*footer\s+style=[^>]*>/i, '')
 
       footer_sub_text1 = footer_sub_text.gsub(/style="([^"]*)"/, '')
       footer_sub_text2 = footer_sub_text1.gsub(/title="([^"]*)"/, '')

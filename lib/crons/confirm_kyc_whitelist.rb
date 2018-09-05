@@ -114,7 +114,7 @@ module Crons
       @transaction_hash = @kyc_whitelist_log.transaction_hash
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
-      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @transaction_hash})
+      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @transaction_hash, contract_type:"genericWhitelist"})
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@tx_info_status.inspect}")
 
@@ -124,7 +124,7 @@ module Crons
         @events_data = @tx_info_status.data[:events_data]
         @transaction_status = @tx_info_status.data[:status].to_s.downcase
         success
-      else
+      elsehe
         message = "Error in get transaction Status, PublicOps Or Geth may be down"
         notify_devs({transaction_hash: @transaction_hash, tx_info_status: @tx_info_status}, message)
 

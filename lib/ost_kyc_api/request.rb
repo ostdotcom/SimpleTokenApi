@@ -128,6 +128,27 @@ module OstKycApi
       make_get_request(endpoint, {user_id: user_id})
     end
 
+    # Get S3 urls for file upload
+    #
+    # @params [Hash] hash of image and pdf files content type data (mandatory)
+    #
+    def get_files_upload_urls(custom_params = {})
+
+      default_params = {
+          "images" => {
+              "file1.png" => 'image/png',
+              "file2.jpg" => 'image/jpg'
+          },
+          "pdfs" => {
+              "file3.pdf" => "application/pdf"
+          }
+      }
+      custom_params = default_params if custom_params.blank?
+
+      endpoint = "/api/#{@version}/kyc/get-file-upload-urls/"
+      make_get_request(endpoint, custom_params)
+    end
+
     private
 
     # Create Request Data

@@ -79,6 +79,8 @@ module ClientManagement
       common_template = @client_templates[GlobalConstant::ClientTemplate.common_template_type].data
       token_sale_blocked_region_template = @client_templates[GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type].data
 
+      account_name = common_template[:account_name]
+      account_name_short = common_template[:account_name_short]
 
       company_logo = common_template[:header][:logo][:src]
 

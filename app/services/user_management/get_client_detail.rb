@@ -17,8 +17,8 @@ module UserManagement
       super
 
       @client_id = @params[:client_id]
-      @template_type = @params[:template_type]
-
+      @entity_type = @params[:template_type]
+      @entity_group_id = nil
       @client = nil
     end
 
@@ -57,7 +57,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_and_sanitize
-      @template_type = @template_type.to_s.strip
+      @entity_type = @entity_type.to_s.strip
 
       r = validate
       return r unless r.success?
@@ -68,13 +68,7 @@ module UserManagement
           'Invalid Template Type',
           GlobalConstant::ErrorAction.default,
           {}
-      ) if [
-          GlobalConstant::ClientTemplate.login_template_type,
-          GlobalConstant::ClientTemplate.sign_up_template_type,
-          GlobalConstant::ClientTemplate.reset_password_template_type,
-          GlobalConstant::ClientTemplate.change_password_template_type,
-          GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
-      ].exclude?(@template_type)
+      ) if allowed_entity_types.exclude?(@entity_type)
 
       success
     end
@@ -110,7 +104,25 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_client_data_from_cache
-      ClientSetting.new(@client_id, @template_type).perform
+      ClientSetting.new(@client_id, @entity_type, @entity_group_id).perform
+    end
+
+    # Allowed entity types to open saas user pages
+    #
+    # * Author: Pankaj
+    # * Date: 16/08/2018
+    # * Reviewed By:
+    #
+    # @return [Array] - Allowed entity types
+    #
+    def allowed_entity_types
+      [
+        GlobalConstant::EntityGroupDraft.login_entity_type,
+        GlobalConstant::EntityGroupDraft.registration_entity_type,
+        GlobalConstant::EntityGroupDraft.reset_password_entity_type,
+        GlobalConstant::EntityGroupDraft.change_password_entity_type,
+        GlobalConstant::EntityGroupDraft.token_sale_blocked_region_entity_type
+      ]
     end
 
   end

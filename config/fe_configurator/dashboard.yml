@@ -1,0 +1,128 @@
+dashboard_title_text_color:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(145,192,173)'
+
+sale_timer_text_color:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(255,255,255)'
+
+sale_timer_background_gradient:
+  data_kind: 'array'
+  validations:
+    required: 1
+    max_count: 4
+    min_count: 2
+  element:
+    color:
+      data_kind: 'color'
+      validations:
+        required: 1
+    gradient:
+      data_kind: 'number'
+      validations:
+        max: 100
+        min: 0
+        required: 1
+  default_value: [{color: "rgb(145,192,173)", gradient: 0}, {color: "rgb(167,205,189)", gradient: 100}]
+
+dashboard_middle_banner_link_color:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(228,176,48)'
+
+dashboard_middle_banner_text_color:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(255,255,255)'
+
+dashboard_middle_banner_background:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(108,155,169)'
+
+dashboard_middle_banner_title_text:
+  data_kind: 'text'
+  validations:
+    required: 1
+    max_length: 100
+    min_length: 1
+  default_value: 'Set gas limit to 150,000'
+
+dashboard_middle_banner_body_text:
+  data_kind: 'html'
+  validations:
+    required: 0
+    max_length: 400
+  default_value: 'DO NOT USE Coinbase. Minimum Purchase 0.1 ETH.
+                    For more details refer to <a href="google.com" rel="nofollow">this document</a>.'
+
+dashboard_bottom_banner_text_color:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(255,255,255)'
+
+dashboard_bottom_banner_background:
+  data_kind: 'color'
+  validations:
+    required: 1
+  default_value: 'rgb(174,225,227)'
+
+telegram_button_theme:
+  data_kind: 'text'
+  validations:
+    required: 0
+    includes: ['light', 'dark']
+  default_value: 'light'
+
+telegram_link:
+  data_kind: 'link'
+  validations:
+    required: 0
+    max_length: 50
+  default_value: 'https://t.me/telegramlink'
+
+ethereum_deposit_popup_checkboxes:
+  data_kind: 'array'
+  validations:
+    max_count: 10
+    max_length: 400
+    min_length: 1
+    required: 0
+  element:
+    data_kind: 'html'
+    validations:
+  default_value: [
+    'All information that I have entered and all the documents that I have provided are
+    true, complete and not misleading.',
+
+    'I am not restricted under any law from providing this information or purchasing
+    tokens.',
+
+    'I act on my own behalf unless notified you in writing.',
+
+    'I consent to any technique which enables computers to mimic human behaviour',
+
+    'I have, read, understood and agree to the Token Sale Terms and Conditions. I also
+    understand that any use of Tokens and/or access to any products or services is subject
+    to additional terms and conditions that will be made available to me separately',
+
+    'I am knowledgeable and experienced in the features and risks of Ethereum and other
+    digital platforms, digital assets, blockchain technology, and smart contracts.',
+
+    'Where I provide information relating to any other person, I have obtained their
+    consent to do so and made available the Privacy Policy to them.',
+
+    'I understand that I am not guaranteed Tokens, even if I send payment.',
+
+    'I agree that I will send payment from, and receive any Tokens to, the digital wallet
+    address I have entered on this website and also confirm that I control the private
+    key to that address.'
+  ]

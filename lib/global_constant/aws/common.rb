@@ -33,6 +33,14 @@ module GlobalConstant
           GlobalConstant::Base.s3['report_bucket']
         end
 
+        def client_assets_bucket
+          GlobalConstant::Base.s3['client_assets_bucket']
+        end
+
+        def client_assets_cdn_url
+          GlobalConstant::Base.s3['client_assets_cdn']
+        end
+
         private
 
         def user_access_credentials

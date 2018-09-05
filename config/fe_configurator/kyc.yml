@@ -1,0 +1,71 @@
+kyc_form_title:
+  data_kind: 'text'
+  validations:
+    required: 1
+    max_length: 80
+    min_length: 1
+  default_value: 'Getting Closer to Accessing the Token Sale'
+
+kyc_form_subtitle:
+  data_kind: 'text'
+  validations:
+    required: 1
+    max_length: 100
+    min_length: 1
+  default_value: 'You will need the following items to complete the registration'
+
+eth_address_instruction_text:
+  data_kind: 'html'
+  validations:
+    required: 0
+    max_length: 400
+  default_value: 'Make sure to use your Ethereum wallet address for which
+                    you control the private key. You must send us your Ethereum from this Ethereum wallet,
+                    and we will be sending you tokens in return to the same wallet. Do not insert a
+                    wallet address from exchanges like Coinbase, Poloniex and Kraken'
+
+document_id_instruction_text:
+  data_kind: 'html'
+  validations:
+    required: 0
+    max_length: 400
+  default_value: 'A valid government issued passport is required. A national ID or a license are not accepted for the verification process.'
+
+kyc_form_popup_checkboxes:
+  data_kind: 'array'
+  validations:
+    max_count: 10
+    required: 0
+    max_length: 400
+    min_length: 1
+  element:
+    data_kind: 'html'
+    validations:
+      required: 1
+  default_value: [
+                    'All information that I have entered and all the documents that I have provided are
+                     true, complete and not misleading.',
+
+                  'I am not restricted under any law from providing this information or purchasing
+                     tokens.',
+
+                  'I act on my own behalf unless I have notified you in writing.',
+
+                  'I consent to any technique which enables computers to mimic human behaviour',
+
+                  'I have, read, understood and agree to the Token Sale Terms and Conditions. I also
+                     understand that any use of Tokens and/or access to any products or services is subject
+                     to additional terms and conditions that will be made available to me separately',
+
+                  'I am knowledgeable and experienced in the features and risks of Ethereum and other
+                        digital platforms, digital assets, blockchain technology, and smart contracts.',
+
+                  'Where I provide information relating to any other person, I have obtained their
+                     consent to do so and made available the Privacy Policy to them.',
+
+                  'I understand that I am not guaranteed Tokens, even if I send payment.',
+
+                  'I agree that I will send payment from, and receive any Tokens to, the digital wallet
+                     address I have entered on this website and also confirm that I control the private
+                     key to that address.'
+                     ]

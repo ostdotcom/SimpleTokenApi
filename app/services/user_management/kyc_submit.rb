@@ -17,7 +17,7 @@ module UserManagement
     # @params [String] last_name (mandatory) - last name
     # @params [String] birthdate (mandatory) - birth date
     # @params [String] country (mandatory) - country
-    # @params [String] ethereum_address (mandatory) - ethereum address
+    # @params [String] ethereum_address (optional) - ethereum address
     # @params [String] document_id_number (mandatory) - document_id number
     # @params [String] nationality (mandatory) - document_id country
     # @params [String] document_id_file_path (mandatory) - document_id file
@@ -47,7 +47,7 @@ module UserManagement
       @state = @params[:state]
       @country = @params[:country] # required and one of allowed
       @postal_code = @params[:postal_code]
-      @ethereum_address = @params[:ethereum_address] # required and regex
+      @ethereum_address = @params[:ethereum_address] # regex
       @document_id_number = @params[:document_id_number] # required
       @nationality = @params[:nationality] # required and one of allowed
       @document_id_file_path = @params[:document_id_file_path] # S3 Path of document_id File
@@ -117,17 +117,6 @@ module UserManagement
     #
     def validate_and_sanitize
 
-      # Sanitize fields, validate and assign error
-      validate_first_name
-      validate_last_name
-      validate_birthdate
-
-      validate_ethereum_address
-      validate_document_id_number
-      validate_nationality
-      validate_document_id_file_path
-      validate_selfie_file_path
-
       @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
 
       return error_with_data(
@@ -138,6 +127,17 @@ module UserManagement
           {},
           {}
       ) if @client_kyc_config_detail.blank?
+
+      # Sanitize fields, validate and assign error
+      validate_first_name
+      validate_last_name
+      validate_birthdate
+
+      validate_ethereum_address
+      validate_document_id_number
+      validate_nationality
+      validate_document_id_file_path
+      validate_selfie_file_path
 
       validate_country
       validate_estimated_participation_amount
@@ -307,6 +307,11 @@ module UserManagement
     end
 
     def validate_ethereum_address
+      if !@client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
+        @ethereum_address = nil
+        return
+      end
+
       @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
 
       unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
@@ -398,7 +403,7 @@ module UserManagement
 
       # If any of the file does not matches s3 file path
       @investor_proof_files_path.each do |x|
-          @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
+        @error_data[:investor_proof_files_path] = 'Invalid S3 path for investor proof file' if !s3_kyc_folder_belongs_to_client?(x)
       end
     end
 
@@ -506,6 +511,7 @@ module UserManagement
       end
 
       data_to_md5.each do |key, value|
+        next if value.blank?
         md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.get_hashed_value(value)
       end
 

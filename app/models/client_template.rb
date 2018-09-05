@@ -58,12 +58,6 @@ class ClientTemplate < EstablishSimpleTokenClientDbConnection
   def memcache_flush
     memcache_key = ClientTemplate.get_memcache_by_client_id_and_template_type_key_object.key_template % {client_id: self.client_id, template_type: self.template_type}
     Memcache.delete(memcache_key)
-
-    if self.template_type == GlobalConstant::ClientTemplate.common_template_type
-      ClientSetting.flush_memcache_key_for_template_types_of_client(self.client_id)
-    else
-      ClientSetting.flush_memcache_key_for_template_types_of_client(self.client_id, [self.template_type])
-    end
   end
 
 end

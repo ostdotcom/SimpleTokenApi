@@ -1,35 +1,43 @@
-module KycService
+module OstKycApi
 
-  class TestSimpleTokenKycService
+  class Request #
 
     require "uri"
     require "open-uri"
     require "openssl"
 
+    include Util::ResultHelper
+
     # Initialize
     # @params [String] api_key(mandatory)
     # @params [String] api_secret(mandatory)
+    # @params [String] environment(mandatory)
     #
-    # Sets @api_key, @api_secret, @api_base_url, @version
+    # Sets @api_base_url, @version
     #
-    def initialize(client_id)
-      client = Client.where(id: client_id).first
+    # @return [OstKycApi::Request]
+    #
+    def initialize(params)
+      @params = params
+      @api_key = @params[:api_key]
+      @api_secret = @params[:api_secret]
+      @environment = @params[:environment]
 
-      @api_key = client.api_key
+      @api_base_url = api_base_url(@environment)
 
-      r = Aws::Kms.new('saas', 'saas').decrypt(client.api_salt)
-      return r unless r.success?
-
-      api_salt_d = r.data[:plaintext]
-
-      r = LocalCipher.new(api_salt_d).decrypt(client.api_secret)
-      return r unless r.success?
-
-      @api_secret = r.data[:plaintext]
-
-      @api_base_url = Rails.env.development? ? "http://kyc.developmentost.com:8080" :
-                          (Rails.env.sandbox? ? "https://kyc.sandboxost.com" : "https://kyc.stagingost.com")
       @version = 'v1'
+    end
+
+    # get api base url
+    #
+    # * Author: Tejas
+    # * Date: 17/08/2018
+    # * Reviewed By:
+    #
+    # @return @api_base_url
+    #
+    def api_base_url(environment)
+      GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(environment)
     end
 
     # Add Contact to a List
@@ -64,6 +72,17 @@ module KycService
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
       make_post_request(endpoint, custom_params)
+    end
+
+    # Get Published Draft
+    # * Author: Tejas
+    # * Date: 17/08/2018
+    # * Reviewed By:
+    #
+    #
+    def get_published_draft
+      endpoint = "/api/#{@version}/setting/configurator/get-published-draft/"
+      make_get_request(endpoint)
     end
 
     # Check if valid ethereum address
@@ -198,16 +217,12 @@ module KycService
       request_params = base_params(endpoint, custom_params)
       raw_url = get_api_url(endpoint) + "?#{request_params.to_query}"
 
-      begin
-        Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
-          result = URI.parse(raw_url).read
-          return JSON.parse(result)
-        end
-      rescue Timeout::Error => e
-        return {"error" => "Timeout Error", "message" => "Error: #{e.message}"}
-      rescue => e
-        return {"error" => "Exception: Something Went Wrong", "message" => "Exception: #{e.message}"}
+      result = handle_with_exception do
+        response = URI.parse(raw_url).read
+        parse_api_response(response)
       end
+
+      return result
     end
 
     # Make Post Request
@@ -222,18 +237,73 @@ module KycService
     def make_post_request(endpoint, custom_params = {})
       request_params = base_params(endpoint, custom_params)
       uri = post_api_uri(endpoint)
-      begin
-        Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
-          http = setup_request(uri)
-          result = http.post(uri.path, request_params.to_query)
-          return JSON.parse(result.body)
-        end
-      rescue Timeout::Error => e
-        return {"error" => "Timeout Error", "message" => "Error: #{e.message}"}
-      rescue => e
-        return {"error" => "Something Went Wrong", "message" => "Exception: #{e.message}"}
+
+      result = handle_with_exception do
+        http = setup_request(uri)
+        result = http.post(uri.path, request_params.to_query)
+        parse_api_response(result.body)
       end
 
+      return result
+
+    end
+
+    # Handle With Exception
+    #
+    # returns [Result::Base]
+    #
+    def handle_with_exception
+      begin
+        Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
+          yield
+        end
+      rescue OpenURI::HTTPError => e
+        if e.to_s == '401 Unauthorized'
+          return error_with_internal_code(e.message, 'simple token api error', GlobalConstant::ErrorCode.ok,
+                                          {}, {}, 'Invalid Credentials')
+        end
+        return error_with_internal_code(e.message,
+                                        'simple token api error: SWR', GlobalConstant::ErrorCode.ok,
+                                        {}, {}, 'Something Went Wrong')
+      rescue Timeout::Error => e
+        return error_with_internal_code(e.message,
+                                        'simple token api error: Time Out Error', GlobalConstant::ErrorCode.ok,
+                                        {}, {}, 'Time Out Error')
+
+      rescue Exception => e
+
+        ApplicationMailer.notify(
+            body: {exception: {message: e.message, backtrace: e.backtrace}},
+            data: {environment: @environment},
+            subject: "Something Went Wrong in : #{self.class}"
+        ).deliver
+      end
+    end
+
+    # Parse API response
+    #
+    # * Author: Aman
+    # * Date: 12/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base] returns an object of Result::Base class
+    #
+    def parse_api_response(http_response)
+
+      response_data = Oj.load(http_response, mode: :strict) rescue {}
+
+      if response_data['success']
+        # Success
+        success_result(response_data['data'])
+      else
+        # API Error
+        Rails.logger.info("=*=Simple-Token-API-ERROR=*= #{response_data.inspect}")
+        error_with_internal_code(response_data['err']['code'],
+                                 'simple token api error',
+                                 GlobalConstant::ErrorCode.ok,
+                                 {}, response_data['err']['error_data'],
+                                 response_data['err']['display_text'])
+      end
     end
 
   end

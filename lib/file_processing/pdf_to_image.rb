@@ -32,8 +32,6 @@ module FileProcessing
     #
     def perform
       begin
-        file = File.open(@file_name)
-
         original_file_name = File.basename(@file_name).gsub(File.extname(@file_name), "")
 
         new_file_name = "#{@directory}/#{original_file_name}.jpg"

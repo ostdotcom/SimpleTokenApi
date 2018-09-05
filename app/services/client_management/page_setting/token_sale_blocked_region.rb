@@ -37,8 +37,8 @@ module ClientManagement
       # * Date: 08/02/2018
       # * Reviewed By:
       #
-      def page_template_type
-        GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
+      def page_entity_type
+        GlobalConstant::EntityGroupDraft.token_sale_blocked_region_entity_type
       end
 
     end

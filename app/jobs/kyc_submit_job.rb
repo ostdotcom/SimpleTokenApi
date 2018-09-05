@@ -142,7 +142,7 @@ class KycSubmitJob < ApplicationJob
   #
   def token_sale_participation_phase_for_user
     #  todo: "KYCaas-Changes"
-    @token_sale_participation_phase_for_user ||= 1 #GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
+    @token_sale_participation_phase_for_user ||= GlobalConstant::TokenSale.early_access_token_sale_phase #GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
   end
 
   #  todo: "KYCaas-Changes"

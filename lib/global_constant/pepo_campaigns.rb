@@ -37,15 +37,15 @@ module GlobalConstant
         config[:list_ids][:kyc_product_list]
       end
 
-      def alpha_3_list_id
-        config[:list_ids][:alpha_3_users_list]
+      def alpha_4_list_id
+        config[:list_ids][:alpha_4_users_list]
       end
 
       def allowed_list_ids
         [
             GlobalConstant::PepoCampaigns.kyc_product_list_id,
             GlobalConstant::PepoCampaigns.master_list_id,
-            GlobalConstant::PepoCampaigns.alpha_3_list_id
+            GlobalConstant::PepoCampaigns.alpha_4_list_id
         ]
       end
 
@@ -71,6 +71,7 @@ module GlobalConstant
         'kyc_marketing'
       end
 
+
       def first_name_attribute
         'First Name'
       end
@@ -78,6 +79,10 @@ module GlobalConstant
       def last_name_attribute
         'Last Name'
       end
+
+      ########### OST Email Attributes #########
+
+
 
       def company_name_attribute
         'company_name'
@@ -91,6 +96,40 @@ module GlobalConstant
         'kit_marketing'
       end
 
+      def name_poc_attribute
+        'name_poc'
+      end
+
+      def team_bio_attribute
+        'team_bio'
+      end
+
+      def video_url_attribute
+        'video_url'
+      end
+
+      def url_blog_attribute
+        'url_blog'
+      end
+
+      def project_url_attribute
+        'project_url'
+      end
+
+      def tech_doc_attribute
+        'tech_doc'
+      end
+
+      def twitter_handle_attribute
+        'twitter_handle'
+      end
+
+      def organization_name_attribute
+        'organization_name'
+      end
+
+      ########### OST Email Attributes End #########
+
       def allowed_custom_attributes
         [
           token_sale_registered_attribute,
@@ -102,7 +141,15 @@ module GlobalConstant
           last_name_attribute,
           company_name_attribute,
           project_description_attribute,
-          kit_marketing_attribute
+          kit_marketing_attribute,
+          name_poc_attribute,
+          team_bio_attribute,
+          video_url_attribute,
+          url_blog_attribute,
+          project_url_attribute,
+          tech_doc_attribute,
+          twitter_handle_attribute,
+          organization_name_attribute
         ]
       end
 

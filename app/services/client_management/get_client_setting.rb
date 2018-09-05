@@ -20,6 +20,7 @@ module ClientManagement
 
       @client = nil
       @client_token_sale_details = nil
+      @client_kyc_config_detail_obj = nil
     end
 
     # Perform
@@ -39,6 +40,8 @@ module ClientManagement
 
       fetch_client_token_sale_details
 
+      fetch_kyc_config_detail
+
       success_with_data(response_data)
     end
 
@@ -56,6 +59,40 @@ module ClientManagement
       @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
     end
 
+    # fetch  client kyc config detail obj
+    #
+    # * Author: Tejas
+    # * Date: 30/07/2018
+    # * Reviewed By:
+    #
+    # Sets @client_kyc_config_detail_obj
+    #
+    def fetch_kyc_config_detail
+      @client_kyc_config_detail_obj = ClientKycConfigDetail.get_from_memcache(@client_id)
+    end
+
+    # gives kyc_config_data
+    #
+    # * Author: Tejas
+    # * Date: 30/07/2018
+    # * Reviewed By:
+    #
+    # @return [Hash] template data for specific page
+    #
+    def kyc_config_data
+      kyc_fields = @client_kyc_config_detail_obj.kyc_fields_array
+      max_investor_proofs_allowed = kyc_fields.include?(GlobalConstant::ClientKycConfigDetail.investor_proof_files_path_kyc_field) ?
+                                        GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed : 0
+
+      {
+          kyc_fields: kyc_fields,
+          residency_proof_nationalities: @client_kyc_config_detail_obj.residency_proof_nationalities,
+          blacklisted_countries: @client_kyc_config_detail_obj.blacklisted_countries,
+          max_investor_proofs_allowed: max_investor_proofs_allowed
+      }
+    end
+
+
     # Client Setup details
     #
     # * Author: Aman
@@ -64,15 +101,19 @@ module ClientManagement
     #
     # @return [Hash] hash of client's kyc setting
     #
+    # Note: This data is used in GlobalConstant::CmsConfigurator.get_client_blocked_fields
     def response_data
       {
           is_st_token_sale_client: @client.is_st_token_sale_client?,
           is_whitelist_setup_done: @client.is_whitelist_setup_done?,
           token_sale_details: {
+              token_name: @client_token_sale_details.token_name,
+              token_symbol: @client_token_sale_details.token_symbol,
               sale_start_timestamp: @client_token_sale_details.sale_start_timestamp,
               sale_end_timestamp: @client_token_sale_details.sale_end_timestamp,
               has_ethereum_deposit_address: @client_token_sale_details.ethereum_deposit_address.present?
-          }
+          },
+       kyc_config_detail_data: kyc_config_data
       }
     end
 

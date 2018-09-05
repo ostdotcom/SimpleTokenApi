@@ -2,6 +2,9 @@ module UserManagement
 
   class CheckEthereumBalance < ServicesBase
 
+
+    # Note: should not apply for clients other than simple token as ethereum address optional checks are also missing
+    #
     # Initialize
     #
     # * Author: Aman
@@ -112,6 +115,8 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_and_ethereum_address
+
+      # Todo-(notes): should not apply for clients other than simple token as ethereum address optional checks are also missing
 
       return error_with_data(
           'um_ceb_1.1',

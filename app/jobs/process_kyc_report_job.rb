@@ -215,7 +215,7 @@ class ProcessKycReportJob < ApplicationJob
     row = []
     csv_headers.each do |field_name|
       data = user_data[field_name.to_sym]
-      row << (data.present? ? data.html_safe : nil)
+      row << (data.present? ? data.to_s.html_safe : nil)
     end
     row
   end

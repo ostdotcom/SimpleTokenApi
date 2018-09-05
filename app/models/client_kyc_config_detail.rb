@@ -1,6 +1,7 @@
 class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
 
   serialize :residency_proof_nationalities, Array
+  serialize :blacklisted_countries, Array
 
   after_commit :memcache_flush
 
@@ -14,9 +15,12 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   def self.add_config(params)
 
     fail 'mandatory kyc fields missing' if !params[:kyc_fields].is_a?(Array) ||
-        (GlobalConstant::ClientKycConfigDetail.mandatory_fields - params[:kyc_fields]).present?
+        (GlobalConstant::ClientKycConfigDetail.mandatory_client_fields - params[:kyc_fields]).present?
 
     fail 'Invalid kyc fields' if (params[:kyc_fields] - ClientKycConfigDetail.kyc_fields_config.keys).present?
+
+    fail 'Invalid blacklisted_countries' if !params[:blacklisted_countries].is_a?(Array) ||
+        (params[:blacklisted_countries] - GlobalConstant::CountryNationality.countries).present?
 
     fail 'Invalid residency_proof_nationalities' if !params[:residency_proof_nationalities].is_a?(Array) ||
         (params[:residency_proof_nationalities] - GlobalConstant::CountryNationality.nationalities).present?
@@ -30,7 +34,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
     ClientKycConfigDetail.create!(
         client_id: params[:client_id],
         kyc_fields: kyc_field_bit_value,
-        residency_proof_nationalities: params[:residency_proof_nationalities]
+        residency_proof_nationalities: params[:residency_proof_nationalities].map(&:upcase),
+        blacklisted_countries: params[:blacklisted_countries].map(&:upcase)
     )
 
   end
@@ -129,7 +134,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   def memcache_flush
     client_kyc_config_details_memcache_key = ClientKycConfigDetail.get_memcache_key_object.key_template % {client_id: self.client_id}
     Memcache.delete(client_kyc_config_details_memcache_key)
-    ClientSetting.flush_memcache_key_for_template_types_of_client(self.client_id, [GlobalConstant::ClientTemplate.kyc_template_type])
+    ClientSetting.flush_client_settings_cache(self.client_id)
   end
 
 end

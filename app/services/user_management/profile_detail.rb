@@ -129,7 +129,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_client_setting_data_from_cache
-      r = ClientSetting.new(@client_id, GlobalConstant::ClientTemplate.dashboard_template_type).perform
+      r = ClientSetting.new(@client_id, GlobalConstant::EntityGroupDraft.dashboard_entity_type).perform
       return r unless r.success?
 
       @client_setting_data = r.data
@@ -318,7 +318,14 @@ module UserManagement
     # @return [String] token sale participation phase
     #
     def token_sale_participation_phase_for_user
-      @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
+      @token_sale_participation_phase_for_user ||= @user_kyc_detail.present? ?
+                                                        @user_kyc_detail.token_sale_participation_phase :
+                                                        GlobalConstant::TokenSale.early_access_token_sale_phase
+
+
+      # public sale phase no longer  used
+      # @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
+
     end
 
     # User Kyc Status

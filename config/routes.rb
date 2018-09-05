@@ -7,8 +7,8 @@ Rails.application.routes.draw do
       match '/partners/contact-us' => :contact_us_partners_pipe_drive, via: [:GET, :POST]
     end
 
-    scope 'api/home', controller: 'web/static/home' do
-      match '/alpha3/signup' => :register_for_alpha3, via: [:GET, :POST]
+    scope 'api/home/alpha', controller: 'web/static/home' do
+      match '/4/signup' => :register_for_alpha4, via: [:GET, :POST]
     end
 
     match '*permalink', to: 'application#not_found', via: :all
@@ -41,6 +41,13 @@ Rails.application.routes.draw do
       match 'upload-params' => :get_upload_params, via: :GET
       match 'check-ethereum-address' => :check_ethereum_address, via: :GET
       match 'get-detail' => :get_detail, via: :GET
+    end
+
+    # used by fetch published version and no fetch will get from production environment
+    if !Rails.env.production?
+      scope 'api/v1/setting', controller: 'rest_api/saas_api/setting' do
+        match 'configurator/get-published-draft' => :get_published_drafts, via: :GET
+      end
     end
 
     scope 'api/admin', controller: 'web/admin/login' do
@@ -108,6 +115,26 @@ Rails.application.routes.draw do
 
     scope 'api/admin/client', controller: 'web/admin/super_admin' do
       match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
+    end
+
+    scope 'api/admin/configurator', controller: 'web/admin/configurator' do
+      match '/' => :index, via: :GET
+
+      # Publish is not allowed in sandbox environment
+      if !Rails.env.sandbox?
+        match 'fetch-published-version' => :fetch_published_version, via: :GET
+      end
+
+      # Configurator is not allowed in production environment
+      if !Rails.env.production?
+        match 'upload-params' => :get_image_upload_params, via: :GET
+        match ':entity_type/update' => :update_entity_draft, via: :POST
+        match ':entity_type/config' => :get_draft_config, via: :GET
+        match ':entity_type/reset' => :reset_entity_draft, via: :POST
+        match 'publish-group' => :publish_entity_group, via: :POST
+        match 'create-group' => :create_entity_group, via: :POST
+        match 'preview' => :preview_entity_draft, via: :GET
+      end
     end
 
     scope 'api/home', controller: 'web/static/home' do

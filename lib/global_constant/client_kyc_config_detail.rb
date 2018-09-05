@@ -77,13 +77,12 @@ module GlobalConstant
 
       ### kyc fields End ###
 
-      def mandatory_fields
+      def mandatory_client_fields
         [
             first_name_kyc_field,
             last_name_kyc_field,
             birthdate_kyc_field,
             country_kyc_field,
-            ethereum_address_kyc_field,
             document_id_number_kyc_field,
             nationality_kyc_field,
             document_id_file_path_kyc_field,

@@ -175,6 +175,8 @@ class Client < EstablishSimpleTokenClientDbConnection
   # * Reviewed By
   #
   def memcache_flush
+    ClientSetting.flush_client_settings_cache(self.id)
+
     client_memcache_key = Client.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(client_memcache_key)
 

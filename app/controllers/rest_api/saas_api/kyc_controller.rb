@@ -50,5 +50,16 @@ class RestApi::SaasApi::KycController < RestApi::SaasApi::BaseController
     render_api_response(service_response)
   end
 
+  # Get Presigned urls for uploading files on S3
+  #
+  # * Author: Pankaj
+  # * Date: 04/09/2018
+  # * Reviewed By:
+  #
+  def get_s3_upload_urls
+    service_response = UserManagement::GetPresignedUploadUrls.new(params).perform
+    render_api_response(service_response)
+  end
+
 
 end

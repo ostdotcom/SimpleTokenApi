@@ -302,6 +302,13 @@
     - :pdfs
     - :images
 
+'UserManagement::GetPresignedUploadUrls':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :pdfs
+    - :images
+
 'UserManagement::CheckEthereumBalance':
   :mandatory:
     - :client_id

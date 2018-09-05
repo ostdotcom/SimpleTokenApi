@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     scope 'api/v1/kyc', controller: 'rest_api/saas_api/kyc' do
       match 'add-kyc' => :add_kyc, via: :POST
       match 'upload-params' => :get_upload_params, via: :GET
+      match 'get-file-upload-urls' => :get_s3_upload_urls, via: :GET
       match 'check-ethereum-address' => :check_ethereum_address, via: :GET
       match 'get-detail' => :get_detail, via: :GET
     end

@@ -38,10 +38,10 @@ module Crons
 
       begin
         r = fetch_and_decrypt_user_data
-        return r unless r.success?
+        raise r.to_json.to_json unless r.success?
 
         r = process_document_id_image
-        raise r.to_json unless r.success?
+        raise r.to_json.to_json unless r.success?
 
         process_selfie_image
 

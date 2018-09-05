@@ -30,7 +30,7 @@ module Util
     end
 
     def self.delete_directory(dir)
-      FileUtils.rm_rf(dir)
+      FileUtils.rm_rf(dir) if File.directory?(dir)
     end
 
     def self.create_csv_zip(folder)

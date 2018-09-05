@@ -28,7 +28,7 @@ Set Up Kyc whitelisting process
   > node $OPENST_PLATFORM_PATH/tools/setup/index.js
   > cd ~/openst-setup/bin
   > START GETH:-
-        geth --networkid 2001 --datadir /Users/amanbarbaria/openst-setup/openst-geth-value --port 30301 --rpc --rpcapi eth,net,web3,personal,txpool,miner --wsapi eth,net,web3,personal,txpool,miner --rpcport 8545 --rpcaddr 127.0.0.1 --ws --wsport 18545 --wsorigins '*' --wsaddr 127.0.0.1 --etherbase 0x1e7dae2cd5e61fd767c88b66bfcca0e17b4dd0ed --mine --minerthreads 1 --targetgaslimit 4700000  --gasprice 0xBA43B7400 --unlock 0x1e7dae2cd5e61fd767c88b66bfcca0e17b4dd0ed --password /Users/amanbarbaria/openst-setup/openst-geth-value/sealer-passphrase 2
+        sh run-value.sh
   > Open a new terminal and run
         geth attach http://127.0.0.1:8545
   > eth.accounts and use 2nd address for whitelisting and update ST_DEPLOYER_ADDR in PublicOps in Step 2
@@ -38,44 +38,39 @@ In GETH TERMINAL-
     whitelister = personal.newAccount("12345678")
     deployer="ST_DEPLOYER_ADDR"
     personal.unlockAccount(deployer, "testtest")
-    whitelister = "0xb89edcf049ed96044c9b987de8580ce242ce983d"
-    eth.sendTransaction({from:deployer,to: whitelister,value: 2000000000000000000})
+    eth.sendTransaction({from:deployer,to: whitelister,value: 200})
 
 STEP 2: git clone SimpleTokenOpsPublicApi repository
  > cd ~/workspace/projects/SimpleTokenOpsPublicAPI/
  > npm install
- > set ST_DEPLOYER_ADDR as mentioned above
  > source set_env_vars.sh
  > node executables/deploy_whitelist_contract.js
- > Copy Contract Address
+ > Copy 'GenericWhitelist Contract Deployed' address
 
  geth --networkid 2001 --datadir /Users/amanbarbaria/openst-setup/openst-geth-value --port 30301 --rpc --rpcapi eth,net,web3,personal,txpool,miner --rpcport 8545 --rpcaddr 127.0.0.1 --ws --wsport 18545 --wsorigins '*' --wsaddr 127.0.0.1 --etherbase 0xeb416b2bb07c4461d1e5ace99a0192d13c18c801 --mine --minerthreads 1 --targetgaslimit 4700000  --gasprice 0xBA43B7400 --unlock 0xeb416b2bb07c4461d1e5ace99a0192d13c18c801 --password /Users/amanbarbaria/openst-setup/openst-geth-value/sealer-passphrase 2> /Users/amanbarbaria/openst-setup/logs/chain-value.log
 
 In console SimpleTokenSaleDryRun/deploy/scripts set below environment variables
 export ST_DEPLOYER_GETH_PROVIDER='http://127.0.0.1:8545'
-export ST_DEPLOYER_ADDR=‘0xBD5D1813F8cD94356fd176e9C20B14304D654E24’ - An address which has eth balance
-export ST_DEPLOYER_ADDR_PASSPHRASE=‘testtest’
-
 
 Deploy contract using command 'node deployMockTokenSale.js’
 
 Once contract is deployed successfully take contract address printed on console “Mock Token Sale Contract Deployed: 0x444FCd7De2B20a107f03716E3202854f2953Fe5B”
 
-
 STEP 3: SETUP PUBLIC OPS AND PRIVATE OPS
-git clone SimpleTokenOpsPublicAPI and SimpleTokenOpsPrivateAPI
-Run npm install for both repos.
-Follow Readme.md files of both repos and export all variables in two different consoles.
-Overwrite below Variables in SimpleTokenOpsPublic
-export ST_API_BASE_URL='http://kyc.developmentost.com:8080/api'
-export ST_GENERIC_ERC20_CONTRACT_ADDRS='["0x444FCd7De2B20a107f03716E3202854f2953Fe5B”]’ - Set contract deployed address
-export ST_GENERIC_WHITELIST_CONTRACT_ADDRS='["0x444FCd7De2B20a107f03716E3202854f2953Fe5B"]'
- Overwrite below Variables in SimpleTokenOpsPrivate
-export ST_WHITELIST_ACCOUNT_ADDRS='["0xBD5D1813F8cD94356fd176e9C20B14304D654E24”]' - An address which has eth balance
-export ST_WHITELIST_ACCOUNT_PASSPHRASE='testtest'
-export ST_GENERIC_ERC20_CONTRACT_ADDRS='["0x444FCd7De2B20a107f03716E3202854f2953Fe5B”]’ - Set contract deployed address
-export ST_GENERIC_WHITELIST_CONTRACT_ADDRS='["0x444FCd7De2B20a107f03716E3202854f2953Fe5B”]’
-Run node servers with command node ./bin/www
+ > git clone SimpleTokenOpsPublicAPI and SimpleTokenOpsPrivateAPI
+ > Run "source set_env_vars.sh" for both repos.
+ > Run "npm install" for both repos.
+ > Follow Readme.md files of both repos and export all variables in two different consoles.
+
+ > Overwrite below Variables in SimpleTokenOpsPublic
+    export ST_API_BASE_URL='http://kyc.developmentost.com:8080/api'
+    export ST_GENERIC_ERC20_CONTRACT_ADDRS='["0x0000000000000000000000000000000000000000"]' - Set 'GenericWhitelist Contract Deployed' address
+
+ > Overwrite below Variables in SimpleTokenOpsPrivate
+    export ST_WHITELIST_ACCOUNT_PASSPHRASE='testtest'
+    export ST_GENERIC_ERC20_CONTRACT_ADDRS='["0x0000000000000000000000000000000000000000"]’ - Set 'GenericWhitelist Contract Deployed' address
+
+ > Run node servers with command node ./bin/www
 
 STEP 4: SETUP SimpleTokenApi Client
 1. In client's database. For a client set contract address received from Step 2 and whitelister address which has eth balance.

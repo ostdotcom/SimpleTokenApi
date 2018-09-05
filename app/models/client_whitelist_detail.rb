@@ -13,7 +13,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   scope :not_suspended, -> {where(suspension_type: GlobalConstant::ClientWhitelistDetail.no_suspension_type)}
 
   after_commit :memcache_flush
-
+  after_commit :update_subscription, if: :saved_change_to_contract_address?
 
   # Get Key Object
   #
@@ -92,4 +92,8 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     Memcache.delete(client_whitelist_details_memcache_key)
   end
 
+  def update_subscription
+    contract_addresses = ClientWhitelistDetail.pluck("contract_address")
+    OpsApi::Request::UpdateSubscription.new.perform({contract_addresses: contract_addresses})
+  end
 end

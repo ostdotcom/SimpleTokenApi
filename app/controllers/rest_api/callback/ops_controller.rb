@@ -24,9 +24,7 @@ class RestApi::Callback::OpsController < RestApi::Callback::BaseController
   # * Reviewed By:
   #
   def whitelist_contract_addresses
-    puts "here"
     r = success_with_data({contract_addresses: ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)})
-    puts "result is : #{r.data}"
     render_api_response(r)
   end
 

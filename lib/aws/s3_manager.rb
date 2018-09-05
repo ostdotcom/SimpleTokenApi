@@ -139,48 +139,41 @@ module Aws
       resource.bucket(bucket_name)
     end
 
-    def upload_file_presigned_url(s3_name, file_path)
-      # s3 = resource
-      # obj = s3.bucket(GlobalConstant::Aws::Common.kyc_bucket).object(s3_name)
-      # url = URI.parse(obj.presigned_url(:put, {
-      #     server_side_encryption: 'aws:kms',
-      #     ssekms_key_id: key_id,
-      #     content_type: 'application/pdf'
-      # }))
-      #
-      # puts url
-      # Net::HTTP.start(url.host) do |http|
-      #   http.send_request("PUT", url.request_uri, File.read(file_path), {
-      #     # This is required, or Net::HTTP will add a default unsigned content-type.
-      #     "content-type" => "application/pdf",
-      #   })
-      # end
-
+    # Get Pre-Signed url for Put file in S3
+    #
+    # * Author: Pankaj
+    # * Date: 16/08/2018
+    # * Reviewed By:
+    #
+    # @param [String] content_type - Uploaded file's content type
+    # @param [String] s3_path - File path to upload in S3
+    # @param [String] bucket - upload bucket
+    #
+    # @return [Result::Base]
+    #
+    def get_presigned_put_url_for(s3_name, bucket, content_type)
       params = {
-          bucket: GlobalConstant::Aws::Common.kyc_bucket,
+          bucket: bucket,
           key: s3_name
       }
 
-
       options={
-          # content_type: 'application/pdf',
+          content_type: content_type,
           server_side_encryption: 'aws:kms',
           ssekms_key_id: key_id
       }
 
       presigner = Aws::S3::Presigner.new({client: client})
       u = presigner.presigned_url(:put_object, params.merge(options))
-      uri = URI.parse(u)
-      puts uri
-
-      r = Net::HTTP.start(uri.host, :use_ssl => true) do |http|
-        http.send_request("PUT", uri.request_uri, File.read(file_path), {
-            # This is required, or Net::HTTP will add a default unsigned content-type.
-            # "content-type" => "application/pdf"
-        })
-
-      end
-
+      # uri = URI.parse(u)
+      # uri
+      # r = Net::HTTP.start(uri.host, :use_ssl => true) do |http|
+      #   http.send_request("PUT", uri.request_uri, File.read(file_path), {
+      #       # This is required, or Net::HTTP will add a default unsigned content-type.
+      #        "content-type" => content_type
+      #   })
+      #
+      # end
     end
 
     # upload data in s3

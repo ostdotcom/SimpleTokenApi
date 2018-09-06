@@ -22,6 +22,8 @@ module ClientManagement
       @sale_start_timestamp = @params[:sale_start_timestamp].to_i
       @sale_end_timestamp = @params[:sale_end_timestamp].to_i
 
+      @sale_start_timestamp = (@sale_start_timestamp/1000).to_i
+      @sale_end_timestamp = (@sale_end_timestamp/1000).to_i
       @client_token_sale_detail = nil
 
     end

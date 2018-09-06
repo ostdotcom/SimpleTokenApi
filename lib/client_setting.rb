@@ -9,13 +9,15 @@ class ClientSetting
   # * Reviewed By:
   #
   # @param [Integer] client_id - client id
-  # @param [String] template_type - template type for page
+  # @param [String] entity_type - entity type for page draft
+  # @param [Integer] entity_group_id - Entity group id for which preview draft has to be fetched.
   #
   # @return [ClientSetting]
   #
-  def initialize(client_id, template_type)
+  def initialize(client_id, entity_type, entity_group_id=0)
     @client_id = client_id
-    @template_type = template_type
+    @entity_type = entity_type
+    @entity_group_id = entity_group_id
 
     @client_setting = nil
     @page_setting = nil
@@ -47,25 +49,52 @@ class ClientSetting
   #
   # @return [Result::Base]
   #
-  def fetch_client_setting_data
+  def fetch_published_client_setting_data_from_memcache
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
-    memcache_template_key = memcache_key_object.key_template % {client_id: @client_id, template_type: @template_type}
+    memcache_template_key = memcache_key_object.key_template % {client_id: @client_id, entity_type: @entity_type}
 
     r = Memcache.get_set_memcached(memcache_template_key, memcache_key_object.expiry) do
-
-      r = fetch_client_settings
-      return r unless r.success?
-
-      r = fetch_page_settings
-      return r unless r.success?
-
-      success_with_data(success_response_data)
+      fetch_client_and_page_settings
     end
 
     # clear memcache if r is error?
     Memcache.delete(memcache_template_key) unless r.success?
 
     return r
+  end
+
+  # Fetch client and page settings
+  #
+  # * Author: Pankaj
+  # * Date: 16/08/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def fetch_client_and_page_settings
+    r = fetch_client_settings
+    return r unless r.success?
+
+    r = fetch_page_settings
+    return r unless r.success?
+
+    success_with_data(success_response_data)
+  end
+
+  # Fetch clients settings data
+  #
+  # * Author: Pankaj
+  # * Date: 16/08/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def fetch_client_setting_data
+    if @entity_group_id.to_i > 0
+      fetch_client_and_page_settings
+    else
+      fetch_published_client_setting_data_from_memcache
+    end
   end
 
   # Fetch clients Sale setting data
@@ -93,8 +122,8 @@ class ClientSetting
   # @return [Result::Base]
   #
   def fetch_page_settings
-    return success if @template_type.blank?
-    r = page_setting_class.new(client_id: @client_id).perform
+    return success if @entity_type.blank?
+    r = page_setting_class.new(client_id: @client_id, entity_group_id: @entity_group_id).perform
     return r unless r.success?
 
     @page_setting = r.data
@@ -102,22 +131,24 @@ class ClientSetting
   end
 
   def page_setting_class
-    case @template_type
-      when GlobalConstant::ClientTemplate.login_template_type
+    case @entity_type
+      when GlobalConstant::EntityGroupDraft.theme_entity_type
         ClientManagement::PageSetting::Login
-      when GlobalConstant::ClientTemplate.sign_up_template_type
+      when GlobalConstant::EntityGroupDraft.login_entity_type
+        ClientManagement::PageSetting::Login
+      when GlobalConstant::EntityGroupDraft.registration_entity_type
         ClientManagement::PageSetting::SignUp
-      when GlobalConstant::ClientTemplate.reset_password_template_type
+      when GlobalConstant::EntityGroupDraft.reset_password_entity_type
         ClientManagement::PageSetting::ResetPassword
-      when GlobalConstant::ClientTemplate.change_password_template_type
+      when GlobalConstant::EntityGroupDraft.change_password_entity_type
         ClientManagement::PageSetting::ChangePassword
-      when GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type
+      when GlobalConstant::EntityGroupDraft.token_sale_blocked_region_entity_type
         ClientManagement::PageSetting::TokenSaleBlockedRegion
-      when GlobalConstant::ClientTemplate.verification_template_type
+      when GlobalConstant::EntityGroupDraft.verification_entity_type
         ClientManagement::PageSetting::Verification
-      when GlobalConstant::ClientTemplate.kyc_template_type
+      when GlobalConstant::EntityGroupDraft.kyc_entity_type
         ClientManagement::PageSetting::Kyc
-      when GlobalConstant::ClientTemplate.dashboard_template_type
+      when GlobalConstant::EntityGroupDraft.dashboard_entity_type
         ClientManagement::PageSetting::Dashboard
       else
         fail 'invalid template type'
@@ -146,14 +177,13 @@ class ClientSetting
   # * Reviewed By:
   #
   # @param [Integer] client_id (mandatory) - client id
-  # @param [Array] templates_to_flush (optional) - template types to flush
   #
   # @return [Hash] hash of client settings data
   #
-  def self.flush_memcache_key_for_template_types_of_client(client_id, templates_to_flush= GlobalConstant::ClientTemplate.page_specific_template_types)
+  def self.flush_client_settings_cache(client_id)
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
-    templates_to_flush.each do |template_type|
-      memcache_template_key = memcache_key_object.key_template % {client_id: client_id, template_type: template_type}
+    EntityGroupDraft.entity_types.each_key do |entity_type|
+      memcache_template_key = memcache_key_object.key_template % {client_id: client_id, entity_type: entity_type}
       Memcache.delete(memcache_template_key)
     end
   end

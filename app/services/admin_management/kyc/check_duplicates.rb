@@ -190,11 +190,13 @@ module AdminManagement
           new_duplicate_user_ids << md5_obj.user_id
         end
 
-        # By Ethereum address
-        Md5UserExtendedDetail.where(ethereum_address: @md5_user_extended_details.ethereum_address).all.each do |md5_obj|
-          next if md5_obj.user_id == @user_id
-          @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.ethereum_duplicate_type] << md5_obj
-          new_duplicate_user_ids << md5_obj.user_id
+        if @client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
+          # By Ethereum address
+          Md5UserExtendedDetail.where(ethereum_address: @md5_user_extended_details.ethereum_address).all.each do |md5_obj|
+            next if md5_obj.user_id == @user_id
+            @new_duplicate_md5_data[GlobalConstant::UserKycDuplicationLog.ethereum_duplicate_type] << md5_obj
+            new_duplicate_user_ids << md5_obj.user_id
+          end
         end
 
         if ([GlobalConstant::ClientKycConfigDetail.state_kyc_field,

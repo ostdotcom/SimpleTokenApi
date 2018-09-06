@@ -144,6 +144,73 @@
     - :filters
     - :sortings
 
+'AdminManagement::CmsConfigurator::GetUploadParams':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :images
+
+'AdminManagement::CmsConfigurator::GetEntityDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :entity_type
+    - :gid
+    - :uuid
+  :optional:
+
+'AdminManagement::CmsConfigurator::ResetEntityDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :entity_type
+    - :gid
+    - :uuid
+  :optional:
+
+'AdminManagement::CmsConfigurator::PublishEntityGroup':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :gid
+    - :uuid
+  :optional:
+
+'AdminManagement::CmsConfigurator::CreateEntityGroup':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+'AdminManagement::CmsConfigurator::UpdateEntityDraft':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :gid
+    - :uuid
+    - :entity_type
+    - :form_data
+  :optional:
+
+'AdminManagement::CmsConfigurator::Index':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+'AdminManagement::CmsConfigurator::GetPublishedDraft':
+  :mandatory:
+    - :client_id
+  :optional:
+
+'AdminManagement::CmsConfigurator::FetchPublishedVersion':
+  :mandatory:
+    - :client_id
+    - :admin_id
+    - :api_key
+    - :api_secret
+  :optional:
+
 'UserManagement::SignUp':
   :mandatory:
     - :client_id
@@ -179,12 +246,12 @@
     - :last_name
     - :birthdate
     - :country
-    - :ethereum_address
     - :document_id_number
     - :nationality
     - :document_id_file_path
     - :selfie_file_path
   :optional:
+    - :ethereum_address
     - :residence_proof_file_path
     - :street_address
     - :city
@@ -211,6 +278,13 @@
   :mandatory:
     - :client_id
     - :template_type
+  :optional:
+
+'AdminManagement::CmsConfigurator::PreviewEntityDraft':
+  :mandatory:
+    - :client_id
+    - :template_type
+    - :gid
   :optional:
 
 'UserManagement::BtSubmit':
@@ -337,6 +411,18 @@
     - :project_description
     - :kit_marketing
 
+'ClientManagement::MigrateClientCustomDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+'ClientManagement::SetupDefaultClientCustomDraft':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
 'ClientManagement::VerifyApiCredential':
   :mandatory:
     - :api_key
@@ -344,6 +430,7 @@
     - :request_time
     - :url_path
     - :request_parameters
+    - :allow_web_based_client
   :optional:
 
 'ClientManagement::GetClientSetting':
@@ -408,41 +495,49 @@
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::Dashboard':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::ChangePassword':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::Verification':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::Kyc':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::ResetPassword':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::SignUp':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'ClientManagement::PageSetting::TokenSaleBlockedRegion':
   :mandatory:
     - :client_id
   :optional:
+    - :entity_group_id
 
 'AdminManagement::Kyc::RetryCynopsisUpload':
   :mandatory:

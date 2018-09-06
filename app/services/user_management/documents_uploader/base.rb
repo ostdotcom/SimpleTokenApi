@@ -120,7 +120,7 @@ module UserManagement
       success
     end
 
-    # get_upload_params
+    # # Get AWS Url
     #
     # * Author: Kedar
     # * Date: 13/10/2017

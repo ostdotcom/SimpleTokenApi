@@ -36,7 +36,7 @@ module UserManagement
 
       private
 
-      # get_upload_params
+      # Get AWS Post Url
       #
       # * Author: Pankaj
       # * Date: 04/09/2018

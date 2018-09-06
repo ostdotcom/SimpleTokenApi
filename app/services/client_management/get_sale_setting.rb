@@ -80,6 +80,7 @@ module ClientManagement
     #
     def success_response_data
       {
+          current_timestamp: Time.now.to_i,
           sale_start_timestamp: @client_token_sale_detail.sale_start_timestamp,
           sale_end_timestamp: @client_token_sale_detail.sale_end_timestamp
       }

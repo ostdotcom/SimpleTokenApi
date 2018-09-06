@@ -1,6 +1,8 @@
 module UserManagement
 
-  class GetUploadParams < ServicesBase
+  module DocumentsUploader
+
+    class Base < ServicesBase
 
     # Initialize
     #
@@ -11,7 +13,6 @@ module UserManagement
     # @params [Integer] client_id (mandatory) - logged in admin's client id
     # @param [Hash] images (mandatory)
     #
-    # @return [UserManagement::GetUploadParams]
     #
     def initialize(params)
       super
@@ -43,13 +44,13 @@ module UserManagement
       @images.each do |k, v|
         content_type = v
         key = "#{@client_id}/i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
-        @upload_params[k] = get_presigned_urls(content_type, key)
+        @upload_params[k] = get_url(content_type, key)
       end
 
       @pdfs.each do |k, v|
         content_type = v
         key = "#{@client_id}/d/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
-        @upload_params[k] = get_presigned_urls(content_type, key)
+        @upload_params[k] = get_url(content_type, key)
       end
 
       success_with_data(@upload_params)
@@ -130,11 +131,11 @@ module UserManagement
     #
     # @return [Hash]
     #
-    def get_presigned_urls(content_type, key)
+    def get_url(content_type, key)
 
-      post = Aws::S3Manager.new('kyc', 'user').get_presigned_post_url_for(content_type, key, GlobalConstant::Aws::Common.kyc_bucket)
+      fail 'Subclass would implement'
+    end
 
-      {url: post.url, fields: post.fields}
     end
 
   end

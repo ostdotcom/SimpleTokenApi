@@ -295,14 +295,14 @@
     - :user_id
   :optional:
 
-'UserManagement::GetUploadParams':
+'UserManagement::DocumentsUploader::SignedPostParams':
   :mandatory:
     - :client_id
   :optional:
     - :pdfs
     - :images
 
-'UserManagement::GetS3PutUrls':
+'UserManagement::DocumentsUploader::SignedPutUrls':
   :mandatory:
     - :client_id
   :optional:

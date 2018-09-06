@@ -100,19 +100,29 @@ module ClientManagement
 
       return error_with_data(
           'cm_uss_vd_1',
+          'Invalid Date',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {sale_start_timestamp: 'Invalid date selected'}
+      ) if (@sale_start_timestamp < 0 || @sale_end_timestamp < 0)
+
+      return error_with_data(
+          'cm_uss_vd_2',
           'Invalid Date in the field from and to',
           'Invalid Date',
           GlobalConstant::ErrorAction.default,
           {}
       ) if (@sale_end_timestamp <= @sale_start_timestamp)
 
-      # return error_with_data(
-      #     'cm_uss_vd_2',
-      #     'The to date cannot be less that today date',
-      #     'Invalid Date in the field to',
-      #     GlobalConstant::ErrorAction.default,
-      #     {}
-      # ) if (@sale_end_timestamp <= Time.zone.now.to_i)
+      return error_with_data(
+          'cm_uss_vd_3',
+          'Invalid Date',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {sale_start_timestamp: 'Invalid date selected'}
+      ) if (@sale_end_timestamp > (Time.now.to_i + 5.years.to_i))
 
       success
     end

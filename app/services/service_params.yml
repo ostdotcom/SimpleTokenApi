@@ -302,7 +302,7 @@
     - :pdfs
     - :images
 
-'UserManagement::GetPresignedUploadUrls':
+'UserManagement::GetS3PutUrls':
   :mandatory:
     - :client_id
   :optional:

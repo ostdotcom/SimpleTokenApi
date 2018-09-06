@@ -57,7 +57,7 @@ class RestApi::SaasApi::KycController < RestApi::SaasApi::BaseController
   # * Reviewed By:
   #
   def get_s3_upload_urls
-    service_response = UserManagement::GetPresignedUploadUrls.new(params).perform
+    service_response = UserManagement::GetS3PutUrls.new(params).perform
     render_api_response(service_response)
   end
 

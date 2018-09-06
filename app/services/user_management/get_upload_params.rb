@@ -43,13 +43,13 @@ module UserManagement
       @images.each do |k, v|
         content_type = v
         key = "#{@client_id}/i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
-        @upload_params[k] = get_upload_params_for(content_type, key)
+        @upload_params[k] = get_presigned_urls(content_type, key)
       end
 
       @pdfs.each do |k, v|
         content_type = v
         key = "#{@client_id}/d/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
-        @upload_params[k] = get_upload_params_for(content_type, key)
+        @upload_params[k] = get_presigned_urls(content_type, key)
       end
 
       success_with_data(@upload_params)
@@ -130,7 +130,7 @@ module UserManagement
     #
     # @return [Hash]
     #
-    def get_upload_params_for(content_type, key)
+    def get_presigned_urls(content_type, key)
 
       post = Aws::S3Manager.new('kyc', 'user').get_presigned_post_url_for(content_type, key, GlobalConstant::Aws::Common.kyc_bucket)
 

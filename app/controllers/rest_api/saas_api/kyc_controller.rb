@@ -24,7 +24,7 @@ class RestApi::SaasApi::KycController < RestApi::SaasApi::BaseController
   # * Reviewed By:
   #
   def get_upload_params
-    service_response = UserManagement::GetUploadParams.new(params).perform
+    service_response = UserManagement::DocumentsUploader::SignedPostParams.new(params).perform
     render_api_response(service_response)
   end
 
@@ -47,6 +47,17 @@ class RestApi::SaasApi::KycController < RestApi::SaasApi::BaseController
   #
   def get_detail
     service_response = SaasManagement::GetUserDetail.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Get Presigned urls for uploading files on S3
+  #
+  # * Author: Pankaj
+  # * Date: 04/09/2018
+  # * Reviewed By:
+  #
+  def get_s3_upload_urls
+    service_response = UserManagement::DocumentsUploader::SignedPutUrls.new(params).perform
     render_api_response(service_response)
   end
 

@@ -20,6 +20,26 @@ module Aws
       @role = role
     end
 
+    # Minimum file size for kyc
+    #
+    # * Author: Pankaj
+    # * Date: 28/08/2018
+    # * Reviewed By:
+    #
+    def min_file_size
+      (1024 * 200)
+    end
+
+    # Maximum file size for kyc
+    #
+    # * Author: Pankaj
+    # * Date: 28/08/2018
+    # * Reviewed By:
+    #
+    def max_file_size
+      (1024 * 1024 * 20)
+    end
+
     # Get signed url for
     #
     # * Author: Kedar
@@ -30,7 +50,7 @@ module Aws
     # @param [String] s3_path - file path in bucket
     # @param [Hash] options - options for signed url
     #
-    # @return [Resul::Base]
+    # @return [Result::Base]
     #
     def get_signed_url_for(bucket, s3_path, options = {})
       signer = Aws::S3::Presigner.new({client: client})
@@ -56,7 +76,7 @@ module Aws
     # @param [String] bucket - upload bucket
     # @param [Hash] options - extra options
     #
-    # @return [Resul::Base]
+    # @return [Result::Base]
     #
     def get_presigned_post_url_for(content_type, s3_path, bucket, options = {})
       post_policy = {
@@ -65,7 +85,7 @@ module Aws
           signature_expiration: Time.now + 1800,
           server_side_encryption: 'aws:kms',
           server_side_encryption_aws_kms_key_id: key_id,
-          content_length_range: (1024 * 200)..(1024 * 1024 * 20) # allow max 20 MB and min 200 kb
+          content_length_range: min_file_size..max_file_size # allow max 20 MB and min 200 kb
       }
 
       post = Aws::S3::PresignedPost.new(
@@ -76,17 +96,17 @@ module Aws
       )
     end
 
-    # Get signed url for
+    # Get signed url for client assets
     #
     # * Author: Pankaj
-    # * Date: 16/10/2018
+    # * Date: 16/08/2018
     # * Reviewed By:
     #
     # @param [String] content_type - upload file content type
     # @param [String] s3_path - upload file path in bucket
     # @param [String] bucket - upload bucket
     #
-    # @return [Resul::Base]
+    # @return [Result::Base]
     #
     def get_presigned_post_url_for_client_assets(content_type, s3_path, bucket, content_length_range)
       post_policy = {
@@ -105,23 +125,55 @@ module Aws
       )
     end
 
-    def upload_file_presigned_url(s3_name, file_path)
-      s3 = resource
-      obj = s3.bucket(GlobalConstant::Aws::Common.kyc_bucket).object(s3_name)
-      url = URI.parse(obj.presigned_url(:put, {
-          server_side_encryption: 'aws:kms',
-          ssekms_key_id: key_id,
-          content_type: 'image/jpg',
-          content_length: (1024)
-      }))
+    # Get S3 Bucket object
+    #
+    # * Author: Pankaj
+    # * Date: 28/08/2018
+    # * Reviewed By:
+    #
+    # @param [String] bucket_name - Bucket name to load object
+    #
+    # @return [s3BucketObject]
+    #
+    def get_s3_bucket_object(bucket_name)
+      resource.bucket(bucket_name)
+    end
 
-      puts url
-      Net::HTTP.start(url.host) do |http|
-        http.send_request("PUT", url.request_uri, File.read(file_path), {
-          # This is required, or Net::HTTP will add a default unsigned content-type.
-          "content-type" => "image/jpg",
-        })
-      end
+    # Get Pre-Signed url for Put file in S3
+    #
+    # * Author: Pankaj
+    # * Date: 16/08/2018
+    # * Reviewed By:
+    #
+    # @param [String] content_type - Uploaded file's content type
+    # @param [String] s3_path - File path to upload in S3
+    # @param [String] bucket - upload bucket
+    #
+    # @return [Result::Base]
+    #
+    def get_presigned_put_url_for(s3_name, bucket, content_type)
+      params = {
+          bucket: bucket,
+          key: s3_name
+      }
+
+      options={
+          content_type: content_type,
+          server_side_encryption: 'aws:kms',
+          ssekms_key_id: key_id
+      }
+
+      presigner = Aws::S3::Presigner.new({client: client})
+      u = presigner.presigned_url(:put_object, params.merge(options))
+      # uri = URI.parse(u)
+      # uri
+      # r = Net::HTTP.start(uri.host, :use_ssl => true) do |http|
+      #   http.send_request("PUT", uri.request_uri, File.read(file_path), {
+      #       # This is required, or Net::HTTP will add a default unsigned content-type.
+      #        "content-type" => content_type
+      #   })
+      #
+      # end
     end
 
     # upload data in s3
@@ -167,7 +219,7 @@ module Aws
           key: s3_path)
     end
 
-    # private
+    private
 
     # Client
     #

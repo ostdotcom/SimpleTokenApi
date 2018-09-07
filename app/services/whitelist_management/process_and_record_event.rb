@@ -205,7 +205,7 @@ module WhitelistManagement
         )
       end
 
-      @client_whitelist_obj = ClientWhitelistDetail.where(client_id: @kyc_whitelist_log.client_id, status: GlobalConstant::ClientWhitelistDetail.active_status).first
+      @client_whitelist_obj = ClientWhitelistDetail.get_from_memcache(@kyc_whitelist_log.client_id)
 
       return error_with_data(
           'wm_pare_2.2',

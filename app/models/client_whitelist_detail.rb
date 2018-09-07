@@ -40,7 +40,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   def self.get_from_memcache(client_id)
     memcache_key_object = ClientWhitelistDetail.get_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      ClientWhitelistDetail.where(client_id: client_id).first
+      ClientWhitelistDetail.where(client_id: client_id, status: GlobalConstant::ClientWhitelistDetail.active_status).first
     end
   end
 
@@ -104,13 +104,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   end
 
   def update_subscription
-    contract_addresses = ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)
-    BgJob.enqueue(
-        UpdateWhitelist,
-        {
-            contract_addresses: contract_addresses
-        }
-    )
+    BgJob.enqueue(UpdateWhitelistSubscription, {})
     Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")
   end
 end

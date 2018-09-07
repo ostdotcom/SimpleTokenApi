@@ -114,8 +114,7 @@ module Crons
       @transaction_hash = @kyc_whitelist_log.transaction_hash
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - Making API call GetWhitelistConfirmation")
-      # todo: use global constant for 'genericWhitelist'
-      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @transaction_hash, contract_type: "genericWhitelist"})
+      @tx_info_status = OpsApi::Request::GetWhitelistConfirmation.new.perform({transaction_hash: @transaction_hash})
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - transaction_mined_response: #{@tx_info_status.inspect}")
 

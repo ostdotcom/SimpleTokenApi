@@ -27,6 +27,7 @@ module OpsApi
       # @return [Result::Base] returns an object of Result::Base class
       #
       def perform(params)
+        params.merge!({contract_type: GlobalConstant::PublicOpsApi.generic_whitelist_contract_type})
         send_request_of_type(GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/transaction/get-info', params)
       end
 

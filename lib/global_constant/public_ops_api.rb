@@ -17,6 +17,10 @@ module GlobalConstant
         'public_ops'
       end
 
+      def generic_whitelist_contract_type
+        "genericWhitelist"
+      end
+
     end
 
   end

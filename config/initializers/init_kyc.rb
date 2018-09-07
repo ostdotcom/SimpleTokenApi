@@ -1,8 +1,6 @@
 class InitKyc
 
   def self.matches?(request)
-    puts "REQUEST-#{request.host}"
-
     if Rails.env.production?
       request.host == 'kyc.ost.com'
     elsif Rails.env.sandbox?
@@ -10,7 +8,7 @@ class InitKyc
     elsif Rails.env.staging?
       request.host == 'kyc.stagingost.com'
     else
-      true #request.host == 'kyc.developmentost.com'
+      request.host == 'kyc.developmentost.com'
     end
   end
 

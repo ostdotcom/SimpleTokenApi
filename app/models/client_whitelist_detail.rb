@@ -68,6 +68,17 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     end
   end
 
+  # Get all active whitelist contract addresses
+  #
+  # * Author: Aniket
+  # * Date: 07/08/2018
+  # * Reviewed By:
+  #
+  def self.get_active_contract_addressess
+    ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)
+  end
+
+
   # Mark whitelisting execution of client whitelist is reactive.
   #
   # * Author: Pankaj
@@ -92,8 +103,9 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     Memcache.delete(client_whitelist_details_memcache_key)
   end
 
+  # todo: resque task
   def update_subscription
-    contract_addresses = ClientWhitelistDetail.pluck("contract_address")
+    contract_addresses = ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)
     OpsApi::Request::UpdateSubscription.new.perform({contract_addresses: contract_addresses})
   end
 end

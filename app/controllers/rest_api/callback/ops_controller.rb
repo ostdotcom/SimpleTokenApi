@@ -17,14 +17,14 @@ class RestApi::Callback::OpsController < RestApi::Callback::BaseController
     render_api_response(r)
   end
 
-  # Get whitelist contract addresses
+  # Get all active whitelist contract addresses
   #
   # * Author: Aniket
   # * Date: 30/07/2018
   # * Reviewed By:
   #
-  def whitelist_contract_addresses
-    r = success_with_data({contract_addresses: ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)})
+  def get_whitelist_contract_addresses
+    r = success_with_data({contract_addresses: ClientWhitelistDetail.get_active_contract_addressess})
     render_api_response(r)
   end
 

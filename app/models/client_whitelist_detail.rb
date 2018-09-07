@@ -103,9 +103,14 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     Memcache.delete(client_whitelist_details_memcache_key)
   end
 
-  # todo: resque task
   def update_subscription
     contract_addresses = ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)
-    OpsApi::Request::UpdateSubscription.new.perform({contract_addresses: contract_addresses})
+    BgJob.enqueue(
+        UpdateWhitelist,
+        {
+            contract_addresses: contract_addresses
+        }
+    )
+    Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")
   end
 end

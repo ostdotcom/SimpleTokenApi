@@ -79,11 +79,39 @@ module ClientManagement
       common_template = @client_templates[GlobalConstant::ClientTemplate.common_template_type].data
       token_sale_blocked_region_template = @client_templates[GlobalConstant::ClientTemplate.token_sale_blocked_region_template_type].data
 
+      account_name = common_template[:account_name]
+      account_name_short = common_template[:account_name_short]
 
       company_logo = common_template[:header][:logo][:src]
-      company_logo_size_percent = 15
-      company_favicon = common_template[:header][:favicon_src] || company_logo
 
+      if company_logo.strip == 'https://d36lai1ppm9dxu.cloudfront.net/assets/logo/simple-token-dashboard-logo-1x.png'
+        company_logo = 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/simple_token/simple-token-dashboard-logo-1x.png'
+      end
+
+      company_logo_size_percent = 35
+      if Rails.env.production?
+        company_logo_size_percent = case @client_id
+                                      when 1
+                                        51
+                                      when 2
+                                        35
+                                      when 6
+                                        50
+                                      when 7
+                                        35
+                                      when 8
+                                        30
+                                      when 9
+                                        100
+                                      when 10
+                                        80
+                                      else
+                                        35
+                                    end
+      end
+
+
+      company_favicon = common_template[:header][:favicon_src] || company_logo
 
       if Rails.env.staging?
         company_logo = 'https://s3.amazonaws.com/cwa.stagingkyc.com/c_assets/sta/simpletoken/sample_logo.png'
@@ -101,7 +129,7 @@ module ClientManagement
         val = 20 if val.match(/px/)
         background_gradient << {color: rgb_color(a[0]), gradient: val.to_i}
       end
-      background_gradient = background_gradient[0..1]
+      background_gradient = background_gradient[0..2]
 
       primary_button_style = common_template[:primary_button_style].scan(/btn-primary *({[a-z0-9#-:;\s]*})/i)[0][0]
 
@@ -109,7 +137,7 @@ module ClientManagement
       primary_button_background_color = primary_button_style.scan(/background(-color)?:\s*([^;]*)/i)[0][1]
       primary_button_text_color = primary_button_style.scan(/[{;\s]+color:\s*([^;]*)/i)[0][0]
 
-      primary_button_style_active = common_template[:primary_button_style].scan(/.btn-primary:active[^{]* *({[a-z0-9#-:;\s!]*})/i)[0][0]
+      primary_button_style_active = common_template[:primary_button_style].scan(/.btn-primary:active[^{]* *({[a-z0-9#-:;\s!]*})/i)[0][0] rescue common_template[:primary_button_style].scan(/.client-primary-btn:active[^{]* *({[a-z0-9#-:;\s!]*})/i)[0][0]
       primary_button_border_color_active = primary_button_style_active.scan(/border-color:\s*([^;]*)/i)[0][0]
       primary_button_background_color_active = primary_button_style_active.scan(/background(-color)?:\s*([^;]*)/i)[0][1]
       primary_button_text_color_active = primary_button_style_active.scan(/[{;\s]+color:\s*([^;]*)/i)[0][0]
@@ -189,8 +217,8 @@ module ClientManagement
 
       signup_template = @client_templates[GlobalConstant::ClientTemplate.sign_up_template_type].data
 
-      checkbox_html = signup_template[:checkbox_html]
-      policy_texts = [sanitize_html(checkbox_html)]
+      checkbox_html_list = signup_template[:checkbox_html_list] || [signup_template[:checkbox_html]]
+      policy_texts = checkbox_html_list.map {|x| sanitize_html(x)}
 
 
       signup_draft_data = {
@@ -202,8 +230,8 @@ module ClientManagement
 
       kyc_template = @client_templates[GlobalConstant::ClientTemplate.kyc_template_type].data
 
-      kyc_form_title = 'Update Your Registration Details'
-      kyc_form_subtitle = 'You will need to supply the following information to complete your registration'
+      kyc_form_title = kyc_template[:kyc_title] || 'Getting Closer to Accessing the Token Sale'
+      kyc_form_subtitle = kyc_template[:kyc_subtitle] || 'You will need to supply the following information to complete your registration'
 
       eth_address_instruction_text = sanitize_html(kyc_template[:ethereum_address_info_html])
       document_id_instruction_text = sanitize_html(kyc_template[:document_info_html])
@@ -245,8 +273,8 @@ module ClientManagement
 
       ethereum_deposit_popup_checkboxes = dashboard_template[:ethereum_confirm_checkbox_points_html].map {|x| sanitize_html(x)}
 
-      middle_banner_text = dashboard_template[:ethereum_deposit_text_html].to_s
-      middle_banner_text = middle_banner_text.present? ? middle_banner_text : 'DO NOT use Coinbase, Kraken or any other exchange to purchase Tokens'
+      middle_banner_text = dashboard_template[:ethereum_deposit_text_html].gsub("& ", "&amp; ").to_s
+      middle_banner_text = middle_banner_text.present? ? middle_banner_text : 'Set Gas Limit to 200,000.<br/>DO NOT use Coinbase, Kraken or any other exchange to purchase Tokens'
 
       middle_banner_href_style = middle_banner_text.scan(/a\s+href=.*style="([^"]*)"/im)[0][0] rescue nil
       dashboard_middle_banner_link_color = middle_banner_href_style.scan(/[^-]*color:\s*([^;]*)/im)[0][0] rescue 'feb202'
@@ -359,7 +387,7 @@ module ClientManagement
 
     def rgb_color(hex_color)
       arr = []
-      hex_color = hex_color.gsub("#", '')
+      hex_color = hex_color.gsub("#", '').strip
 
       if hex_color.length == 6
         arr << hex_color[0..1]
@@ -381,7 +409,7 @@ module ClientManagement
 
     def sanitize_html(text)
       # will work only  for footer
-      footer_sub_text = text.gsub(/<\s*footer\s+style=[^>]*>/i, '')
+      footer_sub_text = text.gsub("& ", "&amp; ").gsub("&copy;", "©").gsub(/<\s*footer\s+style=[^>]*>/i, '')
 
       footer_sub_text1 = footer_sub_text.gsub(/style="([^"]*)"/, '')
       footer_sub_text2 = footer_sub_text1.gsub(/title="([^"]*)"/, '')

@@ -39,6 +39,14 @@ module GlobalConstant
         'min'
       end
 
+      def min_bytes_key
+        "min_bytes"
+      end
+
+      def max_bytes_key
+        "max_bytes"
+      end
+
       def max_length_key
         'max_length'
       end
@@ -57,6 +65,10 @@ module GlobalConstant
 
       def includes_key
         'includes'
+      end
+
+      def accept_key
+        'accept'
       end
 
       def max_key
@@ -150,25 +162,67 @@ module GlobalConstant
           default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type] = {}
 
           get_theme_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.theme_entity_type][key.to_sym] = data["default_value"]
+            default_val = data["default_value"]
+            next if default_val.blank?
+
+            if [company_logo_key, company_favicon_key].include?(key)
+              default_val = "#{GlobalConstant::Aws::Common.client_assets_cdn_url}/" + default_val
+            end
+
+            default_template_data[GlobalConstant::EntityGroupDraft.theme_entity_type][key.to_sym] = default_val
           end
 
           get_registration_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.registration_entity_type][key.to_sym] = data["default_value"]
+            default_val = data["default_value"]
+            next if default_val.blank?
+            default_template_data[GlobalConstant::EntityGroupDraft.registration_entity_type][key.to_sym] = default_val
           end
 
           get_kyc_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.kyc_entity_type][key.to_sym] = data["default_value"]
+            default_val = data["default_value"]
+            next if default_val.blank?
+            default_template_data[GlobalConstant::EntityGroupDraft.kyc_entity_type][key.to_sym] = default_val
           end
 
           get_dashboard_yml.each do |key, data|
-            default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type][key.to_sym] = data["default_value"]
+            default_val = data["default_value"]
+            next if default_val.blank?
+            default_template_data[GlobalConstant::EntityGroupDraft.dashboard_entity_type][key.to_sym] = default_val
           end
           default_template_data
         end
         @custom_default_template_data.deep_dup
       end
 
+      #min bytes 1kb and max bytes 2MB
+      def company_logo_file_size_range
+        @company_logo_range ||= begin
+          validations = get_theme_yml[company_logo_key][validations_key]
+          validations[min_bytes_key]..validations[max_bytes_key]
+        end
+      end
+
+      #min bytes 1kb and max bytes 200kb
+      def company_favicon_file_size_range
+        @company_favicon_range ||= begin
+          validations = get_theme_yml[company_favicon_key][validations_key]
+          validations[min_bytes_key]..validations[max_bytes_key]
+        end
+      end
+
+      def company_logo_file_formats
+        @company_logo_ff ||= begin
+          validations = get_theme_yml[company_logo_key][validations_key]
+          validations[accept_key]
+        end
+      end
+
+      def company_favicon_file_formats
+        @company_fav_ff ||= begin
+          validations = get_theme_yml[company_favicon_key][validations_key]
+          validations[accept_key]
+        end
+      end
 
       def get_dashboard_yml
         @dashboard_yml ||= YAML.load_file(open(Rails.root.to_s + '/config/fe_configurator/dashboard.yml'))

@@ -80,20 +80,18 @@ module AdminManagement
             {}
         ) if @images.blank? || (!@images.is_a?(Hash) && !@images.is_a?(ActionController::Parameters))
 
-        image_content_types = []
-        @images.each do |_, v|
-          image_content_types << v.to_s.downcase
+        invalid_content_types = []
+        @images.each do |k, v|
+          invalid_content_types << k unless file_format_is_valid?(k, v)
         end
-
-        invalid_content_types = (image_content_types - ['image/jpeg', 'image/png', 'image/jpg', 'image/ico']).any?
 
         return error_with_data(
             'am_cc_gup_2',
-            'invalid content types.',
-            'Only JPEG, PDF and PNG files are allowed.',
+            'Invalid file format',
+            'Invalid file format',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if invalid_content_types
+        ) if invalid_content_types.present?
 
         success
       end
@@ -131,11 +129,22 @@ module AdminManagement
       def get_content_length_range(entity_key)
         case entity_key
           when GlobalConstant::CmsConfigurator.company_logo_key
-            (1024 * 50)..(1024 * 1024 * 2) # allow max 2 MB and min 50 kb
+            GlobalConstant::CmsConfigurator.company_logo_file_size_range
           when GlobalConstant::CmsConfigurator.company_favicon_key
-            (1024 * 2)..(1024 * 200) # allow max 200 kb and min 2 kb
+            GlobalConstant::CmsConfigurator.company_favicon_file_size_range
           else
             raise "Invalid key"
+        end
+      end
+
+      def file_format_is_valid?(entity_key, content_type)
+        case entity_key
+        when GlobalConstant::CmsConfigurator.company_logo_key
+          GlobalConstant::CmsConfigurator.company_logo_file_formats.include?(content_type.to_s.downcase)
+        when GlobalConstant::CmsConfigurator.company_favicon_key
+          GlobalConstant::CmsConfigurator.company_favicon_file_formats.include?(content_type.to_s.downcase)
+        else
+          raise "Invalid key"
         end
       end
 

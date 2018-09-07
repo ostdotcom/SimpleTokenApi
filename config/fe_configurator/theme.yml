@@ -2,9 +2,10 @@ company_logo:
   data_kind: 'text'
   validations:
     required: 1
-    min_bytes: 51200
+    min_bytes: 1024
     max_bytes: 2097152
-  default_value: 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/company/company-logo.png'
+    accept: ['image/jpeg', 'image/png', 'image/jpg']
+  default_value: 'c_assets/sta/default/logo.jpeg'
 
 company_logo_size_percent:
   data_kind: 'number'
@@ -12,28 +13,35 @@ company_logo_size_percent:
     required: 1
     max: 100
     min: 1
-  default_value: 15
+  default_value: 30
 
 company_favicon:
   data_kind: 'text'
   validations:
     required: 0
-    min_bytes: 2048
+    min_bytes: 1024
     max_bytes: 204800
-  default_value: 'https://d27ixhmpjdysfk.cloudfront.net/c_assets/company/company-logo.png'
+    accept: ['image/jpeg', 'image/png', 'image/jpg', 'image/x-icon', 'image/vnd.microsoft.icon']
+  default_value: ''
 
 background_gradient:
   data_kind: 'array'
   validations:
     required: 1
-    max_count: 2
+    max_count: 3
     min_count: 2
   element:
-    data_kind: 'gradient'
-    validations:
-      max_count: 2
-      min_count: 2
-  default_value: [{color: "rgb(243,249,244)", gradient: 0}, {color: "rgb(255,255,255)", gradient: 20}]
+    color:
+      data_kind: 'color'
+      validations:
+        required: 1
+    gradient:
+      data_kind: 'number'
+      validations:
+        required: 1
+        max: 100
+        min: 0
+  default_value: [{color: "rgb(243, 249, 244)", gradient: 40}, {color: "rgb(215, 232, 218)", gradient: 50}]
 
 primary_button_text_color:
   data_kind: 'color'
@@ -129,32 +137,35 @@ footer_text:
   data_kind: 'html'
   validations:
     required: 1
-    max_length: 500
-  default_value: 'Copyright &copy; 2018 Company. All Rights Reserved. <a href="https://domain.com/terms-and-conditions.html"
-                    title="Terms and Conditions" target="_blank" rel="nofollow" >Terms and Conditions</a> & <a href="https://domain.com/privacy.html"
-                    title="Privacy Policy" target="_blank" rel="nofollow">Privacy Policy</a>'
+    max_length: 400
+    min_length: 1
+  default_value: 'Copyright © 2018 Company. All Rights Reserved. Terms &amp; Conditions and Privacy Policy'
 
 terms_condition_link:
   data_kind: 'link'
   validations:
     required: 1
-    max_length: 100
+    max_length: 250
+    min_length: 1
   default_value: 'https://domain.com/terms-n-conditions.html'
 
 gtm_pixel_id:
   data_kind: 'text'
   validations:
     required: 0
+    max_length: 50
   default_value: ''
 
 fb_pixel_id:
   data_kind: 'text'
   validations:
     required: 0
+    max_length: 50
   default_value: ''
 
 fb_pixel_version:
   data_kind: 'text'
   validations:
     required: 0
+    max_length: 50
   default_value: ''

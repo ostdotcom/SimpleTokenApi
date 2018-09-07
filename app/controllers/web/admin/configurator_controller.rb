@@ -1,10 +1,11 @@
 class Web::Admin::ConfiguratorController < Web::Admin::BaseController
 
+  before_action :escape_html, only: [:update_entity_draft]
+  before_action :sanitize_params
+
   before_action only: [:publish_entity_group, :fetch_published_version] do
     authenticate_request(true)
   end
-
-  skip_before_action :sanitize_params, only: [:update_entity_draft]
 
   before_action :validate_configurator_settings, except: [:index]
 
@@ -29,7 +30,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def update_entity_draft
-    params[:form_data] = hashify_params_recursively(params)
+    # params[:form_data] = hashify_params_recursively(params[:form_data])
     service_response = AdminManagement::CmsConfigurator::UpdateEntityDraft.new(params).perform
     render_api_response(service_response)
   end
@@ -135,6 +136,19 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
       service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
+  end
+
+
+  # Escape html for form_data with data_type :Html
+  #
+  # * Author: Aniket
+  # * Date: 28/08/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def escape_html
+    EscapeHtmlFields.new(params).perform
   end
 
 end

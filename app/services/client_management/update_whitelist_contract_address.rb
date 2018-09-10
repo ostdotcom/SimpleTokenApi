@@ -1,8 +1,6 @@
 module ClientManagement
   class UpdateWhitelistContractAddress < ServicesBase
 
-    # todo: update service name
-
     # Initialize
     #
     # * Author: Tejas
@@ -38,7 +36,8 @@ module ClientManagement
       r = validate_and_sanitize
       return r unless r.success?
 
-      create_and_update_contract_addresses
+      r = create_and_update_contract_addresses
+      return r unless r.success?
 
       success
     end
@@ -95,9 +94,19 @@ module ClientManagement
     #
     def validate_contract_address
 
+      @contract_address = Util::CommonValidator.sanitize_ethereum_address(@contract_address)
+
       return error_with_data(
           'cm_uca_vca_1',
-          'Invalid Date',
+          'Invalid contract address.',
+          'Invalid contract address.',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !(Util::CommonValidator.is_ethereum_address?(@contract_address))
+
+      return error_with_data(
+          'cm_uca_vca_2',
+          'Invalid Whitelisting client',
           'There is no whitelist setup for this client',
           GlobalConstant::ErrorAction.default,
           {}
@@ -107,7 +116,7 @@ module ClientManagement
                                                 status: [GlobalConstant::KycWhitelistLog.pending_status,
                                                          GlobalConstant::KycWhitelistLog.done_status]).last
       return error_with_data(
-          'cm_uca_vca_2',
+          'cm_uca_vca_3',
           'Pending Whitelist status for this client',
           'There is pending Whitelist status for this client',
           GlobalConstant::ErrorAction.default,
@@ -129,9 +138,16 @@ module ClientManagement
           client_id: @client_id,
           status: GlobalConstant::ClientWhitelistDetail.active_status).first
 
+      return error_with_data(
+          'cm_uca_cauca_1',
+          'Duplicated contract address',
+          'Duplicated contract address',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if @client_whitelist_detail.contract_address.downcase == @contract_address.downcase
+
       @client_whitelist_detail.status = GlobalConstant::ClientWhitelistDetail.inactive_status
       @client_whitelist_detail.save!
-
 
       ClientWhitelistDetail.create!(
           client_id: @client_id, contract_address: @contract_address,
@@ -140,6 +156,7 @@ module ClientManagement
           last_acted_by: @admin_id,
           status: GlobalConstant::ClientWhitelistDetail.active_status
       )
+      success
     end
 
   end

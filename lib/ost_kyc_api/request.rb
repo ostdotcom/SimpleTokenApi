@@ -5,6 +5,7 @@ module OstKycApi
     require "uri"
     require "open-uri"
     require "openssl"
+    require 'net/http'
 
     include Util::ResultHelper
 
@@ -56,7 +57,7 @@ module OstKycApi
           "email" => email,
           "first_name" => kyc_data[:first_name] || 'aman',
           "last_name" => kyc_data[:last_name] || 'barbaria',
-          "birthdate" => kyc_data[:birthdate] || '23/07/2091',
+          "birthdate" => kyc_data[:birthdate] || '23/07/1991',
           "street_address" => kyc_data[:street_address] || 'magarpatta city',
           "city" => kyc_data[:city] || 'pune',
           "state" => kyc_data[:state] || 'maharashtra',
@@ -65,9 +66,8 @@ module OstKycApi
           "ethereum_address" => kyc_data[:ethereum_address] || '0x2755a475Ff253Ae5BBE6C1c140f975e5e85534bD',
           "document_id_number" => kyc_data[:document_id_number] || "#{Time.now.to_i}",
           "nationality" => kyc_data[:nationality] || 'INDIAN',
-          "document_id_file_path" => kyc_data[:document_id_file_path] || '/q/qw',
-          "selfie_file_path" => kyc_data[:selfie_file_path] || 'w/er/',
-          "residence_proof_file_path" => kyc_data[:residence_proof_file_path],
+          "document_id_file_path" => kyc_data[:document_id_file_path] || '2/i/687eb50ecbe60c37400746a59200c75b',
+          "selfie_file_path" => kyc_data[:selfie_file_path] || '2/i/24d828f00557817e846ebed6109c0ac8',
           "user_ip_address" => kyc_data[:user_ip_address]
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
@@ -221,8 +221,9 @@ module OstKycApi
     # returns:
     #   String
     #
-    def get_api_url(endpoint)
-      @api_base_url + endpoint
+    def get_api_uri(endpoint, params = {})
+      req_params = params.present? ? "?#{params.to_query}" : ""
+      URI.parse(@api_base_url + endpoint + req_params)
     end
 
     # Make Get Request
@@ -236,14 +237,13 @@ module OstKycApi
     #
     def make_get_request(endpoint, custom_params = {})
       request_params = base_params(endpoint, custom_params)
-      raw_url = get_api_url(endpoint) + "?#{request_params.to_query}"
+      uri = get_api_uri(endpoint, request_params)
 
-      result = handle_with_exception do
-        response = URI.parse(raw_url).read
-        parse_api_response(response)
+      result = handle_with_exception(uri) do |http|
+        http.get(uri)
       end
 
-      return result
+      result
     end
 
     # Make Post Request
@@ -259,45 +259,31 @@ module OstKycApi
       request_params = base_params(endpoint, custom_params)
       uri = post_api_uri(endpoint)
 
-      result = handle_with_exception do
-        http = setup_request(uri)
-        result = http.post(uri.path, request_params.to_query)
-        parse_api_response(result.body)
+      result = handle_with_exception(uri) do |http|
+        http.post(uri.path, request_params.to_query)
       end
 
-      return result
-
+      result
     end
 
     # Handle With Exception
     #
     # returns [Result::Base]
     #
-    def handle_with_exception
+    def handle_with_exception(uri)
       begin
         Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
-          yield
+          http = setup_request(uri)
+          result = yield(http)
+          parse_api_response(result)
         end
-      rescue OpenURI::HTTPError => e
-        if e.to_s == '401 Unauthorized'
-          return error_with_internal_code(e.message, 'simple token api error', GlobalConstant::ErrorCode.ok,
-                                          {}, {}, 'Invalid Credentials')
-        end
-        return error_with_internal_code(e.message,
-                                        'simple token api error: SWR', GlobalConstant::ErrorCode.ok,
-                                        {}, {}, 'Something Went Wrong')
       rescue Timeout::Error => e
         return error_with_internal_code(e.message,
                                         'simple token api error: Time Out Error', GlobalConstant::ErrorCode.ok,
                                         {}, {}, 'Time Out Error')
 
       rescue Exception => e
-
-        ApplicationMailer.notify(
-            body: {exception: {message: e.message, backtrace: e.backtrace}},
-            data: {environment: @environment},
-            subject: "Something Went Wrong in : #{self.class}"
-        ).deliver
+        exception_with_internal_code(e, 'oka_r_hwe_1', 'Something Went Wrong', GlobalConstant::ErrorCode.ok)
       end
     end
 
@@ -310,20 +296,31 @@ module OstKycApi
     # @return [Result::Base] returns an object of Result::Base class
     #
     def parse_api_response(http_response)
+      response_data = Oj.load(http_response.body, mode: :strict) rescue {}
 
-      response_data = Oj.load(http_response, mode: :strict) rescue {}
+      Rails.logger.info("=*=Simple-Token-API-ERROR=*= #{response_data.inspect}")
 
-      if response_data['success']
-        # Success
-        success_result(response_data['data'])
+      case http_response.class.name
+      when 'Net::HTTPOK'
+        if response_data['success']
+          # Success
+          success_result(response_data['data'])
+        else
+          # API Error
+          error_with_internal_code(response_data['err']['code'],
+                                   'simple token api error',
+                                   GlobalConstant::ErrorCode.ok,
+                                   {}, response_data['err']['error_data'],
+                                   response_data['err']['display_text'])
+        end
+      when "Net::HTTPUnauthorized"
+        # 401
+        error_with_internal_code('oka_r_unauthorized', 'ost kyc api authentication failed',
+                                 GlobalConstant::ErrorCode.ok, {}, {}, 'Invalid Credentials')
       else
-        # API Error
-        Rails.logger.info("=*=Simple-Token-API-ERROR=*= #{response_data.inspect}")
-        error_with_internal_code(response_data['err']['code'],
-                                 'simple token api error',
-                                 GlobalConstant::ErrorCode.ok,
-                                 {}, response_data['err']['error_data'],
-                                 response_data['err']['display_text'])
+        # HTTP error status code (500, 504...)
+        exception_with_internal_code(Exception.new("Ost Kyc API STATUS CODE #{http_response.code.to_i}"), 'ost_kyc_api_exception', 'ost kyc api exception',
+                                     GlobalConstant::ErrorCode.ok)
       end
     end
 

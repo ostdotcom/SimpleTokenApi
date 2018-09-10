@@ -68,6 +68,9 @@ module OstKycApi
           "nationality" => kyc_data[:nationality] || 'INDIAN',
           "document_id_file_path" => kyc_data[:document_id_file_path] || '2/i/687eb50ecbe60c37400746a59200c75b',
           "selfie_file_path" => kyc_data[:selfie_file_path] || '2/i/24d828f00557817e846ebed6109c0ac8',
+          "residence_proof_file_path" => kyc_data[:residence_proof_file_path] || '3/i/d3817395b85581eab3068cb43f9c0f63',
+          "investor_proof_files_path" => kyc_data[:investor_proof_files_path] ||
+              ['3/i/d3817395b85581eab3068cb43f9c0f63', '3/i/d3817395b85581eab3068cb43f9c0f63'],
           "user_ip_address" => kyc_data[:user_ip_address]
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"

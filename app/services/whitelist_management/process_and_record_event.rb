@@ -42,18 +42,15 @@ module WhitelistManagement
 
         create_user_contract_event
 
-        r = fetch_kyc_whitelist_log
+        r = fetch_kyc_whitelisting_details
         return r unless r.success?
 
         r = validate_kyc_whitelist_log
         return r unless r.success?
 
-        r = fetch_user_kyc_detail
-        return r unless r.success?
-
         update_kyc_whitelist_log
 
-        update_user_kyc_detail
+        update_user_kyc_detail(GlobalConstant::UserKycDetail.done_whitelist_status)
 
         success
 
@@ -190,7 +187,7 @@ module WhitelistManagement
     #
     # @return [Result::Base]
     #
-    def fetch_kyc_whitelist_log
+    def fetch_kyc_whitelisting_details
       @kyc_whitelist_log = KycWhitelistLog.where(transaction_hash: @transaction_hash).first
 
       if @kyc_whitelist_log.blank?
@@ -215,6 +212,9 @@ module WhitelistManagement
           {}
       ) if @client_whitelist_obj.blank? || @client_whitelist_obj.contract_address.downcase != @contract_address.downcase
 
+      r = fetch_user_kyc_detail
+      return r unless r.success?
+
       success
     end
 
@@ -232,6 +232,7 @@ module WhitelistManagement
           (@kyc_whitelist_log.phase != @phase)
 
         @kyc_whitelist_log.mark_failed_with_attention_needed
+        update_user_kyc_detail(GlobalConstant::UserKycDetail.failed_whitelist_status)
 
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
@@ -293,7 +294,7 @@ module WhitelistManagement
     #
     def fetch_user_kyc_detail
 
-      user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @ethereum_address)
+      user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
         @kyc_whitelist_log.mark_failed_with_attention_needed
@@ -390,12 +391,12 @@ module WhitelistManagement
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    def update_user_kyc_detail
+    def update_user_kyc_detail(whitelist_status)
       # phase with 0 value can come in callback event for unwhitelisting .
       # whitelisting can't be confirmed if @phase = 0
       return if @phase == 0
 
-      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.done_whitelist_status
+      @user_kyc_detail.whitelist_status = whitelist_status
       if @user_kyc_detail.whitelist_status_changed? &&
           @user_kyc_detail.whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status
         send_kyc_approved_mail

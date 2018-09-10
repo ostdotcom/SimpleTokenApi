@@ -97,6 +97,12 @@ module ClientManagement
     # @return [Result::Base]
     #
     def validate_date
+      err_data = {}
+
+      err_data[:sale_start_timestamp] = 'Invalid date selected' if @sale_start_timestamp < 0
+      err_data[:sale_end_timestamp] = 'Invalid date selected' if @sale_end_timestamp < 0
+      err_data[:sale_end_timestamp] = 'End date cannot be more than 5 years from now' if @sale_end_timestamp >
+          (Time.now.to_i + 5.years.to_i)
 
       return error_with_data(
           'cm_uss_vd_1',
@@ -104,25 +110,16 @@ module ClientManagement
           '',
           GlobalConstant::ErrorAction.default,
           {},
-          {sale_start_timestamp: 'Invalid date selected'}
-      ) if (@sale_start_timestamp < 0 || @sale_end_timestamp < 0)
+          err_data
+      ) if err_data.present?
 
       return error_with_data(
           'cm_uss_vd_2',
-          'Invalid Date in the field from and to',
-          'Invalid Date',
+          'Sale start should be less than sale end time',
+          'Sale start time should be less than sale end time',
           GlobalConstant::ErrorAction.default,
           {}
       ) if (@sale_end_timestamp <= @sale_start_timestamp)
-
-      return error_with_data(
-          'cm_uss_vd_3',
-          'Invalid Date',
-          '',
-          GlobalConstant::ErrorAction.default,
-          {},
-          {sale_start_timestamp: 'Invalid date selected'}
-      ) if (@sale_end_timestamp > (Time.now.to_i + 5.years.to_i))
 
       success
     end
@@ -152,9 +149,7 @@ module ClientManagement
     # returns [Hash] api response data
     #
     def success_response_data
-      {
-
-      }
+      {}
     end
 
   end

@@ -5,6 +5,7 @@ module OstKycApi
     require "uri"
     require "open-uri"
     require "openssl"
+    require 'net/http'
 
     include Util::ResultHelper
 
@@ -221,8 +222,9 @@ module OstKycApi
     # returns:
     #   String
     #
-    def get_api_url(endpoint)
-      @api_base_url + endpoint
+    def get_api_url(endpoint, params={})
+      req_params = params.present? ? "?#{params.to_query}" : ""
+      URI.parse(@api_base_url + endpoint + req_params)
     end
 
     # Make Get Request
@@ -236,10 +238,10 @@ module OstKycApi
     #
     def make_get_request(endpoint, custom_params = {})
       request_params = base_params(endpoint, custom_params)
-      raw_url = get_api_url(endpoint) + "?#{request_params.to_query}"
+      uri = get_api_url(endpoint, request_params)
 
       result = handle_with_exception do
-        response = URI.parse(raw_url).read
+        response = Net::HTTP.get(uri)
         parse_api_response(response)
       end
 
@@ -312,19 +314,6 @@ module OstKycApi
     def parse_api_response(http_response)
 
       response_data = Oj.load(http_response, mode: :strict) rescue {}
-
-      if response_data['success']
-        # Success
-        success_result(response_data['data'])
-      else
-        # API Error
-        Rails.logger.info("=*=Simple-Token-API-ERROR=*= #{response_data.inspect}")
-        error_with_internal_code(response_data['err']['code'],
-                                 'simple token api error',
-                                 GlobalConstant::ErrorCode.ok,
-                                 {}, response_data['err']['error_data'],
-                                 response_data['err']['display_text'])
-      end
     end
 
   end

@@ -332,7 +332,7 @@ module WhitelistManagement
 
       @user_kyc_detail = user_kyc_details.first
 
-      if @phase == 0 && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
+      if @kyc_whitelist_log.phase == 0 && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
                           GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
         @kyc_whitelist_log.mark_failed_with_attention_needed
         notify_devs(
@@ -348,7 +348,7 @@ module WhitelistManagement
         )
       end
 
-      if @phase > 0 && [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(@user_kyc_detail.whitelist_status)
+      if @kyc_whitelist_log.phase > 0 && [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(@user_kyc_detail.whitelist_status)
         @kyc_whitelist_log.mark_failed_with_attention_needed
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
@@ -394,7 +394,7 @@ module WhitelistManagement
     def update_user_kyc_detail(whitelist_status)
       # phase with 0 value can come in callback event for unwhitelisting .
       # whitelisting can't be confirmed if @phase = 0
-      return if @phase == 0
+      return if @kyc_whitelist_log.phase == 0
 
       @user_kyc_detail.whitelist_status = whitelist_status
       if @user_kyc_detail.whitelist_status_changed? &&

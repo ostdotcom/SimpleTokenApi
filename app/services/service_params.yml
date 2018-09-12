@@ -466,11 +466,37 @@
 
 'ClientManagement::UpdateAutoApproveSetting':
   :mandatory:
-     - :admin_id
      - :client_id
+     - :admin_id
      - :approve_type
      - :ocr_comparison_fields
      - :fr_match_percent
+  :optional:
+
+'ClientManagement::UpdateSaleSetting':
+  :mandatory:
+     - :admin_id
+     - :client_id
+     - :sale_start_timestamp
+     - :sale_end_timestamp
+  :optional:
+
+'ClientManagement::GetSaleSetting':
+  :mandatory:
+     - :client_id
+  :optional:
+
+'ClientManagement::UpdateCountrySetting':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+    - :blacklisted_countries
+    - :residency_proof_nationalities
+
+'ClientManagement::GetCountrySetting':
+  :mandatory:
+     - :client_id
   :optional:
 
 'ClientManagement::DeveloperDetail':

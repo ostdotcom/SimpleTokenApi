@@ -34,5 +34,26 @@ class Web::Admin::ClientController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Get Sale Setting
+  #
+  # * Author: Tejas
+  # * Date: 27/08/2018
+  # * Reviewed By:
+  #
+  def get_sale_setting
+    service_response = ClientManagement::GetSaleSetting.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Get Country Setting
+  #
+  # * Author: Tejas
+  # * Date: 27/08/2018
+  # * Reviewed By:
+  #
+  def get_country_setting
+    service_response = ClientManagement::GetCountrySetting.new(params).perform
+    render_api_response(service_response)
+  end
 
 end

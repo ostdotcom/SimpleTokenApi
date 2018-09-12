@@ -105,6 +105,6 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
 
   def update_subscription
     BgJob.enqueue(UpdateWhitelistSubscription, {})
-    Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")
+    Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for client_id-#{self.client_id} done")
   end
 end

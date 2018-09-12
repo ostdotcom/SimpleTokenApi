@@ -157,6 +157,7 @@ module Crons
       KycWhitelistLog.create!({
                                   client_id: @user_kyc_detail.client_id,
                                   ethereum_address: @api_data[:address],
+                                  client_whitelist_detail_id: get_client_whitelist_detail_id,
                                   phase: @api_data[:phase],
                                   transaction_hash: @transaction_hash,
                                   nonce: @nonce,
@@ -219,6 +220,18 @@ module Crons
     #
     def get_whitelister_address
       @client_whitelist_objs[@user_kyc_detail.client_id].whitelister_address
+    end
+
+    # Get Client active whitelisting details id
+    #
+    # * Author: Pankaj
+    # * Date: 31/07/2018
+    # * Reviewed By:
+    #
+    # @return [Integer] client_whitelist_detail_id
+    #
+    def get_client_whitelist_detail_id
+      @client_whitelist_objs[@user_kyc_detail.client_id].id
     end
 
     # Handle whitelist errors

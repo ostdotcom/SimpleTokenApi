@@ -2,6 +2,8 @@ class RestApi::Callback::OpsController < RestApi::Callback::BaseController
 
   before_action :decrypt_jwt
 
+  include Util::ResultHelper
+
   # Whitelist event callback
   #
   # * Author: Aman
@@ -12,6 +14,17 @@ class RestApi::Callback::OpsController < RestApi::Callback::BaseController
     BgJob.enqueue(WhitelistCallbackJob, {decoded_token_data: params[:decoded_token_data]})
 
     r = Result::Base.success({})
+    render_api_response(r)
+  end
+
+  # Get all active whitelist contract addresses
+  #
+  # * Author: Aniket
+  # * Date: 30/07/2018
+  # * Reviewed By:
+  #
+  def get_whitelist_contract_addresses
+    r = success_with_data({contract_addresses: ClientWhitelistDetail.get_active_contract_addressess})
     render_api_response(r)
   end
 

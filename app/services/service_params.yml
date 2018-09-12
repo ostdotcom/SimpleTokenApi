@@ -403,6 +403,13 @@
   :optional:
     - :project_description
 
+'ClientManagement::UpdateWhitelistContractAddress':
+  :mandatory:
+      - :client_id
+      - :admin_id
+      - :contract_address
+  :optional:
+
 'UserManagement::VerifyClientHost':
   :mandatory:
     - :domain

@@ -13,7 +13,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   scope :not_suspended, -> {where(suspension_type: GlobalConstant::ClientWhitelistDetail.no_suspension_type)}
 
   after_commit :memcache_flush
-
+  after_commit :update_subscription, if: :saved_change_to_contract_address?
 
   # Get Key Object
   #
@@ -40,7 +40,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   def self.get_from_memcache(client_id)
     memcache_key_object = ClientWhitelistDetail.get_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      ClientWhitelistDetail.where(client_id: client_id).first
+      ClientWhitelistDetail.where(client_id: client_id, status: GlobalConstant::ClientWhitelistDetail.active_status).first
     end
   end
 
@@ -68,6 +68,17 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     end
   end
 
+  # Get all active whitelist contract addresses
+  #
+  # * Author: Aniket
+  # * Date: 07/08/2018
+  # * Reviewed By:
+  #
+  def self.get_active_contract_addressess
+    ClientWhitelistDetail.where(status:GlobalConstant::ClientWhitelistDetail.active_status).pluck(:contract_address)
+  end
+
+
   # Mark whitelisting execution of client whitelist is reactive.
   #
   # * Author: Pankaj
@@ -92,4 +103,8 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     Memcache.delete(client_whitelist_details_memcache_key)
   end
 
+  def update_subscription
+    BgJob.enqueue(UpdateWhitelistSubscription, {})
+    Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")
+  end
 end

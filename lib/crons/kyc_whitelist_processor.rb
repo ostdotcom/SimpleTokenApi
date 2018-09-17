@@ -27,8 +27,8 @@ module Crons
     # * Reviewed By: Sunil
     #
     def perform
-      @client_whitelist_objs = ClientWhitelistDetail.not_suspended.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.index_by(&:client_id)
-      client_ids = @client_whitelist_objs.keys
+      client_ids = ClientWhitelistDetail.not_suspended.
+            where(status: GlobalConstant::ClientWhitelistDetail.active_status).pluck(:client_id)
 
       UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
           kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis
@@ -40,7 +40,9 @@ module Crons
 
             init_iteration_params(user_kyc_detail)
 
-            next unless @client_whitelist_objs[@user_kyc_detail.client_id].no_suspension_type?
+            # Ignore record if client whitelist detail is missing or suspended
+            client_whitelist_detail = ClientWhitelistDetail.get_from_memcache(user_kyc_detail.client_id)
+            next if client_whitelist_detail.blank? || !client_whitelist_detail.no_suspension_type?
 
             # acquire lock over user_kyc_detail
             start_processing_whitelisting
@@ -48,12 +50,12 @@ module Crons
             construct_api_data
 
             # make the API call to private ops API for whitelisting
-            r = make_whitelist_api_call
+            r = make_whitelist_api_call(client_whitelist_detail)
 
             # move to next record in case of api failures
             next unless r.success?
 
-            create_kyc_whitelist_log
+            create_kyc_whitelist_log(client_whitelist_detail.id)
 
           rescue => e
             Rails.logger.info("Exception: #{e.inspect}")
@@ -111,9 +113,7 @@ module Crons
     def construct_api_data
       @api_data = {
           address: get_ethereum_address,
-          whitelister_address: get_whitelister_address,
-          phase: get_phase,
-          contract_address: get_contract_address
+          phase: get_phase
       }
     end
 
@@ -125,11 +125,11 @@ module Crons
     #
     # @return [Result::Base]
     #
-    def make_whitelist_api_call
+    def make_whitelist_api_call(client_whitelist_detail)
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - making private ops api call")
       r = OpsApi::Request::Whitelist.new.whitelist({
-                                                       whitelister_address: @api_data[:whitelister_address],
-                                                       contract_address: @api_data[:contract_address],
+                                                       whitelister_address: client_whitelist_detail.whitelister_address,
+                                                       contract_address: client_whitelist_detail.contract_address,
                                                        address: @api_data[:address],
                                                        phase: @api_data[:phase]
                                                    })
@@ -140,7 +140,7 @@ module Crons
         @gas_price = r.data[:gas_price]
 
       else
-        @client_whitelist_objs[@user_kyc_detail.client_id].mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
+        client_whitelist_detail.mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
         handle_whitelist_error('OpsApi Error', {private_ops_api_response: r.to_json})
       end
 
@@ -153,10 +153,11 @@ module Crons
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    def create_kyc_whitelist_log
+    def create_kyc_whitelist_log(whitelist_detail_id)
       KycWhitelistLog.create!({
                                   client_id: @user_kyc_detail.client_id,
                                   ethereum_address: @api_data[:address],
+                                  client_whitelist_detail_id: whitelist_detail_id,
                                   phase: @api_data[:phase],
                                   transaction_hash: @transaction_hash,
                                   nonce: @nonce,
@@ -195,30 +196,6 @@ module Crons
     #
     def get_phase
       UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase]
-    end
-
-    # Get contract address
-    #
-    # * Author: Aman
-    # * Date: 29/12/2017
-    # * Reviewed By:
-    #
-    # @return [String] contract address
-    #
-    def get_contract_address
-      @client_whitelist_objs[@user_kyc_detail.client_id].contract_address
-    end
-
-    # Get get_whitelister_address address
-    #
-    # * Author: Aman
-    # * Date: 15/01/2018
-    # * Reviewed By:
-    #
-    # @return [String] whitelister_address of client
-    #
-    def get_whitelister_address
-      @client_whitelist_objs[@user_kyc_detail.client_id].whitelister_address
     end
 
     # Handle whitelist errors

@@ -50,7 +50,7 @@ class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
   # * Reviewed By: Sunil
   #
   def get_upload_params
-    service_response = UserManagement::GetUploadParams.new(params).perform
+    service_response = UserManagement::DocumentsUploader::SignedPostParams.new(params).perform
     render_api_response(service_response)
   end
 

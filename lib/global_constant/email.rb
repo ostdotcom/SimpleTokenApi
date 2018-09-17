@@ -6,7 +6,14 @@ module GlobalConstant
     class << self
 
       def default_from
-        'kyc.notifier@ost.com'
+        @default_from ||= case Rails.env
+                            when 'staging'
+                              'kyc.stagingnotifier@ost.com'
+                            when 'development'
+                              'kyc.stagingnotifier@ost.com'
+                            else
+                              'kyc.notifier@ost.com'
+                          end
       end
 
       def default_to

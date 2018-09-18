@@ -145,12 +145,12 @@ module UserManagement
 
       return error_with_data(
           'um_su_4',
-          'The token sale ended, it is no longer possible to signup now',
-          'The token sale ended, it is no longer possible to signup now',
+          'Registration has ended, it is no longer possible to signup now',
+          'Registration has ended, it is no longer possible to signup now',
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if @client_token_sale_details.has_token_sale_ended?
+      ) if @client_token_sale_details.has_registration_ended?
 
       success
     end

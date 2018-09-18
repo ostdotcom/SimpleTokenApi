@@ -171,6 +171,7 @@ namespace :onetimer do
     ClientTokenSaleDetail.create!(
         client_id: client_id,
         sale_start_timestamp: Time.now.to_i,
+        registration_end_timestamp: Time.now.to_i + 1.month.to_i,
         sale_end_timestamp: Time.now.to_i + 1.month.to_i,
         token_name: token_sale_details['token_name'],
         token_symbol: token_sale_details['token_symbol'],

@@ -33,7 +33,9 @@ class CurrentGasPrice
 
     return MIN_GAS_PRICE if gas_price < MIN_GAS_PRICE
 
-    MAX_GAS_PRICE if gas_price > MAX_GAS_PRICE
+    return MAX_GAS_PRICE if gas_price > MAX_GAS_PRICE
+
+    gas_price
   end
 
   # Refresh current gas price

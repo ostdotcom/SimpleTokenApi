@@ -26,6 +26,8 @@ namespace :onetimer do
   #         "domain" => "pepokyc.developmentost.com"
   #     },
   #     "token_sale_details" => {
+  #         "token_name" => "Company",
+  #         "token_symbol" => 'CMP',
   #         "ethereum_deposit_address" => "0xEc9859B0B3B4652aD5e264776a79E544b76aman2",
   #     },
   #     "kyc_config" => {
@@ -172,8 +174,6 @@ namespace :onetimer do
         sale_end_timestamp: Time.now.to_i + 1.month.to_i,
         token_name: token_sale_details['token_name'],
         token_symbol: token_sale_details['token_symbol'],
-        sale_start_timestamp: token_sale_details['sale_start_timestamp'],
-        sale_end_timestamp: token_sale_details['sale_end_timestamp'],
         ethereum_deposit_address: ethereum_deposit_address_e,
         status: GlobalConstant::ClientTokenSaleDetail.active_status
     )

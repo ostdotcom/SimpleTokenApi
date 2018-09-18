@@ -27,15 +27,7 @@ class CurrentGasPrice
   # @return [Integer]
   #
   def fetch
-    gas_price = fetch_from_cache.to_i
-
-    return DEFAULT_GAS_PRICE if gas_price <= 0
-
-    return MIN_GAS_PRICE if gas_price < MIN_GAS_PRICE
-
-    return MAX_GAS_PRICE if gas_price > MAX_GAS_PRICE
-
-    gas_price
+    get_gas_price * 1000000000
   end
 
   # Refresh current gas price
@@ -96,6 +88,24 @@ class CurrentGasPrice
     memcache_key_object = get_memcache_key_object
 
     Memcache.write(memcache_key_object.key_template, gas_price, memcache_key_object.expiry)
+  end
+
+  # Get Gas Price from cache and apply some validations on max and min
+  #
+  # * Author: Pankaj
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def get_gas_price
+    gas_price = fetch_from_cache.to_i
+
+    return DEFAULT_GAS_PRICE if gas_price <= 0
+
+    return MIN_GAS_PRICE if gas_price < MIN_GAS_PRICE
+
+    return MAX_GAS_PRICE if gas_price > MAX_GAS_PRICE
+
+    gas_price
   end
 
 end

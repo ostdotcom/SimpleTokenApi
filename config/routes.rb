@@ -1,3 +1,9 @@
+class ActionDispatch::Routing::Mapper
+  def draw(routes_name)
+    instance_eval(Rails.root.join("config/routes/#{routes_name}.rb").read)
+  end
+end
+
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
@@ -35,6 +41,10 @@ Rails.application.routes.draw do
   end
 
   constraints(InitKyc) do
+
+    scope 'api', module: 'rest_api/saas_api' do
+      draw 'saas_api/index'
+    end
 
     scope 'api/v1/kyc', controller: 'rest_api/saas_api/kyc' do
       match 'add-kyc' => :add_kyc, via: :POST
@@ -175,7 +185,6 @@ Rails.application.routes.draw do
     match 'profile' => :profile, via: :GET
     match 'get-token-sale-address' => :get_token_sale_address, via: :GET
   end
-
 
   match '*permalink', to: 'application#not_found', via: :all
 

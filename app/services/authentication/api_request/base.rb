@@ -1,8 +1,6 @@
-module ClientManagement
+module Authentication::ApiRequest
 
-  class VerifyApiCredential < ServicesBase
-
-    EXPIRATION_WINDOW = 5.minutes
+  class Base < ServicesBase
 
     # Initialize
     #
@@ -17,14 +15,14 @@ module ClientManagement
     # @param [Hash] request_parameters (mandatory) - request parameters
     # @param [Boolean] allow_web_based_client (mandatory) - validate web based clients
     #
-    # @return [ClientManagement::VerifyApiCredential]
+    # @return [Authentication::ApiRequest::Base]
     #
     def initialize(params)
       super
 
       @api_key = @params[:api_key]
       @signature = @params[:signature]
-      @request_time = @params[:request_time]
+      @request_time = request_time
       @url_path = @params[:url_path]
       @request_parameters = @params[:request_parameters]
       @allow_web_based_client = @params[:allow_web_based_client]
@@ -32,6 +30,26 @@ module ClientManagement
       @parsed_request_time = nil
       @api_secret_d = nil
 
+    end
+
+    # Get request time
+    #
+    # * Author: Aniket
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def request_time
+     fail 'request time funciton did not override'
+    end
+
+    # Get expiry window
+    #
+    # * Author: Aniket
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def expiry_window
+      fail 'expiry_window funciton did not override'
     end
 
     # Perform
@@ -81,7 +99,7 @@ module ClientManagement
           'Signature has expired',
           GlobalConstant::ErrorAction.default,
           {}
-      ) unless @parsed_request_time && (@parsed_request_time.between?(Time.now - EXPIRATION_WINDOW, Time.now + EXPIRATION_WINDOW))
+      ) unless @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
 
       @request_parameters.permit!
 

@@ -437,15 +437,6 @@
     - :admin_id
   :optional:
 
-'ClientManagement::VerifyApiCredential':
-  :mandatory:
-    - :api_key
-    - :signature
-    - :request_time
-    - :url_path
-    - :request_parameters
-    - :allow_web_based_client
-  :optional:
 
 'ClientManagement::GetClientSetting':
   :mandatory:
@@ -640,37 +631,22 @@
     - :id
   :optional:
 
-#'AdminManagement::Kyc::Dashboard::Whitelist':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :filters
-#    - :sortings
-#    - :offset
-#    - :page_size
-#
-#'AdminManagement::Kyc::Dashboard::SaleAll':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :offset
-#    - :page_size
-#
-#'AdminManagement::Kyc::Dashboard::SaleDaily':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :offset
-#    - :page_size
-#    - :tab_type
-#
-#'AdminManagement::Kyc::Dashboard::ContractEvents':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :offset
-#    - :page_size
+'Authentication::ApiRequest::V1':
+  :mandatory:
+    - :api_key
+    - :signature
+    - :request_time
+    - :url_path
+    - :request_parameters
+    - :allow_web_based_client
+  :optional:
+
+'Authentication::ApiRequest::V2':
+  :mandatory:
+    - :api_key
+    - :signature
+    - :request_timestamp
+    - :url_path
+    - :request_parameters
+    - :allow_web_based_client
+  :optional:

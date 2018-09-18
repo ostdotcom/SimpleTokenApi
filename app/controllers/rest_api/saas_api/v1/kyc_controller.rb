@@ -1,5 +1,4 @@
-class RestApi::SaasApi::V1::KycController < RestApi::SaasApi::BaseController
-
+class RestApi::SaasApi::V1::KycController < RestApi::SaasApi::V1::BaseController
   # Add KYC
   #
   # * Author: Aman
@@ -49,17 +48,5 @@ class RestApi::SaasApi::V1::KycController < RestApi::SaasApi::BaseController
     service_response = SaasManagement::GetUserDetail.new(params).perform
     render_api_response(service_response)
   end
-
-  # Get Presigned urls for uploading files on S3
-  #
-  # * Author: Pankaj
-  # * Date: 04/09/2018
-  # * Reviewed By:
-  #
-  def get_s3_upload_urls
-    service_response = UserManagement::DocumentsUploader::SignedPutUrls.new(params).perform
-    render_api_response(service_response)
-  end
-
 
 end

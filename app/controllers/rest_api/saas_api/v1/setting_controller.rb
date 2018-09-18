@@ -1,4 +1,4 @@
-class RestApi::SaasApi::V1::SettingController < RestApi::SaasApi::BaseController
+class RestApi::SaasApi::V1::SettingController < RestApi::SaasApi::V1::BaseController
 
   before_action only: [:get_published_drafts] do
     authenticate_request(true)

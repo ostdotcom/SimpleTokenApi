@@ -15,7 +15,7 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
 
     request_parameters = request.request_method == 'GET' ? request.query_parameters : request.request_parameters
 
-    service_response = ClientManagement::VerifyApiCredential.new(
+    service_response = authenticator.new(
         params.merge({
                          request_parameters: request_parameters,
                          url_path: request.path,
@@ -34,6 +34,10 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
       service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
+  end
+
+  def authenticator
+    fail "Method override missing"
   end
 
 end

@@ -113,7 +113,7 @@ namespace :cron_task do
     desc "rake RAILS_ENV=development cron_task:continuous:refresh_dynamic_gas_price cron_identifier=p1"
     desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:refresh_dynamic_gas_price cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/refresh_dynamic_gas_price.log"
     task :refresh_dynamic_gas_price do |task|
-      @sleep_interval = 5
+      @sleep_interval = 180
 
       cron_identifier = ENV['cron_identifier'].to_s
       @process_name = "#{task}_#{cron_identifier}"

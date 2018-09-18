@@ -10,6 +10,7 @@ module ClientManagement
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
     # @param [String] sale_start_timestamp (mandatory) - sale_start_timestamp (timestamp)
+    # @param [String] registration_end_timestamp (mandatory) - registration_end_timestamp (timestamp)
     # @param [String] sale_end_timestamp (mandatory) - sale_end_timestamp (timestamp)
     #
     # @return [ClientManagement::UpdateSaleSetting]
@@ -20,9 +21,11 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
       @sale_start_timestamp = @params[:sale_start_timestamp].to_i
+      @registration_end_timestamp = @params[:registration_end_timestamp].to_i
       @sale_end_timestamp = @params[:sale_end_timestamp].to_i
 
       @sale_start_timestamp = (@sale_start_timestamp/1000).to_i
+      @registration_end_timestamp = (@registration_end_timestamp/1000).to_i
       @sale_end_timestamp = (@sale_end_timestamp/1000).to_i
       @client_token_sale_detail = nil
 
@@ -101,6 +104,8 @@ module ClientManagement
 
       err_data[:sale_start_timestamp] = 'Invalid date selected' if @sale_start_timestamp < 0
       err_data[:sale_end_timestamp] = 'Invalid date selected' if @sale_end_timestamp < 0
+      err_data[:registration_end_timestamp] = 'Invalid date selected' if @registration_end_timestamp < 0
+
       err_data[:sale_end_timestamp] = 'End date cannot be more than 5 years from now' if @sale_end_timestamp >
           (Time.now.to_i + 5.years.to_i)
 
@@ -121,6 +126,14 @@ module ClientManagement
           {}
       ) if (@sale_end_timestamp <= @sale_start_timestamp)
 
+      return error_with_data(
+          'cm_uss_vd_3',
+          'Registration end time should not be greater than sale end time',
+          'Registration end time should not be greater than sale end time',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if (@registration_end_timestamp > @sale_end_timestamp)
+
       success
     end
 
@@ -136,6 +149,7 @@ module ClientManagement
       @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
       @client_token_sale_detail.sale_start_timestamp =  @sale_start_timestamp
+      @client_token_sale_detail.registration_end_timestamp =  @registration_end_timestamp
       @client_token_sale_detail.sale_end_timestamp = @sale_end_timestamp
       @client_token_sale_detail.save! if @client_token_sale_detail.changed?
     end

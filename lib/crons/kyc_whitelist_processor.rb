@@ -131,7 +131,8 @@ module Crons
                                                        whitelister_address: client_whitelist_detail.whitelister_address,
                                                        contract_address: client_whitelist_detail.contract_address,
                                                        address: @api_data[:address],
-                                                       phase: @api_data[:phase]
+                                                       phase: @api_data[:phase],
+                                                       gas: CurrentGasPrice.new.fetch
                                                    })
 
       if r.success?

@@ -21,7 +21,9 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
       @sale_start_timestamp = @params[:sale_start_timestamp].to_i
-      @registration_end_timestamp = @params[:registration_end_timestamp].to_i
+
+      # todo: remove
+      @registration_end_timestamp = @params[:sale_end_timestamp].to_i #@params[:registration_end_timestamp].to_i
       @sale_end_timestamp = @params[:sale_end_timestamp].to_i
 
       @sale_start_timestamp = (@sale_start_timestamp/1000).to_i

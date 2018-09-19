@@ -79,9 +79,13 @@ module ClientManagement
     # returns [Hash] api response data
     #
     def success_response_data
+      has_registration_setting = @client_token_sale_detail.registration_end_timestamp.present?
+      registration_end_timestamp = has_registration_setting ? @client_token_sale_detail.registration_end_timestamp * 1000 : nil
+
       {
           sale_start_timestamp: @client_token_sale_detail.sale_start_timestamp * 1000,
-          registration_end_timestamp: @client_token_sale_detail.registration_end_timestamp * 1000,
+          registration_end_timestamp: registration_end_timestamp,
+          has_registration_setting: has_registration_setting.to_i,
           sale_end_timestamp: @client_token_sale_detail.sale_end_timestamp * 1000
       }
     end

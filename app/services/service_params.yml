@@ -478,9 +478,10 @@
      - :admin_id
      - :client_id
      - :sale_start_timestamp
-     - :registration_end_timestamp
      - :sale_end_timestamp
   :optional:
+     - :has_registration_setting
+     - :registration_end_timestamp
 
 'ClientManagement::GetSaleSetting':
   :mandatory:

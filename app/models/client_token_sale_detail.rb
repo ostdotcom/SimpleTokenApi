@@ -17,7 +17,19 @@ class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
   # @return [Boolean] return true if registration has ended
   #
   def has_registration_ended?
-    registration_end_timestamp <= Time.now.to_i
+    end_time_for_registration <= Time.now.to_i
+  end
+
+  # registration end time to be used for registration
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @return [Integer] return timestamp for registration end
+  #
+  def end_time_for_registration
+    registration_end_timestamp || sale_end_time
   end
 
   # Token sale end time has passed

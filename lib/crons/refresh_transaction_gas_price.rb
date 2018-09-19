@@ -24,7 +24,7 @@ module Crons
     def perform
 
       (0...10).each do |i|
-        break if CurrentGasPrice.new.refresh
+        break if EstimatedGasPrice::CurrentPrice.new.refresh
 
         sleep(2)
 

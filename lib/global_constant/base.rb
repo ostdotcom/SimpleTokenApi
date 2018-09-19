@@ -79,6 +79,10 @@ module GlobalConstant
       @kyc_api_base_domain ||= fetch_config.fetch('kyc_api_base_domain', {}).with_indifferent_access
     end
 
+    def self.estimated_gas_constants
+      @estimated_gas_constants ||= fetch_config.fetch('gas_estimation_constants', {}).with_indifferent_access
+    end
+
     private
 
     def self.fetch_config

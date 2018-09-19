@@ -112,7 +112,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      contract_address: api_data[:client_whitelist_detail_obj].contract_address,
                                                      address: api_data[:address],
                                                      phase: api_data[:phase],
-                                                     gasPrice: CurrentGasPrice.new.fetch
+                                                     gasPrice: EstimatedGasPrice::CurrentPrice.new.fetch
                                                  })
     Rails.logger.info("Whitelist API Response: #{r.inspect}")
 

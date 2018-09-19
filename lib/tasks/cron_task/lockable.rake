@@ -75,6 +75,21 @@ namespace :cron_task do
       execute_lockable_task
     end
 
+    # Populate Client usage of api and notify kyc team after a threshold
+    #
+    # * Author: Aman
+    # * Date: 18/09/2017
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:populate_client_usage"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:populate_client_usage >> /mnt/simpletoken-api/shared/log/populate_client_usage.log"
+    task :populate_client_usage do |task|
+      @process_name = task
+      @performer_klass = 'Crons::PopulateClientUsage'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

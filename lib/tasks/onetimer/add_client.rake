@@ -211,6 +211,8 @@ namespace :onetimer do
 
 
     puts "client_id: #{client_id}"
+    puts "api-key: #{api_key}"
+    puts "api-secret: #{client_api_secret_d}"
   end
 
 end

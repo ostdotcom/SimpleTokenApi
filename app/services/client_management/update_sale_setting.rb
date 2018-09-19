@@ -9,9 +9,11 @@ module ClientManagement
     #
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
-    # @param [String] sale_start_timestamp (mandatory) - sale_start_timestamp (timestamp)
-    # @param [String] registration_end_timestamp (mandatory) - registration_end_timestamp (timestamp)
-    # @param [String] sale_end_timestamp (mandatory) - sale_end_timestamp (timestamp)
+    # @param [Integer] sale_start_timestamp (mandatory) - sale_start_timestamp (timestamp)
+    # @param [Integer] sale_end_timestamp (mandatory) - sale_end_timestamp (timestamp)
+    #
+    # @param [Integer] has_registration_setting (optional) - has_registration_setting (0/1)
+    # @param [Integer] registration_end_timestamp (optional) -  registration_end_timestamp (timestamp)
     #
     # @return [ClientManagement::UpdateSaleSetting]
     #
@@ -21,10 +23,10 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
       @sale_start_timestamp = @params[:sale_start_timestamp].to_i
-
-      # todo: remove
-      @registration_end_timestamp = @params[:sale_end_timestamp].to_i #@params[:registration_end_timestamp].to_i
       @sale_end_timestamp = @params[:sale_end_timestamp].to_i
+
+      @has_registration_setting = @params[:has_registration_setting].to_i
+      @registration_end_timestamp = @params[:registration_end_timestamp].to_i
 
       @sale_start_timestamp = (@sale_start_timestamp/1000).to_i
       @registration_end_timestamp = (@registration_end_timestamp/1000).to_i
@@ -70,6 +72,8 @@ module ClientManagement
 
       r = validate_date
       return r unless r.success?
+
+      @registration_end_timestamp = nil if @has_registration_setting != 1
 
       success
     end

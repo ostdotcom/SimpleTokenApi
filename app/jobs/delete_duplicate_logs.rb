@@ -141,7 +141,7 @@ class DeleteDuplicateLogs < ApplicationJob
 
     user_ids_not_email_duplicate_with_kyc_done = duplicate_email_user_ids_with_kyc_done - new_email_duplicate_user_ids
 
-    return if user_ids_not_email_duplicate_with_kyc_done.present?
+    return if user_ids_not_email_duplicate_with_kyc_done.blank?
 
     UserKycDetail.where(
         client_id: @client_id,

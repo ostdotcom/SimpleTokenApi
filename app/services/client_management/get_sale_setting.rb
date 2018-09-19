@@ -81,7 +81,7 @@ module ClientManagement
     def success_response_data
       {
           sale_start_timestamp: @client_token_sale_detail.sale_start_timestamp * 1000,
-          registration_end_timestamp: @client_token_sale_details.registration_end_timestamp * 1000,
+          registration_end_timestamp: @client_token_sale_detail.registration_end_timestamp * 1000,
           sale_end_timestamp: @client_token_sale_detail.sale_end_timestamp * 1000
       }
     end

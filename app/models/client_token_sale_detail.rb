@@ -8,6 +8,18 @@ class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
   after_commit :memcache_flush
 
 
+  # registration end time has passed
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @return [Boolean] return true if registration has ended
+  #
+  def has_registration_ended?
+    registration_end_timestamp <= Time.now.to_i
+  end
+
   # Token sale end time has passed
   #
   # * Author: Aman

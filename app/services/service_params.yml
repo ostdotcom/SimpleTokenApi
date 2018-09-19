@@ -478,6 +478,7 @@
      - :admin_id
      - :client_id
      - :sale_start_timestamp
+     - :registration_end_timestamp
      - :sale_end_timestamp
   :optional:
 

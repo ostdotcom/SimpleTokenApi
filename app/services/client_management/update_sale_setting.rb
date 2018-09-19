@@ -28,9 +28,9 @@ module ClientManagement
       @has_registration_setting = @params[:has_registration_setting].to_i
       @registration_end_timestamp = @params[:registration_end_timestamp].to_i
 
-      @sale_start_timestamp = (@sale_start_timestamp/1000).to_i
-      @registration_end_timestamp = (@registration_end_timestamp/1000).to_i
-      @sale_end_timestamp = (@sale_end_timestamp/1000).to_i
+      @sale_start_timestamp = (@sale_start_timestamp / 1000).to_i
+      @registration_end_timestamp = (@registration_end_timestamp / 1000).to_i
+      @sale_end_timestamp = (@sale_end_timestamp / 1000).to_i
       @client_token_sale_detail = nil
 
     end
@@ -135,9 +135,10 @@ module ClientManagement
       return error_with_data(
           'cm_uss_vd_3',
           'Registration end time should not be greater than sale end time',
-          'Registration end time should not be greater than sale end time',
+          '',
           GlobalConstant::ErrorAction.default,
-          {}
+          {},
+          {registration_end_timestamp: 'Registration end time should not be greater than sale end time'}
       ) if (@registration_end_timestamp > @sale_end_timestamp)
 
       success
@@ -154,8 +155,8 @@ module ClientManagement
     def update_sale_setting
       @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
-      @client_token_sale_detail.sale_start_timestamp =  @sale_start_timestamp
-      @client_token_sale_detail.registration_end_timestamp =  @registration_end_timestamp
+      @client_token_sale_detail.sale_start_timestamp = @sale_start_timestamp
+      @client_token_sale_detail.registration_end_timestamp = @registration_end_timestamp
       @client_token_sale_detail.sale_end_timestamp = @sale_end_timestamp
       @client_token_sale_detail.save! if @client_token_sale_detail.changed?
     end

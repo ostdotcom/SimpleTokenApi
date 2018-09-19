@@ -335,19 +335,18 @@ module AdminManagement
         all_non_current_user_dup_user_extended_details_ids = []
 
         # Fetch all user_extended_details corresponding to current user_extended_details1_id
-        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
+        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.non_deleted.where(
             user_extended_details1_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details2_id)
 
         # Fetch all user_extended_details corresponding to current user_extended_details2_id
-        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.where(
+        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.non_deleted.where(
             user_extended_details2_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details1_id)
 
         # Initiailize
         active_dup_user_extended_details_ids, inactive_dup_user_extended_details_ids, user_ids = [], [], []
         # Fetch active, inactive user_extended_details_ids
-        UserKycDuplicationLog.where("user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids).
-            where(status: [GlobalConstant::UserKycDuplicationLog.active_status, GlobalConstant::UserKycDuplicationLog.inactive_status]).
-            select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
+        UserKycDuplicationLog.non_deleted.where("user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids)
+            .select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
 
           next if (ukdl.user_extended_details1_id == @user_kyc_detail.user_extended_detail_id) || (ukdl.user_extended_details2_id == @user_kyc_detail.user_extended_detail_id)
 
@@ -366,19 +365,24 @@ module AdminManagement
         inactive_dup_user_extended_details_ids.uniq!
         user_ids.uniq!
 
+        active_dup_user_extended_details_ids = active_dup_user_extended_details_ids & all_non_current_user_dup_user_extended_details_ids
+        inactive_dup_user_extended_details_ids = inactive_dup_user_extended_details_ids & all_non_current_user_dup_user_extended_details_ids
+
+
         inactive_dup_user_extended_details_ids -= active_dup_user_extended_details_ids
         # Mark inactive user_extended_details_ids as was_kyc_duplicate_status
         # Active user_kyc_details will already be is_kyc_duplicate_status
         if inactive_dup_user_extended_details_ids.present?
-          UserKycDetail.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
-              update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status)
+          UserKycDetail.active_kyc.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
+              update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status,
+                         updated_at: Time.now.to_s(:db))
         end
 
         never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
         # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
         if never_dup_user_extended_details_ids.present?
           UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
-              update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status)
+              update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status, updated_at: Time.now.to_s(:db))
         end
 
         # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids

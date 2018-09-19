@@ -104,19 +104,44 @@ class DeleteDuplicateLogs < ApplicationJob
 
     return if duplicate_email_user_ids_with_kyc_done.blank?
 
-    new_email_duplicate_user_ids = UserEmailDuplicationLog.where(
+
+    email_duplicate_data = {}
+
+    UserEmailDuplicationLog.where(
         user1_id: duplicate_email_user_ids_with_kyc_done,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
-    ).pluck(:user1_id)
+    ).all.each do |u_e_d_log|
+      email_duplicate_data[u_e_d_log.user2_id] ||= []
+      email_duplicate_data[u_e_d_log.user2_id] << u_e_d_log.user1_id
+    end
 
 
-    new_email_duplicate_user_ids += UserEmailDuplicationLog.where(
+    UserEmailDuplicationLog.where(
         user2_id: duplicate_email_user_ids_with_kyc_done,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
-    ).pluck(:user2_id)
+    ).all.each do |u_e_d_log|
+      email_duplicate_data[u_e_d_log.user1_id] ||= []
+      email_duplicate_data[u_e_d_log.user1_id] << u_e_d_log.user2_id
+    end
+
+    new_email_duplicate_user_ids = []
+
+    if email_duplicate_data.present?
+      all_user_ids = email_duplicate_data.keys
+
+      all_user_ids_with_kyc = UserKycDetail.where(
+          client_id: @client_id,
+          user_id: all_user_ids,
+          status: GlobalConstant::UserKycDetail.active_status
+      ).pluck(:user_id)
+
+      all_user_ids_with_kyc.map {|x| new_email_duplicate_user_ids += email_duplicate_data[x]}
+      new_email_duplicate_user_ids.uniq!
+    end
 
     user_ids_not_email_duplicate_with_kyc_done = duplicate_email_user_ids_with_kyc_done - new_email_duplicate_user_ids
 
+    return if user_ids_not_email_duplicate_with_kyc_done.present?
 
     UserKycDetail.where(
         client_id: @client_id,

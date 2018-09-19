@@ -29,7 +29,7 @@ class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
   # @return [Integer] return timestamp for registration end
   #
   def end_time_for_registration
-    registration_end_timestamp || sale_end_time
+    registration_end_timestamp || sale_end_timestamp
   end
 
   # Token sale end time has passed

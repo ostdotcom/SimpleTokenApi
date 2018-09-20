@@ -650,3 +650,28 @@
     - :request_parameters
     - :allow_web_based_client
   :optional:
+
+'SaasManagement::User::Index':
+  :mandatory:
+    - :client_id
+    - :api_key
+    - :request_timestamp
+    - :signature
+  :optional:
+    - :filter
+    - :page_number
+    - :order
+
+'UserManagement::Users::Create':
+  :mandatory:
+    - :email
+    - :client_id
+  :optional:
+
+'UserManagement::Users::List':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :page_number
+    - :filter
+    - :order

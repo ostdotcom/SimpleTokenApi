@@ -30,8 +30,6 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
       # Remove sensitive data
       service_response.data = {}
     else
-      # Set 401 header
-      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
   end

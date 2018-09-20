@@ -43,7 +43,6 @@ module Util
     #
     # @param [String] code (mandatory) - error code
     # @param [String] message (mandatory) - error message
-    # @param [String] display_heading (optional) - display heading
     # @param [String] display_text (mandatory) - error display text
     # @param [String] action (mandatory) - error action
     # @param [Hash] data (mandatory) - data
@@ -51,16 +50,37 @@ module Util
     #
     # @return [Result::Base]
     #
-    def error_with_data(code, message, display_text, action, data, error_data = {}, display_heading = 'Error')
+    def error_with_data(internal_code, message, display_text, action, data, error_data = {})
       Result::Base.error(
           {
-              error: code,
+              error: internal_code,
               error_message: message,
               error_data: error_data,
               error_action: action,
               error_display_text: display_text,
-              error_display_heading: display_heading,
               data: data
+          }
+      )
+    end
+
+    # Error with Identifier
+    #
+    # * Author: Pankaj
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    # @param [String] api_error_code (mandatory) - Error code for sending Api response
+    # @param [String] internal_code (mandatory) - Internal error code
+    # @param [Array] error_data (Optional) - Group of error codes to send in Api response
+    #
+    # @return [Result::Base]
+    #
+    def error_with_identifier(api_error_code, internal_code, error_data = [])
+      Result::Base.error(
+          {
+              api_error_code: api_error_code,
+              error: internal_code,
+              error_data: error_data
           }
       )
     end

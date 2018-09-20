@@ -69,33 +69,51 @@ class ApplicationController < ActionController::API
   def render_api_response(service_response)
     # calling to_json of Result::Base
     response_hash = service_response.to_json
-    http_status_code = service_response.http_code
+    response_hash = reformat_response_for_web(response_hash)
+    http_status_code = response_hash.delete(:http_code) || service_response.http_code
 
     # filter out not allowed http codes
     http_status_code = GlobalConstant::ErrorCode.ok unless GlobalConstant::ErrorCode.allowed_http_codes.include?(http_status_code)
 
-    # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
-    if !service_response.success? && !Rails.env.development?
-      ApplicationMailer.notify(
-        body: {},
-        data: {
-          response_hash: response_hash
-        },
-        subject: 'Error in KYC submit API'
-      ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'web/saas_user/token_sale'
+    if !service_response.success?# && !Rails.env.development?
 
-      err = response_hash.delete(:err) || {}
-      response_hash[:err] = {
-          display_text: (err[:display_text].to_s),
-          display_heading: (err[:display_heading].to_s),
-          error_data: (err[:error_data] || {}),
-          code: (err[:code] || {})
-      }
+      #TODO: Check if email is to sent for invalid kyc submission
+      # ApplicationMailer.notify(
+      #   body: {},
+      #   data: {
+      #     response_hash: response_hash
+      #   },
+      #   subject: 'Error in KYC submit API'
+      # ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'web/saas_user/token_sale'
 
       response_hash[:data] = {}
     end
 
     (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
+  end
+
+  # Sanitize and reformat Error response for Web
+  #
+  # * Author: Pankaj
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def reformat_response_for_web(response_hash)
+    # If request is from web then reformat data as per FE requirements
+    # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
+    unless params[:controller].match('rest_api/saas_api')
+      if response_hash[:err].present?
+        err = response_hash.delete(:err) || {}
+        response_hash[:err] = {
+            display_text: err[:msg].to_s,
+            display_heading: "Error",
+            error_data: (err[:error_data] || {}),
+            code: err[:internal_id]
+        }
+      end
+      response_hash[:http_code] = 200
+    end
+    response_hash
   end
 
 

@@ -78,10 +78,9 @@ module UserManagement::Users
     #
     def validate_and_sanitize_params
 
-      return error_with_data('s_sm_u_i_vp_1',
-                             'Wrong value for key',
-                             'Value for key order is wrong',
-                             GlobalConstant::ErrorAction.default,{}
+      return error_with_identifier('invalid_api_params',
+                             's_sm_u_i_vp_1',
+                             ['invalid_order']
       ) unless GlobalConstant::User.sorting['sort_by'].keys.include?(@order)
       @sorting_by = {sort_by: @order}
 

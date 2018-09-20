@@ -9,6 +9,8 @@ class RestApi::SaasApi::V2::UserController < RestApi::SaasApi::V2::BaseControlle
   def index
     puts "inside UserController : index"
 
+    service_response = UserManagement::Users::List.new(params).perform
+    render_api_response(service_response)
   end
 
   # Create user

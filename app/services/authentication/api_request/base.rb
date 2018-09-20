@@ -93,13 +93,8 @@ module Authentication::ApiRequest
       @url_path = "#{@url_path}/"
       @parsed_request_time = Time.at(@request_time.to_i)
 
-      return error_with_data(
-          'um_vac_1',
-          'Signature has expired',
-          'Signature has expired',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) unless @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
+      return invalid_credentials_response("um_vac_1") unless
+          @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
 
       @request_parameters.permit!
 
@@ -142,13 +137,7 @@ module Authentication::ApiRequest
 
       r = decrypt_api_secret
 
-      return error_with_data(
-          'um_vac_4',
-          'Something Went Wrong',
-          'Something Went Wrong. Please try again',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) unless r.success?
+      return error_with_identifier('internal_server_error', 'um_vac_4') unless r.success?
 
       return invalid_credentials_response('um_vac_5') unless generate_signature == @signature
 
@@ -219,14 +208,8 @@ module Authentication::ApiRequest
     #
     # @return [Result::Base]
     #
-    def invalid_credentials_response(err, display_text = 'Invalid credentials')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
+    def invalid_credentials_response(err)
+      error_with_identifier('invalid_or_expired_token', err)
     end
 
   end

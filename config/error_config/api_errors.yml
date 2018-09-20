@@ -1,0 +1,45 @@
+invalid_api_params:
+  http_code: '400'
+  code: 'BAD_REQUEST'
+  message: "At least one parameter is invalid or missing. See 'err.error_data' array for more details."
+
+mandatory_params_missing:
+  http_code: '400'
+  code: 'BAD_REQUEST'
+  message: "At least one mandatory parameter is missing. Check documentation for details."
+
+invalid_or_expired_token:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "We could not authenticate the request. Please review your credentials and authentication method."
+
+invalid_client_id:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Client is invalid or not active anymore with OST KYC."
+
+invalid_admin_id:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Admin is not active for a client."
+
+unauthorized_api_request:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "We could not authenticate the request. Please review your credentials and authentication method."
+
+resource_not_found:
+  http_code: '404'
+  code: 'NOT_FOUND'
+  message: "The requested resource could not be located."
+
+internal_server_error:
+  http_code: '500'
+  code: 'INTERNAL_SERVER_ERROR'
+  message: "Something went wrong."
+
+could_not_proceed:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "The request was good, but nevertheless could not be processed."
+

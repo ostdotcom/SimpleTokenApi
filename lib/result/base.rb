@@ -373,7 +373,8 @@ module Result
           msg: hash[:error_display_text].to_s,
           error_data: format_error_data
         },
-        data: hash[:data]
+        data: hash[:data],
+        http_code: http_code
       }
       error_config = @api_error_code.present? ? fetch_api_error_config(api_error_code) : {}
 

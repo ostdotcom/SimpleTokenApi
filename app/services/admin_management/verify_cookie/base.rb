@@ -103,24 +103,6 @@ module AdminManagement
         success
       end
 
-      # Unauthorized access response
-      #
-      # * Author: Kedar
-      # * Date: 11/10/2017
-      # * Reviewed By: Sunil Khedar
-      #
-      # @return [Result::Base]
-      #
-      def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-        error_with_data(
-            err,
-            display_text,
-            display_text,
-            GlobalConstant::ErrorAction.default,
-            {}
-        )
-      end
-
       # Auth level
       #
       # * Author: Kedar

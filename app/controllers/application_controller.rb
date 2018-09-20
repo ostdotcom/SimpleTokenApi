@@ -70,10 +70,7 @@ class ApplicationController < ActionController::API
     # calling to_json of Result::Base
     response_hash = service_response.to_json
     response_hash = reformat_response_for_web(response_hash)
-    http_status_code = response_hash.delete(:http_code) || service_response.http_code
-
-    # filter out not allowed http codes
-    http_status_code = GlobalConstant::ErrorCode.ok unless GlobalConstant::ErrorCode.allowed_http_codes.include?(http_status_code)
+    http_status_code = response_hash.delete(:http_code)
 
     if !service_response.success?# && !Rails.env.development?
 
@@ -111,7 +108,8 @@ class ApplicationController < ActionController::API
             code: err[:internal_id]
         }
       end
-      response_hash[:http_code] = 200
+      response_hash[:http_code] = GlobalConstant::ErrorCode.ok if
+          GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
     end
     response_hash
   end

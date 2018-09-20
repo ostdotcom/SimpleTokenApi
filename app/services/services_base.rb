@@ -121,4 +121,16 @@ class ServicesBase
     success
   end
 
+  # Unauthorized request
+  #
+  # * Author: Pankaj
+  # * Date: 20/09/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def unauthorized_access_response(internal_error_code)
+    error_with_identifier("unauthorized_access", internal_error_code)
+  end
+
 end

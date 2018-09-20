@@ -119,24 +119,6 @@ module UserManagement
       @extended_cookie_value = User.get_cookie_value(@user_id, @user[:password], @browser_user_agent)
     end
 
-    # Unauthorized access response
-    #
-    # * Author: Kedar
-    # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
-    end
-
   end
 
 end

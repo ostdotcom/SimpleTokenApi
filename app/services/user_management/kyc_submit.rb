@@ -183,7 +183,7 @@ module UserManagement
       user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
 
       if user_kyc_detail.present?
-        return unauthorized_access_response('um_ks_2', 'Invalid User') if user_kyc_detail.client_id != @client_id
+        return unauthorized_access_response('um_ks_2') if user_kyc_detail.client_id != @client_id
 
         return error_with_data(
             'um_ks_3',
@@ -632,27 +632,6 @@ module UserManagement
       )
       Rails.logger.info('---- enqueue_job KycSubmitJob done')
 
-    end
-
-    # Unauthorized access response
-    #
-    # * Author: Aman
-    # * Date: 10/10/2017
-    # * Reviewed By: Kedar
-    #
-    # @param [String] err
-    # @param [String] display_text
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
     end
 
   end

@@ -28,6 +28,16 @@ unauthorized_api_request:
   code: 'UNAUTHORIZED'
   message: "We could not authenticate the request. Please review your credentials and authentication method."
 
+unauthorized_access:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "Unauthorized access. Please login again."
+
+no_configurator_access:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "Client don't have configurator access."
+
 resource_not_found:
   http_code: '404'
   code: 'NOT_FOUND'

@@ -35,6 +35,10 @@ module GlobalConstant
       400
     end
 
+    def self.unhandled_exception
+      500
+    end
+
     def self.allowed_http_codes
       [
         ok,
@@ -43,6 +47,15 @@ module GlobalConstant
         forbidden,
         unprocessable_entity,
         invalid_request_parameters
+      ]
+    end
+
+    def self.http_codes_for_web
+      [
+        ok,
+        unauthorized_access,
+        not_found,
+        unhandled_exception
       ]
     end
 

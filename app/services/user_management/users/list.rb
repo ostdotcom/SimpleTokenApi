@@ -23,7 +23,7 @@ module UserManagement::Users
 
       @client_id = @params[:client_id]
       @filter = @params[:filter] || {}
-      @page_number = @params[:page_number] || 1
+      @page_number = @params[:page_number].to_i || 1
       @order = @params[:order] || GlobalConstant::User.sorting['sort_by'].keys[0] # 0th index is 'desc'
 
       @offset = 0
@@ -43,7 +43,11 @@ module UserManagement::Users
       r = validate_and_sanitize
       return r unless r.success?
 
+      puts "here4"
+
       fetch_user_list
+
+      puts "here5"
 
       success_with_data(service_response_data)
     end
@@ -66,6 +70,7 @@ module UserManagement::Users
 
       r = validate_and_sanitize_params
       return r unless r.success?
+      puts "here3"
 
       success
     end
@@ -84,6 +89,8 @@ module UserManagement::Users
                              GlobalConstant::ErrorAction.default,{}
       ) unless GlobalConstant::User.sorting['sort_by'].keys.include?(@order)
       @sorting_by = {sort_by: @order}
+      puts "here"
+
 
       GlobalConstant::User.allowed_filter.each do |filter|
         if @filter.include?(filter)
@@ -91,7 +98,10 @@ module UserManagement::Users
         end
       end
 
+      puts "here2 : #{@allowed_filters}"
+
       @offset = (@page_number-1) * PAGE_SIZE if @page_number > 0
+      puts "here1"
 
       success
     end
@@ -110,6 +120,7 @@ module UserManagement::Users
                       sorting_by(@sorting_by)
 
       @next_page_available = @users_list.length > PAGE_SIZE
+      puts "here7"
 
       @users_list = @users_list.reverse.drop(1).reverse if @next_page_available
       @users_list

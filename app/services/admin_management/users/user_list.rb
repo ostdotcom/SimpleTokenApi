@@ -90,7 +90,6 @@ module AdminManagement
 
         # Validate whether filters passed are valid or not.
         @filters.each do |key, val|
-
           return error_with_data(
               'am_u_ul_1',
               'Invalid Parameters.',
@@ -98,7 +97,8 @@ module AdminManagement
               GlobalConstant::ErrorAction.default,
               {},
               {}
-          ) if page_filters[key.to_s].blank? || page_filters[key.to_s].exclude?(val.to_s)
+          ) if GlobalConstant::User.filters[key.to_s].blank? || GlobalConstant::User.filters[key.to_s][val.to_s].nil?
+
         end
 
         # Validate Sortings
@@ -143,10 +143,7 @@ module AdminManagement
         offset = 0
         offset = @page_size * (@page_number - 1) if @page_number > 1
         @users = user_relational_query.limit(@page_size).offset(offset).all
-        # No need to query kyc detail if filter applied is kyc_submitted_no
-        if @filters["kyc_submitted"].to_s != kyc_submitted_no
-          @user_kyc_details = UserKycDetail.where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
-        end
+        @user_kyc_details = UserKycDetail.where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
       end
 
       # Make a query based on Kyc submitted filter applied
@@ -159,15 +156,8 @@ module AdminManagement
       #
       def get_model_query
         user_relational_query = User.where(client_id: @client_id).is_active
-        property_val = User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
-        # If filter is applied on KYC submitted
-        if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["kyc_submitted"].to_s)
-          if @filters["kyc_submitted"].to_s == kyc_submitted_no
-            user_relational_query = user_relational_query.where("properties & ? = 0", property_val)
-          else
-            user_relational_query = user_relational_query.where("properties & ? > 0", property_val)
-          end
-        end
+
+        user_relational_query = user_relational_query.filter_by(@filters) if @filters.present?
 
         # Include search term in query
         if @search["q"].present?
@@ -304,26 +294,6 @@ module AdminManagement
         data += action_under_process(user_kyc_detail)
         data
       end
-
-      # Filters which can be allowed on this page
-      #
-      def page_filters
-        @page_filters ||= {
-            "kyc_submitted" => ["all", kyc_submitted_yes, kyc_submitted_no]
-        }
-      end
-
-      # ### KYC Submitted Filter options ###
-      def kyc_submitted_yes
-        'yes'
-      end
-
-      def kyc_submitted_no
-        'no'
-      end
-
-      # ### KYC Submitted Filter options ###
-
     end
 
   end

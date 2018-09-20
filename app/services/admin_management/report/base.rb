@@ -2,7 +2,7 @@ module AdminManagement
 
   module Report
 
-    class GetKycReport < ServicesBase
+    class Base < ServicesBase
 
       MAX_LIMIT_FOR_DOWNLOAD = 5
       TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR = 10
@@ -19,7 +19,7 @@ module AdminManagement
       # @params [Hash] filters (optional)
       # @params [Hash] sortings (optional)
       #
-      # @return [AdminManagement::Report::GetKycReport]
+      # @return [AdminManagement::Report::Base]
       #
       def initialize(params)
         super
@@ -77,68 +77,6 @@ module AdminManagement
         @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
         @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
 
-        if @filters.present?
-
-          error_data = {}
-
-          @filters.each do |key, val|
-
-            if GlobalConstant::UserKycDetail.filters[key.to_s].blank?
-              return error_with_data(
-                  'am_r_gkr_vas_1',
-                  'Invalid Parameters.',
-                  'Invalid Filter type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
-            end
-
-            filter_data = GlobalConstant::UserKycDetail.filters[key][val]
-            error_data[key] = 'invalid value for filter' if filter_data.nil?
-          end
-
-          return error_with_data(
-              'am_r_gkr_vas_2',
-              'Invalid Filter Parameter value',
-              '',
-              GlobalConstant::ErrorAction.default,
-              {},
-              error_data
-          ) if error_data.present?
-        end
-
-
-        if @sortings.present?
-          error_data = {}
-
-          @sortings.each do |key, val|
-
-            if GlobalConstant::UserKycDetail.sorting[key.to_s].blank?
-              return error_with_data(
-                  'am_r_gkr_vas_3',
-                  'Invalid Parameters.',
-                  'Invalid Sort type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
-            end
-
-            sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
-            error_data[key] = 'invalid value for sorting' if sort_data.nil?
-          end
-
-          return error_with_data(
-              'am_r_gkr_vas_4',
-              'Invalid Sort Parameter value',
-              '',
-              GlobalConstant::ErrorAction.default,
-              {},
-              error_data
-          ) if error_data.present?
-        end
-
         success
       end
 
@@ -152,7 +90,9 @@ module AdminManagement
       #
       def validate_if_request_can_be_taken
 
-        if CsvReportJob.where(client_id: @client_id, status: [GlobalConstant::CsvReportJob.pending_status, GlobalConstant::CsvReportJob.started_status])
+        if CsvReportJob.where(client_id: @client_id,
+                              report_type: report_type,
+                              status: [GlobalConstant::CsvReportJob.pending_status, GlobalConstant::CsvReportJob.started_status])
                .where('created_at > ?', Time.now - 2.hour).exists?
 
           return error_with_data(
@@ -166,11 +106,15 @@ module AdminManagement
         end
 
         last_min_download_time = Time.now - TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR.hours
-        total_completed_jobs = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
+        total_completed_jobs = CsvReportJob.where(client_id: @client_id,
+                                                  report_type: report_type,
+                                                  status: GlobalConstant::CsvReportJob.completed_status)
                                    .where('created_at > ?', last_min_download_time).count
 
         if total_completed_jobs >= MAX_LIMIT_FOR_DOWNLOAD
-          db_resp = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
+          db_resp = CsvReportJob.where(client_id: @client_id,
+                                       report_type: report_type,
+                                       status: GlobalConstant::CsvReportJob.completed_status)
                         .where('created_at > ?', last_min_download_time).select('min(created_at) as last_download_time').first
 
           time_str = time_diff_string(db_resp.last_download_time)
@@ -223,18 +167,44 @@ module AdminManagement
       # @return [Result::Base]
       #
       def create_csv_report_job
-        csv_report_job = CsvReportJob.create!(client_id: @client_id, admin_id: @admin_id,
-                                              status: GlobalConstant::CsvReportJob.pending_status, extra_data: {filters: @filters, sortings: @sortings})
+        csv_report_job = CsvReportJob.create!(
+            client_id: @client_id, admin_id: @admin_id,
+            report_type: report_type,
+            status: GlobalConstant::CsvReportJob.pending_status,
+            extra_data: {filters: @filters, sortings: @sortings}
+        )
 
         BgJob.enqueue(
-            ProcessKycReportJob,
+            job_klass,
             {csv_report_job_id: csv_report_job.id}
         )
 
         Rails.logger.info('---- enqueue_job process_csv_report_job done')
-
       end
 
+      # klass of job for this report to be processed
+      #
+      # * Author: Aman
+      # * Date: 20/09/2018
+      # * Reviewed By:
+      #
+      # @return [Constant] klass Class name
+      #
+      def job_klass
+        fail 'unimplemented method job_klass'
+      end
+
+      # type of report to be fetched
+      #
+      # * Author: Aman
+      # * Date: 20/09/2018
+      # * Reviewed By:
+      #
+      # @return [String] report_type
+      #
+      def report_type
+        fail 'unimplemented method report_type'
+      end
 
     end
 

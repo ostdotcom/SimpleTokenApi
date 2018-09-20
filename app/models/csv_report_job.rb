@@ -9,5 +9,9 @@ class CsvReportJob < EstablishSimpleTokenLogDbConnection
       GlobalConstant::CsvReportJob.failed_status => 4
   }
 
+  enum report_type: {
+      GlobalConstant::CsvReportJob.kyc_report_type => 1,
+      GlobalConstant::CsvReportJob.user_report_type => 2
+  }
 
 end

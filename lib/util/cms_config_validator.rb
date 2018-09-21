@@ -113,7 +113,7 @@ module Util
         if allowed_uri_class.include?(uri_value.class)
           success_with_data(sanitized_val: link_text)
         else
-          error_result_obj("Invalid URL passed.")
+          error_result_obj("only https/http links are allowed")
         end
       rescue => e
         error_result_obj("Invalid URL passed.")

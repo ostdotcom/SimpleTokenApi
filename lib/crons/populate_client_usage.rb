@@ -63,8 +63,8 @@ module Crons
       }
 
       ClientPlan::THRESHOLD_PERCENT.each do |notification_type, threshold_percent|
-        next if ClientPlan.notification_types[client_plan.notification_type] <= ClientPlan.notification_types[notification_type]
-        next if client_usage_obj.registration_count < ((client_plan.kyc_submissions_count * threshold_percent)/100.0)
+        next if ClientPlan.notification_types[client_plan.notification_type].to_i >= ClientPlan.notification_types[notification_type]
+        next if client_usage_obj.kyc_submissions_count < ((client_plan.kyc_submissions_count * threshold_percent)/100.0)
         send_report_email(template_variables.merge(threshold_percent: threshold_percent))
         client_plan.notification_type = notification_type
       end

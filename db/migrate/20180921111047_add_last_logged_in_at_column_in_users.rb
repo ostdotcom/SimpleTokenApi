@@ -1,4 +1,4 @@
-class AddLastLoggInAtColumnInUsers < DbMigrationConnection
+class AddLastLoggedInAtColumnInUsers < DbMigrationConnection
   def up
     run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
       add_column :users, :last_logged_in_at, :integer, after: :properties, :null => true

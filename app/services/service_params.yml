@@ -5,6 +5,12 @@
     - :browser_user_agent
   :optional:
 
+'AdminManagement::Logout':
+  :mandatory:
+    - :browser_user_agent
+    - :cookie_value
+  :optional:
+
 'AdminManagement::Login::SendAdminResetPasswordLink':
   :mandatory:
     - :email

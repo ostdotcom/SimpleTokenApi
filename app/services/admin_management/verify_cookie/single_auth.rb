@@ -54,7 +54,7 @@ module AdminManagement
       # @return [Time]
       #
       def valid_upto
-        5.minute
+        GlobalConstant::Cookie.single_auth_expiry
       end
 
     end

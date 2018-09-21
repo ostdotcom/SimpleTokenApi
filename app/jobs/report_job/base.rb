@@ -1,4 +1,5 @@
 module ReportJob
+
 class Base < ApplicationJob
 
   queue_as GlobalConstant::Sidekiq.queue_name :default_medium_priority_queue

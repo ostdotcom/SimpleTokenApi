@@ -1,6 +1,6 @@
 class Web::Admin::SuperAdminController < Web::Admin::BaseController
 
-  before_action only: [:get_kyc_report, :invite, :resend_invite, :reset_mfa, :delete_admin,
+  before_action only: [:get_kyc_report, :get_user_report, :invite, :resend_invite, :reset_mfa, :delete_admin,
                        :update_auto_approve_setting, :update_sale_setting, :update_country_setting] do
     authenticate_request(true)
   end
@@ -31,7 +31,20 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def get_kyc_report
-    service_response = AdminManagement::Report::GetKycReport.new(params).perform
+    service_response = AdminManagement::Report::Kyc.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Note: Can only be accessed by superadmins
+
+  # enqueue a job to send csv with user details
+  #
+  # * Author: Aman
+  # * Date: 18/04/2018
+  # * Reviewed By:
+  #
+  def get_user_report
+    service_response = AdminManagement::Report::User.new(params).perform
     render_api_response(service_response)
   end
 

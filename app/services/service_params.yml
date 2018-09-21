@@ -136,7 +136,15 @@
     - :user_id
   :optional:
 
-'AdminManagement::Report::GetKycReport':
+'AdminManagement::Report::Kyc':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+    - :filters
+    - :sortings
+
+'AdminManagement::Report::User':
   :mandatory:
     - :client_id
     - :admin_id

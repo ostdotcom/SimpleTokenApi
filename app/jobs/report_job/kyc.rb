@@ -83,8 +83,8 @@ module ReportJob
           user_ids << user_kyc_detail.user_id
         end
 
-        users = User.where(client_id: @client_id, id: user_ids).all.index_by(&:id)
-        user_extended_details = UserExtendedDetail.where(id: user_extended_detail_ids).all.index_by(&:id)
+        users = ::User.where(client_id: @client_id, id: user_ids).all.index_by(&:id)
+        user_extended_details = ::UserExtendedDetail.where(id: user_extended_detail_ids).all.index_by(&:id)
 
         user_kyc_details.each do |user_kyc_detail|
           user = users[user_kyc_detail.user_id]

@@ -15,6 +15,18 @@ module GlobalConstant
         'company_logo'
       end
 
+      def gtm_pixel_id_key
+        'gtm_pixel_id'
+      end
+
+      def fb_pixel_id_key
+        'fb_pixel_id'
+      end
+
+      def fb_pixel_version_key
+        'fb_pixel_version'
+      end
+
       def not_eligible_key
         'not_eligible'
       end

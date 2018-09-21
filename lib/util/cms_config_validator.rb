@@ -85,7 +85,9 @@ module Util
                 'a' => ['href', 'target', 'rel', 'title'],
                 'span' => ['style']
             },
-
+            :protocols =>{
+                'a'   => {'href' => ['http', 'https']}
+            },
             :add_attributes => {
                 'a' => {'rel' => 'nofollow'}
             },
@@ -106,7 +108,13 @@ module Util
         return r if !r.success?
         link_text = r.data[:sanitized_val]
 
-        success_with_data(sanitized_val: link_text) if URI.parse(link_text)
+        uri_value = URI.parse(link_text)
+
+        if allowed_uri_class.include?(uri_value.class)
+          success_with_data(sanitized_val: link_text)
+        else
+          error_result_obj("Invalid URL passed.")
+        end
       rescue => e
         error_result_obj("Invalid URL passed.")
       end

@@ -177,6 +177,9 @@ module AdminManagement
         end
 
         error_data.reverse_merge!(validate_uploaded_files_path)
+        error_data.reverse_merge!(validate_pixels)
+        error_data.reverse_merge!(validate_fb_version)
+
 
         return error_with_data(
             's_cc_up_favfd_1',
@@ -347,7 +350,43 @@ module AdminManagement
                 @store_data[key.to_sym] = cloudfront_domain_prefix + asset_url
               end
             end
+        err
+      end
 
+      # Validate pixel values
+      #
+      # * Author: Aniket
+      # * Date: 21/09/2018
+      # * Reviewed By:
+      #
+      def validate_pixels
+        err = {}
+        GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
+            [GlobalConstant::CmsConfigurator.gtm_pixel_id_key,
+             GlobalConstant::CmsConfigurator.fb_pixel_id_key].each do |key|
+              pixel_value = @store_data[key.to_sym]
+              if pixel_value.present?
+                err[key.to_sym] = "Invalid value for #{key}" if pixel_value.match(/^[a-z0-9]*$/i)
+              end
+            end
+        err
+      end
+
+      # Validate fb version values
+      #
+      # * Author: Aniket
+      # * Date: 21/09/2018
+      # * Reviewed By:
+      #
+      def validate_fb_version
+        err = {}
+        GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
+            [GlobalConstant::CmsConfigurator.fb_pixel_version_key].each do |key|
+              fb_version_value = @store_data[key.to_sym]
+              if fb_version_value.present?
+                err[key.to_sym] = "Invalid value for #{key}" if pixel_value.match(/^v[0-9.]*$/i)
+              end
+            end
         err
       end
 

@@ -39,9 +39,7 @@ module EstimatedGasPrice
 
       return false if gas_price.ceil <= 0
 
-      buffered_gas = gas_price.ceil + GlobalConstant::GasEstimations.buffer_gas
-
-      set_in_cache(buffered_gas)
+      set_in_cache(gas_price.ceil)
 
       true
     end
@@ -96,6 +94,8 @@ module EstimatedGasPrice
       gas_price = fetch_from_cache.to_i
 
       return GlobalConstant::GasEstimations.default_gas_price if gas_price <= 0
+
+      gas_price += GlobalConstant::GasEstimations.buffer_gas
 
       return GlobalConstant::GasEstimations.min_gas_price if gas_price < GlobalConstant::GasEstimations.min_gas_price
 

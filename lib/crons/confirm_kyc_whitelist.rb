@@ -204,6 +204,10 @@ module Crons
       [GlobalConstant::KycWhitelistLog.invalid_txn_status, GlobalConstant::KycWhitelistLog.failed_txn_status].include?(@transaction_status)
     end
 
+    def invalid_txn_status?
+      [GlobalConstant::KycWhitelistLog.invalid_txn_status].include?(@transaction_status)
+    end
+
     # Is invalid transaction
     #
     # * Author: Sachin
@@ -306,7 +310,11 @@ module Crons
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - has failed Status")
 
-      @kyc_whitelist_log.mark_failed
+      if invalid_txn_status?
+        @kyc_whitelist_log.mark_failed_with_attention_needed(GlobalConstant::KycWhitelistLog.transaction_attention_needed)
+      else
+        @kyc_whitelist_log.mark_failed
+      end
 
       r = fetch_user_kyc_detail
       return r unless r.success?

@@ -249,16 +249,17 @@ module WhitelistManagement
 
       end
 
-      if @kyc_whitelist_log.is_attention_needed == 1
+      if [GlobalConstant::KycWhitelistLog.attention_needed,
+          GlobalConstant::KycWhitelistLog.transaction_attention_needed].include?(@kyc_whitelist_log.is_attention_needed)
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-            "IMMEDIATE ATTENTION NEEDED. already found is_attention_needed = 1"
+            "IMMEDIATE ATTENTION NEEDED. already found #{@kyc_whitelist_log.is_attention_needed}"
         )
 
         return error_with_data(
             'wm_pare_4',
-            'already found is_attention_needed = 1',
-            'already found is_attention_needed = 1',
+            "already found is_attention_needed = #{@kyc_whitelist_log.is_attention_needed}",
+            "already found is_attention_needed = #{@kyc_whitelist_log.is_attention_needed}",
             GlobalConstant::ErrorAction.default,
             {}
         )

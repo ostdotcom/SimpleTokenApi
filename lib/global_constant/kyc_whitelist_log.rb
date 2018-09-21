@@ -43,6 +43,10 @@ module GlobalConstant
         'attention_needed'
       end
 
+      def transaction_attention_needed
+        'transaction_attention_needed'
+      end
+
       ### is attention needed ends ####
 
       ### transaction status ####

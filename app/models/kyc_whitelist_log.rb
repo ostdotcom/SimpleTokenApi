@@ -9,7 +9,8 @@ class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
 
   enum is_attention_needed: {
       GlobalConstant::KycWhitelistLog.attention_not_needed => 0,
-      GlobalConstant::KycWhitelistLog.attention_needed => 1
+      GlobalConstant::KycWhitelistLog.attention_needed => 1,
+      GlobalConstant::KycWhitelistLog.transaction_attention_needed => 2
   }
 
   scope :kyc_whitelist_non_confirmed, -> {
@@ -48,10 +49,10 @@ class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
   # * Date: 26/10/2017
   # * Reviewed By:
   #
-  def mark_failed_with_attention_needed
+  def mark_failed_with_attention_needed(attention_type = GlobalConstant::KycWhitelistLog.attention_needed)
     Rails.logger.info("user_kyc_whitelist_log - #{self.id} - Changing is_attention_needed to attention_needed")
     self.status = GlobalConstant::KycWhitelistLog.failed_status
-    self.is_attention_needed = GlobalConstant::KycWhitelistLog.attention_needed
+    self.is_attention_needed = attention_type
     self.save! if self.changed?
   end
 

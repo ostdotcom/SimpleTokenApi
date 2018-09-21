@@ -237,6 +237,13 @@
     - :ip_address
   :optional:
 
+'UserManagement::Logout':
+  :mandatory:
+    - :domain
+    - :browser_user_agent
+    - :cookie_value
+  :optional:
+
 'UserManagement::VerifyCookie':
   :mandatory:
     - :client_id

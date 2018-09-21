@@ -218,7 +218,8 @@ module UserManagement
           email: @email,
           password: password_e,
           user_secret_id: @user_secret.id,
-          status: GlobalConstant::User.active_status
+          status: GlobalConstant::User.active_status,
+          last_logged_in_at: Time.now.to_i
       )
 
       @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property) if @client.is_verify_page_active_for_client?

@@ -40,7 +40,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
 
   end
 
-  # Logout user
+  # Logout admin
   #
   # * Author: Aniket
   # * Date: 21/09/2018
@@ -55,7 +55,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
     AdminManagement::Logout.new(params).perform
 
     delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
-    redirect_to "/admin/login", status: GlobalConstant::ErrorCode.permanent_redirect and return
+    redirect_to "/admin/login", status: GlobalConstant::ErrorCode.permanent_redirect
   end
 
   # get Admins Ga AUTH QR code on first time login

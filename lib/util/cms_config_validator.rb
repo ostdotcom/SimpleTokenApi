@@ -119,6 +119,15 @@ module Util
         error_result_obj("Invalid URL passed.")
       end
 
+      # Get allowed URI class
+      #
+      # * Author: Aniket
+      # * Date: 21/09/2018
+      # * Reviewed By:
+      #
+      def allowed_uri_class
+        [URI::HTTP, URI::HTTPS]
+      end
 
       # Basic Validations starts
 

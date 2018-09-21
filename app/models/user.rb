@@ -18,6 +18,24 @@ class User < EstablishSimpleTokenUserDbConnection
 
   scope :is_active, -> {where(status: GlobalConstant::User.active_status)}
 
+  scope :filter_by, -> (filters) {
+    where_clause = []
+    filters.each do |key, val|
+      if key.to_s === GlobalConstant::User.email_filter
+        where_clause << ["email like ?", "#{val}%"]
+      else
+        where_clause << GlobalConstant::User.filters[key.to_s][val.to_s] if GlobalConstant::User.filters[key.to_s][val.to_s].present?
+      end
+    end
+
+    ar = self
+    where_clause.each do |clause|
+      ar = ar.where(clause)
+    end
+
+    ar
+  }
+
   after_commit :memcache_flush
 
   # Array of Properties symbols

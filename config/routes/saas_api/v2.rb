@@ -1,5 +1,5 @@
 scope module: :v2 do
-  resources :user, path: 'users', only: [:index, :create, :show], param: :user_id do
+  resources :user, path: 'users', only: [:index, :create, :show] do
 
   end
 
@@ -18,5 +18,3 @@ scope module: :v2 do
 
 end
 
-
-# http://kyc.developmentost.com:8080/api/v2/ethereum-address-validation

@@ -1,20 +1,19 @@
 module UserManagement::Users
   class List < ServicesBase
 
-    PAGE_SIZE = 3
-
     # Initialize
     #
     # * Author: Aniket
     # * Date: 19/09/2018
     # * Reviewed By:
     #
-    # @param [String] client_id (mandatory) -  api key of client
+    # @param [Integer] client_id (mandatory) -  client id
     # @param [Object] filter (optional) - filters for getting list
     # @param [Integer] page_number (optional ) - page number
+    # @param [Integer] page_size (optional ) - page size
     # @param [String] order (optional ) - order
     #
-    # @Sets users_list, next_page_payload, prev_page_payload, allowed_filters, next_page_available
+    # Sets users_list, next_page_payload, prev_page_payload, allowed_filters, next_page_available
     #
     # @return [UserManagement::Users::List]
     #
@@ -23,8 +22,9 @@ module UserManagement::Users
 
       @client_id = @params[:client_id]
       @filter = @params[:filter] || {}
-      @page_number = @params[:page_number].to_i || 1
+      @page_number = @params[:page_number] || 1
       @order = @params[:order] || GlobalConstant::User.sorting['sort_by'].keys[0] # 0th index is 'desc'
+      @page_size = @params[:page_size] || GlobalConstant::PageSize.user_list[:default]
 
       @offset = 0
       @allowed_filters = {}
@@ -56,6 +56,8 @@ module UserManagement::Users
     # * Date: 19/09/2018
     # * Reviewed By:
     #
+    # Sets client
+    #
     def validate_and_sanitize
 
       r = validate
@@ -76,6 +78,8 @@ module UserManagement::Users
     # * Date: 19/09/2018
     # * Reviewed By:
     #
+    # Sets sorting_by, offset, allowed_filters
+    #
     def validate_and_sanitize_params
 
       return error_with_identifier('invalid_api_params',
@@ -90,7 +94,18 @@ module UserManagement::Users
         end
       end
 
-      @offset = (@page_number-1) * PAGE_SIZE if @page_number > 0
+      return error_with_data('s_sm_u_i_vp_1',
+                             'Wrong value for key',
+                             'Value for key page_size or page_number is wrong',
+                             GlobalConstant::ErrorAction.default,{}
+      )unless (Util::CommonValidateAndSanitize.is_integer?(@page_size) & Util::CommonValidateAndSanitize.is_integer?(@page_number))
+      @page_size, @page_number = @page_size.to_i, @page_number.to_i
+
+      page_size_data = GlobalConstant::PageSize.user_list
+      @page_size = [@page_size, page_size_data[:min]].max
+      @page_size = [@page_size, page_size_data[:max]].min
+
+      @offset = (@page_number-1) * @page_size if @page_number > 0
 
       success
     end
@@ -101,14 +116,17 @@ module UserManagement::Users
     # * Date: 19/09/2018
     # * Reviewed By:
     #
+    # Sets users_list, next_page_available
+    #
     def fetch_user_list
       @users_list = User.
+                      where(client_id: @client_id).
                       filter_by(@allowed_filters).
-                      limit(PAGE_SIZE+1).
+                      limit(@page_size+1).
                       offset(@offset).
                       sorting_by(@sorting_by)
 
-      @next_page_available = @users_list.length > PAGE_SIZE
+      @next_page_available = @users_list.length > @page_size
 
       @users_list = @users_list.reverse.drop(1).reverse if @next_page_available
       @users_list

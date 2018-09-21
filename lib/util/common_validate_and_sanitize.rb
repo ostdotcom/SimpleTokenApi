@@ -57,6 +57,18 @@ module Util
       return word.gsub(/ +/, ' *')
     end
 
+    # check whether give object is integer or not
+    #
+    # * Author: Aniket
+    # * Date: 20/09/2018
+    # * Reviewed By:
+    #
+    #  @return [Boolean] return true if object is integer
+    #
+    def self.is_integer?(object)
+      true if Integer(object) rescue false
+    end
+
   end
 
 end

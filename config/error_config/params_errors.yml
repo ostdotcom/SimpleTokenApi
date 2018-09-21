@@ -1,5 +1,7 @@
 invalid_order:
   parameter: 'order'
-  code: 'invalid'
   message: "order in 'desc' (default) or 'asc' order."
 
+invalid_page_number:
+  parameter: 'page_number'
+  message: "Page number is invalid."

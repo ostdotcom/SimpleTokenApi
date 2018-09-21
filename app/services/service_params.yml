@@ -673,5 +673,12 @@
     - :client_id
   :optional:
     - :page_number
+    - :page_size
     - :filter
     - :order
+
+'UserManagement::Users::Get':
+  :mandatory:
+    - :client_id
+    - :id
+  :optional:

@@ -1,4 +1,4 @@
-class ClientPlan < EstablishSimpleTokenCustomizationDbConnection
+class ClientPlan < EstablishSimpleTokenBillingDbConnection
 
   after_commit :memcache_flush
 

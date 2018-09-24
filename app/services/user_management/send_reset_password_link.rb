@@ -43,13 +43,18 @@ module UserManagement
       r = validate_client_details
       return r unless r.success?
 
+      # do not send error if user is not present.
+      # The response should be generic even if user is not present.
+      # Security audit-ST-03-002 Web: User Enumeration via Password Forget (Info)
+
       r = fetch_user
-      return r unless r.success?
 
-      r = create_reset_password_token
-      return r  unless r.success?
+      if r.success?
+        r = create_reset_password_token
+        return r unless r.success?
 
-      send_forgot_password_mail
+        send_forgot_password_mail
+      end
 
       success
     end

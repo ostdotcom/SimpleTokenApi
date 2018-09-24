@@ -380,7 +380,7 @@ module AdminManagement
       #
       def validate_fb_version
         err = {}
-        return unless GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type
+        return {} unless GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type
 
         key = GlobalConstant::CmsConfigurator.fb_pixel_version_key
         fb_version_value = @store_data[key.to_sym]

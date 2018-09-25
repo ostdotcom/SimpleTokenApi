@@ -24,6 +24,10 @@ module GlobalConstant
         ['francesco@ost.com']
       end
 
+      def default_billing_to
+        ['francesco@ost.com', 'marina@ost.com', 'aman@ost.com']
+      end
+
       def st_balance_report_email_to
         ['nishith@ost.com']
       end

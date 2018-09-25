@@ -110,6 +110,7 @@ module ClientManagement
               token_name: @client_token_sale_details.token_name,
               token_symbol: @client_token_sale_details.token_symbol,
               sale_start_timestamp: @client_token_sale_details.sale_start_timestamp,
+              registration_end_timestamp: @client_token_sale_details.end_time_for_registration,
               sale_end_timestamp: @client_token_sale_details.sale_end_timestamp,
               has_ethereum_deposit_address: @client_token_sale_details.ethereum_deposit_address.present?
           },

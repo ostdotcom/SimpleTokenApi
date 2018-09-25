@@ -44,3 +44,7 @@ simple_token_image_process_poc_<%= Rails.env%>:
 simple_token_customization_<%= Rails.env%>:
   <<: *default
   database: simple_token_customization_<%= Rails.env%>
+
+simple_token_billing_<%= Rails.env%>:
+  <<: *default
+  database: simple_token_billing_<%= Rails.env%>

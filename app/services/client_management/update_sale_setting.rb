@@ -9,8 +9,11 @@ module ClientManagement
     #
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [Integer] client_id (mandatory) -  client id
-    # @param [String] sale_start_timestamp (mandatory) - sale_start_timestamp (timestamp)
-    # @param [String] sale_end_timestamp (mandatory) - sale_end_timestamp (timestamp)
+    # @param [Integer] sale_start_timestamp (mandatory) - sale_start_timestamp (timestamp)
+    # @param [Integer] sale_end_timestamp (mandatory) - sale_end_timestamp (timestamp)
+    #
+    # @param [Integer] has_registration_setting (optional) - has_registration_setting (0/1)
+    # @param [Integer] registration_end_timestamp (optional) -  registration_end_timestamp (timestamp)
     #
     # @return [ClientManagement::UpdateSaleSetting]
     #
@@ -22,8 +25,12 @@ module ClientManagement
       @sale_start_timestamp = @params[:sale_start_timestamp].to_i
       @sale_end_timestamp = @params[:sale_end_timestamp].to_i
 
-      @sale_start_timestamp = (@sale_start_timestamp/1000).to_i
-      @sale_end_timestamp = (@sale_end_timestamp/1000).to_i
+      @has_registration_setting = @params[:has_registration_setting].to_i
+      @registration_end_timestamp = @params[:registration_end_timestamp].to_i
+
+      @sale_start_timestamp = (@sale_start_timestamp / 1000).to_i
+      @registration_end_timestamp = (@registration_end_timestamp / 1000).to_i
+      @sale_end_timestamp = (@sale_end_timestamp / 1000).to_i
       @client_token_sale_detail = nil
 
     end
@@ -66,6 +73,8 @@ module ClientManagement
       r = validate_date
       return r unless r.success?
 
+      @registration_end_timestamp = nil if @has_registration_setting != 1
+
       success
     end
 
@@ -101,6 +110,8 @@ module ClientManagement
 
       err_data[:sale_start_timestamp] = 'Invalid date selected' if @sale_start_timestamp < 0
       err_data[:sale_end_timestamp] = 'Invalid date selected' if @sale_end_timestamp < 0
+      err_data[:registration_end_timestamp] = 'Invalid date selected' if @registration_end_timestamp < 0
+
       err_data[:sale_end_timestamp] = 'End date cannot be more than 5 years from now' if @sale_end_timestamp >
           (Time.now.to_i + 5.years.to_i)
 
@@ -121,6 +132,15 @@ module ClientManagement
           {}
       ) if (@sale_end_timestamp <= @sale_start_timestamp)
 
+      return error_with_data(
+          'cm_uss_vd_3',
+          'Registration end time should not be greater than sale end time',
+          '',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {registration_end_timestamp: 'Registration end time should not be greater than sale end time'}
+      ) if (@registration_end_timestamp > @sale_end_timestamp)
+
       success
     end
 
@@ -135,7 +155,8 @@ module ClientManagement
     def update_sale_setting
       @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
-      @client_token_sale_detail.sale_start_timestamp =  @sale_start_timestamp
+      @client_token_sale_detail.sale_start_timestamp = @sale_start_timestamp
+      @client_token_sale_detail.registration_end_timestamp = @registration_end_timestamp
       @client_token_sale_detail.sale_end_timestamp = @sale_end_timestamp
       @client_token_sale_detail.save! if @client_token_sale_detail.changed?
     end

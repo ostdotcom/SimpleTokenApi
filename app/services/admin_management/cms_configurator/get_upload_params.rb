@@ -4,7 +4,7 @@ module AdminManagement
 
     class GetUploadParams < ServicesBase
 
-      CLIENT_ASSET_FILE_PATH_REGEX = /^c_assets\/[A-Z0-9\-\/\._]*$/i
+      CLIENT_ASSET_FILE_PATH_REGEX = /\Ac_assets\/[A-Z0-9\-\/\._]*\z/i
 
       # Initialize
       #

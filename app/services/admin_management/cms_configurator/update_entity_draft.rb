@@ -366,7 +366,7 @@ module AdminManagement
              GlobalConstant::CmsConfigurator.fb_pixel_id_key].each do |key|
               pixel_value = @store_data[key.to_sym]
               if pixel_value.present?
-                err[key.to_sym] = "Invalid value for #{key}" unless pixel_value.match(/^[a-z0-9]*$/i)
+                err[key.to_sym] = "Invalid value for #{key}" unless pixel_value.match(/\A[a-z0-9]*\z/i)
               end
             end
         err
@@ -385,7 +385,7 @@ module AdminManagement
         key = GlobalConstant::CmsConfigurator.fb_pixel_version_key
         fb_version_value = @store_data[key.to_sym]
         if fb_version_value.present?
-          err[key.to_sym] = "Invalid value for #{key}" unless fb_version_value.match(/^v[0-9\.]*$/i)
+          err[key.to_sym] = "Invalid value for #{key}" unless fb_version_value.match(/\Av[0-9\.]*\z/i)
         elsif @store_data[GlobalConstant::CmsConfigurator.fb_pixel_id_key.to_sym].present?
           err[key.to_sym] = "Please provide the #{key}"
         end

@@ -9,11 +9,6 @@ constants:
     saas:
       id: <%= ENV['STA_SAAS_KMS_ID']%>
 
-  cynopsis:
-    base_url: <%= ENV['STA_CYNOPSIS_BASE_URL']%>
-    token: <%= ENV['STA_CYNOPSIS_TOKEN']%>
-    domain_name: <%= ENV['STA_CYNOPSIS_DOMAIN_NAME']%>
-
   aws:
     region: <%= ENV['STA_DEFAULT_AWS_REGION']%>
     admin:
@@ -51,8 +46,6 @@ constants:
 
   st_token_sale:
     critical_details:
-      active_status: <%= ENV['STA_TOKEN_SALE_ACTIVE_STATUS']%>
-      token_sale_ethereum_address: '<%= ENV['STA_TOKEN_SALE_CONTRACT_ADDRESS']%>'
       simple_token_contract_address: '<%= ENV['STA_SIMPLE_TOKEN_CONTRACT_ADDRESS']%>'
     default_client_id: <%= ENV['SIMPLE_TOKEN_SALE_CLIENT_ID'] %>
 

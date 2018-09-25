@@ -1,14 +1,15 @@
 class Web::Admin::LoginController < Web::Admin::BaseController
 
   before_action :authenticate_request, except: [
-                                         :password_auth,
-                                         :get_ga_url,
-                                         :multifactor_auth,
-                                         :send_admin_reset_password_link,
-                                         :admin_reset_password,
-                                         :invite_detail,
-                                         :activate_invited_admin
-                                     ]
+      :password_auth,
+      :get_ga_url,
+      :multifactor_auth,
+      :send_admin_reset_password_link,
+      :admin_reset_password,
+      :invite_detail,
+      :activate_invited_admin,
+      :logout
+  ]
   before_action :verify_recaptcha, only: [:password_auth]
 
   # Password auth
@@ -37,6 +38,24 @@ class Web::Admin::LoginController < Web::Admin::BaseController
 
     render_api_response(service_response)
 
+  end
+
+  # Logout admin
+  #
+  # * Author: Aniket
+  # * Date: 21/09/2018
+  # * Reviewed By:
+  #
+  def logout
+    params = {
+        cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
+        browser_user_agent: http_user_agent
+    }
+
+    AdminManagement::Logout.new(params).perform
+
+    delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
+    redirect_to "/admin/login", status: GlobalConstant::ErrorCode.permanent_redirect
   end
 
   # get Admins Ga AUTH QR code on first time login

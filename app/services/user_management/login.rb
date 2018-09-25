@@ -64,6 +64,7 @@ module UserManagement
 
       enqueue_job
 
+      update_logged_in_at
       set_cookie_value
 
     end
@@ -187,6 +188,18 @@ module UserManagement
 
           }
       )
+    end
+
+    # Update user logged in at time
+    #
+    # * Author: Aniket
+    # * Date: 21/09/2018
+    # * Reviewed By:
+    #
+    #
+    def update_logged_in_at
+      @user.last_logged_in_at = Time.now.to_i
+      @user.save!
     end
 
     # Set cookie value

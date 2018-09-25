@@ -282,6 +282,11 @@ module GlobalConstant
         'contact_us'
       end
 
+      # email to kyc team if threshold for registrations reached
+      def billing_plan_notification_template
+        'billing_plan_notification'
+      end
+
       # email to admins for low balance of whitelister
       def low_whitelister_balance_template
         'low_whitelister_balance'
@@ -345,6 +350,7 @@ module GlobalConstant
           altdrop_sent,
           contact_us_template,
           low_whitelister_balance_template,
+          billing_plan_notification_template,
           update_ethereum_request_outcome_template,
           open_case_request_outcome_template,
           contact_us_ost_partner_autoresponder_template,

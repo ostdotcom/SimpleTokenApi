@@ -2,14 +2,19 @@ namespace :onetimer do
 
 
   # params = {
+  #     "client_plan" => {
+  #       "add_ons" => ['whitelisting', 'frontend'],
+  #       "kyc_submissions_count" => 100
+  #     },
   #     "super_admin" => {
   #         "email" => "aman@ost.com",
   #         "password" => "aman@123",
   #         "name" => "aman"
   #     },
+  #     "double_opt_in" => 1,
   #     "client_name" => "pankajkyc.developmentost.com",
   #     "cynopsis" => {
-  #         "email_id" =>  '',
+  #         "email_id" =>  'aman@ost.com',
   #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
   #         "token" => GlobalConstant::Cynopsis.token,
   #         "base_url" => GlobalConstant::Cynopsis.base_url
@@ -26,6 +31,8 @@ namespace :onetimer do
   #         "domain" => "pepokyc.developmentost.com"
   #     },
   #     "token_sale_details" => {
+  #         "token_name" => "Company",
+  #         "token_symbol" => 'CMP',
   #         "ethereum_deposit_address" => "0xEc9859B0B3B4652aD5e264776a79E544b76aman2",
   #     },
   #     "kyc_config" => {
@@ -49,13 +56,13 @@ namespace :onetimer do
   #     }
   # }
 
-#   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
-# {\"client_name\":\"thirdtoken\",\"cynopsis\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.cynopsis-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"whitelist\":{\"contract_address\":\"0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142\"}}
-# '")
+  #   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
+  # {\"client_name\":\"thirdtoken\",\"cynopsis\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.cynopsis-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"whitelist\":{\"contract_address\":\"0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142\"}}
+  # '")
 
 
-# params = params.to_json
-# rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"cynopsis\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
+  # params = params.to_json
+  # rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"cynopsis\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
 
   task :add_client => :environment do
 
@@ -67,12 +74,18 @@ namespace :onetimer do
     web_host_data = params["web_host"]
     token_sale_details = params["token_sale_details"]
     kyc_config = params["kyc_config"]
+    client_plan = params["client_plan"]
+
+    fail 'client_plan issue' if client_plan.blank? || (client_plan['kyc_submissions_count'].to_i == 0)
+
+    invalid_add_ons = client_plan['add_ons'] - ClientPlan.add_ons_config.keys
+    fail "Invalid Add On-#{invalid_add_ons}" if invalid_add_ons.present?
 
     fail 'Whitelist cannot be setup if Ethereum Address is not selected for kyc form' if whitelist_data.present? &&
         kyc_config["kyc_fields"].exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
     fail 'token cannot be blank for cynopsis' if cynopsis_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
-    fail "cynopsis email id(#{cynopsis_data['email_id']}) is not valid "  if cynopsis_data['email_id'].blank? || !Util::CommonValidator.is_valid_email?(cynopsis_data['email_id'])
+    fail "cynopsis email id(#{cynopsis_data['email_id']}) is not valid " if cynopsis_data['email_id'].blank? || !Util::CommonValidator.is_valid_email?(cynopsis_data['email_id'])
 
     if pepo_campaign_data.present?
       fail 'api_key cannot be blank for pepo_campaign' if pepo_campaign_data['api_key'].blank?
@@ -84,7 +97,7 @@ namespace :onetimer do
     end
 
     if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
-      super_admin['name'].blank? || !Util::CommonValidator.is_valid_email?(super_admin['email'])
+        super_admin['name'].blank? || !Util::CommonValidator.is_valid_email?(super_admin['email'])
       fail 'Invalid Super Admin Email'
     end
 
@@ -92,6 +105,7 @@ namespace :onetimer do
     setup_properties_val += 2 if pepo_campaign_data.present?
     setup_properties_val += 4 if whitelist_data.present?
     setup_properties_val += 8 if web_host_data.present?
+    setup_properties_val += 16 if params['double_opt_in'].to_i == 1
 
 
     #get cmk key and text
@@ -115,7 +129,7 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
-    super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'],true)
+    super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
 
     ckps_obj = ClientKycPassSetting.new(client_id: client_id, face_match_percent: 100,
                                         approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
@@ -169,23 +183,31 @@ namespace :onetimer do
     ClientTokenSaleDetail.create!(
         client_id: client_id,
         sale_start_timestamp: Time.now.to_i,
+        registration_end_timestamp: nil,
         sale_end_timestamp: Time.now.to_i + 1.month.to_i,
         token_name: token_sale_details['token_name'],
         token_symbol: token_sale_details['token_symbol'],
-        sale_start_timestamp: token_sale_details['sale_start_timestamp'],
-        sale_end_timestamp: token_sale_details['sale_end_timestamp'],
         ethereum_deposit_address: ethereum_deposit_address_e,
         status: GlobalConstant::ClientTokenSaleDetail.active_status
     )
 
-    ClientKycConfigDetail.add_config(client_id: client_id,kyc_fields: kyc_config["kyc_fields"],
+    ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: [],
                                      blacklisted_countries: []
-                                     )
+    )
 
     ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
                                  whitelister_address: whitelist_data['whitelister_address'],
                                  status: GlobalConstant::ClientWhitelistDetail.active_status) if whitelist_data.present?
+
+    cp = ClientPlan.new(client_id: client_id,
+                        kyc_submissions_count: client_plan['kyc_submissions_count'].to_i,
+                        status: GlobalConstant::ClientPlan.active_status)
+
+    client_plan['add_ons'].each do |add_on|
+      cp.send("set_#{add_on}")
+    end
+    cp.save!
 
 
     puts "client_id: #{client_id}"

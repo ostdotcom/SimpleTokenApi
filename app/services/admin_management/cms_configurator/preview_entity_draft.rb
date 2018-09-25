@@ -115,6 +115,7 @@ module AdminManagement
       def set_live_sale_for_client
         @client_setting[:client_setting][:token_sale_details].merge!(
             sale_start_timestamp: Time.now.to_i,
+            registration_end_timestamp: (Time.now + 1.month).to_i,
             sale_end_timestamp: (Time.now + 1.month).to_i
         )
       end

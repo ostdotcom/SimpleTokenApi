@@ -140,7 +140,7 @@ module AdminManagement
             @entity_group.status == GlobalConstant::EntityGroup.deleted_status)
 
         err_data = {}
-        err_data[:is_published] = 1  if @entity_group.status == GlobalConstant::EntityGroup.active_status
+        err_data[:is_published] = 1 if @entity_group.status == GlobalConstant::EntityGroup.active_status
         return error_with_data(
             's_cc_ued_fave_3',
             'invalid entity params',
@@ -177,6 +177,9 @@ module AdminManagement
         end
 
         error_data.reverse_merge!(validate_uploaded_files_path)
+        error_data.reverse_merge!(validate_pixels)
+        error_data.reverse_merge!(validate_fb_version)
+
 
         return error_with_data(
             's_cc_up_favfd_1',
@@ -203,7 +206,7 @@ module AdminManagement
         entity_validations = entity_config[GlobalConstant::CmsConfigurator.validations_key]
         is_mandatory = entity_validations[GlobalConstant::CmsConfigurator.required_key].to_i if entity_validations.present?
         return error_result_obj("This field cannot be blank") if is_mandatory == 1 && entity_val.blank?
-        return success_with_data(sanatize_val:nil) if entity_val.nil?
+        return success_with_data(sanatize_val: nil) if entity_val.nil?
 
         if entity_val.is_a? String
           # if the entity_val is a string, sanitize it directly to remove script tags etc
@@ -347,6 +350,45 @@ module AdminManagement
                 @store_data[key.to_sym] = cloudfront_domain_prefix + asset_url
               end
             end
+        err
+      end
+
+      # Validate pixel values
+      #
+      # * Author: Aniket
+      # * Date: 21/09/2018
+      # * Reviewed By:
+      #
+      def validate_pixels
+        err = {}
+        GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type &&
+            [GlobalConstant::CmsConfigurator.gtm_pixel_id_key,
+             GlobalConstant::CmsConfigurator.fb_pixel_id_key].each do |key|
+              pixel_value = @store_data[key.to_sym]
+              if pixel_value.present?
+                err[key.to_sym] = "Invalid value for #{key}" unless pixel_value.match(/\A[a-z0-9]*\z/i)
+              end
+            end
+        err
+      end
+
+      # Validate fb version values
+      #
+      # * Author: Aniket
+      # * Date: 21/09/2018
+      # * Reviewed By:
+      #
+      def validate_fb_version
+        err = {}
+        return {} unless GlobalConstant::EntityGroupDraft.theme_entity_type == @entity_type
+
+        key = GlobalConstant::CmsConfigurator.fb_pixel_version_key
+        fb_version_value = @store_data[key.to_sym]
+        if fb_version_value.present?
+          err[key.to_sym] = "Invalid value for #{key}" unless fb_version_value.match(/\Av[0-9\.]*\z/i)
+        elsif @store_data[GlobalConstant::CmsConfigurator.fb_pixel_id_key.to_sym].present?
+          err[key.to_sym] = "Please provide the #{key}"
+        end
 
         err
       end
@@ -470,7 +512,7 @@ module AdminManagement
             '',
             GlobalConstant::ErrorAction.default,
             {},
-            {err:error}
+            {err: error}
         )
       end
 

@@ -100,6 +100,8 @@ module UserManagement
       return unauthorized_access_response('um_vc_5') unless @user.present? && @user.password.present? &&
           (@user[:status] == GlobalConstant::User.active_status) && @user.client_id == @client_id
 
+      return unauthorized_access_response('um_vc_6') if (@user.last_logged_in_at.to_i > @created_ts)
+
       evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
       return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)
 

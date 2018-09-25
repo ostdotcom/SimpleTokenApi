@@ -5,3 +5,28 @@ invalid_order:
 invalid_page_number:
   parameter: 'page_number'
   message: "Page number is invalid."
+
+invalid_page_size:
+  parameter: 'page_size'
+  message: "Page size is invalid."
+
+invalid_user_id:
+  parameter: 'user_id'
+  message: "user id is invalid."
+
+user_not_present:
+  parameter: 'user'
+  message: "user is not present."
+
+user_present:
+  parameter: 'user'
+  message: "user is already present."
+
+invalid_email:
+  parameter: 'email'
+  message: "email is invalid."
+
+token_sale_ended:
+  parameter: 'token_sale'
+  message: "You can not add user as token sale ended."
+

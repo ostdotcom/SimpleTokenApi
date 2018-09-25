@@ -81,11 +81,17 @@ module UserManagement::Users
     # Sets sorting_by, offset, allowed_filters
     #
     def validate_and_sanitize_params
+      error_codes = []
+
+      error_codes << 'invalid_order' if GlobalConstant::User.sorting['sort_by'].keys.exclude?(@order)
+      error_codes << 'invalid_page_number' unless Util::CommonValidateAndSanitize.is_integer?(@page_number)
+      error_codes << 'invalid_page_size' unless Util::CommonValidateAndSanitize.is_integer?(@page_size)
 
       return error_with_identifier('invalid_api_params',
-                             's_sm_u_i_vp_1',
-                             ['invalid_order']
-      ) unless GlobalConstant::User.sorting['sort_by'].keys.include?(@order)
+                                   'um_u_l_vasp_1',
+                                   error_codes
+      ) if error_codes.present?
+
       @sorting_by = {sort_by: @order}
 
       GlobalConstant::User.allowed_filter.each do |filter|
@@ -94,11 +100,6 @@ module UserManagement::Users
         end
       end
 
-      return error_with_data('s_sm_u_i_vp_1',
-                             'Wrong value for key',
-                             'Value for key page_size or page_number is wrong',
-                             GlobalConstant::ErrorAction.default,{}
-      )unless (Util::CommonValidateAndSanitize.is_integer?(@page_size) & Util::CommonValidateAndSanitize.is_integer?(@page_number))
       @page_size, @page_number = @page_size.to_i, @page_number.to_i
 
       page_size_data = GlobalConstant::PageSize.user_list

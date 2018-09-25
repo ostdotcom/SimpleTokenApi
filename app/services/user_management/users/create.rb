@@ -53,10 +53,8 @@ module UserManagement
       #
       # @return [Result::Base]
       #
-      # Sets @parsed_request_time, @url_path, @request_parameters
       #
       def validate_and_sanitize
-
         r = validate
         return r unless r.success?
 
@@ -82,13 +80,9 @@ module UserManagement
       # * Reviewed By:
       #
       def validate_email
-        return error_with_data(
-            'um_u_c_ve_1',
-            'Please enter a valid email address',
-            'Please enter a valid email address',
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
+        return error_with_identifier('invalid_email',
+                                     'um_u_c_ve_1',
+                                     ['invalid_email']
         ) unless Util::CommonValidator.is_valid_email?(@email)
 
         success
@@ -103,14 +97,10 @@ module UserManagement
       def add_user_allowed?
         client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
-        return error_with_data(
-            'um_u_c_aua_1',
-            'Can not add user',
-            'You can not add user as token sale ended',
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
-        ) unless (client_token_sale_detail.present? && !client_token_sale_detail.has_token_sale_ended?)
+        return error_with_identifier('could_not_proceed',
+                                     'um_u_c_aua_1',
+                                     ['token_sale_ended']
+        )unless (client_token_sale_detail.present? && client_token_sale_detail.is_token_sale_live?)
 
         success
       end
@@ -121,16 +111,14 @@ module UserManagement
       # * Date: 20/09/2018
       # * Reviewed By:
       #
+      # Sets user
+      #
       def fetch_and_validate_user
         @user = User.where(client_id: @client_id, email: @email).first
 
-        return error_with_data(
-            'um_u_c_ve_2',
-            'User alerady present',
-            "User with email #{@email} is already present",
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
+        return error_with_identifier( 'could_not_proceed',
+                                      'um_u_c_ve_2',
+                                      ['user_present']
         )if @user.present?
 
         success

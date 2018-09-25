@@ -69,7 +69,7 @@ class ApplicationController < ActionController::API
   def render_api_response(service_response)
     # calling to_json of Result::Base
     response_hash = service_response.to_json
-    response_hash = reformat_response_for_web(response_hash)
+    response_hash = reformat_as_old_response(response_hash)
     http_status_code = response_hash.delete(:http_code)
 
     if !service_response.success?# && !Rails.env.development?
@@ -95,22 +95,23 @@ class ApplicationController < ActionController::API
   # * Date: 18/09/2018
   # * Reviewed By:
   #
-  def reformat_response_for_web(response_hash)
+  def reformat_as_old_response(response_hash)
     # If request is from web then reformat data as per FE requirements
     # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
-    unless params[:controller].match('rest_api/saas_api')
-      if response_hash[:err].present?
-        err = response_hash.delete(:err) || {}
-        response_hash[:err] = {
-            display_text: err[:msg].to_s,
-            display_heading: "Error",
-            error_data: (err[:error_data] || {}),
-            code: err[:internal_id]
-        }
-      end
-      response_hash[:http_code] = GlobalConstant::ErrorCode.ok if
-          GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
+    if response_hash[:err].present?
+      err = response_hash.delete(:err) || {}
+      err_data = {}
+      puts err[:error_data].inspect
+      err[:error_data].each{|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
+      response_hash[:err] = {
+          display_text: err[:msg].to_s,
+          display_heading: "Error",
+          error_data: err_data,
+          code: err[:internal_id]
+      }
     end
+    response_hash[:http_code] = GlobalConstant::ErrorCode.ok if
+        GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
     response_hash
   end
 

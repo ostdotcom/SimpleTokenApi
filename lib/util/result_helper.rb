@@ -71,16 +71,16 @@ module Util
     #
     # @param [String] api_error_code (mandatory) - Error code for sending Api response
     # @param [String] internal_code (mandatory) - Internal error code
-    # @param [Array] error_data (Optional) - Group of error codes to send in Api response
+    # @param [Array] params_error_identifiers (Optional) - Group of error codes to send in Api response
     #
     # @return [Result::Base]
     #
-    def error_with_identifier(api_error_code, internal_code, error_data = [])
+    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [])
       Result::Base.error(
           {
               api_error_code: api_error_code,
               error: internal_code,
-              error_data: error_data
+              params_error_identifiers: params_error_identifiers
           }
       )
     end
@@ -97,18 +97,16 @@ module Util
     # @param [String] display_text (mandatory) - display text
     # @param [String] action (mandatory) - action
     # @param [Hash] data (mandatory) - error data
-    # @param [String] display_heading (Optional) - display heading
     #
     # @return [Result::Base]
     #
-    def exception_with_data(e, code, message, display_text, action, data, display_heading = 'Error')
+    def exception_with_data(e, code, message, display_text, action, data)
       Result::Base.exception(
         e, {
         error: code,
         error_message: message,
         error_action: action,
         error_display_text: display_text,
-        error_display_heading: display_heading,
         data: data
       })
     end

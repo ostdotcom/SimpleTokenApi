@@ -41,7 +41,8 @@ module Result
                   :data,
                   :exception,
                   :http_code,
-                  :api_error_code
+                  :api_error_code,
+                  :params_error_identifiers
 
     # Initialize
     #
@@ -85,6 +86,7 @@ module Result
       @error_action = params[:error_action] if params.key?(:error_action)
       @error_display_text = params[:error_display_text] if params.key?(:error_display_text)
       @api_error_code = params[:api_error_code] if params.key?(:api_error_code)
+      @params_error_identifiers = params[:params_error_identifiers] if params.key?(:params_error_identifiers)
     end
 
     # Set Message
@@ -169,7 +171,8 @@ module Result
         @error_data.present? ||
         @error_display_text.present? ||
         @error_action.present? ||
-        @exception.present?
+        @exception.present? ||
+        @params_error_identifiers.present?
     end
 
     # Exception message
@@ -394,18 +397,22 @@ module Result
     # * Reviewed By:
     #
     def format_error_data
-      return nil if error_data.blank?
+      return nil if error_data.blank? && params_error_identifiers.blank?
 
-      if error_data.is_a?(Array)
-        new_error_data = []
-        error_data.each do |ed|
+      new_error_data = []
+      if params_error_identifiers.present?
+        params_error_identifiers.each do |ed|
           ec = fetch_api_params_error_config(ed)
           new_error_data << {parameter: ec["parameter"], msg: ec["message"]} if ec.present?
         end
-        new_error_data
-      elsif error_data.is_a?(Hash)
-        error_data
       end
+      if error_data.present?
+        error_data.each do |k, v|
+          new_error_data << {parameter: k, msg: v}
+        end
+      end
+
+      new_error_data
     end
 
     # Fetch Api error config

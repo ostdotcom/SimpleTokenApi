@@ -116,6 +116,7 @@ Rails.application.routes.draw do
       match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
       match 'update-sale-setting' => :update_sale_setting, via: :POST
       match 'update-country-setting' => :update_country_setting, via: :POST
+      match 'reset-client-api-credentials' => :reset_client_api_credentials, via: :POST
     end
 
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do

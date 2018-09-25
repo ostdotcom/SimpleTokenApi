@@ -1,0 +1,110 @@
+module ClientManagement
+  class ResetClientApiCredentials < ServicesBase
+
+    # Initialize
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    # @param [Integer] client_id (mandatory) -  client id
+    # @param [Integer] admin_id (mandatory) -  admin id
+    #
+    # @return [ClientManagement::ResetClientApiCredentials]
+    #
+    def initialize(params)
+      super
+
+      @client_id = @params[:client_id]
+      @admin_id = @params[:admin_id]
+    end
+
+    # Perform
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def perform
+
+      r = validate_and_sanitize
+      return r unless r.success?
+
+      r = reset_client_api_credentials
+      return r unless r.success?
+
+      success
+    end
+
+
+    # private
+
+    # Validate And Sanitize
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    #
+    def validate_and_sanitize
+      r = validate
+      return r unless r.success?
+
+      r = validate_client_and_admin
+      return r unless r.success?
+
+      success
+    end
+
+    # Client and Admin validate
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    # sets @admin, @client
+    #
+    def validate_client_and_admin
+      r = fetch_and_validate_client
+      return r unless r.success?
+
+      r = fetch_and_validate_admin
+      return r unless r.success?
+
+      success
+    end
+
+    # Reset Client Api Credentials
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    # sets @client
+    #
+    def reset_client_api_credentials
+      #get cmk key and text
+      kms_login_client = Aws::Kms.new('saas', 'saas')
+      resp = kms_login_client.generate_data_key
+      return resp unless resp.success?
+
+      api_salt_d = resp.data[:plaintext]
+
+      client_api_secret_d = SecureRandom.hex
+
+      r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
+      return r unless r.success?
+
+      api_secret_e = r.data[:ciphertext_blob]
+      api_key = SecureRandom.hex
+
+      @client.api_key = api_key
+      @client.api_secret = api_secret_e
+      @client.save if @client.changed?
+      success
+    end
+
+  end
+end

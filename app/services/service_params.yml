@@ -503,6 +503,12 @@
      - :client_id
   :optional:
 
+'ClientManagement::ResetClientApiCredentials':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id

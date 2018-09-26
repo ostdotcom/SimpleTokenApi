@@ -35,7 +35,7 @@ module ClientManagement
       r = reset_client_api_credentials
       return r unless r.success?
 
-      success
+      success_with_data(success_response_data)
     end
 
 
@@ -105,6 +105,21 @@ module ClientManagement
       @client.api_secret = api_secret_e
       @client.save!
       success
+    end
+
+    # Api response data
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    # returns [Hash] api response data
+    #
+    def success_response_data
+      {
+          api_key: @client.api_key,
+          api_secret: @client.api_secret
+      }
     end
 
   end

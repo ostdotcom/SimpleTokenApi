@@ -114,12 +114,13 @@ module ClientManagement
         mark_previous_kyc_detail_api_activation_row_as_inactive
       else
         if @client_kyc_detail_api_activations.present?
-          return if (@set_allowed_keys - @client_kyc_detail_api_activations.allowed_keys_array).blank?
+          return if (@set_allowed_keys - @client_kyc_detail_api_activations.allowed_keys_array).blank? &&
+              (@client_kyc_detail_api_activations.allowed_keys_array - @set_allowed_keys).blank?
           mark_previous_kyc_detail_api_activation_row_as_inactive
         end
 
         ckda_obj = ClientKycDetailApiActivation.new(client_id: @client_id,
-                                                    allowed_key: 0,
+                                                    allowed_keys: 0,
                                                     status: GlobalConstant::ClientKycDetailApiActivation.active_status)
 
         @set_allowed_keys.each do |allowed_key|

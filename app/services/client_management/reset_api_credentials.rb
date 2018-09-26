@@ -17,6 +17,8 @@ module ClientManagement
 
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
+
+      @client_api_secret_d = nil
     end
 
     # Perform
@@ -82,7 +84,7 @@ module ClientManagement
     # * Date: 27/08/2018
     # * Reviewed By:
     #
-    # sets @client
+    # sets  @client_api_secret_d
     #
     # @return [Result::Base]
     #
@@ -93,9 +95,9 @@ module ClientManagement
 
       api_salt_d = r.data[:plaintext]
 
-      client_api_secret_d = SecureRandom.hex
+      @client_api_secret_d = SecureRandom.hex
 
-      r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
+      r = LocalCipher.new(api_salt_d).encrypt(@client_api_secret_d)
       return r unless r.success?
 
       api_secret_e = r.data[:ciphertext_blob]
@@ -118,7 +120,7 @@ module ClientManagement
     def success_response_data
       {
           api_key: @client.api_key,
-          api_secret: @client.api_secret
+          api_secret: @client_api_secret_d
       }
     end
 

@@ -126,6 +126,7 @@ module ClientManagement
       # returns [Hash] api response data
       #
       def success_response_data
+        selected_api_fields = @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.allowed_keys_array : []
         {
             api_key: @client.api_key,
             api_secret: @api_secret_d,

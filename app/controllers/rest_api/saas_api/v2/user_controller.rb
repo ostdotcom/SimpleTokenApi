@@ -49,7 +49,7 @@ class RestApi::SaasApi::V2::UserController < RestApi::SaasApi::V2::BaseControlle
   #
   def format_response(service_response)
     formatted_response = service_response
-    puts "Inside : format_response"
+    puts "Inside : format_response : #{service_response.inspect}"
 
     if service_response.success?
       case params['action'].to_sym

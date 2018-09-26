@@ -15,10 +15,6 @@ module GlobalConstant
       @aws ||= fetch_config.fetch('aws', {}).with_indifferent_access
     end
 
-    def self.cynopsis
-      @cynopsis ||= fetch_config.fetch('cynopsis', {}).with_indifferent_access
-    end
-
     def self.pepo_campaigns_config
       @pepo_campaigns_config ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
     end

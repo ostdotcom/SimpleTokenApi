@@ -484,6 +484,8 @@
      - :sale_start_timestamp
      - :sale_end_timestamp
   :optional:
+     - :has_registration_setting
+     - :registration_end_timestamp
 
 'ClientManagement::GetSaleSetting':
   :mandatory:

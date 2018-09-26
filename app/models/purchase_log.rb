@@ -62,8 +62,7 @@ class PurchaseLog < EstablishSimpleTokenContractInteractionsDbConnection
             total_eth_raised: total_eth_raised,
             total_usd_value: total_usd_value.round(2),
             total_unique_purchasers: total_unique_purchasers,
-            sale_ended_before_time: SaleGlobalVariable.sale_ended_flag,
-            token_sale_active_status: GlobalConstant::TokenSale.st_token_sale_active_status
+            sale_ended_before_time: SaleGlobalVariable.sale_ended_flag
         }
     }
   end

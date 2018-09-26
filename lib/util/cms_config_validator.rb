@@ -1,7 +1,7 @@
 module Util
   class CmsConfigValidator
 
-    COLOR_MATCH_REGEX = /^(rgb)\((([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5]),\s*){2}([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\)$/i
+    COLOR_MATCH_REGEX = /\A(rgb)\((([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5]),\s*){2}([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\)\z/i
 
     class << self
 
@@ -33,8 +33,11 @@ module Util
         return r if !r.success?
         number_text = r.data[:sanitized_val]
 
-        success_with_data(sanitized_val: number_text.to_i) if Integer(number_text)
-      rescue error_result_obj("Invalid number passed.")
+        if Util::CommonValidateAndSanitize.is_integer?(number_text)
+          success_with_data(sanitized_val: number_text.to_i)
+        else
+          error_result_obj("Invalid number passed.")
+        end
       end
 
       # Validate text
@@ -85,8 +88,8 @@ module Util
                 'a' => ['href', 'target', 'rel', 'title'],
                 'span' => ['style']
             },
-            :protocols =>{
-                'a'   => {'href' => ['http', 'https']}
+            :protocols => {
+                'a' => {'href' => ['http', 'https']}
             },
             :add_attributes => {
                 'a' => {'rel' => 'nofollow'}

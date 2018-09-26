@@ -103,3 +103,12 @@ customization:
   group_entities:
         key_template: 'group_entities_%{entity_group_id}'
         expiry_in_seconds: 86400
+
+billing:
+  client_plan:
+    key_template: 'client_plan_%{client_id}'
+    expiry_in_seconds: 86400
+
+  client_usage:
+    key_template: 'client_usage_%{client_id}'
+    expiry_in_seconds: 86400

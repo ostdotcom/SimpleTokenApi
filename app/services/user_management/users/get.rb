@@ -71,27 +71,19 @@ module UserManagement
       # Sets user
       #
       def fetch_and_validate_user
-        return error_with_data(
-            'um_u_g_favu_1',
-            'Value for key is wrong',
-            "Value for key id is wrong",
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
+
+        return error_with_identifier('invalid_api_params',
+                                     'um_u_g_favu_1',
+                                     ['invalid_user_id']
         )unless Util::CommonValidateAndSanitize.is_integer?(@user_id)
         @user_id = @user_id.to_i
 
         @user = User.get_from_memcache(@user_id)
-        puts "@user : #{@user.inspect}"
-        return error_with_data(
-            'um_u_g_favu_2',
-            'User is not present',
-            "User is not present",
-            GlobalConstant::ErrorAction.default,
-            {},
-            {}
-        )unless (@user.present? && @user.status == GlobalConstant::User.active_status && @user.client_id.to_i == @client_id)
-
+        return error_with_identifier('resource_not_found',
+                                     'um_u_g_favu_2',
+                                     ['user_not_present']
+        )if (@user.blank? || (@user.present? &&
+            (@user.status != GlobalConstant::User.active_status || @user.client_id.to_i != @client_id)))
 
         success
       end

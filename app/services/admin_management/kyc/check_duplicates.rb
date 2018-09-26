@@ -215,6 +215,7 @@ module AdminManagement
         new_duplicate_user_ids.uniq!
 
         @dup_user_kyc_detail_objects = UserKycDetail.where(client_id: @client_id,
+                                                           status: GlobalConstant::UserKycDetail.active_status,
                                                            user_id: new_duplicate_user_ids).select(:user_id, :user_extended_detail_id).all.index_by(&:user_id)
       end
 
@@ -281,6 +282,7 @@ module AdminManagement
         if @new_duplicate_user_ids.present?
           @new_duplicate_user_ids << @user_id
           UserKycDetail.where(client_id: @client_id, user_id: @new_duplicate_user_ids).
+              where.not(kyc_duplicate_status: GlobalConstant::UserKycDetail.is_kyc_duplicate_status).
               update_all(
                   kyc_duplicate_status: GlobalConstant::UserKycDetail.is_kyc_duplicate_status,
                   updated_at: current_time
@@ -311,12 +313,17 @@ module AdminManagement
         # fetch as user2
         duplicate_email_user_ids += UserEmailDuplicationLog.where(user2_id: @user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
 
-        duplicate_email_user_ids_with_kyc_done = UserKycDetail.where(client_id: @client_id, user_id: duplicate_email_user_ids).pluck(:user_id)
+        duplicate_email_user_ids_with_kyc_done = UserKycDetail.where(client_id: @client_id,
+                                                                     status: GlobalConstant::UserKycDetail.active_status,
+                                                                     user_id: duplicate_email_user_ids).pluck(:user_id)
 
         duplicate_email_user_ids_with_kyc_done << @user_id if duplicate_email_user_ids_with_kyc_done.present?
 
         if duplicate_email_user_ids_with_kyc_done.present?
-          UserKycDetail.where(client_id: @client_id, user_id: duplicate_email_user_ids_with_kyc_done, email_duplicate_status: GlobalConstant::UserKycDetail.no_email_duplicate_status).
+          UserKycDetail.where(client_id: @client_id,
+                              status: GlobalConstant::UserKycDetail.active_status,
+                              user_id: duplicate_email_user_ids_with_kyc_done,
+                              email_duplicate_status: GlobalConstant::UserKycDetail.no_email_duplicate_status).
               update_all(
                   email_duplicate_status: GlobalConstant::UserKycDetail.yes_email_duplicate_status,
                   updated_at: current_time

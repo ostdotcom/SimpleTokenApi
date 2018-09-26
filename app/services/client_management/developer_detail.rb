@@ -130,7 +130,7 @@ module ClientManagement
         {
             api_key: @client.api_key,
             api_secret: @api_secret_d,
-            selected_api_fields: selected_api_fields,
+            selected_api_fields: @client_kyc_detail_api_activations.allowed_keys_array,
             applicable_api_fields: @client_kyc_config_detail.kyc_fields_array
         }
       end

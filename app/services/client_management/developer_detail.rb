@@ -8,8 +8,8 @@ module ClientManagement
       # * Date: 02/07/2018
       # * Reviewed By:
       #
-      # @param [Integer] admin_id (mandatory) -  admin id
       # @param [Integer] client_id (mandatory) -  client id
+      # @param [Integer] admin_id (mandatory) -  admin id
       #
       # @return [ClientManagement::DeveloperDetail]
       #
@@ -21,7 +21,6 @@ module ClientManagement
 
         @client = nil
         @api_secret_d = nil
-        @client_cynopsyis = nil
       end
 
       # Perform
@@ -37,7 +36,8 @@ module ClientManagement
         return r unless r.success?
 
         fetch_api_keys
-        fetch_client_cynopsis
+        fetch_client_kyc_config_detail
+        fetch_active_client_kyc_detail_api_activations
 
         success_with_data(success_response_data)
       end
@@ -93,16 +93,28 @@ module ClientManagement
         @api_secret_d = LocalCipher.new(api_salt_d).decrypt(@client.api_secret).data[:plaintext]
       end
 
-      # Fetch Client Cynopsis
+      # Fetch Client Kyc Config Detail
       #
       # * Author: Aniket
       # * Date: 02/07/2018
       # * Reviewed By: Aman
       #
-      # Sets @client_cynopsis
+      # Sets @client_kyc_config_detail
       #
-      def fetch_client_cynopsis
-        @client_cynopsis = ClientCynopsisDetail.get_from_memcache(@client_id)
+      def fetch_client_kyc_config_detail
+        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+      end
+
+      # Fetch Client Kyc Detail Api Activations
+      #
+      # * Author: Aniket
+      # * Date: 02/07/2018
+      # * Reviewed By: Aman
+      #
+      # Sets @client_kyc_detail_api_activations
+      #
+      def fetch_active_client_kyc_detail_api_activations
+        @client_kyc_detail_api_activations = ClientKycDetailApiActivation.get_last_active_from_memcache(@client_id)
       end
 
       # Api response data
@@ -117,8 +129,8 @@ module ClientManagement
         {
             api_key: @client.api_key,
             api_secret: @api_secret_d,
-            aml_login_url: @client_cynopsis.base_url,
-            aml_username: @client_cynopsis.email_id
+            selected_api_fields: @client_kyc_detail_api_activations.allowed_keys_array,
+            applicable_api_fields: @client_kyc_config_detail.kyc_fields_array
         }
       end
 

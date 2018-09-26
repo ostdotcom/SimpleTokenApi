@@ -1,5 +1,5 @@
 module ClientManagement
-  class ResetClientApiCredentials < ServicesBase
+  class ResetApiCredentials < ServicesBase
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module ClientManagement
     # @param [Integer] client_id (mandatory) -  client id
     # @param [Integer] admin_id (mandatory) -  admin id
     #
-    # @return [ClientManagement::ResetClientApiCredentials]
+    # @return [ClientManagement::ResetApiCredentials]
     #
     def initialize(params)
       super
@@ -84,13 +84,14 @@ module ClientManagement
     #
     # sets @client
     #
+    # @return [Result::Base]
+    #
     def reset_client_api_credentials
-      #get cmk key and text
-      kms_login_client = Aws::Kms.new('saas', 'saas')
-      resp = kms_login_client.generate_data_key
-      return resp unless resp.success?
 
-      api_salt_d = resp.data[:plaintext]
+      r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+      return r unless r.success?
+
+      api_salt_d = r.data[:plaintext]
 
       client_api_secret_d = SecureRandom.hex
 
@@ -102,7 +103,7 @@ module ClientManagement
 
       @client.api_key = api_key
       @client.api_secret = api_secret_e
-      @client.save if @client.changed?
+      @client.save!
       success
     end
 

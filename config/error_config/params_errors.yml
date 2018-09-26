@@ -5,3 +5,7 @@ invalid_order:
 invalid_page_number:
   parameter: 'page_number'
   message: "Page number is invalid."
+
+invalid_allowed_keys:
+  parameter: 'set_allowed_keys'
+  message: "Invalid field selected."

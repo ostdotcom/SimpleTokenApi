@@ -12,17 +12,6 @@ class Web::Admin::ClientController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # get Developer Detail
-  #
-  # * Author: Aniket
-  # * Date: 02/07/2018
-  # * Reviewed By:
-  #
-  def get_developer_detail
-    service_response = ClientManagement::DeveloperDetail.new(params).perform
-    render_api_response(service_response)
-  end
-
   # get Auto Approve Setting
   #
   # * Author: Aniket/Tejas

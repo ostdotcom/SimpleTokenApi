@@ -112,15 +112,6 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Reset Client Api Credentials
-  #
-  # * Author: Tejas
-  # * Date: 27/08/2018
-  # * Reviewed By:
-  #
-  def reset_client_api_credentials
-    service_response = ClientManagement::ResetClientApiCredentials.new(params).perform
-    render_api_response(service_response)
-  end
+
 
 end

@@ -503,7 +503,20 @@
      - :client_id
   :optional:
 
-'ClientManagement::ResetClientApiCredentials':
+'ClientManagement::ResetApiCredentials':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
+'ClientManagement::UpdateApiFields':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :set_allowed_keys
+  :optional:
+
+'ClientManagement::GetAmlDetail':
   :mandatory:
      - :client_id
      - :admin_id
@@ -697,6 +710,18 @@
     - :order
 
 'UserManagement::Users::Get':
+  :mandatory:
+    - :client_id
+    - :id
+  :optional:
+
+'UserManagement::Kyc::Get':
+  :mandatory:
+    - :client_id
+    - :id
+  :optional:
+
+'UserManagement::UserKyc::Get':
   :mandatory:
     - :client_id
     - :id

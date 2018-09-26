@@ -64,7 +64,6 @@ Rails.application.routes.draw do
 
     scope 'api/admin/client', controller: 'web/admin/client' do
       match 'profile' => :get_profile_detail, via: :GET
-      match 'developer-details' => :get_developer_detail, via: :GET
       match 'auto-approve-setting' => :get_auto_approve_setting, via: :GET
       match 'get-sale-setting' => :get_sale_setting, via: :GET
       match 'get-country-setting' => :get_country_setting, via: :GET
@@ -116,7 +115,13 @@ Rails.application.routes.draw do
       match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
       match 'update-sale-setting' => :update_sale_setting, via: :POST
       match 'update-country-setting' => :update_country_setting, via: :POST
-      match 'reset-client-api-credentials' => :reset_client_api_credentials, via: :POST
+    end
+
+    scope 'api/admin/setting', controller: 'web/admin/setting' do
+      match 'reset-api-credentials' => :reset_api_credentials, via: :POST
+      match 'update-api-fields' => :update_api_fields, via: :POST
+      match 'aml-details' => :get_aml_detail, via: :GET
+      match 'developer-details' => :get_developer_detail, via: :GET
     end
 
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do

@@ -30,6 +30,8 @@ class User < EstablishSimpleTokenUserDbConnection
       end
     end
 
+    return if where_clause.blank?
+
     ar = self
     where_clause.each do |clause|
       ar = ar.where(clause)

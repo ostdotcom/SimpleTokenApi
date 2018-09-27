@@ -396,6 +396,12 @@ module Result
         error_response[:http_code] = error_config["http_code"].to_i
       end
 
+      # if error http code should not be 200? change to 422
+      if error_response[:http_code] == GlobalConstant::ErrorCode.ok
+        error_response[:http_code] = error_response[:err][:error_data].present? ?
+                                         GlobalConstant::ErrorCode.invalid_request_parameters : GlobalConstant::ErrorCode.unprocessable_entity
+      end
+
       error_response
     end
 

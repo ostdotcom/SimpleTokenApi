@@ -29,7 +29,7 @@ class RestApi::SaasApi::V2::UsersKycDetailsController < RestApi::SaasApi::V2::Ba
     puts "Inside : format_response"
 
     if service_response.success?
-      formatted_response = Formatter::V2::KycDetail.send(params['action'], service_response)
+      formatted_response = Formatter::V2::UsersKycDetail.send(params['action'], service_response)
     end
 
     puts "Final formatted response : #{formatted_response.inspect}"

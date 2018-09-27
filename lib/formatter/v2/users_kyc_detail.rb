@@ -1,6 +1,6 @@
 module Formatter
   module V2
-    class KycDetail
+    class UsersKycDetail
       class << self
 
         # Format kyc detail

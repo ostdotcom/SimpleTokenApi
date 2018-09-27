@@ -1,9 +1,9 @@
 scope module: :v2 do
-  resources :user, path: 'users', only: [:index, :create, :show] do
+  resources :users, path: 'users', only: [:index, :create, :show] do
 
   end
 
-  resources :users_kyc, path: 'users-kyc', only: [:index, :show] do
+  resources :users_kyc, path: 'users-kyc', only: [:index, :show], param: :user_id do
     post '/', action: :submit
 
     get 'pre-signed-urls/for-put', action: :get_pre_singed_url_for_put, on: :collection

@@ -104,7 +104,8 @@ module UserManagement
 
         return error_with_identifier('resource_not_found',
                                      'um_kd_g_fukd_1'
-        ) if @user_kyc_detail.blank? || @user_kyc_detail.status != GlobalConstant::UserKycDetail.active_status
+        ) if (@user_kyc_detail.blank? || (@user_kyc_detail.status != GlobalConstant::UserKycDetail.active_status) ||
+            (@user_kyc_detail.client_id != @client_id))
 
         success
       end

@@ -1,4 +1,4 @@
-class RestApi::SaasApi::V2::UserController < RestApi::SaasApi::V2::BaseController
+class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseController
 
   before_action :authenticate_request, only: [:create]
 

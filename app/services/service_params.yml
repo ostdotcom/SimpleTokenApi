@@ -709,7 +709,7 @@
 'UserManagement::Kyc::Get':
   :mandatory:
     - :client_id
-    - :id
+    - :user_id
   :optional:
 
 'UserManagement::KycDetail::Get':

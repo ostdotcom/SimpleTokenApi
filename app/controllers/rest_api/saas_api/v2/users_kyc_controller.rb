@@ -1,5 +1,11 @@
 class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseController
 
+  before_action :authenticate_request, only: [:submit]
+
+  before_action except: [:submit] do
+    authenticate_request(true)
+  end
+
   # Get list of user kyc by pagination
   #
   # * Author: Aniket
@@ -18,6 +24,8 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   #
   def show
     puts "inside UsersKycController : show"
+    service_response = UserManagement::Kyc::Get.new(params).perform
+    format_response(service_response)
   end
 
   # Create/Update user kyc for user_id
@@ -69,5 +77,4 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
     puts "Final formatted response : #{formatted_response.inspect}"
     render_api_response(formatted_response)
   end
-
 end

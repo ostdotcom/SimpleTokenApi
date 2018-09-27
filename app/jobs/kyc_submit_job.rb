@@ -13,9 +13,10 @@ class KycSubmitJob < ApplicationJob
   def perform(params)
     init_params(params)
 
-    block_kyc_submit_job_hard_check
+    # do not process if kyc was resubmitted
+    return if @user_extended_detail_id != @user_kyc_detail.user_extended_detail_id
 
-    find_or_init_user_kyc_detail
+    block_kyc_submit_job_hard_check
 
     #  todo: "KYCaas-Changes"
     # create_email_service_api_call_hook
@@ -49,11 +50,14 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- init_params params: #{params.inspect}")
 
     @user_id = params[:user_id]
+    @user_extended_detail_id = params[:user_extended_detail_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]
 
     @user = User.find(@user_id)
-    @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
+    @user_extended_detail = UserExtendedDetail.find(@user_extended_detail_id)
+    @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+
     Rails.logger.info("-- init_params @user_extended_detail: #{@user_extended_detail.id}")
 
     @cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
@@ -72,15 +76,8 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def block_kyc_submit_job_hard_check
-    # Double optin is required
-    #  todo: "KYCaas-Changes"
-    # if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
-    #   fail "Double optin not yet done by user id: #{@user_id}."
-    # end
 
-    # Check if user KYC is already approved
-    user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
-    if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
+    if (@user_kyc_detail.kyc_approved? || @user_kyc_detail.kyc_denied?)
       fail "KYC is already approved for user id: #{@user_id}."
     end
 
@@ -91,59 +88,7 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info('-- block_kyc_submit_job_hard_check done')
   end
 
-  # Find or init user kyc detail
-  #
-  # * Author: Kedar
-  # * Date: 13/10/2017
-  # * Reviewed By: Sunil
-  #
-  # Sets @user_kyc_detail
-  #
-  def find_or_init_user_kyc_detail
-    @user_kyc_detail = UserKycDetail.find_or_initialize_by(user_id: @user_id)
 
-    # don't override the data if user kyc details id is same
-    return if @user_kyc_detail.user_extended_detail_id.to_i == @user_extended_detail.id
-
-    Rails.logger.info('-- find_or_init_user_kyc_detail')
-
-    # Update records
-    if @user_kyc_detail.new_record?
-      @user_kyc_detail.client_id = @user.client_id
-      # KYC_confirmed_at for now holds data When whitelist is confirmed for ethereum address
-      # TODO: Removed population of data from here.
-      # @user_kyc_detail.kyc_confirmed_at = @action_timestamp
-      @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
-      @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
-      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-      @user_kyc_detail.submission_count = 0
-      #  todo: "KYCaas-Changes"
-      # if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
-      #   @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
-      #   @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
-      # end
-    end
-    @user_kyc_detail.qualify_types = 0
-    @user_kyc_detail.admin_action_types = 0
-    @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
-    @user_kyc_detail.submission_count += 1
-    @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
-    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
-    @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
-    @user_kyc_detail.last_reopened_at = nil
-    @user_kyc_detail.save!
-  end
-
-  # Token Sale phase for user
-  #
-  # * Author: Aman
-  # * Date: 15/11/2017
-  # * Reviewed By: Sunil
-  #
-  def token_sale_participation_phase_for_user
-    #  todo: "KYCaas-Changes"
-    @token_sale_participation_phase_for_user ||= GlobalConstant::TokenSale.early_access_token_sale_phase #GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
-  end
 
   #  todo: "KYCaas-Changes"
   # Find POS bonus for percentage
@@ -303,7 +248,7 @@ class KycSubmitJob < ApplicationJob
   def save_cynopsis_status
     Rails.logger.info('-- save_cynopsis_status')
     @user_kyc_detail.cynopsis_status = @cynopsis_status
-    @user_kyc_detail.save!
+    @user_kyc_detail.save! if @user_kyc_detail.changed?
   end
 
   # Upload documents to cynopsis

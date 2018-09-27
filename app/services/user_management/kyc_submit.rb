@@ -63,6 +63,8 @@ module UserManagement
       @user = nil
       @kyc_salt_d = nil
       @kyc_salt_e = nil
+      @user_kyc_detail = nil
+      @user_extended_detail = nil
 
       @error_data = {}
 
@@ -96,6 +98,9 @@ module UserManagement
       r = create_user_extended_details
       return r unless r.success?
       Rails.logger.info('---- create_user_extended_details done')
+
+      r = init_or_update_user_kyc_detail
+      return r unless r.success?
 
       r = update_user
       return r unless r.success?
@@ -180,10 +185,10 @@ module UserManagement
       ) if @client_token_sale_details.has_token_sale_ended?
 
       # Check if user KYC is already approved
-      user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
 
-      if user_kyc_detail.present?
-        return unauthorized_access_response('um_ks_2') if user_kyc_detail.client_id != @client_id
+      if @user_kyc_detail.present?
+        return unauthorized_access_response('um_ks_2') if @user_kyc_detail.client_id != @client_id
 
         return error_with_data(
             'um_ks_3',
@@ -192,7 +197,7 @@ module UserManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
+        ) if (@user_kyc_detail.kyc_approved? || @user_kyc_detail.kyc_denied?)
 
       end
       success
@@ -503,6 +508,8 @@ module UserManagement
     # * Date: 10/10/2017
     # * Reviewed By: Kedar
     #
+    # sets @user_extended_detail
+    #
     def create_user_extended_details
 
       user_extended_details_params = {
@@ -558,7 +565,7 @@ module UserManagement
         md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.get_hashed_value(value)
       end
 
-      user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)
+      @user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)
 
       md5_user_extended_details_params.merge!(user_extended_detail_id: user_extended_detail.id)
 
@@ -575,6 +582,39 @@ module UserManagement
     #
     def encryptor_obj
       @encryptor_obj ||= LocalCipher.new(@kyc_salt_d)
+    end
+
+
+    # Update User Kyc Submitted Property
+    #
+    # * Author: Aman
+    # * Date: 13/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def init_or_update_user_kyc_detail
+
+      Rails.logger.info('-- find_or_init_user_kyc_detail')
+
+      # Update records
+      if @user_kyc_detail.blank?
+        @user_kyc_detail = UserKycDetail.new(user_id: @user_id)
+        @user_kyc_detail.client_id = @user.client_id
+        @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.early_access_token_sale_phase
+        @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
+        @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
+        @user_kyc_detail.submission_count = 0
+      end
+      @user_kyc_detail.qualify_types = 0
+      @user_kyc_detail.admin_action_types = 0
+      @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
+      @user_kyc_detail.submission_count += 1
+      @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
+      @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
+      @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
+      @user_kyc_detail.last_reopened_at = nil
+      @user_kyc_detail.save!
     end
 
     # Update User Kyc Submitted Property
@@ -626,6 +666,7 @@ module UserManagement
           KycSubmitJob,
           {
               user_id: @user_id,
+              user_extended_detail_id: @user_extended_detail.id,
               action: GlobalConstant::UserActivityLog.update_kyc_action,
               action_timestamp: Time.now.to_i
           }

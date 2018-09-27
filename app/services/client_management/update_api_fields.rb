@@ -121,7 +121,9 @@ module ClientManagement
 
         ckda_obj = ClientKycDetailApiActivation.new(client_id: @client_id,
                                                     allowed_keys: 0,
-                                                    status: GlobalConstant::ClientKycDetailApiActivation.active_status)
+                                                    status: GlobalConstant::ClientKycDetailApiActivation.active_status,
+                                                    created_by: @admin_id,
+                                                    updated_by: @admin_id)
 
         @set_allowed_keys.each do |allowed_key|
           ckda_obj.send("set_" + allowed_key)
@@ -140,6 +142,7 @@ module ClientManagement
     #
     def mark_previous_kyc_detail_api_activation_row_as_inactive
       @client_kyc_detail_api_activations.status = GlobalConstant::ClientKycDetailApiActivation.inactive_status
+      @client_kyc_detail_api_activations.updated_by = @admin_id
       @client_kyc_detail_api_activations.save!
     end
 

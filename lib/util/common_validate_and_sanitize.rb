@@ -66,7 +66,75 @@ module Util
     #  @return [Boolean] return true if object is integer
     #
     def self.is_integer?(object)
+      return false if object.is_a?(Float)
       true if Integer(object) rescue false
+    end
+
+    # check whether give object is integer and >=1
+    #
+    # * Author: Aniket
+    # * Date: 20/09/2018
+    # * Reviewed By:
+    #
+    #  @return [Boolean] return true if object is integer
+    #
+    def self.is_positive_integer?(object)
+      res = is_integer?(object)
+      res = false if res && object.to_i <= 0
+      res
+    end
+
+    # check whether give object is Hash or not
+    #
+    # * Author: Aniket
+    # * Date: 26/09/2018
+    # * Reviewed By:
+    #
+    #  @return [Boolean] return true if object is Hash
+    #
+    def self.is_hash?(object)
+      object.is_a?(Hash) || object.is_a?(ActionController::Parameters)
+    end
+
+    # check whether give object is Array or not
+    #
+    # * Author: Aniket
+    # * Date: 26/09/2018
+    # * Reviewed By:
+    #
+    # @param kind(optional): value should be either integer or hash or boolean
+    #
+    #  @return [Boolean] return true if object is Array
+    #
+    def self.is_array?(object, data_kind = nil)
+      object.is_a?(Array)
+
+      is_valid_data_kind = true
+      if data_kind
+        object.each do |ele|
+          case data_kind
+            when 'integer'
+              is_valid_data_kind = self.is_integer?(ele)
+            when 'hash'
+              is_valid_data_kind = self.is_hash?(ele)
+            when 'boolean'
+              is_valid_data_kind = self.is_boolean?(ele)
+            else
+              puts 'invalid data_kind passed.'
+              return is_valid_data_kind
+          end
+          break unless is_valid_data_kind
+        end
+      end
+      puts "here"
+      is_valid_data_kind
+    end
+
+    def self.is_boolean?(object)
+      object = true if object == 'true' || object == 1
+      object = false if object == 'false' || object == 0
+
+      object.is_a?(TrueClass) || object.is_a?(FalseClass)
     end
 
   end

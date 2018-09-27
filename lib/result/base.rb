@@ -31,6 +31,12 @@
 module Result
 
   class Base
+    # error: internal_code 'l_ev_qr_1'
+    # error_message:  error message (unused in final response ) 'something went wrong'
+    # error_display_text: general error message 'something went wrong'
+    # error_action: (unused in new final response)
+    # error_data: array of error for params '{param}'
+    # http_code:  standard http code '200/400/403/500/'
 
     attr_accessor :error,
                   :error_message,
@@ -144,7 +150,7 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     [:error?, :errors?, :failed?].each do |name|
-      define_method(name) { invalid? }
+      define_method(name) {invalid?}
     end
 
     # Define success method
@@ -154,7 +160,7 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     [:success?].each do |name|
-      define_method(name) { valid? }
+      define_method(name) {valid?}
     end
 
     # are errors present?
@@ -167,12 +173,13 @@ module Result
     #
     def errors_present?
       @error.present? ||
-        @error_message.present? ||
-        @error_data.present? ||
-        @error_display_text.present? ||
-        @error_action.present? ||
-        @exception.present? ||
-        @params_error_identifiers.present?
+          @error_message.present? ||
+          @error_data.present? ||
+          @error_display_text.present? ||
+          @error_action.present? ||
+          @exception.present? ||
+          @api_error_code ||
+          @params_error_identifiers.present?
     end
 
     # Exception message
@@ -206,7 +213,7 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     def [](key)
-        instance_variable_get("@#{key}")
+      instance_variable_get("@#{key}")
     end
 
     # Error
@@ -278,7 +285,9 @@ module Result
           error_message: nil,
           error_data: nil,
           error_action: nil,
-          error_display_text: nil
+          error_display_text: nil,
+          api_error_code: nil,
+          params_error_identifiers: []
       }
     end
 
@@ -370,14 +379,14 @@ module Result
     def build_error_response
       hash = self.to_hash
       error_response = {
-        success: false,
-        err: {
-          internal_id: hash[:error],
-          msg: hash[:error_display_text].to_s,
-          error_data: format_error_data
-        },
-        data: hash[:data],
-        http_code: http_code
+          success: false,
+          err: {
+              internal_id: hash[:error],
+              msg: hash[:error_display_text].to_s,
+              error_data: format_error_data
+          },
+          data: hash[:data],
+          http_code: http_code
       }
       error_config = @api_error_code.present? ? fetch_api_error_config(api_error_code) : {}
 
@@ -403,7 +412,7 @@ module Result
       if params_error_identifiers.present?
         params_error_identifiers.each do |ed|
           ec = fetch_api_params_error_config(ed)
-          new_error_data << {parameter: ec["parameter"], msg: ec["message"]} if ec.present?
+          new_error_data << {parameter: ec["parameter"], msg: ec["msg"]} if ec.present?
         end
       end
       if error_data.present?

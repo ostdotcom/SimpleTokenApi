@@ -9,8 +9,8 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
   # * Author: Aman
   # * Date: 27/12/2017
   # * Reviewed By:
-  #
-  def authenticate_request(allow_web_based_client=false)
+  #TODO: add check for forbidden request if client request is not allowed for web based.
+  def authenticate_request(allow_web_based_client = false)
     Rails.logger.info("allow_web_based_client-#{allow_web_based_client}")
 
     request_parameters = request.request_method == 'GET' ? request.query_parameters : request.request_parameters

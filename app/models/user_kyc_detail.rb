@@ -118,6 +118,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   # @returns [Array<Symbol>] returns Array of Qualify types bits set for user
   #
   def qualify_types_array
+    puts "qualify_types : #{qualify_types.inspect}"
     @admin_action_types_array = UserKycDetail.get_bits_set_for_qualify_types(qualify_types)
   end
 

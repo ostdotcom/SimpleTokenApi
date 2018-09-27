@@ -1,4 +1,4 @@
-class RestApi::SaasApi::V2::ValidatorController < ApplicationController#RestApi::SaasApi::V2::BaseController
+class RestApi::SaasApi::V2::ValidatorController < RestApi::SaasApi::V2::BaseController
 
   # Check if ethereum address is valid
   #

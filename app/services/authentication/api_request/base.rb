@@ -39,7 +39,7 @@ module Authentication::ApiRequest
     # * Reviewed By:
     #
     def request_time
-     fail 'request time funciton did not override'
+     fail 'request time function did not override'
     end
 
     # Get expiry window
@@ -49,7 +49,17 @@ module Authentication::ApiRequest
     # * Reviewed By:
     #
     def expiry_window
-      fail 'expiry_window funciton did not override'
+      fail 'expiry_window function did not override'
+    end
+
+    # Get url path
+    #
+    # * Author: Aniket
+    # * Date: 21/09/2018
+    # * Reviewed By:
+    #
+    def get_url_path
+      fail 'get_url_path function did not override'
     end
 
     # Perform
@@ -90,7 +100,7 @@ module Authentication::ApiRequest
       r = validate
       return r unless r.success?
 
-      @url_path = "#{@url_path}/"
+      @url_path = get_url_path
       @parsed_request_time = Time.at(@request_time.to_i)
 
       return invalid_credentials_response("um_vac_1") unless
@@ -117,6 +127,7 @@ module Authentication::ApiRequest
     #
     def fetch_client
       @client = Client.get_client_for_api_key_from_memcache(@api_key)
+      puts "fetch_client : #{@client.inspect}"
     end
 
     # Validate client and its signature
@@ -129,17 +140,22 @@ module Authentication::ApiRequest
     #
     def validate_client
 
-      return invalid_credentials_response('um_vac_2') unless @client.present? &&
-          @client.status == GlobalConstant::Client.active_status &&
-          (@allow_web_based_client || !@client.is_web_host_setup_done?)
+      return invalid_credentials_response('a_ar_b_vc_1') unless @client.present?
 
-      return invalid_credentials_response('um_vac_3') if @client.is_st_token_sale_client?
+      return error_with_identifier('invalid_client_id',
+                                   'a_ar_b_vc_2'
+      ) if @client.status != GlobalConstant::Client.active_status
+
+      return error_with_identifier('forbidden_api_request',
+                                   'a_ar_b_vc_3'
+      ) if (!@allow_web_based_client && @client.is_web_host_setup_done?) || @client.is_st_token_sale_client?
 
       r = decrypt_api_secret
 
-      return error_with_identifier('internal_server_error', 'um_vac_4') unless r.success?
+      return error_with_identifier('internal_server_error', 'a_ar_b_vc_4') unless r.success?
 
-      return invalid_credentials_response('um_vac_5') unless generate_signature == @signature
+      # Note: internal code for this error is same for client not present
+      return invalid_credentials_response('a_ar_b_vc_1') unless generate_signature == @signature
 
       success
     end
@@ -155,6 +171,7 @@ module Authentication::ApiRequest
     def generate_signature
       digest = OpenSSL::Digest.new('sha256')
       string_to_sign = "#{@url_path}?#{sorted_parameters_query}"
+      puts " 1: #{string_to_sign}"
       OpenSSL::HMAC.hexdigest(digest, @api_secret_d, string_to_sign)
     end
 
@@ -208,8 +225,8 @@ module Authentication::ApiRequest
     #
     # @return [Result::Base]
     #
-    def invalid_credentials_response(err)
-      error_with_identifier('invalid_or_expired_token', err)
+    def invalid_credentials_response(internal_code)
+      error_with_identifier('invalid_or_expired_token', internal_code)
     end
 
   end

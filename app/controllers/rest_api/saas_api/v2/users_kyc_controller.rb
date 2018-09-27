@@ -1,4 +1,4 @@
-class RestApi::SaasApi::V2::UsersKycController < ApplicationController#RestApi::SaasApi::V2::BaseController
+class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseController
 
   # Get list of user kyc by pagination
   #
@@ -28,7 +28,6 @@ class RestApi::SaasApi::V2::UsersKycController < ApplicationController#RestApi::
   #
   def submit
     puts "inside UsersKycController : submit"
-
   end
 
   # Get pre_signed url for S3 put
@@ -38,8 +37,6 @@ class RestApi::SaasApi::V2::UsersKycController < ApplicationController#RestApi::
   # * Reviewed By:
   #
   def get_pre_singed_url_for_put
-    puts "inside UsersKycController : get_pre_singed_url_for_put"
-
     service_response = UserManagement::DocumentsUploader::SignedPutUrls.new(params).perform
     render_api_response(service_response)
   end
@@ -51,9 +48,26 @@ class RestApi::SaasApi::V2::UsersKycController < ApplicationController#RestApi::
   # * Reviewed By:
   #
   def get_pre_singed_url_for_post
-    puts "inside UsersKycController : get_pre_singed_url_for_post"
-
     service_response = UserManagement::DocumentsUploader::SignedPostParams.new(params).perform
     render_api_response(service_response)
   end
+
+  # Format response got from service.
+  #
+  # * Author: Aniket
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def format_response(service_response)
+    formatted_response = service_response
+    puts "Inside : format_response : #{service_response.inspect}"
+
+    if service_response.success?
+      formatted_response = Formatter::V2::UsersKyc.send(params['action'], service_response)
+    end
+
+    puts "Final formatted response : #{formatted_response.inspect}"
+    render_api_response(formatted_response)
+  end
+
 end

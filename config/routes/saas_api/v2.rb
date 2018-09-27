@@ -3,11 +3,11 @@ scope module: :v2 do
 
   end
 
-  resources 'users_kyc', path: 'users-kyc', only: [:index, :show] do
+  resources :users_kyc, path: 'users-kyc', only: [:index, :show] do
     post '/', action: :submit
 
-    get 'pre-signed-urls/for-put', action: :get_pre_singed_url_for_put
-    get 'pre-signed-urls/for-post', action: :get_pre_singed_url_for_post
+    get 'pre-signed-urls/for-put', action: :get_pre_singed_url_for_put, on: :collection
+    get 'pre-signed-urls/for-post', action: :get_pre_singed_url_for_post, on: :collection
   end
 
   resources 'users_kyc_details', path: 'users-kyc-details', only: [:show], param: :user_id

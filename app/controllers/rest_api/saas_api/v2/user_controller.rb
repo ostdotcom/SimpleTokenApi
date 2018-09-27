@@ -1,12 +1,10 @@
 class RestApi::SaasApi::V2::UserController < RestApi::SaasApi::V2::BaseController
 
-  # before_action only: [:create] do
-  #   authenticate_request(false)
-  # end
-  #
-  # before_action except: [:create] do
-  #   authenticate_request(true)
-  # end
+  before_action :authenticate_request, only: [:create]
+
+  before_action except: [:create] do
+    authenticate_request(true)
+  end
 
   # Get list of users by pagination
   #
@@ -49,27 +47,13 @@ class RestApi::SaasApi::V2::UserController < RestApi::SaasApi::V2::BaseControlle
   #
   def format_response(service_response)
     formatted_response = service_response
-    puts "Inside : format_response : #{service_response.inspect}"
+    puts "\nInside : format_response : #{service_response.inspect}"
 
     if service_response.success?
-      case params['action'].to_sym
-        when :index
-          formatted_response = Formatter::V2::Users.format_user_list(service_response)
-
-        when :show
-          puts "Inside : show : #{service_response.inspect}"
-          formatted_response = Formatter::V2::Users.format_user(service_response)
-
-        when :create
-          puts "Inside : create : #{service_response.inspect}"
-          formatted_response = Formatter::V2::Users.format_user(service_response)
-
-        else
-          fail "Formatter for action(#{params['action']}) did not written."
-      end
+      formatted_response = Formatter::V2::Users.send(params['action'], service_response)
     end
 
-    puts "Final formatted response : #{formatted_response.inspect}"
+    puts "\nFinal formatted response : #{formatted_response.inspect}"
     render_api_response(formatted_response)
   end
 

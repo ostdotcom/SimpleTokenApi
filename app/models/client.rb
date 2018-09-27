@@ -157,6 +157,7 @@ class Client < EstablishSimpleTokenClientDbConnection
     api_memcache_key_object = MemcacheKey.new('client.api_key_details')
     Memcache.get_set_memcached(api_memcache_key_object.key_template % {api_key: api_key}, api_memcache_key_object.expiry) do
       client_obj = Client.where(api_key: api_key).first
+
       return nil if client_obj.blank?
 
       r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)

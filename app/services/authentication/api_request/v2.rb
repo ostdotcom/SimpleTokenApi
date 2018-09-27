@@ -29,5 +29,14 @@ module Authentication::ApiRequest
       EXPIRATION_WINDOW_V2
     end
 
+    # Get url path
+    #
+    # * Author: Aniket
+    # * Date: 21/09/2018
+    # * Reviewed By:
+    #
+    def get_url_path
+      @url_path
+    end
   end
 end

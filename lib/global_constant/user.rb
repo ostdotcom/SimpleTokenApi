@@ -95,7 +95,6 @@ module GlobalConstant
       def filters
         {
           "#{is_kyc_submitted_filter}" => {
-              "all" => [],
               "true" => ["(properties & ?) = ?",
                         ::User.properties_config[token_sale_kyc_submitted_property],
                         ::User.properties_config[token_sale_kyc_submitted_property]

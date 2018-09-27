@@ -2,6 +2,7 @@ module UserManagement
   module Users
     class Create < ServicesBase
 
+      #
       # Initialize
       #
       # * Author: Aman
@@ -38,6 +39,8 @@ module UserManagement
         return r unless r.success?
 
         create_user
+
+        enqueue_job
 
         success_with_data(service_response_data)
 
@@ -94,13 +97,13 @@ module UserManagement
       # * Date: 20/09/2018
       # * Reviewed By:
       #
+      #
       def add_user_allowed?
         client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
-        return error_with_identifier('could_not_proceed',
-                                     'um_u_c_aua_1',
-                                     ['token_sale_ended']
-        )unless (client_token_sale_detail.present? && client_token_sale_detail.is_token_sale_live?)
+        return error_with_identifier('token_sale_ended',
+                                     'um_u_c_aua_1'
+        ) if client_token_sale_detail.has_registration_ended?
 
         success
       end
@@ -114,12 +117,11 @@ module UserManagement
       # Sets user
       #
       def fetch_and_validate_user
-        @user = User.where(client_id: @client_id, email: @email).first
-
-        return error_with_identifier( 'could_not_proceed',
-                                      'um_u_c_ve_2',
-                                      ['user_present']
-        )if @user.present?
+        @user = User.where(client_id: @client_id, email: @email).is_active.first
+        return error_with_identifier('invalid_api_params',
+                                     'um_u_c_ve_2',
+                                     ['user_already_present']
+        ) if @user.present?
 
         success
       end
@@ -135,7 +137,24 @@ module UserManagement
             client_id: @client_id,
             email: @email
         }
-        @user = User.create(params)
+        @user = User.create!(params)
+      end
+
+      # Do remaining task in sidekiq
+      #
+      # * Author: Aniket
+      # * Date: 26/09/2018
+      # * Reviewed By:
+      #
+      def enqueue_job
+        BgJob.enqueue(
+            NewUserRegisterJob,
+            {
+                user_id: @user.id,
+                ip_address: nil,
+                geoip_country: nil
+            }
+        )
       end
 
       # Format service response

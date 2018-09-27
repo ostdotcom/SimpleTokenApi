@@ -19,7 +19,7 @@ module UserManagement
         super
 
         @client_id = @params[:client_id]
-        @user_id = @params[:id]
+        @id = @params[:id]
 
         @user = nil
       end
@@ -52,6 +52,9 @@ module UserManagement
         r = validate
         return r unless r.success?
 
+        r = validate_and_sanitize_params
+        return r unless r.success?
+
         r = fetch_and_validate_client
         return r unless r.success?
 
@@ -61,6 +64,22 @@ module UserManagement
         success
       end
 
+      # Validate and sanitize params
+      #
+      # * Author: Aniket
+      # * Date: 26/09/2018
+      # * Reviewed By:
+      #
+      def validate_and_sanitize_params
+        return error_with_identifier('invalid_api_params',
+                                     'um_u_g_favu_1',
+                                     ['invalid_id']
+        )unless Util::CommonValidateAndSanitize.is_integer?(@id)
+
+        @id = @id.to_i
+
+        success
+      end
 
       # fetch user
       #
@@ -72,16 +91,9 @@ module UserManagement
       #
       def fetch_and_validate_user
 
-        return error_with_identifier('invalid_api_params',
-                                     'um_u_g_favu_1',
-                                     ['invalid_user_id']
-        )unless Util::CommonValidateAndSanitize.is_integer?(@user_id)
-        @user_id = @user_id.to_i
-
-        @user = User.get_from_memcache(@user_id)
+        @user = User.get_from_memcache(@id)
         return error_with_identifier('resource_not_found',
-                                     'um_u_g_favu_2',
-                                     ['user_not_present']
+                                     'um_u_g_favu_2'
         )if (@user.blank? || (@user.present? &&
             (@user.status != GlobalConstant::User.active_status || @user.client_id.to_i != @client_id)))
 

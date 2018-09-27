@@ -18,6 +18,8 @@ class User < EstablishSimpleTokenUserDbConnection
 
   scope :is_active, -> {where(status: GlobalConstant::User.active_status)}
 
+  #:NOTE fails if filter passed with key 'all', needs to test if all key is added.
+  # inconsistent behaviour was seen when no filter was applicable
   scope :filter_by, -> (filters) {
     where_clause = []
     filters.each do |key, val|

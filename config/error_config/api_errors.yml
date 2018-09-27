@@ -23,6 +23,11 @@ invalid_admin_id:
   code: 'FORBIDDEN'
   message: "Admin is not active for a client."
 
+forbidden_api_request:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "This action is not allowed."
+
 unauthorized_api_request:
   http_code: '401'
   code: 'UNAUTHORIZED'
@@ -53,3 +58,7 @@ could_not_proceed:
   code: 'UNPROCESSABLE_ENTITY'
   message: "The request was good, but nevertheless could not be processed."
 
+token_sale_ended:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "The token sale has ended. This action cannot be performed"

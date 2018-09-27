@@ -1,6 +1,8 @@
 module UserManagement::Users
   class List < ServicesBase
 
+    DEFAULT_PAGE_NUMBER = 1
+
     # Initialize
     #
     # * Author: Aniket
@@ -13,7 +15,7 @@ module UserManagement::Users
     # @param [Integer] page_size (optional ) - page size
     # @param [String] order (optional ) - order
     #
-    # Sets users_list, next_page_payload, prev_page_payload, allowed_filters, next_page_available
+    # Sets users_list, allowed_filters, next_page_available, total_records
     #
     # @return [UserManagement::Users::List]
     #
@@ -21,16 +23,17 @@ module UserManagement::Users
       super
 
       @client_id = @params[:client_id]
-      @filter = @params[:filter] || {}
-      @page_number = @params[:page_number] || 1
-      @order = @params[:order] || GlobalConstant::User.sorting['sort_by'].keys[0] # 0th index is 'desc'
-      @page_size = @params[:page_size] || GlobalConstant::PageSize.user_list[:default]
+      @filter = @params[:filter]
+      @page_number = @params[:page_number]
+      @order = @params[:order]
+      @page_size = @params[:page_size]
 
       @offset = 0
+      @total_records = 0
       @allowed_filters = {}
 
       @users_list = nil
-      @next_page_available = false
+      @is_next_page_available = false
     end
 
     # Perform
@@ -43,6 +46,7 @@ module UserManagement::Users
       r = validate_and_sanitize
       return r unless r.success?
 
+      total_numbers_of_records
       fetch_user_list
 
       success_with_data(service_response_data)
@@ -63,10 +67,10 @@ module UserManagement::Users
       r = validate
       return r unless r.success?
 
-      r = fetch_and_validate_client
+      r = validate_and_sanitize_params
       return r unless r.success?
 
-      r = validate_and_sanitize_params
+      r = fetch_and_validate_client
       return r unless r.success?
 
       success
@@ -78,27 +82,69 @@ module UserManagement::Users
     # * Date: 19/09/2018
     # * Reviewed By:
     #
-    # Sets sorting_by, offset, allowed_filters
+    # Sets sort_by, offset, allowed_filters
     #
     def validate_and_sanitize_params
       error_codes = []
 
-      error_codes << 'invalid_order' if GlobalConstant::User.sorting['sort_by'].keys.exclude?(@order)
-      error_codes << 'invalid_page_number' unless Util::CommonValidateAndSanitize.is_integer?(@page_number)
-      error_codes << 'invalid_page_size' unless Util::CommonValidateAndSanitize.is_integer?(@page_size)
+      if @order.present?
+        error_codes << 'invalid_order' unless GlobalConstant::User.sorting['sort_by'].keys.include?(@order)
+      else
+        @order = GlobalConstant::User.sorting['sort_by'].keys[0]
+      end
+
+      if @page_number.present?
+        error_codes << 'invalid_page_number' unless Util::CommonValidateAndSanitize.is_positive_integer?(@page_number)
+      else
+        @page_number = DEFAULT_PAGE_NUMBER
+      end
+
+      if @page_size.present?
+        error_codes << 'invalid_page_size' unless Util::CommonValidateAndSanitize.is_positive_integer?(@page_size)
+      else
+        @page_size = GlobalConstant::PageSize.user_list[:default]
+      end
+
+
+      @filters = {} if @filters.blank?
+
+      if Util::CommonValidateAndSanitize.is_hash?(@filters)
+
+        @filters.each do |filter_key, filter_val|
+          next if filter_val.blank?
+
+          if GlobalConstant::User.allowed_filter.include?(filter_key)
+            allowed_filter_val = []
+
+            if filter_key == GlobalConstant::User.email_filter
+              allowed_filter_val = [filter_val]
+            else
+              allowed_filter_val = GlobalConstant::User.filters[filter_key].keys
+            end
+
+            if allowed_filter_val.include?(filter_val)
+              @allowed_filters[filter_key] = filter_val.to_s
+            else
+              error_codes << 'invalid_filters'
+            end
+
+          end
+        end
+
+      else
+        error_codes << 'invalid_filters'
+      end
+
+      error_codes.uniq!
+
 
       return error_with_identifier('invalid_api_params',
                                    'um_u_l_vasp_1',
                                    error_codes
       ) if error_codes.present?
 
-      @sorting_by = {sort_by: @order}
 
-      GlobalConstant::User.allowed_filter.each do |filter|
-        if @filter.include?(filter)
-          @allowed_filters[filter] = @filter[filter]
-        end
-      end
+      @sort_by = {sort_by: @order}
 
       @page_size, @page_number = @page_size.to_i, @page_number.to_i
 
@@ -106,9 +152,22 @@ module UserManagement::Users
       @page_size = [@page_size, page_size_data[:min]].max
       @page_size = [@page_size, page_size_data[:max]].min
 
-      @offset = (@page_number-1) * @page_size if @page_number > 0
+      @offset = (@page_number - 1) * @page_size
 
       success
+    end
+
+
+    # Get total number of records for particular filter.
+    #
+    # * Author: Aniket
+    # * Date: 25/09/2018
+    # * Reviewed By:
+    #
+    # Sets @total_records
+    #
+    def total_numbers_of_records
+      @total_records = ar_query.count
     end
 
     # Fetch List of user objects
@@ -120,17 +179,24 @@ module UserManagement::Users
     # Sets users_list, next_page_available
     #
     def fetch_user_list
-      @users_list = User.
-                      where(client_id: @client_id).
-                      filter_by(@allowed_filters).
-                      limit(@page_size+1).
-                      offset(@offset).
-                      sorting_by(@sorting_by)
+      @users_list = ar_query.limit(@page_size).offset(@offset).all
+    end
 
-      @next_page_available = @users_list.length > @page_size
-
-      @users_list = @users_list.reverse.drop(1).reverse if @next_page_available
-      @users_list
+    # Active record query for user list
+    #
+    # * Author: Aniket
+    # * Date: 25/09/2018
+    # * Reviewed By:
+    #
+    # returns [AR] active record object for user
+    #
+    def ar_query
+      @ar_query ||= begin
+        ar = User.where(client_id: @client_id)
+        ar = ar.filter_by(@allowed_filters) if @allowed_filters.present?
+        ar = ar.sorting_by(@sort_by) if @sort_by.present?
+        ar
+      end
     end
 
     # Format service response
@@ -153,10 +219,9 @@ module UserManagement::Users
     # * Reviewed By:
     #
     def meta_data
-      {
-          next_page_payload: next_page_payload,
-          payload: current_page_payload
-      }
+      meta_data = {total: @total_records}
+      meta_data.merge!(next_page_payload: next_page_payload) if next_page_payload.present?
+      meta_data
     end
 
     # Construct next page payload data
@@ -166,30 +231,20 @@ module UserManagement::Users
     # * Reviewed By:
     #
     def next_page_payload
-      unless @next_page_available
-        return {}
+      @next_page_payload ||= begin
+
+        if @offset + @page_size >= @total_records
+          {}
+        else
+          {
+              page_number: @page_number + 1,
+              filters: @allowed_filters,
+              order: @order,
+              page_size: @page_size
+          }
+        end
+
       end
-
-      {
-          page_number: @page_number+1,
-          filters: @allowed_filters,
-          order: @order,
-      }
-    end
-
-    # Construct current page payload data
-    #
-    # * Author: Aniket
-    # * Date: 19/09/2018
-    # * Reviewed By:
-    #
-    def current_page_payload
-      {
-          page_number: @page_number,
-          filters: @allowed_filters,
-          order: @order,
-          total_no: @users_list.length
-      }
     end
 
   end

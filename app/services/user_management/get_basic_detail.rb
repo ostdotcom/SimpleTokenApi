@@ -168,6 +168,7 @@ module UserManagement
       return success if @token.blank?
 
       service_response = UserManagement::DoubleOptIn.new({t: @token, user_id: @user_id}).perform
+      #TODO: user_token_sale_state should be sent to web.
       return unauthorized_access_response('um_gbd_2') unless service_response.success?
       @user.reload
 

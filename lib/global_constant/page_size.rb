@@ -5,17 +5,13 @@ module GlobalConstant
       def default
         {
             default: 50,
-            min: 10,
+            min: 1,
             max: 50
         }
       end
 
       def user_list
-        {
-            default: 3,
-            min: 2,
-            max: 50
-        }
+        default
       end
 
     end

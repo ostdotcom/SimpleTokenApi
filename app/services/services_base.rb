@@ -73,12 +73,14 @@ class ServicesBase
     # result object is returned
     service_params_list = ServicesBase.get_service_params(self.class.to_s)
     missing_mandatory_params = []
-
     service_params_list[:mandatory].each do |mandatory_param|
-      missing_mandatory_params << mandatory_param if @params[mandatory_param].to_s.blank?
+      missing_mandatory_params << "missing_#{mandatory_param}" if @params[mandatory_param].to_s.blank?
     end if service_params_list[:mandatory].present?
 
-    return error_with_identifier('mandatory_params_missing','sb_1') if missing_mandatory_params.any?
+    return error_with_identifier('mandatory_params_missing',
+                                 'sb_1',
+                                 missing_mandatory_params
+    ) if missing_mandatory_params.any?
 
     success
   end

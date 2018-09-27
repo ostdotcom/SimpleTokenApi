@@ -18,9 +18,8 @@ class ApplicationController < ActionController::API
   #
   def not_found
     r = Result::Base.error({
-                               error: 'ac_1',
-                               error_message: 'Resource not found',
-                               http_code: GlobalConstant::ErrorCode.not_found
+                               api_error_code: 'resource_not_found',
+                               error: 'ac_1'
                            })
     render_api_response(r)
   end
@@ -69,10 +68,10 @@ class ApplicationController < ActionController::API
   def render_api_response(service_response)
     # calling to_json of Result::Base
     response_hash = service_response.to_json
-    response_hash = reformat_as_old_response(response_hash)
+    response_hash = format_api_response(response_hash)
     http_status_code = response_hash.delete(:http_code)
 
-    if !service_response.success?# && !Rails.env.development?
+    if !service_response.success? # && !Rails.env.development?
 
       #TODO: Check if email is to sent for invalid kyc submission
       # ApplicationMailer.notify(
@@ -83,10 +82,20 @@ class ApplicationController < ActionController::API
       #   subject: 'Error in KYC submit API'
       # ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'web/saas_user/token_sale'
 
-      response_hash[:data] = {}
+      response_hash.delete(:data)
     end
 
     (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
+  end
+
+  # Format response if needed
+  #
+  # * Author: Pankaj
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def format_api_response(response_hash)
+    response_hash
   end
 
   # Sanitize and reformat Error response for Web
@@ -102,7 +111,7 @@ class ApplicationController < ActionController::API
       err = response_hash.delete(:err) || {}
       err_data = {}
       puts err[:error_data].inspect
-      err[:error_data].each{|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
+      err[:error_data].each {|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
       response_hash[:err] = {
           display_text: err[:msg].to_s,
           display_heading: "Error",
@@ -110,8 +119,7 @@ class ApplicationController < ActionController::API
           code: err[:internal_id]
       }
     end
-    response_hash[:http_code] = GlobalConstant::ErrorCode.ok if
-        GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
+    response_hash[:http_code] = GlobalConstant::ErrorCode.ok if GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
     response_hash
   end
 
@@ -139,14 +147,12 @@ class ApplicationController < ActionController::API
           subject: 'Exception in API'
       ).deliver
 
-      r = Result::Base.exception(
-          se,
-          {
-              error: 'swr',
-              error_message: 'Something Went Wrong',
-              data: params
-          }
-      )
+
+      r = Result::Base.error({
+                                 api_error_code: 'internal_server_error',
+                                 error: 'swr',
+                                 data: params
+                             })
       render_api_response(r)
 
     end

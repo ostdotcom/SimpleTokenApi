@@ -685,17 +685,6 @@
     - :allow_web_based_client
   :optional:
 
-'SaasManagement::User::Index':
-  :mandatory:
-    - :client_id
-    - :api_key
-    - :request_timestamp
-    - :signature
-  :optional:
-    - :filter
-    - :page_number
-    - :order
-
 'UserManagement::Users::Create':
   :mandatory:
     - :email

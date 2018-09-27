@@ -104,7 +104,8 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_token_sale_state
-      return unauthorized_access_response('um_pd_3') if @user_token_sale_state != GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+      #TODO: user_token_sale_state should be sent to web.
+    return unauthorized_access_response('um_pd_3') if @user_token_sale_state != GlobalConstant::User.get_token_sale_state_page_names("profile_page")
       success
     end
 

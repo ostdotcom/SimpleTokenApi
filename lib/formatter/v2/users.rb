@@ -13,18 +13,21 @@ module Formatter
         #
         # @Sets result_type, users
         #
-        def format_user_list(data_to_format)
+        def index(data_to_format)
           formatted_user_list = []
-          result_data = data_to_format.data
-          result_data[:result_type] = 'users'
 
-          users = result_data[:users]
-          users.each do |user|
-            puts "user data to format : #{user.inspect}"
+          result_data = data_to_format.data
+          result_data[:users].each do |user|
             formatted_user_list << user_base(user)
           end
-          result_data[:users] = formatted_user_list
 
+          formatted_data = {
+              result_type: 'users',
+              users: formatted_user_list,
+              meta: result_data[:meta]
+          }
+
+          data_to_format.data = formatted_data
           data_to_format
         end
 
@@ -38,13 +41,30 @@ module Formatter
         #
         # @Sets result_type, user
         #
-        def format_user(data_to_format)
+        def show(data_to_format)
           result_data = data_to_format.data
-          result_data[:result_type] = 'user'
 
-          result_data[:user] = user_base(result_data[:user])
+          formatted_data = {
+              result_type: 'user',
+              user: user_base(result_data[:user])
+          }
 
+          data_to_format.data = formatted_data
           data_to_format
+        end
+
+        # Format user
+        # Always receives [Result::Base]
+        # :NOTE Reading data to format from key:'user'
+        #
+        # * Author: Aniket
+        # * Date: 20/09/2018
+        # * Reviewed By:
+        #
+        # @Sets result_type, user
+        #
+        def create(data_to_format)
+          show(data_to_format)
         end
 
         private

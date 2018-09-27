@@ -133,8 +133,6 @@ module UserManagement
         @client_kyc_detail_api_activations = ClientKycDetailApiActivation.get_last_active_from_memcache(@client_id)
       end
 
-      # todo: comment missing
-
       # Get Allowed Fields for User Extended Detail Hash
       #
       # * Author: Tejas

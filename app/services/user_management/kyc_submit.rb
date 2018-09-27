@@ -567,7 +567,7 @@ module UserManagement
 
       @user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)
 
-      md5_user_extended_details_params.merge!(user_extended_detail_id: user_extended_detail.id)
+      md5_user_extended_details_params.merge!(user_extended_detail_id: @user_extended_detail.id)
 
       Md5UserExtendedDetail.create!(md5_user_extended_details_params)
 

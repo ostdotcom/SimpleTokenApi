@@ -203,7 +203,7 @@ module UserManagement
       @user_kyc_detail.present? ?
           {
               user_id: @user.id,
-              kyc_status: kyc_status,
+              kyc_status: @user_kyc_detail.kyc_status,
               admin_action_types: @user_kyc_detail.admin_action_types_array,
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status
@@ -247,7 +247,7 @@ module UserManagement
       @user_kyc_detail.present? ?
           {
               user_id: @user.id,
-              kyc_status: kyc_status,
+              kyc_status: @user_kyc_detail.kyc_status,
               admin_action_types: @user_kyc_detail.admin_action_types_array,
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status,
@@ -327,27 +327,6 @@ module UserManagement
       # public sale phase no longer  used
       # @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
 
-    end
-
-    # User Kyc Status
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [String] status of kyc
-    #
-    def kyc_status
-      case true
-        when @user_kyc_detail.kyc_approved?
-          GlobalConstant::UserKycDetail.kyc_approved_status
-        when @user_kyc_detail.kyc_denied?
-          GlobalConstant::UserKycDetail.kyc_denied_status
-        when @user_kyc_detail.kyc_pending?
-          GlobalConstant::UserKycDetail.kyc_pending_status
-        else
-          fail "Invalid kyc status"
-      end
     end
 
   end

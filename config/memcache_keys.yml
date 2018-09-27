@@ -7,6 +7,10 @@ user:
     key_template: 'u_kyc_det_%{user_id}'
     expiry_in_seconds: 86400
 
+  user_extended_detail:
+      key_template: 'user_extended_detail_%{id}'
+      expiry_in_seconds: 86400
+
   user_kyc_comparison_detail:
     key_template: 'user_kyc_comparison_detail_by_ued_%{user_extended_detail_id}'
     expiry_in_seconds: 86400

@@ -712,8 +712,8 @@
     - :id
   :optional:
 
-'UserManagement::UserKyc::Get':
+'UserManagement::KycDetail::Get':
   :mandatory:
     - :client_id
-    - :id
+    - :user_id
   :optional:

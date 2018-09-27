@@ -243,6 +243,28 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status && kyc_confirmed_at.present?)
   end
 
+
+  # User Kyc Status
+  #
+  # * Author: Tejas
+  # * Date: 27/09/2018
+  # * Reviewed By: Aman
+  #
+  # @return [String] status of kyc
+  #
+  def kyc_status
+    case true
+    when kyc_approved?
+      GlobalConstant::UserKycDetail.kyc_approved_status
+    when kyc_denied?
+      GlobalConstant::UserKycDetail.kyc_denied_status
+    when kyc_pending?
+      GlobalConstant::UserKycDetail.kyc_pending_status
+    else
+      fail "Invalid kyc status"
+    end
+  end
+
   # Get Key Object
   #
   # * Author: Abhay

@@ -154,6 +154,16 @@ module OstKycApi
       make_get_request(endpoint, custom_params)
     end
 
+    def get_user_kyc(id)
+      endpoint = "/api/#{@version}/users-kyc/#{id}"
+      make_get_request(endpoint)
+    end
+
+    def get_user_kyc_detail(id)
+      endpoint = "/api/#{@version}/users-kyc-details/#{id}"
+      make_get_request(endpoint)
+    end
+
     ########################################################################################################################
     private
 

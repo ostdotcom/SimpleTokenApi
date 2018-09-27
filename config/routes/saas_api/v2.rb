@@ -10,7 +10,7 @@ scope module: :v2 do
     get 'pre-signed-urls/for-post', action: :get_pre_singed_url_for_post, on: :collection
   end
 
-  resources 'users_kyc_details', path: 'users-kyc-details', only: [:show], param: :user_id
+  resources :users_kyc_details, path: 'users-kyc-details', only: [:show], param: :user_id
 
   scope 'ethereum-address-validation', controller: :validator do
     get '/', action: :validate_ethereum_address

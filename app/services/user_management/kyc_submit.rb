@@ -615,6 +615,8 @@ module UserManagement
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
       @user_kyc_detail.last_reopened_at = nil
       @user_kyc_detail.save!
+
+      success
     end
 
     # Update User Kyc Submitted Property

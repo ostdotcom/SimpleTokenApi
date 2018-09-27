@@ -8,19 +8,19 @@ module GlobalConstant
       ########### Config ############
 
       def api_key
-        config[:api_request][:key]
+        config[:api][:key]
       end
 
       def api_secret
-        config[:api_request][:secret]
+        config[:api][:secret]
       end
 
       def base_url
-        config[:api_request][:base_url]
+        config[:api][:base_url]
       end
 
       def version
-        config[:api_request][:version]
+        config[:api][:version]
       end
 
       def api_timeout

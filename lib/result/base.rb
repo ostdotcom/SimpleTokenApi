@@ -418,7 +418,18 @@ module Result
       if params_error_identifiers.present?
         params_error_identifiers.each do |ed|
           ec = fetch_api_params_error_config(ed)
-          new_error_data << {parameter: ec["parameter"], msg: ec["msg"]} if ec.present?
+          if ec.present?
+            new_error_data << {parameter: ec["parameter"], msg: ec["msg"]}
+          else
+            parameter_key =  ed.match("missing_(.*)")[1]
+            new_error_data << {parameter: parameter_key, msg: "#{parameter_key} is missing"} if parameter_key.present?
+            ApplicationMailer.notify(
+                to: GlobalConstant::Email.default_to,
+                body: "Misiing params identifier",
+                data: {result_base: self},
+                subject: "Warning::Misiing params identifier. please add the error details"
+            ).deliver
+          end
         end
       end
       if error_data.present?

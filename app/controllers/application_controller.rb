@@ -84,7 +84,7 @@ class ApplicationController < ActionController::API
 
       response_hash.delete(:data)
     end
-    puts "************************ here 1 : #{http_status_code} and response_hash : #{response_hash}"
+
     (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
   end
 
@@ -118,6 +118,7 @@ class ApplicationController < ActionController::API
           error_data: err_data,
           code: err[:internal_id]
       }
+      response_hash[:err].merge!(error_extra_info: err[:error_extra_info]) if err[:error_extra_info].present?
     end
     response_hash[:http_code] = GlobalConstant::ErrorCode.ok if GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
     response_hash
@@ -137,7 +138,6 @@ class ApplicationController < ActionController::API
       yield
 
     rescue => se
-      puts "************************ here 2"
 
       Rails.logger.error("Exception in API: #{se.message}")
       ApplicationMailer.notify(

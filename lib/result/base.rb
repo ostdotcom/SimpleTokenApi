@@ -48,7 +48,8 @@ module Result
                   :exception,
                   :http_code,
                   :api_error_code,
-                  :params_error_identifiers
+                  :params_error_identifiers,
+                  :error_extra_info
 
     # Initialize
     #
@@ -93,6 +94,19 @@ module Result
       @error_display_text = params[:error_display_text] if params.key?(:error_display_text)
       @api_error_code = params[:api_error_code] if params.key?(:api_error_code)
       @params_error_identifiers = params[:params_error_identifiers] if params.key?(:params_error_identifiers)
+      @error_extra_info = params[:error_extra_info] if params.key?(:error_extra_info)
+    end
+
+    # Set Error extra info
+    #
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    # @param [Hash] error_extra_info is an Hash of extra info to send with error
+    #
+    def set_error_extra_info(error_extra_info)
+      @error_extra_info = error_extra_info
     end
 
     # Set Message
@@ -317,7 +331,8 @@ module Result
           :error_message,
           :error_data,
           :error_action,
-          :error_display_text
+          :error_display_text,
+          :error_extra_info
       ]
     end
 
@@ -383,24 +398,21 @@ module Result
           success: false,
           err: {
               internal_id: hash[:error],
-              msg: hash[:error_display_text].to_s,
-              error_data: format_error_data
+              msg: hash[:error_display_text].to_s
           },
           data: hash[:data],
           http_code: http_code
       }
+      err_data = format_error_data
+      error_response[:err].merge!(error_data: err_data) if err_data.present?
+      error_response[:err].merge!(error_extra_info: hash[:error_extra_info]) if hash[:error_extra_info].present?
+
       error_config = @api_error_code.present? ? fetch_api_error_config(api_error_code) : {}
 
       if error_config.present?
         error_response[:err][:code] = error_config["code"]
         error_response[:err][:msg] = error_config["message"]
         error_response[:http_code] = error_config["http_code"].to_i
-      end
-
-      # if error http code should not be 200? change to 422
-      if error_response[:http_code] == GlobalConstant::ErrorCode.ok
-        error_response[:http_code] = error_response[:err][:error_data].present? ?
-                                         GlobalConstant::ErrorCode.invalid_request_parameters : GlobalConstant::ErrorCode.unprocessable_entity
       end
 
       error_response

@@ -104,9 +104,8 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_token_sale_state
-      #TODO: user_token_sale_state should be sent to web.
     return unauthorized_access_response('um_pd_3') if @user_token_sale_state != GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-      success
+    success
     end
 
     # Fetch User Kyc Detail
@@ -327,6 +326,20 @@ module UserManagement
       # public sale phase no longer  used
       # @token_sale_participation_phase_for_user ||= (@user_kyc_detail.present? ? @user_kyc_detail.token_sale_participation_phase : GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i)))
 
+    end
+
+    # Unauthorized access response
+    #
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def unauthorized_access_response(err)
+      err_result = super(err)
+      err_result.set_error_extra_info({user_token_sale_state: @user_token_sale_state})
+      err_result
     end
 
   end

@@ -46,7 +46,7 @@ STEP 2: git clone SimpleTokenOpsPublicApi repository
  > npm install
  > source set_env_vars.sh
  > Overwrite following environment variables
-    export ST_DEPLOYER_ADDR='0x0000000000000000000000000000000000000000' - An address which has eth balance
+    export ST_DEPLOYER_ADDR='0xdd278381c34a77a026399daacbfd521280022bfc'
     export ST_DEPLOYER_ADDR_PASSPHRASE='testtest'
     export ST_DEPLOYER_GETH_PROVIDER='http://127.0.0.1:8545'
 

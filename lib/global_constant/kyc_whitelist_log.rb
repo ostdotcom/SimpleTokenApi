@@ -32,22 +32,21 @@ module GlobalConstant
         ]
       end
 
+      ### Failed Reason starts ####
 
-      ### is attention needed starts ####
-
-      def attention_not_needed
-        'attention_not_needed'
+      def not_failed
+        'not_failed'
       end
 
-      def attention_needed
-        'attention_needed'
+      def invalid_kyc_failed
+        'invalid_kyc_failed'
       end
 
-      def transaction_attention_needed
-        'transaction_attention_needed'
+      def invalid_transaction_failed
+        'invalid_transaction_failed'
       end
 
-      ### is attention needed ends ####
+      ### Failed Reason ends ####
 
       ### transaction status ####
 

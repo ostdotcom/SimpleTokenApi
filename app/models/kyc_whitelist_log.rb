@@ -7,10 +7,10 @@ class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
       GlobalConstant::KycWhitelistLog.failed_status => 3
   }, _suffix: true
 
-  enum is_attention_needed: {
-      GlobalConstant::KycWhitelistLog.attention_not_needed => 0,
-      GlobalConstant::KycWhitelistLog.attention_needed => 1,
-      GlobalConstant::KycWhitelistLog.transaction_attention_needed => 2
+  enum failed_reason: {
+      GlobalConstant::KycWhitelistLog.not_failed => 0,
+      GlobalConstant::KycWhitelistLog.invalid_kyc_failed => 1,
+      GlobalConstant::KycWhitelistLog.invalid_transaction_failed => 2
   }
 
   scope :kyc_whitelist_non_confirmed, -> {
@@ -49,10 +49,10 @@ class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
   # * Date: 26/10/2017
   # * Reviewed By:
   #
-  def mark_failed_with_attention_needed(attention_type = GlobalConstant::KycWhitelistLog.attention_needed)
-    Rails.logger.info("user_kyc_whitelist_log - #{self.id} - Changing is_attention_needed to attention_needed")
+  def mark_failed_with_reason(failed_reason = GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
+    Rails.logger.info("user_kyc_whitelist_log - #{self.id} - mark as failed.")
     self.status = GlobalConstant::KycWhitelistLog.failed_status
-    self.is_attention_needed = attention_type
+    self.failed_reason = failed_reason
     self.save! if self.changed?
   end
 

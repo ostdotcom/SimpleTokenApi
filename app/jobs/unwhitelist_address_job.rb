@@ -131,7 +131,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      gas_price: r.data[:gas_price],
                                                      next_timestamp: Time.now.to_i + GlobalConstant::KycWhitelistLog.expected_transaction_mine_time,
                                                      status: GlobalConstant::KycWhitelistLog.pending_status,
-                                                     is_attention_needed: 0
+                                                     failed_reason: 0
                                                  })
 
     success

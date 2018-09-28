@@ -53,6 +53,7 @@ Rails.application.routes.draw do
 
     scope 'api/admin', controller: 'web/admin/login' do
       match 'login' => :password_auth, via: :POST
+      match 'logout' => :logout, via: :GET
       match 'get-ga-url' => :get_ga_url, via: :GET
       match 'mfa' => :multifactor_auth, via: :POST
       match 'reset-password' => :admin_reset_password, via: :POST
@@ -158,6 +159,7 @@ Rails.application.routes.draw do
   scope 'api/user', controller: 'web/saas_user/login' do
     match 'sign-up' => :sign_up, via: :POST
     match 'login' => :login, via: :POST
+    match 'logout' => :logout, via: :GET
     match 'reset-password' => :reset_password, via: :POST
     match 'send-reset-password-link' => :send_reset_password_link, via: :POST
   end

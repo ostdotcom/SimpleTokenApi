@@ -68,7 +68,7 @@ module AdminManagement
       # @return [Time]
       #
       def valid_upto
-        1.hour
+        GlobalConstant::Cookie.double_auth_expiry
       end
 
       # Set Extened Cookie Value

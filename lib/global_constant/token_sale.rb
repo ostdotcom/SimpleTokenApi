@@ -9,14 +9,6 @@ module GlobalConstant
         GlobalConstant::Base.st_token_sale['default_client_id']
       end
 
-      def st_token_sale_active_status
-        GlobalConstant::Base.st_token_sale['critical_details']['active_status']
-      end
-
-      def st_token_sale_ethereum_address
-        GlobalConstant::Base.st_token_sale['critical_details']['token_sale_ethereum_address']
-      end
-
       def simple_token_contract_address
         GlobalConstant::Base.st_token_sale['critical_details']['simple_token_contract_address']
       end

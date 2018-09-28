@@ -6,6 +6,8 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
     authenticate_request(true)
   end
 
+  after_action :format_service_response
+
   # Get list of users by pagination
   #
   # * Author: Aniket
@@ -13,8 +15,7 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
   # * Reviewed By:
   #
   def index
-    service_response = UserManagement::Users::List.new(params).perform
-    format_response(service_response)
+    @service_response = UserManagement::Users::List.new(params).perform
   end
 
   # Create user
@@ -24,8 +25,7 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
   # * Reviewed By:
   #
   def create
-    service_response = UserManagement::Users::Create.new(params).perform
-    format_response(service_response)
+    @service_response = UserManagement::Users::Create.new(params).perform
   end
 
   # Get user for user_id
@@ -35,26 +35,18 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
   # * Reviewed By:
   #
   def show
-    service_response = UserManagement::Users::Get.new(params).perform
-    format_response(service_response)
+    @service_response = UserManagement::Users::Get.new(params).perform
   end
 
-  # Format response got from service.
+  # Get formatter class
   #
   # * Author: Aniket
-  # * Date: 18/09/2018
+  # * Date: 28/09/2018
   # * Reviewed By:
   #
-  def format_response(service_response)
-    formatted_response = service_response
-    puts "\nInside : format_response : #{service_response.inspect}"
-
-    if service_response.success?
-      formatted_response = Formatter::V2::Users.send(params['action'], service_response)
-    end
-
-    puts "\nFinal formatted response : #{formatted_response.inspect}"
-    render_api_response(formatted_response)
+  def get_formatter_class
+    Formatter::V2::Users
   end
+
 
 end

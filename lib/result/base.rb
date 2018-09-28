@@ -359,7 +359,8 @@ module Result
 
       if (self.to_hash[:error] == nil)
         h = {
-            success: true
+            success: true,
+            http_code: http_code
         }.merge(self.to_hash)
         h
       else

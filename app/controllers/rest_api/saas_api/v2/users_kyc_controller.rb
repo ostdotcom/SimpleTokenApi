@@ -24,8 +24,8 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   #
   def show
     puts "inside UsersKycController : show"
-    service_response = UserManagement::Kyc::Get.new(params).perform
-    format_response(service_response)
+    @service_response = UserManagement::Kyc::Get.new(params).perform
+    format_service_response
   end
 
   # Create/Update user kyc for user_id

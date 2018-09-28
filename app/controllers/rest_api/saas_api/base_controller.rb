@@ -38,4 +38,21 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
     fail "Method override missing"
   end
 
+  # Format response got from service.
+  #
+  # * Author: Aniket
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def format_service_response
+    formatted_response = @service_response
+
+    if formatted_response.success?
+      formatted_response = get_formatter_class.send(params['action'], formatted_response)
+    end
+
+    puts "\nFinal formatted response : #{formatted_response.inspect}"
+    render_api_response(formatted_response)
+  end
+
 end

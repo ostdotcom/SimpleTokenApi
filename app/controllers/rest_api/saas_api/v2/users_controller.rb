@@ -6,8 +6,6 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
     authenticate_request(true)
   end
 
-  after_action :format_service_response
-
   # Get list of users by pagination
   #
   # * Author: Aniket
@@ -16,6 +14,7 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
   #
   def index
     @service_response = UserManagement::Users::List.new(params).perform
+    format_service_response
   end
 
   # Create user
@@ -26,6 +25,7 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
   #
   def create
     @service_response = UserManagement::Users::Create.new(params).perform
+    format_service_response
   end
 
   # Get user for user_id
@@ -36,6 +36,7 @@ class RestApi::SaasApi::V2::UsersController < RestApi::SaasApi::V2::BaseControll
   #
   def show
     @service_response = UserManagement::Users::Get.new(params).perform
+    format_service_response
   end
 
   # Get formatter class

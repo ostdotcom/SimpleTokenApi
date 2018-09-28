@@ -1,22 +1,6 @@
-invalid_order:
-  parameter: 'order'
-  msg: "order in 'desc' (default) or 'asc' order."
-
-invalid_page_number:
-  parameter: 'page_number'
-  msg: "Page number is invalid."
-
-invalid_allowed_keys:
-  parameter: 'set_allowed_keys'
-  message: "Invalid field selected."
-
-invalid_page_size:
-  parameter: 'page_size'
-  msg: "Page size is invalid."
-
-invalid_user_id:
-  parameter: 'user_id'
-  msg: "user id is invalid."
+missing_client_id:
+  parameter: 'client_id'
+  msg: "client_id is mandatory."
 
 invalid_email:
   parameter: 'email'
@@ -30,13 +14,17 @@ user_already_present:
   parameter: 'email'
   msg: "user with this email already exist."
 
-missing_client_id:
-  parameter: 'client_id'
-  msg: "client_id is mandatory."
+invalid_ethereum_address:
+   parameter: 'ethereum_address'
+   msg: "ethereum_address is invalid."
 
-missing_user_id:
-  parameter: 'user_id'
-  msg: "user_id is mandatory."
+missing_ethereum_address:
+   parameter: 'ethereum_address'
+   msg: "ethereum_address is missing."
+
+invalid_filters:
+   parameter: 'filters'
+   msg: "filters is invalid."
 
 missing_id:
    parameter: 'id'
@@ -46,13 +34,25 @@ invalid_id:
   parameter: 'id'
   msg: "id is invalid."
 
-invalid_ethereum_address:
-   parameter: 'ethereum_address'
-   msg: "ethereum_address is invalid."
+missing_images:
+   parameter: 'images'
+   msg: "images is missing."
 
-missing_ethereum_address:
-   parameter: 'ethereum_address'
-   msg: "ethereum_address is missing."
+invalid_images:
+   parameter: 'images'
+   msg: "images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
+
+invalid_order:
+  parameter: 'order'
+  msg: "order in 'desc' (default) or 'asc' order."
+
+invalid_page_number:
+  parameter: 'page_number'
+  msg: "Page number is invalid."
+
+invalid_page_size:
+  parameter: 'page_size'
+  msg: "Page size is invalid."
 
 missing_pdfs:
    parameter: 'pdfs'
@@ -62,14 +62,14 @@ invalid_pdfs:
    parameter: 'pdfs'
    msg: "pdfs is invalid. Only 'application/pdf' content type is supported."
 
-missing_images:
-   parameter: 'images'
-   msg: "images is missing."
+invalid_allowed_keys:
+  parameter: 'set_allowed_keys'
+  message: "Invalid field selected."
 
-invalid_images:
-   parameter: 'images'
-   msg: "images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
+invalid_user_id:
+  parameter: 'user_id'
+  msg: "user id is invalid."
 
-invalid_filters:
-   parameter: 'filters'
-   msg: "filters is invalid."
+missing_user_id:
+  parameter: 'user_id'
+  msg: "user_id is mandatory."

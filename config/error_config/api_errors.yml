@@ -13,21 +13,6 @@ invalid_or_expired_token:
   code: 'UNAUTHORIZED'
   message: "We could not authenticate the request. Please review your credentials and authentication method."
 
-invalid_client_id:
-  http_code: '403'
-  code: 'FORBIDDEN'
-  message: "Client is invalid or not active anymore with OST KYC."
-
-invalid_admin_id:
-  http_code: '403'
-  code: 'FORBIDDEN'
-  message: "Admin is not active for a client."
-
-forbidden_api_request:
-  http_code: '403'
-  code: 'FORBIDDEN'
-  message: "This action is not allowed."
-
 unauthorized_api_request:
   http_code: '401'
   code: 'UNAUTHORIZED'
@@ -43,15 +28,25 @@ no_configurator_access:
   code: 'UNAUTHORIZED'
   message: "Client don't have configurator access."
 
+invalid_client_id:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Client is invalid or not active anymore with OST KYC."
+
+invalid_admin_id:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Admin is not active for a client."
+
+forbidden_api_request:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "This action is not allowed."
+
 resource_not_found:
   http_code: '404'
   code: 'NOT_FOUND'
   message: "The requested resource could not be located."
-
-internal_server_error:
-  http_code: '500'
-  code: 'INTERNAL_SERVER_ERROR'
-  message: "Something went wrong."
 
 could_not_proceed:
   http_code: '422'
@@ -62,3 +57,8 @@ token_sale_ended:
   http_code: '422'
   code: 'UNPROCESSABLE_ENTITY'
   message: "The token sale has ended. This action cannot be performed"
+
+internal_server_error:
+  http_code: '500'
+  code: 'INTERNAL_SERVER_ERROR'
+  message: "Something went wrong."

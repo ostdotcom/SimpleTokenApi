@@ -313,7 +313,7 @@ module Crons
       if invalid_txn_status?
         @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_transaction_failed)
       else
-        @kyc_whitelist_log.mark_failed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_event_failed)
       end
 
       r = fetch_user_kyc_detail
@@ -369,23 +369,23 @@ module Crons
       user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
-        @kyc_whitelist_log.mark_failed_with_reason
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
-            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
+            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for address"
         )
 
         return error_with_data(
             'l_c_ckw_5',
-            'no approved user_kyc_detail records found for same address.',
-            'no approved user_kyc_detail records found for same address',
+            'no approved user_kyc_detail records found for address.',
+            'no approved user_kyc_detail records found for address',
             GlobalConstant::ErrorAction.default,
             {}
         )
       end
 
       if user_kyc_details.count > 1
-        @kyc_whitelist_log.mark_failed_with_reason
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
@@ -403,7 +403,7 @@ module Crons
       user_kyc_detail = user_kyc_details.first
 
       if [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(user_kyc_detail.whitelist_status)
-        @kyc_whitelist_log.mark_failed_with_reason
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. invalid whitelist status-#{user_kyc_detail.whitelist_status} of user kyc detail"

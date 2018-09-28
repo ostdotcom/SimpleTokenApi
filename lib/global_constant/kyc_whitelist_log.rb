@@ -46,6 +46,10 @@ module GlobalConstant
         'invalid_transaction_failed'
       end
 
+      def invalid_event_failed
+        'invalid_event_failed'
+      end
+
       ### Failed Reason ends ####
 
       ### transaction status ####

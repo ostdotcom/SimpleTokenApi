@@ -98,6 +98,7 @@ module Formatter
         def user_kyc_base(user_kyc_detail, admin)
           {
               id: user_kyc_detail[:id],
+              user_kyc_detail_id: user_kyc_detail[:user_extended_detail_id],
               user_id: user_kyc_detail[:user_id],
               kyc_status: user_kyc_detail.kyc_status,
               admin_status: user_kyc_detail[:admin_status],

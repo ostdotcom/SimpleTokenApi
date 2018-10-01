@@ -3,7 +3,7 @@ module EstimatedGasPrice
 
     require 'net/http'
 
-    REQUEST_TIMEOUT = 5
+    REQUEST_TIMEOUT = 10
 
     # Initialize
     #

@@ -26,7 +26,7 @@ module Crons
       KycWhitelistLog.
           kyc_whitelist_non_confirmed.
           where("next_timestamp <= ?", Time.now.to_i).
-          where(is_attention_needed: GlobalConstant::KycWhitelistLog.attention_not_needed).
+          where(failed_reason: GlobalConstant::KycWhitelistLog.not_failed).
           where(status: GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses).
           find_in_batches(batch_size: 100).each do |batched_records|
 
@@ -204,6 +204,10 @@ module Crons
       [GlobalConstant::KycWhitelistLog.invalid_txn_status, GlobalConstant::KycWhitelistLog.failed_txn_status].include?(@transaction_status)
     end
 
+    def invalid_txn_status?
+      [GlobalConstant::KycWhitelistLog.invalid_txn_status].include?(@transaction_status)
+    end
+
     # Is invalid transaction
     #
     # * Author: Sachin
@@ -306,7 +310,11 @@ module Crons
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - has failed Status")
 
-      @kyc_whitelist_log.mark_failed
+      if invalid_txn_status?
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_transaction_failed)
+      else
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_event_failed)
+      end
 
       r = fetch_user_kyc_detail
       return r unless r.success?
@@ -361,23 +369,23 @@ module Crons
       user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
-            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
+            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for address"
         )
 
         return error_with_data(
             'l_c_ckw_5',
-            'no approved user_kyc_detail records found for same address.',
-            'no approved user_kyc_detail records found for same address',
+            'no approved user_kyc_detail records found for address.',
+            'no approved user_kyc_detail records found for address',
             GlobalConstant::ErrorAction.default,
             {}
         )
       end
 
       if user_kyc_details.count > 1
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. multiple approved user_kyc_detail records found for same address"
@@ -395,7 +403,7 @@ module Crons
       user_kyc_detail = user_kyc_details.first
 
       if [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(user_kyc_detail.whitelist_status)
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_failed)
         notify_devs(
             {kyc_whitelist_log_id: @kyc_whitelist_log.id, ethereum_address: @kyc_whitelist_log.ethereum_address},
             "IMMEDIATE ATTENTION NEEDED. invalid whitelist status-#{user_kyc_detail.whitelist_status} of user kyc detail"

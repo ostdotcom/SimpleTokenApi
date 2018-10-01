@@ -93,12 +93,17 @@ customization:
     expiry_in_seconds: 86400
 
   entity_group:
-      key_template: 'entity_group_%{id}'
-      expiry_in_seconds: 86400
+    key_template: 'entity_group_%{id}'
+    expiry_in_seconds: 86400
 
   group_entities:
-        key_template: 'group_entities_%{entity_group_id}'
-        expiry_in_seconds: 86400
+    key_template: 'group_entities_%{entity_group_id}'
+    expiry_in_seconds: 86400
+
+gas_estimation:
+  current_price:
+    key_template: 'current_estimated_gas_mc'
+    expiry_in_seconds: 900
 
 billing:
   client_plan:

@@ -32,7 +32,9 @@ module GlobalConstant
         'case_closed_for_auto_approve'
       end
 
-
+      def human_labels_percentage_low
+        'human_labels_percentage_low'
+      end
 
       def document_file_invalid
         'document_file_invalid'

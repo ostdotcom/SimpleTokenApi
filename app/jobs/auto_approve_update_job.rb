@@ -139,6 +139,9 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.fr_unmatch)
     end
 
+    if @user_kyc_comparison_detail.selfie_human_labels_percent < 90
+      @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.human_labels_percentage_low)
+    end
 
     @client_kyc_pass_setting.ocr_comparison_fields_array.each do |compare_field_name|
       key = "#{compare_field_name}_match_percent"

@@ -23,6 +23,10 @@ module GlobalConstant
         'rekognition_detect_text'
       end
 
+      def aws_rekognition_detect_label
+        'rekognition_detect_label'
+      end
+
       ### Services Type End ###
 
       ###### Image Processing statuses Start ######

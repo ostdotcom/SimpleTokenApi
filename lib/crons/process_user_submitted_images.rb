@@ -498,16 +498,18 @@ module Crons
       labels = resp.data[:labels] if resp.success?
 
       add_image_process_log(GlobalConstant::ImageProcessing.aws_rekognition_detect_label,
-                            {document: @new_doc_s3_file_name}, resp.to_json)
+                            {selfie: @new_doc_s3_file_name}, resp.to_json)
 
       if labels.present?
-        human_percent = 0
+        human_percentages = {}
         labels.each do |label|
-          conf = label[:confidence].to_i
           if ["human", "people", "person"].include?(label[:name].to_s.downcase)
-            human_percent = conf if (human_percent == 0 || conf < human_percent)
+            human_percentages[label[:name].to_s.downcase] = label[:confidence].to_i
           end
         end
+
+        human_percent = 0
+        human_percent = human_percentages.values.min if human_percentages.size == 3
 
         @user_kyc_comparison_detail.selfie_human_labels_percent = human_percent
         @user_kyc_comparison_detail.save

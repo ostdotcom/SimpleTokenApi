@@ -57,7 +57,8 @@ module GlobalConstant
             investor_proof,
             duplicate_kyc,
             token_sale_ended,
-            case_closed_for_auto_approve
+            case_closed_for_auto_approve,
+            human_labels_percentage_low
 
         ]
       end

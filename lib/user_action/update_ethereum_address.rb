@@ -167,7 +167,7 @@
 #       unless r.success?
 #         user_kyc_detail_ids, user_ids = [], []
 #
-#         UserKycDetail.kyc_admin_and_cynopsis_approved.
+#         UserKycDetail.kyc_admin_and_aml_approved.
 #             where(client_id: @user_kyc_detail.client_id, user_extended_detail_id: r.data[:user_extended_detail_ids]).all.each do |user_kyc_detail_obj|
 #           user_kyc_detail_ids << user_kyc_detail_obj.id
 #           user_ids << user_kyc_detail_obj.user_id

@@ -102,7 +102,7 @@ module AdminManagement
         #     ar_relation = ar_relation.order('id DESC')
         #   end
         #
-        #   ar_relation = ar_relation.kyc_admin_and_cynopsis_approved
+        #   ar_relation = ar_relation.kyc_admin_and_aml_approved
         #
         #   if @filters.present?
         #     query_hash = {}

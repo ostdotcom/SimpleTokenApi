@@ -118,7 +118,7 @@ module AdminManagement
           end
           @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
-          @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
+          @duplicate_kycs[u_k_d.user_id][:aml_status] = u_k_d.aml_status
         end
 
       end
@@ -152,7 +152,7 @@ module AdminManagement
           @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.humanize
           @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
-          @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
+          @duplicate_kycs[u_k_d.user_id][:aml_status] = u_k_d.aml_status
         end
 
       end

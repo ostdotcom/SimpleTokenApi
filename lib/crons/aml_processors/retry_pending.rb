@@ -1,6 +1,6 @@
 module Crons
 
-  module CynopsisProcessors
+  module AmlProcessors
 
     class RetryPending
 
@@ -10,7 +10,7 @@ module Crons
       # * Date: 24/10/2017
       # * Reviewed By: Sunil
       ##
-      # @return [Crons::CynopsisProcessor::RetryPending]
+      # @return [Crons::AmlProcessor::RetryPending]
       #
       def initialize(params)
         reset_data
@@ -28,7 +28,7 @@ module Crons
         @denied_user_ids, @approved_user_id_hash = [], {}
       end
 
-      # public method to update status of pending cynopsis state users
+      # public method to update status of pending aml state users
       #
       # * Author: Aman
       # * Date: 24/10/2017
@@ -36,7 +36,7 @@ module Crons
       #
       def perform
         UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).active_kyc.
-            where(cynopsis_status: GlobalConstant::UserKycDetail.pending_cynopsis_status).find_in_batches(batch_size: 500) do |batches|
+            where(aml_status: GlobalConstant::UserKycDetail.pending_aml_status).find_in_batches(batch_size: 500) do |batches|
 
           batches.each do |user_kyc_detail|
             process_user_kyc_details(user_kyc_detail)
@@ -51,7 +51,7 @@ module Crons
 
       private
 
-      # Update user_kyc_detail if cynopsis status changed
+      # Update user_kyc_detail if aml status changed
       #
       # * Author: Aman
       # * Date: 24/10/2017
@@ -62,12 +62,12 @@ module Crons
       def process_user_kyc_details(user_kyc_detail)
         is_already_kyc_denied_by_admin = user_kyc_detail.kyc_denied?
 
-        r = Cynopsis::Customer.new(client_id: user_kyc_detail.client_id).check_status({rfrID: user_kyc_detail.cynopsis_user_id})
-        Rails.logger.info("-- call_cynopsis_check_status_api response: #{r.inspect}")
+        r = Aml::Customer.new(client_id: user_kyc_detail.client_id).check_status({rfrID: user_kyc_detail.aml_user_id})
+        Rails.logger.info("-- call_aml_check_status_api response: #{r.inspect}")
         return unless r.success?
 
         response_hash = ((r.data || {})[:response] || {})
-        user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
+        user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.get_aml_status(response_hash['approval_status'].to_s)
 
         if user_kyc_detail.changed?
           user_kyc_detail.save!(touch: false)

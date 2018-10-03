@@ -43,8 +43,8 @@ client:
     key_template: 'client_api_key_detail_%{api_key}'
     expiry_in_seconds: 86400
 
-  client_cynopsis_details:
-    key_template: 'client_cynopsis_detail_%{client_id}'
+  client_aml_details:
+    key_template: 'client_aml_details_%{client_id}'
     expiry_in_seconds: 86400
 
   client_whitelist_details:

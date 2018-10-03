@@ -15,7 +15,7 @@ namespace :onetimer do
 
       csv_data = []
 
-      all_ued_ids = UserKycDetail.kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
+      all_ued_ids = UserKycDetail.kyc_admin_and_aml_approved.pluck(:user_extended_detail_id)
 
       all_ued_ids.each_slice(100) do |ued_ids|
         UserExtendedDetail.where(id: ued_ids).all.each do |user_extended_detail|

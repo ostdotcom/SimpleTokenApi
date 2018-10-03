@@ -19,8 +19,8 @@ module GlobalConstant
 
       ### setup Property start ###
 
-      def cynopsis_setup_done
-        "cynopsis_setup_done"
+      def aml_setup_done
+        "aml_setup_done"
       end
 
       def email_setup_done

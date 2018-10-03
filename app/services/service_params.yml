@@ -578,7 +578,7 @@
   :optional:
     - :entity_group_id
 
-'AdminManagement::Kyc::RetryCynopsisUpload':
+'AdminManagement::Kyc::RetryAmlUpload':
   :mandatory:
     - :client_id
     - :id

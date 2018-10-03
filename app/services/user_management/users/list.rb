@@ -191,7 +191,7 @@ module UserManagement::Users
     #
     def ar_query
       @ar_query ||= begin
-        ar = User.where(client_id: @client_id)
+        ar = User.where(client_id: @client_id).is_active
         ar = ar.filter_by(@allowed_filters) if @allowed_filters.present?
         ar = ar.sorting_by(@sort_by) if @sort_by.present?
         ar

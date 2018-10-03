@@ -501,15 +501,14 @@ module Crons
                             {selfie: @new_doc_s3_file_name}, resp.to_json)
 
       if labels.present?
-        human_percentages = {}
+        human_percentages = {"human" => 0, "people" => 0, "person" => 0}
         labels.each do |label|
-          if ["human", "people", "person"].include?(label[:name].to_s.downcase)
+          if human_percentages.keys.include?(label[:name].to_s.downcase)
             human_percentages[label[:name].to_s.downcase] = label[:confidence].to_i
           end
         end
 
-        human_percent = 0
-        human_percent = human_percentages.values.min if human_percentages.size == 3
+        human_percent = human_percentages.values.min
 
         @user_kyc_comparison_detail.selfie_human_labels_percent = human_percent
         @user_kyc_comparison_detail.save

@@ -231,7 +231,7 @@ class ProcessKycReportJob < ApplicationJob
         email: user.email,
         submitted_at: Time.at(user_extended_detail.created_at).strftime("%d/%m/%Y %H:%M %z"), # test time with zone
         admin_status: user_kyc_detail.admin_status,
-        cynopsis_status: user_kyc_detail.cynopsis_status
+        aml_status: user_kyc_detail.aml_status
     }
     user_data[:whitelist_status] = user_kyc_detail.whitelist_status if other_kyc_fields.include?('whitelist_status')
 
@@ -320,7 +320,7 @@ class ProcessKycReportJob < ApplicationJob
   def other_kyc_fields
     @kyc_status_fields ||=
         begin
-          fields = ['admin_status', 'cynopsis_status', 'submitted_at']
+          fields = ['admin_status', 'aml_status', 'submitted_at']
           fields << 'whitelist_status' if @client.is_whitelist_setup_done?
           fields
         end

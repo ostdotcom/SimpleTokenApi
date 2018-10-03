@@ -1,4 +1,4 @@
-module Cynopsis
+module Aml
 
   class Base
 
@@ -13,7 +13,7 @@ module Cynopsis
     # * Reviewed By:
     #
     # @params [Integer] client id (mandatory) - Client id
-    # @return [Cynopsis::Base]
+    # @return [Aml::Base]
     #
     def initialize(params)
       @client_id = params[:client_id]
@@ -81,27 +81,27 @@ module Cynopsis
       send_request_of_type('upload', path, params)
     end
 
-    # Client cynopsis detail obj
+    # Client aml detail obj
     #
     # * Author: Aman
     # * Date: 02/01/2018
     # * Reviewed By:
     #
-    # @return [Ar] ClientCynopsisDetail object
+    # @return [Ar] ClientAmlDetail object
     #
-    def client_cynopsis_detail
-      @client_cynopsis_detail ||= ClientCynopsisDetail.get_from_memcache(@client_id)
+    def client_aml_detail
+      @client_aml_detail ||= ClientAmlDetail.get_from_memcache(@client_id)
     end
 
-    # Client cynopsis detail decrypted token
+    # Client aml detail decrypted token
     #
     # * Author: Aman
     # * Date: 02/01/2018
     # * Reviewed By:
     #
-    # @return [String] ClientCynopsisDetail decrypted token
+    # @return [String] ClientAmlDetail decrypted token
     #
-    def get_client_cynopsis_token_decrypted
+    def get_client_aml_token_decrypted
       @client = Client.get_from_memcache(@client_id)
 
       r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
@@ -109,7 +109,7 @@ module Cynopsis
 
       api_salt_d = r.data[:plaintext]
 
-      r = LocalCipher.new(api_salt_d).decrypt(client_cynopsis_detail.token)
+      r = LocalCipher.new(api_salt_d).decrypt(client_aml_detail.token)
       return r unless r.success?
 
       api_secret_d = r.data[:plaintext]
@@ -131,11 +131,11 @@ module Cynopsis
     #
     def send_request_of_type(request_type, path, params)
       begin
-        r = get_client_cynopsis_token_decrypted
+        r = get_client_aml_token_decrypted
         return r unless r.success?
 
         response = HTTP.headers('WEB2PY-USER-TOKEN' => r.data[:token_d])
-        request_path = client_cynopsis_detail.base_url + path
+        request_path = client_aml_detail.base_url + path
 
         case request_type
           when 'get'

@@ -104,7 +104,7 @@ module AdminManagement
                 name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
                 kyc_confirmed_at: get_formatted_time(user_extended_detail.created_at.to_i),
                 admin_status: u_k.admin_status,
-                cynopsis_status: u_k.cynopsis_status,
+                aml_status: u_k.aml_status,
                 whitelist_status: u_k.whitelist_status,
                 country: country_name.titleize,
                 nationality: nationality_name.titleize,

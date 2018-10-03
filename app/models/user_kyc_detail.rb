@@ -1,12 +1,12 @@
 class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
-  enum cynopsis_status: {
-      GlobalConstant::UserKycDetail.unprocessed_cynopsis_status => 1, # yello
-      GlobalConstant::UserKycDetail.pending_cynopsis_status => 2, # yello
-      GlobalConstant::UserKycDetail.cleared_cynopsis_status => 3, # green
-      GlobalConstant::UserKycDetail.approved_cynopsis_status => 4, # green
-      GlobalConstant::UserKycDetail.rejected_cynopsis_status => 5, # red
-      GlobalConstant::UserKycDetail.failed_cynopsis_status => 6 # red
+  enum aml_status: {
+      GlobalConstant::UserKycDetail.unprocessed_aml_status => 1, # yello
+      GlobalConstant::UserKycDetail.pending_aml_status => 2, # yello
+      GlobalConstant::UserKycDetail.cleared_aml_status => 3, # green
+      GlobalConstant::UserKycDetail.approved_aml_status => 4, # green
+      GlobalConstant::UserKycDetail.rejected_aml_status => 5, # red
+      GlobalConstant::UserKycDetail.failed_aml_status => 6 # red
   }, _suffix: true
 
   enum admin_status: {
@@ -44,7 +44,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
       GlobalConstant::UserKycDetail.inactive_status => 2
   }, _suffix: true
 
-  scope :kyc_admin_and_cynopsis_approved, -> {where(cynopsis_status: GlobalConstant::UserKycDetail.cynopsis_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
+  scope :kyc_admin_and_aml_approved, -> {where(aml_status: GlobalConstant::UserKycDetail.aml_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
   scope :whitelist_status_unprocessed, -> {where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status)}
 
   scope :active_kyc, -> {where(status: GlobalConstant::UserKycDetail.active_status)}
@@ -182,15 +182,15 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   def kyc_approved?
-    GlobalConstant::UserKycDetail.cynopsis_approved_statuses.include?(cynopsis_status) && GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
+    GlobalConstant::UserKycDetail.aml_approved_statuses.include?(aml_status) && GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
   def kyc_denied?
-    (cynopsis_status == GlobalConstant::UserKycDetail.rejected_cynopsis_status) || (admin_status == GlobalConstant::UserKycDetail.denied_admin_status)
+    (aml_status == GlobalConstant::UserKycDetail.rejected_aml_status) || (admin_status == GlobalConstant::UserKycDetail.denied_admin_status)
   end
 
-  def cynopsis_rejected?
-    cynopsis_status == GlobalConstant::UserKycDetail.rejected_cynopsis_status
+  def aml_rejected?
+    aml_status == GlobalConstant::UserKycDetail.rejected_aml_status
   end
 
   def case_closed_for_admin?
@@ -202,7 +202,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   def can_delete?
-    self.cynopsis_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(self.admin_status)
+    self.aml_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(self.admin_status)
   end
 
   def kyc_pending?
@@ -229,7 +229,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   end
 
-  def self.get_cynopsis_user_id(user_id)
+  def self.get_aml_user_id(user_id)
     "ts_#{Rails.env[0..1]}_#{user_id}"
   end
 

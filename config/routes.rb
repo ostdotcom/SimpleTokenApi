@@ -93,7 +93,7 @@ Rails.application.routes.draw do
       match 'qualify' => :qualify, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
-      match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
+      match 'retry-aml-upload' => :retry_aml_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
 
       match 'open-case' => :open_kyc_case, via: :POST

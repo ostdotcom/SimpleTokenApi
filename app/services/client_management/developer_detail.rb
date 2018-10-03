@@ -37,7 +37,7 @@ module ClientManagement
         return r unless r.success?
 
         fetch_api_keys
-        fetch_client_cynopsis
+        fetch_client_aml
 
         success_with_data(success_response_data)
       end
@@ -93,16 +93,16 @@ module ClientManagement
         @api_secret_d = LocalCipher.new(api_salt_d).decrypt(@client.api_secret).data[:plaintext]
       end
 
-      # Fetch Client Cynopsis
+      # Fetch Client Aml
       #
       # * Author: Aniket
       # * Date: 02/07/2018
       # * Reviewed By: Aman
       #
-      # Sets @client_cynopsis
+      # Sets @client_aml
       #
-      def fetch_client_cynopsis
-        @client_cynopsis = ClientCynopsisDetail.get_from_memcache(@client_id)
+      def fetch_client_aml
+        @client_aml = ClientAmlDetail.get_from_memcache(@client_id)
       end
 
       # Api response data
@@ -117,8 +117,8 @@ module ClientManagement
         {
             api_key: @client.api_key,
             api_secret: @api_secret_d,
-            aml_login_url: @client_cynopsis.base_url,
-            aml_username: @client_cynopsis.email_id
+            aml_login_url: @client_aml.base_url,
+            aml_username: @client_aml.email_id
         }
       end
 

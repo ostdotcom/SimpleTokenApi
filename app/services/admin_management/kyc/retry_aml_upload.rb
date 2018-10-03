@@ -2,7 +2,7 @@ module AdminManagement
 
   module Kyc
 
-    class RetryCynopsisUpload < ServicesBase
+    class RetryAmlUpload < ServicesBase
 
       # Initialize
       #
@@ -16,7 +16,7 @@ module AdminManagement
       # @params [Integer] admin_id (optional) - logged in admin (not passed when called by a cron)
       # @params [Boolean] cron_job (optional) - true if called by cron job
       #
-      # @return [AdminManagement::Kyc::RetryCynopsisUpload]
+      # @return [AdminManagement::Kyc::RetryAmlUpload]
       #
       def initialize(params)
         super
@@ -28,12 +28,12 @@ module AdminManagement
         @cron_job = @params[:cron_job]
 
         @user_kyc_detail, @user_extended_detail = nil, nil
-        @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
+        @aml_status = GlobalConstant::UserKycDetail.failed_aml_status
 
         @kyc_salt_d = nil
       end
 
-      # perform cynopsis add or update for kyc user
+      # perform aml add or update for kyc user
       #
       # * Author: Aman
       # * Date: 25/04/2018
@@ -62,7 +62,7 @@ module AdminManagement
 
         decrypt_kyc_salt
 
-        r = call_cynopsis_api
+        r = call_aml_api
         return r unless r.success?
 
         success
@@ -82,7 +82,7 @@ module AdminManagement
         @user_kyc_detail = UserKycDetail.where(id: @case_id).first
       end
 
-      # Validate if cynopsis upload should be retried for user kyc obj
+      # Validate if aml upload should be retried for user kyc obj
       #
       # * Author: Aman
       # * Date: 25/04/2018
@@ -103,12 +103,12 @@ module AdminManagement
 
         return error_with_data(
             'am_k_rcu_vuk_2',
-            "User kyc is already uploaded in cynopsis",
-            "user kyc has been added to cynopsis",
+            "User kyc is already uploaded in aml",
+            "user kyc has been added to aml",
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.failed_cynopsis_status
+        ) if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.failed_aml_status
 
         success
       end
@@ -125,7 +125,7 @@ module AdminManagement
         @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
       end
 
-      # Cynopsis add or update
+      # aml add or update
       #
       # * Author: Aman
       # * Date: 25/04/2018
@@ -133,19 +133,19 @@ module AdminManagement
       #
       # @return [Result::Base]
       #
-      def call_cynopsis_api
-        r = @user_kyc_detail.cynopsis_user_id.blank? ? create_cynopsis_case : update_cynopsis_case
-        Rails.logger.info("-- retry for call_cynopsis_api r: #{r.inspect}")
+      def call_aml_api
+        r = @user_kyc_detail.aml_user_id.blank? ? create_aml_case : update_aml_case
+        Rails.logger.info("-- retry for call_aml_api r: #{r.inspect}")
 
         if !r.success?
           # dont log activity if it is a cron task
           log_to_user_activity(r) if !is_a_cron_task?
-          save_cynopsis_status
+          save_aml_status
 
           return error_with_data(
               'am_k_rcu_cca_1',
-              "There was some error in cynopsis update",
-              "Unable to update in cynopsis. There was some error.",
+              "There was some error in aml update",
+              "Unable to update in aml. There was some error.",
               GlobalConstant::ErrorAction.default,
               {},
               {}
@@ -153,9 +153,9 @@ module AdminManagement
         end
 
         response_hash = ((r.data || {})[:response] || {})
-        @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
-        @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
-        save_cynopsis_status
+        @aml_status = GlobalConstant::UserKycDetail.get_aml_status(response_hash['approval_status'].to_s)
+        @user_kyc_detail.aml_user_id = get_aml_user_id
+        save_aml_status
 
         success
       end
@@ -177,7 +177,7 @@ module AdminManagement
         @kyc_salt_d = r.data[:plaintext]
       end
 
-      # Create user in cynopsis
+      # Create user in aml
       #
       # * Author: Aman
       # * Date: 25/04/2018
@@ -185,11 +185,11 @@ module AdminManagement
       #
       # @return [Result::Base]
       #
-      def create_cynopsis_case
-        Cynopsis::Customer.new(client_id: @user_kyc_detail.client_id).create(cynopsis_params)
+      def create_aml_case
+        Aml::Customer.new(client_id: @user_kyc_detail.client_id).create(aml_params)
       end
 
-      # Update user in cynopsis
+      # Update user in aml
       #
       # * Author: Aman
       # * Date: 25/04/2018
@@ -197,8 +197,8 @@ module AdminManagement
       #
       # @return [Result::Base]
       #
-      def update_cynopsis_case
-        Cynopsis::Customer.new(client_id: @user_kyc_detail.client_id).update(cynopsis_params, true)
+      def update_aml_case
+        Aml::Customer.new(client_id: @user_kyc_detail.client_id).update(aml_params, true)
       end
 
       # Log to user activity
@@ -210,7 +210,7 @@ module AdminManagement
       def log_to_user_activity(response)
         UserActivityLogJob.new().perform({
                                              user_id: @user_kyc_detail.user_id,
-                                             action: GlobalConstant::UserActivityLog.cynopsis_api_error,
+                                             action: GlobalConstant::UserActivityLog.aml_api_error,
                                              action_timestamp: Time.now.to_i,
                                              extra_data: {
                                                  response: response.to_json
@@ -228,16 +228,16 @@ module AdminManagement
         @local_cipher_obj ||= LocalCipher.new(@kyc_salt_d)
       end
 
-      # Create cynopsis params
+      # Create aml params
       #
       # * Author: Aman
       # * Date: 25/04/2018
       # * Reviewed By:
       #
-      def cynopsis_params
+      def aml_params
         date_of_birth_d = local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext]
         {
-            rfrID: get_cynopsis_user_id,
+            rfrID: get_aml_user_id,
             first_name: @user_extended_detail.first_name,
             last_name: @user_extended_detail.last_name,
             country_of_residence: local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext].upcase,
@@ -248,17 +248,17 @@ module AdminManagement
         }
       end
 
-      # Save cynopsis response status
+      # Save aml response status
       #
       # * Author: Aman
       # * Date: 25/04/2018
       # * Reviewed By:
       #
-      def save_cynopsis_status
-        Rails.logger.info('-- save_cynopsis_status')
+      def save_aml_status
+        Rails.logger.info('-- save_aml_status')
         is_already_kyc_denied_by_admin = @user_kyc_detail.kyc_denied?
 
-        @user_kyc_detail.cynopsis_status = @cynopsis_status
+        @user_kyc_detail.aml_status = @aml_status
 
         if @user_kyc_detail.changed?
           @user_kyc_detail.save!(touch: false)
@@ -270,7 +270,7 @@ module AdminManagement
 
       end
 
-      # Get cynopsis rfrID
+      # Get aml rfrID
       #
       # * Author: Aman
       # * Date: 25/04/2018
@@ -279,9 +279,9 @@ module AdminManagement
       # ts - (token sale)
       # Rails.env[0..1] - (de/sa/st/pr)
       #
-      def get_cynopsis_user_id
-        @get_cynopsis_user_id ||= @user_kyc_detail.cynopsis_user_id.present? ? @user_kyc_detail.cynopsis_user_id.to_s :
-                                      UserKycDetail.get_cynopsis_user_id(@user_kyc_detail.user_id)
+      def get_aml_user_id
+        @get_aml_user_id ||= @user_kyc_detail.aml_user_id.present? ? @user_kyc_detail.aml_user_id.to_s :
+                                      UserKycDetail.get_aml_user_id(@user_kyc_detail.user_id)
       end
 
       # Send denied email

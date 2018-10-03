@@ -91,7 +91,7 @@ class Client < EstablishSimpleTokenClientDbConnection
   #
   def self.setup_properties_config
     @setup_properties_config ||= {
-        GlobalConstant::Client.cynopsis_setup_done => 1,
+        GlobalConstant::Client.aml_setup_done => 1,
         GlobalConstant::Client.email_setup_done => 2,
         GlobalConstant::Client.whitelist_setup_done => 4,
         GlobalConstant::Client.web_host_setup_done => 8,

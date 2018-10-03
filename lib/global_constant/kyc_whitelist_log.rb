@@ -38,16 +38,20 @@ module GlobalConstant
         'not_failed'
       end
 
-      def invalid_kyc_failed
-        'invalid_kyc_failed'
+      def invalid_kyc_record
+        'invalid_kyc_record'
       end
 
-      def invalid_transaction_failed
-        'invalid_transaction_failed'
+      def transaction_failed
+        'transaction_failed'
       end
 
-      def invalid_event_failed
-        'invalid_event_failed'
+      def invalid_event_received
+        'invalid_event_received'
+      end
+
+      def transaction_not_found
+        'transaction_not_found'
       end
 
       ### Failed Reason ends ####

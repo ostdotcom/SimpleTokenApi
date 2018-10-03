@@ -9,9 +9,10 @@ class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
 
   enum failed_reason: {
       GlobalConstant::KycWhitelistLog.not_failed => 0,
-      GlobalConstant::KycWhitelistLog.invalid_kyc_failed => 1,
-      GlobalConstant::KycWhitelistLog.invalid_transaction_failed => 2,
-      GlobalConstant::KycWhitelistLog.invalid_event_failed => 3
+      GlobalConstant::KycWhitelistLog.invalid_event_received => 1,
+      GlobalConstant::KycWhitelistLog.invalid_kyc_record => 2,
+      GlobalConstant::KycWhitelistLog.transaction_failed => 3,
+      GlobalConstant::KycWhitelistLog.transaction_not_found => 4
   }
 
   scope :kyc_whitelist_non_confirmed, -> {

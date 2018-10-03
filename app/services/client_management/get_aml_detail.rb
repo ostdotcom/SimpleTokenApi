@@ -19,7 +19,7 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
 
-      @client_cynopsyis = nil
+      @client_aml_details = nil
     end
 
     # Perform

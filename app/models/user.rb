@@ -1,5 +1,9 @@
 class User < EstablishSimpleTokenUserDbConnection
 
+  # Note : always include this after declaring bit_wise_columns_config method
+  include BitWiseConcern
+  include AttributeParserConcern
+
   enum status: {
       GlobalConstant::User.active_status => 1,
       GlobalConstant::User.inactive_status => 2,
@@ -121,9 +125,6 @@ class User < EstablishSimpleTokenUserDbConnection
         properties: properties_config
     }
   end
-
-  # Note : always include this after declaring bit_wise_columns_config method
-  include BitWiseConcern
 
 
   # Get encrypted password

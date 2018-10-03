@@ -371,17 +371,16 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     def to_json
-
-      if (self.to_hash[:error] == nil)
-        h = {
+      response = nil
+      if self.to_hash[:error] == nil
+        response = {
             success: true,
             http_code: http_code
         }.merge(self.to_hash)
-        h
       else
-        build_error_response
+        response = build_error_response
       end
-
+      response
     end
 
     # Build error response
@@ -438,9 +437,9 @@ module Result
             new_error_data << {parameter: parameter_key, msg: "#{parameter_key} is missing"} if parameter_key.present?
             ApplicationMailer.notify(
                 to: GlobalConstant::Email.default_to,
-                body: "Misiing params identifier",
+                body: "Missing params identifier",
                 data: {result_base: self},
-                subject: "Warning::Misiing params identifier. please add the error details"
+                subject: "Warning::Missing params identifier. please add the error details"
             ).deliver
           end
         end

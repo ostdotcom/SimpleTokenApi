@@ -144,7 +144,7 @@ module AdminManagement
         offset = @page_size * (@page_number - 1) if @page_number > 1
         @users = user_relational_query.limit(@page_size).offset(offset).all
         # No need to query kyc detail if filter applied is kyc_submitted_no
-        if @filters["kyc_submitted"].to_s != kyc_submitted_no
+        if @filters["is_kyc_submitted"].to_s != kyc_submitted_no
           @user_kyc_details = UserKycDetail.where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
         end
       end
@@ -161,8 +161,8 @@ module AdminManagement
         user_relational_query = User.where(client_id: @client_id).is_active
         property_val = User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
         # If filter is applied on KYC submitted
-        if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["kyc_submitted"].to_s)
-          if @filters["kyc_submitted"].to_s == kyc_submitted_no
+        if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["is_kyc_submitted"].to_s)
+          if @filters["is_kyc_submitted"].to_s == kyc_submitted_no
             user_relational_query = user_relational_query.where("properties & ? = 0", property_val)
           else
             user_relational_query = user_relational_query.where("properties & ? > 0", property_val)
@@ -213,7 +213,7 @@ module AdminManagement
               case_id: ukd_present ? @user_kyc_details[u.id].id : 0,
               email: u.email,
               registration_timestamp: u.created_at.to_i,
-              kyc_submitted: ukd_present.to_i,
+              is_kyc_submitted: ukd_present.to_i,
               whitelist_status: ukd_present ? @user_kyc_details[u.id].whitelist_status : nil,
               action_to_perform: action_to_perform(ukd)
           }
@@ -309,7 +309,7 @@ module AdminManagement
       #
       def page_filters
         @page_filters ||= {
-            "kyc_submitted" => ["all", kyc_submitted_yes, kyc_submitted_no]
+            "is_kyc_submitted" => ["all", kyc_submitted_yes, kyc_submitted_no]
         }
       end
 

@@ -165,7 +165,7 @@ module UserManagement
       #
       def service_response_data
         {
-            user: @user
+            user: @user.get_hash
         }
       end
 

@@ -40,6 +40,20 @@ module OstKycApi
       GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(environment)
     end
 
+    # create user
+    #
+    # * Author: Aniket
+    # * Date: 21/09/2018
+    # * Reviewed By:
+    #
+    # @params [String] user_id (mandatory)
+    # @params [Hash] custom_params (mandatory) - email
+    #
+    def create_user(custom_params = nil)
+      endpoint = "/api/#{@version}/users"
+      make_post_request(endpoint, custom_params)
+    end
+
     # get user
     #
     # * Author: Aniket
@@ -71,18 +85,65 @@ module OstKycApi
       make_get_request(endpoint, custom_params)
     end
 
-    # get user list
+    # submit kyc
     #
     # * Author: Aniket
-    # * Date: 21/09/2018
+    # * Date: 26/09/2018
     # * Reviewed By:
     #
-    # @params [String] user_id (mandatory)
-    # @params [Hash] custom_params (mandatory) - email
+    # @params [Hash] custom_params (mandatory) - first_name, last_name, birthdate, country, nationality, document_id_number,
+    # document_id_file, selfie_file, residence_proof_file,investor_proof_files, ethereum_address, postal_code, street_address,
+    # city, state
     #
-    def create_user(custom_params = nil)
-      endpoint = "/api/#{@version}/users"
+    def submit_kyc(user_id,custom_params= nil)
+      default_params = {}
+
+      endpoint = "/api/#{@version}/users-kyc/#{user_id}"
+      custom_params = custom_params || default_params
       make_post_request(endpoint, custom_params)
+    end
+
+    # Get user kyc for particular id
+    #
+    # * Author: Tejas
+    # * Date: 27/09/2018
+    # * Reviewed By:
+    #
+    # @params [Integer] id (mandatory) - user id
+    #
+    def get_user_kyc(id)
+      endpoint = "/api/#{@version}/users-kyc/#{id}"
+      make_get_request(endpoint)
+    end
+
+    # verify ethereum address
+    #
+    # * Author: Aniket
+    # * Date: 26/09/2018
+    # * Reviewed By:
+    #
+    # @params [Hash] custom_params (mandatory) - filters, order, page_number, page_size
+    #
+    def get_users_kyc_list(custom_params= nil)
+      default_params = {filter:{admin_status:'unprocessed' ,aml_status:'cleared'}}
+
+      endpoint = "/api/#{@version}/users-kyc"
+      custom_params = custom_params || default_params
+      make_get_request(endpoint, custom_params)
+    end
+
+
+    # Get user kyc details for particular id
+    #
+    # * Author: Tejas
+    # * Date: 27/09/2018
+    # * Reviewed By:
+    #
+    # @params [Integer] id (mandatory) - user id
+    #
+    def get_user_kyc_detail(id)
+      endpoint = "/api/#{@version}/users-kyc-details/#{id}"
+      make_get_request(endpoint)
     end
 
     # get pre signed url for put
@@ -97,14 +158,12 @@ module OstKycApi
     def get_presigned_url_put(custom_params = nil)
 
       default_val = {
-          images: {
-              document_id: 'image/jpeg',
-              selfie: 'image/jpeg'
-          },
-          pdfs: {
+          file: {
               residence_proof: 'application/pdf',
               investor_proof_file1: 'application/pdf',
-              investor_proof_file2: 'application/pdf'
+              investor_proof_file2: 'application/pdf',
+              document_id: 'image/jpeg',
+              selfie: 'image/jpeg'
           }
       }
       endpoint = "/api/#{@version}/users-kyc/pre-signed-urls/for-put"
@@ -125,14 +184,12 @@ module OstKycApi
     def get_presigned_url_post(custom_params = nil)
 
       default_val = {
-          images: {
-              document_id: 'image/jpeg',
-              selfie: 'image/jpeg'
-          },
-          pdfs: {
+          file: {
               residence_proof: 'application/pdf',
               investor_proof_file1: 'application/pdf',
-              investor_proof_file2: 'application/pdf'
+              investor_proof_file2: 'application/pdf',
+              document_id: 'image/jpeg',
+              selfie: 'image/jpeg'
           }
       }
       endpoint = "/api/#{@version}/users-kyc/pre-signed-urls/for-post"
@@ -146,22 +203,13 @@ module OstKycApi
     # * Author: Aniket
     # * Date: 26/09/2018
     # * Reviewed By:
+    # 
     #
     # @params [Hash] custom_params (mandatory) - ethereum_address
     #
     def verify_ethereum_address(custom_params = nil)
       endpoint = "/api/#{@version}/ethereum-address-validation"
       make_get_request(endpoint, custom_params)
-    end
-
-    def get_user_kyc(id)
-      endpoint = "/api/#{@version}/users-kyc/#{id}"
-      make_get_request(endpoint)
-    end
-
-    def get_user_kyc_detail(id)
-      endpoint = "/api/#{@version}/users-kyc-details/#{id}"
-      make_get_request(endpoint)
     end
 
     ########################################################################################################################

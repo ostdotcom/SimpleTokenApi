@@ -11,7 +11,7 @@ module AttributeParserConcern
     #
     # returns [Hash] attributes converted to Hash with filtered fields
     #
-    def to_hash
+    def get_hash
       hashed_data = self.attributes
       binding.pry
       self.singleton_class.bit_wise_columns_config.present? && self.singleton_class.bit_wise_columns_config.each do |col, _|

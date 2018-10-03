@@ -171,7 +171,6 @@ module Authentication::ApiRequest
     def generate_signature
       digest = OpenSSL::Digest.new('sha256')
       string_to_sign = "#{@url_path}?#{sorted_parameters_query}"
-      puts " 1: #{string_to_sign}"
       OpenSSL::HMAC.hexdigest(digest, @api_secret_d, string_to_sign)
     end
 

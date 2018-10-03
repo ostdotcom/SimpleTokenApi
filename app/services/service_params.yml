@@ -251,28 +251,6 @@
     - :browser_user_agent
   :optional:
 
-'UserManagement::KycSubmit':
-  :mandatory:
-    - :user_id
-    - :client_id
-    - :first_name
-    - :last_name
-    - :birthdate
-    - :country
-    - :document_id_number
-    - :nationality
-    - :document_id_file_path
-    - :selfie_file_path
-  :optional:
-    - :ethereum_address
-    - :residence_proof_file_path
-    - :street_address
-    - :city
-    - :state
-    - :postal_code
-    - :estimated_participation_amount
-    - :investor_proof_files_path
-
 'UserManagement::DoubleOptIn':
   :mandatory:
     - :t
@@ -321,6 +299,18 @@
   :optional:
     - :pdfs
     - :images
+
+'UserManagement::DocumentsUploader::V2::ForPost':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :file
+
+'UserManagement::DocumentsUploader::V2::ForPut':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :file
 
 'UserManagement::CheckEthereumBalance':
   :mandatory:
@@ -717,3 +707,34 @@
     - :client_id
     - :user_id
   :optional:
+
+'UserManagement::Kyc::List':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :page_number
+    - :page_size
+    - :filter
+    - :order
+
+'UserManagement::Kyc::Submit':
+  :mandatory:
+    - :user_id
+    - :client_id
+    - :first_name
+    - :last_name
+    - :birthdate
+    - :country
+    - :document_id_number
+    - :nationality
+    - :document_id_file_path
+    - :selfie_file_path
+  :optional:
+    - :ethereum_address
+    - :residence_proof_file_path
+    - :street_address
+    - :city
+    - :state
+    - :postal_code
+    - :estimated_participation_amount
+    - :investor_proof_files_path

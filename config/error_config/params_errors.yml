@@ -1,6 +1,62 @@
+missing_birthdate:
+   parameter: 'birthdate'
+   msg: "birthdate is mandatory."
+
+invalid_birthdate_age:
+   parameter: 'birthdate'
+   msg: "Age required is between 18 to 100 years."
+
+invalid_birthdate:
+   parameter: 'birthdate'
+   msg: "birthdate is invalid.format should be dd/mm/yyyy"
+
+invalid_city:
+  parameter: 'city'
+  msg: "city is invalid."
+
+missing_city:
+   parameter: 'city'
+   msg: "city is mandatory."
+
+blacklisted_country:
+   parameter: 'country'
+   msg: "This Country is blacklisted by client."
+
+missing_country:
+   parameter: 'country'
+   msg: "country is mandatory."
+
+invalid_country:
+   parameter: 'country'
+   msg: "country is invalid."
+
 missing_client_id:
   parameter: 'client_id'
   msg: "client_id is mandatory."
+
+file_not_found_document_id_number:
+  parameter: 'document_id_number'
+  msg: "File is not present on S3."
+
+invalid_document_id_number:
+  parameter: 'document_id_number'
+  msg: "document_id_number is invalid."
+
+missing_document_id_number:
+   parameter: 'document_id_number'
+   msg: "document_id_number is mandatory."
+
+invalid_document_id_file_path:
+  parameter: 'document_id_file_path'
+  msg: "document_id_file_path is invalid."
+
+missing_document_id_file_path:
+   parameter: 'document_id_file_path'
+   msg: "document_id_file_path is mandatory."
+
+wrong_file_size_of_document_id_file_path:
+   parameter: 'document_id_file_path'
+   msg: "File size should be between 200kB & 20MB."
 
 invalid_email:
   parameter: 'email'
@@ -14,17 +70,45 @@ user_already_present:
   parameter: 'email'
   msg: "user with this email already exist."
 
+invalid_estimated_participation_amount:
+   parameter: 'estimated_participation_amount'
+   msg: "estimated_participation_amount is invalid. It can be a float value greater than equal to 0.01"
+
+missing_estimated_participation_amount:
+   parameter: 'estimated_participation_amount'
+   msg: "estimated_participation_amount is mandatory."
+
 invalid_ethereum_address:
    parameter: 'ethereum_address'
    msg: "ethereum_address is invalid."
 
 missing_ethereum_address:
    parameter: 'ethereum_address'
-   msg: "ethereum_address is missing."
+   msg: "ethereum_address is mandatory."
 
-invalid_filters:
-   parameter: 'filters'
-   msg: "filters is invalid."
+invalid_file:
+   parameter: 'file'
+   msg: "file is invalid. Only 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'  content type is supported."
+
+invalid_file_count:
+   parameter: 'file'
+   msg: "file contains more values than required. Maximum values allowed is 20."
+
+missing_file:
+   parameter: 'file'
+   msg: "file is mandatory."
+
+invalid_filter:
+   parameter: 'filter'
+   msg: "filter is invalid."
+
+missing_first_name:
+   parameter: 'first_name'
+   msg: "first_name is mandatory."
+
+invalid_first_name:
+   parameter: 'first_name'
+   msg: "first_name is invalid."
 
 missing_id:
    parameter: 'id'
@@ -36,11 +120,48 @@ invalid_id:
 
 missing_images:
    parameter: 'images'
-   msg: "images is missing."
+   msg: "images is mandatory."
 
 invalid_images:
    parameter: 'images'
    msg: "images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
+
+file_not_found_investor_proof_file_path:
+  parameter: 'investor_proof_file_path'
+  msg: "File is not present on S3."
+
+invalid_investor_proof_file_path:
+  parameter: 'investor_proof_file_path'
+  msg: "investor_proof_file_path is invalid."
+
+#TODO: 2 is dummy number need logic to change it.
+invalid_investor_proof_file_path_count:
+  parameter: 'investor_proof_file_path'
+  msg: "Max 2 documents are allowed as investor proof."
+
+missing_investor_proof_file_path:
+   parameter: 'investor_proof_file_path'
+   msg: "investor_proof_file_path is mandatory."
+
+wrong_file_size_of_investor_proof_file_path:
+   parameter: 'investor_proof_file_path'
+   msg: "File size should be between 200kB & 20MB."
+
+missing_last_name:
+   parameter: 'last_name'
+   msg: "last_name is mandatory."
+
+invalid_last_name:
+   parameter: 'last_name'
+   msg: "last_name is invalid."
+
+invalid_nationality:
+   parameter: 'nationality'
+   msg: "nationality is invalid."
+
+missing_nationality:
+   parameter: 'nationality'
+   msg: "nationality is mandatory."
 
 invalid_order:
   parameter: 'order'
@@ -56,15 +177,71 @@ invalid_page_size:
 
 missing_pdfs:
    parameter: 'pdfs'
-   msg: "pdfs is missing."
+   msg: "pdfs is mandatory."
 
 invalid_pdfs:
    parameter: 'pdfs'
    msg: "pdfs is invalid. Only 'application/pdf' content type is supported."
 
+invalid_postal_code:
+   parameter: 'postal_code'
+   msg: "postal_code is invalid."
+
+missing_postal_code:
+   parameter: 'postal_code'
+   msg: "postal_code is mandatory."
+
+file_not_found_residence_proof_file_path:
+  parameter: 'residence_proof_file_path'
+  msg: "File is not present on S3."
+
+invalid_residence_proof_file_path:
+  parameter: 'residence_proof_file_path'
+  message: "residence_proof_file_path is invalid."
+
+missing_residence_proof_file_path:
+   parameter: 'residence_proof_file_path'
+   msg: "residence_proof_file_path is mandatory."
+
+wrong_file_size_of_residence_proof_file_path:
+   parameter: 'residence_proof_file_path'
+   msg: "File size should be between 200kB & 20MB."
+
+file_not_found_selfie_file_path:
+  parameter: 'selfie_file_path'
+  msg: "File is not present on S3."
+
+invalid_selfie_file_path:
+  parameter: 'selfie_file_path'
+  message: "selfie_file_path is invalid."
+
+missing_selfie_file_path:
+   parameter: 'selfie_file_path'
+   msg: "selfie_file_path is mandatory."
+
+wrong_file_size_of_selfie_file_path:
+   parameter: 'selfie_file_path'
+   msg: "File size should be between 200kB & 20MB."
+
 invalid_allowed_keys:
   parameter: 'set_allowed_keys'
   message: "Invalid field selected."
+
+invalid_state:
+  parameter: 'state'
+  message: "state is invalid."
+
+missing_state:
+   parameter: 'state'
+   msg: "state is mandatory."
+
+missing_street_address:
+   parameter: 'street_address'
+   msg: "street_address is invalid."
+
+invalid_street_address:
+  parameter: 'street_address'
+  msg: "street address is invalid."
 
 invalid_user_id:
   parameter: 'user_id'

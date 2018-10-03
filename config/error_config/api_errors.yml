@@ -28,6 +28,11 @@ no_configurator_access:
   code: 'UNAUTHORIZED'
   message: "Client don't have configurator access."
 
+double_opt_in_error:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Double opt in not done by user."
+
 invalid_client_id:
   http_code: '403'
   code: 'FORBIDDEN'
@@ -52,6 +57,11 @@ could_not_proceed:
   http_code: '422'
   code: 'UNPROCESSABLE_ENTITY'
   message: "The request was good, but nevertheless could not be processed."
+
+case_closed:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Case cannot be updated. It is already approved or denied."
 
 token_sale_ended:
   http_code: '422'

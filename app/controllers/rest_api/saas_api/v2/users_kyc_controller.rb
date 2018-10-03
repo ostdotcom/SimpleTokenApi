@@ -13,7 +13,8 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   # * Reviewed By:
   #
   def index
-    puts "inside UsersKycController : index"
+    @service_response = UserManagement::Kyc::List.new(params).perform
+    format_service_response
   end
 
   # Get particular user kyc for user_id
@@ -23,7 +24,6 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   # * Reviewed By:
   #
   def show
-    puts "inside UsersKycController : show"
     @service_response = UserManagement::Kyc::Get.new(params).perform
     format_service_response
   end
@@ -35,7 +35,8 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   # * Reviewed By:
   #
   def submit
-    puts "inside UsersKycController : submit"
+    @service_response = UserManagement::Kyc::Submit.new(params).perform
+    format_service_response
   end
 
   # Get pre_signed url for S3 put
@@ -45,8 +46,8 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   # * Reviewed By:
   #
   def get_pre_singed_url_for_put
-    service_response = UserManagement::DocumentsUploader::SignedPutUrls.new(params).perform
-    render_api_response(service_response)
+    @service_response = UserManagement::DocumentsUploader::V2::ForPut.new(params).perform
+    format_service_response
   end
 
   # Get pre_signed url for S3 post
@@ -56,25 +57,18 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
   # * Reviewed By:
   #
   def get_pre_singed_url_for_post
-    service_response = UserManagement::DocumentsUploader::SignedPostParams.new(params).perform
-    render_api_response(service_response)
+    @service_response = UserManagement::DocumentsUploader::V2::ForPost.new(params).perform
+    format_service_response
   end
 
-  # Format response got from service.
+  # Get formatter class
   #
   # * Author: Aniket
-  # * Date: 18/09/2018
+  # * Date: 28/09/2018
   # * Reviewed By:
   #
-  def format_response(service_response)
-    formatted_response = service_response
-    puts "Inside : format_response : #{service_response.inspect}"
-
-    if service_response.success?
-      formatted_response = Formatter::V2::UsersKyc.send(params['action'], service_response)
-    end
-
-    puts "Final formatted response : #{formatted_response.inspect}"
-    render_api_response(formatted_response)
+  def get_formatter_class
+    Formatter::V2::UsersKyc
   end
+
 end

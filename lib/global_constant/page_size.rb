@@ -14,6 +14,10 @@ module GlobalConstant
         default
       end
 
+      def user_kyc
+        default
+      end
+
     end
   end
 end

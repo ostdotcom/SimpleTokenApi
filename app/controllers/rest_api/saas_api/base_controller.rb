@@ -55,4 +55,16 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
     render_api_response(formatted_response)
   end
 
+
+  # Get formatter class
+  #
+  # * Author: Aniket
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def get_formatter_class
+    fail 'get_formatter_class method is not override'
+  end
+
+
 end

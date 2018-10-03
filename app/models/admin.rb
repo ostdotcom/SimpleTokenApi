@@ -1,5 +1,7 @@
 class Admin < EstablishSimpleTokenAdminDbConnection
 
+  include AttributeParserConcern
+
   enum status: {
       GlobalConstant::Admin.active_status => 1,
       GlobalConstant::Admin.invited_status => 2,
@@ -199,6 +201,16 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
 
   private
+
+  # Columns to be removed from the hashed response
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def self.restricted_fields
+    [:admin_secret_id, :password]
+  end
 
   # Flush Memcache
   #

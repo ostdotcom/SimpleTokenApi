@@ -10,12 +10,12 @@ module UserManagement::Users
     # * Reviewed By:
     #
     # @param [Integer] client_id (mandatory) -  client id
-    # @param [Object] filter (optional) - filters for getting list
+    # @param [Object] filter (optional) - filter for getting list
     # @param [Integer] page_number (optional ) - page number
     # @param [Integer] page_size (optional ) - page size
     # @param [String] order (optional ) - order
     #
-    # Sets users_list, allowed_filters, next_page_available, total_records
+    # Sets users_list, allowed_filters, total_records
     #
     # @return [UserManagement::Users::List]
     #
@@ -33,7 +33,6 @@ module UserManagement::Users
       @allowed_filters = {}
 
       @users_list = nil
-      @is_next_page_available = false
     end
 
     # Perform
@@ -52,7 +51,7 @@ module UserManagement::Users
       success_with_data(service_response_data)
     end
 
-    # private
+    private
 
     # Valdiate and sanitize
     #
@@ -88,9 +87,9 @@ module UserManagement::Users
       error_codes = []
 
       if @order.present?
-        error_codes << 'invalid_order' unless GlobalConstant::User.sorting['sort_by'].keys.include?(@order)
+        error_codes << 'invalid_order' unless GlobalConstant::User.sorting['order'].keys.include?(@order)
       else
-        @order = GlobalConstant::User.sorting['sort_by'].keys[0]
+        @order = GlobalConstant::User.sorting['order'].keys[0]
       end
 
       if @page_number.present?
@@ -106,11 +105,11 @@ module UserManagement::Users
       end
 
 
-      @filters = {} if @filters.blank?
+      @filter = {} if @filter.blank?
 
-      if Util::CommonValidateAndSanitize.is_hash?(@filters)
+      if Util::CommonValidateAndSanitize.is_hash?(@filter)
 
-        @filters.each do |filter_key, filter_val|
+        @filter.each do |filter_key, filter_val|
           next if filter_val.blank?
 
           if GlobalConstant::User.allowed_filter.include?(filter_key)
@@ -125,14 +124,14 @@ module UserManagement::Users
             if allowed_filter_val.include?(filter_val)
               @allowed_filters[filter_key] = filter_val.to_s
             else
-              error_codes << 'invalid_filters'
+              error_codes << 'invalid_filter'
             end
 
           end
         end
 
       else
-        error_codes << 'invalid_filters'
+        error_codes << 'invalid_filter'
       end
 
       error_codes.uniq!
@@ -144,7 +143,7 @@ module UserManagement::Users
       ) if error_codes.present?
 
 
-      @sort_by = {sort_by: @order}
+      @sort_by = {order: @order}
 
       @page_size, @page_number = @page_size.to_i, @page_number.to_i
 
@@ -207,7 +206,7 @@ module UserManagement::Users
     #
     def service_response_data
       {
-          users: @users_list,
+          users: @users_list.map{|x| x.get_hash},
           meta: meta_data
       }
     end
@@ -238,7 +237,7 @@ module UserManagement::Users
         else
           {
               page_number: @page_number + 1,
-              filters: @allowed_filters,
+              filter: @allowed_filters,
               order: @order,
               page_size: @page_size
           }

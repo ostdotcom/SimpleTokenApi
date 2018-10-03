@@ -227,16 +227,33 @@ module GlobalConstant
         end
       end
 
+      #################### Filter keys ##################################
+      def admin_action_types_key
+        'admin_action_types'
+      end
+
+      def admin_status_key
+        'admin_status'
+      end
+
+      def aml_status_key
+        'aml_status'
+      end
+
+      def whitelist_status_key
+        'whitelist_status'
+      end
+
       def filters
         {
-            "admin_status" => {
+            "#{admin_status_key}" => {
                 "all" => [],
                 "#{unprocessed_admin_status}" => [unprocessed_admin_status],
                 "#{qualified_admin_status}" => [qualified_admin_status],
                 "#{denied_admin_status}" => [denied_admin_status]
             },
 
-            "aml_status" => {
+            "#{aml_status_key}" => {
                 "all" => [],
                 "#{cleared_aml_status}:#{approved_aml_status}" => [cleared_aml_status, approved_aml_status],
                 "#{unprocessed_aml_status}" => [unprocessed_aml_status],
@@ -246,14 +263,14 @@ module GlobalConstant
                 "#{rejected_aml_status}" => [rejected_aml_status],
                 "#{failed_aml_status}" => [failed_aml_status]
             },
-            "whitelist_status" => {
+            "#{whitelist_status_key}" => {
                 "all" => [],
                 "#{unprocessed_whitelist_status}" => [unprocessed_whitelist_status],
                 "#{started_whitelist_status}" => [started_whitelist_status],
                 "#{done_whitelist_status}" => [done_whitelist_status],
                 "#{failed_whitelist_status}" => [failed_whitelist_status]
             },
-            "admin_action_types" => {
+            "#{admin_action_types_key}" => {
                 "all" => {},
                 "no_admin_action" => {admin_action_types: 0},
                 "#{data_mismatch_admin_action_type}" => ["(admin_action_types & ?) = ?",
@@ -275,7 +292,7 @@ module GlobalConstant
       # This is also used in user list sortings
       def sorting
         {
-            "sort_by" => {
+            "order" => {
                 'desc' => {user_extended_detail_id: :desc},
                 'asc' => {user_extended_detail_id: :asc}
             }

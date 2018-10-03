@@ -71,6 +71,7 @@ module GlobalConstant
         'investor_proof_files_path'
       end
 
+      #NOTE: Update count in param_errors for key: 'invalid_investor_proof_file_path_count'
       def max_number_of_investor_proofs_allowed
         2
       end

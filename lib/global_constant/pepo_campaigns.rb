@@ -24,7 +24,7 @@ module GlobalConstant
       end
 
       def api_timeout
-        5
+        10
       end
 
       ########### List Ids ############

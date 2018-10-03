@@ -1,5 +1,7 @@
 class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
+  include AttributeParserConcern
+
   enum aml_status: {
       GlobalConstant::UserKycDetail.unprocessed_aml_status => 1, # yello
       GlobalConstant::UserKycDetail.pending_aml_status => 2, # yello
@@ -54,7 +56,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     where_bitwise_clause = {}
     filters.each do |key, val|
       filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
-      if key.to_s === 'admin_action_types'
+      if key.to_s === GlobalConstant::UserKycDetail.admin_action_types_key
         where_bitwise_clause = filter_data
       else
         where_clause[key] = filter_data if filter_data.present?
@@ -308,6 +310,18 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   private
+
+  # Set the extra needed data for hashed response
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def extra_fields_to_set
+    {
+        kyc_status: self.kyc_status
+    }
+  end
 
   # Flush Memcache
   #

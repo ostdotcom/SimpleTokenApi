@@ -62,7 +62,7 @@ module GlobalConstant
 
       def sorting
         {
-            "sort_by" => {
+            "order" => {
                 'desc' => {id: :desc},
                 'asc' => {id: :asc}
             }

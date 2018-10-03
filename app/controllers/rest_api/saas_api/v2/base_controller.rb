@@ -31,16 +31,7 @@ class RestApi::SaasApi::V2::BaseController < RestApi::SaasApi::BaseController
       response_hash[:http_code] = response_hash[:err][:error_data].present? ?
                                       GlobalConstant::ErrorCode.invalid_request_parameters : GlobalConstant::ErrorCode.unprocessable_entity
     end
-  end
-
-  # Get formatter class
-  #
-  # * Author: Aniket
-  # * Date: 28/09/2018
-  # * Reviewed By:
-  #
-  def get_formatter_class
-    fail 'get_formatter_class method is not override'
+    response_hash
   end
 
 end

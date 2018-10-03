@@ -5,7 +5,7 @@ module Formatter
 
         # Format kyc detail
         # Always receives [Result::Base]
-        # :NOTE Reading data to format from key:'user_kyc_detail'
+        # :NOTE Reading data to format from key:'user_extended_detail'
         #
         # * Author: Tejas
         # * Date: 24/09/2018
@@ -24,6 +24,17 @@ module Formatter
           data_to_format
         end
 
+        private
+
+        # Format user kyc detail
+        # :NOTE Should receive User extended details object
+        #
+        # * Author: Aniket
+        # * Date: 20/09/2018
+        # * Reviewed By:
+        #
+        # @returns [Hash]
+        #
         def kyc_detail_base(user_extended_detail)
           user_extended_detail[:created_at] = user_extended_detail[:created_at].to_i
           user_extended_detail

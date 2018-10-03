@@ -123,8 +123,8 @@ module UserManagement
       #
       def service_response_data
         {
-            user_kyc_detail: @user_kyc_detail,
-            admin: @admin
+            user_kyc_detail: @user_kyc_detail.get_hash,
+            admin: @admin.present? ? @admin.get_hash : {}
         }
       end
 

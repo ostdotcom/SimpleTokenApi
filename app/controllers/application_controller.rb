@@ -84,7 +84,6 @@ class ApplicationController < ActionController::API
 
       response_hash.delete(:data)
     end
-
     (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
   end
 

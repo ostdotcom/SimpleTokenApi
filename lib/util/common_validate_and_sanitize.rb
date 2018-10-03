@@ -70,6 +70,18 @@ module Util
       true if Integer(object) rescue false
     end
 
+    # check whether give object is String or not
+    #
+    # * Author: Aniket
+    # * Date: 20/09/2018
+    # * Reviewed By:
+    #
+    #  @return [Boolean] return true if object is String
+    #
+    def self.is_string?(object)
+      object.is_a?(String)
+    end
+
     # check whether give object is integer and >=1
     #
     # * Author: Aniket

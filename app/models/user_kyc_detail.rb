@@ -1,6 +1,5 @@
 class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
-  include AttributeParserConcern
 
   enum aml_status: {
       GlobalConstant::UserKycDetail.unprocessed_aml_status => 1, # yello
@@ -178,6 +177,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
+  include AttributeParserConcern
 
 
   def is_re_submitted?
@@ -309,8 +309,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     end
   end
 
-  private
-
   # Set the extra needed data for hashed response
   #
   # * Author: Aman
@@ -322,6 +320,10 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
         kyc_status: self.kyc_status
     }
   end
+
+  private
+
+
 
   # Flush Memcache
   #

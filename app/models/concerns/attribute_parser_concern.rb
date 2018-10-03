@@ -1,5 +1,7 @@
 module AttributeParserConcern
 
+  # should be initialized after bitwise concern
+
   extend ActiveSupport::Concern
   included do
 
@@ -13,8 +15,7 @@ module AttributeParserConcern
     #
     def get_hash
       hashed_data = self.attributes
-      binding.pry
-      self.singleton_class.bit_wise_columns_config.present? && self.singleton_class.bit_wise_columns_config.each do |col, _|
+      self.singleton_class.try(:bit_wise_columns_config).present? && self.singleton_class.bit_wise_columns_config.each do |col, _|
         hashed_data["#{col}_array"] = self.singleton_class.send("get_bits_set_for_#{col}", self.send(col))
       end
 
@@ -28,6 +29,7 @@ module AttributeParserConcern
 
       hashed_data.symbolize_keys
     end
+
 
     # Columns to be removed from the hashed response
     #

@@ -1,9 +1,5 @@
 class User < EstablishSimpleTokenUserDbConnection
 
-  # Note : always include this after declaring bit_wise_columns_config method
-  include BitWiseConcern
-  include AttributeParserConcern
-
   enum status: {
       GlobalConstant::User.active_status => 1,
       GlobalConstant::User.inactive_status => 2,
@@ -126,6 +122,10 @@ class User < EstablishSimpleTokenUserDbConnection
     }
   end
 
+  # Note : always include this after declaring bit_wise_columns_config method
+  include BitWiseConcern
+  include AttributeParserConcern
+
 
   # Get encrypted password
   #
@@ -242,6 +242,17 @@ class User < EstablishSimpleTokenUserDbConnection
   def memcache_flush
     user_details_memcache_key = User.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(user_details_memcache_key)
+  end
+
+
+  # Columns to be removed from the hashed response
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def self.restricted_fields
+    [:user_secret_id, :password]
   end
 
 end

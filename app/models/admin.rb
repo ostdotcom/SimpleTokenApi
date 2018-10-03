@@ -199,9 +199,6 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role ).pluck(:email)
   end
 
-
-  private
-
   # Columns to be removed from the hashed response
   #
   # * Author: Aman
@@ -211,6 +208,8 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   def self.restricted_fields
     [:admin_secret_id, :password]
   end
+
+  private
 
   # Flush Memcache
   #

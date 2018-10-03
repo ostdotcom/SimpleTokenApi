@@ -83,7 +83,7 @@ module UserManagement
       # * Reviewed By:
       #
       def validate_email
-        return error_with_identifier('invalid_email',
+        return error_with_identifier('invalid_api_params',
                                      'um_u_c_ve_1',
                                      ['invalid_email']
         ) unless Util::CommonValidateAndSanitize.is_valid_email?(@email)

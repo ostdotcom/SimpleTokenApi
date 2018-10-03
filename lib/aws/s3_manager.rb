@@ -82,7 +82,7 @@ module Aws
       post_policy = {
           key: s3_path,
           content_type: content_type,
-          signature_expiration: Time.now + 1800,
+          signature_expiration: Time.now + 900,
           server_side_encryption: 'aws:kms',
           server_side_encryption_aws_kms_key_id: key_id,
           content_length_range: min_file_size..max_file_size # allow max 20 MB and min 200 kb

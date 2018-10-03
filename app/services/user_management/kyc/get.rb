@@ -37,6 +37,8 @@ module UserManagement
         r = fetch_and_validate_user_kyc_detail
         return r unless r.success?
 
+        fetch_admin
+
         success_with_data(service_response_data)
       end
 

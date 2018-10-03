@@ -172,7 +172,7 @@ module UserManagement
       def ar_query
         puts "@allowed_filters  : #{@allowed_filters}"
         @ar_query ||= begin
-          ar = UserKycDetail.where(client_id: @client_id)
+          ar = UserKycDetail.where(client_id: @client_id).active_kyc
           ar = ar.filter_by(@allowed_filters) if @allowed_filters.present?
           ar = ar.sorting_by(@sort_by) if @sort_by.present?
           ar

@@ -93,7 +93,7 @@ module UserManagement
           return error_with_identifier('invalid_api_params',
                                        'um_gup_v_3',
                                        ['invalid_files_count']
-          )if @files.length > MAX_ALLOWED_KEYS
+          )if @files.keys.length > MAX_ALLOWED_KEYS
 
           @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 

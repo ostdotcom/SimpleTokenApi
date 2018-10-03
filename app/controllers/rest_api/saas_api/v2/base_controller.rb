@@ -20,7 +20,6 @@ class RestApi::SaasApi::V2::BaseController < RestApi::SaasApi::BaseController
   #
   def format_api_response(response_hash)
     super
-    response_hash[:err].delete(:error_extra_info) if response_hash[:err].present?
 
     # TODO: Remove this code after sometime as this is a temp solution to detect error data
     if response_hash[:http_code] == GlobalConstant::ErrorCode.ok && !response_hash[:success]

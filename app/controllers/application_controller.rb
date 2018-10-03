@@ -94,6 +94,7 @@ class ApplicationController < ActionController::API
   # * Reviewed By:
   #
   def format_api_response(response_hash)
+    response_hash[:err].delete(:error_extra_info) if response_hash[:err].present?
     response_hash
   end
 

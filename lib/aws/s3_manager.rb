@@ -112,7 +112,7 @@ module Aws
       post_policy = {
           key: s3_path,
           content_type: content_type,
-          signature_expiration: Time.now + 1800,
+          signature_expiration: Time.now + 900,
           acl: 'public-read',
           content_length_range: content_length_range
       }

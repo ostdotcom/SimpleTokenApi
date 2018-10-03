@@ -611,7 +611,7 @@ module UserManagement
       @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
       @user_kyc_detail.submission_count += 1
       @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
-      @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
+      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.unprocessed_aml_status
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
       @user_kyc_detail.last_reopened_at = nil
       @user_kyc_detail.save!

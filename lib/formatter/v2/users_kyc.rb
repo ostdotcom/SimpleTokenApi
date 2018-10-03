@@ -102,7 +102,7 @@ module Formatter
               user_id: user_kyc_detail[:user_id],
               kyc_status: user_kyc_detail.kyc_status,
               admin_status: user_kyc_detail[:admin_status],
-              aml_status: user_kyc_detail[:cynopsis_status],
+              aml_status: user_kyc_detail[:aml_status],
               whitelist_status: user_kyc_detail[:whitelist_status],
               admin_action_types: user_kyc_detail.admin_action_types_array,
               submission_count: user_kyc_detail[:submission_count],

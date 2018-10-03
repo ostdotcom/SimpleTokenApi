@@ -86,7 +86,7 @@ module ClientManagement
     # Sets @client_aml_details
     #
     def fetch_aml_details
-      @client_aml_details = ClientCynopsisDetail.get_from_memcache(@client_id)
+      @client_aml_details = ClientAmlDetail.get_from_memcache(@client_id)
     end
 
     # Api response data

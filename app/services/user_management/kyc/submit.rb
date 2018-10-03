@@ -320,11 +320,11 @@ module UserManagement
           return
         end
 
-        if !Util::CommonValidator.is_numeric?(@estimated_participation_amount)
-          @param_error_identifiers << 'invalid_estimated_participation_amount'
-        else
+        if Util::CommonValidateAndSanitize.is_float?(@estimated_participation_amount)
           @estimated_participation_amount = @estimated_participation_amount.to_f
           @param_error_identifiers << 'invalid_estimated_participation_amount' if @estimated_participation_amount < 0.01
+        else
+          @param_error_identifiers << 'invalid_estimated_participation_amount'
         end
       end
 
@@ -393,7 +393,7 @@ module UserManagement
           return
         end
         # Investor proof files path has to be an array
-        @param_error_identifiers << 'invalid_investor_proof_file_path' and return unless Util::CommonValidateAndSanitize.is_array?(@investor_proof_files_path)
+        @param_error_identifiers << 'invalid_investor_proof_file_path' and return unless Util::CommonValidateAndSanitize.is_array?(@investor_proof_files_path, 'string')
 
 
         if @investor_proof_files_path.length > GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed

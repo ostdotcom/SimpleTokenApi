@@ -15,11 +15,10 @@ module Formatter
         #
         def index(data_to_format)
           formatted_user_list = []
-
           result_data = data_to_format.data
           admins = result_data[:admins]
           result_data[:user_kyc_details].each do |user_kyc_detail|
-            admin = admins[user_kyc_detail.last_acted_by]
+            admin = admins[user_kyc_detail[:last_acted_by]]
             formatted_user_list << user_kyc_base(user_kyc_detail, admin)
           end
 
@@ -135,7 +134,7 @@ module Formatter
         def admin_name(last_acted_by, admin)
           last_acted_by = last_acted_by.to_i
           if (last_acted_by > 0)
-            admin.name
+            admin[:name]
           elsif (last_acted_by == Admin::AUTO_APPROVE_ADMIN_ID)
             GlobalConstant::Admin.auto_approved_admin_name
           else

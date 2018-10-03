@@ -87,7 +87,7 @@ module UserManagement
       @email = @email.to_s.downcase.strip
 
       validation_errors = {}
-      if !Util::CommonValidator.is_valid_email?(@email)
+      if !Util::CommonValidateAndSanitize.is_valid_email?(@email)
         validation_errors[:email] = 'Please enter a valid email address'
       end
 

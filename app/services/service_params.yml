@@ -304,13 +304,13 @@
   :mandatory:
     - :client_id
   :optional:
-    - :file
+    - :files
 
 'UserManagement::DocumentsUploader::V2::ForPut':
   :mandatory:
     - :client_id
   :optional:
-    - :file
+    - :files
 
 'UserManagement::CheckEthereumBalance':
   :mandatory:
@@ -687,7 +687,7 @@
   :optional:
     - :page_number
     - :page_size
-    - :filter
+    - :filters
     - :order
 
 'UserManagement::Users::Get':
@@ -714,7 +714,7 @@
   :optional:
     - :page_number
     - :page_size
-    - :filter
+    - :filters
     - :order
 
 'UserManagement::Kyc::Submit':

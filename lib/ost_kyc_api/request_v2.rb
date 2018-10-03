@@ -49,7 +49,7 @@ module OstKycApi
     # @params [String] user_id (mandatory)
     # @params [Hash] custom_params (mandatory) - email
     #
-    def create_user(custom_params = nil)
+    def create_user(custom_params = {})
       endpoint = "/api/#{@version}/users"
       make_post_request(endpoint, custom_params)
     end
@@ -75,10 +75,10 @@ module OstKycApi
     # * Reviewed By:
     #
     # @params [String] user_id (mandatory)
-    # @params [Hash] custom_params (optional) - filter, page_size, page_number, order
+    # @params [Hash] custom_params (optional) - filters, page_size, page_number, order
     #
     def get_user_list(custom_params = nil)
-      default_params = {page_number: 1, order: 'asc', filter: {}, page_size: 3}
+      default_params = {page_number: 1, order: 'asc', filters: {}, page_size: 3}
 
       endpoint = "/api/#{@version}/users"
       custom_params = custom_params || default_params
@@ -125,7 +125,7 @@ module OstKycApi
     # @params [Hash] custom_params (mandatory) - filters, order, page_number, page_size
     #
     def get_users_kyc_list(custom_params= nil)
-      default_params = {filter:{admin_status:'unprocessed' ,aml_status:'cleared'}}
+      default_params = {filter:{admin_status:'all' ,aml_status:'all'}}
 
       endpoint = "/api/#{@version}/users-kyc"
       custom_params = custom_params || default_params
@@ -158,7 +158,7 @@ module OstKycApi
     def get_presigned_url_put(custom_params = nil)
 
       default_val = {
-          file: {
+          files: {
               residence_proof: 'application/pdf',
               investor_proof_file1: 'application/pdf',
               investor_proof_file2: 'application/pdf',
@@ -184,7 +184,7 @@ module OstKycApi
     def get_presigned_url_post(custom_params = nil)
 
       default_val = {
-          file: {
+          files: {
               residence_proof: 'application/pdf',
               investor_proof_file1: 'application/pdf',
               investor_proof_file2: 'application/pdf',

@@ -86,21 +86,21 @@ missing_ethereum_address:
    parameter: 'ethereum_address'
    msg: "ethereum_address is mandatory."
 
-invalid_file:
-   parameter: 'file'
-   msg: "file is invalid. Only 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'  content type is supported."
+invalid_files:
+   parameter: 'files'
+   msg: "files is invalid. Only 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'  content type is supported."
 
-invalid_file_count:
-   parameter: 'file'
-   msg: "file contains more values than required. Maximum values allowed is 20."
+invalid_files_count:
+   parameter: 'files'
+   msg: "files contains more values than required. Maximum values allowed is 20."
 
-missing_file:
-   parameter: 'file'
-   msg: "file is mandatory."
+missing_files:
+   parameter: 'files'
+   msg: "files is mandatory."
 
-invalid_filter:
-   parameter: 'filter'
-   msg: "filter is invalid."
+invalid_filters:
+   parameter: 'filters'
+   msg: "filters is invalid."
 
 missing_first_name:
    parameter: 'first_name'

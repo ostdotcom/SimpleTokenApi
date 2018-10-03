@@ -86,7 +86,7 @@ module UserManagement
         return error_with_identifier('invalid_email',
                                      'um_u_c_ve_1',
                                      ['invalid_email']
-        ) unless Util::CommonValidator.is_valid_email?(@email)
+        ) unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
 
         success
       end

@@ -92,7 +92,7 @@ module UserManagement
           validation_errors[:bt_name] = "Branded Token Name is mandatory."
 
         else
-          if !Util::CommonValidator.is_alphanumeric?(@bt_name)
+          if !Util::CommonValidateAndSanitize.is_alphanumeric?(@bt_name)
             validation_errors[:bt_name] = "Only A-Z and 0-9 characters are allowed. No spaces allowed"
           else
             if @bt_name.downcase == 'simpletoken'

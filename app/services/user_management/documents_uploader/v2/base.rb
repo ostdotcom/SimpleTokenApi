@@ -3,7 +3,7 @@ module UserManagement
     module V2
       class Base < ServicesBase
 
-        #NOTE: Update value in param_errors for key: 'invalid_file_count'
+        #NOTE: Update value in param_errors for key: 'invalid_files_count'
         MAX_ALLOWED_KEYS = 20
 
         # Initialize
@@ -13,7 +13,7 @@ module UserManagement
         # * Reviewed By:
         #
         # @params [Integer] client_id (mandatory) - logged in admin's client id
-        # @param [Hash] file (mandatory)
+        # @param [Hash] files (mandatory)
         #
         #
         def initialize(params)
@@ -21,7 +21,7 @@ module UserManagement
 
           @client_id = @params[:client_id]
 
-          @file = @params[:file] || {}
+          @files = @params[:files] || {}
           @upload_params = {}
           @client_token_sale_details = nil
         end
@@ -39,9 +39,17 @@ module UserManagement
           r = validate
           return r unless r.success?
 
-          @file.each do |k, v|
+          @files.each do |k, v|
             content_type = v
-            key = "#{@client_id}/i/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
+            directory = ''
+
+            if ['image/jpeg', 'image/png', 'image/jpg'].include?(content_type)
+              directory = 'i'
+            elsif 'application/pdf' == content_type
+              directory = 'd'
+            end
+
+            key = "#{@client_id}/#{directory}/" + Digest::MD5.hexdigest("#{k}-#{v}-#{Time.now.to_f}-#{rand}")
             @upload_params[k] = get_url(content_type, key)
           end
 
@@ -69,12 +77,12 @@ module UserManagement
           return error_with_identifier(
               'invalid_api_params',
               'um_gup_v_1',
-              ['missing_file']
-          ) if @file.blank?
+              ['missing_files']
+          ) if @files.blank?
 
           params_error_identifiers = []
 
-          params_error_identifiers << 'invalid_file' if @file.present? && !Util::CommonValidateAndSanitize.is_hash?(@file)
+          params_error_identifiers << 'invalid_files' if @files.present? && !Util::CommonValidateAndSanitize.is_hash?(@files)
 
           return error_with_identifier(
               'invalid_api_params',
@@ -84,8 +92,8 @@ module UserManagement
 
           return error_with_identifier('invalid_api_params',
                                        'um_gup_v_3',
-                                       ['invalid_file_count']
-          )if @file.length > MAX_ALLOWED_KEYS
+                                       ['invalid_files_count']
+          )if @files.length > MAX_ALLOWED_KEYS
 
           @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
@@ -95,10 +103,10 @@ module UserManagement
           ) if @client_token_sale_details.has_token_sale_ended?
 
           file_content_types = []
-          @file.each do |_, v|
+          @files.each do |_, v|
             file_content_types << v.to_s.downcase
           end
-          params_error_identifiers << 'invalid_file' if (file_content_types - ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']).any?
+          params_error_identifiers << 'invalid_files' if (file_content_types - ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']).any?
 
           return error_with_identifier(
               'invalid_api_params',

@@ -34,7 +34,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     name = name.to_s.strip
 
     return 'Admin email/password is blank' if password.blank? || email.blank? || name.blank? || password.length < 8
-    return 'Invalid email address' if !Util::CommonValidator.is_valid_email?(email)
+    return 'Invalid email address' if !Util::CommonValidateAndSanitize.is_valid_email?(email)
     return 'Admin email already present' if Admin.where(email: email).present?
 
     client = Client.get_from_memcache(default_client_id)

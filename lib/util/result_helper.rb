@@ -28,7 +28,7 @@ module Util
     #
     def success_with_data(data)
       # Allow only Hash data to pass ahead
-      data = {} unless Util::CommonValidator.is_a_hash?(data)
+      data = {} unless Util::CommonValidateAndSanitize.is_hash?(data)
 
       Result::Base.success({
                                data: data
@@ -144,7 +144,7 @@ module Util
     #
     def success_result(data)
       # Allow only Hash data to pass ahead
-      data = {} unless Util::CommonValidator.is_a_hash?(data)
+      data = {} unless Util::CommonValidateAndSanitize.is_hash?(data)
 
       Result::Base.success({
                                data: data

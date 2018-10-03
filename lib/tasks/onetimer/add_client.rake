@@ -85,7 +85,7 @@ namespace :onetimer do
         kyc_config["kyc_fields"].exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
     fail 'token cannot be blank for aml' if aml_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
-    fail "aml email id(#{aml_data['email_id']}) is not valid " if aml_data['email_id'].blank? || !Util::CommonValidator.is_valid_email?(aml_data['email_id'])
+    fail "aml email id(#{aml_data['email_id']}) is not valid " if aml_data['email_id'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(aml_data['email_id'])
 
     if pepo_campaign_data.present?
       fail 'api_key cannot be blank for pepo_campaign' if pepo_campaign_data['api_key'].blank?
@@ -97,7 +97,7 @@ namespace :onetimer do
     end
 
     if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
-        super_admin['name'].blank? || !Util::CommonValidator.is_valid_email?(super_admin['email'])
+        super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
       fail 'Invalid Super Admin Email'
     end
 

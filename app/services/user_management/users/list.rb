@@ -10,7 +10,7 @@ module UserManagement::Users
     # * Reviewed By:
     #
     # @param [Integer] client_id (mandatory) -  client id
-    # @param [Object] filter (optional) - filter for getting list
+    # @param [Object] filters (optional) - filters for getting list
     # @param [Integer] page_number (optional ) - page number
     # @param [Integer] page_size (optional ) - page size
     # @param [String] order (optional ) - order
@@ -23,7 +23,7 @@ module UserManagement::Users
       super
 
       @client_id = @params[:client_id]
-      @filter = @params[:filter]
+      @filters = @params[:filters]
       @page_number = @params[:page_number]
       @order = @params[:order]
       @page_size = @params[:page_size]
@@ -105,11 +105,11 @@ module UserManagement::Users
       end
 
 
-      @filter = {} if @filter.blank?
+      @filters = {} if @filters.blank?
 
-      if Util::CommonValidateAndSanitize.is_hash?(@filter)
+      if Util::CommonValidateAndSanitize.is_hash?(@filters)
 
-        @filter.each do |filter_key, filter_val|
+        @filters.each do |filter_key, filter_val|
           next if filter_val.blank?
 
           if GlobalConstant::User.allowed_filter.include?(filter_key)
@@ -124,14 +124,14 @@ module UserManagement::Users
             if allowed_filter_val.include?(filter_val)
               @allowed_filters[filter_key] = filter_val.to_s
             else
-              error_codes << 'invalid_filter'
+              error_codes << 'invalid_filters'
             end
 
           end
         end
 
       else
-        error_codes << 'invalid_filter'
+        error_codes << 'invalid_filters'
       end
 
       error_codes.uniq!
@@ -237,7 +237,7 @@ module UserManagement::Users
         else
           {
               page_number: @page_number + 1,
-              filter: @allowed_filters,
+              filters: @allowed_filters,
               order: @order,
               page_size: @page_size
           }

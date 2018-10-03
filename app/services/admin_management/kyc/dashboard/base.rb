@@ -63,16 +63,7 @@ module AdminManagement
 
             @filters.each do |key, val|
 
-              if GlobalConstant::UserKycDetail.filters[key.to_s].blank?
-                return error_with_data(
-                    'am_k_d_vas_1',
-                    'Invalid Parameters.',
-                    'Invalid Filter type passed',
-                    GlobalConstant::ErrorAction.default,
-                    {},
-                    {}
-                )
-              end
+              next if val.blank?
 
               filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
               error_data[key] = 'invalid value for filter' if filter_data.nil?

@@ -91,7 +91,9 @@ module AdminManagement
         # Validate whether filters passed are valid or not.
         @filters.each do |key, val|
 
-          return error_with_data(
+          next if val.blank?
+
+            return error_with_data(
               'am_u_ul_1',
               'Invalid Parameters.',
               'Invalid Filter type or parameter passed',
@@ -309,7 +311,7 @@ module AdminManagement
       #
       def page_filters
         @page_filters ||= {
-            "is_kyc_submitted" => ["all", kyc_submitted_yes, kyc_submitted_no]
+            "is_kyc_submitted" => [kyc_submitted_yes, kyc_submitted_no]
         }
       end
 

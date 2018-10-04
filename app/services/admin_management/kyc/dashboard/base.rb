@@ -69,7 +69,7 @@ module AdminManagement
                 filter_data = filter[val.to_s]
                 error_data[key] = 'invalid value for filter' if filter_data.nil?
               else
-                allowed_filters.delete!(key.to_sym)
+                allowed_filters.delete(key.to_sym)
               end
             end
 

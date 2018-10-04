@@ -27,7 +27,8 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
         GlobalConstant::KycAutoApproveFailedReason.investor_proof => 64,
         GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc => 128,
         GlobalConstant::KycAutoApproveFailedReason.token_sale_ended => 256,
-        GlobalConstant::KycAutoApproveFailedReason.case_closed_for_auto_approve => 512
+        GlobalConstant::KycAutoApproveFailedReason.case_closed_for_auto_approve => 512,
+        GlobalConstant::KycAutoApproveFailedReason.human_labels_percentage_low => 1024
     }
   end
 

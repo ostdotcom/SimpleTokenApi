@@ -99,3 +99,9 @@ constants:
     staging: "https://kyc.stagingost.com"
     sandbox: "https://kyc.sandboxost.com"
     production: "https://kyc.ost.com"
+
+  gas_estimation_constants:
+    max_gas_price: <%= ENV['MAX_GAS_FOR_TRANSACTION_GWEI'] %>
+    min_gas_price: <%= ENV['MIN_GAS_FOR_TRANSACTION_GWEI'] %>
+    buffer_gas: <%= ENV['BUFFER_GAS_FOR_TRANSACTION_GWEI'] %>
+    default_gas_price: <%= ENV['DEFAULT_GAS_FOR_TRANSACTION_GWEI'] %>

@@ -109,7 +109,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user.get_bits_set_for_properties.include?(GlobalConstant::User.token_sale_kyc_submitted_property) && @user_kyc_detail.nil?
+        ) if @user.get_bits_set_for_properties.include?(GlobalConstant::User.kyc_submitted_property) && @user_kyc_detail.nil?
 
         return success if @user_kyc_detail.nil?
 

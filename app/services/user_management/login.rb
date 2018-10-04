@@ -126,8 +126,8 @@ module UserManagement
           {},
           {}
       ) if @client_token_sale_details.has_token_sale_ended? &&
-          (!@user.send("#{GlobalConstant::User.token_sale_kyc_submitted_property}?") ||
-          (@client.is_st_token_sale_client? && !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")))
+          (!@user.send("#{GlobalConstant::User.kyc_submitted_property}?") ||
+          (@client.is_st_token_sale_client? && !@user.send("#{GlobalConstant::User.doptin_done_property}?")))
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_l_2') unless @user_secret.present?

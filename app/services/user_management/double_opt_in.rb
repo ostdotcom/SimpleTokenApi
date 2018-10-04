@@ -35,7 +35,7 @@ module UserManagement
       r = fetch_user_data
       return r unless r.success?
 
-      return success if @user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+      return success if @user.send("#{GlobalConstant::User.doptin_done_property}?")
 
       r = fetch_token_sale_double_opt_in_token
       return r unless r.success?
@@ -157,7 +157,7 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def save_user
-      @user.send("set_#{GlobalConstant::User.token_sale_double_optin_done_property}")
+      @user.send("set_#{GlobalConstant::User.doptin_done_property}")
       @user.save!
     end
 

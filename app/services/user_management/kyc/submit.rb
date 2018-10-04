@@ -616,8 +616,8 @@ module UserManagement
       # @return [Result::Base]
       #
       def update_user
-        @user.send("set_" + GlobalConstant::User.token_sale_kyc_submitted_property)
-        # @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+        @user.send("set_" + GlobalConstant::User.kyc_submitted_property)
+        # @user.send("set_" + GlobalConstant::User.doptin_mail_sent_property)
         @user.save! if @user.changed?
         success
       end
@@ -630,7 +630,7 @@ module UserManagement
       #
       def enqueue_job
         #  todo: "KYCaaS-Changes"
-        # if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+        # if !@user.send("#{GlobalConstant::User.doptin_done_property}?")
         #
         #   BgJob.enqueue(
         #       OnBTSubmitJob,

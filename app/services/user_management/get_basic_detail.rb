@@ -103,7 +103,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_state
-      if @user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property) &&
+      if @user.properties_array.include?(GlobalConstant::User.doptin_mail_sent_property) &&
           @template_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
 
         @has_double_opt_in = true

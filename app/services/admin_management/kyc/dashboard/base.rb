@@ -60,7 +60,7 @@ module AdminManagement
           if @filters.present?
 
             error_data = {}
-
+            allowed_filters = @filters.dup
             @filters.each do |key, val|
 
               next if val.blank?
@@ -68,6 +68,8 @@ module AdminManagement
               if filter.present?
                 filter_data = filter[val.to_s]
                 error_data[key] = 'invalid value for filter' if filter_data.nil?
+              else
+                allowed_filters.delete!(key.to_sym)
               end
             end
 
@@ -80,6 +82,7 @@ module AdminManagement
                 error_data
             ) if error_data.present?
 
+            @filters = allowed_filters
           end
 
 

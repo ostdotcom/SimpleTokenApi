@@ -231,7 +231,7 @@ module WhitelistManagement
       if (@kyc_whitelist_log.ethereum_address.downcase != @ethereum_address.downcase) ||
           (@kyc_whitelist_log.phase != @phase)
 
-        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_event_received)
         update_user_kyc_detail(GlobalConstant::UserKycDetail.failed_whitelist_status)
 
         notify_devs(

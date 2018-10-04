@@ -296,7 +296,7 @@ module Crons
 
       Rails.logger.info("user_kyc_whitelist_log - #{@kyc_whitelist_log.id} - has failed Status")
 
-      @kyc_whitelist_log.mark_failed_with_reason(whitelist_fail_reason)
+      @kyc_whitelist_log.mark_failed_with_reason(whitelist_fail_reason) if @kyc_whitelist_log.status != GlobalConstant::KycWhitelistLog.failed_status
 
       r = fetch_user_kyc_detail
       return r unless r.success?

@@ -23,6 +23,10 @@ module GlobalConstant
         'failed'
       end
 
+      def resubmitted_status
+        'resubmitted'
+      end
+
       ### Status End ###
 
       def kyc_whitelist_confirmation_pending_statuses

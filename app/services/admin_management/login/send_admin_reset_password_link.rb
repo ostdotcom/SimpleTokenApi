@@ -37,7 +37,8 @@ module AdminManagement
         return r unless r.success?
 
         r = fetch_admin
-        return r unless r.success?
+        # do not send a different error response if admin email not present
+        return success unless r.success?
 
         r = create_reset_password_token
         return r  unless r.success?

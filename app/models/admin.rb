@@ -28,7 +28,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # @param [String] email
   # @param [String] password
   #
-  def self.add_admin(default_client_id, email, password, name, is_super_admin_role=false)
+  def self.add_admin(default_client_id, email, password, name, is_super_admin_role = false)
 
     email = email.to_s.downcase.strip
     name = name.to_s.strip
@@ -186,6 +186,24 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
   # Get email ids of all super admins of a client
   #
+  # * Author: Aman
+  # * Date: 23/01/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] client id
+  #
+  # @return [Array <String>] emails of admin
+  #
+  def client_super_admin_emails(client_id)
+    Admin.where(
+        default_client_id: client_id,
+        status: GlobalConstant::Admin.active_status,
+        role: GlobalConstant::Admin.super_admin_role
+    ).pluck(:email)
+  end
+
+  # Get email ids of all super admins of a client
+  #
   # * Author: Tejas
   # * Date: 02/07/2018
   # * Reviewed By: Aman
@@ -196,7 +214,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   #
 
   def self.client_super_admin_emails(client_id)
-    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role ).pluck(:email)
+    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role).pluck(:email)
   end
 
   # Columns to be removed from the hashed response

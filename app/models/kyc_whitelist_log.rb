@@ -4,7 +4,8 @@ class KycWhitelistLog < EstablishSimpleTokenContractInteractionsDbConnection
       GlobalConstant::KycWhitelistLog.pending_status => 0,
       GlobalConstant::KycWhitelistLog.done_status => 1,
       GlobalConstant::KycWhitelistLog.confirmed_status => 2,
-      GlobalConstant::KycWhitelistLog.failed_status => 3
+      GlobalConstant::KycWhitelistLog.failed_status => 3,
+      GlobalConstant::KycWhitelistLog.resubmitted_status => 4
   }, _suffix: true
 
   enum failed_reason: {

@@ -12,7 +12,7 @@ namespace :onetimer do
     #       GlobalConstant::PepoCampaigns.token_sale_registered_attribute => GlobalConstant::PepoCampaigns.token_sale_registered_value
     #     }
     #
-    #     if user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
+    #     if user.send("#{GlobalConstant::User.doptin_done_property}?")
     #       custom_attributes[GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_attribute] = GlobalConstant::PepoCampaigns.token_sale_kyc_confirmed_value
     #     end
     #

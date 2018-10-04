@@ -161,7 +161,7 @@ module AdminManagement
       #
       def get_model_query
         user_relational_query = User.where(client_id: @client_id).is_active
-        property_val = User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
+        property_val = User.properties_config[GlobalConstant::User.kyc_submitted_property]
         # If filter is applied on KYC submitted
         if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["is_kyc_submitted"].to_s)
           if @filters["is_kyc_submitted"].to_s == kyc_submitted_no

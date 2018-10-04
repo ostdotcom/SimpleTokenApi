@@ -222,7 +222,7 @@ module UserManagement
           last_logged_in_at: Time.now.to_i
       )
 
-      @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property) if @client.is_verify_page_active_for_client?
+      @user.send("set_" + GlobalConstant::User.doptin_mail_sent_property) if @client.is_verify_page_active_for_client?
       @user.save!
     end
 

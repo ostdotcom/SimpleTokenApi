@@ -12,7 +12,7 @@ class SendDoubleOptIn < ApplicationJob
 
     init_params(params)
 
-    return unless @user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property + "?")
+    return unless @user.send(GlobalConstant::User.doptin_mail_sent_property + "?")
 
     create_double_opt_in_token
 

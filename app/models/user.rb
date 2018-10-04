@@ -66,26 +66,26 @@ class User < EstablishSimpleTokenUserDbConnection
 
     if (self.client_id == GlobalConstant::TokenSale.st_token_sale_client_id)
 
-      if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+      if properties_array.include?(GlobalConstant::User.doptin_done_property)
         GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-      elsif properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+      elsif properties_array.include?(GlobalConstant::User.kyc_submitted_property)
         GlobalConstant::User.get_token_sale_state_page_names("verification_page")
       else
         GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
       end
     else
 
-      if !properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+      if !properties_array.include?(GlobalConstant::User.doptin_mail_sent_property)
         # FOR API USERS and non verify page opted in users
-        if properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+        if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
           GlobalConstant::User.get_token_sale_state_page_names("profile_page")
         else
           GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
         end
       else
-        if properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+        if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
           GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-        elsif properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+        elsif properties_array.include?(GlobalConstant::User.doptin_done_property)
           GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
         else
           GlobalConstant::User.get_token_sale_state_page_names("verification_page")
@@ -103,10 +103,10 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   def self.properties_config
     @u_prop_con ||= {
-        GlobalConstant::User.token_sale_kyc_submitted_property => 1,
-        GlobalConstant::User.token_sale_bt_done_property => 2,
-        GlobalConstant::User.token_sale_double_optin_mail_sent_property => 4,
-        GlobalConstant::User.token_sale_double_optin_done_property => 8
+        GlobalConstant::User.kyc_submitted_property => 1,
+        GlobalConstant::User.bt_done_property => 2,
+        GlobalConstant::User.doptin_mail_sent_property => 4,
+        GlobalConstant::User.doptin_done_property => 8
     }
   end
 

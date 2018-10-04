@@ -34,7 +34,7 @@ missing_client_id:
   parameter: 'client_id'
   msg: "client_id is mandatory."
 
-file_not_found_document_id_number:
+file_not_found_document_id_file_path:
   parameter: 'document_id_number'
   msg: "File is not present on S3."
 
@@ -126,25 +126,25 @@ invalid_images:
    parameter: 'images'
    msg: "images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
 
-file_not_found_investor_proof_file_path:
-  parameter: 'investor_proof_file_path'
+file_not_found_investor_proof_files_path:
+  parameter: 'investor_proof_files_path'
   msg: "File is not present on S3."
 
-invalid_investor_proof_file_path:
-  parameter: 'investor_proof_file_path'
-  msg: "investor_proof_file_path is invalid."
+invalid_investor_proof_files_path:
+  parameter: 'investor_proof_files_path'
+  msg: "investor_proof_files_path is invalid."
 
 #TODO: 2 is dummy number need logic to change it.
-invalid_investor_proof_file_path_count:
-  parameter: 'investor_proof_file_path'
+invalid_investor_proof_files_path_count:
+  parameter: 'investor_proof_files_path'
   msg: "Max 2 documents are allowed as investor proof."
 
-missing_investor_proof_file_path:
-   parameter: 'investor_proof_file_path'
-   msg: "investor_proof_file_path is mandatory."
+missing_investor_proof_files_path:
+   parameter: 'investor_proof_files_path'
+   msg: "investor_proof_files_path is mandatory."
 
-wrong_file_size_of_investor_proof_file_path:
-   parameter: 'investor_proof_file_path'
+wrong_file_size_of_investor_proof_filse_path:
+   parameter: 'investor_proof_files_path'
    msg: "File size should be between 200kB & 20MB."
 
 missing_last_name:
@@ -197,7 +197,7 @@ file_not_found_residence_proof_file_path:
 
 invalid_residence_proof_file_path:
   parameter: 'residence_proof_file_path'
-  message: "residence_proof_file_path is invalid."
+  msg: "residence_proof_file_path is invalid."
 
 missing_residence_proof_file_path:
    parameter: 'residence_proof_file_path'
@@ -213,7 +213,7 @@ file_not_found_selfie_file_path:
 
 invalid_selfie_file_path:
   parameter: 'selfie_file_path'
-  message: "selfie_file_path is invalid."
+  msg: "selfie_file_path is invalid."
 
 missing_selfie_file_path:
    parameter: 'selfie_file_path'
@@ -225,11 +225,11 @@ wrong_file_size_of_selfie_file_path:
 
 invalid_allowed_keys:
   parameter: 'set_allowed_keys'
-  message: "Invalid field selected."
+  msg: "Invalid field selected."
 
 invalid_state:
   parameter: 'state'
-  message: "state is invalid."
+  msg: "state is invalid."
 
 missing_state:
    parameter: 'state'

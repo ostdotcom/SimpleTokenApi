@@ -393,18 +393,18 @@ module UserManagement
           return
         end
         # Investor proof files path has to be an array
-        @param_error_identifiers << 'invalid_investor_proof_file_path' and return unless Util::CommonValidateAndSanitize.is_array?(@investor_proof_files_path, 'string')
+        @param_error_identifiers << 'invalid_investor_proof_files_path' and return unless Util::CommonValidateAndSanitize.is_array?(@investor_proof_files_path, 'string')
 
 
         if @investor_proof_files_path.length > GlobalConstant::ClientKycConfigDetail.max_number_of_investor_proofs_allowed
-          @param_error_identifiers << 'invalid_investor_proof_file_path_count'
+          @param_error_identifiers << 'invalid_investor_proof_files_path_count'
         end
 
         # If any of the file does not matches s3 file path
         @uploaded_files[:investor_proof_files_path] = []
         @investor_proof_files_path.each do |x|
           unless s3_kyc_folder_belongs_to_client?(x)
-            @param_error_identifiers << 'invalid_investor_proof_file_path'
+            @param_error_identifiers << 'invalid_investor_proof_files_path'
             next
           end
           @uploaded_files[:investor_proof_files_path] << x

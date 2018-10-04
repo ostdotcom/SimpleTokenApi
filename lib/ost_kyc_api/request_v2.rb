@@ -125,7 +125,7 @@ module OstKycApi
     # @params [Hash] custom_params (mandatory) - filters, order, page_number, page_size
     #
     def get_users_kyc_list(custom_params= nil)
-      default_params = {filter:{admin_status:'all' ,aml_status:'all'}}
+      default_params = {filters:{admin_status:'all' ,aml_status:'all'}}
 
       endpoint = "/api/#{@version}/users-kyc"
       custom_params = custom_params || default_params
@@ -142,7 +142,7 @@ module OstKycApi
     # @params [Integer] id (mandatory) - user id
     #
     def get_user_kyc_detail(id)
-      endpoint = "/api/#{@version}/users-kyc-details/#{id}"
+      endpoint = "/api/#{@version}/users-kyc-detail/#{id}"
       make_get_request(endpoint)
     end
 

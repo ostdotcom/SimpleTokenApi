@@ -303,14 +303,14 @@
 'UserManagement::DocumentsUploader::V2::ForPost':
   :mandatory:
     - :client_id
-  :optional:
     - :files
+  :optional:
 
 'UserManagement::DocumentsUploader::V2::ForPut':
   :mandatory:
     - :client_id
-  :optional:
     - :files
+  :optional:
 
 'UserManagement::CheckEthereumBalance':
   :mandatory:
@@ -686,7 +686,7 @@
     - :client_id
   :optional:
     - :page_number
-    - :page_size
+    - :limit
     - :filters
     - :order
 
@@ -713,7 +713,7 @@
     - :client_id
   :optional:
     - :page_number
-    - :page_size
+    - :limit
     - :filters
     - :order
 

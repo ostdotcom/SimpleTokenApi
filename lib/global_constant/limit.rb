@@ -1,12 +1,12 @@
 module GlobalConstant
-  class PageSize
+  class Limit
     class << self
 
       def default
         {
-            default: 50,
+            default: 10,
             min: 1,
-            max: 50
+            max: 100
         }
       end
 

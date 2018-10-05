@@ -264,6 +264,10 @@ invalid_last_name:
    parameter: "last_name"
    msg: "last_name is invalid."
 
+invalid_limit:
+  parameter: "limit"
+  msg: "limit is invalid. Default: 10, min:1, max: 100"
+
 missing_name:
   parameter: "name"
   msg: "name is mandatory."
@@ -303,10 +307,6 @@ missing_otp:
 invalid_page_number:
   parameter: "page_number"
   msg: "Page number is invalid."
-
-invalid_page_size:
-  parameter: "page_size"
-  msg: "Page size is invalid."
 
 missing_password:
   parameter: "password"

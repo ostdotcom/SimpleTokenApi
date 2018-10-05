@@ -13,7 +13,7 @@ module UserManagement
       # @param [Integer] client_id (mandatory) -  client id
       # @param [Object] filters (optional) - filters for getting list
       # @param [Integer] page_number (optional ) - page number
-      # @param [Integer] page_size (optional ) - page size
+      # @param [Integer] limit (optional ) - limit
       # @param [String] order (optional ) - order
       #
       # Sets user_details_list, allowed_filters, total_records, admins
@@ -27,7 +27,7 @@ module UserManagement
         @filters = @params[:filters]
         @page_number = @params[:page_number]
         @order = @params[:order]
-        @page_size = @params[:page_size]
+        @limit = @params[:limit]
 
         @offset = 0
         @total_records = 0
@@ -101,10 +101,18 @@ module UserManagement
           @page_number = DEFAULT_PAGE_NUMBER
         end
 
-        if @page_size.present?
-          error_codes << 'invalid_page_size' unless Util::CommonValidateAndSanitize.is_positive_integer?(@page_size)
+        limit_data = GlobalConstant::Limit.user_kyc
+
+        if @limit.present?
+          limit_data_min = limit_data[:min]
+          limit_data_max = limit_data[:max]
+
+          if !Util::CommonValidateAndSanitize.is_positive_integer?(@limit) ||
+              @limit.to_i < limit_data_min || @limit.to_i > limit_data_max
+            error_codes << 'invalid_limit'
+          end
         else
-          @page_size = GlobalConstant::PageSize.user_list[:default]
+          @limit = limit_data[:default]
         end
 
         @filters = {} if @filters.blank?
@@ -138,13 +146,10 @@ module UserManagement
 
         @sort_by = {order: @order}
 
-        @page_size, @page_number = @page_size.to_i, @page_number.to_i
+        @limit, @page_number = @limit.to_i, @page_number.to_i
 
-        page_size_data = GlobalConstant::PageSize.user_kyc
-        @page_size = [@page_size, page_size_data[:min]].max
-        @page_size = [@page_size, page_size_data[:max]].min
 
-        @offset = (@page_number - 1) * @page_size
+        @offset = (@page_number - 1) * @limit
 
         success
       end
@@ -188,7 +193,7 @@ module UserManagement
       # Sets @user_kyc_details
       #
       def fetch_user_detail_list
-        @user_kyc_details = ar_query.limit(@page_size).offset(@offset).all
+        @user_kyc_details = ar_query.limit(@limit).offset(@offset).all
       end
 
       # Fetch admins list
@@ -250,14 +255,14 @@ module UserManagement
       def next_page_payload
         @next_page_payload ||= begin
 
-          if @offset + @page_size >= @total_records
+          if @offset + @limit >= @total_records
             {}
           else
             {
                 page_number: @page_number + 1,
                 filters: @allowed_filters,
                 order: @order,
-                page_size: @page_size
+                limit: @limit
             }
           end
 

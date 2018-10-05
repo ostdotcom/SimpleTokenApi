@@ -31,8 +31,12 @@ module GlobalConstant
 
       ### Notification Status start ###
 
-      def min_threshold_notification_type
-        'min_threshold'
+      def first_threshold_notification_type
+        'first_threshold'
+      end
+
+      def second_threshold_notification_type
+        'second_threshold'
       end
 
       def max_threshold_notification_type
@@ -42,7 +46,11 @@ module GlobalConstant
       ### Notification Status End ###
       #
 
-      def min_threshold_percent
+      def first_threshold_percent
+        60
+      end
+
+      def second_threshold_percent
         80
       end
 

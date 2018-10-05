@@ -181,6 +181,12 @@ class Client < EstablishSimpleTokenClientDbConnection
     client_memcache_key = Client.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(client_memcache_key)
 
+    if self.previous_changes["api_key"].present?
+      old_api_key = self.previous_changes["api_key"].first
+      old_api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: old_api_key}
+      Memcache.delete(old_api_memcache_key)
+    end
+
     api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: self.api_key}
     Memcache.delete(api_memcache_key)
   end

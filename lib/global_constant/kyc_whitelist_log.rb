@@ -23,6 +23,10 @@ module GlobalConstant
         'failed'
       end
 
+      def resubmitted_status
+        'resubmitted'
+      end
+
       ### Status End ###
 
       def kyc_whitelist_confirmation_pending_statuses
@@ -32,18 +36,29 @@ module GlobalConstant
         ]
       end
 
+      ### Failed Reason starts ####
 
-      ### is attention needed starts ####
-
-      def attention_not_needed
-        'attention_not_needed'
+      def not_failed
+        'not_failed'
       end
 
-      def attention_needed
-        'attention_needed'
+      def invalid_kyc_record
+        'invalid_kyc_record'
       end
 
-      ### is attention needed ends ####
+      def transaction_failed
+        'transaction_failed'
+      end
+
+      def invalid_event_received
+        'invalid_event_received'
+      end
+
+      def transaction_not_found
+        'transaction_not_found'
+      end
+
+      ### Failed Reason ends ####
 
       ### transaction status ####
 

@@ -11,6 +11,7 @@ rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_aml_users
 rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
 rake RAILS_ENV=development cron_task:lockable:upload_failed_aml_users
 rake RAILS_ENV=development cron_task:lockable:populate_client_usage
+rake RAILS_ENV=development cron_task:lockable:refresh_dynamic_gas_price
 
 one-timers
 1. Verify scripts

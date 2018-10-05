@@ -104,7 +104,7 @@ module AdminManagement
     #
     def failed_whitelist_log_status?
       GlobalConstant::KycWhitelistLog.failed_status == @kyc_whitelist_log.status ||
-          @kyc_whitelist_log.is_attention_needed == GlobalConstant::KycWhitelistLog.attention_needed
+          @kyc_whitelist_log.failed_reason != GlobalConstant::KycWhitelistLog.not_failed
     end
 
     # reopen the case for user

@@ -438,7 +438,7 @@ module Result
             ApplicationMailer.notify(
                 to: GlobalConstant::Email.default_to,
                 body: "Missing params identifier",
-                data: {result_base: self.params_error_identifiers},
+                data: {missing_identifier: ed},
                 subject: "Warning::Missing params identifier. please add the error details"
             ).deliver
           end

@@ -103,10 +103,23 @@ module ClientManagement
       api_secret_e = r.data[:ciphertext_blob]
       api_key = SecureRandom.hex
 
+      flush_old_api_memcache(@client.api_key)
+
       @client.api_key = api_key
       @client.api_secret = api_secret_e
       @client.save!
       success
+    end
+
+    # Flush memcache which was created by old api key
+    #
+    # * Author: Tejas
+    # * Date: 27/08/2018
+    # * Reviewed By:
+    #
+    def flush_old_api_memcache(api_key)
+      api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: api_key}
+      Memcache.delete(api_memcache_key)
     end
 
     # Api response data

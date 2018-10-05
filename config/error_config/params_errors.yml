@@ -18,6 +18,10 @@ missing_city:
    parameter: 'city'
    msg: "city is mandatory."
 
+missing_cookie_value:
+   parameter: 'cookie_value'
+   msg: ""
+
 blacklisted_country:
    parameter: 'country'
    msg: "This Country is blacklisted by client."

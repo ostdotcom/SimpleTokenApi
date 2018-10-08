@@ -91,9 +91,9 @@ module ReportJob
       {
           id: user.id,
           email: user.email,
-          kyc_submitted: user.properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property),
-          doptin_mail_sent: user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property),
-          doptin_done: user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+          kyc_submitted: user.properties_array.include?(GlobalConstant::User.kyc_submitted_property),
+          doptin_mail_sent: user.properties_array.include?(GlobalConstant::User.doptin_mail_sent_property),
+          doptin_done: user.properties_array.include?(GlobalConstant::User.doptin_done_property)
       }
     end
 

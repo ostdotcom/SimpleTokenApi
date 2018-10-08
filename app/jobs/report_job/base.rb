@@ -29,7 +29,7 @@ class Base < ApplicationJob
       email_file_url
       update_job_status(GlobalConstant::CsvReportJob.completed_status)
     rescue StandardError => se
-      Rails.logger.info "ProcessKycReportJob Worker got exception in job params- #{params} msg : #{se.message} trace : #{se.backtrace}"
+      Rails.logger.info "ReportJob Worker got exception in job params- #{params} msg : #{se.message} trace : #{se.backtrace}"
       send_error_mail({exception: {message: se.message, backtrace: se.backtrace}})
       update_job_status(GlobalConstant::CsvReportJob.failed_status)
     end

@@ -77,8 +77,60 @@ module AdminManagement
         @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
         @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
 
+        if @filters.present?
+
+          error_data = {}
+          sanitized_filter = {}
+
+          @filters.each do |key, val|
+
+            next if val.blank? || model_filters[key].blank?
+
+            filter_data = model_filters[key][val]
+            error_data[key] = 'invalid value for filter' if filter_data.nil?
+            sanitized_filter[key] = val
+          end
+
+          return error_with_data(
+              'am_r_gkr_vas_1',
+              'Invalid Filter Parameter value',
+              '',
+              GlobalConstant::ErrorAction.default,
+              {},
+              error_data
+          ) if error_data.present?
+
+        end
+
+        @filters = sanitized_filter
+
+        sanitized_sorting = {}
+        if @sortings.present?
+          error_data = {}
+
+          @sortings.each do |key, val|
+            next if val.blank? || model_sortings[key].blank?
+
+            sort_data = model_sortings[key][val]
+            error_data[key] = 'invalid value for sorting' if sort_data.nil?
+            sanitized_sorting[key] = val
+          end
+
+          return error_with_data(
+              'am_r_gkr_vas_4',
+              'Invalid Sort Parameter value',
+              '',
+              GlobalConstant::ErrorAction.default,
+              {},
+              error_data
+          ) if error_data.present?
+        end
+
+        @sortings = sanitized_sorting
+
         success
       end
+
 
       # validate if no pending requests for this client is pending and limit not reached
       #
@@ -206,6 +258,29 @@ module AdminManagement
         fail 'unimplemented method report_type'
       end
 
+      # filters allowed for the service
+      #
+      # * Author: Aman
+      # * Date: 08/10/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] filters for the query
+      #
+      def model_filters
+        fail 'unimplemented method model_filters'
+      end
+
+      # sorting allowed for the service
+      #
+      # * Author: Aman
+      # * Date: 08/10/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] sorting for the query
+      #
+      def model_sortings
+        fail 'unimplemented method model_sortings'
+      end
     end
 
   end

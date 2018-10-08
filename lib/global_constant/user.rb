@@ -59,25 +59,6 @@ module GlobalConstant
 
       ### Token sale state related pages ####
 
-      def filters
-        {
-            "kyc_submitted" => {
-                "all" => [],
-                "yes" => ["properties & ? > 0", ::User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]],
-                "no" => ["properties & ? = 0", ::User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]]
-            }
-        }
-      end
-
-      def sorting
-        {
-            "order" => {
-                'desc' => {id: :desc},
-                'asc' => {id: :asc}
-            }
-        }
-      end
-
 
       def is_kyc_submitted_filter
         'is_kyc_submitted'
@@ -133,6 +114,14 @@ module GlobalConstant
         }
       end
 
+      def sorting
+        {
+            "order" => {
+                'desc' => {id: :desc},
+                'asc' => {id: :asc}
+            }
+        }
+      end
 
 
     end

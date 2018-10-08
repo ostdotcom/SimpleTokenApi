@@ -16,22 +16,6 @@ class User < EstablishSimpleTokenUserDbConnection
     order(order_clause)
   }
 
-  scope :filter_by, -> (filters) {
-    where_clauses = []
-    filters.each do |key, val|
-      filter_data = GlobalConstant::User.filters[key.to_s][val.to_s]
-      where_clauses << filter_data if filter_data.present?
-    end
-
-    return  if where_clauses.blank?
-
-    ar = self
-    where_clauses.each do |clause|
-      ar = ar.where(clause)
-    end
-    ar
-  }
-
   scope :is_active, -> {where(status: GlobalConstant::User.active_status)}
 
   #:NOTE fails if filter passed with key 'all', needs to test if all key is added.

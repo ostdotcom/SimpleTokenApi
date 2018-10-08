@@ -43,72 +43,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       def validate_and_sanitize
-        r = super
-        return r unless r.success?
-
-        if @filters.present?
-
-          error_data = {}
-
-          @filters.each do |key, val|
-
-            if GlobalConstant::User.filters[key.to_s].blank?
-              return error_with_data(
-                  'am_r_u_vas_1',
-                  'Invalid Parameters.',
-                  'Invalid Filter type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
-            end
-
-            filter_data = GlobalConstant::UserKycDetail.filters[key][val]
-            error_data[key] = 'invalid value for filter' if filter_data.nil?
-          end
-
-          return error_with_data(
-              'am_r_u_vas_2',
-              'Invalid Filter Parameter value',
-              '',
-              GlobalConstant::ErrorAction.default,
-              {},
-              error_data
-          ) if error_data.present?
-        end
-
-
-        if @sortings.present?
-          error_data = {}
-
-          @sortings.each do |key, val|
-
-            if GlobalConstant::User.sorting[key.to_s].blank?
-              return error_with_data(
-                  'am_r_u_vas_3',
-                  'Invalid Parameters.',
-                  'Invalid Sort type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
-            end
-
-            sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
-            error_data[key] = 'invalid value for sorting' if sort_data.nil?
-          end
-
-          return error_with_data(
-              'am_r_u_vas_4',
-              'Invalid Sort Parameter value',
-              '',
-              GlobalConstant::ErrorAction.default,
-              {},
-              error_data
-          ) if error_data.present?
-        end
-
-        success
+        super
       end
 
       # type of report to be fetched
@@ -133,6 +68,30 @@ module AdminManagement
       #
       def job_klass
         ReportJob::User
+      end
+
+      # filters allowed for the service
+      #
+      # * Author: Aman
+      # * Date: 08/10/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] filters for the query
+      #
+      def model_filters
+        GlobalConstant::User.filters
+      end
+
+      # sorting allowed for the service
+      #
+      # * Author: Aman
+      # * Date: 08/10/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] sorting for the query
+      #
+      def model_sortings
+        GlobalConstant::User.sorting
       end
 
     end

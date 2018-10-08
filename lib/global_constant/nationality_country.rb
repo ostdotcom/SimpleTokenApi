@@ -147,17 +147,6 @@ module GlobalConstant
 
     end
 
-    def self.generate_nationality_iso_map
-      mapping ||= {}
-
-      a.each do |row|
-        sp = row.gsub("\r", "").split(",")
-        key = sp[0].upcase
-        mapping[key] = sp
-      end
-
-    end
-
     # Fetch Country Nationality Mapping
     #
     # * Author: Tejas

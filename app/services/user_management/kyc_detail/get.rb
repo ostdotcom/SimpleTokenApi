@@ -2,7 +2,7 @@ module UserManagement
   module KycDetail
     class Get < ServicesBase
 
-      IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL = 7.days.to_i
+      IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL = 12.hours.to_i
       # Initialize
       #
       # * Author: Tejas

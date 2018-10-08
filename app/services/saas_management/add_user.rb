@@ -70,18 +70,32 @@ module SaasManagement
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) unless Util::CommonValidator.is_valid_email?(@email)
+      ) unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
 
       r = fetch_and_validate_client
       return r unless r.success?
 
-      r = validate_if_st_default_client
+      fetch_client_token_sale_details
+
+      r = validate_client_details
       return r unless r.success?
 
       success
     end
 
-    # Fetch and Validate client
+    # Fetch token sale details
+    #
+    # * Author: Aman
+    # * Date: 01/02/2018
+    # * Reviewed By:
+    #
+    # @return [Result::Base]
+    #
+    def fetch_client_token_sale_details
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+    end
+
+    # Validate client
     #
     # * Author: Aman
     # * Date: 02/01/2018
@@ -89,7 +103,7 @@ module SaasManagement
     #
     # @return [Result::Base]
     #
-    def validate_if_st_default_client
+    def validate_client_details
       return error_with_data(
           'sm_au_2',
           'unauthorized client action',
@@ -97,7 +111,16 @@ module SaasManagement
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if @client.is_st_token_sale_client?
+      ) if @client.is_st_token_sale_client? || @client.is_web_host_setup_done?
+
+      return error_with_data(
+          'sm_au_3',
+          'Registration has ended, it is no longer possible to add user now',
+          'Registration has ended, it is no longer possible to add user now',
+          GlobalConstant::ErrorAction.default,
+          {},
+          {}
+      ) if @client_token_sale_details.has_registration_ended?
 
       success
     end

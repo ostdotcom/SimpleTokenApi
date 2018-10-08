@@ -4,6 +4,7 @@ module GlobalConstant
   class CountryNationality
     require 'csv'
 
+    # GlobalConstant::CountryNationality
 
     # Get Cynopsis Country From Ip
     #
@@ -234,3 +235,127 @@ module GlobalConstant
   end
 
 end
+
+# Countries :
+# two countries can have same nationality.
+# Cynopsis nationality file has repeated values as it is a mapping to the country list
+# remove countries.yml file
+# "DEMOCRATIC REPUBLIC OF THE CONGO" is not in our list while "CONGO (REPUBLIC OF),CONGO" is present
+# WESTERN SAHARAN was changed to WESTERN SAHARA. we need to do run the migration for db.
+
+# Nationalities:
+# Remove two files. Have only nationality_and_country_mapping.
+# Use  country_nationality.rb instead of nationality_country.rb
+# ["AFGHANI", "BAHRAINIAN", "LITHUNIAN"] - needs to be changed to  ["AFGHAN", "BAHRAINI", "LITHUANIAN"]
+#
+# These 3 natioanlities have multiple rows in mapping file
+# ALANDIC
+# COMORAN
+# LITHUANIAN
+#
+#
+# LITHUNIAN,LTU,LITHUANIA,LIETUVOS,
+# LITHUANIAN,LTU,LITHUANIA,LIETUVOS,
+# LITHUANIAN,LTU,LITHUANIA,LIETUVOS,
+#
+# ALANDIC,ALA,ALAND ISLANDS,,
+# ALANDIC,ALA,ALAND ISLANDS,,
+#
+# COMORAN,COM,COMOROS,,
+# COMORAN,CMR,CAMEROONIAN,,
+#
+#
+# It is in the list of deleted countries but it is a separate nationality as well .If they are to be removed, then remove natioanlity as well?
+#
+# AUSTRALIAN ANTARCTIC TERRITORY
+# BAKER ISLAND
+# BRITISH ANTARCTIC TERRITORY
+# BRITISH SOVEREIGN BASE AREAS
+# KITTIAN,KNA,SAINT KITTS AND NEVIS,, --- looks like a valid country with iso code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# nationality_map, nationality,
+#
+# cynopsis, mapping
+#
+# #
+# cynopsis.uniq.length = 255
+# nationality.length = 254
+# nationality_map.length = 268
+#
+#
+# # mapping has 218 rows correct
+# #
+# #
+# #
+# #
+# #
+# #
+#
+#
+#
+#
+# a = GlobalConstant::NationalityCountry.fetch_country_nationality_mapping
+#
+# mapping ||= {}
+#
+# a.each do |row|
+#   sp = row.gsub("\r", "").split(",")
+#   key = sp[0].upcase
+#   mapping[key] = row
+# end
+#
+#
+# r = []
+# dup_nationality = nationality.dup
+# dup_mapping = mapping.dup
+#
+#
+#
+# nationality.each do |n|
+#   data = mapping[n]
+#
+#   if data.present?
+#     r << data
+#     dup_nationality.delete(n)
+#     dup_mapping.delete(n)
+#   else
+#
+#   end
+#
+# end
+#
+# final = r
+# final << []
+# final << []
+#
+# dup_nationality.map{|x| final << ["#{x},,"]}
+#
+# final << []
+# final << []
+#
+#
+# final += dup_mapping.values
+#
+
+
+
+
+
+

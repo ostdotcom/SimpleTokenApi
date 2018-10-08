@@ -96,9 +96,9 @@ module AdminManagement
 
         duplicate_with_users = []
 
-        duplicate_with_users += UserKycDuplicationLog.where(user1_id: @user_kyc_detail.user_id, user_extended_details1_id: @user_kyc_detail.user_extended_detail_id)
+        duplicate_with_users += UserKycDuplicationLog.non_deleted.where(user1_id: @user_kyc_detail.user_id, user_extended_details1_id: @user_kyc_detail.user_extended_detail_id)
                                     .order('status ASC, id DESC').limit(100).all
-        duplicate_with_users += UserKycDuplicationLog.where(user2_id: @user_kyc_detail.user_id, user_extended_details2_id: @user_kyc_detail.user_extended_detail_id)
+        duplicate_with_users += UserKycDuplicationLog.non_deleted.where(user2_id: @user_kyc_detail.user_id, user_extended_details2_id: @user_kyc_detail.user_extended_detail_id)
                                     .order('status ASC, id DESC').limit(100).all
         duplicate_with_users.each do |duplicate|
           duplicate_with_uid = (duplicate.user1_id == @user_kyc_detail.user_id) ? duplicate.user2_id : duplicate.user1_id
@@ -111,14 +111,14 @@ module AdminManagement
           end
         end
 
-        UserKycDetail.where(client_id: @client_id, user_id: @duplicate_kycs.keys).each do |u_k_d|
+        UserKycDetail.active_kyc.where(client_id: @client_id, user_id: @duplicate_kycs.keys).each do |u_k_d|
           if u_k_d.inactive_status?
             @duplicate_kycs.delete(u_k_d.user_id)
             next
           end
           @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
-          @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
+          @duplicate_kycs[u_k_d.user_id][:aml_status] = u_k_d.aml_status
         end
 
       end
@@ -139,7 +139,7 @@ module AdminManagement
         duplicate_email_user_ids += UserEmailDuplicationLog.where(user1_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user2_id)
         duplicate_email_user_ids += UserEmailDuplicationLog.where(user2_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
 
-        UserKycDetail.where(client_id: @client_id, user_id: duplicate_email_user_ids).all.each do |u_k_d|
+        UserKycDetail.active_kyc.where(client_id: @client_id, user_id: duplicate_email_user_ids).all.each do |u_k_d|
           if u_k_d.inactive_status?
             @duplicate_kycs.delete(u_k_d.user_id)
             next
@@ -152,7 +152,7 @@ module AdminManagement
           @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.humanize
           @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
-          @duplicate_kycs[u_k_d.user_id][:cynopsis_status] = u_k_d.cynopsis_status
+          @duplicate_kycs[u_k_d.user_id][:aml_status] = u_k_d.aml_status
         end
 
       end

@@ -91,7 +91,7 @@ class Client < EstablishSimpleTokenClientDbConnection
   #
   def self.setup_properties_config
     @setup_properties_config ||= {
-        GlobalConstant::Client.cynopsis_setup_done => 1,
+        GlobalConstant::Client.aml_setup_done => 1,
         GlobalConstant::Client.email_setup_done => 2,
         GlobalConstant::Client.whitelist_setup_done => 4,
         GlobalConstant::Client.web_host_setup_done => 8,
@@ -157,6 +157,7 @@ class Client < EstablishSimpleTokenClientDbConnection
     api_memcache_key_object = MemcacheKey.new('client.api_key_details')
     Memcache.get_set_memcached(api_memcache_key_object.key_template % {api_key: api_key}, api_memcache_key_object.expiry) do
       client_obj = Client.where(api_key: api_key).first
+
       return nil if client_obj.blank?
 
       r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)
@@ -179,6 +180,12 @@ class Client < EstablishSimpleTokenClientDbConnection
 
     client_memcache_key = Client.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(client_memcache_key)
+
+    if self.previous_changes["api_key"].present?
+      old_api_key = self.previous_changes["api_key"].first
+      old_api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: old_api_key}
+      Memcache.delete(old_api_memcache_key)
+    end
 
     api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: self.api_key}
     Memcache.delete(api_memcache_key)

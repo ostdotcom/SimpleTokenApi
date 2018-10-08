@@ -253,24 +253,6 @@ module UserManagement
       success
     end
 
-    # Invalid User access response
-    #
-    # * Author: Aman
-    # * Date: 13/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Invalid User')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
-    end
-
     # Invalid Request Response
     #
     # * Author: Aman

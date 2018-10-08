@@ -52,7 +52,7 @@ module FileProcessing
         return success_with_data(image_path: new_file_name,
                                  width: image_obj.columns, height: image_obj.rows)
       rescue => e
-        return exception_with_data(e, "swr", "Something went wrong", "Something went wrong", "", "", e.message)
+        return exception_with_data(e, "swr", e.message, "Something went wrong", "", "")
       end
     end
 

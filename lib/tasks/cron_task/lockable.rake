@@ -30,32 +30,32 @@ namespace :cron_task do
       execute_lockable_task
     end
 
-    # Retry pending cynopsis users
+    # Retry pending aml users
     #
     # * Author: Aman
     # * Date: 24/10/2017
     # * Reviewed By: Sunil
     #
-    desc "rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users"
-    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users >> /mnt/simpletoken-api/shared/log/fetch_status_of_pending_cynopsis_users.log"
-    task :fetch_status_of_pending_cynopsis_users do |task|
+    desc "rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_aml_users"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_aml_users >> /mnt/simpletoken-api/shared/log/fetch_status_of_pending_aml_users.log"
+    task :fetch_status_of_pending_aml_users do |task|
       @process_name = task
-      @performer_klass = 'Crons::CynopsisProcessors::RetryPending'
+      @performer_klass = 'Crons::AmlProcessors::RetryPending'
       @optional_params = {}
       execute_lockable_task
     end
 
-    # Retry failed cynopsis users
+    # Retry failed aml users
     #
     # * Author: Aman
     # * Date: 24/10/2017
     # * Reviewed By: Sunil
     #
-    desc "rake RAILS_ENV=development cron_task:lockable:upload_failed_cynopsis_users"
-    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:upload_failed_cynopsis_users >> /mnt/simpletoken-api/shared/log/upload_failed_cynopsis_users.log"
-    task :upload_failed_cynopsis_users do |task|
+    desc "rake RAILS_ENV=development cron_task:lockable:upload_failed_aml_users"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:upload_failed_aml_users >> /mnt/simpletoken-api/shared/log/upload_failed_aml_users.log"
+    task :upload_failed_aml_users do |task|
       @process_name = task
-      @performer_klass = 'Crons::CynopsisProcessors::UploadFailed'
+      @performer_klass = 'Crons::AmlProcessors::UploadFailed'
       @optional_params = {}
       execute_lockable_task
     end
@@ -71,6 +71,36 @@ namespace :cron_task do
     task :check_eth_balance_of_whitelister do |task|
       @process_name = task
       @performer_klass = 'Crons::CheckWhitelisterBalance'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
+    # Populate Client usage of api and notify kyc team after a threshold
+    #
+    # * Author: Aman
+    # * Date: 18/09/2017
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:populate_client_usage"
+    desc "*/30 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:populate_client_usage >> /mnt/simpletoken-api/shared/log/populate_client_usage.log"
+    task :populate_client_usage do |task|
+      @process_name = task
+      @performer_klass = 'Crons::PopulateClientUsage'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
+    # Refresh gas price
+    #
+    # * Author: Pankaj
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:refresh_dynamic_gas_price"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:refresh_dynamic_gas_price >> /mnt/simpletoken-api/shared/log/refresh_dynamic_gas_price.log"
+    task :refresh_dynamic_gas_price do |task|
+      @process_name = task
+      @performer_klass = 'Crons::RefreshTransactionGasPrice'
       @optional_params = {}
       execute_lockable_task
     end

@@ -15,6 +15,10 @@ module GlobalConstant
         'inactive'
       end
 
+      def deleted_status
+        'deleted'
+      end
+
       ### Status End ###
 
       ### duplicate_type starts ####

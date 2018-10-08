@@ -87,7 +87,7 @@ module UserManagement
       @email = @email.to_s.downcase.strip
 
       validation_errors = {}
-      if !Util::CommonValidator.is_valid_email?(@email)
+      if !Util::CommonValidateAndSanitize.is_valid_email?(@email)
         validation_errors[:email] = 'Please enter a valid email address'
       end
 
@@ -145,12 +145,12 @@ module UserManagement
 
       return error_with_data(
           'um_su_4',
-          'The token sale ended, it is no longer possible to signup now',
-          'The token sale ended, it is no longer possible to signup now',
+          'Registration has ended, it is no longer possible to signup now',
+          'Registration has ended, it is no longer possible to signup now',
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) if @client_token_sale_details.has_token_sale_ended?
+      ) if @client_token_sale_details.has_registration_ended?
 
       success
     end
@@ -218,10 +218,11 @@ module UserManagement
           email: @email,
           password: password_e,
           user_secret_id: @user_secret.id,
-          status: GlobalConstant::User.active_status
+          status: GlobalConstant::User.active_status,
+          last_logged_in_at: Time.now.to_i
       )
 
-      @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property) if @client.is_verify_page_active_for_client?
+      @user.send("set_" + GlobalConstant::User.doptin_mail_sent_property) if @client.is_verify_page_active_for_client?
       @user.save!
     end
 

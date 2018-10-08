@@ -63,7 +63,7 @@ module AdminManagement
               'Please enter a valid email address',
               GlobalConstant::ErrorAction.default,
               {}
-          ) if !Util::CommonValidator.is_valid_email?(@email)
+          ) if !Util::CommonValidateAndSanitize.is_valid_email?(@email)
 
           return error_with_data(
               'am_au_i_vas_2',

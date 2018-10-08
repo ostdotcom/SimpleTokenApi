@@ -92,7 +92,7 @@ module UserManagement
           validation_errors[:bt_name] = "Branded Token Name is mandatory."
 
         else
-          if !Util::CommonValidator.is_alphanumeric?(@bt_name)
+          if !Util::CommonValidateAndSanitize.is_alphanumeric?(@bt_name)
             validation_errors[:bt_name] = "Only A-Z and 0-9 characters are allowed. No spaces allowed"
           else
             if @bt_name.downcase == 'simpletoken'
@@ -145,7 +145,7 @@ module UserManagement
     #
     def update_token_sale_bt_done
       #  todo: "KYCaas-Changes"
-      # @user.send("set_"+GlobalConstant::User.token_sale_bt_done_property)
+      # @user.send("set_"+GlobalConstant::User.bt_done_property)
       @user.bt_name = @bt_name unless @skip_name
     end
 
@@ -157,10 +157,10 @@ module UserManagement
     #
     #  todo: "KYCaas-Changes"
     # def update_token_sale_kyc_double_optin_mail_sent
-    #   if !@user.send(GlobalConstant::User.token_sale_double_optin_mail_sent_property+"?")
+    #   if !@user.send(GlobalConstant::User.doptin_mail_sent_property+"?")
     #     @enqueue_task = true
     #     #TODO: Handle multiple concurrent requests for same bt update
-    #     @user.send("set_"+GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+    #     @user.send("set_"+GlobalConstant::User.doptin_mail_sent_property)
     #   end
     # end
 

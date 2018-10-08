@@ -63,6 +63,26 @@ module Aws
       format_detect_text_response(req_params)
     end
 
+    # Detect Labels from the image
+    #
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    def detect_labels(img_file)
+
+      req_params = {
+          image: {
+              s3_object: {
+                  bucket: GlobalConstant::Aws::Common.kyc_bucket,
+                  name: img_file,
+              }
+          }
+      }
+
+      format_detect_labels_response(req_params)
+    end
+
     private
 
     # Access key
@@ -185,6 +205,27 @@ module Aws
         end
 
         return success_with_data(data)
+
+      rescue => e
+        data = {err: e.message, request_time: (current_time_in_milli-start_time)}
+        return exception_with_data(e,"Exception", "", "", "", data)
+      end
+
+    end
+
+    # Method to format detect labels reponse
+    #
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    def format_detect_labels_response(req_params)
+      start_time = current_time_in_milli
+      begin
+        resp = client.detect_labels(req_params).to_h
+        resp.merge!(request_time: current_time_in_milli-start_time)
+
+        return success_with_data(resp)
 
       rescue => e
         data = {err: e.message, request_time: (current_time_in_milli-start_time)}

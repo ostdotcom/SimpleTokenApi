@@ -111,7 +111,8 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      whitelister_address: api_data[:client_whitelist_detail_obj].whitelister_address,
                                                      contract_address: api_data[:client_whitelist_detail_obj].contract_address,
                                                      address: api_data[:address],
-                                                     phase: api_data[:phase]
+                                                     phase: api_data[:phase],
+                                                     gasPrice: EstimatedGasPrice::CurrentPrice.new.fetch
                                                  })
     Rails.logger.info("Whitelist API Response: #{r.inspect}")
 
@@ -130,7 +131,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      gas_price: r.data[:gas_price],
                                                      next_timestamp: Time.now.to_i + GlobalConstant::KycWhitelistLog.expected_transaction_mine_time,
                                                      status: GlobalConstant::KycWhitelistLog.pending_status,
-                                                     is_attention_needed: 0
+                                                     failed_reason: 0
                                                  })
 
     success

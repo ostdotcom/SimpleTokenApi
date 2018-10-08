@@ -75,7 +75,7 @@ module AdminManagement
       def fetch_user
         @user = User.new
         @user.id = Random.rand(100..1000)
-        @user.properties = User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
+        @user.properties = User.properties_config[GlobalConstant::User.kyc_submitted_property]
         @user_token_sale_state = @user.get_token_sale_state_page_name
       end
 
@@ -115,6 +115,7 @@ module AdminManagement
       def set_live_sale_for_client
         @client_setting[:client_setting][:token_sale_details].merge!(
             sale_start_timestamp: Time.now.to_i,
+            registration_end_timestamp: (Time.now + 1.month).to_i,
             sale_end_timestamp: (Time.now + 1.month).to_i
         )
       end

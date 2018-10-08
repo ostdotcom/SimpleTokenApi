@@ -7,6 +7,10 @@ user:
     key_template: 'u_kyc_det_%{user_id}'
     expiry_in_seconds: 86400
 
+  user_extended_detail:
+      key_template: 'user_extended_detail_%{id}'
+      expiry_in_seconds: 86400
+
   user_kyc_comparison_detail:
     key_template: 'user_kyc_comparison_detail_by_ued_%{user_extended_detail_id}'
     expiry_in_seconds: 86400
@@ -39,8 +43,8 @@ client:
     key_template: 'client_api_key_detail_%{api_key}'
     expiry_in_seconds: 86400
 
-  client_cynopsis_details:
-    key_template: 'client_cynopsis_detail_%{client_id}'
+  client_aml_details:
+    key_template: 'client_aml_details_%{client_id}'
     expiry_in_seconds: 86400
 
   client_whitelist_details:
@@ -66,6 +70,10 @@ client:
   client_kyc_config_details:
     key_template: 'client_kyc_config_detail_%{client_id}'
     expiry_in_seconds: 86400
+
+  client_kyc_detail_api_activations:
+      key_template: 'client_kyc_detail_api_activations_%{client_id}'
+      expiry_in_seconds: 86400
 
   client_template_type_details:
     key_template: 'client_template_type_details_%{client_id}_%{template_type}'
@@ -93,9 +101,23 @@ customization:
     expiry_in_seconds: 86400
 
   entity_group:
-      key_template: 'entity_group_%{id}'
-      expiry_in_seconds: 86400
+    key_template: 'entity_group_%{id}'
+    expiry_in_seconds: 86400
 
   group_entities:
-        key_template: 'group_entities_%{entity_group_id}'
-        expiry_in_seconds: 86400
+    key_template: 'group_entities_%{entity_group_id}'
+    expiry_in_seconds: 86400
+
+gas_estimation:
+  current_price:
+    key_template: 'current_estimated_gas_mc'
+    expiry_in_seconds: 900
+
+billing:
+  client_plan:
+    key_template: 'client_plan_%{client_id}'
+    expiry_in_seconds: 86400
+
+  client_usage:
+    key_template: 'client_usage_%{client_id}'
+    expiry_in_seconds: 86400

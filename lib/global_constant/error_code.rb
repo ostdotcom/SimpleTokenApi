@@ -27,12 +27,34 @@ module GlobalConstant
       302
     end
 
+    def self.unprocessable_entity
+      422
+    end
+
+    def self.invalid_request_parameters
+      400
+    end
+
+    def self.unhandled_exception
+      500
+    end
+
     def self.allowed_http_codes
       [
         ok,
         unauthorized_access,
         not_found,
-        forbidden
+        forbidden,
+        unprocessable_entity,
+        invalid_request_parameters
+      ]
+    end
+
+    def self.http_codes_for_web
+      [
+        ok,
+        unauthorized_access,
+        not_found
       ]
     end
 

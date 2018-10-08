@@ -34,6 +34,28 @@ class User < EstablishSimpleTokenUserDbConnection
 
   scope :is_active, -> {where(status: GlobalConstant::User.active_status)}
 
+  #:NOTE fails if filter passed with key 'all', needs to test if all key is added.
+  # inconsistent behaviour was seen when no filter was applicable
+  scope :filter_by, -> (filters) {
+    where_clause = []
+    filters.each do |key, val|
+      if key.to_s === GlobalConstant::User.email_filter
+        where_clause << ["email like ?", "#{val}%"]
+      else
+        where_clause << GlobalConstant::User.filters[key.to_s][val.to_s] if GlobalConstant::User.filters[key.to_s][val.to_s].present?
+      end
+    end
+
+    return if where_clause.blank?
+
+    ar = self
+    where_clause.each do |clause|
+      ar = ar.where(clause)
+    end
+
+    ar
+  }
+
   after_commit :memcache_flush
 
   # Array of Properties symbols
@@ -60,26 +82,26 @@ class User < EstablishSimpleTokenUserDbConnection
 
     if (self.client_id == GlobalConstant::TokenSale.st_token_sale_client_id)
 
-      if properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+      if properties_array.include?(GlobalConstant::User.doptin_done_property)
         GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-      elsif properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+      elsif properties_array.include?(GlobalConstant::User.kyc_submitted_property)
         GlobalConstant::User.get_token_sale_state_page_names("verification_page")
       else
         GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
       end
     else
 
-      if !properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property)
+      if !properties_array.include?(GlobalConstant::User.doptin_mail_sent_property)
         # FOR API USERS and non verify page opted in users
-        if properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+        if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
           GlobalConstant::User.get_token_sale_state_page_names("profile_page")
         else
           GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
         end
       else
-        if properties_array.include?(GlobalConstant::User.token_sale_kyc_submitted_property)
+        if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
           GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-        elsif properties_array.include?(GlobalConstant::User.token_sale_double_optin_done_property)
+        elsif properties_array.include?(GlobalConstant::User.doptin_done_property)
           GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
         else
           GlobalConstant::User.get_token_sale_state_page_names("verification_page")
@@ -97,10 +119,10 @@ class User < EstablishSimpleTokenUserDbConnection
   #
   def self.properties_config
     @u_prop_con ||= {
-        GlobalConstant::User.token_sale_kyc_submitted_property => 1,
-        GlobalConstant::User.token_sale_bt_done_property => 2,
-        GlobalConstant::User.token_sale_double_optin_mail_sent_property => 4,
-        GlobalConstant::User.token_sale_double_optin_done_property => 8
+        GlobalConstant::User.kyc_submitted_property => 1,
+        GlobalConstant::User.bt_done_property => 2,
+        GlobalConstant::User.doptin_mail_sent_property => 4,
+        GlobalConstant::User.doptin_done_property => 8
     }
   end
 
@@ -118,6 +140,7 @@ class User < EstablishSimpleTokenUserDbConnection
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
+  include AttributeParserConcern
 
 
   # Get encrypted password
@@ -235,6 +258,17 @@ class User < EstablishSimpleTokenUserDbConnection
   def memcache_flush
     user_details_memcache_key = User.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(user_details_memcache_key)
+  end
+
+
+  # Columns to be removed from the hashed response
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def self.restricted_fields
+    [:user_secret_id, :password]
   end
 
 end

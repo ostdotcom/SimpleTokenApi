@@ -63,6 +63,25 @@ class Web::SaasUser::LoginController < Web::SaasUser::BaseController
     render_api_response(service_response)
   end
 
+  # Logout user
+  #
+  # * Author: Aniket
+  # * Date: 21/09/2018
+  # * Reviewed By:
+  #
+  def logout
+    params = {
+        domain: request.host,
+        cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym],
+        browser_user_agent: http_user_agent
+    }
+
+    UserManagement::Logout.new(params).perform
+
+    delete_cookie(GlobalConstant::Cookie.user_cookie_name)
+    redirect_to "/login", status: GlobalConstant::ErrorCode.permanent_redirect
+  end
+
   # Send Reset Password Link
   #
   # * Author: Aman

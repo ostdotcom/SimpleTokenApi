@@ -104,8 +104,8 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_token_sale_state
-      return unauthorized_access_response('um_pd_3') if @user_token_sale_state != GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-      success
+    return unauthorized_access_response('um_pd_3') if @user_token_sale_state != GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+    success
     end
 
     # Fetch User Kyc Detail
@@ -202,7 +202,7 @@ module UserManagement
       @user_kyc_detail.present? ?
           {
               user_id: @user.id,
-              kyc_status: kyc_status,
+              kyc_status: @user_kyc_detail.kyc_status,
               admin_action_types: @user_kyc_detail.admin_action_types_array,
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status
@@ -246,7 +246,7 @@ module UserManagement
       @user_kyc_detail.present? ?
           {
               user_id: @user.id,
-              kyc_status: kyc_status,
+              kyc_status: @user_kyc_detail.kyc_status,
               admin_action_types: @user_kyc_detail.admin_action_types_array,
               token_sale_participation_phase: token_sale_participation_phase_for_user,
               whitelist_status: @user_kyc_detail.whitelist_status,
@@ -328,44 +328,18 @@ module UserManagement
 
     end
 
-    # User Kyc Status
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [String] status of kyc
-    #
-    def kyc_status
-      case true
-        when @user_kyc_detail.kyc_approved?
-          GlobalConstant::UserKycDetail.kyc_approved_status
-        when @user_kyc_detail.kyc_denied?
-          GlobalConstant::UserKycDetail.kyc_denied_status
-        when @user_kyc_detail.kyc_pending?
-          GlobalConstant::UserKycDetail.kyc_pending_status
-        else
-          fail "Invalid kyc status"
-      end
-    end
-
     # Unauthorized access response
     #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By: Sunil
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
     #
     # @return [Result::Base]
     #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {},
-          {user_token_sale_state: @user_token_sale_state}
-      )
+    def unauthorized_access_response(err)
+      err_result = super(err)
+      err_result.set_error_extra_info({user_token_sale_state: @user_token_sale_state})
+      err_result
     end
 
   end

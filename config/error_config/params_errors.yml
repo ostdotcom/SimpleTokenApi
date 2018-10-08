@@ -1,0 +1,457 @@
+missing_admin_id:
+  parameter: "admin_id"
+  msg: "admin_id is mandatory."
+
+missing_allow_web_based_client:
+  parameter: "allow_web_based_client"
+  msg: "allow_web_based_client is mandatory."
+
+missing_api_key:
+  parameter: "api_key"
+  msg: "api_key is mandatory."
+
+missing_api_secret:
+  parameter: "api_secret"
+  msg: "api_secret is mandatory."
+
+missing_applicant_volume:
+  parameter: "applicant_volume"
+  msg: "applicant_volume is mandatory."
+
+missing_approve_type:
+  parameter: "approve_type"
+  msg: "approve_type is mandatory."
+
+missing_birthdate:
+   parameter: "birthdate"
+   msg: "birthdate is mandatory."
+
+invalid_birthdate_age:
+   parameter: "birthdate"
+   msg: "Age required is between 18 to 100 years."
+
+invalid_birthdate:
+   parameter: "birthdate"
+   msg: "birthdate is invalid.format should be dd/mm/yyyy"
+
+missing_contract_event_obj:
+  parameter: "contract_event_obj"
+  msg: "contract_event_obj is mandatory."
+
+missing_current_password:
+  parameter: "current_password"
+  msg: "current_password is mandatory."
+
+invalid_city:
+  parameter: "city"
+  msg: "city is invalid."
+
+missing_city:
+   parameter: "city"
+   msg: "city is mandatory."
+
+missing_block_creation_timestamp:
+  parameter: "block_creation_timestamp"
+  msg: "block_creation_timestamp is mandatory."
+
+missing_company:
+  parameter: "company"
+  msg: "company is mandatory."
+
+missing_company_name:
+  parameter: "company_name"
+  msg: "company_name is mandatory."
+
+missing_confirm_password:
+  parameter: "confirm_password"
+  msg: "confirm_password is mandatory."
+
+missing_contract_address:
+  parameter: "contract_address"
+  msg: "contract_address is mandatory."
+
+missing_cookie_value:
+   parameter: "cookie_value"
+   msg: ""
+
+missing_browser_user_agent:
+  parameter: "browser_user_agent"
+  msg: "browser_user_agent is mandatory."
+
+missing_bt_name:
+  parameter: "bt_name"
+  msg: "bt_name is mandatory."
+
+blacklisted_country:
+   parameter: "country"
+   msg: "This Country is blacklisted by client."
+
+missing_country:
+   parameter: "country"
+   msg: "country is mandatory."
+
+invalid_country:
+   parameter: "country"
+   msg: "country is invalid."
+
+missing_client_id:
+  parameter: "client_id"
+  msg: "client_id is mandatory."
+
+missing_decoded_token_data:
+  parameter: "decoded_token_data"
+  msg: "decoded_token_data is mandatory."
+
+file_not_found_document_id_file_path:
+  parameter: "document_id_number"
+  msg: "File is not present on S3."
+
+invalid_document_id_number:
+  parameter: "document_id_number"
+  msg: "document_id_number is invalid."
+
+missing_document_id_number:
+   parameter: "document_id_number"
+   msg: "document_id_number is mandatory."
+
+invalid_document_id_file_path:
+  parameter: "document_id_file_path"
+  msg: "document_id_file_path is invalid."
+
+missing_document_id_file_path:
+   parameter: "document_id_file_path"
+   msg: "document_id_file_path is mandatory."
+
+wrong_file_size_of_document_id_file_path:
+   parameter: "document_id_file_path"
+   msg: "File size should be between 200kB & 20MB."
+
+missing_domain:
+  parameter: "domain"
+  msg: "domain is mandatory."
+
+invalid_email:
+  parameter: "email"
+  msg: "email is invalid."
+
+missing_email:
+  parameter: "email"
+  msg: "email is mandatory."
+
+user_already_present:
+  parameter: "email"
+  msg: "user with this email already exist."
+
+missing_email_temp_vars:
+  parameter: "email_temp_vars"
+  msg: "email_temp_vars is mandatory."
+
+missing_entity_type:
+  parameter: "entity_type"
+  msg: "entity_type is mandatory."
+
+invalid_estimated_participation_amount:
+   parameter: "estimated_participation_amount"
+   msg: "estimated_participation_amount is invalid. It can be a float value greater than equal to 0.01"
+
+missing_estimated_participation_amount:
+   parameter: "estimated_participation_amount"
+   msg: "estimated_participation_amount is mandatory."
+
+invalid_ethereum_address:
+   parameter: "ethereum_address"
+   msg: "ethereum_address is invalid."
+
+missing_ethereum_address:
+   parameter: "ethereum_address"
+   msg: "ethereum_address is mandatory."
+
+invalid_files:
+   parameter: "files"
+   msg: "files is invalid. Only 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'  content type is supported."
+
+invalid_files_count:
+   parameter: "files"
+   msg: "files contains more values than required. Maximum values allowed is 20."
+
+missing_files:
+   parameter: "files"
+   msg: "files is mandatory."
+
+invalid_filters:
+   parameter: "filters"
+   msg: "filters is invalid."
+
+missing_first_name:
+   parameter: "first_name"
+   msg: "first_name is mandatory."
+
+invalid_first_name:
+   parameter: "first_name"
+   msg: "first_name is invalid."
+
+missing_form_data:
+  parameter: "form_data"
+  msg: "form_data is mandatory."
+
+missing_fr_match_percent:
+  parameter: "fr_match_percent"
+  msg: "fr_match_percent is mandatory."
+
+missing_full_name:
+  parameter: "full_name"
+  msg: "full_name is mandatory."
+
+missing_gid:
+  parameter: "gid"
+  msg: "gid is mandatory."
+
+missing_i_t:
+  parameter: "i_t"
+  msg: "i_t is mandatory."
+
+missing_id:
+   parameter: "id"
+   msg: "id is mandatory."
+
+invalid_id:
+  parameter: "id"
+  msg: "id is invalid."
+
+missing_images:
+   parameter: "images"
+   msg: "images is mandatory."
+
+invalid_images:
+   parameter: "images"
+   msg: "images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
+
+
+file_not_found_investor_proof_files_path:
+  parameter: "investor_proof_files_path"
+  msg: "File is not present on S3."
+
+invalid_investor_proof_files_path:
+  parameter: "investor_proof_files_path"
+  msg: "investor_proof_files_path is invalid."
+
+#TODO: 2 is dummy number need logic to change it.
+invalid_investor_proof_files_path_count:
+  parameter: "investor_proof_files_path"
+  msg: "Max 2 documents are allowed as investor proof."
+
+missing_investor_proof_files_path:
+   parameter: "investor_proof_files_path"
+   msg: "investor_proof_files_path is mandatory."
+
+wrong_file_size_of_investor_proof_filse_path:
+   parameter: "investor_proof_files_path"
+   msg: "File size should be between 200kB & 20MB."
+
+missing_ip_address:
+  parameter: "ip_address"
+  msg: "ip_address is mandatory."
+
+missing_is_super_admin_role:
+  parameter: "is_super_admin_role"
+  msg: "is_super_admin_role is mandatory."
+
+missing_last_name:
+   parameter: "last_name"
+   msg: "last_name is mandatory."
+
+invalid_last_name:
+   parameter: "last_name"
+   msg: "last_name is invalid."
+
+invalid_limit:
+  parameter: "limit"
+  msg: "limit is invalid. Default: 10, min:1, max: 100"
+
+missing_name:
+  parameter: "name"
+  msg: "name is mandatory."
+
+invalid_nationality:
+   parameter: "nationality"
+   msg: "nationality is invalid."
+
+missing_nationality:
+   parameter: "nationality"
+   msg: "nationality is mandatory."
+
+missing_need_front_end:
+  parameter: "need_front_end"
+  msg: "need_front_end is mandatory."
+
+missing_new_password:
+  parameter: "new_password"
+  msg: "new_password is mandatory."
+
+missing_ocr_comparison_fields:
+  parameter: "ocr_comparison_fields"
+  msg: "ocr_comparison_fields is mandatory."
+
+invalid_order:
+  parameter: "order"
+  msg: "order in 'desc' (default) or 'asc' order."
+
+missing_ost_product_communicate:
+  parameter: "ost_product_communicate"
+  msg: "ost_product_communicate is mandatory."
+
+missing_otp:
+  parameter: "otp"
+  msg: "otp is mandatory."
+
+invalid_page_number:
+  parameter: "page_number"
+  msg: "Page number is invalid."
+
+missing_password:
+  parameter: "password"
+  msg: "password is mandatory."
+
+missing_pdfs:
+   parameter: "pdfs"
+   msg: "pdfs is mandatory."
+
+invalid_pdfs:
+   parameter: "pdfs"
+   msg: "pdfs is invalid. Only 'application/pdf' content type is supported."
+
+invalid_postal_code:
+   parameter: "postal_code"
+   msg: "postal_code is invalid."
+
+missing_postal_code:
+   parameter: "postal_code"
+   msg: "postal_code is mandatory."
+
+missing_r_t:
+  parameter: "r_t"
+  msg: "r_t is mandatory."
+
+file_not_found_residence_proof_file_path:
+  parameter: "residence_proof_file_path"
+  msg: "File is not present on S3."
+
+missing_request_parameters:
+  parameter: "request_parameters"
+  msg: "request_parameters is mandatory."
+
+missing_request_time:
+  parameter: "request_time"
+  msg: "request_time is mandatory."
+
+missing_request_timestamp:
+  parameter: "request_timestamp"
+  msg: "request_timestamp is mandatory."
+
+invalid_residence_proof_file_path:
+  parameter: "residence_proof_file_path"
+  msg: "residence_proof_file_path is invalid."
+
+missing_residence_proof_file_path:
+   parameter: "residence_proof_file_path"
+   msg: "residence_proof_file_path is mandatory."
+
+wrong_file_size_of_residence_proof_file_path:
+   parameter: "residence_proof_file_path"
+   msg: "File size should be between 200kB & 20MB."
+
+missing_sale_end_timestamp:
+  parameter: "sale_end_timestamp"
+  msg: "sale_end_timestamp is mandatory."
+
+missing_sale_start_timestamp:
+  parameter: "sale_start_timestamp"
+  msg: "sale_start_timestamp is mandatory."
+
+file_not_found_selfie_file_path:
+  parameter: "selfie_file_path"
+  msg: "File is not present on S3."
+
+invalid_selfie_file_path:
+  parameter: "selfie_file_path"
+  msg: "selfie_file_path is invalid."
+
+missing_selfie_file_path:
+   parameter: "selfie_file_path"
+   msg: "selfie_file_path is mandatory."
+
+wrong_file_size_of_selfie_file_path:
+   parameter: "selfie_file_path"
+   msg: "File size should be between 200kB & 20MB."
+
+missing_set_allowed_keys:
+  parameter: "set_allowed_keys"
+  msg: "set_allowed_keys is mandatory."
+
+invalid_allowed_keys:
+  parameter: "set_allowed_keys"
+  msg: "Invalid field selected."
+
+missing_signature:
+  parameter: "signature"
+  msg: "signature is mandatory."
+
+missing_single_auth_cookie_value:
+  parameter: "single_auth_cookie_value"
+  msg: "single_auth_cookie_value is mandatory."
+
+missing_skip_name:
+  parameter: "skip_name"
+  msg: "skip_name is mandatory."
+
+invalid_state:
+  parameter: "state"
+  msg: "state is invalid."
+
+missing_state:
+   parameter: "state"
+   msg: "state is mandatory."
+
+missing_street_address:
+   parameter: "street_address"
+   msg: "street_address is invalid."
+
+invalid_street_address:
+  parameter: "street_address"
+  msg: "street address is invalid."
+
+missing_t:
+  parameter: "t"
+  msg: "t is mandatory."
+
+missing_template_type:
+  parameter: "template_type"
+  msg: "template_type is mandatory."
+
+missing_token_sale_end_date:
+  parameter: "token_sale_end_date"
+  msg: "token_sale_end_date is mandatory."
+
+missing_token_sale_start_date:
+  parameter: "token_sale_start_date"
+  msg: "token_sale_start_date is mandatory."
+
+missing_url_path:
+  parameter: "url_path"
+  msg: "url_path is mandatory."
+
+missing_user_ethereum_address:
+  parameter: "user_ethereum_address"
+  msg: "user_ethereum_address is mandatory."
+
+invalid_user_id:
+  parameter: "user_id"
+  msg: "user id is invalid."
+
+missing_user_id:
+  parameter: "user_id"
+  msg: "user_id is mandatory."
+
+missing_uuid:
+  parameter: "uuid"
+  msg: "uuid is mandatory."

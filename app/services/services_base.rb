@@ -73,16 +73,14 @@ class ServicesBase
     # result object is returned
     service_params_list = ServicesBase.get_service_params(self.class.to_s)
     missing_mandatory_params = []
-
     service_params_list[:mandatory].each do |mandatory_param|
-      missing_mandatory_params << mandatory_param if @params[mandatory_param].to_s.blank?
+      missing_mandatory_params << "missing_#{mandatory_param}" if @params[mandatory_param].to_s.blank?
     end if service_params_list[:mandatory].present?
 
-    return error_with_data('sb_1',
-                                      "Mandatory parameter(s) #{missing_mandatory_params.join(", ")} missing.",
-                                      "Mandatory parameter(s) #{missing_mandatory_params.join(", ")} missing.",
-                                      GlobalConstant::ErrorAction.mandatory_params_missing,
-                                      {}) if missing_mandatory_params.any?
+    return error_with_identifier('mandatory_params_missing',
+                                 'sb_1',
+                                 missing_mandatory_params
+    ) if missing_mandatory_params.any?
 
     success
   end
@@ -100,13 +98,8 @@ class ServicesBase
   def fetch_and_validate_client
     @client = Client.get_from_memcache(@client_id)
 
-    return error_with_data(
-        'sb_2',
-        'Client is not active',
-        'Client is not active',
-        GlobalConstant::ErrorAction.default,
-        {}
-    ) if @client.blank? || @client.status != GlobalConstant::Client.active_status
+    return error_with_identifier('invalid_client_id','sb_2') if
+        @client.blank? || @client.status != GlobalConstant::Client.active_status
 
     success
   end
@@ -124,15 +117,22 @@ class ServicesBase
   def fetch_and_validate_admin
     @admin = Admin.get_from_memcache(@admin_id)
 
-    return error_with_data(
-        'sb_3',
-        'Admin is not active',
-        'Admin is not active',
-        GlobalConstant::ErrorAction.default,
-        {}
-    ) if @admin.status != GlobalConstant::Admin.active_status
+    return error_with_identifier('invalid_admin_id','sb_3') if
+        @admin.status != GlobalConstant::Admin.active_status
 
     success
+  end
+
+  # Unauthorized request
+  #
+  # * Author: Pankaj
+  # * Date: 20/09/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def unauthorized_access_response(internal_error_code)
+    error_with_identifier("unauthorized_access", internal_error_code)
   end
 
 end

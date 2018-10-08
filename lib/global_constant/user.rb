@@ -23,20 +23,20 @@ module GlobalConstant
 
       ### Property start ###
 
-      def token_sale_kyc_submitted_property
-        'token_sale_kyc_submitted'
+      def kyc_submitted_property
+        'kyc_submitted'
       end
 
-      def token_sale_bt_done_property
-        'token_sale_bt_done'
+      def bt_done_property
+        'bt_done'
       end
 
-      def token_sale_double_optin_mail_sent_property
-        'token_sale_kyc_double_optin_mail_sent'
+      def doptin_mail_sent_property
+        'doptin_mail_sent'
       end
 
-      def token_sale_double_optin_done_property
-        'token_sale_kyc_optin_done'
+      def doptin_done_property
+        'doptin_done'
       end
 
       ### Property stop ###
@@ -71,12 +71,69 @@ module GlobalConstant
 
       def sorting
         {
-            "sort_by" => {
+            "order" => {
                 'desc' => {id: :desc},
                 'asc' => {id: :asc}
             }
         }
       end
+
+
+      def is_kyc_submitted_filter
+        'is_kyc_submitted'
+      end
+      def is_doptin_done_filter
+        'is_doptin_done'
+      end
+      def is_doptin_mail_sent_filter
+        'is_doptin_mail_sent'
+      end
+      def email_filter
+        'email'
+      end
+
+      def allowed_filter
+        [
+          is_kyc_submitted_filter,
+          is_doptin_done_filter,
+          is_doptin_mail_sent_filter,
+          email_filter
+        ]
+      end
+
+      def filters
+        {
+          "#{is_kyc_submitted_filter}" => {
+              "true" => ["(properties & ?) = ?",
+                        ::User.properties_config[kyc_submitted_property],
+                        ::User.properties_config[kyc_submitted_property]
+              ],
+              "false" => ["(properties & ?) = 0",
+                        ::User.properties_config[kyc_submitted_property]
+              ]
+          },
+          "#{is_doptin_done_filter}" => {
+              "true" => ["(properties & ?) = ?",
+                         ::User.properties_config[doptin_done_property],
+                         ::User.properties_config[doptin_done_property]
+              ],
+              "false" => ["(properties & ?) = 0",
+                          ::User.properties_config[doptin_done_property]
+              ]
+          },
+          "#{is_doptin_mail_sent_filter}" => {
+              "true" => ["(properties & ?) = ?",
+                         ::User.properties_config[doptin_mail_sent_property],
+                         ::User.properties_config[doptin_mail_sent_property]
+              ],
+              "false" => ["(properties & ?) = 0",
+                         ::User.properties_config[doptin_mail_sent_property]
+              ]
+          }
+        }
+      end
+
+
 
     end
 

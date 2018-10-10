@@ -24,15 +24,15 @@ missing_approve_type:
 
 missing_birthdate:
    parameter: "birthdate"
-   msg: "birthdate is mandatory."
+   msg: "birthdate is a mandatory field. The format accepted is dd/mm/yyyy."
 
 invalid_birthdate_age:
    parameter: "birthdate"
-   msg: "Age required is between 18 to 100 years."
+   msg: "Minimum age required to proceed is 18 years."
 
 invalid_birthdate:
    parameter: "birthdate"
-   msg: "birthdate is invalid.format should be dd/mm/yyyy"
+   msg: "Please provide birthdate in dd/mm/yyyy format."
 
 missing_contract_event_obj:
   parameter: "contract_event_obj"
@@ -44,11 +44,11 @@ missing_current_password:
 
 invalid_city:
   parameter: "city"
-  msg: "city is invalid."
+  msg: "Please provide a valid city in the field. Make sure its spelled correctly and must contain letters and whitespace."
 
 missing_city:
    parameter: "city"
-   msg: "city is mandatory."
+   msg: "city is a mandatory field. Must contain letters and whitespace."
 
 missing_block_creation_timestamp:
   parameter: "block_creation_timestamp"
@@ -88,11 +88,11 @@ blacklisted_country:
 
 missing_country:
    parameter: "country"
-   msg: "country is mandatory."
+   msg: "country is a mandatory field."
 
 invalid_country:
    parameter: "country"
-   msg: "country is invalid."
+   msg: "Please provide a valid country. Make sure its spelled correctly."
 
 missing_client_id:
   parameter: "client_id"
@@ -104,27 +104,27 @@ missing_decoded_token_data:
 
 file_not_found_document_id_file_path:
   parameter: "document_id_number"
-  msg: "File is not present on S3."
+  msg: "Oops. File is not present on S3."
 
 invalid_document_id_number:
   parameter: "document_id_number"
-  msg: "document_id_number is invalid."
+  msg: "Please provide a valid document_id_number."
 
 missing_document_id_number:
    parameter: "document_id_number"
-   msg: "document_id_number is mandatory."
+   msg: "document_id_number is a mandatory field."
 
 invalid_document_id_file_path:
   parameter: "document_id_file_path"
-  msg: "document_id_file_path is invalid."
+  msg: "Please make sure to provide a valid document_id_file_path."
 
 missing_document_id_file_path:
    parameter: "document_id_file_path"
-   msg: "document_id_file_path is mandatory."
+   msg: "document_id_file_path is a mandatory field."
 
 wrong_file_size_of_document_id_file_path:
    parameter: "document_id_file_path"
-   msg: "File size should be between 200kB & 20MB."
+   msg: "Please make sure the file size is between 200kB & 20MB."
 
 missing_domain:
   parameter: "domain"
@@ -132,15 +132,15 @@ missing_domain:
 
 invalid_email:
   parameter: "email"
-  msg: "email is invalid."
+  msg: "Please provide a valid email address."
 
 missing_email:
   parameter: "email"
-  msg: "email is mandatory."
+  msg: "email is a mandatory field. Must contain a valid email address (with @ and .)"
 
 user_already_present:
   parameter: "email"
-  msg: "user with this email already exist."
+  msg: "user with this email already exists."
 
 missing_email_temp_vars:
   parameter: "email_temp_vars"
@@ -156,19 +156,19 @@ invalid_estimated_participation_amount:
 
 missing_estimated_participation_amount:
    parameter: "estimated_participation_amount"
-   msg: "estimated_participation_amount is mandatory."
+   msg: "estimated_participation_amount is a mandatory field. Must be a float value greater than equal to 0.01"
 
 invalid_ethereum_address:
    parameter: "ethereum_address"
-   msg: "ethereum_address is invalid."
+   msg: "Please ensure a valid ethereum_address is provided."
 
 missing_ethereum_address:
    parameter: "ethereum_address"
-   msg: "ethereum_address is mandatory."
+   msg: "ethereum_address is a mandatory field. It is a 42-character hexadecimal string."
 
 invalid_files:
    parameter: "files"
-   msg: "files is invalid. Only 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'  content type is supported."
+   msg: "Please provide a supported file type. Supported types : 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'."
 
 invalid_files_count:
    parameter: "files"
@@ -176,7 +176,7 @@ invalid_files_count:
 
 missing_files:
    parameter: "files"
-   msg: "files is mandatory."
+   msg: "files is a mandatory field. Please provide a supported file type. Supported types : 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'. "
 
 invalid_filters:
    parameter: "filters"
@@ -226,27 +226,26 @@ invalid_images:
    parameter: "images"
    msg: "images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
 
-
 file_not_found_investor_proof_files_path:
   parameter: "investor_proof_files_path"
-  msg: "File is not present on S3."
+  msg: "Oops. File is not present on S3."
 
 invalid_investor_proof_files_path:
   parameter: "investor_proof_files_path"
-  msg: "investor_proof_files_path is invalid."
+  msg: "Please make sure to upload a valid investor_proof_files_path."
 
 #TODO: 2 is dummy number need logic to change it.
 invalid_investor_proof_files_path_count:
   parameter: "investor_proof_files_path"
-  msg: "Max 2 documents are allowed as investor proof."
+  msg: "Maximum 2 documents are allowed to be uploaded as investor proof."
 
 missing_investor_proof_files_path:
    parameter: "investor_proof_files_path"
-   msg: "investor_proof_files_path is mandatory."
+   msg: "investor_proof_files_path is a mandatory field."
 
 wrong_file_size_of_investor_proof_filse_path:
    parameter: "investor_proof_files_path"
-   msg: "File size should be between 200kB & 20MB."
+   msg: "Please make sure the file size is between 200kB & 20MB."
 
 missing_ip_address:
   parameter: "ip_address"
@@ -258,11 +257,11 @@ missing_is_super_admin_role:
 
 missing_last_name:
    parameter: "last_name"
-   msg: "last_name is mandatory."
+   msg: "last_name is a mandatory field. Can contain letters, numbers and whitespace."
 
 invalid_last_name:
    parameter: "last_name"
-   msg: "last_name is invalid."
+   msg: "Please provide a valid last_name. Can contain letters, numbers and whitespace."
 
 invalid_limit:
   parameter: "limit"
@@ -270,15 +269,15 @@ invalid_limit:
 
 missing_name:
   parameter: "name"
-  msg: "name is mandatory."
+  msg: "name is a mandatory field. Can contain letters, whitespace and numbers"
 
 invalid_nationality:
    parameter: "nationality"
-   msg: "nationality is invalid."
+   msg: "Please provide a valid nationality."
 
 missing_nationality:
    parameter: "nationality"
-   msg: "nationality is mandatory."
+   msg: "nationality is a mandatory field."
 
 missing_need_front_end:
   parameter: "need_front_end"
@@ -294,7 +293,7 @@ missing_ocr_comparison_fields:
 
 invalid_order:
   parameter: "order"
-  msg: "order in 'desc' (default) or 'asc' order."
+  msg: "Please provide a valid value in order. Default is 'desc' another possible value is 'asc'."
 
 missing_ost_product_communicate:
   parameter: "ost_product_communicate"
@@ -306,7 +305,7 @@ missing_otp:
 
 invalid_page_number:
   parameter: "page_number"
-  msg: "Page number is invalid."
+  msg: "Page number is invalid. Must be a positive integer greater than 0"
 
 missing_password:
   parameter: "password"
@@ -322,11 +321,11 @@ invalid_pdfs:
 
 invalid_postal_code:
    parameter: "postal_code"
-   msg: "postal_code is invalid."
+   msg: "Invalid postal code."
 
 missing_postal_code:
    parameter: "postal_code"
-   msg: "postal_code is mandatory."
+   msg: "'postal_code' is a mandatory field."
 
 missing_r_t:
   parameter: "r_t"
@@ -342,23 +341,23 @@ missing_request_parameters:
 
 missing_request_time:
   parameter: "request_time"
-  msg: "request_time is mandatory."
+  msg: "request_time is a mandatory field. Must be epoch time in seconds."
 
 missing_request_timestamp:
   parameter: "request_timestamp"
-  msg: "request_timestamp is mandatory."
+  msg: "request_timestamp is a mandatory field. Must be epoch time in seconds."
 
 invalid_residence_proof_file_path:
   parameter: "residence_proof_file_path"
-  msg: "residence_proof_file_path is invalid."
+  msg: "Please make sure to upload a valid residence_proof_file_path."
 
 missing_residence_proof_file_path:
    parameter: "residence_proof_file_path"
-   msg: "residence_proof_file_path is mandatory."
+   msg: "residence_proof_file_path is a mandatory field."
 
 wrong_file_size_of_residence_proof_file_path:
    parameter: "residence_proof_file_path"
-   msg: "File size should be between 200kB & 20MB."
+   msg: "Please make sure the file size is between 200kB & 20MB."
 
 missing_sale_end_timestamp:
   parameter: "sale_end_timestamp"
@@ -370,19 +369,19 @@ missing_sale_start_timestamp:
 
 file_not_found_selfie_file_path:
   parameter: "selfie_file_path"
-  msg: "File is not present on S3."
+  msg: "Oops. File is not present on S3."
 
 invalid_selfie_file_path:
   parameter: "selfie_file_path"
-  msg: "selfie_file_path is invalid."
+  msg: "Please make sure the selfie_file_path provided is valid."
 
 missing_selfie_file_path:
    parameter: "selfie_file_path"
-   msg: "selfie_file_path is mandatory."
+   msg: "selfie_file_path is a mandatory field."
 
 wrong_file_size_of_selfie_file_path:
    parameter: "selfie_file_path"
-   msg: "File size should be between 200kB & 20MB."
+   msg: "Please make sure the file size is between 200kB & 20MB."
 
 missing_set_allowed_keys:
   parameter: "set_allowed_keys"
@@ -406,19 +405,19 @@ missing_skip_name:
 
 invalid_state:
   parameter: "state"
-  msg: "state is invalid."
+  msg: "Please provide a valid state information. State name might be incorrectly spelled."
 
 missing_state:
    parameter: "state"
-   msg: "state is mandatory."
+   msg: "state is a mandatory field."
 
 missing_street_address:
    parameter: "street_address"
-   msg: "street_address is invalid."
+   msg: "street_address is a mandatory field."
 
 invalid_street_address:
   parameter: "street_address"
-  msg: "street address is invalid."
+  msg: "Please provide a valid street_address."
 
 missing_t:
   parameter: "t"
@@ -446,12 +445,12 @@ missing_user_ethereum_address:
 
 invalid_user_id:
   parameter: "user_id"
-  msg: "user id is invalid."
+  msg: "Please provide a valid user_id. Must be an integer."
 
 missing_user_id:
   parameter: "user_id"
-  msg: "user_id is mandatory."
+  msg: "user_id is a mandatory field. Must be an integer."
 
 missing_uuid:
   parameter: "uuid"
-  msg: "uuid is mandatory."
+  msg: "uuid is a mandatory field. "

@@ -19,8 +19,6 @@ class Web::SaasUser::BaseController < Web::WebController
       params[:client_id] = service_response.data[:client_id]
       service_response.data = {}
     else
-      # Set 401 header
-      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
   end
@@ -55,8 +53,6 @@ class Web::SaasUser::BaseController < Web::WebController
     else
       # Clear cookie
       delete_cookie(GlobalConstant::Cookie.user_cookie_name)
-      # Set 401 header
-      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
   end

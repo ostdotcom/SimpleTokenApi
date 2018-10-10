@@ -7,9 +7,9 @@ rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks
 rake RAILS_ENV=development cron_task:continuous:confirm_kyc_whitelist lock_key_suffix=1
 rake RAILS_ENV=development cron_task:lockable:retry_email_service_api_call_hooks
 rake RAILS_ENV=development cron_task:lockable:check_eth_balance_of_whitelister
-rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_cynopsis_users
+rake RAILS_ENV=development cron_task:lockable:fetch_status_of_pending_aml_users
 rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
-rake RAILS_ENV=development cron_task:lockable:upload_failed_cynopsis_users
+rake RAILS_ENV=development cron_task:lockable:upload_failed_aml_users
 rake RAILS_ENV=development cron_task:lockable:populate_client_usage
 rake RAILS_ENV=development cron_task:lockable:refresh_dynamic_gas_price
 

@@ -28,7 +28,10 @@ class Web::SaasUser::TokenSaleController < Web::SaasUser::BaseController
   # * Reviewed By: Sunil
   #
   def kyc_submit
-    service_response = UserManagement::KycSubmit.new(params).perform
+    service_response = UserManagement::Kyc::Submit.new(params).perform
+    if service_response.success?
+      service_response.data = {user_id: service_response.data[:user_kyc_detail][:user_id]}
+    end
     render_api_response(service_response)
   end
 

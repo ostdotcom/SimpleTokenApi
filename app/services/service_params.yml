@@ -251,28 +251,6 @@
     - :browser_user_agent
   :optional:
 
-'UserManagement::KycSubmit':
-  :mandatory:
-    - :user_id
-    - :client_id
-    - :first_name
-    - :last_name
-    - :birthdate
-    - :country
-    - :document_id_number
-    - :nationality
-    - :document_id_file_path
-    - :selfie_file_path
-  :optional:
-    - :ethereum_address
-    - :residence_proof_file_path
-    - :street_address
-    - :city
-    - :state
-    - :postal_code
-    - :estimated_participation_amount
-    - :investor_proof_files_path
-
 'UserManagement::DoubleOptIn':
   :mandatory:
     - :t
@@ -321,6 +299,18 @@
   :optional:
     - :pdfs
     - :images
+
+'UserManagement::DocumentsUploader::V2::ForPost':
+  :mandatory:
+    - :client_id
+    - :files
+  :optional:
+
+'UserManagement::DocumentsUploader::V2::ForPut':
+  :mandatory:
+    - :client_id
+    - :files
+  :optional:
 
 'UserManagement::CheckEthereumBalance':
   :mandatory:
@@ -450,15 +440,6 @@
     - :admin_id
   :optional:
 
-'ClientManagement::VerifyApiCredential':
-  :mandatory:
-    - :api_key
-    - :signature
-    - :request_time
-    - :url_path
-    - :request_parameters
-    - :allow_web_based_client
-  :optional:
 
 'ClientManagement::GetClientSetting':
   :mandatory:
@@ -512,6 +493,25 @@
 'ClientManagement::GetCountrySetting':
   :mandatory:
      - :client_id
+  :optional:
+
+'ClientManagement::ResetApiCredentials':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
+'ClientManagement::UpdateApiFields':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :set_allowed_keys
+  :optional:
+
+'ClientManagement::GetAmlDetail':
+  :mandatory:
+     - :client_id
+     - :admin_id
   :optional:
 
 'ClientManagement::DeveloperDetail':
@@ -568,7 +568,7 @@
   :optional:
     - :entity_group_id
 
-'AdminManagement::Kyc::RetryCynopsisUpload':
+'AdminManagement::Kyc::RetryAmlUpload':
   :mandatory:
     - :client_id
     - :id
@@ -655,37 +655,86 @@
     - :id
   :optional:
 
-#'AdminManagement::Kyc::Dashboard::Whitelist':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :filters
-#    - :sortings
-#    - :offset
-#    - :page_size
-#
-#'AdminManagement::Kyc::Dashboard::SaleAll':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :offset
-#    - :page_size
-#
-#'AdminManagement::Kyc::Dashboard::SaleDaily':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :offset
-#    - :page_size
-#    - :tab_type
-#
-#'AdminManagement::Kyc::Dashboard::ContractEvents':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#  :optional:
-#    - :offset
-#    - :page_size
+'Authentication::ApiRequest::V1':
+  :mandatory:
+    - :api_key
+    - :signature
+    - :request_time
+    - :url_path
+    - :request_parameters
+    - :allow_web_based_client
+  :optional:
+
+'Authentication::ApiRequest::V2':
+  :mandatory:
+    - :api_key
+    - :signature
+    - :request_timestamp
+    - :url_path
+    - :request_parameters
+    - :allow_web_based_client
+  :optional:
+
+'UserManagement::Users::Create':
+  :mandatory:
+    - :email
+    - :client_id
+  :optional:
+
+'UserManagement::Users::List':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :page_number
+    - :limit
+    - :filters
+    - :order
+
+'UserManagement::Users::Get':
+  :mandatory:
+    - :client_id
+    - :id
+  :optional:
+
+'UserManagement::Kyc::Get':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+
+'UserManagement::KycDetail::Get':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+
+'UserManagement::Kyc::List':
+  :mandatory:
+    - :client_id
+  :optional:
+    - :page_number
+    - :limit
+    - :filters
+    - :order
+
+'UserManagement::Kyc::Submit':
+  :mandatory:
+    - :user_id
+    - :client_id
+    - :first_name
+    - :last_name
+    - :birthdate
+    - :country
+    - :document_id_number
+    - :nationality
+    - :document_id_file_path
+    - :selfie_file_path
+  :optional:
+    - :ethereum_address
+    - :residence_proof_file_path
+    - :street_address
+    - :city
+    - :state
+    - :postal_code
+    - :estimated_participation_amount
+    - :investor_proof_files_path

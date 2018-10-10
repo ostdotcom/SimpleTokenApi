@@ -87,7 +87,7 @@ module UserManagement
       @email = @email.to_s.downcase.strip
 
       validation_errors = {}
-      if !Util::CommonValidator.is_valid_email?(@email)
+      if !Util::CommonValidateAndSanitize.is_valid_email?(@email)
         validation_errors[:email] = 'Please enter a valid email address'
       end
 
@@ -222,7 +222,7 @@ module UserManagement
           last_logged_in_at: Time.now.to_i
       )
 
-      @user.send("set_" + GlobalConstant::User.token_sale_double_optin_mail_sent_property) if @client.is_verify_page_active_for_client?
+      @user.send("set_" + GlobalConstant::User.doptin_mail_sent_property) if @client.is_verify_page_active_for_client?
       @user.save!
     end
 

@@ -75,7 +75,7 @@ module AdminManagement
       def fetch_user
         @user = User.new
         @user.id = Random.rand(100..1000)
-        @user.properties = User.properties_config[GlobalConstant::User.token_sale_kyc_submitted_property]
+        @user.properties = User.properties_config[GlobalConstant::User.kyc_submitted_property]
         @user_token_sale_state = @user.get_token_sale_state_page_name
       end
 

@@ -13,9 +13,10 @@ class KycSubmitJob < ApplicationJob
   def perform(params)
     init_params(params)
 
-    block_kyc_submit_job_hard_check
+    # do not process if kyc was resubmitted
+    return if @user_extended_detail_id != @user_kyc_detail.user_extended_detail_id
 
-    find_or_init_user_kyc_detail
+    block_kyc_submit_job_hard_check
 
     #  todo: "KYCaas-Changes"
     # create_email_service_api_call_hook
@@ -24,7 +25,7 @@ class KycSubmitJob < ApplicationJob
 
     check_duplicate_kyc_documents
 
-    call_cynopsis_api
+    call_aml_api
 
     add_kyc_comparison_details
 
@@ -49,14 +50,17 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- init_params params: #{params.inspect}")
 
     @user_id = params[:user_id]
+    @user_extended_detail_id = params[:user_extended_detail_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]
 
     @user = User.find(@user_id)
-    @user_extended_detail = UserExtendedDetail.where(user_id: @user_id).last
+    @user_extended_detail = UserExtendedDetail.find(@user_extended_detail_id)
+    @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+
     Rails.logger.info("-- init_params @user_extended_detail: #{@user_extended_detail.id}")
 
-    @cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
+    @aml_status = GlobalConstant::UserKycDetail.unprocessed_aml_status
 
     @run_role = 'admin'
     @run_purpose = 'kyc'
@@ -72,15 +76,8 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def block_kyc_submit_job_hard_check
-    # Double optin is required
-    #  todo: "KYCaas-Changes"
-    # if !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")
-    #   fail "Double optin not yet done by user id: #{@user_id}."
-    # end
 
-    # Check if user KYC is already approved
-    user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
-    if user_kyc_detail.present? && (user_kyc_detail.kyc_approved? || user_kyc_detail.kyc_denied?)
+    if (@user_kyc_detail.kyc_approved? || @user_kyc_detail.kyc_denied?)
       fail "KYC is already approved for user id: #{@user_id}."
     end
 
@@ -91,59 +88,7 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info('-- block_kyc_submit_job_hard_check done')
   end
 
-  # Find or init user kyc detail
-  #
-  # * Author: Kedar
-  # * Date: 13/10/2017
-  # * Reviewed By: Sunil
-  #
-  # Sets @user_kyc_detail
-  #
-  def find_or_init_user_kyc_detail
-    @user_kyc_detail = UserKycDetail.find_or_initialize_by(user_id: @user_id)
 
-    # don't override the data if user kyc details id is same
-    return if @user_kyc_detail.user_extended_detail_id.to_i == @user_extended_detail.id
-
-    Rails.logger.info('-- find_or_init_user_kyc_detail')
-
-    # Update records
-    if @user_kyc_detail.new_record?
-      @user_kyc_detail.client_id = @user.client_id
-      # KYC_confirmed_at for now holds data When whitelist is confirmed for ethereum address
-      # TODO: Removed population of data from here.
-      # @user_kyc_detail.kyc_confirmed_at = @action_timestamp
-      @user_kyc_detail.token_sale_participation_phase = token_sale_participation_phase_for_user
-      @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
-      @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
-      @user_kyc_detail.submission_count = 0
-      #  todo: "KYCaas-Changes"
-      # if token_sale_participation_phase_for_user == GlobalConstant::TokenSale.early_access_token_sale_phase
-      #   @user_kyc_detail.pos_bonus_percentage = get_pos_bonus_percentage
-      #   @user_kyc_detail.alternate_token_id_for_bonus = get_alternate_token_id_for_bonus
-      # end
-    end
-    @user_kyc_detail.qualify_types = 0
-    @user_kyc_detail.admin_action_types = 0
-    @user_kyc_detail.user_extended_detail_id = @user_extended_detail.id
-    @user_kyc_detail.submission_count += 1
-    @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
-    @user_kyc_detail.cynopsis_status = GlobalConstant::UserKycDetail.unprocessed_cynopsis_status
-    @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
-    @user_kyc_detail.last_reopened_at = nil
-    @user_kyc_detail.save!
-  end
-
-  # Token Sale phase for user
-  #
-  # * Author: Aman
-  # * Date: 15/11/2017
-  # * Reviewed By: Sunil
-  #
-  def token_sale_participation_phase_for_user
-    #  todo: "KYCaas-Changes"
-    @token_sale_participation_phase_for_user ||= GlobalConstant::TokenSale.early_access_token_sale_phase #GlobalConstant::TokenSale.token_sale_phase_for(Time.at(@user.created_at.to_i))
-  end
 
   #  todo: "KYCaas-Changes"
   # Find POS bonus for percentage
@@ -224,33 +169,33 @@ class KycSubmitJob < ApplicationJob
   end
 
 
-  ########################## Cynopsis handling ##########################
+  ########################## aml handling ##########################
 
-  # Cynopsis
+  # aml
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def call_cynopsis_api
-    r = @user_kyc_detail.cynopsis_user_id.blank? ? create_cynopsis_case : update_cynopsis_case
-    Rails.logger.info("-- call_cynopsis_api r: #{r.inspect}")
+  def call_aml_api
+    r = @user_kyc_detail.aml_user_id.blank? ? create_aml_case : update_aml_case
+    Rails.logger.info("-- call_aml_api r: #{r.inspect}")
 
-    if !r.success? # cynopsis status will turn failed
-      @cynopsis_status = GlobalConstant::UserKycDetail.failed_cynopsis_status
-      save_cynopsis_status
+    if !r.success? # aml status will turn failed
+      @aml_status = GlobalConstant::UserKycDetail.failed_aml_status
+      save_aml_status
       log_to_user_activity(r)
       return
     end
 
     response_hash = ((r.data || {})[:response] || {})
-    @cynopsis_status = GlobalConstant::UserKycDetail.get_cynopsis_status(response_hash['approval_status'].to_s)
-    @user_kyc_detail.cynopsis_user_id = get_cynopsis_user_id
-    save_cynopsis_status
+    @aml_status = GlobalConstant::UserKycDetail.get_aml_status(response_hash['approval_status'].to_s)
+    @user_kyc_detail.aml_user_id = get_aml_user_id
+    save_aml_status
     # upload_documents
   end
 
-  # Create user in cynopsis
+  # Create user in aml
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
@@ -258,11 +203,11 @@ class KycSubmitJob < ApplicationJob
   #
   # @return [Result::Base]
   #
-  def create_cynopsis_case
-    Cynopsis::Customer.new(client_id: @user.client_id).create(cynopsis_params)
+  def create_aml_case
+    Aml::Customer.new(client_id: @user.client_id).create(aml_params)
   end
 
-  # Update user in cynopsis
+  # Update user in aml
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
@@ -270,19 +215,19 @@ class KycSubmitJob < ApplicationJob
   #
   # @return [Result::Base]
   #
-  def update_cynopsis_case
-    Cynopsis::Customer.new(client_id: @user.client_id).update(cynopsis_params, true)
+  def update_aml_case
+    Aml::Customer.new(client_id: @user.client_id).update(aml_params, true)
   end
 
-  # Create cynopsis params
+  # Create aml params
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def cynopsis_params
+  def aml_params
     {
-        rfrID: get_cynopsis_user_id,
+        rfrID: get_aml_user_id,
         first_name: @user_extended_detail.first_name,
         last_name: @user_extended_detail.last_name,
         country_of_residence: country_of_residence_d.upcase,
@@ -294,19 +239,19 @@ class KycSubmitJob < ApplicationJob
 
   end
 
-  # Save cynopsis response status
+  # Save aml response status
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
-  def save_cynopsis_status
-    Rails.logger.info('-- save_cynopsis_status')
-    @user_kyc_detail.cynopsis_status = @cynopsis_status
+ def save_aml_status
+    Rails.logger.info('-- save_aml_status')
+    @user_kyc_detail.aml_status = @aml_status
     @user_kyc_detail.save!
   end
 
-  # Upload documents to cynopsis
+  # Upload documents to aml
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
@@ -330,7 +275,7 @@ class KycSubmitJob < ApplicationJob
   # @return [Boolean]
   #
   def document_upload_needed?
-    @cynopsis_status == GlobalConstant::UserKycDetail.pending_cynopsis_status
+    @aml_status == GlobalConstant::UserKycDetail.pending_aml_status
   end
 
   #  Upload documents call
@@ -349,14 +294,14 @@ class KycSubmitJob < ApplicationJob
     s3_obj.get(local_file_path, s3_path, GlobalConstant::Aws::Common.kyc_bucket)
 
     upload_params = {
-        rfrID: get_cynopsis_user_id,
+        rfrID: get_aml_user_id,
         local_file_path: local_file_path,
         document_type: document_type
     }
 
     upload_params[:please_mention] = desc if document_type == 'OTHERS'
 
-    r = Cynopsis::Document.new(client_id: @user.client_id).upload(upload_params)
+    r = Aml::Document.new(client_id: @user.client_id).upload(upload_params)
 
     if !r.success?
       log_to_user_activity(r)
@@ -366,7 +311,7 @@ class KycSubmitJob < ApplicationJob
     Rails.logger.info("-- upload_document: #{document_type} done")
   end
 
-  # Get cynopsis rfrID
+  # Get aml rfrID
   #
   # * Author: Kedar, Puneet
   # * Date: 12/10/2017
@@ -375,9 +320,9 @@ class KycSubmitJob < ApplicationJob
   # ts - (token sale)
   # Rails.env[0..1] - (de/sa/st/pr)
   #
-  def get_cynopsis_user_id
-    @get_cynopsis_user_id ||= @user_kyc_detail.cynopsis_user_id.present? ? @user_kyc_detail.cynopsis_user_id.to_s :
-                                  UserKycDetail.get_cynopsis_user_id(@user_id)
+  def get_aml_user_id
+    @get_aml_user_id ||= @user_kyc_detail.aml_user_id.present? ? @user_kyc_detail.aml_user_id.to_s :
+                                  UserKycDetail.get_aml_user_id(@user_id)
   end
 
   # Get decrypted country
@@ -471,7 +416,7 @@ class KycSubmitJob < ApplicationJob
   def log_to_user_activity(response)
     UserActivityLogJob.new().perform({
                                          user_id: @user_kyc_detail.user_id,
-                                         action: GlobalConstant::UserActivityLog.cynopsis_api_error,
+                                         action: GlobalConstant::UserActivityLog.aml_api_error,
                                          action_timestamp: Time.now.to_i,
                                          extra_data: {
                                              response: response.to_json

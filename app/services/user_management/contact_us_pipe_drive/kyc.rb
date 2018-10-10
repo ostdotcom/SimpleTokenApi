@@ -76,7 +76,7 @@ module UserManagement
 
         @error_data[:full_name] = 'Full Name is required.' if !@full_name.present?
         @error_data[:company] = 'Company is required.' if !@company.present?
-        @error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidator.is_valid_email?(@email)
+        @error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
         @error_data[:token_sale_start_date] = 'Token sale start date is required.' if !@token_sale_start_date.present?
         @error_data[:token_sale_end_date] = "Token sale end date is required." if !@token_sale_end_date.present?
         @error_data[:need_front_end] = 'Please provide info whether custom front-end is required or not' if !@need_front_end.present?

@@ -24,7 +24,7 @@ module GlobalConstant
       end
 
       def api_timeout
-        5
+        10
       end
 
       ########### List Ids ############
@@ -259,7 +259,7 @@ module GlobalConstant
         'kyc_issue'
       end
 
-      # kyc_approved email - sent when kyc is approved by cynopsis and admin both.
+      # kyc_approved email - sent when kyc is approved by aml and admin both.
       def kyc_approved_template
         'kyc_approved'
       end
@@ -272,7 +272,7 @@ module GlobalConstant
         'altdrop_sent'
       end
 
-      # kyc_denied email - sent when kyc is denied by cynopsis and admin both.
+      # kyc_denied email - sent when kyc is denied by aml and admin both.
       def kyc_denied_template
         'kyc_denied'
       end

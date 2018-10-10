@@ -103,7 +103,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_user_state
-      if @user.properties_array.include?(GlobalConstant::User.token_sale_double_optin_mail_sent_property) &&
+      if @user.properties_array.include?(GlobalConstant::User.doptin_mail_sent_property) &&
           @template_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
 
         @has_double_opt_in = true
@@ -168,6 +168,7 @@ module UserManagement
       return success if @token.blank?
 
       service_response = UserManagement::DoubleOptIn.new({t: @token, user_id: @user_id}).perform
+      #TODO: user_token_sale_state should be sent to web.
       return unauthorized_access_response('um_gbd_2') unless service_response.success?
       @user.reload
 
@@ -241,25 +242,6 @@ module UserManagement
           has_double_opt_in: @has_double_opt_in.to_i,
           user: user_data
       }.merge(@client_setting_data)
-    end
-
-    # Unauthorized access response
-    #
-    # * Author: Aman
-    # * Date: 12/10/2017
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {},
-          {user_token_sale_state: @user_token_sale_state}
-      )
     end
 
   end

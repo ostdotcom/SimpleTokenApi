@@ -110,7 +110,7 @@ module AdminManagement
             'Case is rejected by Cynopsis',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.cynopsis_rejected?
+        ) if @user_kyc_detail.aml_rejected?
 
         r = validate_is_whitelist_in_process
         return r unless r.success?

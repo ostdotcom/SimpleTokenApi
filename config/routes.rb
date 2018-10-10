@@ -1,3 +1,9 @@
+class ActionDispatch::Routing::Mapper
+  def draw(routes_name)
+    instance_eval(Rails.root.join("config/routes/#{routes_name}.rb").read)
+  end
+end
+
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
@@ -36,19 +42,8 @@ Rails.application.routes.draw do
 
   constraints(InitKyc) do
 
-    scope 'api/v1/kyc', controller: 'rest_api/saas_api/kyc' do
-      match 'add-kyc' => :add_kyc, via: :POST
-      match 'upload-params' => :get_upload_params, via: :GET
-      match 'get-file-upload-urls' => :get_s3_upload_urls, via: :GET
-      match 'check-ethereum-address' => :check_ethereum_address, via: :GET
-      match 'get-detail' => :get_detail, via: :GET
-    end
-
-    # used by fetch published version and no fetch will get from production environment
-    if !Rails.env.production?
-      scope 'api/v1/setting', controller: 'rest_api/saas_api/setting' do
-        match 'configurator/get-published-draft' => :get_published_drafts, via: :GET
-      end
+    scope 'api', module: 'rest_api/saas_api' do
+      draw 'saas_api/index'
     end
 
     scope 'api/admin', controller: 'web/admin/login' do
@@ -69,7 +64,6 @@ Rails.application.routes.draw do
 
     scope 'api/admin/client', controller: 'web/admin/client' do
       match 'profile' => :get_profile_detail, via: :GET
-      match 'developer-details' => :get_developer_detail, via: :GET
       match 'auto-approve-setting' => :get_auto_approve_setting, via: :GET
       match 'get-sale-setting' => :get_sale_setting, via: :GET
       match 'get-country-setting' => :get_country_setting, via: :GET
@@ -93,7 +87,7 @@ Rails.application.routes.draw do
       match 'qualify' => :qualify, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
-      match 'retry-cynopsis-upload' => :retry_cynopsis_upload, via: :POST
+      match 'retry-aml-upload' => :retry_aml_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
 
       match 'open-case' => :open_kyc_case, via: :POST
@@ -121,6 +115,13 @@ Rails.application.routes.draw do
       match 'update-auto-approve-setting' => :update_auto_approve_setting, via: :POST
       match 'update-sale-setting' => :update_sale_setting, via: :POST
       match 'update-country-setting' => :update_country_setting, via: :POST
+    end
+
+    scope 'api/admin/setting', controller: 'web/admin/setting' do
+      match 'reset-api-credentials' => :reset_api_credentials, via: :POST
+      match 'update-api-fields' => :update_api_fields, via: :POST
+      match 'aml-details' => :get_aml_detail, via: :GET
+      match 'developer-details' => :get_developer_detail, via: :GET
     end
 
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do
@@ -177,7 +178,6 @@ Rails.application.routes.draw do
     match 'profile' => :profile, via: :GET
     match 'get-token-sale-address' => :get_token_sale_address, via: :GET
   end
-
 
   match '*permalink', to: 'application#not_found', via: :all
 

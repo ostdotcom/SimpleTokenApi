@@ -126,14 +126,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
     client = Client.get_from_memcache(params[:client_id])
     if !client.is_web_host_setup_done?
       delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
-      service_response = error_with_data(
-          "Unauthorized access",
-          "Client don't have configurator access.",
-          "Client don't have configurator access.",
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
-      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
+      service_response = error_with_identifier("no_configurator_access", "w_a_cc_1")
       render_api_response(service_response)
     end
   end

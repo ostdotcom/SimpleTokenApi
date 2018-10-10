@@ -69,8 +69,8 @@ module GlobalConstant
         'kyc_whitelist_processor_error'
       end
 
-      def cynopsis_api_error
-        'cynopsis_api_error'
+      def aml_api_error
+        'aml_api_error'
       end
 
       ########## actions ###########
@@ -84,7 +84,7 @@ module GlobalConstant
             kyc_qualified_action,
             kyc_whitelist_attention_needed,
             kyc_whitelist_processor_error,
-            cynopsis_api_error,
+            aml_api_error,
             update_ethereum_address,
             open_case,
             phase_changed_to_early_access,

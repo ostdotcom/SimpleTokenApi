@@ -126,8 +126,8 @@ module UserManagement
           {},
           {}
       ) if @client_token_sale_details.has_token_sale_ended? &&
-          (!@user.send("#{GlobalConstant::User.token_sale_kyc_submitted_property}?") ||
-          (@client.is_st_token_sale_client? && !@user.send("#{GlobalConstant::User.token_sale_double_optin_done_property}?")))
+          (!@user.send("#{GlobalConstant::User.kyc_submitted_property}?") ||
+          (@client.is_st_token_sale_client? && !@user.send("#{GlobalConstant::User.doptin_done_property}?")))
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_l_2') unless @user_secret.present?
@@ -214,24 +214,6 @@ module UserManagement
       cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
 
       success_with_data(cookie_value: cookie_value, user_token_sale_state: @user.get_token_sale_state_page_name)
-    end
-
-    # Unauthorized access response
-    #
-    # * Author: Kedar
-    # * Date: 11/10/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Incorrect login details.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
     end
 
   end

@@ -1,8 +1,6 @@
-module ClientManagement
+module Authentication::ApiRequest
 
-  class VerifyApiCredential < ServicesBase
-
-    EXPIRATION_WINDOW = 5.minutes
+  class Base < ServicesBase
 
     # Initialize
     #
@@ -17,14 +15,14 @@ module ClientManagement
     # @param [Hash] request_parameters (mandatory) - request parameters
     # @param [Boolean] allow_web_based_client (mandatory) - validate web based clients
     #
-    # @return [ClientManagement::VerifyApiCredential]
+    # @return [Authentication::ApiRequest::Base]
     #
     def initialize(params)
       super
 
       @api_key = @params[:api_key]
       @signature = @params[:signature]
-      @request_time = @params[:request_time]
+      @request_time = request_time
       @url_path = @params[:url_path]
       @request_parameters = @params[:request_parameters]
       @allow_web_based_client = @params[:allow_web_based_client]
@@ -32,6 +30,36 @@ module ClientManagement
       @parsed_request_time = nil
       @api_secret_d = nil
 
+    end
+
+    # Get request time
+    #
+    # * Author: Aniket
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def request_time
+     fail 'request time function did not override'
+    end
+
+    # Get expiry window
+    #
+    # * Author: Aniket
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def expiry_window
+      fail 'expiry_window function did not override'
+    end
+
+    # Get url path
+    #
+    # * Author: Aniket
+    # * Date: 21/09/2018
+    # * Reviewed By:
+    #
+    def get_url_path
+      fail 'get_url_path function did not override'
     end
 
     # Perform
@@ -72,16 +100,11 @@ module ClientManagement
       r = validate
       return r unless r.success?
 
-      @url_path = "#{@url_path}/"
+      @url_path = get_url_path
       @parsed_request_time = Time.at(@request_time.to_i)
 
-      return error_with_data(
-          'um_vac_1',
-          'Signature has expired',
-          'Signature has expired',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) unless @parsed_request_time && (@parsed_request_time.between?(Time.now - EXPIRATION_WINDOW, Time.now + EXPIRATION_WINDOW))
+      return invalid_credentials_response("um_vac_1") unless
+          @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
 
       @request_parameters.permit!
 
@@ -104,6 +127,7 @@ module ClientManagement
     #
     def fetch_client
       @client = Client.get_client_for_api_key_from_memcache(@api_key)
+      puts "fetch_client : #{@client.inspect}"
     end
 
     # Validate client and its signature
@@ -116,23 +140,22 @@ module ClientManagement
     #
     def validate_client
 
-      return invalid_credentials_response('um_vac_2') unless @client.present? &&
-          @client.status == GlobalConstant::Client.active_status &&
-          (@allow_web_based_client || !@client.is_web_host_setup_done?)
+      return invalid_credentials_response('a_ar_b_vc_1') unless @client.present?
 
-      return invalid_credentials_response('um_vac_3') if @client.is_st_token_sale_client?
+      return error_with_identifier('invalid_client_id',
+                                   'a_ar_b_vc_2'
+      ) if @client.status != GlobalConstant::Client.active_status
+
+      return error_with_identifier('forbidden_api_request',
+                                   'a_ar_b_vc_3'
+      ) if (!@allow_web_based_client && @client.is_web_host_setup_done?) || @client.is_st_token_sale_client?
 
       r = decrypt_api_secret
 
-      return error_with_data(
-          'um_vac_4',
-          'Something Went Wrong',
-          'Something Went Wrong. Please try again',
-          GlobalConstant::ErrorAction.default,
-          {}
-      ) unless r.success?
+      return error_with_identifier('internal_server_error', 'a_ar_b_vc_4') unless r.success?
 
-      return invalid_credentials_response('um_vac_5') unless generate_signature == @signature
+      # Note: internal code for this error is same for client not present
+      return invalid_credentials_response('a_ar_b_vc_1') unless generate_signature == @signature
 
       success
     end
@@ -201,14 +224,8 @@ module ClientManagement
     #
     # @return [Result::Base]
     #
-    def invalid_credentials_response(err, display_text = 'Invalid credentials')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
+    def invalid_credentials_response(internal_code)
+      error_with_identifier('invalid_or_expired_token', internal_code)
     end
 
   end

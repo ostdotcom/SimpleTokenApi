@@ -13,11 +13,11 @@ namespace :onetimer do
   #     },
   #     "double_opt_in" => 1,
   #     "client_name" => "pankajkyc.developmentost.com",
-  #     "cynopsis" => {
+  #     "aml" => {
   #         "email_id" =>  'aman@ost.com',
-  #         "domain_name" => GlobalConstant::Cynopsis.domain_name,
-  #         "token" => GlobalConstant::Cynopsis.token,
-  #         "base_url" => GlobalConstant::Cynopsis.base_url
+  #         "domain_name" => GlobalConstant::Aml.domain_name,
+  #         "token" => GlobalConstant::Aml.token,
+  #         "base_url" => GlobalConstant::Aml.base_url
   #     },
   #     "pepo_campaign" => {
   #         "api_key" => '0455fbd02e9512168211903ff25094d8',
@@ -57,18 +57,18 @@ namespace :onetimer do
   # }
 
   #   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
-  # {\"client_name\":\"thirdtoken\",\"cynopsis\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.cynopsis-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"whitelist\":{\"contract_address\":\"0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142\"}}
+  # {\"client_name\":\"thirdtoken\",\"aml\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.aml-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"whitelist\":{\"contract_address\":\"0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142\"}}
   # '")
 
 
   # params = params.to_json
-  # rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"cynopsis\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
+  # rake RAILS_ENV=development onetimer:add_client params="{\"client_name\":\"simpletoken\",\"aml\":{\"domain_name\":\"bar\",\"token\":\"notmuch\",\"base_url\":\"bar\"},\"pepo_campaign\":{\"api_key\":\"bar\",\"api_secret\":\"notmuch\"}}"
 
   task :add_client => :environment do
 
     params = JSON.parse(ENV['params'])
     super_admin = params["super_admin"]
-    cynopsis_data = params["cynopsis"]
+    aml_data = params["aml"]
     pepo_campaign_data = params["pepo_campaign"]
     whitelist_data = params["whitelist"]
     web_host_data = params["web_host"]
@@ -84,8 +84,8 @@ namespace :onetimer do
     fail 'Whitelist cannot be setup if Ethereum Address is not selected for kyc form' if whitelist_data.present? &&
         kyc_config["kyc_fields"].exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
-    fail 'token cannot be blank for cynopsis' if cynopsis_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
-    fail "cynopsis email id(#{cynopsis_data['email_id']}) is not valid " if cynopsis_data['email_id'].blank? || !Util::CommonValidator.is_valid_email?(cynopsis_data['email_id'])
+    fail 'token cannot be blank for aml' if aml_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
+    fail "aml email id(#{aml_data['email_id']}) is not valid " if aml_data['email_id'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(aml_data['email_id'])
 
     if pepo_campaign_data.present?
       fail 'api_key cannot be blank for pepo_campaign' if pepo_campaign_data['api_key'].blank?
@@ -97,7 +97,7 @@ namespace :onetimer do
     end
 
     if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
-        super_admin['name'].blank? || !Util::CommonValidator.is_valid_email?(super_admin['email'])
+        super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
       fail 'Invalid Super Admin Email'
     end
 
@@ -142,14 +142,14 @@ namespace :onetimer do
     ckps_obj.save!
 
 
-    r = LocalCipher.new(api_salt_d).encrypt(cynopsis_data['token'])
+    r = LocalCipher.new(api_salt_d).encrypt(aml_data['token'])
     return r unless r.success?
 
-    cynopsis_token_e = r.data[:ciphertext_blob]
+    aml_token_e = r.data[:ciphertext_blob]
 
-    ClientCynopsisDetail.create(client_id: client_id, email_id: cynopsis_data['email_id'], domain_name: cynopsis_data['domain_name'],
-                                token: cynopsis_token_e, base_url: cynopsis_data['base_url'],
-                                status: GlobalConstant::ClientCynopsisDetail.active_status)
+    ClientAmlDetail.create(client_id: client_id, email_id: aml_data['email_id'], domain_name: aml_data['domain_name'],
+                                token: aml_token_e, base_url: aml_data['base_url'],
+                                status: GlobalConstant::ClientAmlDetail.active_status)
 
     if pepo_campaign_data.present?
       r = LocalCipher.new(api_salt_d).encrypt(pepo_campaign_data['api_secret'])

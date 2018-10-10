@@ -281,7 +281,7 @@ module OstKycApi
           parse_api_response(result)
         end
       rescue Timeout::Error => e
-        return error_with_internal_code(e.message,
+        return deprecated_error_with_internal_code(e.message,
                                         'simple token api error: Time Out Error', GlobalConstant::ErrorCode.ok,
                                         {}, {}, 'Time Out Error')
 
@@ -289,7 +289,6 @@ module OstKycApi
         exception_with_internal_code(e, 'oka_r_hwe_1', 'Something Went Wrong', GlobalConstant::ErrorCode.ok)
       end
     end
-
     # Parse API response
     #
     # * Author: Aman
@@ -310,7 +309,7 @@ module OstKycApi
           success_result(response_data['data'])
         else
           # API Error
-          error_with_internal_code(response_data['err']['code'],
+          deprecated_error_with_internal_code(response_data['err']['code'],
                                    'simple token api error',
                                    GlobalConstant::ErrorCode.ok,
                                    {}, response_data['err']['error_data'],
@@ -318,7 +317,7 @@ module OstKycApi
         end
       when "Net::HTTPUnauthorized"
         # 401
-        error_with_internal_code('oka_r_unauthorized', 'ost kyc api authentication failed',
+        deprecated_error_with_internal_code('oka_r_unauthorized', 'ost kyc api authentication failed',
                                  GlobalConstant::ErrorCode.ok, {}, {}, 'Invalid Credentials')
       else
         # HTTP error status code (500, 504...)

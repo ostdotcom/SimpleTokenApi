@@ -34,7 +34,6 @@ class Web::Admin::BaseController < Web::WebController
       service_response.data = {}
     else
       delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
-      service_response.http_code = GlobalConstant::ErrorCode.unauthorized_access
       render_api_response(service_response)
     end
 

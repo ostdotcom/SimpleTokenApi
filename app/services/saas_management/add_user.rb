@@ -70,7 +70,7 @@ module SaasManagement
           GlobalConstant::ErrorAction.default,
           {},
           {}
-      ) unless Util::CommonValidator.is_valid_email?(@email)
+      ) unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
 
       r = fetch_and_validate_client
       return r unless r.success?

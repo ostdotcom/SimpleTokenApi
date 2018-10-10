@@ -8,12 +8,14 @@ class ClientPlan < EstablishSimpleTokenBillingDbConnection
   }
 
   enum notification_type: {
-      GlobalConstant::ClientPlan.min_threshold_notification_type => 1,
-      GlobalConstant::ClientPlan.max_threshold_notification_type => 2
+      GlobalConstant::ClientPlan.first_threshold_notification_type => 1,
+      GlobalConstant::ClientPlan.second_threshold_notification_type => 2,
+      GlobalConstant::ClientPlan.max_threshold_notification_type => 3
   }
 
   THRESHOLD_PERCENT = {
-      GlobalConstant::ClientPlan.min_threshold_notification_type => GlobalConstant::ClientPlan.min_threshold_percent,
+      GlobalConstant::ClientPlan.first_threshold_notification_type => GlobalConstant::ClientPlan.first_threshold_percent,
+      GlobalConstant::ClientPlan.second_threshold_notification_type => GlobalConstant::ClientPlan.second_threshold_percent,
       GlobalConstant::ClientPlan.max_threshold_notification_type => GlobalConstant::ClientPlan.max_threshold_percent
   }
 

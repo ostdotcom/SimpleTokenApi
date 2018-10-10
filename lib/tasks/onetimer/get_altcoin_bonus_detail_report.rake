@@ -33,7 +33,7 @@ namespace :onetimer do
       end
 
       ued_ids = user_mapping.values.flatten.uniq
-      active_user_extended_detail_ids = UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_cynopsis_approved.pluck(:user_extended_detail_id)
+      active_user_extended_detail_ids = UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_aml_approved.pluck(:user_extended_detail_id)
 
       user_mapping.each do |ethereum_address, user_extended_detail_ids|
         fail "#{ethereum_address} has no or duplicate active users" if (user_extended_detail_ids & active_user_extended_detail_ids).length != 1

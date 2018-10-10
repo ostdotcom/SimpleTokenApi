@@ -31,7 +31,7 @@ module Crons
             where(status: GlobalConstant::ClientWhitelistDetail.active_status).pluck(:client_id)
 
       UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
-          kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis
+          kyc_admin_and_aml_approved.# records which are approved by both admin and aml
       whitelist_status_unprocessed.# records which are not yet processed for whitelisting
       find_in_batches(batch_size: 10) do |u_k_detail_objs|
 

@@ -66,7 +66,8 @@ module Crons
         next if ClientPlan.notification_types[client_plan.notification_type].to_i >= ClientPlan.notification_types[notification_type]
         next if client_usage_obj.kyc_submissions_count < ((client_plan.kyc_submissions_count * threshold_percent)/100.0)
         client = Client.get_from_memcache(client_plan.client_id)
-        send_report_email(template_variables.merge(client_name: client.name, threshold_percent: threshold_percent))
+        super_admin_emails = Admin.client_super_admin_emails(client_plan.client_id)
+        send_report_email(super_admin_emails, template_variables.merge(client_name: client.name, threshold_percent: threshold_percent))
         client_plan.notification_type = notification_type
       end
 
@@ -80,8 +81,8 @@ module Crons
     # * Reviewed By:
     #
     #
-    def send_report_email(template_variables)
-      GlobalConstant::Email.default_billing_to.each do |to_email|
+    def send_report_email(super_admin_emails, template_variables)
+      (super_admin_emails + GlobalConstant::Email.default_billing_to).each do |to_email|
         Email::HookCreator::SendTransactionalMail.new(
             client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: to_email,

@@ -129,7 +129,7 @@ module WhitelistManagement
                 "invalid phase value: #{_phase}",
                 GlobalConstant::ErrorAction.default,
                 {}
-            ) unless Util::CommonValidator.is_numeric?(_phase)
+            ) unless Util::CommonValidateAndSanitize.is_float?(_phase)
 
             @phase = _phase.to_i
         end

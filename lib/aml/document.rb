@@ -1,6 +1,6 @@
-module Cynopsis
+module Aml
 
-  class Document < Cynopsis::Base
+  class Document < Aml::Base
 
     # Initialize
     #
@@ -10,7 +10,7 @@ module Cynopsis
     #
     # @params [Integer] client id (mandatory) - Client id
 
-    # @return [Cynopsis::Document]
+    # @return [Aml::Document]
     #
     def initialize(params)
       super
@@ -30,7 +30,7 @@ module Cynopsis
     # @return [Result::Base]
     #
     def upload(params)
-      params[:domain_name] = client_cynopsis_detail.domain_name
+      params[:domain_name] = client_aml_detail.domain_name
       params[:file] = HTTP::FormData::File.new(params[:local_file_path])
       params[:filename] = params[:local_file_path].split('/').last
       params.delete(:local_file_path)

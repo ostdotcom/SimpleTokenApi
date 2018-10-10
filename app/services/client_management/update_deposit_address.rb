@@ -9,7 +9,7 @@ module ClientManagement
     #
     # @param [Integer] client_id (mandatory) -  client id
     # @param [Integer] admin_id (mandatory) -  admin id
-    # @param [String] ethereum_deposit_address (mandatory) -  ethereum deposit address
+    # @param [String] ethereum_deposit_address (optional) -  ethereum deposit address
     # @param [String] otp (mandatory) -  otp
     #
     # @return [ClientManagement::UpdateDepositAddress]
@@ -37,6 +37,9 @@ module ClientManagement
     def perform
 
       r = validate_and_sanitize
+      return r unless r.success?
+
+      r = fetch_and_validate_duplicate_ethereum_deposit_address
       return r unless r.success?
 
       r = fetch_admin_secret_obj
@@ -105,7 +108,7 @@ module ClientManagement
     # sets @client
     #
     def validate_web_only_client
-      return error_with_identifier('forbidden_api_request', 'cm_uca_vwoc_1') unless @client.is_web_host_setup_done?
+      return error_with_identifier('forbidden_api_request', 'cm_uda_vwoc_1') unless @client.is_web_host_setup_done?
       success
     end
 
@@ -118,14 +121,40 @@ module ClientManagement
     # @return [Result::Base]
     #
     def validate_ethereum_deposit_address
-
+      return if @ethereum_deposit_address.blank?
       @ethereum_deposit_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_deposit_address)
 
       return error_with_identifier('invalid_api_params',
-                                   'cm_uca_vca_1',
+                                   'cm_uda_vca_1',
                                    ['invalid_ethereum_deposit_address']
       ) if !(Util::CommonValidator.is_ethereum_address?(@ethereum_deposit_address))
 
+      success
+    end
+
+    # fetch admin secret obj
+    #
+    # * Author: Tejas
+    # * Date: 09/10/2018
+    # * Reviewed By:
+    #
+    # sets @client_token_sale_details
+    #
+    # @return [Result::Base]
+    #
+    def fetch_and_validate_duplicate_ethereum_deposit_address
+      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
+      if @ethereum_deposit_address.blank?
+        return error_with_identifier('invalid_api_params',
+                                     'cm_uda_vo_1',
+                                     ['duplicate_ethereum_deposit_address']
+        ) if @client_token_sale_details.ethereum_deposit_address.blank?
+      else
+        return error_with_identifier('invalid_api_params',
+                                     'cm_uda_vo_2',
+                                     ['duplicate_ethereum_deposit_address']
+        ) if get_decrypted_ethereum_deposit_address(@client_token_sale_details.ethereum_deposit_address).downcase == @ethereum_deposit_address.downcase
+      end
       success
     end
 
@@ -161,7 +190,7 @@ module ClientManagement
       rotp_obj = TimeBasedOtp.new(ga_secret_d)
       r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
       return error_with_identifier('invalid_api_params',
-                                   'cm_uca_vo_1',
+                                   'cm_uda_vo_1',
                                    ['invalid_otp']
       ) unless r.success?
 
@@ -174,16 +203,32 @@ module ClientManagement
     # * Date: 09/10/2018
     # * Reviewed By:
     #
-    # @return [String] ethereum_deposit_address_e
+    # @return [String]
     #
     def get_encrypted_ethereum_deposit_address
-      ethereum_deposit_address = @ethereum_deposit_address
-
       encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
-      r = encryptor_obj.encrypt(ethereum_deposit_address)
+      r = encryptor_obj.encrypt(@ethereum_deposit_address)
       fail r unless r.success?
 
       r.data[:ciphertext_blob]
+    end
+
+    # Get Decrypted Ethereum Deposit Address
+    #
+    # * Author: Tejas
+    # * Date: 09/10/2018
+    # * Reviewed By:
+    #
+    # @return [String]
+    #
+    def get_decrypted_ethereum_deposit_address(ethereum_deposit_address)
+      return nil if ethereum_deposit_address.blank?
+
+      encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
+      r = encryptor_obj.decrypt(ethereum_deposit_address)
+      fail r unless r.success?
+
+      r.data[:plaintext]
     end
 
     # Update Ethereum Deposit Address
@@ -192,13 +237,14 @@ module ClientManagement
     # * Date: 09/10/2018
     # * Reviewed By:
     #
-    # sets  @client_token_sale_details
-    #
     # @return [Result::Base]
     #
     def update_ethereum_deposit_address
-      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
-      @client_token_sale_details.ethereum_deposit_address = get_encrypted_ethereum_deposit_address
+      if @ethereum_deposit_address.blank?
+        @client_token_sale_details.ethereum_deposit_addres = nil
+      else
+        @client_token_sale_details.ethereum_deposit_address = get_encrypted_ethereum_deposit_address
+      end
       @client_token_sale_details.save! if @client_token_sale_details.changed?
     end
 

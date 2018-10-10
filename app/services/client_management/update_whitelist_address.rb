@@ -11,6 +11,7 @@ module ClientManagement
     # @param [Integer] admin_id (mandatory) -  admin id
     # @param [String] whitelist_address (mandatory) -  whitelist address
     # @param [String] otp (mandatory) -  otp
+    # @param [Boolean] rewhitelist (optional) -  rewhitelist all whitelisted users
     #
     # @return [ClientManagement::UpdateWhitelistAddress]
     #
@@ -21,6 +22,7 @@ module ClientManagement
       @admin_id = @params[:admin_id]
       @whitelist_contract_address = @params[:whitelist_contract_address]
       @otp = @params[:otp].to_s
+      @rewhitelist = @params[:rewhitelist]
 
       @client_whitelist_detail = nil
       @admin_secret_obj = nil
@@ -53,10 +55,7 @@ module ClientManagement
 
       send_email
 
-      check_unused_voa_count
-
-      # todo if created then check the count of unused addresses and send email
-      # todo rewhitelist_users - true then enqueue job to rewhitelist
+      enqueue_job_for_rewhitelist_users
 
       success_with_data(success_response_data)
     end
@@ -250,8 +249,7 @@ module ClientManagement
           status: GlobalConstant::ClientWhitelistDetail.active_status
       )
 
-      @client.send("set_" + GlobalConstant::Client.whitelist_setup_done)
-      @client.save!
+      check_unused_voa_count
 
       success
     end
@@ -299,6 +297,45 @@ module ClientManagement
       #     template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
       #     template_vars: @sanitized_email_data
       # ).perform
+    end
+
+    # Do remaining task in sidekiq
+    #
+    # * Author: Tejas
+    # * Date: 10/10/2018
+    # * Reviewed By:
+    #
+    def enqueue_job_for_rewhitelist_users
+
+      if @rewhitelist == true
+        BgJob.enqueue(
+            RewhitelistJob,
+            {
+                client_id: @client_id
+            }
+        )
+        Rails.logger.info('---- enqueue_job RewhitelistJob done')
+      end
+    end
+
+    # Check Unused VOA Count
+    #
+    # * Author: Tejas
+    # * Date: 10/10/2018
+    # * Reviewed By:
+    #
+    def check_unused_voa_count
+      unused_voa_count = VerifiedOperatorAddress.where(status: GlobalConstant::VerifiedOperatorAddress.unused_status).count
+      # Send internal email in case of unused count is less than 10
+      if unused_voa_count <= VerifiedOperatorAddress::MINIMUM_UNUSED_VOA_COUNT
+        ApplicationMailer.notify(
+            to: GlobalConstant::Email.default_to,
+            body: "There is less than 10 voa addressses available in VerifedOperatorAddress Table.
+                   Please run generate_whitelister_address.rake once",
+            data: {unused_voa_count: unused_voa_count},
+            subject: "Attention::Less than 10 voa available in VerifedOperatorAddress"
+        ).deliver
+      end
     end
 
     # Api response data

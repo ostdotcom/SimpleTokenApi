@@ -23,17 +23,12 @@ namespace :onetimer do
   #         "api_key" => '0455fbd02e9512168211903ff25094d8',
   #         "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
   #     },
-  #     "whitelist" => {
-  #         "contract_address" => '0x81662ab3f307b6d4b777bb5996f0ba9659ab6d27',
-  #         "whitelister_address" => '0x31f2c12ef04683cb8fa5a7b145f34876a5271660'
-  #     },
   #     "web_host" => {
   #         "domain" => "pepokyc.developmentost.com"
   #     },
   #     "token_sale_details" => {
   #         "token_name" => "Company",
-  #         "token_symbol" => 'CMP',
-  #         "ethereum_deposit_address" => "0xEc9859B0B3B4652aD5e264776a79E544b76aman2",
+  #         "token_symbol" => 'CMP'
   #     },
   #     "kyc_config" => {
   #         "kyc_fields" => [
@@ -57,7 +52,7 @@ namespace :onetimer do
   # }
 
   #   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
-  # {\"client_name\":\"thirdtoken\",\"aml\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.aml-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"whitelist\":{\"contract_address\":\"0x6AF98e753f79353eb997ADBe6c2E3BF3565b0142\"}}
+  # {\"client_name\":\"thirdtoken\",\"aml\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.aml-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"}
   # '")
 
 
@@ -70,18 +65,19 @@ namespace :onetimer do
     super_admin = params["super_admin"]
     aml_data = params["aml"]
     pepo_campaign_data = params["pepo_campaign"]
-    whitelist_data = params["whitelist"]
     web_host_data = params["web_host"]
     token_sale_details = params["token_sale_details"]
     kyc_config = params["kyc_config"]
     client_plan = params["client_plan"]
+
+    has_whitelist_ad_on = client_plan['add_ons'].include?(GlobalConstant::ClientPlan.whitelist_add_ons)
 
     fail 'client_plan issue' if client_plan.blank? || (client_plan['kyc_submissions_count'].to_i == 0)
 
     invalid_add_ons = client_plan['add_ons'] - ClientPlan.add_ons_config.keys
     fail "Invalid Add On-#{invalid_add_ons}" if invalid_add_ons.present?
 
-    fail 'Whitelist cannot be setup if Ethereum Address is not selected for kyc form' if whitelist_data.present? &&
+    fail 'Whitelist cannot be setup if Ethereum Address is not selected for kyc form' if has_whitelist_ad_on &&
         kyc_config["kyc_fields"].exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
     fail 'token cannot be blank for aml' if aml_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
@@ -92,9 +88,6 @@ namespace :onetimer do
       fail 'api_secret cannot be blank for pepo_campaign' if pepo_campaign_data['api_secret'].blank?
     end
 
-    if whitelist_data.present? && (whitelist_data['contract_address'].blank? || whitelist_data['whitelister_address'].blank?)
-      fail 'contract_address or  whitelister_address cannot be blank for whitelist_data'
-    end
 
     if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
         super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
@@ -103,7 +96,7 @@ namespace :onetimer do
 
     setup_properties_val = 1
     setup_properties_val += 2 if pepo_campaign_data.present?
-    setup_properties_val += 4 if whitelist_data.present?
+    setup_properties_val += 4 if has_whitelist_ad_on.present?
     setup_properties_val += 8 if web_host_data.present?
     setup_properties_val += 16 if params['double_opt_in'].to_i == 1
 
@@ -170,16 +163,6 @@ namespace :onetimer do
       ClientManagement::SetupDefaultClientCustomDraft.new(admin_id: super_admin_obj.id, client_id: client_id).perform
     end
 
-    ethereum_deposit_address = token_sale_details['ethereum_deposit_address']
-    ethereum_deposit_address_e = nil
-
-    if ethereum_deposit_address.present?
-      encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
-      r = encryptor_obj.encrypt(ethereum_deposit_address)
-      fail r unless r.success?
-      ethereum_deposit_address_e = r.data[:ciphertext_blob]
-    end
-
     ClientTokenSaleDetail.create!(
         client_id: client_id,
         sale_start_timestamp: Time.now.to_i,
@@ -187,7 +170,7 @@ namespace :onetimer do
         sale_end_timestamp: Time.now.to_i + 1.month.to_i,
         token_name: token_sale_details['token_name'],
         token_symbol: token_sale_details['token_symbol'],
-        ethereum_deposit_address: ethereum_deposit_address_e,
+        ethereum_deposit_address: nil,
         status: GlobalConstant::ClientTokenSaleDetail.active_status
     )
 
@@ -195,10 +178,6 @@ namespace :onetimer do
                                      residency_proof_nationalities: [],
                                      blacklisted_countries: []
     )
-
-    ClientWhitelistDetail.create(client_id: client_id, contract_address: whitelist_data['contract_address'],
-                                 whitelister_address: whitelist_data['whitelister_address'],
-                                 status: GlobalConstant::ClientWhitelistDetail.active_status) if whitelist_data.present?
 
     cp = ClientPlan.new(client_id: client_id,
                         kyc_submissions_count: client_plan['kyc_submissions_count'].to_i,

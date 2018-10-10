@@ -166,13 +166,13 @@ missing_ethereum_address:
    parameter: "ethereum_address"
    msg: "ethereum_address is mandatory."
 
+duplicate_ethereum_deposit_address:
+  parameter: "ethereum_deposit_address"
+  msg: "please provide a new ethereum deposit address."
+
 invalid_ethereum_deposit_address:
   parameter: "ethereum_deposit_address"
   msg: "deposit address is invalid."
-
-missing_ethereum_deposit_address:
-   parameter: "ethereum_deposit_address"
-   msg: "ethereum deposit address is mandatory."
 
 invalid_files:
    parameter: "files"

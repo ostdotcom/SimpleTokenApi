@@ -517,9 +517,9 @@
   :mandatory:
      - :client_id
      - :admin_id
-     - :ethereum_deposit_address
      - :otp
   :optional:
+     - :ethereum_deposit_address
 
 'ClientManagement::UpdateWhitelistAddress':
   :mandatory:
@@ -528,6 +528,7 @@
      - :whitelist_contract_address
      - :otp
   :optional:
+     - :rewhitelist
 
 'ClientManagement::GetContractAddresses':
   :mandatory:

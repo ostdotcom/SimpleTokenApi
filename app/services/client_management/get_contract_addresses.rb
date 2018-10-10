@@ -82,7 +82,7 @@ module ClientManagement
       success
     end
 
-    # Validate Client Whitelisting
+    # Fetch Client Plan
     #
     # * Author: Tejas
     # * Date: 09/10/2018
@@ -165,8 +165,6 @@ module ClientManagement
     #
     def success_response_data
       {
-          has_whitelist_add_on: has_whitelist_add_on,
-          web_host_setup_done: @client.is_web_host_setup_done?,
           ethereum_deposit_address: get_decrypted_ethereum_deposit_address,
           whitelist_contract_address: @client_whitelist_details.present? ? @client_whitelist_details.contract_address : nil,
           verified_operator_address: @client_whitelist_details.present? ? @client_whitelist_details.whitelister_address : nil

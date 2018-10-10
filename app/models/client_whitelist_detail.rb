@@ -40,7 +40,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
   def self.get_from_memcache(client_id)
     memcache_key_object = ClientWhitelistDetail.get_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      ClientWhitelistDetail.where(client_id: client_id, status: GlobalConstant::ClientWhitelistDetail.active_status).first
+      ClientWhitelistDetail.where(client_id: client_id, status: GlobalConstant::ClientWhitelistDetail.active_status).last
     end
   end
 

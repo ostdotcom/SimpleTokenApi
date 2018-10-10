@@ -166,6 +166,14 @@ missing_ethereum_address:
    parameter: "ethereum_address"
    msg: "ethereum_address is mandatory."
 
+invalid_ethereum_deposit_address:
+  parameter: "ethereum_deposit_address"
+  msg: "deposit address is invalid."
+
+missing_ethereum_deposit_address:
+   parameter: "ethereum_deposit_address"
+   msg: "ethereum deposit address is mandatory."
+
 invalid_files:
    parameter: "files"
    msg: "files is invalid. Only 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'  content type is supported."
@@ -299,6 +307,10 @@ invalid_order:
 missing_ost_product_communicate:
   parameter: "ost_product_communicate"
   msg: "ost_product_communicate is mandatory."
+
+invalid_otp:
+  parameter: "otp"
+  msg: "otp is invalid."
 
 missing_otp:
   parameter: "otp"
@@ -455,3 +467,15 @@ missing_user_id:
 missing_uuid:
   parameter: "uuid"
   msg: "uuid is mandatory."
+
+duplicate_whitelist_contract_address:
+  parameter: "whitelist_contract_address"
+  msg: "please provide a new whitelist contract address."
+
+invalid_whitelist_contract_address:
+  parameter: "whitelist_contract_address"
+  msg: "whitelist contract address is invalid."
+
+missing_whitelist_contract_address:
+  parameter: "whitelist_contract_address"
+  msg: "whitelist contract address is mandatory."

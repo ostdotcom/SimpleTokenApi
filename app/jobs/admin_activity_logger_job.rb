@@ -1,10 +1,22 @@
 class AdminActivityLoggerJob < ApplicationJob
   queue_as GlobalConstant::Sidekiq.queue_name :default_medium_priority_queue
 
+  # perform
+  #
+  # * Author: Aniket
+  # * Date: 10/10/2018
+  # * Reviewed By:
+  #
   def perform(params)
       populate(params)
   end
 
+  # populate
+  #
+  # * Author: Aniket
+  # * Date: 10/10/2018
+  # * Reviewed By:
+  #
   def populate(params)
     begin
      AdminActivityChangeLogger.create!(params)

@@ -245,6 +245,9 @@ module ClientManagement
       else
         @client_token_sale_details.ethereum_deposit_address = get_encrypted_ethereum_deposit_address
       end
+      @client_token_sale_details.logged_admin_id = @admin_id
+      @client_token_sale_details.source = GlobalConstant::AdminActivityChangeLogger.web_source
+
       @client_token_sale_details.save! if @client_token_sale_details.changed?
     end
 

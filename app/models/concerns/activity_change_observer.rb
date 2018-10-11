@@ -7,22 +7,61 @@ module ActivityChangeObserver
     after_save :create_entry_in_logger
   end
 
+  # Set log_sync for model
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # Sets log_sync
+  #
   def log_sync!
     self.log_sync = true
   end
 
+  # get log_sync for model
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # @returns [Boolean]
+  #
   def log_sync?
     self.log_sync
   end
 
+  # get table name of model
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # @returns [String]
+  #
   def table_name
     self.class.table_name
   end
 
+  # get list of columns which needs to observ
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # @returns [Array]
+  #
   def table_columns_to_observe
     @table_columns_to_observe ||= AdminActivityChangeLogger::TABLE_ALLOWED_KEYS_MAPPING[table_name][:columns]
   end
 
+  # Create entry for column modified in logger
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  #
   def create_entry_in_logger
     saved_changes = self.saved_changes
     columns_to_log = (saved_changes.keys & table_columns_to_observe)
@@ -59,6 +98,14 @@ module ActivityChangeObserver
     end
   end
 
+  # get admin from model
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # return [Integer]
+  #
   def get_admin_id
     (self.logged_admin_id || self.try(:last_acted_by)).to_i
   end

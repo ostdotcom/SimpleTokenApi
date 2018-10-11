@@ -3,7 +3,7 @@ namespace :onetimer do
 
   # params = {
   #     "client_plan" => {
-  #       "add_ons" => ['whitelisting', 'frontend'],
+  #       "add_ons" => ['whitelist', 'custom_front_end'],
   #       "kyc_submissions_count" => 100
   #     },
   #     "super_admin" => {
@@ -189,9 +189,9 @@ namespace :onetimer do
     cp.save!
 
 
-    puts "client_id: #{client_id}"
-    puts "api-key: #{api_key}"
-    puts "api-secret: #{client_api_secret_d}"
+    puts "client_id= #{client_id}"
+    puts "api-key= #{api_key}"
+    puts "api-secret= #{client_api_secret_d}"
   end
 
 end

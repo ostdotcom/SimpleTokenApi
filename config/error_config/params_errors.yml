@@ -168,7 +168,7 @@ missing_ethereum_address:
 
 duplicate_ethereum_deposit_address:
   parameter: "ethereum_deposit_address"
-  msg: "please provide a new ethereum deposit address."
+  msg: "Please provide a new ethereum deposit address."
 
 invalid_ethereum_deposit_address:
   parameter: "ethereum_deposit_address"
@@ -469,7 +469,7 @@ missing_uuid:
 
 duplicate_whitelist_contract_address:
   parameter: "whitelist_contract_address"
-  msg: "please provide a new whitelist contract address."
+  msg: "Please provide a new whitelist contract address."
 
 invalid_whitelist_contract_address:
   parameter: "whitelist_contract_address"

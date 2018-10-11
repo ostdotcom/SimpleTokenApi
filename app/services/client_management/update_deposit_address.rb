@@ -125,14 +125,14 @@ module ClientManagement
       @ethereum_deposit_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_deposit_address)
 
       return error_with_identifier('invalid_api_params',
-                                   'cm_uda_vca_1',
+                                   'cm_uda_veda_1',
                                    ['invalid_ethereum_deposit_address']
       ) if !(Util::CommonValidator.is_ethereum_address?(@ethereum_deposit_address))
 
       success
     end
 
-    # fetch admin secret obj
+    # Fetch And Validate Duplicate Ethereum Deposit Address
     #
     # * Author: Tejas
     # * Date: 09/10/2018
@@ -146,12 +146,12 @@ module ClientManagement
       @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
       if @ethereum_deposit_address.blank?
         return error_with_identifier('invalid_api_params',
-                                     'cm_uda_vo_1',
+                                     'cm_uda_favdeda_1',
                                      ['duplicate_ethereum_deposit_address']
         ) if @client_token_sale_details.ethereum_deposit_address.blank?
       else
         return error_with_identifier('invalid_api_params',
-                                     'cm_uda_vo_2',
+                                     'cm_uda_favdeda_2',
                                      ['duplicate_ethereum_deposit_address']
         ) if get_decrypted_ethereum_deposit_address(@client_token_sale_details.ethereum_deposit_address).downcase == @ethereum_deposit_address.downcase
       end

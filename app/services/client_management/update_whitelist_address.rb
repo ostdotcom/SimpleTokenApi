@@ -61,7 +61,7 @@ module ClientManagement
     end
 
 
-    # private
+    private
 
     # Validate And Sanitize
     #
@@ -104,7 +104,7 @@ module ClientManagement
       success
     end
 
-    # Validate Client Whitelisting
+    # Validate Client Whitelisting Plan
     #
     # * Author: Tejas
     # * Date: 09/10/2018
@@ -113,7 +113,7 @@ module ClientManagement
     def validate_client_whitelisting_plan
       client_plan = ClientPlan.get_client_plan_from_memcache(@client_id)
 
-      return error_with_identifier('forbidden_api_request', 'cm_uwa_vcw_1') if client_plan.add_ons_array.exclude?(GlobalConstant::ClientPlan.whitelist_add_ons)
+      return error_with_identifier('forbidden_api_request', 'cm_uwa_vcwp_1') if client_plan.add_ons_array.exclude?(GlobalConstant::ClientPlan.whitelist_add_ons)
       success
     end
 
@@ -131,16 +131,14 @@ module ClientManagement
       @whitelist_contract_address = Util::CommonValidator.sanitize_ethereum_address(@whitelist_contract_address)
 
       return error_with_identifier('invalid_api_params',
-                                   'cm_uwa_vca_1',
+                                   'cm_uwa_vwa_1',
                                    ['invalid_whitelist_contract_address']
       ) if !(Util::CommonValidator.is_ethereum_address?(@whitelist_contract_address))
 
       is_whitelist_transaction_pending = KycWhitelistLog.kyc_whitelist_non_confirmed.where(client_id: @client_id).exists?
 
-      is_whitelist_transaction_pending ||= EditKycRequests.under_process.exists?
-
       return error_with_identifier('whitelist_transaction_pending',
-                                   'cm_uwa_vca_3') if is_whitelist_transaction_pending
+                                   'cm_uwa_vwa_2') if is_whitelist_transaction_pending
 
       success
     end
@@ -175,7 +173,7 @@ module ClientManagement
       rotp_obj = TimeBasedOtp.new(ga_secret_d)
       r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
       return error_with_identifier('invalid_api_params',
-                                   'cm_uca_vo_1',
+                                   'cm_uwa_vo_1',
                                    ['invalid_otp']
       ) unless r.success?
 
@@ -188,12 +186,13 @@ module ClientManagement
     # * Date: 27/08/2018
     # * Reviewed By:
     #
+    # sets @client_whitelist_detail
     #
     def fetch_client_whitelist_detail
       @client_whitelist_detail = ClientWhitelistDetail.get_from_memcache(@client_id)
     end
 
-    # Create or Update Client Whitelist Detail
+    # Set Whitelist Contract Address
     #
     # * Author: Tejas
     # * Date: 27/08/2018
@@ -266,7 +265,7 @@ module ClientManagement
     #
     def update_client_whitelist_detail
       return error_with_identifier('invalid_api_params',
-                                   'cm_uwa_vo_1',
+                                   'cm_uwa_ucwd_1',
                                    ['duplicate_whitelist_contract_address']
       ) if @client_whitelist_detail.contract_address.downcase == @whitelist_contract_address.downcase
 

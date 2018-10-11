@@ -94,7 +94,11 @@ class ApplicationController < ActionController::API
   # * Reviewed By:
   #
   def format_api_response(response_hash)
-    response_hash[:err].delete(:error_extra_info) if response_hash[:err].present?
+    if response_hash[:err].present?
+      response_hash[:err].delete(:error_extra_info)
+      response_hash[:err].delete(:web_msg)
+    end
+
     response_hash
   end
 
@@ -113,7 +117,7 @@ class ApplicationController < ActionController::API
       puts err[:error_data].inspect
       err[:error_data].each {|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
       response_hash[:err] = {
-          display_text: err[:msg].to_s,
+          display_text: err[:web_msg] || err[:msg].to_s,
           display_heading: "Error",
           error_data: err_data,
           code: err[:internal_id]

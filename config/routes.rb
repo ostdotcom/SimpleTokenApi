@@ -122,6 +122,9 @@ Rails.application.routes.draw do
       match 'update-api-fields' => :update_api_fields, via: :POST
       match 'aml-details' => :get_aml_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
+      match 'update-deposit-address' => :update_deposit_address, via: :POST
+      match 'update-whitelist-address' => :update_whitelist_address, via: :POST
+      match 'contract-addresses' => :get_contract_addresses, via: :GET
     end
 
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do

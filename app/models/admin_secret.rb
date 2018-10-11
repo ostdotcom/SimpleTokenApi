@@ -2,13 +2,38 @@ class AdminSecret < EstablishSimpleTokenAdminDbConnection
 
   after_commit :memcache_flush
 
-
+  # Login Salt Decrypted
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
   def login_salt_decrypted
     r = Aws::Kms.new('login', 'admin').decrypt(self.login_salt)
     return throw 'error as_lse_2' unless r.success?
 
     r.data[:plaintext]
   end
+
+  # Ga Secret Decrypted
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def ga_secret_decrypted
+    decryptor_obj = LocalCipher.new(self.login_salt_decrypted)
+
+    resp = decryptor_obj.decrypt(self.ga_secret)
+    return resp unless resp.success?
+
+    resp
+  end
+
   # Get Key Object
   #
   # * Author: Aman

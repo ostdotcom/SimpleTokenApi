@@ -1,5 +1,7 @@
 class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
 
+  include ActivityChangeObserver
+
   enum status: {
            GlobalConstant::ClientTokenSaleDetail.active_status => 1,
            GlobalConstant::ClientTokenSaleDetail.inactive_status => 2

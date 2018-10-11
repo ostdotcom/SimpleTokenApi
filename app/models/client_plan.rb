@@ -28,7 +28,7 @@ class ClientPlan < EstablishSimpleTokenBillingDbConnection
   # @returns [Array<Symbol>] returns Array of add_ons bits set for client
   #
   def add_ons_array
-    @add_ons_array = ClientPlan.get_bits_set_for_properties(add_ons)
+    @add_ons_array = ClientPlan.get_bits_set_for_add_ons(add_ons)
   end
 
   # add_ons config

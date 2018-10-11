@@ -129,7 +129,7 @@ module ClientManagement
     # @return [String] ethereum_deposit_address_d
     #
     def get_decrypted_ethereum_deposit_address
-      return nil if @client_token_sale_details.blank?
+      return nil if @client_token_sale_details.blank? || @client_token_sale_details.ethereum_deposit_address.blank?
 
       ethereum_deposit_address = @client_token_sale_details.ethereum_deposit_address
       ethereum_deposit_address_d = nil

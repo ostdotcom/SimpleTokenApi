@@ -2,11 +2,13 @@ invalid_api_params:
   http_code: '400'
   code: 'BAD_REQUEST'
   message: "At least one parameter is invalid or missing. See 'err.error_data' array for more details."
+  web_message: "At least one parameter is invalid"
 
 mandatory_params_missing:
   http_code: '400'
   code: 'BAD_REQUEST'
   message: "At least one mandatory parameter is missing. Check documentation for details."
+  web_message: "At least one mandatory parameter is missing"
 
 invalid_or_expired_token:
   http_code: '401'

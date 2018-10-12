@@ -126,8 +126,8 @@ module UserManagement
       #
       def validate_and_sanitize
         # NOTE: To be on safe side, check for generic errors as well
-        r = validate
-        return r unless r.success?
+        # r = validate
+        # return r unless r.success?
 
         @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
 

@@ -312,7 +312,7 @@ module UserManagement
           @ethereum_address = nil
           return
         end
-
+        @param_error_identifiers << "missing_ethereum_address" and return if @ethereum_address.to_s.strip.blank?
         @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
         unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
           @param_error_identifiers << 'invalid_ethereum_address'
@@ -324,7 +324,7 @@ module UserManagement
           @estimated_participation_amount = nil
           return
         end
-
+        @param_error_identifiers << "missing_estimated_participation_amount" and return if @estimated_participation_amount.to_s.strip.blank?
         if Util::CommonValidateAndSanitize.is_float?(@estimated_participation_amount)
           @estimated_participation_amount = @estimated_participation_amount.to_f
           @param_error_identifiers << 'invalid_estimated_participation_amount' if @estimated_participation_amount < 0.01

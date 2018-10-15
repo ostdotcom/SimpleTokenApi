@@ -156,7 +156,18 @@ module AdminManagement
       def enqueue_job
         BgJob.enqueue(
             DeleteDuplicateLogs,
-            {user_id: @user.id}
+            {
+                user_id: @user.id,
+                event: {
+                    client_id: @user.client_id,
+                    event_source: GlobalConstant::Event.web_source,
+                    event_name: GlobalConstant::Event.user_deleted_name,
+                    event_data: {
+                        user: @user.get_hash
+                    },
+                    event_timestamp: Time.now.to_i
+                }
+            }
         )
         Rails.logger.info('---- enqueue_job DeleteDuplicates done')
       end

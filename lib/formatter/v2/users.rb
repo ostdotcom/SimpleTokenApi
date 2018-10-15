@@ -4,7 +4,7 @@ module Formatter
       class << self
 
         # Format user list
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'users'
         #
         # * Author: Aniket
@@ -16,23 +16,21 @@ module Formatter
         def index(data_to_format)
           formatted_user_list = []
 
-          result_data = data_to_format.data
-          result_data[:users].each do |user|
+          data_to_format[:users].each do |user|
             formatted_user_list << user_base(user)
           end
 
           formatted_data = {
               result_type: 'users',
               users: formatted_user_list,
-              meta: result_data[:meta]
+              meta: data_to_format[:meta]
           }
 
-          data_to_format.data = formatted_data
-          data_to_format
+       formatted_data
         end
 
         # Format user
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'user'
         #
         # * Author: Aniket
@@ -42,15 +40,12 @@ module Formatter
         # @Sets result_type, user
         #
         def show(data_to_format)
-          result_data = data_to_format.data
-
           formatted_data = {
               result_type: 'user',
-              user: user_base(result_data[:user])
+              user: user_base(data_to_format[:user])
           }
 
-          data_to_format.data = formatted_data
-          data_to_format
+          formatted_data
         end
 
         # Format user

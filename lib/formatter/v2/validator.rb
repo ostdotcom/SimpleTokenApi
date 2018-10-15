@@ -4,7 +4,7 @@ module Formatter
       class << self
 
         # Format validated ethereum address
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE return as is
         #
         # * Author: Aniket

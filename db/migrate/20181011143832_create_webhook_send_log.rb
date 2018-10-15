@@ -7,7 +7,7 @@ class CreateWebhookSendLog < DbMigrationConnection
         t.column :client_webhook_setting_id, :integer, limit: 8, null: false
         t.column :event_id, :bigint, null: false
         t.column :lock_id, :integer, limit: 8, null: true
-        t.column :next_timestamp, :tinyint, limit: 2, null: false
+        t.column :next_timestamp, :integer, limit: 8, null: false
         t.column :status, :tinyint, limit: 2, null: false
         t.column :failed_count, :tinyint, limit: 2, null: false, default: 0
         t.timestamps

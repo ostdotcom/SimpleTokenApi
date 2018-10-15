@@ -48,7 +48,7 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
     formatted_response = @service_response
 
     if formatted_response.success?
-      formatted_response = get_formatter_class.send(params['action'], formatted_response)
+      formatted_response.data = get_formatter_class.send(params['action'], formatted_response.data.dup)
     end
 
     puts "\nFinal formatted response : #{formatted_response.inspect}"

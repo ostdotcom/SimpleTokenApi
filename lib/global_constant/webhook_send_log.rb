@@ -18,8 +18,8 @@ module GlobalConstant
         'expired'
       end
 
-      def invalid_status
-        'invalid'
+      def not_valid_status
+        'not_valid'
       end
 
       ### STATUS end ###

@@ -25,6 +25,7 @@ class DeleteDuplicateLogs < ApplicationJob
     fetch_existing_duplicate_data
     update_duplicate_logs_to_inactive
     unset_kyc_duplicate_status_of_previous_users
+    RecordEventJob.perform_now(@event)
   end
 
   private
@@ -41,6 +42,7 @@ class DeleteDuplicateLogs < ApplicationJob
   #
   def init_params(params)
     @user_id = params[:user_id]
+    @event = params[:event]
 
     @client_id, @user, @user_kyc_detail = nil, nil, nil
 

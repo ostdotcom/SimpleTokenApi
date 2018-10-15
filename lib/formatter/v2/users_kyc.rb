@@ -4,7 +4,7 @@ module Formatter
       class << self
 
         # Format kyc list
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'user_kyc_details'
         #
         # * Author: Aniket
@@ -15,9 +15,8 @@ module Formatter
         #
         def index(data_to_format)
           formatted_user_list = []
-          result_data = data_to_format.data
-          admins = result_data[:admins]
-          result_data[:user_kyc_details].each do |user_kyc_detail|
+          admins = data_to_format[:admins]
+          data_to_format[:user_kyc_details].each do |user_kyc_detail|
             admin = admins[user_kyc_detail[:last_acted_by]]
             formatted_user_list << user_kyc_base(user_kyc_detail, admin)
           end
@@ -25,14 +24,13 @@ module Formatter
           formatted_data = {
               result_type: 'users_kyc',
               users_kyc: formatted_user_list,
-              meta: result_data[:meta]
+              meta: data_to_format[:meta]
           }
-          data_to_format.data = formatted_data
-          data_to_format
+          formatted_data
         end
 
         # Format kyc
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'user_kyc'
         #
         # * Author: Tejas
@@ -42,15 +40,12 @@ module Formatter
         # Sets result_type, user_kyc
         #
         def show(data_to_format)
-          result_data = data_to_format.data
-
           formatted_data = {
               result_type: 'user_kyc',
-              user_kyc: user_kyc_base(result_data[:user_kyc_detail], result_data[:admin])
+              user_kyc: user_kyc_base(data_to_format[:user_kyc_detail], data_to_format[:admin])
           }
 
-          data_to_format.data = formatted_data
-          data_to_format
+          formatted_data
         end
 
 
@@ -59,7 +54,7 @@ module Formatter
         end
 
         # Format pre signed url for put
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'file_upload_put'
         #
         # * Author: Aniket
@@ -71,15 +66,14 @@ module Formatter
         def get_pre_singed_url_for_put(data_to_format)
           formatted_data = {
               result_type: 'file_upload_put',
-              file_upload_put: data_to_format.data
+              file_upload_put: data_to_format
 
           }
-          data_to_format.data = formatted_data
-          data_to_format
+          formatted_data
         end
 
         # Format pre signed url for put
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'file_upload_put'
         #
         # * Author: Aniket
@@ -91,11 +85,10 @@ module Formatter
         def get_pre_singed_url_for_post(data_to_format)
           formatted_data = {
               result_type: 'file_upload_post',
-              file_upload_post: data_to_format.data
+              file_upload_post: data_to_format
 
           }
-          data_to_format.data = formatted_data
-          data_to_format
+          formatted_data
         end
 
         private

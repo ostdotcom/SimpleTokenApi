@@ -309,11 +309,11 @@ missing_ost_product_communicate:
 
 invalid_otp:
   parameter: "otp"
-  msg: "otp is invalid."
+  msg: "OTP is invalid."
 
 missing_otp:
   parameter: "otp"
-  msg: "otp is mandatory."
+  msg: "OTP is mandatory."
 
 invalid_page_number:
   parameter: "page_number"

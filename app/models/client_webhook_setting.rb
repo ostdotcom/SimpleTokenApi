@@ -6,6 +6,8 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
       GlobalConstant::ClientWebhookSetting.deleted_status => 3
   }
 
+  scope :is_active, -> {where(status: GlobalConstant::ClientWebhookSetting.active_status)}
+
   # Array of event result types
   #
   # * Author: Aman
@@ -72,6 +74,48 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
+
+  # Get Key Object
+  #
+  # * Author: Aman
+  # * Date: 15/10/2018
+  # * Reviewed By
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('client.client_webhook_setting')
+  end
+
+  # Get/Set Memcache data for ClientWebhookSetting
+  #
+  # * Author: Aman
+  # * Date: 15/10/2018
+  # * Reviewed By
+  #
+  # @param [Integer] client_id - client_id
+  #
+  # @return [AR] ClientWebhookSetting object
+  #
+  def self.get_from_memcache(client_id)
+    memcache_key_object = ClientWebhookSetting.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
+      ClientWebhookSetting.is_active.where(client_id: client_id).all
+    end
+  end
+
+  private
+
+  # Flush Memcache
+  #
+  # * Author: Abhay
+  # * Date: 30/10/2017
+  # * Reviewed By:
+  #
+  def memcache_flush
+    memcache_key = ClientWebhookSetting.get_memcache_key_object.key_template % {client_id: self.client_id}
+    Memcache.delete(memcache_key)
+  end
 
 
 end

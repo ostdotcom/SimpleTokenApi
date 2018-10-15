@@ -30,6 +30,8 @@ class NewUserRegisterJob < ApplicationJob
                                              geoip_country: @geoip_country
                                          }
                                      })
+
+    RecordEventJob.perform_now(@event)
   end
 
   private
@@ -46,6 +48,7 @@ class NewUserRegisterJob < ApplicationJob
     @browser_user_agent = params[:browser_user_agent]
     @geoip_country = params[:geoip_country]
     @utm_params = params[:utm_params] || {}
+    @event = params[:event]
 
     @user = User.where(id: @user_id).first
     @client_id = @user.client_id

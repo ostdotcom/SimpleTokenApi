@@ -1,5 +1,7 @@
 class Event < EstablishOstKycWebhookDbConnection
 
+  serialize :data, Hash
+
   enum result_type: {
       GlobalConstant::Event.user_result_type => 1,
       GlobalConstant::Event.user_kyc_result_type => 2
@@ -51,5 +53,9 @@ class Event < EstablishOstKycWebhookDbConnection
           result_type: GlobalConstant::Event.user_result_type
       }
   }
+
+  def self.get_event_result_type(name)
+    NAME_CONFIG[name.to_sym][:result_type]
+  end
 
 end

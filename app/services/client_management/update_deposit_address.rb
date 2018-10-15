@@ -121,7 +121,7 @@ module ClientManagement
     # @return [Result::Base]
     #
     def validate_ethereum_deposit_address
-      return if @ethereum_deposit_address.blank?
+      return success if @ethereum_deposit_address.blank?
       @ethereum_deposit_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_deposit_address)
 
       return error_with_identifier('invalid_api_params',

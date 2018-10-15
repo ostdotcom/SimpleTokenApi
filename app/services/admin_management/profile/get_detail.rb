@@ -21,7 +21,7 @@ module AdminManagement
         @admin_id = @params[:admin_id]
         @client_id = @params[:client_id]
 
-        @client, @client_kyc_config_detail_obj  = nil, nil
+        @client, @client_kyc_config_detail_obj = nil, nil
         @client_whitelist_detail, @client_plan = nil, nil
       end
 
@@ -131,7 +131,7 @@ module AdminManagement
                 web_host_setup_done: @client.is_web_host_setup_done?
             },
             client_whitelist: {
-                low_eth_balance: @client_whitelist_detail.balance.to_f < Crons::CheckWhitelisterBalance::MIN_ETH_BALANCE,
+                low_eth_balance: @client_whitelist_detail.present? && (@client_whitelist_detail.balance.to_f < Crons::CheckWhitelisterBalance::MIN_ETH_BALANCE),
                 suspension_type: @client_whitelist_detail.present? ? @client_whitelist_detail.suspension_type : nil
             },
             client_plan: {

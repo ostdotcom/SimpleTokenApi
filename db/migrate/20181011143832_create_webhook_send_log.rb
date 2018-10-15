@@ -3,7 +3,6 @@ class CreateWebhookSendLog < DbMigrationConnection
     run_migration_for_db(EstablishOstKycWebhookDbConnection.config_key) do
 
       create_table :webhook_send_logs do |t|
-        t.column :id, :bigint, primary_key: true, auto_increment: true
         t.column :client_id, :integer, limit: 8, null: false
         t.column :client_webhook_setting_id, :integer, limit: 8, null: false
         t.column :event_id, :bigint, null: false
@@ -14,7 +13,7 @@ class CreateWebhookSendLog < DbMigrationConnection
         t.timestamps
       end
 
-      add_index :webhook_send_logs, [:client_id, :status, :next_timestamp, client_webhook_setting_id],
+      add_index :webhook_send_logs, [:client_id, :status, :next_timestamp, :client_webhook_setting_id],
                 unique: false, name: 'client_id_status_next_timestamp_cwsi'
 
     end

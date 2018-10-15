@@ -132,7 +132,8 @@ module ClientManagement
 
       return error_with_identifier('invalid_api_params',
                                    'cm_uwa_vwa_1',
-                                   ['invalid_whitelist_contract_address']
+                                   ['invalid_whitelist_contract_address'],
+                                   ''
       ) if !(Util::CommonValidator.is_ethereum_address?(@whitelist_contract_address))
 
       is_whitelist_transaction_pending = KycWhitelistLog.kyc_whitelist_non_confirmed.where(client_id: @client_id).exists?
@@ -174,7 +175,8 @@ module ClientManagement
       r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
       return error_with_identifier('invalid_api_params',
                                    'cm_uwa_vo_1',
-                                   ['invalid_otp']
+                                   ['invalid_otp'],
+                                   ''
       ) unless r.success?
 
       success
@@ -266,7 +268,8 @@ module ClientManagement
     def update_client_whitelist_detail
       return error_with_identifier('invalid_api_params',
                                    'cm_uwa_ucwd_1',
-                                   ['duplicate_whitelist_contract_address']
+                                   ['duplicate_whitelist_contract_address'],
+                                   ''
       ) if @client_whitelist_detail.contract_address.downcase == @whitelist_contract_address.downcase
 
       @client_whitelist_detail.status = GlobalConstant::ClientWhitelistDetail.inactive_status

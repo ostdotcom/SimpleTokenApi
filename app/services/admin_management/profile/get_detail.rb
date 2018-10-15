@@ -131,6 +131,7 @@ module AdminManagement
                 web_host_setup_done: @client.is_web_host_setup_done?
             },
             client_whitelist: {
+                low_eth_balance: @client_whitelist_detail.balance.to_f < Crons::CheckWhitelisterBalance::MIN_ETH_BALANCE,
                 suspension_type: @client_whitelist_detail.present? ? @client_whitelist_detail.suspension_type : nil
             },
             client_plan: {

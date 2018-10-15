@@ -275,6 +275,7 @@ module ClientManagement
       @active_client_whitelist_detail_obj = ClientWhitelistDetail.create!(
           client_id: @client_id, contract_address: @whitelist_contract_address,
           whitelister_address: @client_whitelist_detail.whitelister_address,
+          balance: @client_whitelist_detail.balance,
           suspension_type: @client_whitelist_detail.suspension_type,
           last_acted_by: @admin_id,
           status: GlobalConstant::ClientWhitelistDetail.active_status

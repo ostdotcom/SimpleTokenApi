@@ -252,7 +252,6 @@ module UserManagement
               event: {
                   client_id: @user.client_id,
                   event_source: GlobalConstant::Event.web_source,
-                  event_type:  GlobalConstant::Event.user_result_type,
                   event_name: GlobalConstant::Event.user_register_name,
                   event_data: {
                       user: @user.get_hash

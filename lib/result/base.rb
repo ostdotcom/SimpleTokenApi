@@ -397,7 +397,8 @@ module Result
           success: false,
           err: {
               internal_id: hash[:error],
-              msg: hash[:error_display_text].to_s
+              msg: hash[:error_display_text].to_s,
+              web_msg: hash[:error_display_text]
           },
           data: hash[:data],
           http_code: http_code
@@ -411,7 +412,6 @@ module Result
       if error_config.present?
         error_response[:err][:code] = error_config["code"]
         error_response[:err][:msg] = error_config["message"]
-        error_response[:err][:web_msg] = error_config["web_message"] unless error_config["web_message"].nil?
         error_response[:http_code] = error_config["http_code"].to_i
       end
 

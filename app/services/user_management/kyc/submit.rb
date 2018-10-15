@@ -186,7 +186,8 @@ module UserManagement
 
         return error_with_identifier('invalid_api_params',
                                      'um_ks_vasp_1',
-                                     @param_error_identifiers
+                                     @param_error_identifiers,
+                                     'There were some errors in your KYC. Please correct and resubmit'
         ) if @param_error_identifiers.any?
 
         success

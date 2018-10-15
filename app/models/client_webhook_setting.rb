@@ -55,7 +55,7 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
     @e_sources_config ||= {
         GlobalConstant::Event.web_source => 1,
         GlobalConstant::Event.api_source => 2,
-        GlobalConstant::Event.system_source => 4
+        GlobalConstant::Event.kyc_system_source => 4
     }
   end
 

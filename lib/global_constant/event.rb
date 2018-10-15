@@ -26,8 +26,8 @@ module GlobalConstant
         'api'
       end
 
-      def system_source
-        'system'
+      def kyc_system_source
+        'kyc_system'
       end
 
       ### source end ###

@@ -1,26 +1,5 @@
 class Event < EstablishOstKycWebhookDbConnection
 
-  serialize :data, Hash
-
-  enum result_type: {
-      GlobalConstant::Event.user_result_type => 1,
-      GlobalConstant::Event.user_kyc_result_type => 2
-  }
-
-  enum source: {
-      GlobalConstant::Event.web_source => 1,
-      GlobalConstant::Event.api_source => 2,
-      GlobalConstant::Event.system_source => 3
-  }
-
-  enum name: begin
-    name_map = {}
-    NAME_CONFIG.each do |e_name, e_data|
-      name_map[e_name] = e_data[:entity_val]
-    end
-    name_map.freeze
-  end
-
   NAME_CONFIG = {
       GlobalConstant::Event.user_register_name => {
           entity_val: 1,
@@ -54,8 +33,35 @@ class Event < EstablishOstKycWebhookDbConnection
       }
   }
 
+  enum result_type: {
+      GlobalConstant::Event.user_result_type => 1,
+      GlobalConstant::Event.user_kyc_result_type => 2
+  }
+
+  enum source: {
+      GlobalConstant::Event.web_source => 1,
+      GlobalConstant::Event.api_source => 2,
+      GlobalConstant::Event.kyc_system_source => 3
+  }
+
+  enum name: begin
+    name_map = {}
+    NAME_CONFIG.each do |e_name, e_data|
+      name_map[e_name] = e_data[:entity_val]
+    end
+    name_map.freeze
+  end
+
+  serialize :data, Hash
+
+
+
+
+
+
+
   def self.get_event_result_type(name)
-    NAME_CONFIG[name.to_sym][:result_type]
+    Event::NAME_CONFIG[name.to_s][:result_type]
   end
 
 end

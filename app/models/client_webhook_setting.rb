@@ -7,6 +7,7 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   }
 
   scope :is_active, -> {where(status: GlobalConstant::ClientWebhookSetting.active_status)}
+  scope :last_processed, -> {order(last_processed_at: :asc).first}
 
   # Array of event result types
   #

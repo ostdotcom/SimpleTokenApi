@@ -10,6 +10,10 @@ module GlobalConstant
         'unprocessed'
       end
 
+      def processed_status
+        'processed'
+      end
+
       def failed_status
         'failed'
       end

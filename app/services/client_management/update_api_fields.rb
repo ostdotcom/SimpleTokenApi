@@ -92,7 +92,7 @@ module ClientManagement
       client_kyc_config_details = ClientKycConfigDetail.get_from_memcache(@client_id)
       unallowed_keys = @set_allowed_keys - client_kyc_config_details.kyc_fields_array
 
-      return error_with_identifier('invalid_api_params', 'cm_uaf_vak_1', 'invalid_allowed_keys') if unallowed_keys.present?
+      return error_with_identifier('invalid_api_params', 'cm_uaf_vak_1', 'invalid_allowed_keys', '') if unallowed_keys.present?
 
       success
     end

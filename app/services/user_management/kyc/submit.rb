@@ -3,7 +3,7 @@ module UserManagement
     class Submit < ServicesBase
 
       S3_DOCUMENT_PATH_REGEX = GlobalConstant::UserKycDetail.s3_document_path_regex
-
+      MAX_ALLOWED_LENGTH = 100
       # Initialize
       #
       # * Author: Aman
@@ -183,10 +183,11 @@ module UserManagement
 
         validate_uploaded_files
 
-
+        @param_error_identifiers.uniq!
         return error_with_identifier('invalid_api_params',
                                      'um_ks_vasp_1',
-                                     @param_error_identifiers
+                                     @param_error_identifiers,
+                                     'There were some errors in your KYC. Please correct and resubmit'
         ) if @param_error_identifiers.any?
 
         success
@@ -221,12 +222,14 @@ module UserManagement
         @param_error_identifiers << "missing_first_name" and return if @first_name.to_s.strip.blank?
         @param_error_identifiers << 'invalid_first_name' unless Util::CommonValidateAndSanitize.is_string?(@first_name)
         @first_name = @first_name.to_s.strip
+        @param_error_identifiers << 'invalid_first_name' if @first_name.length > MAX_ALLOWED_LENGTH
       end
 
       def validate_last_name
         @param_error_identifiers << "missing_last_name" and return if @last_name.to_s.strip.blank?
         @param_error_identifiers << 'invalid_last_name' unless Util::CommonValidateAndSanitize.is_string?(@last_name)
         @last_name = @last_name.to_s.strip
+        @param_error_identifiers << 'invalid_last_name' if @last_name.length > MAX_ALLOWED_LENGTH
       end
 
       def validate_birthdate

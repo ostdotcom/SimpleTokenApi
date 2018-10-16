@@ -73,15 +73,18 @@ module Util
     # @param [String] api_error_code (mandatory) - Error code for sending Api response
     # @param [String] internal_code (mandatory) - Internal error code
     # @param [Array] params_error_identifiers (Optional) - Group of error codes to send in Api response
+    # @param [String] display_text (Optional) - Error Display Text for web.
+    #         blank value will send blank display text, while nil will send the api_error_code msg
     #
     # @return [Result::Base]
     #
-    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [])
+    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [], display_text=nil)
       Result::Base.error(
           {
               api_error_code: api_error_code,
               error: internal_code,
-              params_error_identifiers: params_error_identifiers
+              params_error_identifiers: params_error_identifiers,
+              error_display_text: display_text
           }
       )
     end

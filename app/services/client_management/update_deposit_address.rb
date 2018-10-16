@@ -226,7 +226,7 @@ module ClientManagement
     # @return [String]
     #
     def get_decrypted_ethereum_deposit_address(ethereum_deposit_address)
-      return nil if ethereum_deposit_address.blank?
+      return "" if ethereum_deposit_address.blank?
 
       encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
       r = encryptor_obj.decrypt(ethereum_deposit_address)

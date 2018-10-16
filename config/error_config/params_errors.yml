@@ -128,7 +128,7 @@ wrong_file_size_of_document_id_file_path:
 
 missing_domain:
   parameter: "domain"
-  msg: "Domain is mandatory."
+  msg: "Domain is a mandatory field."
 
 invalid_email:
   parameter: "email"
@@ -140,7 +140,7 @@ missing_email:
 
 user_already_present:
   parameter: "email"
-  msg: "user with this email already exists."
+  msg: "User with this email already exists."
 
 missing_email_temp_vars:
   parameter: "email_temp_vars"
@@ -180,7 +180,7 @@ invalid_files:
 
 invalid_files_count:
    parameter: "files"
-   msg: "Files contains more values than required. Maximum values allowed is 20."
+   msg: "Files contain more values than required. Maximum values allowed is 20."
 
 missing_files:
    parameter: "files"
@@ -192,7 +192,7 @@ invalid_filters:
 
 missing_first_name:
    parameter: "first_name"
-   msg: "First Name is mandatory."
+   msg: "First Name is a mandatory field."
 
 invalid_first_name:
    parameter: "first_name"
@@ -228,11 +228,11 @@ invalid_id:
 
 missing_images:
    parameter: "images"
-   msg: "Images is mandatory."
+   msg: "Image is a mandatory field."
 
 invalid_images:
    parameter: "images"
-   msg: "Images is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
+   msg: "The parameter image is invalid. Only 'image/jpeg', 'image/png', 'image/jpg' content types are supported."
 
 file_not_found_investor_proof_files_path:
   parameter: "investor_proof_files_path"
@@ -325,11 +325,11 @@ missing_password:
 
 missing_pdfs:
    parameter: "pdfs"
-   msg: "Pdfs is mandatory."
+   msg: "Upload in Pdf is mandatory. Only 'application/pdf' content type is supported"
 
 invalid_pdfs:
    parameter: "pdfs"
-   msg: "Pdfs is invalid. Only 'application/pdf' content type is supported."
+   msg: "The Pdf file uploaded is invalid. Only 'application/pdf' content type is supported."
 
 invalid_postal_code:
    parameter: "postal_code"
@@ -337,7 +337,7 @@ invalid_postal_code:
 
 missing_postal_code:
    parameter: "postal_code"
-   msg: "postal code' is a mandatory field."
+   msg: "Postal code is a mandatory field."
 
 missing_r_t:
   parameter: "r_t"
@@ -417,7 +417,7 @@ missing_skip_name:
 
 invalid_state:
   parameter: "state"
-  msg: "Please provide a valid State information. State name might be incorrectly spelled."
+  msg: "Please provide valid State information. State name might be incorrectly spelled."
 
 missing_state:
    parameter: "state"

@@ -19,17 +19,17 @@ class Event < EstablishOstKycWebhookDbConnection
       GlobalConstant::Event.kyc_submit_name => {
           entity_val: 4,
           description: 'User has submitted kyc data',
-          result_type: GlobalConstant::Event.user_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type
       },
       GlobalConstant::Event.update_ethereum_address_name => {
           entity_val: 5,
           description: 'Admin has updates ethereum address of user',
-          result_type: GlobalConstant::Event.user_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type
       },
       GlobalConstant::Event.kyc_status_update_name => {
           entity_val: 6,
           description: 'user kyc state has changed',
-          result_type: GlobalConstant::Event.user_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type
       }
   }
 

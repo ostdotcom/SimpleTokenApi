@@ -11,6 +11,17 @@ class Web::WebController < ApplicationController
     include mdl
   end
 
+  before_action :merge_source_of_request
+
+  # merge into params the source of the request to be used in services for webhooks
+  #
+  # * Author: Aman
+  # * Date: 27/12/2017
+  # * Reviewed By:
+  #
+  def merge_source_of_request
+    params.merge!(source_of_request: GlobalConstant::Event.web_source)
+  end
 
   # Verify recaptcha
   #

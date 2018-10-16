@@ -745,6 +745,7 @@
     - :nationality
     - :document_id_file_path
     - :selfie_file_path
+    - :source_of_request
   :optional:
     - :ethereum_address
     - :residence_proof_file_path

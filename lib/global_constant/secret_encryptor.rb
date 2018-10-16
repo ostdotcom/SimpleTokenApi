@@ -21,6 +21,10 @@ module GlobalConstant
         GlobalConstant::Base.secret_encryptor['ethereum_deposit_address_secret_key']
       end
 
+      def webhook_event_secret_key
+        GlobalConstant::Base.secret_encryptor['webhook_event_secret_key']
+      end
+
     end
 
   end

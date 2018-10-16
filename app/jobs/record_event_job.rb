@@ -84,7 +84,7 @@ class RecordEventJob < ApplicationJob
         name: @event_name,
         result_type: event_type,
         timestamp: @event_timestamp,
-        data: formatted_event_data
+        data: encrypted_data
     )
 
     @filtered_webhook_settings.each do |cws|
@@ -98,6 +98,23 @@ class RecordEventJob < ApplicationJob
           failed_count: 0
       )
     end
+  end
+
+  # get encrypted event data
+  #
+  # * Author: Aman
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # returns[String] encrypted string for event data
+  #
+  def encrypted_data
+    formatted_data = formatted_event_data
+    encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.webhook_event_secret_key)
+    r = encryptor_obj.encrypt(formatted_data)
+    fail "r: #{r}, params: #{@params}" unless r.success?
+
+    r.data[:ciphertext_blob]
   end
 
   # get formatted event data

@@ -87,8 +87,12 @@ client:
     key_template: 'client_kyc_pass_active_setting_%{client_id}'
     expiry_in_seconds: 86400
 
-  client_webhook_setting:
-    key_template: 'client_webhook_setting_%{client_id}'
+  client_webhook_setting_active:
+    key_template: 'client_webhook_setting_active_%{client_id}'
+    expiry_in_seconds: 86400
+
+  webhook_decrypt_secret_key:
+    key_template: 'webhook_decrypt_secret_key_%{secret_key}'
     expiry_in_seconds: 86400
 
 admin:

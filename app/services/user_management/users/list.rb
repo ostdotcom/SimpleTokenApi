@@ -89,6 +89,7 @@ module UserManagement::Users
       if @order.present?
         error_codes << 'invalid_order' unless GlobalConstant::User.sorting['order'].keys.include?(@order)
       else
+        # todo: use the key and not the first one
         @order = GlobalConstant::User.sorting['order'].keys[0]
       end
 

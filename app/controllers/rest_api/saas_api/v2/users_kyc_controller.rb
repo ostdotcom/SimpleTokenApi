@@ -1,10 +1,10 @@
 class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseController
 
-  before_action :authenticate_request, only: [:submit]
-
-  before_action except: [:submit] do
+  before_action do
     authenticate_request(true)
   end
+
+  skip_before_action :authenticate_request
 
   # Get list of user kyc by pagination
   #

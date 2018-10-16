@@ -68,6 +68,11 @@ token_sale_ended:
   code: 'UNPROCESSABLE_ENTITY'
   message: "The token sale has ended. This action cannot be performed"
 
+whitelist_transaction_pending:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Cannot update contract address since whitelist transaction is still pending"
+
 internal_server_error:
   http_code: '500'
   code: 'INTERNAL_SERVER_ERROR'

@@ -414,13 +414,6 @@
   :optional:
     - :project_description
 
-'ClientManagement::UpdateWhitelistContractAddress':
-  :mandatory:
-      - :client_id
-      - :admin_id
-      - :contract_address
-  :optional:
-
 'UserManagement::VerifyClientHost':
   :mandatory:
     - :domain
@@ -526,6 +519,29 @@
   :mandatory:
      - :admin_id
      - :client_id
+  :optional:
+
+'ClientManagement::UpdateDepositAddress':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :otp
+  :optional:
+     - :ethereum_deposit_address
+
+'ClientManagement::UpdateWhitelistAddress':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :whitelist_contract_address
+     - :otp
+  :optional:
+     - :rewhitelist
+
+'ClientManagement::GetContractAddresses':
+  :mandatory:
+     - :client_id
+     - :admin_id
   :optional:
 
 'ClientManagement::PageSetting::Login':

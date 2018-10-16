@@ -347,7 +347,11 @@ module Result
     def to_hash
       self.class.fields.each_with_object({}) do |key, hash|
         val = send(key)
-        hash[key] = val if val.present?
+        if key.to_sym == :error_display_text
+          hash[key] = val unless val.nil?
+        else
+          hash[key] = val if val.present?
+        end
       end
     end
 
@@ -397,7 +401,8 @@ module Result
           success: false,
           err: {
               internal_id: hash[:error],
-              msg: hash[:error_display_text].to_s
+              msg: hash[:error_display_text].to_s,
+              web_msg: hash[:error_display_text]
           },
           data: hash[:data],
           http_code: http_code

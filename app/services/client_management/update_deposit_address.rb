@@ -39,13 +39,16 @@ module ClientManagement
       r = validate_and_sanitize
       return r unless r.success?
 
-      r = fetch_and_validate_duplicate_ethereum_deposit_address
-      return r unless r.success?
-
       r = fetch_admin_secret_obj
       return r unless r.success?
 
       r = validate_otp
+      return r unless r.success?
+
+      r = validate_ethereum_deposit_address
+      return r unless r.success?
+
+      r = fetch_and_validate_duplicate_ethereum_deposit_address
       return r unless r.success?
 
       update_ethereum_deposit_address
@@ -73,9 +76,6 @@ module ClientManagement
       return r unless r.success?
 
       r = validate_web_only_client
-      return r unless r.success?
-
-      r = validate_ethereum_deposit_address
       return r unless r.success?
 
       success

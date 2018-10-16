@@ -48,6 +48,9 @@ module ClientManagement
       r = validate_otp
       return r unless r.success?
 
+      r = validate_whitelist_address
+      return r unless r.success?
+
       fetch_client_whitelist_detail
 
       r = set_whitelist_contract_address
@@ -75,9 +78,6 @@ module ClientManagement
       return r unless r.success?
 
       r = validate_client_and_admin
-      return r unless r.success?
-
-      r = validate_whitelist_address
       return r unless r.success?
 
       r = validate_client_whitelisting_plan

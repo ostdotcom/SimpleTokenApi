@@ -39,13 +39,16 @@ module ClientManagement
       r = validate_and_sanitize
       return r unless r.success?
 
-      r = fetch_and_validate_duplicate_ethereum_deposit_address
-      return r unless r.success?
-
       r = fetch_admin_secret_obj
       return r unless r.success?
 
       r = validate_otp
+      return r unless r.success?
+
+      r = validate_ethereum_deposit_address
+      return r unless r.success?
+
+      r = fetch_and_validate_duplicate_ethereum_deposit_address
       return r unless r.success?
 
       update_ethereum_deposit_address
@@ -73,9 +76,6 @@ module ClientManagement
       return r unless r.success?
 
       r = validate_web_only_client
-      return r unless r.success?
-
-      r = validate_ethereum_deposit_address
       return r unless r.success?
 
       success
@@ -121,12 +121,13 @@ module ClientManagement
     # @return [Result::Base]
     #
     def validate_ethereum_deposit_address
-      return if @ethereum_deposit_address.blank?
+      return success if @ethereum_deposit_address.blank?
       @ethereum_deposit_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_deposit_address)
 
       return error_with_identifier('invalid_api_params',
                                    'cm_uda_veda_1',
-                                   ['invalid_ethereum_deposit_address']
+                                   ['invalid_ethereum_deposit_address'],
+                                   'There were some errors in address submission. Please review and resubmit'
       ) if !(Util::CommonValidator.is_ethereum_address?(@ethereum_deposit_address))
 
       success
@@ -147,12 +148,14 @@ module ClientManagement
       if @ethereum_deposit_address.blank?
         return error_with_identifier('invalid_api_params',
                                      'cm_uda_favdeda_1',
-                                     ['duplicate_ethereum_deposit_address']
+                                     ['duplicate_ethereum_deposit_address'],
+                                     'There were some errors in address submission. Please review and resubmit'
         ) if @client_token_sale_details.ethereum_deposit_address.blank?
       else
         return error_with_identifier('invalid_api_params',
                                      'cm_uda_favdeda_2',
-                                     ['duplicate_ethereum_deposit_address']
+                                     ['duplicate_ethereum_deposit_address'],
+                                     'There were some errors in address submission. Please review and resubmit'
         ) if get_decrypted_ethereum_deposit_address(@client_token_sale_details.ethereum_deposit_address).downcase == @ethereum_deposit_address.downcase
       end
       success
@@ -191,7 +194,8 @@ module ClientManagement
       r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
       return error_with_identifier('invalid_api_params',
                                    'cm_uda_vo_1',
-                                   ['invalid_otp']
+                                   ['invalid_otp'],
+                                   ''
       ) unless r.success?
 
       success
@@ -222,7 +226,7 @@ module ClientManagement
     # @return [String]
     #
     def get_decrypted_ethereum_deposit_address(ethereum_deposit_address)
-      return nil if ethereum_deposit_address.blank?
+      return "" if ethereum_deposit_address.blank?
 
       encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.ethereum_deposit_address_secret_key)
       r = encryptor_obj.decrypt(ethereum_deposit_address)
@@ -241,7 +245,7 @@ module ClientManagement
     #
     def update_ethereum_deposit_address
       if @ethereum_deposit_address.blank?
-        @client_token_sale_details.ethereum_deposit_addres = nil
+        @client_token_sale_details.ethereum_deposit_address = nil
       else
         @client_token_sale_details.ethereum_deposit_address = get_encrypted_ethereum_deposit_address
       end

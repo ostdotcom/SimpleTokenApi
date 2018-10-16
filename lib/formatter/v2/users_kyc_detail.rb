@@ -17,7 +17,7 @@ module Formatter
           result_data = data_to_format.data
           formatted_data = {
               result_type: 'user_kyc_detail',
-              user_kyc: kyc_detail_base(result_data[:user_extended_detail])
+              user_kyc_detail: kyc_detail_base(result_data[:user_extended_detail])
           }
 
           data_to_format.data = formatted_data

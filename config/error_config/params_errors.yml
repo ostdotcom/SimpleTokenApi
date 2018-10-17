@@ -103,16 +103,8 @@ missing_decoded_token_data:
   msg: "decoded_token_data is mandatory."
 
 file_not_found_document_id_file_path:
-  parameter: "document_id_number"
+  parameter: "document_id_file_path"
   msg: "Oops. File is not present on S3."
-
-invalid_document_id_number:
-  parameter: "document_id_number"
-  msg: "Please provide a valid Document ID Number."
-
-missing_document_id_number:
-   parameter: "document_id_number"
-   msg: "Document ID Number is a mandatory field."
 
 invalid_document_id_file_path:
   parameter: "document_id_file_path"
@@ -125,6 +117,14 @@ missing_document_id_file_path:
 wrong_file_size_of_document_id_file_path:
    parameter: "document_id_file_path"
    msg: "Please make sure the file size is between 200kB & 20MB."
+
+invalid_document_id_number:
+  parameter: "document_id_number"
+  msg: "Please provide a valid Document ID Number."
+
+missing_document_id_number:
+   parameter: "document_id_number"
+   msg: "Document ID Number is a mandatory field."
 
 missing_domain:
   parameter: "domain"
@@ -220,7 +220,7 @@ invalid_id:
 
 missing_images:
    parameter: "images"
-   msg: "Image is a mandatory field."
+   msg: "Images is a mandatory field."
 
 invalid_images:
    parameter: "images"
@@ -234,7 +234,6 @@ invalid_investor_proof_files_path:
   parameter: "investor_proof_files_path"
   msg: "Please make sure to upload a valid Investor Proof Files Path."
 
-#TODO: 2 is dummy number need logic to change it.
 invalid_investor_proof_files_path_count:
   parameter: "investor_proof_files_path"
   msg: "Maximum 2 documents are allowed to be uploaded as Investor Proof."
@@ -289,7 +288,7 @@ missing_new_password:
 
 missing_ocr_comparison_fields:
   parameter: "ocr_comparison_fields"
-  msg: "OCR Oomparison Fields is mandatory."
+  msg: "OCR Comparison Fields is mandatory."
 
 invalid_order:
   parameter: "order"
@@ -321,7 +320,7 @@ invalid_pdfs:
 
 invalid_postal_code:
    parameter: "postal_code"
-   msg: "Invalid postal code."
+   msg: "Postal code is invalid."
 
 missing_postal_code:
    parameter: "postal_code"

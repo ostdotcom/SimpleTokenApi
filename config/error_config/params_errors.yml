@@ -242,7 +242,7 @@ missing_investor_proof_files_path:
    parameter: "investor_proof_files_path"
    msg: "Investor Proof Files Path is a mandatory field."
 
-wrong_file_size_of_investor_proof_filse_path:
+wrong_file_size_of_investor_proof_files_path:
    parameter: "investor_proof_files_path"
    msg: "Please make sure the file size is between 200kB & 20MB."
 

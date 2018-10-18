@@ -52,8 +52,6 @@ class Event < EstablishOstKycWebhookDbConnection
     name_map.freeze
   end
 
-  serialize :data, Hash
-
 
 
 

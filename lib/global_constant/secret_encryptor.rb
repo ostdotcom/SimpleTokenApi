@@ -25,6 +25,10 @@ module GlobalConstant
         GlobalConstant::Base.secret_encryptor['webhook_event_secret_key']
       end
 
+      def memcache_encryption_key
+        GlobalConstant::Base.secret_encryptor['memcache_encryption_key']
+      end
+
     end
 
   end

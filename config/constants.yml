@@ -61,6 +61,7 @@ constants:
     user_extended_detail_secret_key: <%= ENV['STA_USER_EXTENDED_DETAIL_SECRET_KEY'] %>
     ethereum_deposit_address_secret_key: <%= ENV['STA_ETHEREUM_DEPOSIT_ADDRESS_SECRET_KEY'] %>
     webhook_event_secret_key: <%= ENV['WEBHOOK_EVENT_SECRET_KEY'] %>
+    memcache_encryption_key: <%= ENV['MEMCACHE_ENCRYPTION_KEY'] %>
 
   private_ops:
     base_url: <%= ENV['STA_PRIVATE_OPS_API_BASE_URL'] %>

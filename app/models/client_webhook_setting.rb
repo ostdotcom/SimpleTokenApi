@@ -131,13 +131,23 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
     memcache_key_object = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object
     memcache_key_template = memcache_key_object.key_template % {secret_key: self.secret_key}
 
-    Memcache.get_set_memcached(memcache_key_template, memcache_key_object.expiry) do
-      self.get_decrypted_secret_key
+    encryption_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.memcache_encryption_key)
+
+    # returns encrypted by local cipher using memcache key
+    r = Memcache.get_set_memcached(memcache_key_template, memcache_key_object.expiry) do
+      r = get_decrypted_secret_key
+      return r unless r.success?
+
+      r = encryption_obj.encrypt(r.data[:plaintext])
+      r
     end
 
-    Memcache.delete(memcache_key_template) unless r.success?
+    unless r.success?
+      Memcache.delete(memcache_key_template)
+      return r
+    end
 
-    return r.data[:plaintext]
+    encryption_obj.decrypt(r.data[:ciphertext_blob])
   end
 
   private

@@ -46,6 +46,8 @@ rake RAILS_ENV=development cron_task:continuous:populate_st_balance_for_processa
 
 New DB SETUP
 
+command to generate a key for local cipher- SecureRandom.hex
+
 rake RAILS_ENV=staging onetimer:insert_general_salt_key_row_in_table salt_type=user_activity_logging
 SaleGlobalVariable.create!(variable_kind: 'last_block_verified_for_tokens_sold_variable_kind', variable_data: '2610002')
 SaleGlobalVariable.create!(variable_kind: 'pre_sale_tokens_sold_variable_kind', variable_data: '1000000000000000000000')

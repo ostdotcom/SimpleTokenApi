@@ -48,6 +48,8 @@ module AdminManagement
 
           update_kyc_details
 
+          enqueue_job
+
           success_with_data(@api_response_data)
         end
 
@@ -172,6 +174,29 @@ module AdminManagement
         #
         def logging_action_type
           GlobalConstant::UserActivityLog.kyc_issue_email_sent_action
+        end
+
+        # Do remaining task in sidekiq
+        #
+        # * Author: Tejas
+        # * Date: 16/10/2018
+        # * Reviewed By:
+        #
+        def enqueue_job
+          BgJob.enqueue(
+              RecordEventJob,
+              {
+                  client_id: @user_kyc_detail.client_id,
+                  event_source: GlobalConstant::Event.web_source,
+                  event_name: GlobalConstant::Event.kyc_status_update_name,
+                  event_data: {
+                      user_kyc_detail: @user_kyc_detail.get_hash,
+                      admin: @admin.get_hash
+                  },
+                  event_timestamp: Time.now.to_i
+              }
+          )
+
         end
 
       end

@@ -444,14 +444,9 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By: Aman
   #
   def event_data
-    admin = nil
-    if @user_kyc_detail.last_acted_by.to_i > 0
-      admin = Admin.get_from_memcache(@user_kyc_detail.last_acted_by)
-    end
-
     {
         user_kyc_detail: @user_kyc_detail.get_hash,
-        admin: admin.present? ? admin.get_hash : {}
+        admin: @user_kyc_detail.get_last_acted_admin_hash
     }
   end
 

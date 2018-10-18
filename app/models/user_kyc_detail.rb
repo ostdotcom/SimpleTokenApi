@@ -321,6 +321,20 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     }
   end
 
+  # Get
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def get_last_acted_admin_hash
+    admin = nil
+    if self.last_acted_by.to_i > 0
+      admin = Admin.get_from_memcache(self.last_acted_by)
+    end
+    admin.present? ? admin.get_hash : {}
+  end
+
   private
 
 

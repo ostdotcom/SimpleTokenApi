@@ -34,6 +34,7 @@ module AdminManagement
         reopen_case
         log_activity
         send_email(true)
+        record_event_job
 
       elsif failed_whitelist_log_status?
         update_edit_kyc_row(GlobalConstant::EditKycRequest.failed_status)
@@ -205,6 +206,28 @@ module AdminManagement
           subject: 'Error while ProcessUnwhitelist'
       ).deliver
     end
+
+    # record event for webhooks
+    #
+    # * Author: Tejas
+    # * Date: 16/10/2018
+    # * Reviewed By:
+    #
+    def record_event_job
+      RecordEventJob.perform_now({
+                                     client_id: @user_kyc_detail.client_id,
+                                     event_source: GlobalConstant::Event.kyc_system_source,
+                                     event_name: GlobalConstant::Event.kyc_status_update_name,
+                                     event_data: {
+                                         user_kyc_detail: @user_kyc_detail.get_hash,
+                                         admin: @user_kyc_detail.get_last_acted_admin_hash
+                                     },
+                                     event_timestamp: Time.now.to_i
+                                 })
+
+    end
+
+
 
   end
 

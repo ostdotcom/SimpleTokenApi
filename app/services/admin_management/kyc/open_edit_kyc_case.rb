@@ -195,14 +195,13 @@ module AdminManagement
       # * Reviewed By:
       #
       def mark_user_kyc_unprocessed
-
-        @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
         @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
         @user_kyc_detail.last_acted_by = @admin_id
         @user_kyc_detail.last_acted_timestamp = Time.now.to_i
         @user_kyc_detail.kyc_confirmed_at = nil
         @user_kyc_detail.last_reopened_at = Time.now.to_i
         if @user_kyc_detail.save!
+          enqueue_job
           return success
         else
           return error_with_data(
@@ -269,6 +268,29 @@ module AdminManagement
                 user_kyc_detail_id: @user_kyc_detail.id,
                 admin_email: @admin.email,
                 user_id: @user_kyc_detail.user_id
+            }
+        )
+
+      end
+
+      # Do remaining task in sidekiq
+      #
+      # * Author: Tejas
+      # * Date: 16/10/2018
+      # * Reviewed By:
+      #
+      def enqueue_job
+        BgJob.enqueue(
+            RecordEventJob,
+            {
+                client_id: @user_kyc_detail.client_id,
+                event_source: GlobalConstant::Event.web_source,
+                event_name: GlobalConstant::Event.kyc_status_update_name,
+                event_data: {
+                    user_kyc_detail: @user_kyc_detail.get_hash,
+                    admin: @admin.get_hash
+                },
+                event_timestamp: Time.now.to_i
             }
         )
 

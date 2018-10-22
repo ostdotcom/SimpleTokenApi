@@ -3,7 +3,6 @@ class CreateEvent < DbMigrationConnection
     run_migration_for_db(EstablishOstKycWebhookDbConnection.config_key) do
 
       create_table :events do |t|
-        t.column :uuid, :string, limit: 100, null: false
         t.column :client_id, :integer, limit: 8, null: false
         t.column :source, :tinyint, limit: 4, null: false
         t.column :name, :tinyint, limit: 4, null: false
@@ -13,7 +12,6 @@ class CreateEvent < DbMigrationConnection
         t.timestamps
       end
 
-      add_index :events, [:uuid], unique: true, name: 'uniq_uuid'
     end
   end
 

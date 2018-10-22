@@ -5,7 +5,7 @@ module Crons
     include Util::ResultHelper
 
     MAX_RUN_TIME = 5.minutes
-    MAX_FAILED_COUNT = 6
+    MAX_FAILED_COUNT = 7
 
     # initialize
     #
@@ -115,7 +115,7 @@ module Crons
         w_s_log.status = GlobalConstant::WebhookSendLog.expired_status
       else
         w_s_log.status = GlobalConstant::WebhookSendLog.failed_status
-        w_s_log.next_timestamp = Time.now.to_i + (1.hour.to_i * w_s_log.failed_count)
+        w_s_log.next_timestamp = Time.now.to_i + (1.hour.to_i * (2**(w_s_log.failed_count-1)))
       end
 
     end

@@ -90,7 +90,7 @@ module AdminManagement
         # returns[String] suffix for name of GA account
         #
         def identifier_suffix
-          Rails.env.production? ? "ost_kyc" : "ost_kyc_#{Rails.env}"
+          Rails.env.production? ? "ost kyc" : "#{Rails.env} ost kyc"
         end
 
       end

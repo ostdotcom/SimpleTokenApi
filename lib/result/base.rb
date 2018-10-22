@@ -438,14 +438,14 @@ module Result
           if ec.present?
             new_error_data << {parameter: ec["parameter"], msg: ec["msg"]}
           else
-            parameter_key =  ed.match("missing_(.*)")[1]
-            new_error_data << {parameter: parameter_key, msg: "#{parameter_key} is missing"} if parameter_key.present?
             ApplicationMailer.notify(
                 to: GlobalConstant::Email.default_to,
                 body: "Missing params identifier",
                 data: {missing_identifier: ed},
                 subject: "Warning::Missing params identifier. please add the error details"
             ).deliver
+            parameter_key =  ed.match("missing_(.*)")
+            new_error_data << {parameter: parameter_key[1], msg: "#{parameter_key[1]} is missing"} if parameter_key.present?
           end
         end
       end

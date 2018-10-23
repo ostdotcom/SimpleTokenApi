@@ -94,11 +94,12 @@ namespace :cron_task do
     # * Reviewed By:
     #
     desc "rake RAILS_ENV=development cron_task:continuous:process_webhooks"
-    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_webhooks  lock_key_suffix=1 >> /mnt/simpletoken-api/shared/log/process_webhooks.log"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_webhooks cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/process_webhooks.log"
     task :process_webhooks do |task|
       @sleep_interval = 1
+      cron_identifier = ENV['cron_identifier'].to_s
 
-      @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
+      @process_name = "#{task}_#{cron_identifier}"
       @performer_klass = 'Crons::WebhookProcessor'
       @optional_params = {cron_identifier: cron_identifier}
       execute_continuous_task

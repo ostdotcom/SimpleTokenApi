@@ -144,7 +144,7 @@ module Crons
         ws_logs = WebhookSendLog.where(lock_id: lock_id).to_be_processed.all
         yield(ws_logs)
         return if ws_logs.blank? || ((start_timestamp + MAX_RUN_TIME.to_i) < current_timestamp) ||
-            GlobalConstant::Exception.sigint_received?
+            GlobalConstant::SignalHandling.sigint_received?
       end
 
     end
@@ -205,7 +205,7 @@ module Crons
 
       case http_response.class.name
         when 'Net::HTTPOK'
-          success_result(response_data['data'])
+          success_result(response_data)
         when 'Net::HTTPBadRequest'
           # 400
           error_with_internal_code('c_whp_par_1',

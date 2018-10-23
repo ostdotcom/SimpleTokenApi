@@ -286,7 +286,7 @@ module AdminManagement
             {
                 client_id: @user_kyc_detail.client_id,
                 event_source: GlobalConstant::Event.web_source,
-                event_name: GlobalConstant::Event.kyc_status_update_name,
+                event_name: GlobalConstant::Event.kyc_reopen_name,
                 event_data: {
                     user_kyc_detail: @user_kyc_detail.get_hash,
                     admin: @admin.get_hash

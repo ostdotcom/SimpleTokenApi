@@ -216,8 +216,8 @@ module AdminManagement
     def record_event_job
       RecordEventJob.perform_now({
                                      client_id: @user_kyc_detail.client_id,
-                                     event_source: GlobalConstant::Event.kyc_system_source,
-                                     event_name: GlobalConstant::Event.kyc_status_update_name,
+                                     event_source: GlobalConstant::Event.web_source,
+                                     event_name: GlobalConstant::Event.kyc_reopen_name,
                                      event_data: {
                                          user_kyc_detail: @user_kyc_detail.get_hash,
                                          admin: @user_kyc_detail.get_last_acted_admin_hash

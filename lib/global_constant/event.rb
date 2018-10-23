@@ -59,6 +59,10 @@ module GlobalConstant
         'kyc_status_update'
       end
 
+      def kyc_reopen_name
+        'kyc_reopen'
+      end
+
       ### name end ###
 
 

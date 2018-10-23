@@ -30,6 +30,11 @@ class Event < EstablishOstKycWebhookDbConnection
           entity_val: 6,
           description: 'user kyc state has changed',
           result_type: GlobalConstant::Event.user_kyc_result_type
+      },
+      GlobalConstant::Event.kyc_reopen_name => {
+          entity_val: 7,
+          description: 'user kyc case was reopened by admin',
+          result_type: GlobalConstant::Event.user_kyc_result_type
       }
   }
 

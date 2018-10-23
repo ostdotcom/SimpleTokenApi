@@ -59,12 +59,12 @@ class Event < EstablishOstKycWebhookDbConnection
 
 
 
-
-
-
-
   def self.get_event_result_type(name)
     Event::NAME_CONFIG[name.to_s][:result_type]
+  end
+
+  def self.get_event_description(name)
+    Event::NAME_CONFIG[name.to_s][:description]
   end
 
 end

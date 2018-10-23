@@ -10,9 +10,12 @@ module Util
     #
     def register_signal_handlers
       puts "*** Adding handler register_signal_handlers ***"
-      @continue_running = true
+
       ['INT', 'QUIT', 'TERM'].each do |sig|
-        Signal.trap(sig) { puts "\n\n\nTrapped - #{sig} "; @continue_running = false }
+        Signal.trap(sig) {
+          puts "\n\n\nTrapped - #{sig} ";
+          GlobalConstant::SignalHandling.sigint_received!
+        }
       end
     end
 

@@ -1,7 +1,5 @@
 module GlobalConstant
-
   class WebhookSendLog
-
     class << self
 
       ### STATUS start ###
@@ -28,7 +26,12 @@ module GlobalConstant
 
       ### STATUS end ###
 
-    end
+      ###################### Version ****************************
 
+      def v1
+        'v1'
+      end
+
+    end
   end
 end

@@ -140,7 +140,7 @@ namespace :cron_task do
 
         register_signal_handlers
 
-        while @continue_running && (@start_time + @running_interval) > Time.now do
+        while (!GlobalConstant::SignalHandling.sigint_received?) && (@start_time + @running_interval) > Time.now do
 
           current_time = Time.now
           log_line "Starting iteration #{@iteration_count} at #{current_time} with params: #{@params}"
@@ -149,10 +149,8 @@ namespace :cron_task do
           performer_klass.perform
 
           @iteration_count += 1
-          sleep(@sleep_interval) # sleep for @sleep_interval second after one iteration.
-
+          sleep(@sleep_interval) unless GlobalConstant::SignalHandling.sigint_received? # sleep for @sleep_interval second after one iteration.
         end
-
       rescue Exception => e
 
         ApplicationMailer.notify(

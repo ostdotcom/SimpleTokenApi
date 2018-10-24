@@ -28,7 +28,7 @@ module Crons
           where("next_timestamp <= ?", Time.now.to_i).
           where(failed_reason: GlobalConstant::KycWhitelistLog.not_failed).
           where(status: GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses).
-          find_in_batches(batch_size: 100).each do |batched_records|
+          find_in_batches(batch_size: 10).each do |batched_records|
 
         batched_records.each do |kyc_whitelist_log|
           initialize_for_iteration(kyc_whitelist_log)
@@ -74,7 +74,7 @@ module Crons
           end
 
         end
-
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
 
     end

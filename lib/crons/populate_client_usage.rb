@@ -25,6 +25,7 @@ module Crons
       ClientPlan.where(status: GlobalConstant::ClientPlan.active_status).all.each do |client_plan|
         client_usage_obj = populate_client_usage(client_plan.client_id)
         notify_if_needed(client_plan, client_usage_obj)
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
     end
 

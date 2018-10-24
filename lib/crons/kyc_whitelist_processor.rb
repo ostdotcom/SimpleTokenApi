@@ -65,7 +65,7 @@ module Crons
           end
 
         end
-
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
 
     end

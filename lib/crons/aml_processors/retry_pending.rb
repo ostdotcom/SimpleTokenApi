@@ -36,7 +36,7 @@ module Crons
       #
       def perform
         UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).active_kyc.
-            where(aml_status: GlobalConstant::UserKycDetail.pending_aml_status).find_in_batches(batch_size: 50) do |batches|
+            where(aml_status: GlobalConstant::UserKycDetail.pending_aml_status).find_in_batches(batch_size: 10) do |batches|
 
           batches.each do |user_kyc_detail|
             process_user_kyc_details(user_kyc_detail)
@@ -46,6 +46,7 @@ module Crons
           send_approved_email
 
           reset_data
+          return if GlobalConstant::SignalHandling.sigint_received?
         end
       end
 

@@ -52,7 +52,7 @@ module Crons
           end
 
           return if blocks_trail_count <= MIN_BLOCK_DIFFERENCE
-
+          return if GlobalConstant::SignalHandling.sigint_received?
         end
 
       rescue StandardError => e

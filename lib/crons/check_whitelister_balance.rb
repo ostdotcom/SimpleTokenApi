@@ -43,6 +43,7 @@ module Crons
         end
 
         send_report_email(c_w_o.client_id, whitelister_address, eth_value) if eth_value <= MIN_ETH_BALANCE
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
 
     end

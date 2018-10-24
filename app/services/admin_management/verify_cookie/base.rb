@@ -36,7 +36,7 @@ module AdminManagement
       #
       def perform
         r = validate
-        return r unless r.success?
+        return unauthorized_access_response('am_vc_b_p_1') unless r.success?
 
         r = set_parts
         return r unless r.success?

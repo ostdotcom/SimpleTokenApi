@@ -262,13 +262,17 @@ module ClientManagement
     # * Reviewed By:
     #
     def send_email
-      # send to all super admins
-      # Email::HookCreator::SendTransactionalMail.new(
-      #     client_id: @client.id,
-      #     email: @admin.email,
-      #     template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
-      #     template_vars: {}
-      # ).perform
+      super_admin_emails = Admin.client_super_admin_emails(@client_id)
+
+      super_admin_emails.each do |admin_email|
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+            email: admin_email,
+            template_name: GlobalConstant::PepoCampaigns.contract_address_update_template,
+            template_vars: {client_name: @client.name, contract_type: 'Deposit'}
+        ).perform
+
+      end
     end
 
     # Api response data

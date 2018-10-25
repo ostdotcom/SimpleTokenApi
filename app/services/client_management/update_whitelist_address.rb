@@ -48,6 +48,9 @@ module ClientManagement
       r = validate_otp
       return r unless r.success?
 
+      r = validate_whitelist_address
+      return r unless r.success?
+
       fetch_client_whitelist_detail
 
       r = set_whitelist_contract_address
@@ -75,9 +78,6 @@ module ClientManagement
       return r unless r.success?
 
       r = validate_client_and_admin
-      return r unless r.success?
-
-      r = validate_whitelist_address
       return r unless r.success?
 
       r = validate_client_whitelisting_plan
@@ -132,7 +132,8 @@ module ClientManagement
 
       return error_with_identifier('invalid_api_params',
                                    'cm_uwa_vwa_1',
-                                   ['invalid_whitelist_contract_address']
+                                   ['invalid_whitelist_contract_address'],
+                                   'There were some errors in address submission. Please review and resubmit'
       ) if !(Util::CommonValidator.is_ethereum_address?(@whitelist_contract_address))
 
       is_whitelist_transaction_pending = KycWhitelistLog.kyc_whitelist_non_confirmed.where(client_id: @client_id).exists?
@@ -174,7 +175,8 @@ module ClientManagement
       r = rotp_obj.verify_with_drift_and_prior(@otp, @admin.last_otp_at)
       return error_with_identifier('invalid_api_params',
                                    'cm_uwa_vo_1',
-                                   ['invalid_otp']
+                                   ['invalid_otp'],
+                                   ''
       ) unless r.success?
 
       success
@@ -266,7 +268,8 @@ module ClientManagement
     def update_client_whitelist_detail
       return error_with_identifier('invalid_api_params',
                                    'cm_uwa_ucwd_1',
-                                   ['duplicate_whitelist_contract_address']
+                                   ['duplicate_whitelist_contract_address'],
+                                   'There were some errors in address submission. Please review and resubmit'
       ) if @client_whitelist_detail.contract_address.downcase == @whitelist_contract_address.downcase
 
       @client_whitelist_detail.status = GlobalConstant::ClientWhitelistDetail.inactive_status
@@ -275,6 +278,7 @@ module ClientManagement
       @active_client_whitelist_detail_obj = ClientWhitelistDetail.create!(
           client_id: @client_id, contract_address: @whitelist_contract_address,
           whitelister_address: @client_whitelist_detail.whitelister_address,
+          balance: @client_whitelist_detail.balance,
           suspension_type: @client_whitelist_detail.suspension_type,
           last_acted_by: @admin_id,
           status: GlobalConstant::ClientWhitelistDetail.active_status
@@ -289,13 +293,17 @@ module ClientManagement
     # * Reviewed By:
     #
     def send_email
-      # send to all super admins
-      # Email::HookCreator::SendTransactionalMail.new(
-      #     client_id: @client.id,
-      #     email: @admin.email,
-      #     template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
-      #     template_vars: @sanitized_email_data
-      # ).perform
+      super_admin_emails = Admin.client_super_admin_emails(@client_id)
+
+      super_admin_emails.each do |admin_email|
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+            email: admin_email,
+            template_name: GlobalConstant::PepoCampaigns.contract_address_update_template,
+            template_vars: {client_name: @client.name, contract_type: 'Whitelist'}
+        ).perform
+
+      end
     end
 
     # Do remaining task in sidekiq

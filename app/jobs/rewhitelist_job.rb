@@ -54,7 +54,7 @@ class RewhitelistJob < ApplicationJob
 
   def ar_obj
     UserKycDetail.active_kyc.where(client_id: @client_id,
-                                   whitelist_status: GlobalConstant::UserKycDetail.done_whitelist_status)
+                                   whitelist_status: [GlobalConstant::UserKycDetail.failed_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status])
   end
 
 end

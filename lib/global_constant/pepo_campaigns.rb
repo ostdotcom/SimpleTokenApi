@@ -323,6 +323,11 @@ module GlobalConstant
         'low_balance_whitelisting_suspended'
       end
 
+      # email to admins for ethereum deposit or whitelist contract address update
+      def contract_address_update_template
+        'contract_address_update'
+      end
+
       # All possible templates integrated with email service
       #
       # * Author: Puneet
@@ -356,7 +361,8 @@ module GlobalConstant
           contact_us_ost_partner_autoresponder_template,
           contact_us_ost_kyc_autoresponder_template,
           kyc_report_download_template,
-          low_balance_whitelisting_suspended_template
+          low_balance_whitelisting_suspended_template,
+          contract_address_update_template
         ]
       end
 

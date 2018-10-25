@@ -347,7 +347,11 @@ module Result
     def to_hash
       self.class.fields.each_with_object({}) do |key, hash|
         val = send(key)
-        hash[key] = val if val.present?
+        if key.to_sym == :error_display_text
+          hash[key] = val unless val.nil?
+        else
+          hash[key] = val if val.present?
+        end
       end
     end
 
@@ -397,7 +401,8 @@ module Result
           success: false,
           err: {
               internal_id: hash[:error],
-              msg: hash[:error_display_text].to_s
+              msg: hash[:error_display_text].to_s,
+              web_msg: hash[:error_display_text]
           },
           data: hash[:data],
           http_code: http_code
@@ -411,7 +416,6 @@ module Result
       if error_config.present?
         error_response[:err][:code] = error_config["code"]
         error_response[:err][:msg] = error_config["message"]
-        error_response[:err][:web_msg] = error_config["web_message"] unless error_config["web_message"].nil?
         error_response[:http_code] = error_config["http_code"].to_i
       end
 
@@ -434,14 +438,14 @@ module Result
           if ec.present?
             new_error_data << {parameter: ec["parameter"], msg: ec["msg"]}
           else
-            parameter_key =  ed.match("missing_(.*)")[1]
-            new_error_data << {parameter: parameter_key, msg: "#{parameter_key} is missing"} if parameter_key.present?
             ApplicationMailer.notify(
                 to: GlobalConstant::Email.default_to,
                 body: "Missing params identifier",
                 data: {missing_identifier: ed},
                 subject: "Warning::Missing params identifier. please add the error details"
             ).deliver
+            parameter_key =  ed.match("missing_(.*)")
+            new_error_data << {parameter: parameter_key[1], msg: "#{parameter_key[1]} is missing"} if parameter_key.present?
           end
         end
       end

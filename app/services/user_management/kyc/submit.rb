@@ -3,7 +3,7 @@ module UserManagement
     class Submit < ServicesBase
 
       S3_DOCUMENT_PATH_REGEX = GlobalConstant::UserKycDetail.s3_document_path_regex
-
+      MAX_ALLOWED_LENGTH = 100
       # Initialize
       #
       # * Author: Aman
@@ -127,8 +127,8 @@ module UserManagement
       #
       def validate_and_sanitize
         # NOTE: To be on safe side, check for generic errors as well
-        r = validate
-        return r unless r.success?
+        # r = validate
+        # return r unless r.success?
 
         @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
 
@@ -184,10 +184,11 @@ module UserManagement
 
         validate_uploaded_files
 
-
+        @param_error_identifiers.uniq!
         return error_with_identifier('invalid_api_params',
                                      'um_ks_vasp_1',
-                                     @param_error_identifiers
+                                     @param_error_identifiers,
+                                     'There were some errors in your KYC. Please correct and resubmit'
         ) if @param_error_identifiers.any?
 
         success
@@ -219,18 +220,24 @@ module UserManagement
       # @return [Result::Base]
       #
       def validate_first_name
+        @param_error_identifiers << "missing_first_name" and return if @first_name.to_s.strip.blank?
         @param_error_identifiers << 'invalid_first_name' unless Util::CommonValidateAndSanitize.is_string?(@first_name)
         @first_name = @first_name.to_s.strip
+        @param_error_identifiers << 'invalid_first_name' if @first_name.length > MAX_ALLOWED_LENGTH
       end
 
       def validate_last_name
+        @param_error_identifiers << "missing_last_name" and return if @last_name.to_s.strip.blank?
         @param_error_identifiers << 'invalid_last_name' unless Util::CommonValidateAndSanitize.is_string?(@last_name)
         @last_name = @last_name.to_s.strip
+        @param_error_identifiers << 'invalid_last_name' if @last_name.length > MAX_ALLOWED_LENGTH
       end
 
       def validate_birthdate
         begin
           @birthdate = @birthdate.to_s.strip
+          @param_error_identifiers << "missing_birthdate" and return if @birthdate.blank?
+
           if @birthdate.match(/\d{1,2}\/\d{1,2}\/\d{4,4}\z/)
             # if year is %y format then date changes to LMT zone (2 digit dates have issue)
             @birthdate = Time.zone.strptime(@birthdate, "%d/%m/%Y")
@@ -252,6 +259,7 @@ module UserManagement
           @street_address = nil
           return
         end
+        @param_error_identifiers << "missing_street_address" and return if @street_address.to_s.strip.blank?
         @param_error_identifiers << 'invalid_street_address' unless Util::CommonValidateAndSanitize.is_string?(@street_address)
 
         @street_address = @street_address.to_s.strip
@@ -262,16 +270,15 @@ module UserManagement
           @city = nil
           return
         end
+        @param_error_identifiers << "missing_city" and return if @city.to_s.strip.blank?
         @param_error_identifiers << 'invalid_city' unless Util::CommonValidateAndSanitize.is_string?(@city)
 
         @city = @city.to_s.strip
       end
 
       def validate_country
-        unless Util::CommonValidateAndSanitize.is_string?(@country)
-          @param_error_identifiers << 'invalid_country'
-          return
-        end
+        @param_error_identifiers << "missing_country" and return if @country.to_s.strip.blank?
+        @param_error_identifiers << 'invalid_country' and return unless Util::CommonValidateAndSanitize.is_string?(@country)
 
         blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
         @country = @country.to_s.strip.upcase
@@ -287,6 +294,7 @@ module UserManagement
           @state = nil
           return
         end
+        @param_error_identifiers << "missing_state" and return if @state.to_s.strip.blank?
         @param_error_identifiers << 'invalid_state' unless Util::CommonValidateAndSanitize.is_string?(@state)
 
         @state = @state.to_s.strip
@@ -297,7 +305,7 @@ module UserManagement
           @postal_code = nil
           return
         end
-
+        @param_error_identifiers << "missing_postal_code" and return if @postal_code.to_s.strip.blank?
         @param_error_identifiers << 'invalid_postal_code' unless Util::CommonValidateAndSanitize.is_string?(@postal_code)
 
         @postal_code = @postal_code.to_s.strip
@@ -308,7 +316,7 @@ module UserManagement
           @ethereum_address = nil
           return
         end
-
+        @param_error_identifiers << "missing_ethereum_address" and return if @ethereum_address.to_s.strip.blank?
         @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
         unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
           @param_error_identifiers << 'invalid_ethereum_address'
@@ -320,7 +328,7 @@ module UserManagement
           @estimated_participation_amount = nil
           return
         end
-
+        @param_error_identifiers << "missing_estimated_participation_amount" and return if @estimated_participation_amount.to_s.strip.blank?
         if Util::CommonValidateAndSanitize.is_float?(@estimated_participation_amount)
           @estimated_participation_amount = @estimated_participation_amount.to_f
           @param_error_identifiers << 'invalid_estimated_participation_amount' if @estimated_participation_amount < 0.01
@@ -330,11 +338,13 @@ module UserManagement
       end
 
       def validate_document_id_number
+        @param_error_identifiers << "missing_document_id_number" and return if @document_id_number.to_s.strip.blank?
         @param_error_identifiers << 'invalid_document_id_number' unless Util::CommonValidateAndSanitize.is_string?(@document_id_number)
         @document_id_number = @document_id_number.to_s.strip.downcase
       end
 
       def validate_nationality
+        @param_error_identifiers << "missing_nationality" and return if @nationality.to_s.strip.blank?
         @param_error_identifiers << 'invalid_nationality' and return unless Util::CommonValidateAndSanitize.is_string?(@nationality)
 
         @nationality = @nationality.to_s.strip.upcase
@@ -344,6 +354,7 @@ module UserManagement
       end
 
       def validate_document_id_file_path
+        @param_error_identifiers << "missing_document_id_file_path" and return if @document_id_file_path.to_s.strip.blank?
         @param_error_identifiers << 'invalid_document_id_file_path' and return unless Util::CommonValidateAndSanitize.is_string?(@document_id_file_path)
         @document_id_file_path = @document_id_file_path.to_s.strip
 
@@ -353,6 +364,7 @@ module UserManagement
       end
 
       def validate_selfie_file_path
+        @param_error_identifiers << "missing_selfie_file_path" and return if @selfie_file_path.to_s.strip.blank?
         @param_error_identifiers << 'invalid_selfie_file_path' and return unless Util::CommonValidateAndSanitize.is_string?(@selfie_file_path)
         @selfie_file_path = @selfie_file_path.to_s.strip
 

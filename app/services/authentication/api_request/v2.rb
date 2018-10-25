@@ -1,6 +1,6 @@
 module Authentication::ApiRequest
 
-  EXPIRATION_WINDOW_V2 = 10.minutes
+  EXPIRATION_WINDOW_V2 = 10.seconds
 
   class V2 < Base
 

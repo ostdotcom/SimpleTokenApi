@@ -23,8 +23,8 @@ module AttributeParserConcern
         hashed_data.delete(col.to_s)
       end
 
-      if self.extra_fields_to_set.present?
-        hashed_data.merge!(self.extra_fields_to_set)
+      if extra_fields_to_set.present?
+        hashed_data.merge!(extra_fields_to_set)
       end
 
       hashed_data.symbolize_keys

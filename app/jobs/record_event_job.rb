@@ -153,7 +153,7 @@ class RecordEventJob < ApplicationJob
   # * Reviewed By:
   #
   def client_webhook_settings
-    @client_webhook_settings ||= ClientWebhookSetting.get_from_memcache(@client_id)
+    @client_webhook_settings ||= ClientWebhookSetting.get_active_from_memcache(@client_id)
   end
 
   # notify devs if required

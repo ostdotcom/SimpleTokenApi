@@ -388,10 +388,6 @@
     - :full_name
     - :company
     - :email
-    - :token_sale_start_date
-    - :token_sale_end_date
-    - :need_front_end
-    - :applicant_volume
     - :ost_product_communicate
   :optional:
     - :project_description
@@ -535,6 +531,46 @@
      - :client_id
      - :admin_id
   :optional:
+
+'ClientManagement::GetWebhookDetail':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
+'ClientManagement::Webhook::Create':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :url
+     - :event_sources
+     - :event_result_types
+  :optional:
+
+'ClientManagement::Webhook::Update':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+     - :url
+     - :event_sources
+     - :event_result_types
+  :optional:
+
+'ClientManagement::DeleteWebhook':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
+'ClientManagement::ResetSecretKey':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
 
 'ClientManagement::PageSetting::Login':
   :mandatory:

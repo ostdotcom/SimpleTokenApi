@@ -1,6 +1,6 @@
 module GlobalConstant
-
   class ClientWebhookSetting
+    MAX_WEBHOOK_COUNT = 3
 
     class << self
 
@@ -21,6 +21,5 @@ module GlobalConstant
       ### STATUS end ###
 
     end
-
   end
 end

@@ -127,6 +127,14 @@ Rails.application.routes.draw do
       match 'contract-addresses' => :get_contract_addresses, via: :GET
     end
 
+    scope 'api/admin/webhook', controller: 'web/admin/webhook' do
+      match '/' => :get_webhook_detail, via: :GET
+      match '/' => :create_webhook, via: :POST
+      match '/:webhook_id' => :update_webhook, via: :POST
+      match '/:webhook_id/reset-secret-key' => :reset_secret_key, via: :POST
+      match '/:webhook_id/delete' => :delete_webhook, via: :POST
+    end
+
     scope 'api/admin/configurator', controller: 'web/admin/configurator' do
       match '/' => :index, via: :GET
 

@@ -2,13 +2,11 @@ invalid_api_params:
   http_code: '400'
   code: 'BAD_REQUEST'
   message: "At least one parameter is invalid or missing. See 'err.error_data' array for more details."
-  web_message: "At least one parameter is invalid"
 
 mandatory_params_missing:
   http_code: '400'
   code: 'BAD_REQUEST'
   message: "At least one mandatory parameter is missing. Check documentation for details."
-  web_message: "At least one mandatory parameter is missing"
 
 invalid_or_expired_token:
   http_code: '401'
@@ -69,6 +67,11 @@ token_sale_ended:
   http_code: '422'
   code: 'UNPROCESSABLE_ENTITY'
   message: "The token sale has ended. This action cannot be performed"
+
+max_webhook_count_reached:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Maximum 3 webhooks are allowed"
 
 whitelist_transaction_pending:
   http_code: '422'

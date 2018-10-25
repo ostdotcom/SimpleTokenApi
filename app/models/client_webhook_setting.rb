@@ -1,5 +1,7 @@
 class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
 
+  include ActivityChangeObserver
+
   enum status: {
       GlobalConstant::ClientWebhookSetting.active_status => 1,
       GlobalConstant::ClientWebhookSetting.inactive_status => 2,
@@ -75,6 +77,19 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
+  include AttributeParserConcern
+
+  # Get Key Object
+  #
+  # * Author: Tejas
+  # * Date: 25/10/2018
+  # * Reviewed By
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_memcache_key_object
+    MemcacheKey.new('client.client_webhook_setting')
+  end
 
   # Get Key Object
   #
@@ -84,7 +99,7 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   #
   # @return [MemcacheKey] Key Object
   #
-  def self.get_memcache_key_object
+  def self.get_active_memcache_key_object
     MemcacheKey.new('client.client_webhook_setting_active')
   end
 
@@ -102,6 +117,23 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
 
   # Get/Set Memcache data for ClientWebhookSetting
   #
+  # * Author: Tejas
+  # * Date: 25/10/2018
+  # * Reviewed By
+  #
+  # @param [Integer] client_id - client_id
+  #
+  # @return [AR] ClientWebhookSetting object
+  #
+  def self.get_from_memcache(id)
+    memcache_key_object = ClientWebhookSetting.get_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {id: id}, memcache_key_object.expiry) do
+      ClientWebhookSetting.where(id: id).first
+    end
+  end
+
+  # Get/Set Memcache data for ClientWebhookSetting
+  #
   # * Author: Aman
   # * Date: 15/10/2018
   # * Reviewed By
@@ -110,11 +142,33 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   #
   # @return [AR] ClientWebhookSetting object
   #
-  def self.get_from_memcache(client_id)
-    memcache_key_object = ClientWebhookSetting.get_memcache_key_object
+  def self.get_active_from_memcache(client_id)
+    memcache_key_object = ClientWebhookSetting.get_active_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
       ClientWebhookSetting.is_active.where(client_id: client_id).all
     end
+  end
+
+  # Decrypted secret key
+  #
+  # * Author: Tejas
+  # * Date: 25/10/2018
+  # * Reviewed By: aman
+  #
+  #
+  def decrypted_secret_key
+    @decrypted_secret_key ||= get_decrypted_secret_key_from_memcache.data[:plaintext]
+  end
+
+  # Set Decrypted secret key
+  #
+  # * Author: Tejas
+  # * Date: 25/10/2018
+  # * Reviewed By: aman
+  #
+  #
+  def set_decrypted_secret_key(val)
+    @decrypted_secret_key = val
   end
 
   # Get/Set Memcache decrypted secret key for ClientWebhookSetting
@@ -150,6 +204,18 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
     encryption_obj.decrypt(r.data[:ciphertext_blob])
   end
 
+  # Set the extra needed data for hashed response
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def extra_fields_to_set
+    {
+        decrypted_secret_key: decrypted_secret_key
+    }
+  end
+
   private
 
   # decrypt secret key
@@ -168,16 +234,28 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
     LocalCipher.new(api_salt_d).decrypt(self.secret_key)
   end
 
+  # Columns to be removed from the hashed response
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def self.restricted_fields
+    [:secret_key]
+  end
+
   # Flush Memcache
   #
-  # * Author: Abhay
-  # * Date: 30/10/2017
+  # * Author: Tejas
+  # * Date: 25/10/2018
   # * Reviewed By:
   #
   def memcache_flush
-    memcache_key = ClientWebhookSetting.get_memcache_key_object.key_template % {client_id: self.client_id}
+    memcache_key = ClientWebhookSetting.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(memcache_key)
 
+    memcache_key = ClientWebhookSetting.get_active_memcache_key_object.key_template % {client_id: self.client_id}
+    Memcache.delete(memcache_key)
 
     memcache_key = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object.key_template % {secret_key: self.secret_key}
     Memcache.delete(memcache_key)

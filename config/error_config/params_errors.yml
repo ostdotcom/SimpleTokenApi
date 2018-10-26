@@ -398,7 +398,7 @@ missing_set_allowed_keys:
   parameter: "set_allowed_keys"
   msg: "set_allowed_keys is mandatory."
 
-invalid_allowed_keys:
+invalid_set_allowed_keys:
   parameter: "set_allowed_keys"
   msg: "Invalid field selected."
 

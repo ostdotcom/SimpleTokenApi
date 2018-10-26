@@ -140,8 +140,18 @@ module UserManagement
       # * Date: 24/09/2018
       # * Reviewed By:
       #
-      def allowed_fields
-        @allowed_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.allowed_keys_array : []
+      def allowed_kyc_fields
+        @allowed_kyc_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.kyc_fields_array : []
+      end
+
+      # Get Allowed extra kyc fields for User Extended Detail Hash
+      #
+      # * Author: Tejas
+      # * Date: 24/09/2018
+      # * Reviewed By:
+      #
+      def allowed_extra_kyc_fields
+        @allowed_extra_kyc_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.extra_kyc_fields.keys : []
       end
 
       # Get Local Cipher Obj
@@ -172,7 +182,7 @@ module UserManagement
       #
       def get_user_extended_detail_data
 
-        allowed_fields.each do |field_name|
+        allowed_kyc_fields.each do |field_name|
           if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name)
             @user_extended_detail[field_name.to_sym] = @user_extended_detail_obj[field_name]
           elsif GlobalConstant::ClientKycConfigDetail.encrypted_fields.include?(field_name)
@@ -207,6 +217,17 @@ module UserManagement
             throw "invalid kyc field-#{field_name}"
           end
         end
+
+        extra_kyc_fields = {}
+
+        if @user_extended_detail_obj[:extra_kyc_fields].present?
+          extra_kyc_fields = local_cipher_obj.decrypt(@user_extended_detail_obj[:extra_kyc_fields]).data[:plaintext]
+        end
+
+        allowed_extra_kyc_fields.each do |field_name|
+          @user_extended_detail[field_name.to_sym] = extra_kyc_fields[field_name.to_sym]
+        end
+
 
         @user_extended_detail.merge!({id: @user_extended_detail_obj.id, created_at: @user_extended_detail_obj.created_at})
       end

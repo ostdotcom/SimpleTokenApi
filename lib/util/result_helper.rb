@@ -78,13 +78,14 @@ module Util
     #
     # @return [Result::Base]
     #
-    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [], display_text=nil)
+    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [], display_text=nil, params_error_data={})
       Result::Base.error(
           {
               api_error_code: api_error_code,
               error: internal_code,
               params_error_identifiers: params_error_identifiers,
-              error_display_text: display_text
+              error_display_text: display_text,
+              error_data: params_error_data
           }
       )
     end

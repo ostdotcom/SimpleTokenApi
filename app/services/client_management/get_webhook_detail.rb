@@ -95,7 +95,7 @@ module ClientManagement
     def get_event_result_types
       event_result_types_array = []
       Event.result_types.keys.each do |result_type|
-        event_result_types_array << [key: "event_result_types", value:result_type,  display_text: result_type.titleize]
+        event_result_types_array << {key: "event_result_types", value:result_type,  display_text: result_type.titleize}
       end
       event_result_types_array
     end

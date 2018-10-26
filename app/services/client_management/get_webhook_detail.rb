@@ -79,11 +79,11 @@ module ClientManagement
     # * Reviewed By:
     #
     def get_event_source
-      event_sources_hash = {}
+      event_sources_array = []
       Event.sources.keys.each do |source|
-        event_sources_hash[source] = {selected: true, display_text: source.titleize}
+        event_sources_array << {key: "event_sources", value: source, display_text: source.titleize}
       end
-      event_sources_hash
+      event_sources_array
     end
 
     # Get Event Result Types
@@ -93,12 +93,33 @@ module ClientManagement
     # * Reviewed By:
     #
     def get_event_result_types
-      event_result_types_hash = {}
+      event_result_types_array = []
       Event.result_types.keys.each do |result_type|
-        event_result_types_hash[result_type] = {selected: true, display_text: result_type.titleize}
+        event_result_types_array << [key: "event_result_types", value:result_type,  display_text: result_type.titleize]
       end
-      event_result_types_hash
+      event_result_types_array
     end
+
+    # # Get Decrypted Secret Key
+    # #
+    # # * Author: Tejas
+    # # * Date: 25/10/2018
+    # # * Reviewed By:
+    # #
+    # def get_decrypted_secret_key
+    #   r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+    #   return r unless r.success?
+    #
+    #   api_salt_d = r.data[:plaintext]
+    #
+    #   @client_webhook_settings.each do |client_webhook_setting|
+    #     r = LocalCipher.new(api_salt_d).decrypt(client_webhook_setting.secret_key)
+    #     return r unless r.success?
+    #     client_api_secret_d = r.data[:plaintext]
+    #     client_webhook_setting.set_decrypted_secret_key(client_api_secret_d)
+    #   end
+    #
+    # end
 
     # Format service response
     #

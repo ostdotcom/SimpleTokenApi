@@ -12,7 +12,7 @@ class Web::Admin::WebhookController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def get_webhook_detail
-    service_response = ClientManagement::Webhook::GetWebhookDetail.new(params).perform
+    service_response = ClientManagement::GetWebhookDetail.new(params).perform
     render_api_response(service_response)
   end
 
@@ -45,7 +45,7 @@ class Web::Admin::WebhookController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def reset_secret_key
-    service_response = ClientManagement::Webhook::ResetSecretKey.new(params).perform
+    service_response = ClientManagement::ResetSecretKey.new(params).perform
     render_api_response(service_response)
   end
 
@@ -56,7 +56,7 @@ class Web::Admin::WebhookController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def delete_webhook
-    service_response = ClientManagement::Webhook::DeleteWebhook.new(params).perform
+    service_response = ClientManagement::DeleteWebhook.new(params).perform
     render_api_response(service_response)
   end
 

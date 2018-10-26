@@ -61,6 +61,8 @@ class NewUserRegisterJob < ApplicationJob
   #
   #
   def create_user_utm_log
+    # Todo: return if @utm_params.blank?
+
     u_utm_log = UserUtmLog.new(user_id: @user_id)
     u_utm_log.origin_page= @utm_params['origin_page'].to_s
     u_utm_log.utm_type= @utm_params['utm_type'].to_s

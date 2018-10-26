@@ -60,16 +60,6 @@ module GlobalConstant
       ### Token sale state related pages ####
 
 
-      def sorting
-        {
-            "order" => {
-                'desc' => {id: :desc},
-                'asc' => {id: :asc}
-            }
-        }
-      end
-
-
       def is_kyc_submitted_filter
         'is_kyc_submitted'
       end
@@ -124,6 +114,14 @@ module GlobalConstant
         }
       end
 
+      def sorting
+        {
+            "order" => {
+                'desc' => {id: :desc},
+                'asc' => {id: :asc}
+            }
+        }
+      end
 
 
     end

@@ -39,13 +39,16 @@ module ClientManagement
       r = validate_and_sanitize
       return r unless r.success?
 
-      r = fetch_and_validate_duplicate_ethereum_deposit_address
-      return r unless r.success?
-
       r = fetch_admin_secret_obj
       return r unless r.success?
 
       r = validate_otp
+      return r unless r.success?
+
+      r = validate_ethereum_deposit_address
+      return r unless r.success?
+
+      r = fetch_and_validate_duplicate_ethereum_deposit_address
       return r unless r.success?
 
       update_ethereum_deposit_address
@@ -73,9 +76,6 @@ module ClientManagement
       return r unless r.success?
 
       r = validate_web_only_client
-      return r unless r.success?
-
-      r = validate_ethereum_deposit_address
       return r unless r.success?
 
       success
@@ -262,13 +262,17 @@ module ClientManagement
     # * Reviewed By:
     #
     def send_email
-      # send to all super admins
-      # Email::HookCreator::SendTransactionalMail.new(
-      #     client_id: @client.id,
-      #     email: @admin.email,
-      #     template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
-      #     template_vars: {}
-      # ).perform
+      super_admin_emails = Admin.client_super_admin_emails(@client_id)
+
+      super_admin_emails.each do |admin_email|
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+            email: admin_email,
+            template_name: GlobalConstant::PepoCampaigns.contract_address_update_template,
+            template_vars: {client_name: @client.name, contract_type: 'Deposit'}
+        ).perform
+
+      end
     end
 
     # Api response data

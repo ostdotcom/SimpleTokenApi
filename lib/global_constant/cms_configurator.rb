@@ -152,9 +152,43 @@ module GlobalConstant
         blocked_fields
       end
 
+      # Extra kyc field instruction text be config
+
+      def extra_kyc_field_instruction_text_config
+        {
+            data_kind: 'html',
+            validations: {
+                required: 0
+            },
+            max_length: 400,
+            default_value: ''
+
+        }
+      end
+
+
+      # frontend config needed for configurator form build
+      def get_fe_config_for_instruction_text(key)
+          {
+              label: key.titleize,
+              placeholder: "",
+              type: "",
+              validation: {
+                  mandatory: 0
+              }
+          }
+      end
+
       def get_entity_config_for_fe(entity_type, client_settings)
         config = get_entity_config(entity_type)
         blocked_fields = get_client_blocked_fields(entity_type, client_settings)
+
+        if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
+          extra_kyc_fields = client_settings[:kyc_config_detail_data][:extra_kyc_fields]
+          extra_kyc_fields.each do |kyc_field|
+            config["#{kyc_field}_instruction_text"] = extra_kyc_field_instruction_text_config
+          end
+        end
 
         config.present? && config.each do |key, value|
           new_val = (value[GlobalConstant::CmsConfigurator.data_kind_key] == 'array') ? "#{key}[]" : key

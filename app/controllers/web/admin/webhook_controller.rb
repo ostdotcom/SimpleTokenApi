@@ -1,6 +1,7 @@
 class Web::Admin::WebhookController < Web::Admin::BaseController
 
-  before_action do
+  before_action only: [:get_webhook_detail, :create_webhook, :update_webhook, :reset_secret_key,
+                       :delete_webhook] do
     authenticate_request(true)
   end
 

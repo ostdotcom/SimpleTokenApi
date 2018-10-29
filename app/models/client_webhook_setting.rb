@@ -11,6 +11,8 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   scope :is_active, -> {where(status: GlobalConstant::ClientWebhookSetting.active_status)}
   scope :last_processed, -> {order(last_processed_at: :asc).first}
 
+  after_commit :memcache_flush
+
   # Array of event result types
   #
   # * Author: Aman
@@ -259,6 +261,12 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
 
     memcache_key = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object.key_template % {secret_key: self.secret_key}
     Memcache.delete(memcache_key)
+
+    if self.previous_changes["secret_key"].present?
+      old_secret_key = self.previous_changes["secret_key"].first
+      old_secret_memcache_key = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object.key_template % {secret_key: old_secret_key}
+      Memcache.delete(old_secret_memcache_key)
+    end
   end
 
 

@@ -147,7 +147,7 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   def self.get_active_from_memcache(client_id)
     memcache_key_object = ClientWebhookSetting.get_active_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      ClientWebhookSetting.is_active.where(client_id: client_id).all
+      ClientWebhookSetting.is_active.where(client_id: client_id).order('id DESC').all
     end
   end
 

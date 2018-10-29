@@ -16,6 +16,10 @@ module GlobalConstant
         'client_token_sale_details'
       end
 
+      def client_kyc_detail_api_activations_table
+        'client_kyc_detail_api_activations'
+      end
+
 
     end
   end

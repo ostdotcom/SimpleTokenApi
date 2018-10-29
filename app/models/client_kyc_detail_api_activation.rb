@@ -1,5 +1,7 @@
 class ClientKycDetailApiActivation < EstablishSimpleTokenClientDbConnection
 
+  include ActivityChangeObserver
+
   serialize :extra_kyc_fields, Array
 
   enum status: {

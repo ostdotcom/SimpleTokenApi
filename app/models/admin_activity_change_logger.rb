@@ -2,7 +2,11 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
 
   TABLE_ALLOWED_KEYS_MAPPING = {
       GlobalConstant::AdminActivityChangeLogger.client_token_sale_details_table =>
-          {val: 1, columns: ['token_symbol', 'token_name',  'ethereum_deposit_address']}
+          {val: 1, columns: ['token_symbol', 'token_name',  'ethereum_deposit_address']},
+
+      GlobalConstant::AdminActivityChangeLogger.client_kyc_detail_api_activations_table =>
+          {val: 3, columns: ['allowed_keys','extra_kyc_fields']}
+
   }.freeze
 
   enum source: {

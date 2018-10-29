@@ -123,7 +123,8 @@ module ClientManagement
         @client_webhook_settings.each do |client_webhook_setting|
           return error_with_identifier('invalid_api_params',
                                        'cm_w_b_vu_3',
-                                       ['duplicate_url']
+                                       ['duplicate_url'],
+                                       'The URL is duplicate. Please try with other URL and resubmit it.'
           ) if client_webhook_setting.url.downcase == @url.downcase
         end
         success

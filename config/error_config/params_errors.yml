@@ -468,15 +468,15 @@ missing_url_path:
 
 duplicate_url:
   parameter: "url"
-  msg: "url is duplicate."
+  msg: "URL is duplicate"
 
 missing_url:
   parameter: "url"
-  msg: "url is mandatory."
+  msg: "URL is mandatory"
 
 invalid_url:
   parameter: "url"
-  msg: "url is invalid."
+  msg: "URL is invalid"
 
 missing_user_ethereum_address:
   parameter: "user_ethereum_address"
@@ -492,11 +492,11 @@ missing_user_id:
 
 missing_uuid:
   parameter: "uuid"
-  msg: "uuid is a mandatory field."
+  msg: "uuid is a mandatory field"
 
 missing_webhook_id:
   parameter: "webhook_id"
-  msg: "webhook id is a mandatory."
+  msg: "webhook id is a mandatory"
 
 duplicate_whitelist_contract_address:
   parameter: "whitelist_contract_address"

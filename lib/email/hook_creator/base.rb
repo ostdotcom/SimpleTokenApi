@@ -105,7 +105,7 @@ module Email
       #
       def validate_email
 
-        if Util::CommonValidator.is_valid_email?(@email) && Util::CommonValidator.is_email_send_allowed?(@email)
+        if Util::CommonValidateAndSanitize.is_valid_email?(@email) && Util::CommonValidator.is_email_send_allowed?(@email)
           success
         else
           error_with_data(

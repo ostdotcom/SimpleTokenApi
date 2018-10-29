@@ -1,7 +1,7 @@
 module Util
   class CmsConfigValidator
 
-    COLOR_MATCH_REGEX = /(rgb)\((([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5]),\s*){2}([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\)/i
+    COLOR_MATCH_REGEX = /\A(rgb)\((([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5]),\s*){2}([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\)\z/i
 
     class << self
 
@@ -33,8 +33,11 @@ module Util
         return r if !r.success?
         number_text = r.data[:sanitized_val]
 
-        success_with_data(sanitized_val: number_text.to_i) if Integer(number_text)
-      rescue error_result_obj("Invalid number passed.")
+        if Util::CommonValidateAndSanitize.is_integer?(number_text)
+          success_with_data(sanitized_val: number_text.to_i)
+        else
+          error_result_obj("Invalid number passed.")
+        end
       end
 
       # Validate text
@@ -85,7 +88,9 @@ module Util
                 'a' => ['href', 'target', 'rel', 'title'],
                 'span' => ['style']
             },
-
+            :protocols => {
+                'a' => {'href' => ['http', 'https']}
+            },
             :add_attributes => {
                 'a' => {'rel' => 'nofollow'}
             },
@@ -106,11 +111,26 @@ module Util
         return r if !r.success?
         link_text = r.data[:sanitized_val]
 
-        success_with_data(sanitized_val: link_text) if URI.parse(link_text)
+        uri_value = URI.parse(link_text)
+
+        if allowed_uri_class.include?(uri_value.class)
+          success_with_data(sanitized_val: link_text)
+        else
+          error_result_obj("only https/http links are allowed")
+        end
       rescue => e
         error_result_obj("Invalid URL passed.")
       end
 
+      # Get allowed URI class
+      #
+      # * Author: Aniket
+      # * Date: 21/09/2018
+      # * Reviewed By:
+      #
+      def allowed_uri_class
+        [URI::HTTP, URI::HTTPS]
+      end
 
       # Basic Validations starts
 

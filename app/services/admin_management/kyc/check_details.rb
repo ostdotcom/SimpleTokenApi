@@ -369,8 +369,8 @@ module AdminManagement
         {
             admin_status: @user_kyc_detail.admin_status,
             last_qualified_type: @user_kyc_detail.last_qualified_type,
-            cynopsis_status: @user_kyc_detail.cynopsis_status,
-            retry_cynopsis: (@user_kyc_detail.cynopsis_status == GlobalConstant::UserKycDetail.failed_cynopsis_status).to_i,
+            aml_status: @user_kyc_detail.aml_status,
+            retry_aml: (@user_kyc_detail.aml_status == GlobalConstant::UserKycDetail.failed_aml_status).to_i,
             submission_count: @user_kyc_detail.submission_count.to_i,
             is_re_submitted: @user_kyc_detail.is_re_submitted?,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,
@@ -380,7 +380,7 @@ module AdminManagement
             last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map {|x| x.humanize},
             is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
             kyc_status: kyc_status,
-            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.cynopsis_status != GlobalConstant::UserKycDetail.rejected_cynopsis_status)).to_i,
+            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.rejected_aml_status)).to_i,
             case_reopen_inprocess: is_case_reopening_under_process?,
             whitelist_confirmation_pending: whitelist_confirmation_pending.to_i
         }

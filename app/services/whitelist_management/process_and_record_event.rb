@@ -129,7 +129,7 @@ module WhitelistManagement
                 "invalid phase value: #{_phase}",
                 GlobalConstant::ErrorAction.default,
                 {}
-            ) unless Util::CommonValidator.is_numeric?(_phase)
+            ) unless Util::CommonValidateAndSanitize.is_float?(_phase)
 
             @phase = _phase.to_i
         end
@@ -231,7 +231,7 @@ module WhitelistManagement
       if (@kyc_whitelist_log.ethereum_address.downcase != @ethereum_address.downcase) ||
           (@kyc_whitelist_log.phase != @phase)
 
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_event_received)
         update_user_kyc_detail(GlobalConstant::UserKycDetail.failed_whitelist_status)
 
         notify_devs(
@@ -249,16 +249,17 @@ module WhitelistManagement
 
       end
 
-      if @kyc_whitelist_log.is_attention_needed == 1
+      if @kyc_whitelist_log.failed_reason != GlobalConstant::KycWhitelistLog.not_failed
         notify_devs(
-            {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-            "IMMEDIATE ATTENTION NEEDED. already found is_attention_needed = 1"
+            {ethereum_address: @ethereum_address, phase: @phase,
+             transaction_hash: @transaction_hash, failed_reason: @kyc_whitelist_log.failed_reason},
+            "IMMEDIATE ATTENTION NEEDED. Kyc Log already marked as failed."
         )
 
         return error_with_data(
             'wm_pare_4',
-            'already found is_attention_needed = 1',
-            'already found is_attention_needed = 1',
+            "already marked failed with reason #{@kyc_whitelist_log.failed_reason}",
+            "already marked failed with reason #{@kyc_whitelist_log.failed_reason}",
             GlobalConstant::ErrorAction.default,
             {}
         )
@@ -297,24 +298,24 @@ module WhitelistManagement
       user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
 
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
-            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for same address"
+            "IMMEDIATE ATTENTION NEEDED. no approved user_kyc_detail records found for address"
         )
 
         return error_with_data(
             'wm_pare_7',
-            'no approved user_kyc_detail records found for same address.',
-            'no approved user_kyc_detail records found for same address',
+            'no approved user_kyc_detail records found for address.',
+            'no approved user_kyc_detail records found for address',
             GlobalConstant::ErrorAction.default,
             {}
         )
       end
 
       if user_kyc_details.count > 1
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
 
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
@@ -334,7 +335,7 @@ module WhitelistManagement
 
       if @kyc_whitelist_log.phase == 0 && [GlobalConstant::UserKycDetail.unprocessed_whitelist_status,
                           GlobalConstant::UserKycDetail.started_whitelist_status].include?(@user_kyc_detail.whitelist_status)
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
             "IMMEDIATE ATTENTION NEEDED. if phase is 0 then whitelist status should be done or failed only"
@@ -349,7 +350,7 @@ module WhitelistManagement
       end
 
       if @kyc_whitelist_log.phase > 0 && [GlobalConstant::UserKycDetail.started_whitelist_status, GlobalConstant::UserKycDetail.done_whitelist_status].exclude?(@user_kyc_detail.whitelist_status)
-        @kyc_whitelist_log.mark_failed_with_attention_needed
+        @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
         notify_devs(
             {ethereum_address: @ethereum_address, phase: @phase, transaction_hash: @transaction_hash},
             "IMMEDIATE ATTENTION NEEDED. invalid whitelist status"

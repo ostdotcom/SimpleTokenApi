@@ -33,7 +33,6 @@ module CsrfTokenConcern
             error_data: {},
             error_action: GlobalConstant::ErrorAction.default,
             error_display_text: 'Session has expired. Please refresh your page.',
-            error_display_heading: 'Error',
             data: {}
         }
     )

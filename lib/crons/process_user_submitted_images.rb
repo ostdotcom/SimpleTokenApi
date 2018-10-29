@@ -241,6 +241,8 @@ module Crons
         @new_selfie_s3_file_name = @decrypted_user_data[:selfie_file_path]
       end
 
+      fetch_human_labels_from_selfie
+
       success
     end
 
@@ -478,6 +480,40 @@ module Crons
       make_ocr_comparisons({paragraph: paragraph}, user_unmatched_data)
 
       success
+    end
+
+    # Fetch human labels from selfie image
+    #
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    def fetch_human_labels_from_selfie
+      return if @new_selfie_s3_file_name.blank?
+      puts "AWS detect labels started"
+
+      labels = []
+      resp = Aws::RekognitionService.new.detect_labels(@new_selfie_s3_file_name)
+
+      labels = resp.data[:labels] if resp.success?
+
+      add_image_process_log(GlobalConstant::ImageProcessing.aws_rekognition_detect_label,
+                            {selfie: @new_doc_s3_file_name}, resp.to_json)
+
+      if labels.present?
+        human_percentages = {"human" => 0, "people" => 0, "person" => 0}
+        labels.each do |label|
+          if human_percentages.keys.include?(label[:name].to_s.downcase)
+            human_percentages[label[:name].to_s.downcase] = label[:confidence].to_i
+          end
+        end
+
+        human_percent = human_percentages.values.min
+
+        @user_kyc_comparison_detail.selfie_human_labels_percent = human_percent
+        @user_kyc_comparison_detail.save
+      end
+
     end
 
     # Lock Id for table

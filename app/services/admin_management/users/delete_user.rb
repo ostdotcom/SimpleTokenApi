@@ -43,6 +43,8 @@ module AdminManagement
         r = deactivate_user
         return r unless r.success?
 
+        enqueue_job
+
         success
 
       end
@@ -107,7 +109,7 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if @user.get_bits_set_for_properties.include?(GlobalConstant::User.token_sale_kyc_submitted_property) && @user_kyc_detail.nil?
+        ) if @user.get_bits_set_for_properties.include?(GlobalConstant::User.kyc_submitted_property) && @user_kyc_detail.nil?
 
         return success if @user_kyc_detail.nil?
 
@@ -143,6 +145,20 @@ module AdminManagement
         end
 
         success
+      end
+
+      # Enqueue job to delete Duplicates log of this user
+      #
+      # * Author: Pankaj
+      # * Date: 18/05/2018
+      # * Reviewed By:
+      #
+      def enqueue_job
+        BgJob.enqueue(
+            DeleteDuplicateLogs,
+            {user_id: @user.id}
+        )
+        Rails.logger.info('---- enqueue_job DeleteDuplicates done')
       end
 
     end

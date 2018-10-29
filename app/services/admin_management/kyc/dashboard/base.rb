@@ -60,22 +60,17 @@ module AdminManagement
           if @filters.present?
 
             error_data = {}
-
+            allowed_filters = @filters.dup
             @filters.each do |key, val|
 
-              if GlobalConstant::UserKycDetail.filters[key.to_s].blank?
-                return error_with_data(
-                    'am_k_d_vas_1',
-                    'Invalid Parameters.',
-                    'Invalid Filter type passed',
-                    GlobalConstant::ErrorAction.default,
-                    {},
-                    {}
-                )
+              next if val.blank?
+              filter = GlobalConstant::UserKycDetail.filters[key.to_s]
+              if filter.present?
+                filter_data = filter[val.to_s]
+                error_data[key] = 'invalid value for filter' if filter_data.nil?
+              else
+                allowed_filters.delete(key.to_sym)
               end
-
-              filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
-              error_data[key] = 'invalid value for filter' if filter_data.nil?
             end
 
             return error_with_data(
@@ -87,6 +82,7 @@ module AdminManagement
                 error_data
             ) if error_data.present?
 
+            @filters = allowed_filters
           end
 
 

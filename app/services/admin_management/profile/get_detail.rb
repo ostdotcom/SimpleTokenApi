@@ -22,6 +22,7 @@ module AdminManagement
         @client_id = @params[:client_id]
 
         @client, @client_kyc_config_detail_obj = nil, nil
+        @client_whitelist_detail, @client_plan = nil, nil
       end
 
       # Perform
@@ -42,6 +43,10 @@ module AdminManagement
         fetch_admin
 
         fetch_kyc_config_detail
+
+        fetch_client_whitelist_detail
+
+        fetch_client_plan
 
         success_with_data(success_response_data)
 
@@ -86,6 +91,30 @@ module AdminManagement
         @client_kyc_config_detail_obj = ClientKycConfigDetail.get_from_memcache(@client_id)
       end
 
+      # Create And Update Client Whitelist Detail
+      #
+      # * Author: Tejas
+      # * Date: 27/08/2018
+      # * Reviewed By:
+      #
+      # Sets @client_whitelist_detail
+      #
+      def fetch_client_whitelist_detail
+        @client_whitelist_detail = ClientWhitelistDetail.get_from_memcache(@client_id)
+      end
+
+      # Fetch Client Plan
+      #
+      # * Author: Tejas
+      # * Date: 09/10/2018
+      # * Reviewed By:
+      #
+      # sets @client_plan
+      #
+      def fetch_client_plan
+        @client_plan = ClientPlan.get_client_plan_from_memcache(@client_id)
+      end
+
       # Api response data
       #
       # * Author: Aman
@@ -100,6 +129,13 @@ module AdminManagement
                 has_email_setup: @client.is_email_setup_done?,
                 has_whitelist_setup: @client.is_whitelist_setup_done?,
                 web_host_setup_done: @client.is_web_host_setup_done?
+            },
+            client_whitelist: {
+                low_eth_balance: @client_whitelist_detail.present? && (@client_whitelist_detail.balance.to_f < Crons::CheckWhitelisterBalance::MIN_ETH_BALANCE),
+                suspension_type: @client_whitelist_detail.present? ? @client_whitelist_detail.suspension_type : nil
+            },
+            client_plan: {
+                add_ons: @client_plan.add_ons_array
             },
             admin: {
                 email: @admin.email,

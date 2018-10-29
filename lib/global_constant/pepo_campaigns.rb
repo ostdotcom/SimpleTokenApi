@@ -24,7 +24,7 @@ module GlobalConstant
       end
 
       def api_timeout
-        5
+        10
       end
 
       ########### List Ids ############
@@ -259,7 +259,7 @@ module GlobalConstant
         'kyc_issue'
       end
 
-      # kyc_approved email - sent when kyc is approved by cynopsis and admin both.
+      # kyc_approved email - sent when kyc is approved by aml and admin both.
       def kyc_approved_template
         'kyc_approved'
       end
@@ -272,7 +272,7 @@ module GlobalConstant
         'altdrop_sent'
       end
 
-      # kyc_denied email - sent when kyc is denied by cynopsis and admin both.
+      # kyc_denied email - sent when kyc is denied by aml and admin both.
       def kyc_denied_template
         'kyc_denied'
       end
@@ -280,6 +280,11 @@ module GlobalConstant
       # contact us admin email for freshdesk
       def contact_us_template
         'contact_us'
+      end
+
+      # email to kyc team if threshold for registrations reached
+      def billing_plan_notification_template
+        'billing_plan_notification'
       end
 
       # email to admins for low balance of whitelister
@@ -318,6 +323,11 @@ module GlobalConstant
         'low_balance_whitelisting_suspended'
       end
 
+      # email to admins for ethereum deposit or whitelist contract address update
+      def contract_address_update_template
+        'contract_address_update'
+      end
+
       # All possible templates integrated with email service
       #
       # * Author: Puneet
@@ -345,12 +355,14 @@ module GlobalConstant
           altdrop_sent,
           contact_us_template,
           low_whitelister_balance_template,
+          billing_plan_notification_template,
           update_ethereum_request_outcome_template,
           open_case_request_outcome_template,
           contact_us_ost_partner_autoresponder_template,
           contact_us_ost_kyc_autoresponder_template,
           kyc_report_download_template,
-          low_balance_whitelisting_suspended_template
+          low_balance_whitelisting_suspended_template,
+          contract_address_update_template
         ]
       end
 

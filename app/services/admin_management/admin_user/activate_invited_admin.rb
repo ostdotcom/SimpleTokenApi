@@ -225,24 +225,6 @@ module AdminManagement
         success
       end
   
-      # Invalid User access response
-      #
-      # * Author: Aman
-      # * Date: 03/05/2018
-      # * Reviewed By:
-      #
-      # @return [Result::Base]
-      #
-      def unauthorized_access_response(err, display_text = 'Invalid Admin User')
-        error_with_data(
-            err,
-            display_text,
-            display_text,
-            GlobalConstant::ErrorAction.default,
-            {}
-        )
-      end
-  
       # Invalid Request Response
       #
       # * Author: Aman

@@ -5,36 +5,36 @@ module GlobalConstant
 
     class << self
 
-      ### Cynopsis Status Start ###
+      ### aml Status Start ###
 
-      def unprocessed_cynopsis_status
+      def unprocessed_aml_status
         'unprocessed'
       end
 
-      def cleared_cynopsis_status
+      def cleared_aml_status
         'cleared'
       end
 
-      def pending_cynopsis_status
+      def pending_aml_status
         'pending'
       end
 
-      def approved_cynopsis_status
+      def approved_aml_status
         'approved'
       end
 
-      def rejected_cynopsis_status
+      def rejected_aml_status
         'rejected'
       end
 
-      def failed_cynopsis_status
+      def failed_aml_status
         'failed'
       end
 
-      ### Cynopsis Status End ###
+      ### aml Status End ###
 
-      def cynopsis_approved_statuses
-        [cleared_cynopsis_status, approved_cynopsis_status]
+      def aml_approved_statuses
+        [cleared_aml_status, approved_aml_status]
       end
 
       def admin_approved_statuses
@@ -204,57 +204,70 @@ module GlobalConstant
 
       ### Status End ###
 
-      # Get mapped cynopsis status from response status of cynopsis call
+      # Get mapped aml status from response status of aml call
       #
       # * Author: Aman
       # * Date: 24/10/2017
       # * Reviewed By: Sunil
       #
-      #return[String] returns mapping of cynopsis status
+      #return[String] returns mapping of aml status
       #
-      def get_cynopsis_status(approval_status)
+      def get_aml_status(approval_status)
 
         if approval_status == 'PENDING'
-          pending_cynopsis_status
+          pending_aml_status
         elsif approval_status == 'CLEARED'
-          cleared_cynopsis_status
+          cleared_aml_status
         elsif approval_status == 'ACCEPTED'
-          approved_cynopsis_status
+          approved_aml_status
         elsif approval_status == 'REJECTED'
-          rejected_cynopsis_status
+          rejected_aml_status
         else
-          unprocessed_cynopsis_status
+          unprocessed_aml_status
         end
+      end
+
+      #################### Filter keys ##################################
+      def admin_action_types_key
+        'admin_action_types'
+      end
+
+      def admin_status_key
+        'admin_status'
+      end
+
+      def aml_status_key
+        'aml_status'
+      end
+
+      def whitelist_status_key
+        'whitelist_status'
       end
 
       def filters
         {
-            "admin_status" => {
-                "all" => [],
+            "#{admin_status_key}" => {
                 "#{unprocessed_admin_status}" => [unprocessed_admin_status],
                 "#{qualified_admin_status}" => [qualified_admin_status],
                 "#{denied_admin_status}" => [denied_admin_status]
             },
 
-            "cynopsis_status" => {
-                "all" => [],
-                "#{cleared_cynopsis_status}:#{approved_cynopsis_status}" => [cleared_cynopsis_status, approved_cynopsis_status],
-                "#{unprocessed_cynopsis_status}" => [unprocessed_cynopsis_status],
-                "#{pending_cynopsis_status}" => [pending_cynopsis_status],
-                "#{cleared_cynopsis_status}" => [cleared_cynopsis_status],
-                "#{approved_cynopsis_status}" => [approved_cynopsis_status],
-                "#{rejected_cynopsis_status}" => [rejected_cynopsis_status],
-                "#{failed_cynopsis_status}" => [failed_cynopsis_status]
+            "#{aml_status_key}" => {
+                "#{cleared_aml_status}:#{approved_aml_status}" => [cleared_aml_status, approved_aml_status],
+                "#{unprocessed_aml_status}" => [unprocessed_aml_status],
+                "#{pending_aml_status}" => [pending_aml_status],
+                "#{cleared_aml_status}" => [cleared_aml_status],
+                "#{approved_aml_status}" => [approved_aml_status],
+                "#{rejected_aml_status}" => [rejected_aml_status],
+                "#{failed_aml_status}" => [failed_aml_status]
             },
-            "whitelist_status" => {
-                "all" => [],
+            "#{whitelist_status_key}" => {
                 "#{unprocessed_whitelist_status}" => [unprocessed_whitelist_status],
                 "#{started_whitelist_status}" => [started_whitelist_status],
                 "#{done_whitelist_status}" => [done_whitelist_status],
                 "#{failed_whitelist_status}" => [failed_whitelist_status]
             },
-            "admin_action_types" => {
-                "all" => {},
+            "#{admin_action_types_key}" => {
                 "no_admin_action" => {admin_action_types: 0},
                 "#{data_mismatch_admin_action_type}" => ["(admin_action_types & ?) = ?",
                                                          ::UserKycDetail.admin_action_types_config[data_mismatch_admin_action_type],
@@ -275,7 +288,7 @@ module GlobalConstant
       # This is also used in user list sortings
       def sorting
         {
-            "sort_by" => {
+            "order" => {
                 'desc' => {user_extended_detail_id: :desc},
                 'asc' => {user_extended_detail_id: :asc}
             }

@@ -48,8 +48,10 @@ module UserManagement
       # @return [Hash]
       #
       def get_url(content_type, key)
-        Aws::S3Manager.new('kyc', 'user').get_presigned_put_url_for(
+        url = Aws::S3Manager.new('kyc', 'user').get_presigned_put_url_for(
             key, GlobalConstant::Aws::Common.kyc_bucket, content_type)
+
+        {url: url}
       end
 
     end

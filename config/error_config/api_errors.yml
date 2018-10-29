@@ -1,0 +1,79 @@
+invalid_api_params:
+  http_code: '400'
+  code: 'BAD_REQUEST'
+  message: "At least one parameter is invalid or missing. See 'err.error_data' array for more details."
+
+mandatory_params_missing:
+  http_code: '400'
+  code: 'BAD_REQUEST'
+  message: "At least one mandatory parameter is missing. Check documentation for details."
+
+invalid_or_expired_token:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "We could not authenticate the request. Please review your credentials and authentication method."
+
+unauthorized_api_request:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "We could not authenticate the request. Please review your credentials and authentication method."
+
+unauthorized_access:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "Unauthorized access. Please login again."
+
+no_configurator_access:
+  http_code: '401'
+  code: 'UNAUTHORIZED'
+  message: "Client don't have configurator access."
+
+double_opt_in_error:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Double opt in not done by user."
+
+invalid_client_id:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Client is invalid or not active anymore with OST KYC."
+
+invalid_admin_id:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "Admin is not active for a client."
+
+forbidden_api_request:
+  http_code: '403'
+  code: 'FORBIDDEN'
+  message: "This action is not allowed."
+
+resource_not_found:
+  http_code: '404'
+  code: 'NOT_FOUND'
+  message: "The requested resource could not be located."
+
+could_not_proceed:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "The request was good, but nevertheless could not be processed."
+
+case_closed:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Case cannot be updated. It is already approved or denied."
+
+token_sale_ended:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "The token sale has ended. This action cannot be performed"
+
+whitelist_transaction_pending:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Cannot update contract address since whitelist transaction is still pending"
+
+internal_server_error:
+  http_code: '500'
+  code: 'INTERNAL_SERVER_ERROR'
+  message: "Something went wrong."

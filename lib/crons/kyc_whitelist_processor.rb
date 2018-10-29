@@ -31,7 +31,7 @@ module Crons
             where(status: GlobalConstant::ClientWhitelistDetail.active_status).pluck(:client_id)
 
       UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
-          kyc_admin_and_cynopsis_approved.# records which are approved by both admin and cynopsis
+          kyc_admin_and_aml_approved.# records which are approved by both admin and aml
       whitelist_status_unprocessed.# records which are not yet processed for whitelisting
       find_in_batches(batch_size: 10) do |u_k_detail_objs|
 
@@ -131,7 +131,8 @@ module Crons
                                                        whitelister_address: client_whitelist_detail.whitelister_address,
                                                        contract_address: client_whitelist_detail.contract_address,
                                                        address: @api_data[:address],
-                                                       phase: @api_data[:phase]
+                                                       phase: @api_data[:phase],
+                                                       gasPrice: EstimatedGasPrice::CurrentPrice.new.fetch
                                                    })
 
       if r.success?
@@ -164,7 +165,7 @@ module Crons
                                   gas_price: @gas_price,
                                   next_timestamp: Time.now.to_i + GlobalConstant::KycWhitelistLog.expected_transaction_mine_time,
                                   status: GlobalConstant::KycWhitelistLog.pending_status,
-                                  is_attention_needed: 0
+                                  failed_reason: 0
                               })
       Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail.id} - Creating entry in KycWhitelistLog")
     end

@@ -53,7 +53,7 @@ module UserManagement
 
         @error_data[:full_name] = 'Full Name is required.' if !@full_name.present?
         @error_data[:company] = 'Company name is required.' if !@company.present?
-        @error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidator.is_valid_email?(@email)
+        @error_data[:email] = 'Please enter a valid email address' unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
 
         return error_with_data(
             'um_cupd_p_1',

@@ -1,5 +1,7 @@
 class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
 
+  include ActivityChangeObserver
+
   enum status: {
            GlobalConstant::ClientTokenSaleDetail.active_status => 1,
            GlobalConstant::ClientTokenSaleDetail.inactive_status => 2
@@ -7,6 +9,30 @@ class ClientTokenSaleDetail < EstablishSimpleTokenClientDbConnection
 
   after_commit :memcache_flush
 
+
+  # registration end time has passed
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @return [Boolean] return true if registration has ended
+  #
+  def has_registration_ended?
+    end_time_for_registration <= Time.now.to_i
+  end
+
+  # registration end time to be used for registration
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @return [Integer] return timestamp for registration end
+  #
+  def end_time_for_registration
+    registration_end_timestamp || sale_end_timestamp
+  end
 
   # Token sale end time has passed
   #

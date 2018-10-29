@@ -31,17 +31,25 @@
 module Result
 
   class Base
+    # error: internal_code 'l_ev_qr_1'
+    # error_message:  error message (unused in final response ) 'something went wrong'
+    # error_display_text: general error message 'something went wrong'
+    # error_action: (unused in new final response)
+    # error_data: array of error for params '{param}'
+    # http_code:  standard http code '200/400/403/500/'
 
     attr_accessor :error,
                   :error_message,
                   :error_display_text,
-                  :error_display_heading,
                   :error_action,
                   :error_data,
                   :message,
                   :data,
                   :exception,
-                  :http_code
+                  :http_code,
+                  :api_error_code,
+                  :params_error_identifiers,
+                  :error_extra_info
 
     # Initialize
     #
@@ -84,7 +92,21 @@ module Result
       @error_data = params[:error_data] if params.key?(:error_data)
       @error_action = params[:error_action] if params.key?(:error_action)
       @error_display_text = params[:error_display_text] if params.key?(:error_display_text)
-      @error_display_heading = params[:error_display_heading] if params.key?(:error_display_heading)
+      @api_error_code = params[:api_error_code] if params.key?(:api_error_code)
+      @params_error_identifiers = params[:params_error_identifiers] if params.key?(:params_error_identifiers)
+      @error_extra_info = params[:error_extra_info] if params.key?(:error_extra_info)
+    end
+
+    # Set Error extra info
+    #
+    # * Author: Pankaj
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    # @param [Hash] error_extra_info is an Hash of extra info to send with error
+    #
+    def set_error_extra_info(error_extra_info)
+      @error_extra_info = error_extra_info
     end
 
     # Set Message
@@ -142,7 +164,7 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     [:error?, :errors?, :failed?].each do |name|
-      define_method(name) { invalid? }
+      define_method(name) {invalid?}
     end
 
     # Define success method
@@ -152,7 +174,7 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     [:success?].each do |name|
-      define_method(name) { valid? }
+      define_method(name) {valid?}
     end
 
     # are errors present?
@@ -165,12 +187,13 @@ module Result
     #
     def errors_present?
       @error.present? ||
-        @error_message.present? ||
-        @error_data.present? ||
-        @error_display_text.present? ||
-        @error_display_heading.present? ||
-        @error_action.present? ||
-        @exception.present?
+          @error_message.present? ||
+          @error_data.present? ||
+          @error_display_text.present? ||
+          @error_action.present? ||
+          @exception.present? ||
+          @api_error_code ||
+          @params_error_identifiers.present?
     end
 
     # Exception message
@@ -204,7 +227,7 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     def [](key)
-        instance_variable_get("@#{key}")
+      instance_variable_get("@#{key}")
     end
 
     # Error
@@ -277,7 +300,8 @@ module Result
           error_data: nil,
           error_action: nil,
           error_display_text: nil,
-          error_display_heading: nil
+          api_error_code: nil,
+          params_error_identifiers: []
       }
     end
 
@@ -308,7 +332,7 @@ module Result
           :error_data,
           :error_action,
           :error_display_text,
-          :error_display_heading
+          :error_extra_info
       ]
     end
 
@@ -323,7 +347,11 @@ module Result
     def to_hash
       self.class.fields.each_with_object({}) do |key, hash|
         val = send(key)
-        hash[key] = val if val.present?
+        if key.to_sym == :error_display_text
+          hash[key] = val unless val.nil?
+        else
+          hash[key] = val if val.present?
+        end
       end
     end
 
@@ -347,28 +375,109 @@ module Result
     # * Reviewed By: Sunil Khedar
     #
     def to_json
-      hash = self.to_hash
-
-      if (hash[:error] == nil)
-        h = {
-            success: true
-        }.merge(hash)
-        h
+      response = nil
+      if self.to_hash[:error] == nil
+        response = {
+            success: true,
+            http_code: http_code
+        }.merge(self.to_hash)
       else
-        {
-            success: false,
-            err: {
-                code: hash[:error],
-                msg: hash[:error_message],
-                action: hash[:error_action] || GlobalConstant::ErrorAction.default,
-                display_text: hash[:error_display_text].to_s,
-                display_heading: hash[:error_display_heading].to_s,
-                error_data: hash[:error_data] || {}
-            },
-            data: hash[:data]
-        }
+        response = build_error_response
+      end
+      response
+    end
+
+    # Build error response
+    #
+    # * Author: Pankaj
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    # @return [Hash]
+    #
+    def build_error_response
+      hash = self.to_hash
+      error_response = {
+          success: false,
+          err: {
+              internal_id: hash[:error],
+              msg: hash[:error_display_text].to_s,
+              web_msg: hash[:error_display_text]
+          },
+          data: hash[:data],
+          http_code: http_code
+      }
+      err_data = format_error_data
+      error_response[:err].merge!(error_data: err_data) if err_data.present?
+      error_response[:err].merge!(error_extra_info: hash[:error_extra_info]) if hash[:error_extra_info].present?
+
+      error_config = @api_error_code.present? ? fetch_api_error_config(api_error_code) : {}
+
+      if error_config.present?
+        error_response[:err][:code] = error_config["code"]
+        error_response[:err][:msg] = error_config["message"]
+        error_response[:http_code] = error_config["http_code"].to_i
       end
 
+      error_response
+    end
+
+    # Format error data and merge config messages to it.
+    #
+    # * Author: Pankaj
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def format_error_data
+      return nil if error_data.blank? && params_error_identifiers.blank?
+
+      new_error_data = []
+      if params_error_identifiers.present?
+        params_error_identifiers.each do |ed|
+          ec = fetch_api_params_error_config(ed)
+          if ec.present?
+            new_error_data << {parameter: ec["parameter"], msg: ec["msg"]}
+          else
+            ApplicationMailer.notify(
+                to: GlobalConstant::Email.default_to,
+                body: "Missing params identifier",
+                data: {missing_identifier: ed},
+                subject: "Warning::Missing params identifier. please add the error details"
+            ).deliver
+            parameter_key =  ed.match("missing_(.*)")
+            new_error_data << {parameter: parameter_key[1], msg: "#{parameter_key[1]} is missing"} if parameter_key.present?
+          end
+        end
+      end
+      if error_data.present?
+        error_data.each do |k, v|
+          new_error_data << {parameter: k, msg: v}
+        end
+      end
+
+      new_error_data
+    end
+
+    # Fetch Api error config
+    #
+    # * Author: Pankaj
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def fetch_api_error_config(error_code)
+      @api_errors ||= YAML.load_file(open(Rails.root.to_s + '/config/error_config/api_errors.yml'))
+      @api_errors[error_code]
+    end
+
+    # Fetch Api params error config
+    #
+    # * Author: Pankaj
+    # * Date: 18/09/2018
+    # * Reviewed By:
+    #
+    def fetch_api_params_error_config(error_code)
+      @api_params_errors ||= YAML.load_file(open(Rails.root.to_s + '/config/error_config/params_errors.yml'))
+      @api_params_errors[error_code]
     end
 
   end

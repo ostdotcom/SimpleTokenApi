@@ -53,19 +53,14 @@ module UserManagement
       r = validate
       return r unless r.success?
 
+      @ethereum_address = @ethereum_address.to_s
+
       @ethereum_address = Util::CommonValidator.sanitize_ethereum_address(@ethereum_address)
 
-      unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
-        # IF error, return
-        return error_with_data(
-            'um_cea_1',
-            '',
-            '',
-            GlobalConstant::ErrorAction.default,
-            {},
-            {ethereum_address: 'Invalid ethereum address.'}
-        )
-      end
+      return error_with_identifier('invalid_api_params',
+                                   'um_cea_1',
+                                   ['invalid_ethereum_address']
+      ) unless Util::CommonValidator.is_ethereum_address?(@ethereum_address)
 
       success
     end
@@ -83,16 +78,10 @@ module UserManagement
 
       # web3_js_error = true is required because when API is down or any exception is raised or response is not 200
       # front end doesn't need to see invalid ethereum address
-      if !r.success? && r.data[:web3_js_error]
-        return error_with_data(
-            'um_cea_1',
-            '',
-            '',
-            GlobalConstant::ErrorAction.default,
-            {},
-            {ethereum_address: 'Invalid Ethereum Address'}
-        )
-      end
+      return error_with_identifier('invalid_api_params',
+                                   'um_cea_2',
+                                   ['invalid_ethereum_address']
+      )if !r.success? && r.data[:web3_js_error]
 
       success
     end

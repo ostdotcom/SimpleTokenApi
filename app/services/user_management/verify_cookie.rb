@@ -100,6 +100,8 @@ module UserManagement
       return unauthorized_access_response('um_vc_5') unless @user.present? && @user.password.present? &&
           (@user[:status] == GlobalConstant::User.active_status) && @user.client_id == @client_id
 
+      return unauthorized_access_response('um_vc_6') if (@user.last_logged_in_at.to_i > @created_ts)
+
       evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
       return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)
 
@@ -117,24 +119,6 @@ module UserManagement
     def set_extended_cookie_value
       #return if (@created_ts + 29.days.to_i) >= Time.now.to_i
       @extended_cookie_value = User.get_cookie_value(@user_id, @user[:password], @browser_user_agent)
-    end
-
-    # Unauthorized access response
-    #
-    # * Author: Kedar
-    # * Date: 11/10/2017
-    # * Reviewed By: Sunil Khedar
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
     end
 
   end

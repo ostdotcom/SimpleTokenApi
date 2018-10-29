@@ -182,14 +182,14 @@ class Web::Admin::KycController < Web::Admin::BaseController
   #   render_api_response(service_response)
   # end
 
-  # Add Udate Kyc Detail in cynopsis in case of failure
+  # Add Udate Kyc Detail in aml in case of failure
   #
   # * Author: Aman
   # * Date: 25/04/2018
   # * Reviewed By:
   #
-  def retry_cynopsis_upload
-    service_response = AdminManagement::Kyc::RetryCynopsisUpload.new(params).perform
+  def retry_aml_upload
+    service_response = AdminManagement::Kyc::RetryAmlUpload.new(params).perform
     render_api_response(service_response)
   end
 

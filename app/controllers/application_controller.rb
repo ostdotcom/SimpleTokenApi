@@ -18,9 +18,8 @@ class ApplicationController < ActionController::API
   #
   def not_found
     r = Result::Base.error({
-                               error: 'ac_1',
-                               error_message: 'Resource not found',
-                               http_code: GlobalConstant::ErrorCode.not_found
+                               api_error_code: 'resource_not_found',
+                               error: 'ac_1'
                            })
     render_api_response(r)
   end
@@ -69,33 +68,64 @@ class ApplicationController < ActionController::API
   def render_api_response(service_response)
     # calling to_json of Result::Base
     response_hash = service_response.to_json
-    http_status_code = service_response.http_code
+    response_hash = format_api_response(response_hash)
+    http_status_code = response_hash.delete(:http_code)
 
-    # filter out not allowed http codes
-    http_status_code = GlobalConstant::ErrorCode.ok unless GlobalConstant::ErrorCode.allowed_http_codes.include?(http_status_code)
+    if !service_response.success? # && !Rails.env.development?
 
-    # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
-    if !service_response.success? && !Rails.env.development?
-      ApplicationMailer.notify(
-        body: {},
-        data: {
-          response_hash: response_hash
-        },
-        subject: 'Error in KYC submit API'
-      ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'web/saas_user/token_sale'
+      #TODO: Check if email is to sent for invalid kyc submission
+      # ApplicationMailer.notify(
+      #   body: {},
+      #   data: {
+      #     response_hash: response_hash
+      #   },
+      #   subject: 'Error in KYC submit API'
+      # ).deliver if params[:action] == 'kyc_submit' && params[:controller] == 'web/saas_user/token_sale'
 
-      err = response_hash.delete(:err) || {}
-      response_hash[:err] = {
-          display_text: (err[:display_text].to_s),
-          display_heading: (err[:display_heading].to_s),
-          error_data: (err[:error_data] || {}),
-          code: (err[:code] || {})
-      }
+      response_hash.delete(:data)
+    end
+    (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
+  end
 
-      response_hash[:data] = {}
+  # Format response if needed
+  #
+  # * Author: Pankaj
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def format_api_response(response_hash)
+    if response_hash[:err].present?
+      response_hash[:err].delete(:error_extra_info)
+      response_hash[:err].delete(:web_msg)
     end
 
-    (render plain: Oj.dump(response_hash, mode: :compat), status: http_status_code)
+    response_hash
+  end
+
+  # Sanitize and reformat Error response for Web
+  #
+  # * Author: Pankaj
+  # * Date: 18/09/2018
+  # * Reviewed By:
+  #
+  def reformat_as_old_response(response_hash)
+    # If request is from web then reformat data as per FE requirements
+    # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
+    if response_hash[:err].present?
+      err = response_hash.delete(:err) || {}
+      err_data = {}
+      puts err[:error_data].inspect
+      err[:error_data].each {|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
+      response_hash[:err] = {
+          display_text: err[:web_msg] || err[:msg].to_s,
+          display_heading: "Error",
+          error_data: err_data,
+          code: err[:internal_id]
+      }
+      response_hash[:err].merge!(error_extra_info: err[:error_extra_info]) if err[:error_extra_info].present?
+    end
+    response_hash[:http_code] = GlobalConstant::ErrorCode.ok if GlobalConstant::ErrorCode.http_codes_for_web.exclude?(response_hash[:http_code])
+    response_hash
   end
 
 
@@ -122,14 +152,12 @@ class ApplicationController < ActionController::API
           subject: 'Exception in API'
       ).deliver
 
-      r = Result::Base.exception(
-          se,
-          {
-              error: 'swr',
-              error_message: 'Something Went Wrong',
-              data: params
-          }
-      )
+
+      r = Result::Base.error({
+                                 api_error_code: 'internal_server_error',
+                                 error: 'swr',
+                                 data: params
+                             })
       render_api_response(r)
 
     end

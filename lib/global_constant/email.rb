@@ -17,11 +17,15 @@ module GlobalConstant
       end
 
       def default_to
-        ['bala@ost.com', 'sunil@ost.com', 'pankaj@ost.com', 'aman@ost.com', 'aniket@ost.com', 'tejas@ost.com']
+        ['bala@ost.com', 'sunil@ost.com', 'pankaj@ost.com', 'aman@ost.com', 'aniket@ost.com', 'tejas@ost.com', 'somashekhar@ost.com']
       end
 
       def default_pm_to
         ['francesco@ost.com']
+      end
+
+      def default_billing_to
+        ['francesco@ost.com', 'marina@ost.com', 'aman@ost.com']
       end
 
       def st_balance_report_email_to

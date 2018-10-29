@@ -65,24 +65,6 @@ module UserManagement
       success
     end
 
-    # Unauthorized access response
-    #
-    # * Author: Aman
-    # * Date: 01/02/2018
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def unauthorized_access_response(err, display_text = 'Unauthorized request')
-      error_with_data(
-          err,
-          display_text,
-          display_text,
-          GlobalConstant::ErrorAction.default,
-          {}
-      )
-    end
-
   end
 
 end

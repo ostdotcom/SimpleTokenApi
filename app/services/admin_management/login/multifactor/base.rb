@@ -157,26 +157,6 @@ module AdminManagement
           success
         end
 
-        # Error Response
-        #
-        # * Author: Aman
-        # * Date: 10/10/2017
-        # * Reviewed By: Sunil
-        #
-        # @return [Result::Base]
-        #
-        def unauthorized_access_response(err, display_text = 'Unauthorized access. Please login again.')
-          r = error_with_data(
-              err,
-              display_text,
-              display_text,
-              GlobalConstant::ErrorAction.default,
-              {}
-          )
-          r.http_code = GlobalConstant::ErrorCode.unauthorized_access
-          r
-        end
-
       end
 
     end

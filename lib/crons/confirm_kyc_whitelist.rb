@@ -310,7 +310,7 @@ module Crons
         user_kyc_detail.whitelist_status = GlobalConstant::KycWhitelistLog.failed_status
         if user_kyc_detail.changed?
           user_kyc_detail.save!
-          record_event_job
+          record_event_job(user_kyc_detail)
         end
       end
 
@@ -454,15 +454,15 @@ module Crons
     # * Date: 16/10/2018
     # * Reviewed By:
     #
-    def record_event_job
+    def record_event_job(user_kyc_detail)
 
       RecordEventJob.perform_now({
-                                     client_id: @user_kyc_detail.client_id,
+                                     client_id: user_kyc_detail.client_id,
                                      event_source: GlobalConstant::Event.kyc_system_source,
                                      event_name: GlobalConstant::Event.kyc_status_update_name,
                                      event_data: {
-                                         user_kyc_detail: @user_kyc_detail.get_hash,
-                                         admin: @user_kyc_detail.get_last_acted_admin_hash
+                                         user_kyc_detail: user_kyc_detail.get_hash,
+                                         admin: user_kyc_detail.get_last_acted_admin_hash
                                      },
                                      event_timestamp: Time.now.to_i
                                  })

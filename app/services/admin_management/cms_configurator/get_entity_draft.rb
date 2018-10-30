@@ -181,7 +181,7 @@ module AdminManagement
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
           form_data[:show_kyc_confirm_popup] = form_data[:kyc_form_popup_checkboxes].present?.to_i
           extra_kyc_fields = @client_settings.data[:kyc_config_detail_data][:extra_kyc_fields]
-          front_end_config = extra_kyc_fields.map{|x| GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(x)}
+          front_end_config = extra_kyc_fields.map{|extra_kyc_field, _| GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(extra_kyc_field)}
         end
 
         if @entity_type == GlobalConstant::EntityGroupDraft.dashboard_entity_type

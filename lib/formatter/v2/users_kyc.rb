@@ -114,7 +114,7 @@ module Formatter
               admin_action_types: user_kyc_detail[:admin_action_types_array],
               submission_count: user_kyc_detail[:submission_count],
               last_acted_by: admin_name(user_kyc_detail[:last_acted_by], admin),
-              created_at: user_kyc_detail[:created_at].to_i
+              created_at: user_kyc_detail[:created_at]
           }
         end
 

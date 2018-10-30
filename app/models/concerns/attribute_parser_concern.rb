@@ -27,6 +27,10 @@ module AttributeParserConcern
         hashed_data.merge!(extra_fields_to_set)
       end
 
+      hashed_data.each do |k, v|
+        hashed_data[k] = v.to_i if v.present? && v.methods.include?(:strftime)
+      end
+
       hashed_data.symbolize_keys
     end
 

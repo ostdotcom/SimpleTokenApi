@@ -34,7 +34,7 @@ module Formatter
         # @returns [Hash]
         #
         def kyc_detail_base(user_extended_detail)
-          user_extended_detail[:created_at] = user_extended_detail[:created_at].to_i
+          user_extended_detail[:created_at] = user_extended_detail[:created_at]
           user_extended_detail
         end
 

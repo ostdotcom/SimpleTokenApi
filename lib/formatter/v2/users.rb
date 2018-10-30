@@ -78,7 +78,7 @@ module Formatter
               id: user[:id],
               email: user[:email],
               properties: user[:properties_array],
-              created_at: user[:created_at].to_i
+              created_at: user[:created_at]
           }
         end
 

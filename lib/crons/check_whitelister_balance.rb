@@ -3,7 +3,7 @@ module Crons
   class CheckWhitelisterBalance
 
     MIN_ETH_BALANCE = 2
-    ETH_BALANCE_TO_STOP = 0.2
+    ETH_BALANCE_TO_STOP = 0.02
 
     # initialize
     #

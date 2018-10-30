@@ -163,11 +163,15 @@ module OstKycApi
 
     def get (params)
       r = HttpHelper::HttpRequest.new(params).get
+      return r unless r.success?
+
       parse_api_response(r)
     end
 
     def post (params)
       r = HttpHelper::HttpRequest.new(params).post
+      return r unless r.success?
+
       parse_api_response(r)
     end
 

@@ -79,6 +79,8 @@ module Crons
             request_parameters: request_parameters
         }
         r = HttpHelper::HttpRequest.new(http_request_params).post
+        return r unless r.success?
+
         parse_api_response(r.data[:http_response])
       rescue => se
         return exception_with_data(

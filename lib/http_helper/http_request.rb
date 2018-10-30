@@ -39,7 +39,8 @@ module HttpHelper
     def post
       uri = post_api_uri
       result = handle_with_exception(uri) do |http|
-        http.post(uri.path, @request_parameters.to_query)
+        uri_path = uri.path.present? ? uri.path : "/"
+        http.post(uri_path, @request_parameters.to_query)
       end
 
       result

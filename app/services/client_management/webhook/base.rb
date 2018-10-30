@@ -111,13 +111,15 @@ module ClientManagement
       def validate_url
         return error_with_identifier('invalid_api_params',
                                      'cm_w_b_vu_1',
-                                     ['invalid_url']
+                                     ['invalid_url'],
+                                     "The URL is invalid. Please try with other URL and resubmit it."
         ) unless Util::CommonValidateAndSanitize.is_string?(@url)
 
         uri_value = URI.parse(@url) rescue ""
         return error_with_identifier('invalid_api_params',
                                      'cm_w_b_vu_2',
-                                     ['invalid_url']
+                                     ['invalid_url'],
+                                     "The URL is invalid. Please try with other URL and resubmit it."
         ) if uri_value.blank? || (URI::HTTPS != uri_value.class) || uri_value.host.blank? || uri_value.query.present?
 
         @client_webhook_settings.each do |client_webhook_setting|

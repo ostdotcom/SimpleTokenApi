@@ -159,7 +159,7 @@ module Crons
     #
     def get_formatted_data(webhook_send_log, event)
       {
-          id: webhook_send_log.uuid,
+          id: webhook_send_log.id,
           name: event.name,
           type: event.result_type,
           description: Event.get_event_description(event.name),

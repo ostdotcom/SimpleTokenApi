@@ -89,7 +89,6 @@ class RecordEventJob < ApplicationJob
     @filtered_webhook_settings.each do |cws|
 
       WebhookSendLog.create!(
-          uuid: Util::Encryption::Admin.get_uuid,
           client_id: @client_id,
           client_webhook_setting_id: cws.id,
           event_id: @event_obj.id,

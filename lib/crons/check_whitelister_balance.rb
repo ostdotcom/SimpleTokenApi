@@ -2,8 +2,8 @@ module Crons
 
   class CheckWhitelisterBalance
 
-    MIN_ETH_BALANCE = 2
-    ETH_BALANCE_TO_STOP = 0.02
+    MIN_ETH_BALANCE = 0.5
+    ETH_BALANCE_TO_STOP = 0.0002
 
     # initialize
     #
@@ -31,7 +31,7 @@ module Crons
         r = OpsApi::Request::GetEthBalance.new.perform(ethereum_address: whitelister_address)
         fail "error from ops api - #{r.inspect}" unless r.success?
         eth_value_in_wei = r.data['balance']
-        eth_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_value_in_wei.to_i).to_f.round(2)
+        eth_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_value_in_wei.to_i).to_f.round(5)
         previous_balance = c_w_o.balance
         c_w_o.balance = eth_value
         c_w_o.save! if c_w_o.changed?

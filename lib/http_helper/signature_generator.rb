@@ -34,7 +34,8 @@ module HttpHelper
       query_param = @request_parameters.to_query.gsub(/^&/, '')
 
       uri = URI(@url)
-      final_url = "#{@url.split(uri.path).first}#{uri.path}"
+      remove_txt = uri.query
+      final_url = @url.gsub(/\?#{remove_txt}\Z/i, '')
 
       str = "#{final_url}?#{query_param}"
       generate_signature(str)

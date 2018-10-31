@@ -120,7 +120,8 @@ module ClientManagement
                                      'cm_w_b_vu_2',
                                      ['invalid_url'],
                                      "The URL is invalid. Please try with other URL and resubmit it."
-        ) if uri_value.blank? || (URI::HTTPS != uri_value.class) || uri_value.host.blank? || uri_value.query.present?
+        ) if uri_value.blank? || (URI::HTTPS != uri_value.class) ||
+            !Util::CommonValidateAndSanitize.is_valid_domain?(uri_value.host) || uri_value.query.present?
 
         @client_webhook_settings.each do |client_webhook_setting|
           return error_with_identifier('invalid_api_params',
@@ -143,7 +144,7 @@ module ClientManagement
         return error_with_identifier('invalid_api_params',
                                      'cm_w_b_ves_1',
                                      ['invalid_event_sources']
-        )if !(Util::CommonValidateAndSanitize.is_array?(@event_sources)) || ((@event_sources - Event.sources.keys).present?)
+        ) if !(Util::CommonValidateAndSanitize.is_array?(@event_sources)) || ((@event_sources - Event.sources.keys).present?)
         success
       end
 
@@ -158,7 +159,7 @@ module ClientManagement
         return error_with_identifier('invalid_api_params',
                                      'cm_w_b_vert_1',
                                      ['invalid_event_result_types']
-        )unless Util::CommonValidateAndSanitize.is_array?(@event_sources) || ((@event_result_types - Event.result_types.keys).present?)
+        ) unless Util::CommonValidateAndSanitize.is_array?(@event_sources) || ((@event_result_types - Event.result_types.keys).present?)
         success
       end
 

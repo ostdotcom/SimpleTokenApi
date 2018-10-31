@@ -33,12 +33,12 @@ namespace :onetimer do
         "update_country_hash" => {
             "IRAN1" => "IRAN",
             "SRI LANKA1" => "SRI LANKA",
-            "INDIA" => "INDIA1"
+            "INDIA1" => "INDIA"
         },
         "update_nationality_hash" => {
             "CHINESE1" => "CHINESE",
             "SYRIAN1" => "SYRIAN",
-            "INDIAN" => "INDIAN1"
+            "INDIAN1" => "INDIAN"
         }
     }
 
@@ -77,8 +77,8 @@ namespace :onetimer do
           r = encryptor_obj.encrypt(new_country)
           fail 'encryption of new country failed.' unless r.success?
 
-          @encrypted_country = r.data[:ciphertext_blob]
-          ued.country = @encrypted_country
+          encrypted_country = r.data[:ciphertext_blob]
+          ued.country = encrypted_country
           ued.save
         end
       end
@@ -120,8 +120,8 @@ namespace :onetimer do
           r = encryptor_obj.encrypt(new_nationality)
           fail 'encryption of new nationality failed.' unless r.success?
 
-          @encrypted_nationality = r.data[:ciphertext_blob]
-          ued.nationality = @encrypted_nationality
+          encrypted_nationality = r.data[:ciphertext_blob]
+          ued.nationality = encrypted_nationality
           ued.save
         end
       end

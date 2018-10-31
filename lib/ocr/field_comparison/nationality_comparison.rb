@@ -42,8 +42,8 @@ module Ocr
 
       def compare
 
-        iso_code = GlobalConstant::NationalityCountry.nationality_iso_map[@match_string.to_s.upcase]
-        country = GlobalConstant::NationalityCountry.nationality_country_map[@match_string.to_s.upcase]
+        iso_code = GlobalConstant::CountryNationality.nationality_iso_map[@match_string.to_s.upcase]
+        country = GlobalConstant::CountryNationality.nationality_country_map[@match_string.to_s.upcase]
 
         regex_match_string = Util::CommonValidateAndSanitize.get_words_regex_for_multi_space_support(@match_string)
 
@@ -68,12 +68,12 @@ module Ocr
 
         # check for american and u.s. territory and canada
         if ['american', 'u.s. territory'].include?(@match_string.downcase)
-          GlobalConstant::NationalityCountry.regex_usa_states.each do |state|
+          GlobalConstant::CountryNationality.regex_usa_states.each do |state|
             return 100 if @paragraph.match(/#{state}/i)
           end
 
         elsif ['canadian'].include?(@match_string.downcase)
-          GlobalConstant::NationalityCountry.regex_canada_states.each do |state|
+          GlobalConstant::CountryNationality.regex_canada_states.each do |state|
             return 100 if @paragraph.match(/#{state}/i)
           end
         end

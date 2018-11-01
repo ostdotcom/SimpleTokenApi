@@ -20,12 +20,12 @@ class DeleteDuplicateLogs < ApplicationJob
 
     unset_user_email_duplicates
 
+    RecordEventJob.perform_now(@event)
     return if @user_kyc_detail.blank?
 
     fetch_existing_duplicate_data
     update_duplicate_logs_to_inactive
     unset_kyc_duplicate_status_of_previous_users
-    RecordEventJob.perform_now(@event)
   end
 
   private

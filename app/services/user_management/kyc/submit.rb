@@ -280,10 +280,16 @@ module UserManagement
         @param_error_identifiers << 'invalid_country' and return unless Util::CommonValidateAndSanitize.is_string?(@country)
 
         blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
+        updated_country_from_cynopsis = GlobalConstant::CountryNationality.updated_country_hash[@country]
+
         @country = @country.to_s.strip.upcase
         if !GlobalConstant::CountryNationality.countries.include?(@country)
-          @param_error_identifiers << 'invalid_country'
-        elsif blacklisted_countries.include?(@country)
+          if !GlobalConstant::CountryNationality.updated_country_hash.keys.include?(@country)
+            @param_error_identifiers << 'invalid_country'
+          else
+            @country = updated_country_from_cynopsis
+          end
+        elsif blacklisted_countries.include?(@country) || blacklisted_countries.include?(updated_country_from_cynopsis)
           @param_error_identifiers << 'blacklisted_country'
         end
       end
@@ -348,7 +354,11 @@ module UserManagement
 
         @nationality = @nationality.to_s.strip.upcase
         if !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
-          @param_error_identifiers << 'invalid_nationality'
+          if !GlobalConstant::CountryNationality.updated_nationality_hash.keys.include?(@nationality)
+            @param_error_identifiers << 'invalid_nationality'
+          else
+            @nationality = GlobalConstant::CountryNationality.updated_nationality_hash[@nationality]
+          end
         end
       end
 

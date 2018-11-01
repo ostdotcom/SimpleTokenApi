@@ -386,11 +386,39 @@ module GlobalConstant
     #
     # @return Array[String] fetch_file_contents
     #
-
     def self.fetch_country_nationality_mapping
       @fetch_file_contents ||= File.open("#{Rails.root}/config/nationality_and_country_mapping.csv",
                                          "rb").read.split("\n")
     end
+
+    # Updated Country Hash By Cynopsis
+    #
+    # * Author: Tejas
+    # * Date: 01/08/2018
+    # * Reviewed By: Aman
+    #
+    # @return [Hash]
+    #
+    def self.updated_country_hash
+      {}
+    end
+
+    # Updated Nationality Hash By Cynopsis
+    #
+    # * Author: Tejas
+    # * Date: 01/08/2018
+    # * Reviewed By: Aman
+    #
+    # @return [Hash]
+    #
+    def self.updated_nationality_hash
+      {
+          "AFGHANI" => "AFGHAN",
+          "BAHRAINIAN" => "BAHRAINI",
+          "LITHUNIAN" => "LITHUANIAN"
+      }
+    end
+
 
   end
 

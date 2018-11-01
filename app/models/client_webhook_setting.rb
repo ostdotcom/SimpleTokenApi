@@ -185,8 +185,8 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   #
   def get_decrypted_secret_key_from_memcache
     memcache_key_object = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object
-    memcache_key_template = memcache_key_object.key_template % {secret_key: self.secret_key}
 
+    memcache_key_template = memcache_key_object.key_template % {id: self.id, client_id: self.client_id}
     encryption_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.memcache_encryption_key)
 
     # returns encrypted by local cipher using memcache key
@@ -259,14 +259,11 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
     memcache_key = ClientWebhookSetting.get_active_memcache_key_object.key_template % {client_id: self.client_id}
     Memcache.delete(memcache_key)
 
-    memcache_key = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object.key_template % {secret_key: self.secret_key}
-    Memcache.delete(memcache_key)
-
     if self.previous_changes["secret_key"].present?
-      old_secret_key = self.previous_changes["secret_key"].first
-      old_secret_memcache_key = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object.key_template % {secret_key: old_secret_key}
-      Memcache.delete(old_secret_memcache_key)
+      memcache_key = ClientWebhookSetting.get_decrypted_secret_key_memcache_key_object.key_template % {id: self.id, client_id: self.client_id}
+      Memcache.delete(memcache_key)
     end
+
   end
 
 

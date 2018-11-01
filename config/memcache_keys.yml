@@ -96,7 +96,7 @@ client:
     expiry_in_seconds: 86400
 
   webhook_decrypt_secret_key:
-    key_template: 'webhook_decrypt_secret_key_%{secret_key}'
+    key_template: 'webhook_decrypt_secret_key_%{client_id}_%{id}'
     expiry_in_seconds: 86400
 
 admin:

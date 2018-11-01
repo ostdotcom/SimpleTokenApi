@@ -333,6 +333,16 @@ module AdminManagement
         @cron_job == true
       end
 
+      # Get Event Source
+      #
+      # * Author: Tejas
+      # * Date: 16/10/2018
+      # * Reviewed By:
+      #
+      def get_event_source
+        is_a_cron_task? ? GlobalConstant::Event.kyc_system_source : GlobalConstant::Event.web_source
+      end
+
       # Do remaining task in sidekiq
       #
       # * Author: Tejas
@@ -344,7 +354,7 @@ module AdminManagement
             RecordEventJob,
             {
                 client_id: @user_kyc_detail.client_id,
-                event_source: GlobalConstant::Event.kyc_system_source,
+                event_source: get_event_source,
                 event_name: GlobalConstant::Event.kyc_status_update_name,
                 event_data: {
                     user_kyc_detail: @user_kyc_detail.get_hash,

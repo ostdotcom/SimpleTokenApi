@@ -191,7 +191,7 @@ module Crons
 
     def generate_and_merge_signature(data_to_send)
       signature_params = {url: client_webhook_setting.url,
-                          api_secret: client_webhook_setting.secret_key,
+                          api_secret: client_webhook_setting.decrypted_secret_key,
                           request_parameters: data_to_send
       }
       signature = HttpHelper::SignatureGenerator.new(signature_params).perform

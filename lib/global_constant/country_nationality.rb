@@ -35,33 +35,33 @@ module GlobalConstant
       geoip_country.to_s.upcase
     end
 
-    #  List of states disallowed to participate in ICO
-    #
-    # * Author: Tejas
-    # * Date: 01/08/2018
-    # * Reviewed By: Aman
-    #
-    # @return [Hash]
-    #
-    def self.disallowed_states
-      {
-          'united states of america' => {
-              'newyork' => 'NY',
-              'new york' => 'NY',
-              'new york state' => 'NY',
-              'newyorkstate' => 'NY',
-              'new yorkstate' => 'NY',
-              'ny' => 'NY',
-              'nyc' => 'NY'
-          },
-          'ukraine' => {
-              'crimea' => 'Crimea'
-          },
-          'russia' => {
-              'crimea' => 'Crimea'
-          }
-      }
-    end
+    # #  List of states disallowed to participate in ICO
+    # #
+    # # * Author: Tejas
+    # # * Date: 01/08/2018
+    # # * Reviewed By: Aman
+    # #
+    # # @return [Hash]
+    # #
+    # def self.disallowed_states
+    #   {
+    #       'united states of america' => {
+    #           'newyork' => 'NY',
+    #           'new york' => 'NY',
+    #           'new york state' => 'NY',
+    #           'newyorkstate' => 'NY',
+    #           'new yorkstate' => 'NY',
+    #           'ny' => 'NY',
+    #           'nyc' => 'NY'
+    #       },
+    #       'ukraine' => {
+    #           'crimea' => 'Crimea'
+    #       },
+    #       'russia' => {
+    #           'crimea' => 'Crimea'
+    #       }
+    #   }
+    # end
 
     # list of cynopsis countries
     #
@@ -96,11 +96,7 @@ module GlobalConstant
     # @return [Array]
     #
     def self.nationalities
-      @nationalities = []
-      fetch_country_nationality_mapping.each do |country_nationality_mapping|
-        @nationalities << country_nationality_mapping.split(",")[0]
-      end
-      @nationalities
+      @nationalities ||= nationality_iso_map.keys
     end
 
     # Get nationality name from its MD5 hash

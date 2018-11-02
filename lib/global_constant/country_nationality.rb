@@ -136,7 +136,7 @@ module GlobalConstant
     # @return [Hash]
     #
     def self.nationality_md5_map
-      @nationality_md5_map ||= generate_md5_map_for(nationalities)
+      @nationality_md5_map ||= generate_md5_map_for(nationalities + deleted_nationalities)
     end
 
 
@@ -213,6 +213,32 @@ module GlobalConstant
       @cynopsis_country_to_maxmind_data ||= CSV.read("#{Rails.root}/config/cynopsis_country_to_maxmind_mapping.csv")
     end
 
+    # list of cynopsis nationalities removed from previous list of cynopsis nationalities
+    #
+    # * Author: Tejas
+    # * Date: 01/08/2018
+    # * Reviewed By: Aman
+    #
+    # @return [Array]  # these nationalities were deleted from our list of cynopsis nationalities on 02/11/2018
+    #
+    def self.deleted_nationalities
+      [
+          "ASCENSION",
+          "TRISTAN DA CUNHA",
+          "BRITISH INDIAN OCEAN TERRITORY",
+          "AUSTRALIAN ANTARCTIC TERRITORY",
+          "BAKER ISLAND",
+          "BRITISH ANTARCTIC TERRITORY",
+          "BRITISH SOVEREIGN BASE AREAS",
+          "JARVIS ISLAND",
+          "FRENCH SOUTHERN AND ANTARCTIC LANDS",
+          "CLIPPERTON ISLAND",
+          "ROSS DEPENDENCY",
+          "QUEEN MAUD LAND",
+          "PETER I ISLAND"
+      ]
+    end
+
     # list of cynopsis countries removed from previous list of cynopsis countries
     #
     # * Author: Tejas
@@ -223,12 +249,18 @@ module GlobalConstant
     #
     def self.deleted_countries
       [
+          "BRITISH INDIAN OCEAN TERRITORY",
           "ASHMORE AND CARTIER ISLANDS",
           "AUSTRALIAN ANTARCTIC TERRITORY",
           "BAKER ISLAND",
           "BRITISH ANTARCTIC TERRITORY",
           "BRITISH SOVEREIGN BASE AREAS",
-          "SAINT KITTS AND NEVIS"
+          "JARVIS ISLAND",
+          "FRENCH SOUTHERN AND ANTARCTIC LANDS",
+          "CLIPPERTON ISLAND",
+          "ROSS DEPENDENCY",
+          "QUEEN MAUD LAND",
+          "PETER I ISLAND"
       ]
     end
 

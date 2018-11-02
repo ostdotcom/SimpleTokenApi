@@ -67,7 +67,10 @@ module ReportJob
       offset = 0
 
       while (true)
-        user_model_query.limit(MYSQL_BATCH_SIZE).offset(offset).all.each do |user|
+        users = user_model_query.limit(MYSQL_BATCH_SIZE).offset(offset).all
+        break if users.blank?
+
+        users.each do |user|
           data = get_user_data(user)
           yield(data)
         end
@@ -80,7 +83,7 @@ module ReportJob
 
     def user_model_query
       @user_model_query ||= begin
-        ar_relation = User.where(client_id: @client_id, status: GlobalConstant::User.active_status)
+        ar_relation = ::User.where(client_id: @client_id, status: GlobalConstant::User.active_status)
         ar_relation = ar_relation.sorting_by(@sortings)
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation

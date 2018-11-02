@@ -15,7 +15,6 @@ module AdminManagement
       #
       # @params [Hash] filters (optional)
       # @params [Hash] sortings (optional)
-      # @params [String] search (optional)
       #
       # @return [AdminManagement::Users::UserList]
       #
@@ -26,9 +25,9 @@ module AdminManagement
         @admin_id = @params[:admin_id]
 
         @filters = @params[:filters]
+        # pass email as filters[email] instead of search[q]
+        #@order = @params[:order]
         @sortings = @params[:sortings]
-        @search = @params[:search]
-
         @page_number = @params[:page_number].to_i || 1
         @page_size = 10
 
@@ -40,6 +39,8 @@ module AdminManagement
         @user_kyc_details = {}
         @open_edit_cases = []
         @api_response_data = {}
+        @allowed_filters = {}
+        @allowed_sortings = {}
 
       end
 
@@ -84,49 +85,62 @@ module AdminManagement
         r = fetch_and_validate_admin
         return r unless r.success?
 
-        @filters = {} if @filters.blank? || !(@filters.is_a?(Hash) || @filters.is_a?(ActionController::Parameters))
-        @sortings = {} if @sortings.blank? || !(@sortings.is_a?(Hash) || @sortings.is_a?(ActionController::Parameters))
-        @search = {} if @search.blank? || !(@search.is_a?(Hash) || @search.is_a?(ActionController::Parameters)) || @search["q"].blank?
+        error_codes = []
 
-        # Validate whether filters passed are valid or not.
-        @filters.each do |key, val|
-
-          next if val.blank?
-
-            return error_with_data(
-              'am_u_ul_1',
-              'Invalid Parameters.',
-              'Invalid Filter type or parameter passed',
-              GlobalConstant::ErrorAction.default,
-              {},
-              {}
-          ) if page_filters[key.to_s].blank? || page_filters[key.to_s].exclude?(val.to_s)
+        if @sortings.present?
+          @sortings.each do |sort_key, sort_value|
+            next if sort_value.blank? || GlobalConstant::User.sorting[sort_key].blank?
+            allowed_sort_values = GlobalConstant::User.sorting[sort_key].keys
+            if allowed_sort_values.include?(sort_value)
+              @allowed_sortings[sort_key] = sort_value
+            else
+              error_codes << 'invalid_sortings'
+              break
+            end
+          end
         end
 
-        # Validate Sortings
-        @sortings.each do |key, val|
+        @sortings = @allowed_sortings.present? ? @allowed_sortings : GlobalConstant::User.default_sorting
 
-          return error_with_data(
-              'am_u_ul_3',
-              'Invalid Parameters.',
-              'Invalid Sort type passed',
-              GlobalConstant::ErrorAction.default,
-              {},
-              {}
-          ) if GlobalConstant::User.sorting[key.to_s].blank?
+        @filters = {} if @filters.blank?
 
-          sort_data = GlobalConstant::User.sorting[key.to_s][val.to_s]
-          return error_with_data(
-              'am_u_ul_4',
-              'Invalid Sorting Parameter value.',
-              'Invalid Sorting Parameter value.',
-              GlobalConstant::ErrorAction.default,
-              {},
-              {}
-          ) if sort_data.nil?
+        if Util::CommonValidateAndSanitize.is_hash?(@filters)
+
+          @filters.each do |filter_key, filter_val|
+            next if filter_val.blank?
+
+            if GlobalConstant::User.allowed_filter.include?(filter_key)
+              allowed_filter_val = []
+
+              if filter_key == GlobalConstant::User.email_filter
+                allowed_filter_val = [filter_val]
+              else
+                allowed_filter_val = GlobalConstant::User.filters[filter_key].keys
+              end
+
+              if allowed_filter_val.include?(filter_val)
+                @allowed_filters[filter_key] = filter_val.to_s
+              else
+                error_codes << 'invalid_filters'
+              end
+
+            end
+          end
+
+        else
+          error_codes << 'invalid_filters'
         end
+
+        error_codes.uniq!
+
+        return error_with_identifier('invalid_api_params',
+                                     'um_u_l_vasp_1',
+                                     error_codes
+        ) if error_codes.present?
+
 
         success
+
       end
 
       # Fetch users based upon filters and sortings and search term
@@ -146,7 +160,7 @@ module AdminManagement
         offset = @page_size * (@page_number - 1) if @page_number > 1
         @users = user_relational_query.limit(@page_size).offset(offset).all
         # No need to query kyc detail if filter applied is kyc_submitted_no
-        if @filters["is_kyc_submitted"].to_s != kyc_submitted_no
+        if @allowed_filters[GlobalConstant::User.is_kyc_submitted_filter].to_s != GlobalConstant::User.kyc_submitted_false
           @user_kyc_details = UserKycDetail.where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
         end
       end
@@ -160,25 +174,9 @@ module AdminManagement
       # Returns [Array] - where_clause
       #
       def get_model_query
-        user_relational_query = User.where(client_id: @client_id).is_active
-        property_val = User.properties_config[GlobalConstant::User.kyc_submitted_property]
-        # If filter is applied on KYC submitted
-        if [kyc_submitted_yes, kyc_submitted_no].include?(@filters["is_kyc_submitted"].to_s)
-          if @filters["is_kyc_submitted"].to_s == kyc_submitted_no
-            user_relational_query = user_relational_query.where("properties & ? = 0", property_val)
-          else
-            user_relational_query = user_relational_query.where("properties & ? > 0", property_val)
-          end
-        end
 
-        # Include search term in query
-        if @search["q"].present?
-          user_relational_query = user_relational_query.where(["email LIKE (?)", "#{@search["q"].html_safe}%"])
-        end
-
-        user_relational_query = user_relational_query.sorting_by(@sortings)
-
-        user_relational_query
+        user_relational_query = User.where(client_id: @client_id).is_active.filter_by(@allowed_filters)
+        user_relational_query.sorting_by(@sortings)
       end
 
       # Find out edit kycs requests which are under process from given cases
@@ -227,7 +225,7 @@ module AdminManagement
             page_payload: {
             },
             page_size: @page_size,
-            filters: @filters,
+            filters: @allowed_filters,
             sortings: @sortings,
         }
 
@@ -307,24 +305,6 @@ module AdminManagement
         data
       end
 
-      # Filters which can be allowed on this page
-      #
-      def page_filters
-        @page_filters ||= {
-            "is_kyc_submitted" => [kyc_submitted_yes, kyc_submitted_no]
-        }
-      end
-
-      # ### KYC Submitted Filter options ###
-      def kyc_submitted_yes
-        'yes'
-      end
-
-      def kyc_submitted_no
-        'no'
-      end
-
-      # ### KYC Submitted Filter options ###
 
     end
 

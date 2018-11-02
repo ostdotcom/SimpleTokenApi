@@ -81,14 +81,17 @@ module AdminManagement
 
           error_data = {}
           sanitized_filter = {}
-
           @filters.each do |key, val|
+            next if val.blank?
 
-            next if val.blank? || model_filters[key].blank?
-
-            filter_data = model_filters[key][val]
-            error_data[key] = 'invalid value for filter' if filter_data.nil?
-            sanitized_filter[key] = val
+            if key == GlobalConstant::User.email_filter
+              sanitized_filter[key] = val
+            else
+              next if model_filters[key].blank?
+              filter_data = model_filters[key][val]
+              error_data[key] = 'invalid value for filter' if filter_data.nil?
+              sanitized_filter[key] = val
+            end
           end
 
           return error_with_data(

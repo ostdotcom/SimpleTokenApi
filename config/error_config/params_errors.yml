@@ -414,6 +414,10 @@ missing_skip_name:
   parameter: "skip_name"
   msg: "Skip Name is mandatory."
 
+invalid_sortings:
+  parameter: "sortings"
+  msg: "Sortings is invalid"
+
 invalid_state:
   parameter: "state"
   msg: "Please provide valid State information. State name might be incorrectly spelled."

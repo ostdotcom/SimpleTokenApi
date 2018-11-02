@@ -169,14 +169,32 @@ module GlobalConstant
 
       # frontend config needed for configurator form build
       def get_fe_config_for_instruction_text(key)
-          {
-              label: key.titleize,
-              placeholder: "",
-              type: "",
-              validation: {
-                  mandatory: 0
-              }
-          }
+        {
+            label: key.titleize,
+            placeholder: "",
+            tooltip: "",
+            inputType: "rich_text_editor"
+        }
+      end
+
+      def get_dynamic_fields_fe_sequence_config(extra_kyc_fields_keys)
+        extra_kyc_fields_instructon_keys = extra_kyc_fields_key.map {|x| "#{x}#{extra_kyc_field_instruction_key_suffix}"}
+
+        {
+            collapse: {
+                kyc_configuration: {
+                    entities: ["kyc_form_title", "kyc_form_subtitle", "eth_address_instruction_text",
+                               "document_id_instruction_text"] + extra_kyc_fields_instructon_keys
+                }
+
+            }
+        }
+
+      end
+
+      # this is the suffix for all dynmic kyc fields instruction text key used in configurator
+      def extra_kyc_field_instruction_key_suffix
+        "_dynamic_instruction_text"
       end
 
       def get_entity_config_for_fe(entity_type, client_settings)
@@ -185,8 +203,10 @@ module GlobalConstant
 
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
           extra_kyc_fields = client_settings[:kyc_config_detail_data][:extra_kyc_fields]
-          extra_kyc_fields.each do |kyc_field|
-            config["#{kyc_field}_instruction_text"] = extra_kyc_field_instruction_text_config
+          extra_kyc_fields.each do |kyc_field, _|
+            config = extra_kyc_field_instruction_text_config
+            config.reverse_merge!(get_fe_config_for_instruction_text(kyc_field))
+            config["#{kyc_field}#{extra_kyc_field_instruction_key_suffix}"] = config
           end
         end
 

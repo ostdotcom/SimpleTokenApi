@@ -57,7 +57,13 @@ module UserManagement
       client_web_host_detail_obj = ClientWebHostDetail.get_from_memcache_by_domain(@domain)
       return unauthorized_access_response('um_vch_1') if client_web_host_detail_obj.blank?
 
-      return unauthorized_access_response('um_vch_2') if (client_web_host_detail_obj.status !=
+      if (client_web_host_detail_obj.status == GlobalConstant::ClientWebHostDetail.inactive_status)
+        res = unauthorized_access_response('um_vch_2')
+        res.set_error_extra_info({redirect_url: client_web_host_detail_obj.redirect_url})
+        return res
+      end
+
+      return unauthorized_access_response('um_vch_3') if (client_web_host_detail_obj.status !=
           GlobalConstant::ClientWebHostDetail.active_status)
 
       @client_id = client_web_host_detail_obj.client_id

@@ -321,7 +321,6 @@ module GlobalConstant
     #
     # @return [Hash]
     #
-
     def self.nationality_iso_map
       generate_nationality_iso_map
     end

@@ -283,7 +283,7 @@ module UserManagement
         blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
         updated_country_from_cynopsis = GlobalConstant::CountryNationality.updated_country_hash[@country]
 
-        @country = updated_country_from_cynopsis if updated_country_from_cynopsis.present?
+        @country = updated_country_from_cynopsis.upcase if updated_country_from_cynopsis.present?
 
 
         if !GlobalConstant::CountryNationality.countries.include?(@country)
@@ -354,7 +354,7 @@ module UserManagement
         @nationality = @nationality.to_s.strip.upcase
 
         updated_nationality = GlobalConstant::CountryNationality.updated_nationality_hash[@nationality]
-        @nationality = updated_nationality if updated_nationality.present?
+        @nationality = updated_nationality.upcase if updated_nationality.present?
 
         if !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
           @param_error_identifiers << 'invalid_nationality'

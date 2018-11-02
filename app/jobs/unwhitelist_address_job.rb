@@ -37,7 +37,6 @@ class UnwhitelistAddressJob < ApplicationJob
     # Mark Edit Kyc Request as unWhitelist in process
     update_edit_kyc_request(GlobalConstant::EditKycRequest.unwhitelist_in_process_status)
 
-    RecordEventJob.perform_now(@event)
   end
 
   private
@@ -61,7 +60,6 @@ class UnwhitelistAddressJob < ApplicationJob
 
     @user_id = params[:user_id]
 
-    @event = params[:event]
   end
 
   # Fetch Ethereum Address to unwhitelist

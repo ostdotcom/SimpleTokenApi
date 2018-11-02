@@ -641,29 +641,6 @@ module UserManagement
       # * Reviewed By: Sunil
       #
       def enqueue_job
-        #  todo: "KYCaaS-Changes"
-        # if !@user.send("#{GlobalConstant::User.doptin_done_property}?")
-        #
-        #   BgJob.enqueue(
-        #       OnBTSubmitJob,
-        #       {
-        #           user_id: @user_id
-        #       }
-        #   )
-        #   Rails.logger.info('---- enqueue_job OnBTSubmitJob done')
-        # else
-        #
-        #   BgJob.enqueue(
-        #       KycSubmitJob,
-        #       {
-        #           user_id: @user_id,
-        #           action: GlobalConstant::UserActivityLog.update_kyc_action,
-        #           action_timestamp: Time.now.to_i
-        #       }
-        #   )
-        #   Rails.logger.info('---- enqueue_job KycSubmitJob done')
-        # end
-
         BgJob.enqueue(
             KycSubmitJob,
             {

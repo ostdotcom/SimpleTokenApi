@@ -278,14 +278,6 @@
     - :gid
   :optional:
 
-'UserManagement::BtSubmit':
-  :mandatory:
-    - :client_id
-    - :bt_name
-    - :skip_name
-    - :user_id
-  :optional:
-
 'UserManagement::DocumentsUploader::SignedPostParams':
   :mandatory:
     - :client_id
@@ -310,13 +302,6 @@
   :mandatory:
     - :client_id
     - :files
-  :optional:
-
-'UserManagement::CheckEthereumBalance':
-  :mandatory:
-    - :client_id
-    - :user_id
-    - :user_ethereum_address
   :optional:
 
 'UserManagement::SendResetPasswordLink':

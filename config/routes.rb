@@ -33,11 +33,6 @@ Rails.application.routes.draw do
       match 'details' => :sale_details, via: :GET
     end
 
-    scope 'api/user', controller: 'web/saas_user/token_sale' do
-      match 'bt-submit' => :bt_submit, via: :POST
-      match 'check-ethereum-balance' => :check_ethereum_balance, via: :GET
-    end
-
   end
 
   constraints(InitKyc) do

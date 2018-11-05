@@ -227,7 +227,7 @@ module GlobalConstant
         config = get_entity_config(entity_type)
         blocked_fields = get_client_blocked_fields(entity_type, client_settings)
 
-        if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
+        if entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
           extra_kyc_fields = client_settings[:kyc_config_detail_data][:extra_kyc_fields]
           extra_kyc_fields.each do |kyc_field, _|
             config["#{kyc_field.to_s}#{extra_kyc_field_instruction_key_suffix}"] = extra_kyc_field_instruction_text_config

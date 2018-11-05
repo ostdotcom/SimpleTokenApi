@@ -181,15 +181,15 @@ module AdminManagement
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
           form_data[:show_kyc_confirm_popup] = form_data[:kyc_form_popup_checkboxes].present?.to_i
           extra_kyc_fields = @client_settings.data[:kyc_config_detail_data][:extra_kyc_fields]
-          dynamic_keys = []
+          dynamic_instruction_text_keys = []
 
           extra_kyc_fields.each do |extra_kyc_field, _|
-            key = "#{extra_kyc_field.to_s}#{GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix}"
-            dynamic_keys << key
-            ui_config[key] = GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(key)
+            instruction_text_key = "#{extra_kyc_field.to_s}#{GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix}"
+            dynamic_instruction_text_keys << instruction_text_key
+            ui_config[instruction_text_key] = GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(instruction_text_key)
           end
 
-          accordion_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(dynamic_keys)
+          accordion_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(dynamic_instruction_text_keys)
         end
 
         if @entity_type == GlobalConstant::EntityGroupDraft.dashboard_entity_type

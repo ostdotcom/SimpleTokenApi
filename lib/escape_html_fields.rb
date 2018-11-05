@@ -32,6 +32,7 @@ class EscapeHtmlFields
       return if GlobalConstant::EntityGroupDraft.allowed_entity_types_from_fe.exclude?(@entity_type)
 
       fetch_entity_config
+      merge_dynamic_config
 
       escape_html_fields
     end
@@ -99,4 +100,20 @@ class EscapeHtmlFields
       end
       sanitized_val
     end
+
+    # Get escaped fields for extra_kyc_fields instruction text keys
+    #
+    # * Author: Aniket
+    # * Date: 28/04/2018
+    # * Reviewed By:
+    #
+  def merge_dynamic_config
+    return if GlobalConstant::EntityGroupDraft.kyc_entity_type != @entity_type
+    field_config = GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_text_config
+
+    @params.map{|x,_|  @entity_config[x.to_s] = field_config if x.to_s.ends_with?(
+        GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix)}
+
+  end
+
 end

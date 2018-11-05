@@ -161,7 +161,7 @@ module GlobalConstant
       # @return [Hash]
       #
       def extra_kyc_field_instruction_text_config
-        {
+        @extra_kyc_field_instruction_text_config ||= {
             data_kind: 'html',
             validations: {
                 required: 0
@@ -169,7 +169,7 @@ module GlobalConstant
             max_length: 400,
             default_value: ''
 
-        }
+        }.deep_stringify_keys
       end
 
       # Entity config for FE for extra kyc fields instruction_text
@@ -186,7 +186,7 @@ module GlobalConstant
             placeholder: "",
             tooltip: "",
             inputType: "rich_text_editor"
-        }
+        }.deep_stringify_keys
       end
 
 
@@ -203,13 +203,15 @@ module GlobalConstant
 
         {
             collapse: {
-                kyc_configuration: {
-                    entities: ["kyc_form_title", "kyc_form_subtitle", "eth_address_instruction_text",
-                               "document_id_instruction_text"] + extra_kyc_fields_instructon_keys
-                }
+                kyc_form: {
+                    kyc_configuration: {
+                        entities: ["kyc_form_title", "kyc_form_subtitle", "eth_address_instruction_text",
+                                   "document_id_instruction_text"] + extra_kyc_fields_instructon_keys
+                    }
 
+                }
             }
-        }
+        }.deep_stringify_keys
 
       end
 
@@ -222,7 +224,7 @@ module GlobalConstant
       # @return [Hash] this is the suffix for all extra kyc fields instruction text key used in configurator
       #
       def extra_kyc_field_instruction_key_suffix
-        "_dynamic_instruction_text"
+        "_dynamic_kyc_field_instruction_text"
       end
 
       def get_entity_config_for_fe(entity_type, client_settings)

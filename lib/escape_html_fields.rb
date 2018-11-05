@@ -111,8 +111,10 @@ class EscapeHtmlFields
     return if GlobalConstant::EntityGroupDraft.kyc_entity_type != @entity_type
     field_config = GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_text_config
 
-    @params.map{|x,_|  @entity_config[x.to_s] = field_config if x.to_s.ends_with?(
-        GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix)}
+    @params.keys.each do |x|
+      @entity_config[x.to_s] = field_config if x.to_s.ends_with?(
+          GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix)
+    end
 
   end
 

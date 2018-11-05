@@ -160,7 +160,7 @@ module ReportJob
 
       extra_kyc_fields = {}
 
-      if @user_extended_detail_obj[:extra_kyc_fields].present?
+      if user_extended_detail[:extra_kyc_fields].present?
         extra_kyc_fields = local_cipher_obj.decrypt(user_extended_detail[:extra_kyc_fields]).data[:plaintext]
       end
 

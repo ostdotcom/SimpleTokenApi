@@ -36,7 +36,8 @@ module UserManagement
       # @return [UserManagement::Kyc::Submit]
       #
       def initialize(params)
-        super
+        # super
+        @params = params
 
         @user_id = @params[:user_id]
         @client_id = @params[:client_id]
@@ -464,8 +465,8 @@ module UserManagement
             val = val.to_s.strip
             next if config[:validation][:required] != 1 && val.blank?
 
-            @params_error_data["missing_#{key}"] = "#{config[:label]} is mandatory" and next if val.blank?
-            @params_error_data["invalid_#{key}"] = "Please provide a valid #{config[:label]}" and next unless Util::CommonValidateAndSanitize.is_string?(val)
+            @params_error_data[key.to_sym] = "#{config[:label]} is mandatory" and next if val.blank?
+            @params_error_data[key.to_sym] = "Please provide a valid #{config[:label]}" and next unless Util::CommonValidateAndSanitize.is_string?(val)
             @extra_kyc_fields[key.to_sym] = val
           end
 

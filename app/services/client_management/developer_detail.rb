@@ -127,10 +127,10 @@ module ClientManagement
     #
     def success_response_data
       selected_api_fields = @client_kyc_detail_api_activations.present? ?
-                                @client_kyc_detail_api_activations.kyc_fields_array + @client_kyc_detail_api_activations.extra_kyc_fields.keys : []
+                                @client_kyc_detail_api_activations.kyc_fields_array + @client_kyc_detail_api_activations.extra_kyc_fields : []
 
 
-      api_fields_config = GlobalConstant::ClientKycConfigDetail.kyc_fields_config.merge(@client_kyc_config_detail.extra_kyc_fields)
+      api_fields_config = GlobalConstant::ClientKycConfigDetail.kyc_fields_config_with_labels.merge(@client_kyc_config_detail.extra_kyc_fields)
 
 
       applicable_api_fields = @client_kyc_config_detail.kyc_fields_array + @client_kyc_config_detail.extra_kyc_fields.keys

@@ -152,8 +152,14 @@ module GlobalConstant
         blocked_fields
       end
 
-      # Extra kyc field instruction text be config
-
+      # Entity config for BE for extra kyc fields instruction_text
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash]
+      #
       def extra_kyc_field_instruction_text_config
         {
             data_kind: 'html',
@@ -166,8 +172,14 @@ module GlobalConstant
         }
       end
 
-
-      # frontend config needed for configurator form build
+      # Entity config for FE for extra kyc fields instruction_text
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] frontend config needed for configurator form build
+      #
       def get_fe_config_for_instruction_text(key)
         {
             label: key.titleize,
@@ -177,6 +189,15 @@ module GlobalConstant
         }
       end
 
+
+      # extra kyc fields instruction_text display section config for FE
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] collapse config needed for configurator form build
+      #
       def get_dynamic_fields_fe_sequence_config(extra_kyc_fields_keys)
         extra_kyc_fields_instructon_keys = extra_kyc_fields_key.map {|x| "#{x}#{extra_kyc_field_instruction_key_suffix}"}
 
@@ -192,7 +213,14 @@ module GlobalConstant
 
       end
 
-      # this is the suffix for all dynmic kyc fields instruction text key used in configurator
+      # suffix for extra kyc fields instruction text field in configurator
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] this is the suffix for all extra kyc fields instruction text key used in configurator
+      #
       def extra_kyc_field_instruction_key_suffix
         "_dynamic_instruction_text"
       end

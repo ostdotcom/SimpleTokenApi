@@ -175,8 +175,6 @@ module AdminManagement
       #
       def api_response
         form_data = @entity_draft.data
-        extra_kyc_fields = []
-        front_end_config = {}
         dynamic_config = {}
 
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type

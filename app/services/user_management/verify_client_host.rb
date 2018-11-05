@@ -68,8 +68,8 @@ module UserManagement
                                        {}
         )
 
-        redirect_url = client_web_host_detail_obj.redirect_url
-        redirect_url = GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(Rails.env) if redirect_url.blank?
+        redirect_url = GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(Rails.env)
+        redirect_url = client_web_host_detail_obj.redirect_url if client_web_host_detail_obj.present?
         res.set_error_extra_info({redirect_url: redirect_url})
         return res
       end

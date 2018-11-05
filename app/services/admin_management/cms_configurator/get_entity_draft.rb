@@ -175,7 +175,7 @@ module AdminManagement
       #
       def api_response
         form_data = @entity_draft.data
-        dynamic_config = {}
+        accordion_config = {}
         ui_config = {}
 
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
@@ -189,7 +189,7 @@ module AdminManagement
             ui_config[key] = GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(key)
           end
 
-          dynamic_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(dynamic_keys)
+          accordion_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(dynamic_keys)
         end
 
         if @entity_type == GlobalConstant::EntityGroupDraft.dashboard_entity_type
@@ -208,7 +208,7 @@ module AdminManagement
                 can_publish: can_publish
             },
             client_settings: @client_settings.data,
-            dynamic_config: dynamic_config,
+            accordion_config: accordion_config,
             ui_config: ui_config
         }
       end

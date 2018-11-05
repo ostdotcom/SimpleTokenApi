@@ -176,11 +176,20 @@ module AdminManagement
       def api_response
         form_data = @entity_draft.data
         dynamic_config = {}
+        ui_config = {}
 
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
           form_data[:show_kyc_confirm_popup] = form_data[:kyc_form_popup_checkboxes].present?.to_i
           extra_kyc_fields = @client_settings.data[:kyc_config_detail_data][:extra_kyc_fields]
-          dynamic_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(extra_kyc_fields)
+          dynamic_keys = []
+
+          extra_kyc_fields.each do |extra_kyc_field, _|
+            key = "#{extra_kyc_field.to_s}#{GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix}"
+            dynamic_keys << key
+            ui_config[key] = GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(key)
+          end
+
+          dynamic_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(dynamic_keys)
         end
 
         if @entity_type == GlobalConstant::EntityGroupDraft.dashboard_entity_type
@@ -199,7 +208,8 @@ module AdminManagement
                 can_publish: can_publish
             },
             client_settings: @client_settings.data,
-            dynamic_config: dynamic_config
+            dynamic_config: dynamic_config,
+            ui_config: ui_config
         }
       end
 

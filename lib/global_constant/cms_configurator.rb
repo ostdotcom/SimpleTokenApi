@@ -198,11 +198,8 @@ module GlobalConstant
       #
       # @return [Hash] collapse config needed for configurator form build
       #
-      def get_dynamic_fields_fe_sequence_config(extra_kyc_fields_keys)
-        extra_kyc_fields_instructon_keys = extra_kyc_fields_key.map {|x| "#{x}#{extra_kyc_field_instruction_key_suffix}"}
-
+      def get_dynamic_fields_fe_sequence_config(extra_kyc_fields_instructon_keys)
         {
-            collapse: {
                 kyc_form: {
                     kyc_configuration: {
                         entities: ["kyc_form_title", "kyc_form_subtitle", "eth_address_instruction_text",
@@ -210,7 +207,6 @@ module GlobalConstant
                     }
 
                 }
-            }
         }.deep_stringify_keys
 
       end
@@ -234,9 +230,7 @@ module GlobalConstant
         if @entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
           extra_kyc_fields = client_settings[:kyc_config_detail_data][:extra_kyc_fields]
           extra_kyc_fields.each do |kyc_field, _|
-            config = extra_kyc_field_instruction_text_config
-            config.reverse_merge!(get_fe_config_for_instruction_text(kyc_field))
-            config["#{kyc_field}#{extra_kyc_field_instruction_key_suffix}"] = config
+            config["#{kyc_field.to_s}#{extra_kyc_field_instruction_key_suffix}"] = extra_kyc_field_instruction_text_config
           end
         end
 

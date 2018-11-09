@@ -48,7 +48,9 @@ module Request
       # @return [String] Encoded token
       #
       def get_jwt_token(data)
-        payload = {data: data}
+        # the token will be valid for upto 2 mins only
+        exp = Time.now.to_i + 2.minutes.to_i
+        payload = {data: data, exp: exp}
         rsa_pvt_key = OpenSSL::PKey::RSA.new(GlobalConstant::OstKycApiKey.main_env_rsa_private_key)
         JWT.encode(payload, rsa_pvt_key, 'RS256')
       end

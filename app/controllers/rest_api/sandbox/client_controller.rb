@@ -41,7 +41,7 @@ class RestApi::Sandbox::ClientController < RestApi::Sandbox::BaseController
   #
   def decrypt_jwt
     begin
-      public_key = OpenSSL::PKey::RSA.new(GlobalConstant::PublicOpsApi.sandbox_env_rsa_public_key)
+      public_key = OpenSSL::PKey::RSA.new(GlobalConstant::OstKycApiKey.sandbox_env_rsa_public_key)
 
       decoded_token_data = JWT.decode(
         params[:token],

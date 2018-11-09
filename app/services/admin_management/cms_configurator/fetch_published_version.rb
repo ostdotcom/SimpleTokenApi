@@ -67,6 +67,14 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
+        return error_with_data(
+            'cm_cc_fpv_v_1',
+            'Client does not have a sandbox env setup',
+            'Client does not have a sandbox env setup',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client.uuid.blank?
+
         r = fetch_and_validate_admin
         return r unless r.success?
 

@@ -81,10 +81,16 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_and_validate_client
+        @uuid = "sandbox_#{@uuid}"
         @client = Client.where(uuid: @uuid).first
 
-        return error_with_identifier('invalid_client_id','sb_2') if
-            @client.blank? || @client.status != GlobalConstant::Client.active_status
+        return error_with_data(
+            'am_cc_gpd_favc_1',
+            'Client does not have a sandbox env setup',
+            'Client does not have a sandbox env setup',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @client.blank? || @client.status != GlobalConstant::Client.active_status
 
         success
       end

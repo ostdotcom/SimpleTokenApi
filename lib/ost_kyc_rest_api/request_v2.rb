@@ -1,4 +1,4 @@
-module OstKycApi
+module OstKycRestApi
   class RequestV2
 
     require "uri"
@@ -15,7 +15,7 @@ module OstKycApi
     #
     # Sets @api_base_url, @version
     #
-    # @return [OstKycApi::Request]
+    # @return [OstKycRestApi::Request]
     #
     def initialize(params)
       @params = params

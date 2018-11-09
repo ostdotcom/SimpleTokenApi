@@ -10,7 +10,7 @@ class UpdateWhitelistSubscription < ApplicationJob
   #
   def perform(params)
     contract_addresses = ClientWhitelistDetail.get_active_contract_addressess
-    OpsApi::Request::UpdateSubscription.new.perform({contract_addresses: contract_addresses})
+    Request::OpsApi::UpdateSubscription.new.perform({contract_addresses: contract_addresses})
   end
 
 end

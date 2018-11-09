@@ -69,6 +69,12 @@ constants:
     base_url: <%= ENV['STA_PUBLIC_OPS_API_BASE_URL'] %>
     secret_key: <%= ENV['STA_PUBLIC_OPS_API_SECRET_KEY'] %>
 
+  ost_kyc_api:
+    sandbox:
+      rsa_public_key: <%= ENV['STA_KYC_API_SANDBOX_ENV_RSA_PUBLIC_KEY'] %>
+    main:
+      rsa_private_key: <%= ENV['STA_KYC_API_MAIN_ENV_RSA_PRIVATE_KEY'] %>
+
   memcached:
     instances: <%= ENV['STA_MEMCACHED_INSTANCES'] %>
 

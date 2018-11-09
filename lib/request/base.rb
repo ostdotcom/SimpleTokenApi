@@ -1,6 +1,4 @@
-module OpsApi
-
-  module Request
+module Request
 
     class Base
 
@@ -15,7 +13,7 @@ module OpsApi
       # * Date: 25/10/2017
       # * Reviewed By: Sunil
       #
-      # @return [OpsApi::Request::Base]
+      # @return [Request::Base]
       #
       def initialize
         @timeouts = {write: 60, connect: 60, read: 60}
@@ -31,17 +29,12 @@ module OpsApi
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def send_request_of_type(ops_api_type, request_type, path, params)
+      def send_request(request_type, request_path, parameterized_token)
         begin
-
-          request_path = ((ops_api_type == GlobalConstant::PrivateOpsApi.private_ops_api_type) ?
-              GlobalConstant::PrivateOpsApi.base_url : GlobalConstant::PublicOpsApi.base_url) + path
 
           # It overrides verification of SSL certificates
           ssl_context = OpenSSL::SSL::SSLContext.new
           ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-          parameterized_token = {token: get_jwt_token(ops_api_type, params)}
 
           case request_type
             when 'get'
@@ -88,26 +81,5 @@ module OpsApi
         end
       end
 
-      # Create encrypted Token for whitelisting parameter
-      #
-      # * Author: Abhay
-      # * Date: 31/10/2017
-      # * Reviewed By: Kedar
-      #
-      # @params [String] private ops/ public ops
-      # @params [Hash] data
-      #
-      # @return [String] Encoded token
-      #
-      def get_jwt_token(ops_api_type, data)
-        payload = {data: data}
-        secret_key = (ops_api_type == GlobalConstant::PrivateOpsApi.private_ops_api_type) ?
-            GlobalConstant::PrivateOpsApi.secret_key :
-            GlobalConstant::PublicOpsApi.secret_key
-
-        JWT.encode(payload, secret_key, 'HS256')
-      end
-
     end
-  end
 end

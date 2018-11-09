@@ -24,7 +24,7 @@ namespace :verify do
 
       ethereum_address_d = LocalCipher.new(kyc_salt_d).decrypt(ued.ethereum_address).data[:plaintext]
 
-      r = OpsApi::Request::GetWhitelistStatus.new.perform(contract_address: contract_address, ethereum_address: ethereum_address_d)
+      r = Request::OpsApi::GetWhitelistStatus.new.perform(contract_address: contract_address, ethereum_address: ethereum_address_d)
 
       unless r.success?
         failed_checks[ued.user_id] = r

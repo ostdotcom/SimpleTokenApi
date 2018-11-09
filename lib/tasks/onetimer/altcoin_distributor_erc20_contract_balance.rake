@@ -37,7 +37,7 @@ namespace :onetimer do
     def fetch_contract_balance
       @other_ico_hash.each do |ico_name, contract_address|
         puts "fetching balance for: #{ico_name}\n"
-        r = OpsApi::Request::ThirdPartyErc20GetBalance.new.perform({ethereum_address: @altcoin_distributor_address, contract_address: contract_address})
+        r = Request::OpsApi::ThirdPartyErc20GetBalance.new.perform({ethereum_address: @altcoin_distributor_address, contract_address: contract_address})
         unless r.success?
           @failed_other_balance_calls << contract_address
           next

@@ -1,4 +1,4 @@
-module OstKycApi
+module OstKycRestApi
 
   class Request #
 
@@ -16,7 +16,7 @@ module OstKycApi
     #
     # Sets @api_base_url, @version
     #
-    # @return [OstKycApi::Request]
+    # @return [OstKycRestApi::Request]
     #
     def initialize(params)
       @params = params
@@ -75,17 +75,6 @@ module OstKycApi
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
       make_post_request(endpoint, custom_params)
-    end
-
-    # Get Published Draft
-    # * Author: Tejas
-    # * Date: 17/08/2018
-    # * Reviewed By:
-    #
-    #
-    def get_published_draft
-      endpoint = "/api/#{@version}/setting/configurator/get-published-draft/"
-      make_get_request(endpoint)
     end
 
     # Check if valid ethereum address

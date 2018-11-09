@@ -15,7 +15,7 @@ namespace :verify do
       ethereum_address = record[0]
       st_wei_value = record[1]
 
-      r = OpsApi::Request::GetBalance.new.perform({ethereum_address: ethereum_address})
+      r = Request::OpsApi::GetBalance.new.perform({ethereum_address: ethereum_address})
       unless r.success?
         failed_api_calls << ethereum_address
         next

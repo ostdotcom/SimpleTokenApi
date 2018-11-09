@@ -10,13 +10,14 @@ module AdminManagement
       # * Date: 08/08/2018
       # * Reviewed By:
       #
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @params [Hash] decoded_token_data (mandatory) - it contains uuid of the client
       #
       # @return [AdminManagement::CmsConfigurator::GetPublishedDraft]
       #
       def initialize(params)
         super
-        @client_id = @params[:client_id]
+        @decoded_token_data = @params[:decoded_token_data]
+        @uuid = @decoded_token_data[:uuid]
 
         @entity_type_and_data_hash = {}
       end
@@ -69,6 +70,25 @@ module AdminManagement
         success
       end
 
+      # fetch client and validate
+      #
+      # * Author: Aman
+      # * Date: 26/12/2017
+      # * Reviewed By:
+      #
+      # Sets @client
+      #
+      # @return [Result::Base]
+      #
+      def fetch_and_validate_client
+        @client = Client.where(uuid: @uuid).first
+
+        return error_with_identifier('invalid_client_id','sb_2') if
+            @client.blank? || @client.status != GlobalConstant::Client.active_status
+
+        success
+      end
+
       # Get Published Draft
       #
       # * Author: Tejas
@@ -78,7 +98,7 @@ module AdminManagement
       # Sets @entity_type_and_data_hash
       #
       def get_published_draft
-        entity_draft_hash_for_gid = PublishedEntityGroup.fetch_published_draft_ids(@client_id)
+        entity_draft_hash_for_gid = PublishedEntityGroup.fetch_published_draft_ids(@client.id)
 
         entity_draft_objs = EntityDraft.where(id: entity_draft_hash_for_gid.values).all.index_by(&:id)
 

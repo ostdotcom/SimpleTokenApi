@@ -2,6 +2,7 @@ namespace :onetimer do
 
 
   # params = {
+  #     "uuid" => "abc",
   #     "client_plan" => {
   #       "add_ons" => ['whitelist', 'custom_front_end'],
   #       "kyc_submissions_count" => 100
@@ -62,6 +63,7 @@ namespace :onetimer do
   task :add_client => :environment do
 
     params = JSON.parse(ENV['params'])
+    uuid = params["uuid"]
     super_admin = params["super_admin"]
     aml_data = params["aml"]
     pepo_campaign_data = params["pepo_campaign"]
@@ -71,6 +73,8 @@ namespace :onetimer do
     client_plan = params["client_plan"]
 
     has_whitelist_ad_on = client_plan['add_ons'].include?(GlobalConstant::ClientPlan.whitelist_add_ons)
+
+    fail 'uuid not given' if Rails.env.production? && uuid.blank?
 
     fail 'client_plan issue' if client_plan.blank? || (client_plan['kyc_submissions_count'].to_i == 0)
 
@@ -110,6 +114,7 @@ namespace :onetimer do
     api_salt_d = resp.data[:plaintext]
 
     client_api_secret_d = SecureRandom.hex
+    uuid ||= "#{SecureRandom.hex}_#{Time.now.to_i}"
 
     r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
     return r unless r.success?
@@ -119,6 +124,7 @@ namespace :onetimer do
 
     client = Client.create(name: params["client_name"], status: GlobalConstant::Client.active_status,
                            setup_properties: setup_properties_val, api_key: api_key, api_salt: api_salt_e,
+                           uuid: uuid,
                            api_secret: api_secret_e)
     client_id = client.id
 
@@ -141,8 +147,8 @@ namespace :onetimer do
     aml_token_e = r.data[:ciphertext_blob]
 
     ClientAmlDetail.create(client_id: client_id, email_id: aml_data['email_id'], domain_name: aml_data['domain_name'],
-                                token: aml_token_e, base_url: aml_data['base_url'],
-                                status: GlobalConstant::ClientAmlDetail.active_status)
+                           token: aml_token_e, base_url: aml_data['base_url'],
+                           status: GlobalConstant::ClientAmlDetail.active_status)
 
     if pepo_campaign_data.present?
       r = LocalCipher.new(api_salt_d).encrypt(pepo_campaign_data['api_secret'])

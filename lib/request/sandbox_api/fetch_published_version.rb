@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module SandboxApi
 
-  module Request
-
-    class GenerateWhitelisterAddress < OpsApi::Request::Base
+    class FetchPublishedVersion < Request::SandboxApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 09/10/2018
       # * Reviewed By:
       #
-      # @return [OpsApi::Request::GenerateWhitelisterAddress]
+      # @return [Request::SandboxApi::FetchPublishedVersion]
       #
       def initialize
         super
@@ -26,10 +25,10 @@ module OpsApi
       #
       # @return [Result::Base] returns an object of Result::Base class
       #
-      def perform(params)
-        send_request_of_type(GlobalConstant::PrivateOpsApi.private_ops_api_type,
-                             'post',
-                             '/address/generate-whitelister-address',
+      def perform(environment, params)
+        send_request_of_type(environment,
+                             'get',
+                             '/api/sandbox-env/configurator/get-published-draft',
                              params)
       end
 

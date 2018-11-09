@@ -4,10 +4,3 @@ scope 'kyc', controller: 'v1/kyc' do
   match 'check-ethereum-address' => :check_ethereum_address, via: :GET
   match 'get-detail' => :get_detail, via: :GET
 end
-
-# used by fetch published version and no fetch will get from production environment
-if !Rails.env.production?
-  scope 'setting', controller: 'v1/setting' do
-    match 'configurator/get-published-draft' => :get_published_drafts, via: :GET
-  end
-end

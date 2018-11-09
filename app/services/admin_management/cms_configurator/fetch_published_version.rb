@@ -12,8 +12,6 @@ module AdminManagement
       #
       # @params [Integer] client_id (mandatory) - logged in admin's client id
       # @params [Integer] admin_id (mandatory) - logged in admin's id
-      # @params [String] api_key (mandatory) - sandbox api_key
-      # @params [String] api_secret (mandatory) - sandbox api_secret
       #
       # @return [AdminManagement::CmsConfigurator::FetchPublishedVersion]
       #
@@ -22,8 +20,6 @@ module AdminManagement
 
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
-        @api_key = @params[:api_key]
-        @api_secret = @params[:api_secret]
 
         @entity_group, @entity_draft_ids = nil, nil
         @entity_type_and_data_hash = {}
@@ -88,7 +84,9 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_from_sandbox
-        r = OstKycApi::Request.new(response_hash).get_published_draft
+        environment = Rails.env.production? ? GlobalConstant::RailsEnvironment.sandbox : Rails.env
+
+        r = Request::SandboxApi::FetchPublishedVersion.new.perform(environment, request_data)
         return r unless r.success?
 
         @entity_type_and_data_hash = r.data['entity_type_and_data_hash']
@@ -104,12 +102,8 @@ module AdminManagement
       #
       # @return [Hash]
       #
-      def response_hash
-        {
-            api_key: @api_key,
-            api_secret: @api_secret,
-            environment: Rails.env.production? ? GlobalConstant::RailsEnvironment.sandbox : Rails.env
-        }
+      def request_data
+        {uuid: @client.uuid}
       end
 
       # create an entry in entity group

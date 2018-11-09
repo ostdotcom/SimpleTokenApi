@@ -60,7 +60,7 @@ namespace :onetimer do
 
       user = User.where(id: user_extended_detail.user_id).first
 
-      r = OpsApi::Request::GetEthBalance.new.perform(ethereum_address: ethereum_address)
+      r = Request::OpsApi::GetEthBalance.new.perform(ethereum_address: ethereum_address)
       fail "error from ops api - #{r.inspect}" unless r.success?
       eth_value_in_wei = r.data['balance']
 

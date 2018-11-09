@@ -59,7 +59,7 @@ module Request
               else
                 return error_with_data(parsed_response['err']['code'],
                                        "#{parsed_response['err']['msg']}",
-                                       'Something Went Wrong.',
+                                       parsed_response['err']['msg'],
                                        GlobalConstant::ErrorAction.default,
                                        {})
               end

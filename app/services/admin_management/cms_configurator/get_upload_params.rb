@@ -47,7 +47,7 @@ module AdminManagement
         @images.each do |k, v|
           content_type = v
           k_n = k.split("_")[1]
-          key = "c_assets/#{Rails.env[0..2]}/#{@client.name.gsub(" ", "-")}/#{Time.now.to_i}-#{k_n}.#{content_type.split('/')[1]}"
+          key = "c_assets/#{Rails.env[0..2]}/#{@client.id}/#{Time.now.to_i}-#{k_n}.#{content_type.split('/')[1]}"
           @upload_params[k] = get_upload_params_for(content_type, key, get_content_length_range(k))
         end
 

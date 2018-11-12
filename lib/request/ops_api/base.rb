@@ -73,8 +73,8 @@ module Request
         Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
         puts "http_response.class.name : #{http_response.class.name}"
 
-        case http_response.class.name
-          when 'Net::HTTPOK'
+        case http_response.code
+          when 200
             if response_data['success']
               return success_with_data(HashWithIndifferentAccess.new(response_data['data']))
             else
@@ -88,7 +88,7 @@ module Request
             end
           else
             return error_with_data('r_b_pai_1',
-                                   "Exception in API call: #{e.message}",
+                                   "Error in API call: #{response.status}",
                                    'Something Went Wrong.',
                                    GlobalConstant::ErrorAction.default,
                                    {})

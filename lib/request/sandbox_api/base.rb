@@ -74,15 +74,7 @@ module Request
 
         case http_response.class.name
           when 'Net::HTTPOK'
-            if response_data['success']
-              return success_with_data(response_data['data'])
-            else
-              return error_with_data(response_data['err']['code'],
-                                     "Error in API call: #{response.status} - #{response_data['err']['msg']}",
-                                     'Something Went Wrong.',
-                                     GlobalConstant::ErrorAction.default,
-                                     {})
-            end
+            return success_with_data(response_data['data'])
           when 'Net::HTTPBadRequest'
             # 400
             error_with_internal_code('r_sa_par_1',
@@ -140,9 +132,8 @@ module Request
         end
 
       end
-      
-      
-      
+
+
     end
   end
 end

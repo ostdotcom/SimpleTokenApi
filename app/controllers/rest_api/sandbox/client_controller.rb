@@ -27,7 +27,7 @@ class RestApi::Sandbox::ClientController < RestApi::Sandbox::BaseController
   # * Reviewed By:
   #
   def get_published_drafts
-    service_response = AdminManagement::CmsConfigurator::GetPublishedDraft.new(params).perform
+    service_response = SandboxManagement::CmsConfigurator::GetPublishedDraft.new(params).perform
     render_api_response(service_response)
   end
 

@@ -204,7 +204,7 @@
     - :admin_id
   :optional:
 
-'AdminManagement::CmsConfigurator::GetPublishedDraft':
+'SandboxManagement::CmsConfigurator::GetPublishedDraft':
   :mandatory:
     - :decoded_token_data
   :optional:

@@ -1,4 +1,4 @@
-module AdminManagement
+module SandboxManagement
 
   module CmsConfigurator
 
@@ -12,7 +12,7 @@ module AdminManagement
       #
       # @params [Hash] decoded_token_data (mandatory) - it contains uuid of the client
       #
-      # @return [AdminManagement::CmsConfigurator::GetPublishedDraft]
+      # @return [SandboxManagement::CmsConfigurator::GetPublishedDraft]
       #
       def initialize(params)
         super
@@ -75,7 +75,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_and_validate_client
-        @uuid = "sandbox_#{@uuid}"
+        @uuid = "#{GlobalConstant::Client.sandbox_prefix_uuid}#{@uuid}"
         @client = Client.where(uuid: @uuid).first
 
         return error_with_identifier("invalid_client_id", "am_cc_gpd_favc_1") if @client.blank? ||

@@ -114,7 +114,12 @@ namespace :onetimer do
     api_salt_d = resp.data[:plaintext]
 
     client_api_secret_d = SecureRandom.hex
+
+    uuid_sandbox_prefix = ""
+    uuid_sandbox_prefix = GlobalConstant::Client.sandbox_prefix_uuid if uuid.blank? && !Rails.env.production?
+
     uuid ||= "#{SecureRandom.hex}_#{Time.now.to_i}"
+    uuid = uuid_sandbox_prefix + uuid
 
     r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
     return r unless r.success?

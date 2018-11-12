@@ -158,8 +158,8 @@ Rails.application.routes.draw do
 
     if !Rails.env.production?
       scope 'api/sandbox-env', controller: 'rest_api/sandbox/client' do
-        # match 'account-setup-details' => :get_sandbox_account_setup_details, via: :GET
         match 'configurator/get-published-draft' => :get_published_drafts, via: :GET
+        match 'account-setup-details' => :get_sandbox_account_setup_details, via: :POST
       end
     end
 

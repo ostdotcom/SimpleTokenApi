@@ -2,20 +2,19 @@ namespace :onetimer do
 
 
   # params = {
-  #     "uuid" => "abc",
   #     "client_plan" => {
-  #       "add_ons" => ['whitelist', 'custom_front_end'],
-  #       "kyc_submissions_count" => 100
+  #         "add_ons" => ['whitelist', 'custom_front_end'],
+  #         "kyc_submissions_count" => 100
   #     },
-  #     "super_admin" => {
-  #         "email" => "tejas+7@ost.com",
-  #         "password" => "tejas123",
-  #         "name" => "tejas"
-  #     },
+  #     "super_admins" => [{
+  #                            "email" => "tejas+7@ost.com",
+  #                            "password" => "tejas123",
+  #                            "name" => "tejas"
+  #                        }],
   #     "double_opt_in" => 1,
   #     "client_name" => "test2",
   #     "aml" => {
-  #         "email_id" =>  'tejas@ost.com',
+  #         "email_id" => 'tejas@ost.com',
   #         "domain_name" => "OST_UAT",
   #         "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
   #         "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
@@ -29,7 +28,10 @@ namespace :onetimer do
   #     },
   #     "token_sale_details" => {
   #         "token_name" => "Tejas+7",
-  #         "token_symbol" => 'T777'
+  #         "token_symbol" => 'T777',
+  #         "sale_start_timestamp" =>  nil,
+  #         "registration_end_timestamp" =>  nil,
+  #         "sale_end_timestamp" =>  nil,
   #     },
   #     "kyc_config" => {
   #         "kyc_fields" => [
@@ -47,9 +49,16 @@ namespace :onetimer do
   #             # "street_address",
   #             # "city",
   #             "state",
-  #             # "postal_code"
-  #         ]
+  #         # "postal_code"
+  #         ],
+  #         "residency_proof_nationalities" => [],
+  #         "blacklisted_countries" => []
   #     }
+  # }
+
+  #  for production account setup pass only uuid of sandbox account
+  # params = {
+  #     "uuid" => "abc"
   # }
 
   #   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
@@ -61,10 +70,35 @@ namespace :onetimer do
   # rake RAILS_ENV=development onetimer:add_client params="{\"client_plan\":{\"add_ons\":[\"whitelist\",\"custom_front_end\"],\"kyc_submissions_count\":100},\"super_admin\":{\"email\":\"tejas+7@ost.com\",\"password\":\"tejas123\",\"name\":\"tejas\"},\"double_opt_in\":1,\"client_name\":\"test2\",\"aml\":{\"email_id\":\"tejas@ost.com\",\"domain_name\":\"OST_UAT\",\"token\":\"a2bf78a8-ae04-43be-8c44-5db71a91b2c2\",\"base_url\":\"https://p2.cynopsis-solutions.com/artemis_ost_uat\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"web_host\":{\"domain\":\"tejaskyc.developmentost.com\"},\"token_sale_details\":{\"token_name\":\"Tejas\",\"token_symbol\":\"T777\"},\"kyc_config\":{\"kyc_fields\":[\"first_name\",\"last_name\",\"birthdate\",\"country\",\"ethereum_address\",\"document_id_number\",\"nationality\",\"document_id_file_path\",\"selfie_file_path\",\"residence_proof_file_path\",\"investor_proof_files_path\",\"state\"]}}"
 
   task :add_client => :environment do
-
     params = JSON.parse(ENV['params'])
     uuid = params["uuid"]
-    super_admin = params["super_admin"]
+
+    fail 'uuid not given' if (Rails.env.production? && uuid.blank?)
+    fail 'uuid cannot be passed' if (Rails.env.sandbox? && uuid.present?)
+
+    if uuid.present?
+      params = get_sandbox_account_settings(uuid)
+      params["web_host"]["domain"].gsub!("kyc.sandboxost.com", "kyc.ost.com") if params["web_host"].present?
+    else
+      uuid = GlobalConstant::Client.sandbox_prefix_uuid + "#{SecureRandom.hex}_#{Time.now.to_i}"
+      uuid = uuid_sandbox_prefix + uuid
+      params["entity_type_and_data_hash"] = GlobalConstant::CmsConfigurator.custom_default_template_data if params["web_host"].present?
+    end
+
+    setup_account(uuid, params)
+  end
+
+  def get_sandbox_account_settings(uuid)
+    environment = Rails.env.production? ? GlobalConstant::RailsEnvironment.sandbox : Rails.env
+
+    r = Request::SandboxApi::FetchClientSetupSetting.new.perform(environment, {uuid: uuid})
+    fail "#{r.to_json.inspect}" unless r.success?
+
+    r.data['client_setting']
+  end
+
+  def setup_account(uuid, params)
+    super_admins = params["super_admins"]
     aml_data = params["aml"]
     pepo_campaign_data = params["pepo_campaign"]
     web_host_data = params["web_host"]
@@ -73,8 +107,6 @@ namespace :onetimer do
     client_plan = params["client_plan"]
 
     has_whitelist_ad_on = client_plan['add_ons'].include?(GlobalConstant::ClientPlan.whitelist_add_ons)
-
-    fail 'uuid not given' if Rails.env.production? && uuid.blank?
 
     fail 'client_plan issue' if client_plan.blank? || (client_plan['kyc_submissions_count'].to_i == 0)
 
@@ -92,10 +124,13 @@ namespace :onetimer do
       fail 'api_secret cannot be blank for pepo_campaign' if pepo_campaign_data['api_secret'].blank?
     end
 
+    fail 'Invalid Super Admin Email' if super_admins.blank?
 
-    if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
-        super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
-      fail 'Invalid Super Admin Email'
+    super_admins.each do |super_admin|
+      if super_admin['email'].blank? || super_admin['password'].blank? ||
+          super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
+        fail 'Invalid Super Admin Email'
+      end
     end
 
     setup_properties_val = 1
@@ -115,12 +150,6 @@ namespace :onetimer do
 
     client_api_secret_d = SecureRandom.hex
 
-    uuid_sandbox_prefix = ""
-    uuid_sandbox_prefix = GlobalConstant::Client.sandbox_prefix_uuid if uuid.blank? && !Rails.env.production?
-
-    uuid ||= "#{SecureRandom.hex}_#{Time.now.to_i}"
-    uuid = uuid_sandbox_prefix + uuid
-
     r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
     return r unless r.success?
 
@@ -133,7 +162,9 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
-    super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
+    super_admins.each do |super_admin|
+      super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
+    end
 
     ckps_obj = ClientKycPassSetting.new(client_id: client_id, face_match_percent: 100,
                                         approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
@@ -167,18 +198,14 @@ namespace :onetimer do
 
     end
 
-    if web_host_data.present?
-      ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
-                                  status: GlobalConstant::ClientWebHostDetail.active_status)
-
-      ClientManagement::SetupDefaultClientCustomDraft.new(admin_id: super_admin_obj.id, client_id: client_id).perform
-    end
+    start_time = token_sale_details["sale_start_timestamp"] || Time.now.to_i
+    end_time = token_sale_details["sale_end_timestamp"] || (start_time + 1.month.to_i)
 
     ClientTokenSaleDetail.create!(
         client_id: client_id,
-        sale_start_timestamp: Time.now.to_i,
-        registration_end_timestamp: nil,
-        sale_end_timestamp: Time.now.to_i + 1.month.to_i,
+        sale_start_timestamp: start_time,
+        registration_end_timestamp: token_sale_details["registration_end_timestamp"],
+        sale_end_timestamp: end_time,
         token_name: token_sale_details['token_name'],
         token_symbol: token_sale_details['token_symbol'],
         ethereum_deposit_address: nil,
@@ -187,8 +214,8 @@ namespace :onetimer do
     )
 
     ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
-                                     residency_proof_nationalities: [],
-                                     blacklisted_countries: []
+                                     residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
+                                     blacklisted_countries: kyc_config["blacklisted_countries"] || []
     )
 
     cp = ClientPlan.new(client_id: client_id,
@@ -200,10 +227,18 @@ namespace :onetimer do
     end
     cp.save!
 
+    if web_host_data.present?
+      ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
+                                  status: GlobalConstant::ClientWebHostDetail.active_status)
+
+      ClientManagement::SetupDefaultClientCustomDraft.new(admin_id: super_admin_obj.id,
+                                                          client_id: client_id,
+                                                          entity_type_and_data_hash: params["entity_type_and_data_hash"]).perform
+
+    end
 
     puts "client_id= #{client_id}"
-    puts "api-key= #{api_key}"
-    puts "api-secret= #{client_api_secret_d}"
+    puts "uuid= #{uuid}"
   end
 
 end

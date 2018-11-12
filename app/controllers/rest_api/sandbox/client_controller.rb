@@ -4,21 +4,18 @@ class RestApi::Sandbox::ClientController < RestApi::Sandbox::BaseController
 
   include Util::ResultHelper
 
-  # # Get all account settings details of client.
-  # #
-  # # * Author: Aman
-  # # * Date: 05/11/2018
-  # # * Reviewed By:
-  # #
-  # # This api call is used by prod env to get clients info
-  # #
-  # def get_sandbox_account_setup_details
-  # # service to send data
-  # # data should be encrypted using encrypt token
-  # #   #   kms_client = Aws::Kms.new('saas', 'saas')
-  # #   r = kms_client.decrypt(GeneralSalt.client_setting_data_salt_type)
-  # #   r.data[:plaintext]
-  # end
+  # Get all account settings details of client.
+  #
+  # * Author: Aman
+  # * Date: 05/11/2018
+  # * Reviewed By:
+  #
+  # This api call is used by prod env to get clients info
+  #
+  def get_sandbox_account_setup_details
+    service_response = SandboxManagement::GetClientSetupSetting.new(params).perform
+    render_api_response(service_response)
+  end
 
   # Get Published Draft
   #

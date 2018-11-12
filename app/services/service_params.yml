@@ -425,6 +425,7 @@
   :mandatory:
     - :client_id
     - :admin_id
+    - :entity_type_and_data_hash
   :optional:
 
 

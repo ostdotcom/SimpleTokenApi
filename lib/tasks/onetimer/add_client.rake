@@ -1,6 +1,5 @@
 namespace :onetimer do
 
-
   # params = {
   #     "client_plan" => {
   #         "add_ons" => ['whitelist', 'custom_front_end'],
@@ -76,6 +75,7 @@ namespace :onetimer do
     fail 'uuid not given' if (Rails.env.production? && uuid.blank?)
     fail 'uuid cannot be passed' if (Rails.env.sandbox? && uuid.present?)
 
+
     if uuid.present?
       params = get_sandbox_account_settings(uuid)
       params["web_host"]["domain"].gsub!("kyc.sandboxost.com", "kyc.ost.com") if params["web_host"].present?
@@ -90,14 +90,21 @@ namespace :onetimer do
 
   def get_sandbox_account_settings(uuid)
     environment = Rails.env.production? ? GlobalConstant::RailsEnvironment.sandbox : Rails.env
+    puts "::Fetching details of sandbox account from environment-#{environment}::"
 
     r = Request::SandboxApi::FetchClientSetupSetting.new.perform(environment, {uuid: uuid})
     fail "#{r.to_json.inspect}" unless r.success?
+
+    puts "::Clients settins fetched::"
 
     r.data['client_setting']
   end
 
   def setup_account(uuid, params)
+    puts "::Started account setup::"
+
+    puts "\tValidation started"
+
     super_admins = params["super_admins"]
     aml_data = params["aml"]
     pepo_campaign_data = params["pepo_campaign"]
@@ -133,6 +140,8 @@ namespace :onetimer do
       end
     end
 
+    puts "\tValidation passed"
+
     setup_properties_val = 1
     setup_properties_val += 2 if pepo_campaign_data.present?
     setup_properties_val += 4 if has_whitelist_ad_on.present?
@@ -162,9 +171,13 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
+    puts "\tclient created"
+
     super_admins.each do |super_admin|
       super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
     end
+
+    puts "\tsuper admins created"
 
     ckps_obj = ClientKycPassSetting.new(client_id: client_id, face_match_percent: 100,
                                         approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
@@ -176,6 +189,7 @@ namespace :onetimer do
     end
     ckps_obj.save!
 
+    puts "\tKycPassSetting created"
 
     r = LocalCipher.new(api_salt_d).encrypt(aml_data['token'])
     return r unless r.success?
@@ -185,6 +199,8 @@ namespace :onetimer do
     ClientAmlDetail.create(client_id: client_id, email_id: aml_data['email_id'], domain_name: aml_data['domain_name'],
                            token: aml_token_e, base_url: aml_data['base_url'],
                            status: GlobalConstant::ClientAmlDetail.active_status)
+
+    puts "\tAML setup done"
 
     if pepo_campaign_data.present?
       r = LocalCipher.new(api_salt_d).encrypt(pepo_campaign_data['api_secret'])
@@ -196,6 +212,7 @@ namespace :onetimer do
                                       api_secret: pepo_campaign_api_secret_e,
                                       status: GlobalConstant::ClientPepoCampaignDetail.active_status)
 
+      puts "\tPepoCampaign setup done"
     end
 
     start_time = token_sale_details["sale_start_timestamp"] || Time.now.to_i
@@ -213,10 +230,14 @@ namespace :onetimer do
         source: GlobalConstant::AdminActivityChangeLogger.script_source
     )
 
+    puts "\tTokenSale setup done"
+
     ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
                                      blacklisted_countries: kyc_config["blacklisted_countries"] || []
     )
+
+    puts "\tKycConfig setup done"
 
     cp = ClientPlan.new(client_id: client_id,
                         kyc_submissions_count: client_plan['kyc_submissions_count'].to_i,
@@ -227,6 +248,8 @@ namespace :onetimer do
     end
     cp.save!
 
+    puts "\tClientPlan setup done"
+
     if web_host_data.present?
       ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
                                   status: GlobalConstant::ClientWebHostDetail.active_status)
@@ -235,6 +258,7 @@ namespace :onetimer do
                                                           client_id: client_id,
                                                           entity_type_and_data_hash: params["entity_type_and_data_hash"]).perform
 
+      puts "\tWebHost setup done"
     end
 
     puts "client_id= #{client_id}"

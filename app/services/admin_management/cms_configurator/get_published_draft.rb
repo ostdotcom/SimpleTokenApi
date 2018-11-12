@@ -59,13 +59,7 @@ module AdminManagement
         r = fetch_and_validate_client
         return r unless r.success?
 
-        return error_with_data(
-            'am_cc_gpd_v_1',
-            'Client does not have a web host support',
-            'Client does not have a web host support',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if !@client.is_web_host_setup_done?
+        return error_with_identifier("no_configurator_access", "am_cc_gpd_v_1") if !@client.is_web_host_setup_done?
 
         success
       end
@@ -84,13 +78,8 @@ module AdminManagement
         @uuid = "sandbox_#{@uuid}"
         @client = Client.where(uuid: @uuid).first
 
-        return error_with_data(
-            'am_cc_gpd_favc_1',
-            'Client does not have a sandbox env setup',
-            'Client does not have a sandbox env setup',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if @client.blank? || @client.status != GlobalConstant::Client.active_status
+        return error_with_identifier("invalid_client_id", "am_cc_gpd_favc_1") if @client.blank? ||
+            @client.status != GlobalConstant::Client.active_status
 
         success
       end

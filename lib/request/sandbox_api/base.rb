@@ -35,7 +35,7 @@ module Request
         r = send_request(request_type, request_path, parameterized_token)
 
         return r unless r.success?
-        parse_api_response(r)
+        parse_api_response(r.data[:http_response])
 
       end
 
@@ -72,11 +72,10 @@ module Request
         Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
         puts "http_response.class.name : #{http_response.class.name}"
 
-        case http_response.class.name
-          when 'Net::HTTPOK'
+        case http_response.code
+          when 200
             return success_with_data(response_data['data'])
-          when 'Net::HTTPBadRequest'
-            # 400
+          when 400
             error_with_internal_code('r_sa_par_1',
                                      'ost kyc api error',
                                      GlobalConstant::ErrorCode.invalid_request_parameters,
@@ -85,8 +84,7 @@ module Request
                                      response_data['err']['msg']
             )
 
-          when 'Net::HTTPUnprocessableEntity'
-            # 422
+          when 422
             error_with_internal_code('r_sa_par_2',
                                      'ost kyc api error',
                                      GlobalConstant::ErrorCode.unprocessable_entity,
@@ -94,8 +92,7 @@ module Request
                                      response_data['err']['error_data'],
                                      response_data['err']['msg']
             )
-          when "Net::HTTPUnauthorized"
-            # 401
+          when 401
             error_with_internal_code('r_sa_par_3',
                                      'ost kyc api authentication failed',
                                      GlobalConstant::ErrorCode.unauthorized_access,
@@ -103,21 +100,13 @@ module Request
                                      response_data['err']['msg']
             )
 
-          when "Net::HTTPBadGateway"
-            #500
+          when 500
             error_with_internal_code('r_sa_par_4',
                                      'ost kyc api bad gateway',
                                      GlobalConstant::ErrorCode.unhandled_exception,
                                      {}, {}, ''
             )
-          when "Net::HTTPInternalServerError"
-            error_with_internal_code('r_sa_par_5',
-                                     'ost kyc api bad internal server error',
-                                     GlobalConstant::ErrorCode.unhandled_exception,
-                                     {}, {}, ''
-            )
-          when "Net::HTTPForbidden"
-            #403
+          when 403
             error_with_internal_code('r_sa_par_6',
                                      'ost kyc api forbidden',
                                      GlobalConstant::ErrorCode.forbidden,
@@ -128,7 +117,9 @@ module Request
             exception_with_internal_code(Exception.new("Ost Kyc API STATUS CODE #{http_response.code.to_i}"),
                                          'ost_kyc_api_exception',
                                          'ost kyc api exception',
-                                         GlobalConstant::ErrorCode.unhandled_exception)
+                                         GlobalConstant::ErrorCode.unhandled_exception,
+                                         {},
+                                         "Something went wrong")
         end
 
       end

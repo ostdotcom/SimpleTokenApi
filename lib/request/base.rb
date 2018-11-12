@@ -16,7 +16,7 @@ module Request
     # @return [Request::Base]
     #
     def initialize
-      @timeouts = {write: 60, connect: 60, read: 60}
+      @timeouts = {write: 10, connect: 10, read: 10}
     end
 
     private
@@ -53,7 +53,7 @@ module Request
 
         success_with_data({http_response: response})
 
-      rescue Timeout::Error => e
+      rescue HTTP::TimeoutError => e
         return error_with_internal_code('r_b_sr_1',
                                         'Api error: Request time Out Error',
                                         GlobalConstant::ErrorCode.unprocessable_entity,

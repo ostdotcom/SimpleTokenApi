@@ -36,7 +36,7 @@ module Request
         r = send_request(request_type, request_path, parameterized_token)
 
         return r unless r.success?
-        parse_api_response(r)
+        parse_api_response(r.data[:http_response])
       end
 
       # Create encrypted Token for whitelisting parameter

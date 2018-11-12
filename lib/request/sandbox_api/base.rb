@@ -28,11 +28,14 @@ module Request
       #
       def send_request_of_type(environment, request_type, path, params)
 
-        request_path =   GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(environment)  + path
+        request_path = GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(environment) + path
 
         parameterized_token = {token: get_jwt_token(params)}
 
-        send_request(request_type, request_path, parameterized_token)
+        r = send_request(request_type, request_path, parameterized_token)
+
+        return r unless r.success?
+        parse_api_response(r)
 
       end
 
@@ -55,6 +58,91 @@ module Request
         JWT.encode(payload, rsa_pvt_key, 'RS256')
       end
 
+      # Parse API response
+      #
+      # * Author: Aniket
+      # * Date: 15/10/2018
+      # * Reviewed By:
+      #
+      # @return [Result::Base] returns an object of Result::Base class
+      #
+      def parse_api_response(http_response)
+        response_data = Oj.load(http_response.body.to_s, mode: :strict) rescue {}
+
+        Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
+        puts "http_response.class.name : #{http_response.class.name}"
+
+        case http_response.class.name
+          when 'Net::HTTPOK'
+            if response_data['success']
+              return success_with_data(response_data['data'])
+            else
+              return error_with_data(response_data['err']['code'],
+                                     "Error in API call: #{response.status} - #{response_data['err']['msg']}",
+                                     'Something Went Wrong.',
+                                     GlobalConstant::ErrorAction.default,
+                                     {})
+            end
+          when 'Net::HTTPBadRequest'
+            # 400
+            error_with_internal_code('r_sa_par_1',
+                                     'ost kyc api error',
+                                     GlobalConstant::ErrorCode.invalid_request_parameters,
+                                     response_data['data'],
+                                     response_data['err']['error_data'],
+                                     response_data['err']['msg']
+            )
+
+          when 'Net::HTTPUnprocessableEntity'
+            # 422
+            error_with_internal_code('r_sa_par_2',
+                                     'ost kyc api error',
+                                     GlobalConstant::ErrorCode.unprocessable_entity,
+                                     response_data['data'],
+                                     response_data['err']['error_data'],
+                                     response_data['err']['msg']
+            )
+          when "Net::HTTPUnauthorized"
+            # 401
+            error_with_internal_code('r_sa_par_3',
+                                     'ost kyc api authentication failed',
+                                     GlobalConstant::ErrorCode.unauthorized_access,
+                                     {}, {},
+                                     response_data['err']['msg']
+            )
+
+          when "Net::HTTPBadGateway"
+            #500
+            error_with_internal_code('r_sa_par_4',
+                                     'ost kyc api bad gateway',
+                                     GlobalConstant::ErrorCode.unhandled_exception,
+                                     {}, {}, ''
+            )
+          when "Net::HTTPInternalServerError"
+            error_with_internal_code('r_sa_par_5',
+                                     'ost kyc api bad internal server error',
+                                     GlobalConstant::ErrorCode.unhandled_exception,
+                                     {}, {}, ''
+            )
+          when "Net::HTTPForbidden"
+            #403
+            error_with_internal_code('r_sa_par_6',
+                                     'ost kyc api forbidden',
+                                     GlobalConstant::ErrorCode.forbidden,
+                                     {}, {}, response_data['err']['msg']
+            )
+          else
+            # HTTP error status code (500, 504...)
+            exception_with_internal_code(Exception.new("Ost Kyc API STATUS CODE #{http_response.code.to_i}"),
+                                         'ost_kyc_api_exception',
+                                         'ost kyc api exception',
+                                         GlobalConstant::ErrorCode.unhandled_exception)
+        end
+
+      end
+      
+      
+      
     end
   end
 end

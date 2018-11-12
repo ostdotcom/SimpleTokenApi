@@ -44,44 +44,29 @@ module Request
             response = HTTP.timeout(@timeouts)
                            .post(request_path, json: parameterized_token, ssl_context: ssl_context)
           else
-            return error_with_data('poa_r_b_1',
-                                   "Request type not implemented: #{request_type}",
-                                   'Something Went Wrong.',
-                                   GlobalConstant::ErrorAction.default,
-                                   {})
+            return error_with_internal_code('r_b_sr_3',
+                                            "Request type not implemented: #{request_type}",
+                                            GlobalConstant::ErrorCode.default,
+                                            {}, [], 'Something Went Wrong.')
+
         end
 
-          case response.status
-            when 200
-              parsed_response = Oj.load(response.body.to_s)
-              if parsed_response['success']
-                return success_with_data(HashWithIndifferentAccess.new(parsed_response['data']))
-              else
-                return error_with_data(parsed_response['err']['code'],
-                                       "#{parsed_response['err']['msg']}",
-                                       parsed_response['err']['msg'],
-                                       GlobalConstant::ErrorAction.default,
-                                       {})
-              end
-            when 401
-              deprecated_error_with_internal_code('oka_r_unauthorized', 'ost kyc api authentication failed',
-                                                  GlobalConstant::ErrorCode.ok, {}, {}, 'Invalid Credentials')
+        success_with_data({http_response: response})
 
-            else
-              return error_with_data('poa_r_b_3',
-                                     "Error in API call: #{response.status}",
-                                     'Something Went Wrong.',
-                                     GlobalConstant::ErrorAction.default,
-                                     {})
-          end
-        rescue => e
-          return error_with_data('poa_r_b_4',
-                                 "Exception in API call: #{e.message}",
-                                 'Something Went Wrong.',
-                                 GlobalConstant::ErrorAction.default,
-                                 {})
-        end
+      rescue Timeout::Error => e
+        return error_with_internal_code('r_b_sr_1',
+                                        'Api error: Request time Out Error',
+                                        GlobalConstant::ErrorCode.unprocessable_entity,
+                                        {}, [], 'Time Out Error')
+
+      rescue Exception => e
+        exception_with_internal_code(e, 'r_b_sr_2',
+                                     'Something Went Wrong',
+                                     GlobalConstant::ErrorCode.unhandled_exception)
       end
+
+
+    end
 
   end
 end

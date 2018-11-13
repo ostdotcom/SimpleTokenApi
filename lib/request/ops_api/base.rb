@@ -81,14 +81,14 @@ module Request
               # web3_js_error = true is required because when API is down or any exception is raised or response is not 200
               # front end doesn't need to see invalid ethereum address
               return error_with_data(response_data['err']['code'],
-                                     "Error in API call: #{response.status} - #{response_data['err']['msg']}",
+                                     "Error in API call: #{http_response.status} - #{response_data['err']['msg']}",
                                      'Something Went Wrong.',
                                      GlobalConstant::ErrorAction.default,
                                      {web3_js_error: true})
             end
           else
             return error_with_data('r_b_pai_1',
-                                   "Error in API call: #{response.status}",
+                                   "Error in API call: #{http_response.status}",
                                    'Something Went Wrong.',
                                    GlobalConstant::ErrorAction.default,
                                    {})

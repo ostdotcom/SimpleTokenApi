@@ -96,7 +96,7 @@ Rails.application.routes.draw do
 
     scope 'api/admin/kyc', controller: 'web/admin/super_admin' do
       match 'get-kyc-report' => :get_kyc_report, via: :GET
-      match 'get-user-report' => :get_user_report, via: :GET
+      match 'get-user-report' => :get_user_report, via: :POST
     end
 
     scope 'api/admin/users', controller: 'web/admin/user' do

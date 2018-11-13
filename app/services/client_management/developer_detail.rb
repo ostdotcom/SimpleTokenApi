@@ -130,7 +130,7 @@ module ClientManagement
                                 @client_kyc_detail_api_activations.kyc_fields_array + @client_kyc_detail_api_activations.extra_kyc_fields : []
 
 
-      api_fields_config = GlobalConstant::ClientKycConfigDetail.kyc_fields_config_with_labels.merge(@client_kyc_config_detail.extra_kyc_fields)
+      api_fields_config = GlobalConstant::ClientKycConfigDetail.kyc_fields_config_with_labels + extra_fields_array
 
 
       applicable_api_fields = @client_kyc_config_detail.kyc_fields_array + @client_kyc_config_detail.extra_kyc_fields.stringify_keys.keys
@@ -143,6 +143,17 @@ module ClientManagement
           api_fields_config: api_fields_config
 
       }
+    end
+
+    def extra_fields_array
+      extra_fields = []
+      @client_kyc_config_detail.extra_kyc_fields.each do | key, value |
+        extra_fields << {
+            value: key,
+            display_text: value[:label]
+        }
+      end
+    extra_fields
     end
 
   end

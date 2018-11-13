@@ -20,10 +20,11 @@ module GlobalConstant
       def kyc_fields_config_with_labels
 
         @kyc_fields_config ||= begin
-          data = {}
+          data = []
           ::ClientKycConfigDetail.kyc_fields_config.keys.each do |kyc_field|
-            data[kyc_field.to_sym] = {
-                label: kyc_field.titleize
+            data <<   {
+                value: kyc_field.to_sym,
+                display_text: kyc_field.titleize
             }
 
           end

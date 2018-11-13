@@ -285,8 +285,13 @@ module UserManagement
         @param_error_identifiers << "missing_country" and return if @country.to_s.strip.blank?
         @param_error_identifiers << 'invalid_country' and return unless Util::CommonValidateAndSanitize.is_string?(@country)
 
-        blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
         @country = @country.to_s.strip.upcase
+        blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
+        updated_country_from_cynopsis = GlobalConstant::CountryNationality.updated_country_hash[@country]
+
+        @country = updated_country_from_cynopsis.upcase if updated_country_from_cynopsis.present?
+
+
         if !GlobalConstant::CountryNationality.countries.include?(@country)
           @param_error_identifiers << 'invalid_country'
         elsif blacklisted_countries.include?(@country)
@@ -353,9 +358,14 @@ module UserManagement
         @param_error_identifiers << 'invalid_nationality' and return unless Util::CommonValidateAndSanitize.is_string?(@nationality)
 
         @nationality = @nationality.to_s.strip.upcase
+
+        updated_nationality = GlobalConstant::CountryNationality.updated_nationality_hash[@nationality]
+        @nationality = updated_nationality.upcase if updated_nationality.present?
+
         if !GlobalConstant::CountryNationality.nationalities.include?(@nationality)
           @param_error_identifiers << 'invalid_nationality'
         end
+
       end
 
       def validate_document_id_file_path

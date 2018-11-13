@@ -98,9 +98,8 @@ module ClientManagement
 
       @extra_kyc_fields = @set_allowed_keys & client_kyc_config_details.extra_kyc_fields.stringify_keys.keys
 
-      unallowed_keys = @set_allowed_keys - [@kyc_fields + @extra_kyc_fields]
-
-      return error_with_identifier('invalid_api_params', 'cm_uaf_vak_1', 'invalid_set_allowed_keys', '') if unallowed_keys.present?
+      unallowed_keys = @set_allowed_keys - (@kyc_fields + @extra_kyc_fields)
+      return error_with_identifier('invalid_api_params', 'cm_uaf_vak_1', ['invalid_set_allowed_keys'], 'Invalid field selected') if unallowed_keys.present?
 
       success
     end
@@ -125,14 +124,15 @@ module ClientManagement
       end
 
       @client_kyc_detail_api_activations.extra_kyc_fields = @extra_kyc_fields
-
+      @client_kyc_detail_api_activations.kyc_fields = 0
       @kyc_fields.each do |allowed_key|
+
         @client_kyc_detail_api_activations.send("set_" + allowed_key)
       end
 
       @client_kyc_detail_api_activations.source = GlobalConstant::AdminActivityChangeLogger.web_source
 
-      @client_kyc_detail_api_activations.save!
+      @client_kyc_detail_api_activations.save! if @client_kyc_detail_api_activations.changed?
     end
 
   end

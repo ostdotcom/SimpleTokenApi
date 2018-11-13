@@ -71,6 +71,23 @@ class Client < EstablishSimpleTokenClientDbConnection
     GlobalConstant::TokenSale.st_token_sale_client_id == self.id
   end
 
+  # send the web host domain of kyc clients if front end solution has been taken
+  #
+  # * Author: Aman
+  # * Date: 13/11/2018
+  # * Reviewed By:
+  #
+  # @return [Hash]
+  #
+  def web_host_params
+    return {} if !is_web_host_setup_done?
+    cwd = ClientWebHostDetail.get_from_memcache_by_client_id(self.id)
+
+    {
+        web_host_domain: cwd.domain
+    }
+  end
+
   # Array of Properties symbols
   #
   # * Author: Aman

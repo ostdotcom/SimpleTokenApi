@@ -429,7 +429,7 @@ module WhitelistManagement
                                                                 [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
       send_mail_response = pepo_campaign_obj.send_transactional_email(
-          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
+          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars.merge(@client.web_host_params))
 
       send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 

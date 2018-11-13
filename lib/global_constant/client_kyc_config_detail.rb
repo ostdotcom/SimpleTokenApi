@@ -5,6 +5,33 @@ module GlobalConstant
 
     class << self
 
+      # GlobalConstant::ClientKycConfigDetail
+
+      ## Extra kyc Fields key start ###
+
+      def text_data_type
+        'text'
+      end
+
+      ## Extra Kyc Fields key end ###
+
+
+      # kyc fields config for label data
+      def kyc_fields_config_with_labels
+
+        @kyc_fields_config ||= begin
+          data = {}
+          ::ClientKycConfigDetail.kyc_fields_config.keys.each do |kyc_field|
+            data[kyc_field.to_sym] = {
+                label: kyc_field.titleize
+            }
+
+          end
+          data
+        end
+      end
+
+
       ### kyc fields Start ###
 
       def first_name_kyc_field

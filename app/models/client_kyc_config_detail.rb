@@ -3,6 +3,19 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   serialize :residency_proof_nationalities, Array
   serialize :blacklisted_countries, Array
 
+  # should always be a symbolized hash
+  # {
+  #     referral: {
+  #         label: 'referral code',
+  #         validation: {
+  #             required: 1
+  #         },
+  #         data_type: 'text'
+  #     }
+  # }
+
+  serialize :extra_kyc_fields, Hash
+
   after_commit :memcache_flush
 
 

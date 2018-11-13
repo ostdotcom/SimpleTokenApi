@@ -4,6 +4,7 @@ module GlobalConstant
   class CountryNationality
     require 'csv'
 
+    # GlobalConstant::CountryNationality
 
     # Get Cynopsis Country From Ip
     #

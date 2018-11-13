@@ -2,7 +2,7 @@ module AdminManagement
 
   module Report
 
-    class GetKycReport < ServicesBase
+    class Base < ServicesBase
 
       MAX_LIMIT_FOR_DOWNLOAD = 5
       TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR = 10
@@ -19,7 +19,7 @@ module AdminManagement
       # @params [Hash] filters (optional)
       # @params [Hash] sortings (optional)
       #
-      # @return [AdminManagement::Report::GetKycReport]
+      # @return [AdminManagement::Report::Base]
       #
       def initialize(params)
         super
@@ -80,44 +80,43 @@ module AdminManagement
         if @filters.present?
 
           error_data = {}
-
+          sanitized_filter = {}
           @filters.each do |key, val|
-
             next if val.blank?
 
-            filter_data = GlobalConstant::UserKycDetail.filters[key][val]
-            error_data[key] = 'invalid value for filter' if filter_data.nil?
+            if key == GlobalConstant::User.email_filter
+              sanitized_filter[key] = val
+            else
+              next if model_filters[key].blank?
+              filter_data = model_filters[key][val]
+              error_data[key] = 'invalid value for filter' if filter_data.nil?
+              sanitized_filter[key] = val
+            end
           end
 
           return error_with_data(
-              'am_r_gkr_vas_2',
+              'am_r_gkr_vas_1',
               'Invalid Filter Parameter value',
               '',
               GlobalConstant::ErrorAction.default,
               {},
               error_data
           ) if error_data.present?
+
         end
 
+        @filters = sanitized_filter
 
+        sanitized_sorting = {}
         if @sortings.present?
           error_data = {}
 
           @sortings.each do |key, val|
+            next if val.blank? || model_sortings[key].blank?
 
-            if GlobalConstant::UserKycDetail.sorting[key.to_s].blank?
-              return error_with_data(
-                  'am_r_gkr_vas_3',
-                  'Invalid Parameters.',
-                  'Invalid Sort type passed',
-                  GlobalConstant::ErrorAction.default,
-                  {},
-                  {}
-              )
-            end
-
-            sort_data = GlobalConstant::UserKycDetail.sorting[key][val]
+            sort_data = model_sortings[key][val]
             error_data[key] = 'invalid value for sorting' if sort_data.nil?
+            sanitized_sorting[key] = val
           end
 
           return error_with_data(
@@ -130,8 +129,11 @@ module AdminManagement
           ) if error_data.present?
         end
 
+        @sortings = sanitized_sorting
+
         success
       end
+
 
       # validate if no pending requests for this client is pending and limit not reached
       #
@@ -143,7 +145,9 @@ module AdminManagement
       #
       def validate_if_request_can_be_taken
 
-        if CsvReportJob.where(client_id: @client_id, status: [GlobalConstant::CsvReportJob.pending_status, GlobalConstant::CsvReportJob.started_status])
+        if CsvReportJob.where(client_id: @client_id,
+                              report_type: report_type,
+                              status: [GlobalConstant::CsvReportJob.pending_status, GlobalConstant::CsvReportJob.started_status])
                .where('created_at > ?', Time.now - 2.hour).exists?
 
           return error_with_data(
@@ -157,11 +161,15 @@ module AdminManagement
         end
 
         last_min_download_time = Time.now - TIMEFRAME_FOR_MAX_DOWNLOAD_IN_HOUR.hours
-        total_completed_jobs = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
+        total_completed_jobs = CsvReportJob.where(client_id: @client_id,
+                                                  report_type: report_type,
+                                                  status: GlobalConstant::CsvReportJob.completed_status)
                                    .where('created_at > ?', last_min_download_time).count
 
         if total_completed_jobs >= MAX_LIMIT_FOR_DOWNLOAD
-          db_resp = CsvReportJob.where(client_id: @client_id, status: GlobalConstant::CsvReportJob.completed_status)
+          db_resp = CsvReportJob.where(client_id: @client_id,
+                                       report_type: report_type,
+                                       status: GlobalConstant::CsvReportJob.completed_status)
                         .where('created_at > ?', last_min_download_time).select('min(created_at) as last_download_time').first
 
           time_str = time_diff_string(db_resp.last_download_time)
@@ -214,19 +222,68 @@ module AdminManagement
       # @return [Result::Base]
       #
       def create_csv_report_job
-        csv_report_job = CsvReportJob.create!(client_id: @client_id, admin_id: @admin_id,
-                                              status: GlobalConstant::CsvReportJob.pending_status, extra_data: {filters: @filters, sortings: @sortings})
+        csv_report_job = CsvReportJob.create!(
+            client_id: @client_id, admin_id: @admin_id,
+            report_type: report_type,
+            status: GlobalConstant::CsvReportJob.pending_status,
+            extra_data: {filters: @filters, sortings: @sortings}
+        )
 
         BgJob.enqueue(
-            ProcessKycReportJob,
+            job_klass,
             {csv_report_job_id: csv_report_job.id}
         )
 
         Rails.logger.info('---- enqueue_job process_csv_report_job done')
-
       end
 
+      # klass of job for this report to be processed
+      #
+      # * Author: Aman
+      # * Date: 20/09/2018
+      # * Reviewed By:
+      #
+      # @return [Constant] klass Class name
+      #
+      def job_klass
+        fail 'unimplemented method job_klass'
+      end
 
+      # type of report to be fetched
+      #
+      # * Author: Aman
+      # * Date: 20/09/2018
+      # * Reviewed By:
+      #
+      # @return [String] report_type
+      #
+      def report_type
+        fail 'unimplemented method report_type'
+      end
+
+      # filters allowed for the service
+      #
+      # * Author: Aman
+      # * Date: 08/10/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] filters for the query
+      #
+      def model_filters
+        fail 'unimplemented method model_filters'
+      end
+
+      # sorting allowed for the service
+      #
+      # * Author: Aman
+      # * Date: 08/10/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] sorting for the query
+      #
+      def model_sortings
+        fail 'unimplemented method model_sortings'
+      end
     end
 
   end

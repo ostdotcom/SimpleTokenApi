@@ -36,7 +36,8 @@ module UserManagement
       # @return [UserManagement::Kyc::Submit]
       #
       def initialize(params)
-        super
+        # super
+        @params = params
 
         @user_id = @params[:user_id]
         @client_id = @params[:client_id]
@@ -58,6 +59,7 @@ module UserManagement
         @postal_code = @params[:postal_code]
 
         @uploaded_files = {}
+        @extra_kyc_fields = {}
 
         @source_of_request = @params[:source_of_request]
         @client = nil
@@ -70,6 +72,7 @@ module UserManagement
         @user_extended_detail = nil
 
         @param_error_identifiers = []
+        @params_error_data = {}
       end
 
       # Perform
@@ -183,13 +186,15 @@ module UserManagement
         validate_investor_documents
 
         validate_uploaded_files
+        validate_extra_kyc_fields
 
         @param_error_identifiers.uniq!
         return error_with_identifier('invalid_api_params',
                                      'um_ks_vasp_1',
                                      @param_error_identifiers,
-                                     'There were some errors in your KYC. Please correct and resubmit'
-        ) if @param_error_identifiers.any?
+                                     'There were some errors in your KYC. Please correct and resubmit',
+                                     @params_error_data
+        ) if @param_error_identifiers.any? || @params_error_data.present?
 
         success
       end
@@ -453,6 +458,22 @@ module UserManagement
         threads.each {|t| t.join}
       end
 
+      def validate_extra_kyc_fields
+        @client_kyc_config_detail.extra_kyc_fields.each do |key, config|
+          val = @params[key.to_sym]
+
+          if config[:data_type] == GlobalConstant::ClientKycConfigDetail.text_data_type
+            val = val.to_s.strip
+            next if config[:validation][:required] != 1 && val.blank?
+
+            @params_error_data[key.to_sym] = "#{config[:label]} is mandatory" and next if val.blank?
+            @params_error_data[key.to_sym] = "Please provide a valid #{config[:label]}" and next unless Util::CommonValidateAndSanitize.is_string?(val)
+            @extra_kyc_fields[key.to_sym] = val
+          end
+
+        end
+      end
+
       # S3 Kyc Folder belongs to the client
       #
       # * Author: Aman
@@ -538,7 +559,8 @@ module UserManagement
             document_id_file_path: @document_id_file_path,
             selfie_file_path: @selfie_file_path,
             residence_proof_file_path: @residence_proof_file_path,
-            investor_proof_files_path: @investor_proof_files_path
+            investor_proof_files_path: @investor_proof_files_path,
+            extra_kyc_fields: @extra_kyc_fields
         }
 
         data_to_md5 = {

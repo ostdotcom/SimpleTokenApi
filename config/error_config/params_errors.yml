@@ -414,7 +414,7 @@ missing_set_allowed_keys:
   parameter: "set_allowed_keys"
   msg: "set_allowed_keys is mandatory."
 
-invalid_allowed_keys:
+invalid_set_allowed_keys:
   parameter: "set_allowed_keys"
   msg: "Invalid field selected."
 
@@ -429,6 +429,10 @@ missing_single_auth_cookie_value:
 missing_skip_name:
   parameter: "skip_name"
   msg: "Skip Name is mandatory."
+
+invalid_sortings:
+  parameter: "sortings"
+  msg: "Sortings is invalid"
 
 invalid_state:
   parameter: "state"

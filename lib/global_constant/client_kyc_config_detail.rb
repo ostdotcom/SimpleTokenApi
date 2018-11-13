@@ -17,13 +17,13 @@ module GlobalConstant
 
 
       # kyc fields config for label data
-      def kyc_fields_config
+      def kyc_fields_config_with_labels
 
         @kyc_fields_config ||= begin
           data = {}
-          ClientKycConfigDetail.kyc_fields_config.keys.each do |kyc_field|
+          ::ClientKycConfigDetail.kyc_fields_config.keys.each do |kyc_field|
             data[kyc_field.to_sym] = {
-                label: kyc_field.capitalize
+                label: kyc_field.titleize
             }
 
           end

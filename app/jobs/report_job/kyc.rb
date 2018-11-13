@@ -160,7 +160,7 @@ module ReportJob
 
       extra_kyc_fields = {}
 
-      if @user_extended_detail_obj[:extra_kyc_fields].present?
+      if user_extended_detail[:extra_kyc_fields].present?
         extra_kyc_fields = local_cipher_obj.decrypt(user_extended_detail[:extra_kyc_fields]).data[:plaintext]
       end
 
@@ -180,8 +180,8 @@ module ReportJob
       @kyc_fields ||= @client_kyc_config.kyc_fields_array
     end
 
-    def extra_kyc_fields
-      @client_kyc_config.extra_kyc_fields
+    def allowed_extra_kyc_fields
+      @allowed_extra_kyc_fields ||= @client_kyc_config.extra_kyc_fields.deep_stringify_keys.keys
     end
 
     def headers_for_form_fields
@@ -207,7 +207,7 @@ module ReportJob
     end
 
     def csv_headers
-      ['email'] + other_kyc_fields + headers_for_form_fields + extra_kyc_fields
+      ['email'] + other_kyc_fields + headers_for_form_fields + allowed_extra_kyc_fields
     end
 
   end

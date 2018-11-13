@@ -96,7 +96,7 @@ module ClientManagement
 
       @kyc_fields = @set_allowed_keys & client_kyc_config_details.kyc_fields_array
 
-      @extra_kyc_fields = @set_allowed_keys & client_kyc_config_details.extra_kyc_fields.keys
+      @extra_kyc_fields = @set_allowed_keys & client_kyc_config_details.extra_kyc_fields.stringify_keys.keys
 
       unallowed_keys = @set_allowed_keys - [@kyc_fields + @extra_kyc_fields]
 

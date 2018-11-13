@@ -55,10 +55,24 @@ module UserManagement
     #
     def fetch_client_details
       client_web_host_detail_obj = ClientWebHostDetail.get_from_memcache_by_domain(@domain)
-      return unauthorized_access_response('um_vch_1') if client_web_host_detail_obj.blank?
 
-      return unauthorized_access_response('um_vch_2') if (client_web_host_detail_obj.status !=
+
+      if client_web_host_detail_obj.blank? || (client_web_host_detail_obj.status !=
           GlobalConstant::ClientWebHostDetail.active_status)
+
+        res = error_with_internal_code('um_vch_1',
+                                       'invalid domain',
+                                       GlobalConstant::ErrorCode.temporary_redirect,
+                                       {},
+                                       {},
+                                       {}
+        )
+
+        redirect_url = GlobalConstant::KycApiBaseDomain.get_base_domain_url_for_environment(Rails.env)
+        redirect_url = client_web_host_detail_obj.redirect_url if client_web_host_detail_obj.present?
+        res.set_error_extra_info({redirect_url: redirect_url})
+        return res
+      end
 
       @client_id = client_web_host_detail_obj.client_id
 

@@ -54,7 +54,8 @@ module GlobalConstant
       [
         ok,
         unauthorized_access,
-        not_found
+        not_found,
+        temporary_redirect
       ]
     end
 

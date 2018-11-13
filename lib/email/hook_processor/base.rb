@@ -155,12 +155,8 @@ module Email
       # @return [Array]
       #
       def web_host_params
-        return {} if is_ost_kyc_default_client? || !@client.is_web_host_setup_done?
-        cwd = ClientWebHostDetail.get_from_memcache_by_client_id(@client.id)
-
-        {
-            web_host_domain: cwd.domain
-        }
+        return {} if is_ost_kyc_default_client?
+        @client.web_host_params
       end
 
       # pepo campaign klass

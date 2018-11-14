@@ -112,7 +112,7 @@ module SandboxManagement
               add_ons: cp.add_ons_array,
               kyc_submissions_count: cp.kyc_submissions_count
           },
-          super_admin: super_admins_data,
+          super_admins: super_admins_data,
           double_opt_in: @client.is_verify_page_active_for_client?,
           client_name: @client.name,
           aml: {

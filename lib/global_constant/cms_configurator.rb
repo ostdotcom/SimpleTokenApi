@@ -182,7 +182,7 @@ module GlobalConstant
       #
       def get_fe_config_for_instruction_text(key)
         {
-            label: key.titleize,
+            label:  "#{key} #{extra_kyc_field_instruction_text_suffix}",
             placeholder: "",
             tooltip: "",
             inputType: "rich_text_editor"
@@ -221,6 +221,10 @@ module GlobalConstant
       #
       def extra_kyc_field_instruction_key_suffix
         "_dynamic_kyc_field_instruction_text"
+      end
+
+      def extra_kyc_field_instruction_text_suffix
+        "instruction text"
       end
 
       def get_entity_config_for_fe(entity_type, client_settings)

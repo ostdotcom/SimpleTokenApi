@@ -19,6 +19,9 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
       @set_allowed_keys = @params[:set_allowed_keys]
+
+      @kyc_fields = []
+      @extra_kyc_fields = []
     end
 
     # Perform
@@ -90,9 +93,13 @@ module ClientManagement
     #
     def validate_allowed_keys
       client_kyc_config_details = ClientKycConfigDetail.get_from_memcache(@client_id)
-      unallowed_keys = @set_allowed_keys - client_kyc_config_details.kyc_fields_array
 
-      return error_with_identifier('invalid_api_params', 'cm_uaf_vak_1', 'invalid_allowed_keys', '') if unallowed_keys.present?
+      @kyc_fields = @set_allowed_keys & client_kyc_config_details.kyc_fields_array
+
+      @extra_kyc_fields = @set_allowed_keys & client_kyc_config_details.extra_kyc_fields.stringify_keys.keys
+
+      unallowed_keys = @set_allowed_keys - (@kyc_fields + @extra_kyc_fields)
+      return error_with_identifier('invalid_api_params', 'cm_uaf_vak_1', ['invalid_set_allowed_keys'], 'Invalid field selected') if unallowed_keys.present?
 
       success
     end
@@ -108,42 +115,24 @@ module ClientManagement
     def update_api_fields
       @client_kyc_detail_api_activations = ClientKycDetailApiActivation.get_last_active_from_memcache(@client_id)
 
-
-      if @set_allowed_keys == []
-        return if @client_kyc_detail_api_activations.blank?
-        mark_previous_kyc_detail_api_activation_row_as_inactive
-      else
-        if @client_kyc_detail_api_activations.present?
-          return if (@set_allowed_keys - @client_kyc_detail_api_activations.allowed_keys_array).blank? &&
-              (@client_kyc_detail_api_activations.allowed_keys_array - @set_allowed_keys).blank?
-          mark_previous_kyc_detail_api_activation_row_as_inactive
-        end
-
-        ckda_obj = ClientKycDetailApiActivation.new(client_id: @client_id,
-                                                    allowed_keys: 0,
-                                                    status: GlobalConstant::ClientKycDetailApiActivation.active_status,
-                                                    created_by: @admin_id,
-                                                    updated_by: @admin_id)
-
-        @set_allowed_keys.each do |allowed_key|
-          ckda_obj.send("set_" + allowed_key)
-        end
-        ckda_obj.save!
+      if @client_kyc_detail_api_activations.blank?
+        @client_kyc_detail_api_activations = ClientKycDetailApiActivation.new(client_id: @client_id,
+                                                                              kyc_fields: 0,
+                                                                              extra_kyc_fields: [],
+                                                                              status: GlobalConstant::ClientKycDetailApiActivation.active_status,
+                                                                              last_acted_by: @admin_id)
       end
 
-    end
+      @client_kyc_detail_api_activations.extra_kyc_fields = @extra_kyc_fields
+      @client_kyc_detail_api_activations.kyc_fields = 0
+      @kyc_fields.each do |allowed_key|
 
-    # Mark the previous kyc detail api activation row as inactive
-    #
-    # * Author: Tejas
-    # * Date: 27/08/2018
-    # * Reviewed By:
-    #
-    #
-    def mark_previous_kyc_detail_api_activation_row_as_inactive
-      @client_kyc_detail_api_activations.status = GlobalConstant::ClientKycDetailApiActivation.inactive_status
-      @client_kyc_detail_api_activations.updated_by = @admin_id
-      @client_kyc_detail_api_activations.save!
+        @client_kyc_detail_api_activations.send("set_" + allowed_key)
+      end
+
+      @client_kyc_detail_api_activations.source = GlobalConstant::AdminActivityChangeLogger.web_source
+
+      @client_kyc_detail_api_activations.save! if @client_kyc_detail_api_activations.changed?
     end
 
   end

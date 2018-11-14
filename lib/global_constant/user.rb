@@ -39,6 +39,12 @@ module GlobalConstant
         'doptin_done'
       end
 
+      # ### KYC Submitted Filter options ###
+      def kyc_submitted_false
+        "false"
+      end
+
+
       ### Property stop ###
 
       ### Token sale state related pages ####
@@ -58,16 +64,6 @@ module GlobalConstant
       end
 
       ### Token sale state related pages ####
-
-
-      def sorting
-        {
-            "order" => {
-                'desc' => {id: :desc},
-                'asc' => {id: :asc}
-            }
-        }
-      end
 
 
       def is_kyc_submitted_filter
@@ -124,6 +120,18 @@ module GlobalConstant
         }
       end
 
+      def sorting
+        {
+            "order" => {
+                'desc' => {id: :desc},
+                'asc' => {id: :asc}
+            }
+        }
+      end
+
+      def default_sorting
+        {"order" => "desc"}
+      end
 
 
     end

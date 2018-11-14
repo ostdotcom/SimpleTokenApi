@@ -161,7 +161,7 @@ module GlobalConstant
       # @return [Hash]
       #
       def extra_kyc_field_instruction_text_config
-        @extra_kyc_field_instruction_text_config ||= {
+        {
             data_kind: 'html',
             validations: {
                 required: 0

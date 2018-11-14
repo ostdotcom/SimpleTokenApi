@@ -80,7 +80,8 @@ namespace :onetimer do
       fail "sandbox client in staging/development should have sandbox as prefix in domain" if params["web_host"].present? && params["web_host"]["domain"].starts_with?("sandbox")
 
       params["super_admins"].each do |super_admin|
-        fail "sandbox client in staging/development should have format->email+sandbox@ost.com for emails" if super_admin['email'].to_s.match?('+sandbox@')
+        fail "sandbox client in staging/development should have format->email+sandbox@ost.com for emails" unless
+            super_admin['email'].to_s.match?(GlobalConstant::Admin.sandbox_email_suffix)
       end
     end
 
@@ -89,7 +90,7 @@ namespace :onetimer do
       params["web_host"]["domain"].gsub!("sandbox", "") if params["web_host"].present?
 
       params["super_admins"].each do |super_admin|
-        super_admin['email'].gsub!('+sandbox@', "@")
+        super_admin['email'].gsub!(GlobalConstant::Admin.sandbox_email_suffix, "@")
       end if (Rails.env.staging? || Rails.env.development?)
 
     else

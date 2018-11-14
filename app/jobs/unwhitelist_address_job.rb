@@ -59,6 +59,7 @@ class UnwhitelistAddressJob < ApplicationJob
     @admin_email = params[:admin_email]
 
     @user_id = params[:user_id]
+
   end
 
   # Fetch Ethereum Address to unwhitelist

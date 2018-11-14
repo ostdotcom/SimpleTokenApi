@@ -36,7 +36,7 @@ module Crons
       #
       def perform
         UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).active_kyc.
-            where(aml_status: GlobalConstant::UserKycDetail.pending_aml_status).find_in_batches(batch_size: 500) do |batches|
+            where(aml_status: GlobalConstant::UserKycDetail.pending_aml_status).find_in_batches(batch_size: 10) do |batches|
 
           batches.each do |user_kyc_detail|
             process_user_kyc_details(user_kyc_detail)
@@ -46,6 +46,7 @@ module Crons
           send_approved_email
 
           reset_data
+          return if GlobalConstant::SignalHandling.sigint_received?
         end
       end
 
@@ -79,6 +80,8 @@ module Crons
           if user_kyc_detail.kyc_approved?
             @approved_user_id_hash[user_kyc_detail.user_id] = user_kyc_detail
           end
+
+          record_event_job(user_kyc_detail)
 
         end
 
@@ -158,6 +161,27 @@ module Crons
               }
           ).perform
         end
+      end
+
+      # record event for webhooks
+      #
+      # * Author: Tejas
+      # * Date: 16/10/2018
+      # * Reviewed By:
+      #
+      def record_event_job(user_kyc_detail)
+
+        RecordEventJob.perform_now({
+                                       client_id: user_kyc_detail.client_id,
+                                       event_source: GlobalConstant::Event.kyc_system_source,
+                                       event_name: GlobalConstant::Event.kyc_status_update_name,
+                                       event_data: {
+                                           user_kyc_detail: user_kyc_detail.get_hash,
+                                           admin: user_kyc_detail.get_last_acted_admin_hash
+                                       },
+                                       event_timestamp: Time.now.to_i
+                                   })
+
       end
 
     end

@@ -59,6 +59,7 @@ module UserManagement
 
         @uploaded_files = {}
 
+        @source_of_request = @params[:source_of_request]
         @client = nil
         @client_token_sale_details = nil
         @client_kyc_config_detail = nil
@@ -107,9 +108,9 @@ module UserManagement
         return r unless r.success?
         Rails.logger.info('---- update_user done')
 
+        fetch_admin
         enqueue_job
 
-        fetch_admin
         # success_with_data({user_id: @user_id})
         success_with_data(service_response_data)
       end
@@ -670,7 +671,14 @@ module UserManagement
                 user_id: @user_id,
                 user_extended_detail_id: @user_extended_detail.id,
                 action: GlobalConstant::UserActivityLog.update_kyc_action,
-                action_timestamp: Time.now.to_i
+                action_timestamp: Time.now.to_i,
+                event: {
+                    client_id: @user.client_id,
+                    event_source: @source_of_request,
+                    # event data is not passed as it is fetched inside the job. Aml status is updated in job
+                    event_name: GlobalConstant::Event.kyc_submit_name,
+                    event_timestamp: Time.now.to_i
+                }
             }
         )
         Rails.logger.info('---- enqueue_job KycSubmitJob done')

@@ -87,6 +87,24 @@ namespace :cron_task do
       execute_continuous_task
     end
 
+    # Process webhooks
+    #
+    # * Author: Aman
+    # * Date: 15/10/2018
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:process_webhooks"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_webhooks cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/process_webhooks.log"
+    task :process_webhooks do |task|
+      @sleep_interval = 1
+      cron_identifier = ENV['cron_identifier'].to_s
+
+      @process_name = "#{task}_#{cron_identifier}"
+      @performer_klass = 'Crons::WebhookProcessor'
+      @optional_params = {cron_identifier: cron_identifier}
+      execute_continuous_task
+    end
+
     # Read and process blocks on ether net
     #
     # * Author: Aman
@@ -123,7 +141,7 @@ namespace :cron_task do
 
         register_signal_handlers
 
-        while @continue_running && (@start_time + @running_interval) > Time.now do
+        while (!GlobalConstant::SignalHandling.sigint_received?) && (@start_time + @running_interval) > Time.now do
 
           current_time = Time.now
           log_line "Starting iteration #{@iteration_count} at #{current_time} with params: #{@params}"
@@ -132,10 +150,8 @@ namespace :cron_task do
           performer_klass.perform
 
           @iteration_count += 1
-          sleep(@sleep_interval) # sleep for @sleep_interval second after one iteration.
-
+          sleep(@sleep_interval) unless GlobalConstant::SignalHandling.sigint_received? # sleep for @sleep_interval second after one iteration.
         end
-
       rescue Exception => e
 
         ApplicationMailer.notify(

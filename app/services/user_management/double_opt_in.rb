@@ -45,7 +45,7 @@ module UserManagement
 
       save_user
 
-      # enqueue_job
+      enqueue_job
 
       success
 
@@ -161,22 +161,26 @@ module UserManagement
       @user.save!
     end
 
-    # # Enqueue Job
-    # #
-    # # * Author: Kedar
-    # # * Date: 13/10/2017
-    # # * Reviewed By: Sunil
-    # #
-    # def enqueue_job
-    #   BgJob.enqueue(
-    #       KycSubmitJob,
-    #       {
-    #           user_id: @user_id,
-    #           action: GlobalConstant::UserActivityLog.double_opt_in_action,
-    #           action_timestamp: Time.zone.now.to_i
-    #       }
-    #   )
-    # end
+    # Enqueue Job
+    #
+    # * Author: Tejas
+    # * Date: 15/10/2018
+    # * Reviewed By:
+    #
+    def enqueue_job
+      BgJob.enqueue(
+          RecordEventJob,
+          {
+              client_id: @user.client_id,
+              event_source: GlobalConstant::Event.web_source,
+              event_name: GlobalConstant::Event.user_dopt_in_name,
+              event_data: {
+                  user: @user.get_hash
+              },
+              event_timestamp: Time.now.to_i
+          }
+      )
+    end
 
     # Invalid Request Response
     #

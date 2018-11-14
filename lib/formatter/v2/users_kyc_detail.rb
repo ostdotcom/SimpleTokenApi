@@ -4,7 +4,7 @@ module Formatter
       class << self
 
         # Format kyc detail
-        # Always receives [Result::Base]
+        # Always receives [Hash]
         # :NOTE Reading data to format from key:'user_extended_detail'
         #
         # * Author: Tejas
@@ -14,14 +14,12 @@ module Formatter
         # Sets result_type, user_kyc_detail
         #
         def show(data_to_format)
-          result_data = data_to_format.data
           formatted_data = {
               result_type: 'user_kyc_detail',
-              user_kyc_detail: kyc_detail_base(result_data[:user_extended_detail])
+              user_kyc: kyc_detail_base(data_to_format[:user_extended_detail])
           }
 
-          data_to_format.data = formatted_data
-          data_to_format
+          formatted_data
         end
 
         private
@@ -36,7 +34,7 @@ module Formatter
         # @returns [Hash]
         #
         def kyc_detail_base(user_extended_detail)
-          user_extended_detail[:created_at] = user_extended_detail[:created_at].to_i
+          user_extended_detail[:created_at] = user_extended_detail[:created_at]
           user_extended_detail
         end
 

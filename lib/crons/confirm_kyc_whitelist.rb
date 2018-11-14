@@ -28,7 +28,7 @@ module Crons
           where("next_timestamp <= ?", Time.now.to_i).
           where(failed_reason: GlobalConstant::KycWhitelistLog.not_failed).
           where(status: GlobalConstant::KycWhitelistLog.kyc_whitelist_confirmation_pending_statuses).
-          find_in_batches(batch_size: 100).each do |batched_records|
+          find_in_batches(batch_size: 10).each do |batched_records|
 
         batched_records.each do |kyc_whitelist_log|
           initialize_for_iteration(kyc_whitelist_log)
@@ -74,7 +74,7 @@ module Crons
           end
 
         end
-
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
 
     end
@@ -308,7 +308,10 @@ module Crons
                                                  user_kyc_detail: user_kyc_detail}).perform
       else
         user_kyc_detail.whitelist_status = GlobalConstant::KycWhitelistLog.failed_status
-        user_kyc_detail.save! if user_kyc_detail.changed?
+        if user_kyc_detail.changed?
+          user_kyc_detail.save!
+          record_event_job(user_kyc_detail)
+        end
       end
 
       success
@@ -442,6 +445,27 @@ module Crons
         user_kyc_detail.kyc_confirmed_at = Time.now.to_i
         user_kyc_detail.save!
       end
+
+    end
+
+    # record event for webhooks
+    #
+    # * Author: Tejas
+    # * Date: 16/10/2018
+    # * Reviewed By:
+    #
+    def record_event_job(user_kyc_detail)
+
+      RecordEventJob.perform_now({
+                                     client_id: user_kyc_detail.client_id,
+                                     event_source: GlobalConstant::Event.kyc_system_source,
+                                     event_name: GlobalConstant::Event.kyc_status_update_name,
+                                     event_data: {
+                                         user_kyc_detail: user_kyc_detail.get_hash,
+                                         admin: user_kyc_detail.get_last_acted_admin_hash
+                                     },
+                                     event_timestamp: Time.now.to_i
+                                 })
 
     end
 

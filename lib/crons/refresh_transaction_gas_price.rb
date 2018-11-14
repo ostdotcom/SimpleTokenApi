@@ -32,6 +32,8 @@ module Crons
             body: "Gas price is not updated, tried 10 times every 2 seconds",
             subject: "Exception in Refreshing gas price from eth gas station"
         ).deliver if i == 9
+
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
 
     end

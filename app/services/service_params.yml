@@ -531,6 +531,46 @@
      - :admin_id
   :optional:
 
+'ClientManagement::GetWebhookDetail':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
+'ClientManagement::Webhook::Create':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :url
+     - :event_sources
+     - :event_result_types
+  :optional:
+
+'ClientManagement::Webhook::Update':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+     - :url
+     - :event_sources
+     - :event_result_types
+  :optional:
+
+'ClientManagement::DeleteWebhook':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
+'ClientManagement::ResetSecretKey':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
+
 'ClientManagement::PageSetting::Login':
   :mandatory:
     - :client_id
@@ -740,6 +780,7 @@
     - :nationality
     - :document_id_file_path
     - :selfie_file_path
+    - :source_of_request
   :optional:
     - :ethereum_address
     - :residence_proof_file_path

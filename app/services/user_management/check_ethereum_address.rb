@@ -10,7 +10,7 @@ module UserManagement
     #
     # @param [String] ethereum_address (mandatory)
     #
-    # @return [UserManagement::CheckEthereumBalance]
+    # @return [UserManagement::CheckEthereumAddress]
     #
     # Sets @ethereum_address
     #

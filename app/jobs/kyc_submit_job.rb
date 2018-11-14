@@ -34,6 +34,8 @@ class KycSubmitJob < ApplicationJob
                                          action: @action,
                                          action_timestamp: @action_timestamp
                                      })
+
+    RecordEventJob.perform_now(@event.merge!(event_data: event_data))
   end
 
   private
@@ -53,6 +55,7 @@ class KycSubmitJob < ApplicationJob
     @user_extended_detail_id = params[:user_extended_detail_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]
+    @event = params[:event]
 
     @user = User.find(@user_id)
     @user_extended_detail = UserExtendedDetail.find(@user_extended_detail_id)
@@ -87,7 +90,6 @@ class KycSubmitJob < ApplicationJob
 
     Rails.logger.info('-- block_kyc_submit_job_hard_check done')
   end
-
 
 
   #  todo: "KYCaas-Changes"
@@ -245,7 +247,7 @@ class KycSubmitJob < ApplicationJob
   # * Date: 12/10/2017
   # * Reviewed By: Sunil
   #
- def save_aml_status
+  def save_aml_status
     Rails.logger.info('-- save_aml_status')
     @user_kyc_detail.aml_status = @aml_status
     @user_kyc_detail.save!
@@ -322,7 +324,7 @@ class KycSubmitJob < ApplicationJob
   #
   def get_aml_user_id
     @get_aml_user_id ||= @user_kyc_detail.aml_user_id.present? ? @user_kyc_detail.aml_user_id.to_s :
-                                  UserKycDetail.get_aml_user_id(@user_id)
+                             UserKycDetail.get_aml_user_id(@user_id)
   end
 
   # Get decrypted country
@@ -433,6 +435,19 @@ class KycSubmitJob < ApplicationJob
   def add_kyc_comparison_details
     UserKycComparisonDetail.create!(user_extended_detail_id: @user_extended_detail.id, client_id: @user_kyc_detail.client_id,
                                     image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status)
+  end
+
+  # event data for webhooks
+  #
+  # * Author: Tejas
+  # * Date: 16/10/2018
+  # * Reviewed By: Aman
+  #
+  def event_data
+    {
+        user_kyc_detail: @user_kyc_detail.get_hash,
+        admin: @user_kyc_detail.get_last_acted_admin_hash
+    }
   end
 
 end

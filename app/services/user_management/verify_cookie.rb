@@ -39,7 +39,7 @@ module UserManagement
     #
     def perform
       r = validate
-      return r unless r.success?
+      return unauthorized_access_response('um_vc_p_1') unless r.success?
 
       r = set_parts
       return r unless r.success?

@@ -11,9 +11,9 @@ namespace :onetimer do
   #                            "name" => "tejas"
   #                        }],
   #     "double_opt_in" => 1,
-  #     "client_name" => "test2",
+  #     "client_name" => "clientName",
   #     "aml" => {
-  #         "email_id" => 'tejas@ost.com',
+  #         "email_id" =>  'paul@simpletoken.org',
   #         "domain_name" => "OST_UAT",
   #         "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
   #         "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
@@ -26,8 +26,8 @@ namespace :onetimer do
   #         "domain" => "tejaskyc.developmentost.com"
   #     },
   #     "token_sale_details" => {
-  #         "token_name" => "Tejas+7",
-  #         "token_symbol" => 'T777',
+  #         "token_name" => "TokenName",
+  #         "token_symbol" => 'TokenSymbol',
   #         "sale_start_timestamp" =>  nil,
   #         "registration_end_timestamp" =>  nil,
   #         "sale_end_timestamp" =>  nil,
@@ -45,10 +45,11 @@ namespace :onetimer do
   #             "selfie_file_path",
   #             "residence_proof_file_path",
   #             "investor_proof_files_path",
-  #             # "street_address",
-  #             # "city",
+  #             "street_address",
+  #             "city",
   #             "state",
-  #         # "postal_code"
+  #             "postal_code"
+  #             "estimated_participation_amount"
   #         ],
   #         "residency_proof_nationalities" => [],
   #         "blacklisted_countries" => []

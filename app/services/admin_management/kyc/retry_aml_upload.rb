@@ -266,6 +266,7 @@ module AdminManagement
           send_denied_email if @user_kyc_detail.kyc_denied? && !is_already_kyc_denied_by_admin
 
           send_approved_email if @user_kyc_detail.kyc_approved?
+          enqueue_job
         end
 
       end
@@ -330,6 +331,39 @@ module AdminManagement
 
       def is_a_cron_task?
         @cron_job == true
+      end
+
+      # Get Event Source
+      #
+      # * Author: Tejas
+      # * Date: 16/10/2018
+      # * Reviewed By:
+      #
+      def get_event_source
+        is_a_cron_task? ? GlobalConstant::Event.kyc_system_source : GlobalConstant::Event.web_source
+      end
+
+      # Do remaining task in sidekiq
+      #
+      # * Author: Tejas
+      # * Date: 16/10/2018
+      # * Reviewed By:
+      #
+      def enqueue_job
+        BgJob.enqueue(
+            RecordEventJob,
+            {
+                client_id: @user_kyc_detail.client_id,
+                event_source: get_event_source,
+                event_name: GlobalConstant::Event.kyc_status_update_name,
+                event_data: {
+                    user_kyc_detail: @user_kyc_detail.get_hash,
+                    admin: @user_kyc_detail.get_last_acted_admin_hash
+                },
+                event_timestamp: Time.now.to_i
+            }
+        )
+
       end
 
     end

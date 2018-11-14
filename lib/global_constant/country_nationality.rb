@@ -42,25 +42,25 @@ module GlobalConstant
     #
     # @return [Hash]
     #
-    def self.disallowed_states
-      {
-          'united states of america' => {
-              'newyork' => 'NY',
-              'new york' => 'NY',
-              'new york state' => 'NY',
-              'newyorkstate' => 'NY',
-              'new yorkstate' => 'NY',
-              'ny' => 'NY',
-              'nyc' => 'NY'
-          },
-          'ukraine' => {
-              'crimea' => 'Crimea'
-          },
-          'russia' => {
-              'crimea' => 'Crimea'
-          }
-      }
-    end
+    # def self.disallowed_states
+    #   {
+    #       'united states of america' => {
+    #           'newyork' => 'NY',
+    #           'new york' => 'NY',
+    #           'new york state' => 'NY',
+    #           'newyorkstate' => 'NY',
+    #           'new yorkstate' => 'NY',
+    #           'ny' => 'NY',
+    #           'nyc' => 'NY'
+    #       },
+    #       'ukraine' => {
+    #           'crimea' => 'Crimea'
+    #       },
+    #       'russia' => {
+    #           'crimea' => 'Crimea'
+    #       }
+    #   }
+    # end
 
     # list of cynopsis countries
     #

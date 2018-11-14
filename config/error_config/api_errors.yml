@@ -68,6 +68,11 @@ token_sale_ended:
   code: 'UNPROCESSABLE_ENTITY'
   message: "The token sale has ended. This action cannot be performed"
 
+max_webhook_count_reached:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Maximum 3 webhooks are allowed"
+
 whitelist_transaction_pending:
   http_code: '422'
   code: 'UNPROCESSABLE_ENTITY'

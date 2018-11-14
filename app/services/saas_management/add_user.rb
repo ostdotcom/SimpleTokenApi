@@ -155,7 +155,16 @@ module SaasManagement
           {
               user_id: @user.id,
               ip_address: @user_ip_address,
-              geoip_country: @geoip_country
+              geoip_country: @geoip_country,
+              event: {
+                  client_id: @user.client_id,
+                  event_source: GlobalConstant::Event.api_source,
+                  event_name: GlobalConstant::Event.user_register_name,
+                  event_data: {
+                      user: @user.get_hash
+                  },
+                  event_timestamp: Time.now.to_i
+              }
           }
       )
     end

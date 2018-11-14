@@ -74,7 +74,8 @@ module OstKycRestApi
           "user_ip_address" => kyc_data[:user_ip_address]
       }
       endpoint = "/api/#{@version}/kyc/add-kyc/"
-      make_post_request(endpoint, custom_params)
+      params = request_parameters(endpoint, custom_params)
+      post(params)
     end
 
     # Check if valid ethereum address
@@ -86,7 +87,8 @@ module OstKycRestApi
           "ethereum_address" => ethereum_address
       }
       endpoint = "/api/#{@version}/kyc/check-ethereum-address/"
-      make_get_request(endpoint, custom_params)
+      params = request_parameters(endpoint, custom_params)
+      get(params)
     end
 
     # Get upload Params for file upload
@@ -107,7 +109,8 @@ module OstKycRestApi
       custom_params = default_params if custom_params.blank?
 
       endpoint = "/api/#{@version}/kyc/upload-params/"
-      make_get_request(endpoint, custom_params)
+      params = request_parameters(endpoint, custom_params)
+      get(params)
     end
 
     # Get details of a user
@@ -117,7 +120,8 @@ module OstKycRestApi
     #
     def get_user_detail(user_id)
       endpoint = "/api/#{@version}/kyc/get-detail/"
-      make_get_request(endpoint, {user_id: user_id})
+      params = request_parameters(endpoint, {user_id: user_id})
+      get(params)
     end
 
     # Get S3 urls for file upload
@@ -138,146 +142,49 @@ module OstKycRestApi
       custom_params = default_params if custom_params.blank?
 
       endpoint = "/api/#{@version}/kyc/get-file-upload-urls/"
-      make_get_request(endpoint, custom_params)
+      params = request_parameters(endpoint, custom_params)
+      get(params)
     end
 
+    ##################################################################################################################
     private
 
-    # Create Request Data
+    def get (params)
+      r = HttpHelper::HttpRequest.new(params).get
+      return r unless r.success?
+
+      parse_api_response(r.data[:http_response])
+    end
+
+    def post (params)
+      r = HttpHelper::HttpRequest.new(params).post
+      return r unless r.success?
+
+      parse_api_response(r.data[:http_response])
+    end
+
+    # Get request parametrs for the api call.
     #
     # params:
     #   uri, URI object
     #
-    # returns:
-    #   http, Net::HTTP object
+    # returns [Hash] url and requesat parameters are sent
     #
-    def setup_request(uri)
-      http = Net::HTTP.new(uri.host, uri.port)
-      if uri.scheme == "https"
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      end
-      http
+    def request_parameters(endpoint, custom_params={})
+      custom_params.merge!("request_time" => Time.now.to_i, "api_key" => @api_key)
+      signature_params = {
+          url: endpoint,
+          api_secret: @api_secret,
+          request_parameters: custom_params.dup
+      }
+      signature = HttpHelper::SignatureGenerator.new(signature_params).perform
+      custom_params.merge!(signature: signature)
+      {
+          url: @api_base_url + endpoint,
+          request_parameters: custom_params
+      }
     end
 
-    # Create Base Params
-    #
-    # params:
-    #   endpoint, String
-    #   custom_params, Hash
-    #
-    # returns:
-    #   Hash, Request Data
-    #
-    def base_params(endpoint, custom_params = {})
-      request_time = Time.now.to_i
-      request_params = custom_params.merge("request_time" => request_time, "api_key" => @api_key)
-      query_param = request_params.to_query.gsub(/^&/, '')
-      str = "#{endpoint}?#{query_param}"
-      signature = generate_signature(str)
-      request_params.merge!("signature" => signature)
-      request_params
-    end
-
-    # Generate Signature
-    #
-    # params:
-    #   string_to_sign, String
-    #
-    # returns:
-    #   String, HexDigest
-    #
-    def generate_signature(string_to_sign)
-      digest = OpenSSL::Digest.new('sha256')
-      Rails.logger.info("--------string_to_sign=>#{string_to_sign}-----")
-      OpenSSL::HMAC.hexdigest(digest, @api_secret, string_to_sign)
-    end
-
-    # Post API URI object
-    #
-    # params:
-    #   endpoint, String
-    #
-    # returns:
-    #   Object, URI object
-    #
-    def post_api_uri(endpoint)
-      URI(@api_base_url + endpoint)
-    end
-
-    # Get API Url
-    #
-    # params:
-    #   endpoint, String
-    #
-    # returns:
-    #   String
-    #
-    def get_api_uri(endpoint, params = {})
-      req_params = params.present? ? "?#{params.to_query}" : ""
-      URI.parse(@api_base_url + endpoint + req_params)
-    end
-
-    # Make Get Request
-    #
-    # params:
-    #   endpoint, String
-    #   custom_params, Hash
-    #
-    # returns:
-    #   Hash, Response
-    #
-    def make_get_request(endpoint, custom_params = {})
-      request_params = base_params(endpoint, custom_params)
-      uri = get_api_uri(endpoint, request_params)
-
-      result = handle_with_exception(uri) do |http|
-        http.get(uri)
-      end
-
-      result
-    end
-
-    # Make Post Request
-    #
-    # params:
-    #   endpoint, String
-    #   custom_params, Hash
-    #
-    # returns:
-    #   Hash, Response
-    #
-    def make_post_request(endpoint, custom_params = {})
-      request_params = base_params(endpoint, custom_params)
-      uri = post_api_uri(endpoint)
-
-      result = handle_with_exception(uri) do |http|
-        http.post(uri.path, request_params.to_query)
-      end
-
-      result
-    end
-
-    # Handle With Exception
-    #
-    # returns [Result::Base]
-    #
-    def handle_with_exception(uri)
-      begin
-        Timeout.timeout(GlobalConstant::PepoCampaigns.api_timeout) do
-          http = setup_request(uri)
-          result = yield(http)
-          parse_api_response(result)
-        end
-      rescue Timeout::Error => e
-        return deprecated_error_with_internal_code(e.message,
-                                        'simple token api error: Time Out Error', GlobalConstant::ErrorCode.ok,
-                                        {}, {}, 'Time Out Error')
-
-      rescue Exception => e
-        exception_with_internal_code(e, 'oka_r_hwe_1', 'Something Went Wrong', GlobalConstant::ErrorCode.ok)
-      end
-    end
     # Parse API response
     #
     # * Author: Aman
@@ -289,32 +196,31 @@ module OstKycRestApi
     def parse_api_response(http_response)
       response_data = Oj.load(http_response.body, mode: :strict) rescue {}
 
-      Rails.logger.info("=*=Simple-Token-API-ERROR=*= #{response_data.inspect}")
+      Rails.logger.info("=*=HTTPResponse=*= #{response_data.inspect}")
 
       case http_response.class.name
-      when 'Net::HTTPOK'
-        if response_data['success']
-          # Success
-          success_result(response_data['data'])
+        when 'Net::HTTPOK'
+          if response_data['success']
+            # Success
+            success_result(response_data['data'])
+          else
+            # API Error
+            deprecated_error_with_internal_code(response_data['err']['code'],
+                                                'simple token api error',
+                                                GlobalConstant::ErrorCode.ok,
+                                                {}, response_data['err']['error_data'],
+                                                response_data['err']['display_text'])
+          end
+        when "Net::HTTPUnauthorized"
+          # 401
+          deprecated_error_with_internal_code('oka_r_unauthorized', 'ost kyc api authentication failed',
+                                              GlobalConstant::ErrorCode.ok, {}, {}, 'Invalid Credentials')
         else
-          # API Error
-          deprecated_error_with_internal_code(response_data['err']['code'],
-                                   'simple token api error',
-                                   GlobalConstant::ErrorCode.ok,
-                                   {}, response_data['err']['error_data'],
-                                   response_data['err']['display_text'])
-        end
-      when "Net::HTTPUnauthorized"
-        # 401
-        deprecated_error_with_internal_code('oka_r_unauthorized', 'ost kyc api authentication failed',
-                                 GlobalConstant::ErrorCode.ok, {}, {}, 'Invalid Credentials')
-      else
-        # HTTP error status code (500, 504...)
-        exception_with_internal_code(Exception.new("Ost Kyc API STATUS CODE #{http_response.code.to_i}"), 'ost_kyc_api_exception', 'ost kyc api exception',
-                                     GlobalConstant::ErrorCode.ok)
+          # HTTP error status code (500, 504...)
+          exception_with_internal_code(Exception.new("Ost Kyc API STATUS CODE #{http_response.code.to_i}"), 'ost_kyc_api_exception', 'ost kyc api exception',
+                                       GlobalConstant::ErrorCode.ok)
       end
     end
 
   end
-
 end

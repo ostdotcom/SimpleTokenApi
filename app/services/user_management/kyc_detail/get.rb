@@ -208,7 +208,7 @@ module UserManagement
           end
         end
 
-        @user_extended_detail.merge!({id: @user_extended_detail_obj.id, created_at: @user_extended_detail_obj.created_at})
+        @user_extended_detail.merge!({id: @user_extended_detail_obj.id, created_at: @user_extended_detail_obj.created_at.to_i})
       end
 
       # Get The Signed URL

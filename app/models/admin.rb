@@ -42,13 +42,6 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     ga_secret = ROTP::Base32.random_base32
 
-    #get ga_secret qr code
-    rotp_client = TimeBasedOtp.new(ga_secret)
-    r = rotp_client.provisioning_uri(client.name)
-    return r unless r.success?
-    otpauth = r.data[:otpauth]
-    escaped_otpauth = CGI.escape(otpauth)
-    url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
 
     #get cmk key and text
     kms_login_client = Aws::Kms.new('login', 'admin')

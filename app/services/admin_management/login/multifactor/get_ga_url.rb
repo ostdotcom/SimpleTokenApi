@@ -71,7 +71,7 @@ module AdminManagement
         def set_ga_secret_auth
 
           rotp_client = TimeBasedOtp.new(@ga_secret_d)
-          r = rotp_client.provisioning_uri(@admin.name)
+          r = rotp_client.provisioning_uri("#{identifier_suffix}:#{@admin.name}")
           return r unless r.success?
 
           otpauth = r.data[:otpauth]
@@ -79,6 +79,18 @@ module AdminManagement
 
           # @qr_code_url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
           @qr_code_url ="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
+        end
+
+        # Set Ga Secret Auth
+        #
+        # * Author: Aman
+        # * Date: 09/01/2018
+        # * Reviewed By:
+        #
+        # returns[String] suffix for name of GA account
+        #
+        def identifier_suffix
+          Rails.env.production? ? "ost kyc" : "#{Rails.env} ost kyc"
         end
 
       end

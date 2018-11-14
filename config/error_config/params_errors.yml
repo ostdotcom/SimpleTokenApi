@@ -174,6 +174,22 @@ invalid_ethereum_deposit_address:
   parameter: "ethereum_deposit_address"
   msg: "Ethereum Deposit Address is invalid."
 
+invalid_event_result_types:
+  parameter: "event_result_types"
+  msg: "event result type is invalid."
+
+missing_event_result_types:
+  parameter: "event_result_types"
+  msg: "event result type is mandatory."
+
+invalid_event_sources:
+  parameter: "event_sources"
+  msg: "event source is invalid."
+
+missing_event_sources:
+  parameter: "event_sources"
+  msg: "event source is mandatory."
+
 invalid_files:
    parameter: "files"
    msg: "Please provide a supported file type. Supported types : 'application/pdf', 'image/jpeg', 'image/png', 'image/jpg'."
@@ -450,6 +466,18 @@ missing_url_path:
   parameter: "url_path"
   msg: "Url Path is mandatory."
 
+duplicate_url:
+  parameter: "url"
+  msg: "URL is duplicate"
+
+missing_url:
+  parameter: "url"
+  msg: "URL is mandatory"
+
+invalid_url:
+  parameter: "url"
+  msg: "URL is invalid"
+
 missing_user_ethereum_address:
   parameter: "user_ethereum_address"
   msg: "User Ethereum Address is mandatory."
@@ -464,7 +492,11 @@ missing_user_id:
 
 missing_uuid:
   parameter: "uuid"
-  msg: "uuid is a mandatory field."
+  msg: "uuid is a mandatory field"
+
+missing_webhook_id:
+  parameter: "webhook_id"
+  msg: "webhook id is a mandatory"
 
 duplicate_whitelist_contract_address:
   parameter: "whitelist_contract_address"

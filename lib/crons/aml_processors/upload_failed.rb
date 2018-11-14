@@ -23,7 +23,7 @@ module Crons
       #
       def perform
         UserKycDetail.where('client_id != ?', GlobalConstant::TokenSale.st_token_sale_client_id).active_kyc.
-            where(aml_status: GlobalConstant::UserKycDetail.failed_aml_status).find_in_batches(batch_size: 50) do |batches|
+            where(aml_status: GlobalConstant::UserKycDetail.failed_aml_status).find_in_batches(batch_size: 10) do |batches|
 
           batches.each do |user_kyc_detail|
             params_to_retry = {
@@ -43,7 +43,7 @@ module Crons
             end
 
           end
-
+          return if GlobalConstant::SignalHandling.sigint_received?
         end
       end
 

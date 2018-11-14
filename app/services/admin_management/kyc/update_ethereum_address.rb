@@ -55,6 +55,8 @@ module AdminManagement
 
         handle_duplicate_logs
 
+        enqueue_job
+
         success_with_data({})
 
       end
@@ -399,6 +401,29 @@ module AdminManagement
         UserKycDetail.bulk_flush(user_ids)
 
         success
+      end
+
+      # Do remaining task in sidekiq
+      #
+      # * Author: Tejas
+      # * Date: 16/10/2018
+      # * Reviewed By:
+      #
+      def enqueue_job
+        BgJob.enqueue(
+            RecordEventJob,
+            {
+                client_id: @user_kyc_detail.client_id,
+                event_source: GlobalConstant::Event.web_source,
+                event_name: GlobalConstant::Event.update_ethereum_address_name,
+                event_data: {
+                    user_kyc_detail: @user_kyc_detail.get_hash,
+                    admin: @admin.get_hash
+                },
+                event_timestamp: Time.now.to_i
+            }
+        )
+
       end
 
     end

@@ -48,3 +48,7 @@ simple_token_customization_<%= Rails.env%>:
 simple_token_billing_<%= Rails.env%>:
   <<: *default
   database: simple_token_billing_<%= Rails.env%>
+
+ost_kyc_webhook_<%= Rails.env%>:
+  <<: *default
+  database: ost_kyc_webhook_<%= Rails.env%>

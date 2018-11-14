@@ -404,7 +404,10 @@ module WhitelistManagement
       end
 
       @user_kyc_detail.record_timestamps = false
-      @user_kyc_detail.save! if @user_kyc_detail.changed?
+      if @user_kyc_detail.changed?
+        @user_kyc_detail.save!
+        enqueue_job
+      end
     end
 
     # Send Email when kyc whitelist status is done without creating hooks if email was not previously sent
@@ -429,7 +432,7 @@ module WhitelistManagement
                                                                 [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
       send_mail_response = pepo_campaign_obj.send_transactional_email(
-          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars)
+          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars.merge(@client.web_host_params))
 
       send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
 
@@ -536,6 +539,29 @@ module WhitelistManagement
           data: {error_data: error_data},
           subject: subject
       ).deliver
+    end
+
+    # Do remaining task in sidekiq
+    #
+    # * Author: Tejas
+    # * Date: 16/10/2018
+    # * Reviewed By:
+    #
+    def enqueue_job
+      BgJob.enqueue(
+          RecordEventJob,
+          {
+              client_id: @user_kyc_detail.client_id,
+              event_source: GlobalConstant::Event.kyc_system_source,
+              event_name: GlobalConstant::Event.kyc_status_update_name,
+              event_data: {
+                  user_kyc_detail: @user_kyc_detail.get_hash,
+                  admin: @user_kyc_detail.get_last_acted_admin_hash
+              },
+              event_timestamp: Time.now.to_i
+          }
+      )
+
     end
 
   end

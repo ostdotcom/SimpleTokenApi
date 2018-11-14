@@ -25,6 +25,7 @@ module AdminManagement
 
         @user = nil
         @user_kyc_detail = nil
+        @user_email_for_webhook = {}
       end
 
       # Perform Delete
@@ -135,6 +136,7 @@ module AdminManagement
         DeletedUser.create!(user_id: @user_id, client_id: @client_id,
                             deleted_by_admin: @admin_id, email: @user.email)
 
+        @user_email_for_webhook = {email: @user.email}
         @user.email = nil
         @user.status = GlobalConstant::User.deleted_status
         @user.save!
@@ -156,7 +158,18 @@ module AdminManagement
       def enqueue_job
         BgJob.enqueue(
             DeleteDuplicateLogs,
-            {user_id: @user.id}
+            {
+                user_id: @user.id,
+                event: {
+                    client_id: @user.client_id,
+                    event_source: GlobalConstant::Event.web_source,
+                    event_name: GlobalConstant::Event.user_deleted_name,
+                    event_data: {
+                        user: (@user.get_hash).merge!(@user_email_for_webhook)
+                    },
+                    event_timestamp: Time.now.to_i
+                }
+            }
         )
         Rails.logger.info('---- enqueue_job DeleteDuplicates done')
       end

@@ -508,7 +508,7 @@ module Crons
           end
         end
 
-        human_percent = human_percentages.values.min
+        human_percent = human_percentages.values.max
 
         @user_kyc_comparison_detail.selfie_human_labels_percent = human_percent
         @user_kyc_comparison_detail.save

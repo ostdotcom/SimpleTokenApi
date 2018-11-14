@@ -16,7 +16,7 @@ module AdminManagement
         # @params [Integer] client_id (mandatory) - logged in admin's client id
         # @params [Integer] id (mandatory)
         #
-        # @params [Integer] is_auto_approve (Optional) - if its an auto approve qualify
+        # @params [Boolean] is_auto_approve (Optional) - if its an auto approve qualify
         #
         # @return [AdminManagement::Kyc::AdminAction::Qualify]
         #
@@ -87,7 +87,7 @@ module AdminManagement
         # @return [Boolean] return true if auto approve qualify action
         #
         def is_auto_approve_admin?
-          @is_auto_approve && @admin_id == Admin::AUTO_APPROVE_ADMIN_ID
+          @is_auto_approve && (@admin_id == Admin::AUTO_APPROVE_ADMIN_ID)
         end
 
         # fetch admin and validate. -1 Admin Id is for auto approve. dummy admin obj is initialized
@@ -102,6 +102,7 @@ module AdminManagement
         #
         def fetch_and_validate_admin
           if is_auto_approve_admin?
+            # this ar obj is used to enqueue event job as well
             @admin = Admin.new(id: @admin_id)
             success
           else
@@ -159,7 +160,10 @@ module AdminManagement
           @user_kyc_detail.admin_action_types = 0
 
           # NOTE: we don't want to change the updated_at at this action. Don't touch before asking Sunil
-          @user_kyc_detail.save!(touch: false) if @user_kyc_detail.changed?
+          if @user_kyc_detail.changed?
+            @user_kyc_detail.save!(touch: false)
+            enqueue_job
+          end
         end
 
         # Send email
@@ -184,6 +188,39 @@ module AdminManagement
                 }
             ).perform
           end
+
+        end
+
+        # Get Event Source
+        #
+        # * Author: Tejas
+        # * Date: 16/10/2018
+        # * Reviewed By:
+        #
+        def get_event_source
+          is_auto_approve_admin? ? GlobalConstant::Event.kyc_system_source : GlobalConstant::Event.web_source
+        end
+
+        # Do remaining task in sidekiq
+        #
+        # * Author: Tejas
+        # * Date: 16/10/2018
+        # * Reviewed By:
+        #
+        def enqueue_job
+          BgJob.enqueue(
+              RecordEventJob,
+              {
+                  client_id: @user_kyc_detail.client_id,
+                  event_source: get_event_source,
+                  event_name: GlobalConstant::Event.kyc_status_update_name,
+                  event_data: {
+                      user_kyc_detail: @user_kyc_detail.get_hash,
+                      admin: @admin.get_hash
+                  },
+                  event_timestamp: Time.now.to_i
+              }
+          )
 
         end
 

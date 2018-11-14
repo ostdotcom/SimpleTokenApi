@@ -118,6 +118,7 @@ namespace :cron_task do
 
       begin
 
+        register_signal_handlers
         current_time = Time.now
         log_line "Starting at #{current_time} with params: #{@params}"
         performer_klass = @performer_klass.constantize.new(@params)

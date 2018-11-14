@@ -3,6 +3,7 @@ module Util
   class CommonValidateAndSanitize
 
     REGEX_EMAIL = /\A[A-Z0-9]+[A-Z0-9_%+-]*(\.[A-Z0-9_%+-]{1,})*@(?:[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,24}\Z/mi
+    REGEX_DOMAIN_NAME = /\A[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}\z/i
 
     # Util::CommonValidateAndSanitize
 
@@ -173,6 +174,18 @@ module Util
     #
     def self.is_valid_email?(email)
       email =~ REGEX_EMAIL
+    end
+
+    # Is the Domain a Valid Domain Name
+    #
+    # * Author: Tejas
+    # * Date: 31/10/2018
+    # * Reviewed By:
+    #
+    # @return [Boolean] returns a boolean
+    #
+    def self.is_valid_domain?(domain_name)
+      domain_name =~ REGEX_DOMAIN_NAME
     end
 
   end

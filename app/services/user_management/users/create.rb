@@ -152,7 +152,16 @@ module UserManagement
             {
                 user_id: @user.id,
                 ip_address: nil,
-                geoip_country: nil
+                geoip_country: nil,
+                event: {
+                    client_id: @user.client_id,
+                    event_source: GlobalConstant::Event.api_source,
+                    event_name: GlobalConstant::Event.user_register_name,
+                    event_data: {
+                        user: @user.get_hash
+                    },
+                    event_timestamp: Time.now.to_i
+                }
             }
         )
       end

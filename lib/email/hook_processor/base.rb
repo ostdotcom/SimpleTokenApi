@@ -51,7 +51,7 @@ module Email
       # @return [Result::Base]
       #
       def fetch_client_details
-        if @hook.client_id == Client::OST_KYC_CLIENT_IDENTIFIER
+        if is_ost_kyc_default_client?
           @campaign_api_key = GlobalConstant::PepoCampaigns.api_key
           @campaign_api_secret_d = GlobalConstant::PepoCampaigns.api_secret
           success
@@ -130,6 +130,35 @@ module Email
         ]
       end
 
+      # builds params which go into API call to Email Service for send transactional email
+      #
+      # * Author: Aman
+      # * Date: 13/11/2018
+      # * Reviewed By:
+      #
+      # @return [Array]
+      #
+      def send_transactional_mail_params
+        [
+            @hook.email,
+            @hook.params[:template_name],
+            @hook.params[:template_vars].merge(web_host_params)
+        ]
+      end
+
+      # send the web host domain of kyc clients if front end solution has been taken
+      #
+      # * Author: Aman
+      # * Date: 13/11/2018
+      # * Reviewed By:
+      #
+      # @return [Array]
+      #
+      def web_host_params
+        return {} if is_ost_kyc_default_client?
+        @client.web_host_params
+      end
+
       # pepo campaign klass
       #
       # * Author: Aman
@@ -139,6 +168,18 @@ module Email
       # @return [Object] Email::Services::PepoCampaigns
       def pepo_campaign_obj
         Email::Services::PepoCampaigns.new(api_key: @campaign_api_key, api_secret: @campaign_api_secret_d)
+      end
+
+      # check if the pepo campaign acoount to be used is the default kyc account
+      #
+      # * Author: Aman
+      # * Date: 13/11/2018
+      # * Reviewed By:
+      #
+      # @return [Boolean] True if client is the default kyc client
+      #
+      def is_ost_kyc_default_client?
+        @hook.client_id == Client::OST_KYC_CLIENT_IDENTIFIER
       end
 
       # Build attributes for email service

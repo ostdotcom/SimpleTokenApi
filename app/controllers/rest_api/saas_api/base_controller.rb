@@ -1,15 +1,26 @@
 class RestApi::SaasApi::BaseController < RestApi::RestApiController
 
   before_action :authenticate_request
+  before_action :merge_source_of_request
 
   private
+
+  # merge into params the source of the request to be used in services for webhooks
+  #
+  # * Author: Aman
+  # * Date: 27/12/2017
+  # * Reviewed By:
+  #
+  def merge_source_of_request
+    params.merge!(source_of_request: GlobalConstant::Event.api_source)
+  end
 
   # Authenticate client request by validating api credentials
   #
   # * Author: Aman
   # * Date: 27/12/2017
   # * Reviewed By:
-  #TODO: add check for forbidden request if client request is not allowed for web based.
+  #
   def authenticate_request(allow_web_based_client = false)
     Rails.logger.info("allow_web_based_client-#{allow_web_based_client}")
 
@@ -48,7 +59,7 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
     formatted_response = @service_response
 
     if formatted_response.success?
-      formatted_response = get_formatter_class.send(params['action'], formatted_response)
+      formatted_response.data = get_formatter_class.send(params['action'], formatted_response.data.dup)
     end
 
     puts "\nFinal formatted response : #{formatted_response.inspect}"

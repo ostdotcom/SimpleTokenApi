@@ -57,13 +57,15 @@ module Crons
 
             create_kyc_whitelist_log(client_whitelist_detail.id)
 
+            record_event_job
+
           rescue => e
             Rails.logger.info("Exception: #{e.inspect}")
             handle_whitelist_error("Exception - #{e.inspect}", {exception: e})
           end
 
         end
-
+        return if GlobalConstant::SignalHandling.sigint_received?
       end
 
     end
@@ -241,6 +243,26 @@ module Crons
           },
           subject: 'Error while KycWhitelistProcessor'
       ).deliver
+    end
+
+    # record event for webhooks
+    #
+    # * Author: Tejas
+    # * Date: 16/10/2018
+    # * Reviewed By:
+    #
+    def record_event_job
+      RecordEventJob.perform_now({
+                                     client_id: @user_kyc_detail.client_id,
+                                     event_source: GlobalConstant::Event.kyc_system_source,
+                                     event_name: GlobalConstant::Event.kyc_status_update_name,
+                                     event_data: {
+                                         user_kyc_detail: @user_kyc_detail.get_hash,
+                                         admin: @user_kyc_detail.get_last_acted_admin_hash
+                                     },
+                                     event_timestamp: Time.now.to_i
+                                 })
+
     end
 
   end

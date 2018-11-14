@@ -248,7 +248,16 @@ module UserManagement
               utm_params: @utm_params,
               ip_address: @ip_address,
               browser_user_agent: @browser_user_agent,
-              geoip_country: @geoip_country
+              geoip_country: @geoip_country,
+              event: {
+                  client_id: @user.client_id,
+                  event_source: GlobalConstant::Event.web_source,
+                  event_name: GlobalConstant::Event.user_register_name,
+                  event_data: {
+                      user: @user.get_hash
+                  },
+                  event_timestamp: Time.now.to_i
+              }
           }
       )
     end

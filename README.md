@@ -12,6 +12,7 @@ rake RAILS_ENV=development cron_task:continuous:read_blocks_on_ethernet
 rake RAILS_ENV=development cron_task:lockable:upload_failed_aml_users
 rake RAILS_ENV=development cron_task:lockable:populate_client_usage
 rake RAILS_ENV=development cron_task:lockable:refresh_dynamic_gas_price
+rake RAILS_ENV=development cron_task:continuous:process_webhooks
 
 one-timers
 1. Verify scripts
@@ -45,6 +46,8 @@ rake RAILS_ENV=development cron_task:continuous:populate_st_balance_for_processa
 
 
 New DB SETUP
+
+command to generate a key for local cipher- SecureRandom.hex
 
 rake RAILS_ENV=staging onetimer:insert_general_salt_key_row_in_table salt_type=user_activity_logging
 SaleGlobalVariable.create!(variable_kind: 'last_block_verified_for_tokens_sold_variable_kind', variable_data: '2610002')

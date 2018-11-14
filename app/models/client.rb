@@ -71,6 +71,18 @@ class Client < EstablishSimpleTokenClientDbConnection
     GlobalConstant::TokenSale.st_token_sale_client_id == self.id
   end
 
+  # Check if client is a sandbox account in staging or development env
+  #
+  # * Author: Aman
+  # * Date: 26/12/2017
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns true if client is setup as a sandbox account in staging or sandbox env
+  #
+  def is_sandbox_client_in_main_env?
+    ((Rails.env.staging? || Rails.env.development?) && self.uuid.starts_with?(GlobalConstant::Client.sandbox_prefix_uuid))
+  end
+
   # send the web host domain of kyc clients if front end solution has been taken
   #
   # * Author: Aman

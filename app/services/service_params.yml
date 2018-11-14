@@ -217,6 +217,11 @@
     - :decoded_token_data
   :optional:
 
+'SandboxManagement::GetClientSetupSetting':
+  :mandatory:
+    - :decoded_token_data
+  :optional:
+
 'AdminManagement::CmsConfigurator::FetchPublishedVersion':
   :mandatory:
     - :client_id

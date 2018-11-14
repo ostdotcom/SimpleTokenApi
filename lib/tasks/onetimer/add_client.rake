@@ -79,10 +79,9 @@ namespace :onetimer do
 
     if uuid.present?
       params = get_sandbox_account_settings(uuid)
-      params["web_host"]["domain"].gsub!("kyc.sandboxost.com", "kyc.ost.com") if params["web_host"].present?
+      params["web_host"]["domain"].gsub!("sandbox", "") if params["web_host"].present?
     else
       uuid = GlobalConstant::Client.sandbox_prefix_uuid + "#{SecureRandom.hex}_#{Time.now.to_i}"
-      uuid = uuid_sandbox_prefix + uuid
       params["entity_type_and_data_hash"] = GlobalConstant::CmsConfigurator.custom_default_template_data if params["web_host"].present?
     end
 
@@ -174,6 +173,7 @@ namespace :onetimer do
 
     puts "\tclient created"
 
+    super_admin_obj = nil
     super_admins.each do |super_admin|
       super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
     end

@@ -72,8 +72,8 @@ module SandboxManagement
     # @return [Result::Base]
     #
     def fetch_and_validate_client
-      @uuid = "#{GlobalConstant::Client.sandbox_prefix_uuid}#{@uuid}"
-      @client = Client.where(uuid: @uuid).first
+      sandbox_uuid = "#{GlobalConstant::Client.sandbox_prefix_uuid}#{@uuid}"
+      @client = Client.where(uuid: sandbox_uuid).first
 
       return error_with_identifier("invalid_client_id", "am_cc_gpd_favc_1") if @client.blank? ||
           @client.status != GlobalConstant::Client.active_status
@@ -150,6 +150,8 @@ module SandboxManagement
 
         @client_setting[:entity_type_and_data_hash] = r.data[:entity_type_and_data_hash]
       end
+
+      success
 
     end
 

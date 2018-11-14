@@ -7,6 +7,11 @@ class ClientWebHostDetail < EstablishSimpleTokenClientDbConnection
 
   after_commit :memcache_flush
 
+  # NOTE: Deactivate consumer pages
+  # mark client_web_host as inactive to stop consumer pages
+  # admins can still take actions and email and other functionality will work
+  # to stop admins & api calls deactivate all admins and mark client as inactive
+
   # Get Key Object by client id
   #
   # * Author: Aman

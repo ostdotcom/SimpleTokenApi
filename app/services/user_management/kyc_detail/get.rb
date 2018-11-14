@@ -151,7 +151,7 @@ module UserManagement
       # * Reviewed By:
       #
       def allowed_extra_kyc_fields
-        @allowed_extra_kyc_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.extra_kyc_fields.stringify_keys.keys : []
+        @allowed_extra_kyc_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.extra_kyc_fields : []
       end
 
       # Get Local Cipher Obj

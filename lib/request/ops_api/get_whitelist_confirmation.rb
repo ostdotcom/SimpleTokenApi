@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class GetWhitelistConfirmation < OpsApi::Request::Base
+    class GetWhitelistConfirmation < Request::OpsApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 26/10/2017
       # * Reviewed By: Sunil
       #
-      # @return [OpsApi::Request::GetWhitelistConfirmation]
+      # @return [Request::OpsApi::GetWhitelistConfirmation]
       #
       def initialize
         super

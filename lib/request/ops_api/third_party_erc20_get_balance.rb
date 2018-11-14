@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class ThirdPartyErc20GetBalance < OpsApi::Request::Base
+    class ThirdPartyErc20GetBalance < Request::OpsApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 17/11/2017
       # * Reviewed By:
       #
-      # @return [OpsApi::Request::ThirdPartyErc20GetBalance]
+      # @return [Request::OpsApi::ThirdPartyErc20GetBalance]
       #
       def initialize
         super

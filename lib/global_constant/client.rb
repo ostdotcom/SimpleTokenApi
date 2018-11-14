@@ -41,6 +41,10 @@ module GlobalConstant
 
       ### setup Property done ###
 
+      def sandbox_prefix_uuid
+        "sandbox_"
+      end
+
     end
 
   end

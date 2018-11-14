@@ -28,7 +28,7 @@ module Crons
       ClientWhitelistDetail.where(status: GlobalConstant::ClientWhitelistDetail.active_status).all.each do |c_w_o|
         whitelister_address = c_w_o.whitelister_address
 
-        r = OpsApi::Request::GetEthBalance.new.perform(ethereum_address: whitelister_address)
+        r = Request::OpsApi::GetEthBalance.new.perform(ethereum_address: whitelister_address)
         fail "error from ops api - #{r.inspect}" unless r.success?
         eth_value_in_wei = r.data['balance']
         eth_value = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(eth_value_in_wei.to_i).to_f.round(5)

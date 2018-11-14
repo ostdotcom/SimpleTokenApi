@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class GetBlockInfo < OpsApi::Request::Base
+    class GetBlockInfo < Request::OpsApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 31/10/2017
       # * Reviewed By: Kedar
       #
-      # @return [OpsApi::Request::GetBlockInfo]
+      # @return [Request::OpsApi::GetBlockInfo]
       #
       def initialize
         super

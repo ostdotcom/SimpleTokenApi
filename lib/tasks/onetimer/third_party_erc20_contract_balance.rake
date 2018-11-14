@@ -128,7 +128,7 @@ namespace :onetimer do
       contract_balance = {}
 
       @ethereum_addresses.each do |ea|
-        r = OpsApi::Request::ThirdPartyErc20GetBalance.new.perform({ethereum_address: ea, contract_address: contract_address})
+        r = Request::OpsApi::ThirdPartyErc20GetBalance.new.perform({ethereum_address: ea, contract_address: contract_address})
         unless r.success?
           @failed_other_balance_calls[contract_address] ||= []
           @failed_other_balance_calls[contract_address] << ea

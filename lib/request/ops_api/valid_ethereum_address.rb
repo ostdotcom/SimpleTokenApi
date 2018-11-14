@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class ValidEthereumAddress < OpsApi::Request::Base
+    class ValidEthereumAddress < Request::OpsApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 31/10/2017
       # * Reviewed By: Sunil
       #
-      # @return [OpsApi::Request::ValidEthereumAddress]
+      # @return [Request::OpsApi::ValidEthereumAddress]
       #
       def initialize
         super

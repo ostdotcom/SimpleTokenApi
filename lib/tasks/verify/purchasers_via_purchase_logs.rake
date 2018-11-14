@@ -10,7 +10,7 @@ namespace :verify do
     mismatches = []
 
     ethereum_addresses.each do |ethereum_address|
-      r = OpsApi::Request::GetBalance.new.perform({ethereum_address: ethereum_address})
+      r = Request::OpsApi::GetBalance.new.perform({ethereum_address: ethereum_address})
       unless r.success?
         failed_api_calls << ethereum_address
         next

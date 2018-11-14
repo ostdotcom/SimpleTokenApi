@@ -108,7 +108,7 @@ class UnwhitelistAddressJob < ApplicationJob
   def send_unwhitelist_request
 
     Rails.logger.info("user_kyc_detail id:: #{@user_kyc_detail_id} - making private ops api call")
-    r = OpsApi::Request::Whitelist.new.whitelist({
+    r = Request::OpsApi::Whitelist.new.whitelist({
                                                      whitelister_address: api_data[:client_whitelist_detail_obj].whitelister_address,
                                                      contract_address: api_data[:client_whitelist_detail_obj].contract_address,
                                                      address: api_data[:address],

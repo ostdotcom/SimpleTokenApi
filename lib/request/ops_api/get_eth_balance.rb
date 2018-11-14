@@ -1,16 +1,15 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class GetBalance < OpsApi::Request::Base
+    class GetEthBalance < Request::OpsApi::Base
 
       # Initialize
       #
-      # * Author: Kedar, Alpesh
+      # * Author: Kedar
       # * Date: 15/11/2017
       # * Reviewed By: Sunil
       #
-      # @return [OpsApi::Request::GetBalance]
+      # @return [Request::OpsApi::GetEthBalance]
       #
       def initialize
         super
@@ -18,7 +17,7 @@ module OpsApi
 
       # Perform
       #
-      # * Author: Kedar, Alpesh
+      # * Author: Kedar
       # * Date: 15/11/2017
       # * Reviewed By: Sunil
       #
@@ -28,7 +27,7 @@ module OpsApi
       #
       def perform(params)
         send_request_of_type(
-          GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/token-sale/get-balance', params
+          GlobalConstant::PublicOpsApi.public_ops_api_type, 'get', '/address/get-balance', params
         )
       end
 

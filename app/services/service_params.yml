@@ -212,17 +212,20 @@
     - :admin_id
   :optional:
 
-'AdminManagement::CmsConfigurator::GetPublishedDraft':
+'SandboxManagement::CmsConfigurator::GetPublishedDraft':
   :mandatory:
-    - :client_id
+    - :decoded_token_data
+  :optional:
+
+'SandboxManagement::GetClientSetupSetting':
+  :mandatory:
+    - :decoded_token_data
   :optional:
 
 'AdminManagement::CmsConfigurator::FetchPublishedVersion':
   :mandatory:
     - :client_id
     - :admin_id
-    - :api_key
-    - :api_secret
   :optional:
 
 'UserManagement::SignUp':
@@ -420,6 +423,7 @@
   :mandatory:
     - :client_id
     - :admin_id
+    - :entity_type_and_data_hash
   :optional:
 
 

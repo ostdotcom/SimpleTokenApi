@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class ThirdPartyErc20GetDecimal < OpsApi::Request::Base
+    class ThirdPartyErc20GetDecimal < Request::OpsApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 15/12/2017
       # * Reviewed By:
       #
-      # @return [OpsApi::Request::ThirdPartyErc20GetDecimal]
+      # @return [Request::OpsApi::ThirdPartyErc20GetDecimal]
       #
       def initialize
         super

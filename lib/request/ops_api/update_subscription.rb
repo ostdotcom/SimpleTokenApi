@@ -1,8 +1,7 @@
-module OpsApi
+module Request
+  module OpsApi
 
-  module Request
-
-    class UpdateSubscription < OpsApi::Request::Base
+    class UpdateSubscription < Request::OpsApi::Base
 
       # Initialize
       #
@@ -10,7 +9,7 @@ module OpsApi
       # * Date: 04/09/2018
       # * Reviewed By:
       #
-      # @return [OpsApi::Request::UpdateSubscription]
+      # @return [Request::OpsApi::UpdateSubscription]
       #
       def initialize
         super

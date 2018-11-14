@@ -55,6 +55,10 @@ module GlobalConstant
       @public_ops ||= fetch_config.fetch('public_ops', {}).with_indifferent_access
     end
 
+    def self.ost_kyc_api
+      @ost_kyc_api ||= fetch_config.fetch('ost_kyc_api', {}).with_indifferent_access
+    end
+
     def self.pipedrive
       @pipedrive ||= fetch_config.fetch('pipedrive', {}).with_indifferent_access
     end

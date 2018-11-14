@@ -76,10 +76,22 @@ namespace :onetimer do
     fail 'uuid not given' if (Rails.env.production? && uuid.blank?)
     fail 'uuid cannot be passed' if (Rails.env.sandbox? && uuid.present?)
 
+    if (Rails.env.staging? || Rails.env.development?) && uuid.blank?
+      fail "sandbox client in staging/development should have sandbox as prefix in domain" if params["web_host"].present? && params["web_host"]["domain"].starts_with?("sandbox")
+
+      params["super_admins"].each do |super_admin|
+        fail "sandbox client in staging/development should have format->email+sandbox@ost.com for emails" if super_admin['email'].to_s.match?('+sandbox@')
+      end
+    end
 
     if uuid.present?
       params = get_sandbox_account_settings(uuid)
       params["web_host"]["domain"].gsub!("sandbox", "") if params["web_host"].present?
+
+      params["super_admins"].each do |super_admin|
+        super_admin['email'].gsub!('+sandbox@', "@")
+      end if (Rails.env.staging? || Rails.env.development?)
+
     else
       uuid = GlobalConstant::Client.sandbox_prefix_uuid + "#{SecureRandom.hex}_#{Time.now.to_i}"
       params["entity_type_and_data_hash"] = GlobalConstant::CmsConfigurator.custom_default_template_data if params["web_host"].present?

@@ -183,10 +183,10 @@ module AdminManagement
           extra_kyc_fields = @client_settings.data[:kyc_config_detail_data][:extra_kyc_fields]
           dynamic_instruction_text_keys = []
 
-          extra_kyc_fields.each do |extra_kyc_field, _|
+          extra_kyc_fields.each do |extra_kyc_field, extra_kyc_field_val|
             instruction_text_key = "#{extra_kyc_field.to_s}#{GlobalConstant::CmsConfigurator.extra_kyc_field_instruction_key_suffix}"
             dynamic_instruction_text_keys << instruction_text_key
-            ui_config[instruction_text_key] = GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(instruction_text_key)
+            ui_config[instruction_text_key] = GlobalConstant::CmsConfigurator.get_fe_config_for_instruction_text(extra_kyc_field_val[:label])
           end
 
           accordion_config = GlobalConstant::CmsConfigurator.get_dynamic_fields_fe_sequence_config(dynamic_instruction_text_keys)

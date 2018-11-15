@@ -557,14 +557,21 @@
      - :event_result_types
   :optional:
 
-'ClientManagement::DeleteWebhook':
+'ClientManagement::WebhookSetting::DeleteWebhook':
   :mandatory:
      - :client_id
      - :admin_id
      - :webhook_id
   :optional:
 
-'ClientManagement::ResetSecretKey':
+'ClientManagement::WebhookSetting::Test':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
+'ClientManagement::WebhookSetting::ResetSecretKey':
   :mandatory:
      - :client_id
      - :admin_id

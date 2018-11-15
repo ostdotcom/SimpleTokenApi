@@ -1,6 +1,6 @@
 module ClientManagement
   module WebhookSetting
-    class DeleteWebhook < ServicesBase
+    class ResetSecretKey < ServicesBase
       # Initialize
       #
       # * Author: Tejas
@@ -12,7 +12,7 @@ module ClientManagement
       # @param [Integer] webhook_id (mandatory) - webhook id
       #
       #
-      # @return [ClientManagement::WebhookSetting::DeleteWebhook]
+      # @return [ClientManagement::WebhookSetting::ResetSecretKey]
       #
       def initialize(params)
         super
@@ -20,7 +20,7 @@ module ClientManagement
         @admin_id = @params[:admin_id]
         @webhook_id = @params[:webhook_id]
 
-        @client_webhook_settings = nil
+        @client_webhook_setting = nil
       end
 
       # Perform
@@ -33,11 +33,9 @@ module ClientManagement
         r = validate_and_sanitize
         return r unless r.success?
 
-        delete_client_webhook_setting
+        reset_secret_key
 
-        enqueue_job
-
-        success
+        success_with_data(service_response_data)
       end
 
       private
@@ -77,38 +75,48 @@ module ClientManagement
       #
       def fetch_and_validate_webhook
         @client_webhook_setting = ClientWebhookSetting.get_from_memcache(@webhook_id)
-        return error_with_identifier('resource_not_found', 'cm_dw_favw_1'
+        return error_with_identifier('resource_not_found', 'cm_gsk_favw_1'
         ) if @client_webhook_setting.blank? || @client_webhook_setting.status != GlobalConstant::ClientWebhookSetting.active_status ||
             @client_webhook_setting.client_id != @client_id
         success
       end
 
-      # Delete Client Webhook Setting
+      # Reset Secret Key
       #
       # * Author: Tejas
       # * Date: 25/10/2018
       # * Reviewed By:
       #
-      def delete_client_webhook_setting
-        @client_webhook_setting.status = GlobalConstant::ClientWebhookSetting.deleted_status
+      def reset_secret_key
+        r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+        return r unless r.success?
+
+        api_salt_d = r.data[:plaintext]
+
+        client_api_secret_d = SecureRandom.hex
+
+        r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
+        return r unless r.success?
+
+        client_api_secret_e = r.data[:ciphertext_blob]
+
+        @client_webhook_setting.secret_key = client_api_secret_e
+        @client_webhook_setting.set_decrypted_secret_key(client_api_secret_d)
         @client_webhook_setting.source = GlobalConstant::AdminActivityChangeLogger.web_source
+
         @client_webhook_setting.save! if @client_webhook_setting.changed?
       end
 
-      # Do remaining task in sidekiq
+      # Format service response
       #
       # * Author: Tejas
       # * Date: 25/10/2018
       # * Reviewed By:
       #
-      def enqueue_job
-        BgJob.enqueue(
-            InvalidWebhookJob,
-            {
-                client_id: @client_id,
-                client_webhook_setting_id: @webhook_id,
-            }
-        )
+      def service_response_data
+        {
+            webhook: @client_webhook_setting.get_hash
+        }
       end
 
     end

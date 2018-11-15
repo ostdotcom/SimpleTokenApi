@@ -31,7 +31,7 @@ class NewUserRegisterJob < ApplicationJob
                                          }
                                      })
 
-    RecordEventJob.perform_now(@event)
+    WebhookJob::RecordEvent.perform_now(@event)
   end
 
   private

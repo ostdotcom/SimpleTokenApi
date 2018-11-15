@@ -411,7 +411,7 @@ module AdminManagement
       #
       def enqueue_job
         BgJob.enqueue(
-            RecordEventJob,
+            WebhookJob::RecordEvent,
             {
                 client_id: @user_kyc_detail.client_id,
                 event_source: GlobalConstant::Event.web_source,

@@ -73,7 +73,7 @@ module AdminManagement
             'Client does not have a sandbox env setup',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @client.uuid.blank? || !@client.is_sandbox_client_in_main_env?
+        ) if @client.uuid.blank? || @client.is_sandbox_client_in_main_env?
 
         r = fetch_and_validate_admin
         return r unless r.success?

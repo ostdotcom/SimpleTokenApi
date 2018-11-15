@@ -1,5 +1,15 @@
 namespace :onetimer do
 
+  # NOTE::
+  # On sandbox - uuid should start with 'sandbox_'
+  # when pulled to production - in web host domain "sandbox" is removed
+
+  # Special Handling for development/staging since there is no sandbox
+  #   Mandatory-email should have suffix 'sandbox@' which gets replaced on production pull
+  #   Mandatory-web host domain should have prefix 'sandbox' which gets replaced on production pull
+
+
+
   # params = {
   #     "client_plan" => {
   #         "add_ons" => ['whitelist', 'custom_front_end'],

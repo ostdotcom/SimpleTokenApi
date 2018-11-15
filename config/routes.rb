@@ -136,7 +136,7 @@ Rails.application.routes.draw do
 
       # Publish is not allowed in sandbox environment
       if !Rails.env.sandbox?
-        match 'fetch-published-version' => :fetch_published_version, via: :GET
+        match 'fetch-published-version' => :fetch_published_version, via: :POST
       end
 
       # Configurator is not allowed in production environment

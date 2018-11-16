@@ -1,6 +1,6 @@
 module ClientManagement
   module WebhookSetting
-    class DeleteWebhook < ServicesBase
+    class Delete < ServicesBase
       # Initialize
       #
       # * Author: Tejas
@@ -12,7 +12,7 @@ module ClientManagement
       # @param [Integer] webhook_id (mandatory) - webhook id
       #
       #
-      # @return [ClientManagement::WebhookSetting::DeleteWebhook]
+      # @return [ClientManagement::WebhookSetting::Delete]
       #
       def initialize(params)
         super

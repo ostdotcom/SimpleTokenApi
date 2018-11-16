@@ -66,7 +66,7 @@ class Web::Admin::WebhookController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def delete_webhook
-    service_response = ClientManagement::WebhookSetting::DeleteWebhook.new(params).perform
+    service_response = ClientManagement::WebhookSetting::Delete.new(params).perform
     render_api_response(service_response)
   end
 

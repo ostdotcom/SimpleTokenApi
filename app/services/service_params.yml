@@ -557,7 +557,7 @@
      - :event_result_types
   :optional:
 
-'ClientManagement::WebhookSetting::DeleteWebhook':
+'ClientManagement::WebhookSetting::Delete':
   :mandatory:
      - :client_id
      - :admin_id

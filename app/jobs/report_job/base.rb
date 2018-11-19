@@ -166,7 +166,7 @@ class Base < ApplicationJob
         client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
         email: @admin.email,
         template_name: GlobalConstant::PepoCampaigns.kyc_report_download_template,
-        template_vars: {file_download_url: s3_url}
+        template_vars: {file_download_url: s3_url, report_type: @csv_report_job.report_type}
     ).perform
   end
 
@@ -179,7 +179,7 @@ class Base < ApplicationJob
     row = []
     csv_headers.each do |field_name|
       val = data[field_name.to_sym]
-      row << (val.present? ? val.to_s.html_safe : nil)
+      row << ((val.present? || val.is_a?(FalseClass)) ? val.to_s.html_safe : nil)
     end
     row
   end

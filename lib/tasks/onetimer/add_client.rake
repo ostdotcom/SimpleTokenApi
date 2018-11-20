@@ -280,11 +280,10 @@ namespace :onetimer do
     )
 
     puts "\tTokenSale setup done"
-
     ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
                                      blacklisted_countries: kyc_config["blacklisted_countries"] || [],
-                                     extra_kyc_fields: kyc_config['extra_kyc_fields'].deep_symbolize_keys || {}
+                                     extra_kyc_fields: kyc_config['extra_kyc_fields'] || {}
     )
 
     puts "\tKycConfig setup done"

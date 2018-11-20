@@ -46,7 +46,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
         client_id: params[:client_id],
         kyc_fields: kyc_field_bit_value,
         residency_proof_nationalities: params[:residency_proof_nationalities].map(&:upcase),
-        blacklisted_countries: params[:blacklisted_countries].map(&:upcase)
+        blacklisted_countries: params[:blacklisted_countries].map(&:upcase),
+        extra_kyc_fields: params[:extra_kyc_fields]
     )
 
   end

@@ -10,61 +10,86 @@ namespace :onetimer do
 
 
 
+
   # params = {
-  #     "client_plan" => {
-  #         "add_ons" => ['whitelist', 'custom_front_end'],
-  #         "kyc_submissions_count" => 100
-  #     },
-  #     "super_admins" => [{
-  #                            "email" => "tejas+7@ost.com",
-  #                            "password" => "tejas123",
-  #                            "name" => "tejas"
-  #                        }],
-  #     "double_opt_in" => 1,
-  #     "client_name" => "clientName",
-  #     "aml" => {
-  #         "email_id" =>  'paul@simpletoken.org',
-  #         "domain_name" => "OST_UAT",
-  #         "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
-  #         "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
-  #     },
-  #     "pepo_campaign" => {
-  #         "api_key" => '0455fbd02e9512168211903ff25094d8',
-  #         "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
-  #     },
-  #     "web_host" => {
-  #         "domain" => "tejaskyc.developmentost.com"
-  #     },
-  #     "token_sale_details" => {
-  #         "token_name" => "TokenName",
-  #         "token_symbol" => 'TokenSymbol',
-  #         "sale_start_timestamp" =>  nil,
-  #         "registration_end_timestamp" =>  nil,
-  #         "sale_end_timestamp" =>  nil,
-  #     },
-  #     "kyc_config" => {
-  #         "kyc_fields" => [
-  #             "first_name",
-  #             "last_name",
-  #             "birthdate",
-  #             "country",
-  #             "ethereum_address",
-  #             "document_id_number",
-  #             "nationality",
-  #             "document_id_file_path",
-  #             "selfie_file_path",
-  #             "residence_proof_file_path",
-  #             "investor_proof_files_path",
-  #             "street_address",
-  #             "city",
-  #             "state",
-  #             "postal_code"
-  #             "estimated_participation_amount"
-  #         ],
-  #         "residency_proof_nationalities" => [],
-  #         "blacklisted_countries" => []
+  #         "client_plan" => {
+  #             "add_ons" => ['whitelist', 'custom_front_end'],
+  #             "kyc_submissions_count" => 100
+  #         },
+  #         "super_admins" => [{
+  #                                "email" => "yogesh+peposandbox@ost.com",
+  #                                "password" => "11221122",
+  #                                "name" => "yogesh"
+  #                            }],
+  #         "double_opt_in" => 1,
+  #         "client_name" => "Pepo",
+  #         "aml" => {
+  #             "email_id" =>  'paul@simpletoken.org',
+  #             "domain_name" => "OST_UAT",
+  #             "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
+  #             "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
+  #         },
+  #         "pepo_campaign" => {
+  #             "api_key" => '0455fbd02e9512168211903ff25094d8',
+  #             "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
+  #         },
+  #         "web_host" => {
+  #             "domain" => "sandboxpepokyc.stagingost.com"
+  #         },
+  #         "token_sale_details" => {
+  #             "token_name" => "Pepo coin",
+  #             "token_symbol" => 'PEPO',
+  #             "sale_start_timestamp" =>  nil,
+  #             "registration_end_timestamp" =>  nil,
+  #             "sale_end_timestamp" =>  nil,
+  #         },
+  #         "kyc_config" => {
+  #             "kyc_fields" => [
+  #                 "first_name",
+  #                 "last_name",
+  #                 "birthdate",
+  #                 "country",
+  #                 "ethereum_address",
+  #                 "document_id_number",
+  #                 "nationality",
+  #                 "document_id_file_path",
+  #                 "selfie_file_path",
+  #                 "residence_proof_file_path",
+  #                 "investor_proof_files_path",
+  #                 "street_address",
+  #                 "city",
+  #                 "state",
+  #                 "postal_code",
+  #                 "estimated_participation_amount"
+  #             ],
+  #             "extra_kyc_fields" =>  {
+  #                 referral: {
+  #                     label: 'referral code',
+  #                     validation: {
+  #                         required: 1
+  #                     },
+  #                     data_type: 'text'
+  #                 },
+  #                 referral_1: {
+  #                     label: 'referral code 1',
+  #                     validation: {
+  #                         required: 0
+  #                     },
+  #                     data_type: 'text'
+  #                 },
+  #                 referral_2: {
+  #                     label: 'referral code 2',
+  #                     validation: {
+  #                         required: 1
+  #                     },
+  #                     data_type: 'text'
+  #                 }
+  #
+  #             },
+  #             "residency_proof_nationalities" => [],
+  #             "blacklisted_countries" => []
+  #         }
   #     }
-  # }
 
   #  for production account setup pass only uuid of sandbox account
   # params = {
@@ -87,7 +112,7 @@ namespace :onetimer do
     fail 'uuid cannot be passed' if (Rails.env.sandbox? && uuid.present?)
 
     if (Rails.env.staging? || Rails.env.development?) && uuid.blank?
-      fail "sandbox client in staging/development should have sandbox as prefix in domain" if params["web_host"].present? && params["web_host"]["domain"].starts_with?("sandbox")
+      fail "sandbox client in staging/development should have sandbox as prefix in domain" if params["web_host"].present? && !params["web_host"]["domain"].starts_with?("sandbox")
 
       params["super_admins"].each do |super_admin|
         fail "sandbox client in staging/development should have format->email+sandbox@ost.com for emails" unless
@@ -258,7 +283,8 @@ namespace :onetimer do
 
     ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
-                                     blacklisted_countries: kyc_config["blacklisted_countries"] || []
+                                     blacklisted_countries: kyc_config["blacklisted_countries"] || [],
+                                     extra_kyc_fields: kyc_config['extra_kyc_fields'].deep_symbolize_keys || {}
     )
 
     puts "\tKycConfig setup done"

@@ -16,7 +16,7 @@ namespace :verify do
     #
     #   processed_addrs[ethereum_address] = 1
     #
-    #   r = OpsApi::Request::GetWhitelistStatus.new.perform(ethereum_address: ethereum_address)
+    #   r = Request::OpsApi::GetWhitelistStatus.new.perform(ethereum_address: ethereum_address)
     #   unless r.success?
     #     failed_checks[kwl.id] = r
     #     next

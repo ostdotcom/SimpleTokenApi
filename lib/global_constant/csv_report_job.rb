@@ -25,6 +25,21 @@ module GlobalConstant
       
       # statuses end
 
+
+
+      # report type start
+
+      def kyc_report_type
+        'kyc'
+      end
+
+
+      def user_report_type
+        'user'
+      end
+
+      # report type end
+
     end
 
   end

@@ -3,6 +3,19 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   serialize :residency_proof_nationalities, Array
   serialize :blacklisted_countries, Array
 
+  # should always be a symbolized hash
+  # {
+  #     referral: {
+  #         label: 'referral code',
+  #         validation: {
+  #             required: 1
+  #         },
+  #         data_type: 'text'
+  #     }
+  # }
+
+  serialize :extra_kyc_fields, Hash
+
   after_commit :memcache_flush
 
 
@@ -33,7 +46,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
         client_id: params[:client_id],
         kyc_fields: kyc_field_bit_value,
         residency_proof_nationalities: params[:residency_proof_nationalities].map(&:upcase),
-        blacklisted_countries: params[:blacklisted_countries].map(&:upcase)
+        blacklisted_countries: params[:blacklisted_countries].map(&:upcase),
+        extra_kyc_fields: params[:extra_kyc_fields].deep_symbolize_keys
     )
 
   end

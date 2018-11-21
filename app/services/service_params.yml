@@ -142,7 +142,15 @@
     - :user_id
   :optional:
 
-'AdminManagement::Report::GetKycReport':
+'AdminManagement::Report::Kyc':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+    - :filters
+    - :sortings
+
+'AdminManagement::Report::User':
   :mandatory:
     - :client_id
     - :admin_id
@@ -204,17 +212,20 @@
     - :admin_id
   :optional:
 
-'AdminManagement::CmsConfigurator::GetPublishedDraft':
+'SandboxManagement::CmsConfigurator::GetPublishedDraft':
   :mandatory:
-    - :client_id
+    - :decoded_token_data
+  :optional:
+
+'SandboxManagement::GetClientSetupSetting':
+  :mandatory:
+    - :decoded_token_data
   :optional:
 
 'AdminManagement::CmsConfigurator::FetchPublishedVersion':
   :mandatory:
     - :client_id
     - :admin_id
-    - :api_key
-    - :api_secret
   :optional:
 
 'UserManagement::SignUp':
@@ -278,14 +289,6 @@
     - :gid
   :optional:
 
-'UserManagement::BtSubmit':
-  :mandatory:
-    - :client_id
-    - :bt_name
-    - :skip_name
-    - :user_id
-  :optional:
-
 'UserManagement::DocumentsUploader::SignedPostParams':
   :mandatory:
     - :client_id
@@ -310,13 +313,6 @@
   :mandatory:
     - :client_id
     - :files
-  :optional:
-
-'UserManagement::CheckEthereumBalance':
-  :mandatory:
-    - :client_id
-    - :user_id
-    - :user_ethereum_address
   :optional:
 
 'UserManagement::SendResetPasswordLink':
@@ -427,6 +423,7 @@
   :mandatory:
     - :client_id
     - :admin_id
+    - :entity_type_and_data_hash
   :optional:
 
 

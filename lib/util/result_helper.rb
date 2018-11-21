@@ -78,13 +78,14 @@ module Util
     #
     # @return [Result::Base]
     #
-    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [], display_text=nil)
+    def error_with_identifier(api_error_code, internal_code, params_error_identifiers = [], display_text=nil, params_error_data={})
       Result::Base.error(
           {
               api_error_code: api_error_code,
               error: internal_code,
               params_error_identifiers: params_error_identifiers,
-              error_display_text: display_text
+              error_display_text: display_text,
+              error_data: params_error_data
           }
       )
     end
@@ -169,7 +170,7 @@ module Util
     #
     # @return [Result::Base] returns an object of Result::Base class
     #
-    def deprecated_error_with_internal_code(internal_code, msg, http_code, data = {}, error_data = {}, error_display_text= '')
+    def deprecated_error_with_internal_code(internal_code, msg, http_code, data = {}, error_data = {}, error_display_text= nil)
       warn "[DEPRECATION] `deprecated_error_with_internal_code` is deprecated.
             Please use `error_with_internal_code` instead."
 
@@ -201,7 +202,7 @@ module Util
     #
     # @return [Result::Base] returns an object of Result::Base class
     #
-    def error_with_internal_code(internal_code, error_msg, http_code, data = {}, error_data = [], error_display_text= '')
+    def error_with_internal_code(internal_code, error_msg, http_code, data = {}, error_data = [], error_display_text= nil)
       error_hash = {}
       error_data.each do |err|
         param = err['parameter']
@@ -227,7 +228,7 @@ module Util
     #
     # @return [Result::Base] returns an object of Result::Base class
     #
-    def exception_with_internal_code(e, internal_code, msg, http_code, data = {}, error_display_text='')
+    def exception_with_internal_code(e, internal_code, msg, http_code, data = {}, error_display_text=nil)
 
       Result::Base.exception(
           e, {

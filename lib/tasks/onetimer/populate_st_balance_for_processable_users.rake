@@ -19,7 +19,7 @@ namespace :onetimer do
 
     def fetch_contract_balance(ethereum_address)
       puts "fetching balance for: #{ethereum_address}\n"
-      r = OpsApi::Request::ThirdPartyErc20GetBalance.new.perform({ethereum_address: ethereum_address, contract_address: GlobalConstant::TokenSale.simple_token_contract_address})
+      r = Request::OpsApi::ThirdPartyErc20GetBalance.new.perform({ethereum_address: ethereum_address, contract_address: GlobalConstant::TokenSale.simple_token_contract_address})
       fail "unable to fetch contract balance for address- #{ethereum_address}" unless r.success?
       balance_in_wei = r.data['balance'].to_i
       balance_in_wei

@@ -92,7 +92,7 @@ module Crons
     #
     def get_block_transactions
       Rails.logger.info("read_block_events block number: #{@current_block_number} - Making API call ReadBlockEvents")
-      @block_data_response = OpsApi::Request::GetBlockInfo.new.perform(public_api_request_params)
+      @block_data_response = Request::OpsApi::GetBlockInfo.new.perform(public_api_request_params)
       Rails.logger.info("read_block_events --- block number: #{@current_block_number} --- block_fetched_response: #{@block_data_response.inspect}")
     end
 

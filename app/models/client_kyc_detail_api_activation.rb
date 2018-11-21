@@ -1,5 +1,9 @@
 class ClientKycDetailApiActivation < EstablishSimpleTokenClientDbConnection
 
+  include ActivityChangeObserver
+
+  serialize :extra_kyc_fields, Array
+
   enum status: {
       GlobalConstant::ClientKycDetailApiActivation.inactive_status => 0,
       GlobalConstant::ClientKycDetailApiActivation.active_status => 1,
@@ -16,8 +20,8 @@ class ClientKycDetailApiActivation < EstablishSimpleTokenClientDbConnection
   #
   # @returns [Array<Symbol>] returns Array of allowed keys bits set for client's kyc form
   #
-  def allowed_keys_array
-    @allowed_keys_array = ClientKycDetailApiActivation.get_bits_set_for_allowed_keys(allowed_keys)
+  def kyc_fields_array
+    @kyc_fields_array = ClientKycDetailApiActivation.get_bits_set_for_kyc_fields(kyc_fields)
   end
 
   # allowed keys
@@ -26,7 +30,7 @@ class ClientKycDetailApiActivation < EstablishSimpleTokenClientDbConnection
   # * Date: 25/09/2018
   # * Reviewed By:
   #
-  def self.allowed_keys
+  def self.kyc_fields
     ClientKycConfigDetail.kyc_fields_config
   end
 
@@ -39,7 +43,7 @@ class ClientKycDetailApiActivation < EstablishSimpleTokenClientDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        allowed_keys: allowed_keys
+        kyc_fields: kyc_fields
     }
   end
 

@@ -10,7 +10,7 @@ namespace :onetimer do
     alternate_tokens.each do |token_name, alt_token_obj|
 
       next if alt_token_obj.contract_address.blank?
-      r = OpsApi::Request::ThirdPartyErc20GetDecimal.new.perform({contract_address: alt_token_obj.contract_address})
+      r = Request::OpsApi::ThirdPartyErc20GetDecimal.new.perform({contract_address: alt_token_obj.contract_address})
       unless r.success?
         failed_data << token_name
         next

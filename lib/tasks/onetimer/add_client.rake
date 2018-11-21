@@ -1,55 +1,99 @@
 namespace :onetimer do
 
+  # NOTE::
+  # On sandbox - uuid should start with 'sandbox_'
+  # when pulled to production - in web host domain "sandbox" is removed
+
+  # Special Handling for development/staging since there is no sandbox
+  #   Mandatory-email should have suffix 'sandbox@' which gets replaced on production pull
+  #   Mandatory-web host domain should have prefix 'sandbox' which gets replaced on production pull
+
+
+
 
   # params = {
-  #     "client_plan" => {
-  #       "add_ons" => ['whitelist', 'custom_front_end'],
-  #       "kyc_submissions_count" => 100
-  #     },
-  #     "super_admin" => {
-  #         "email" => "tejas+7@ost.com",
-  #         "password" => "tejas123",
-  #         "name" => "tejas"
-  #     },
-  #     "double_opt_in" => 1,
-  #     "client_name" => "clientName",
-  #     "aml" => {
-  #         "email_id" =>  'paul@simpletoken.org',
-  #         "domain_name" => "OST_UAT",
-  #         "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
-  #         "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
-  #     },
-  #     "pepo_campaign" => {
-  #         "api_key" => '0455fbd02e9512168211903ff25094d8',
-  #         "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
-  #     },
-  #     "web_host" => {
-  #         "domain" => "tejaskyc.developmentost.com"
-  #     },
-  #     "token_sale_details" => {
-  #         "token_name" => "TokenName",
-  #         "token_symbol" => 'TokenSymbol'
-  #     },
-  #     "kyc_config" => {
-  #         "kyc_fields" => [
-  #             "first_name",
-  #             "last_name",
-  #             "birthdate",
-  #             "country",
-  #             "ethereum_address",
-  #             "document_id_number",
-  #             "nationality",
-  #             "document_id_file_path",
-  #             "selfie_file_path",
-  #             "residence_proof_file_path",
-  #             "investor_proof_files_path",
-  #             "street_address",
-  #             "city",
-  #             "state",
-  #             "postal_code"
-  #             "estimated_participation_amount"
-  #         ]
+  #         "client_plan" => {
+  #             "add_ons" => ['whitelist', 'custom_front_end'],
+  #             "kyc_submissions_count" => 100
+  #         },
+  #         "super_admins" => [{
+  #                                "email" => "yogesh+peposandbox@ost.com",
+  #                                "password" => "11221122",
+  #                                "name" => "yogesh"
+  #                            }],
+  #         "double_opt_in" => 1,
+  #         "client_name" => "Pepo",
+  #         "aml" => {
+  #             "email_id" =>  'paul@simpletoken.org',
+  #             "domain_name" => "OST_UAT",
+  #             "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
+  #             "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
+  #         },
+  #         "pepo_campaign" => {
+  #             "api_key" => '0455fbd02e9512168211903ff25094d8',
+  #             "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
+  #         },
+  #         "web_host" => {
+  #             "domain" => "sandboxpepokyc.stagingost.com"
+  #         },
+  #         "token_sale_details" => {
+  #             "token_name" => "Pepo coin",
+  #             "token_symbol" => 'PEPO',
+  #             "sale_start_timestamp" =>  nil,
+  #             "registration_end_timestamp" =>  nil,
+  #             "sale_end_timestamp" =>  nil,
+  #         },
+  #         "kyc_config" => {
+  #             "kyc_fields" => [
+  #                 "first_name",
+  #                 "last_name",
+  #                 "birthdate",
+  #                 "country",
+  #                 "ethereum_address",
+  #                 "document_id_number",
+  #                 "nationality",
+  #                 "document_id_file_path",
+  #                 "selfie_file_path",
+  #                 "residence_proof_file_path",
+  #                 "investor_proof_files_path",
+  #                 "street_address",
+  #                 "city",
+  #                 "state",
+  #                 "postal_code",
+  #                 "estimated_participation_amount"
+  #             ],
+  #             "extra_kyc_fields" =>  {
+  #                 referral: {
+  #                     label: 'referral code',
+  #                     validation: {
+  #                         required: 1
+  #                     },
+  #                     data_type: 'text'
+  #                 },
+  #                 referral_1: {
+  #                     label: 'referral code 1',
+  #                     validation: {
+  #                         required: 0
+  #                     },
+  #                     data_type: 'text'
+  #                 },
+  #                 referral_2: {
+  #                     label: 'referral code 2',
+  #                     validation: {
+  #                         required: 1
+  #                     },
+  #                     data_type: 'text'
+  #                 }
+  #
+  #             },
+  #             "residency_proof_nationalities" => [],
+  #             "blacklisted_countries" => []
+  #         }
   #     }
+
+  #  for production account setup pass only uuid of sandbox account
+  # params = {
+  #     "uuid" => "abc"
   # }
 
   #   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
@@ -61,9 +105,55 @@ namespace :onetimer do
   # rake RAILS_ENV=development onetimer:add_client params="{\"client_plan\":{\"add_ons\":[\"whitelist\",\"custom_front_end\"],\"kyc_submissions_count\":100},\"super_admin\":{\"email\":\"tejas+7@ost.com\",\"password\":\"tejas123\",\"name\":\"tejas\"},\"double_opt_in\":1,\"client_name\":\"test2\",\"aml\":{\"email_id\":\"tejas@ost.com\",\"domain_name\":\"OST_UAT\",\"token\":\"a2bf78a8-ae04-43be-8c44-5db71a91b2c2\",\"base_url\":\"https://p2.cynopsis-solutions.com/artemis_ost_uat\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"web_host\":{\"domain\":\"tejaskyc.developmentost.com\"},\"token_sale_details\":{\"token_name\":\"Tejas\",\"token_symbol\":\"T777\"},\"kyc_config\":{\"kyc_fields\":[\"first_name\",\"last_name\",\"birthdate\",\"country\",\"ethereum_address\",\"document_id_number\",\"nationality\",\"document_id_file_path\",\"selfie_file_path\",\"residence_proof_file_path\",\"investor_proof_files_path\",\"state\"]}}"
 
   task :add_client => :environment do
-
     params = JSON.parse(ENV['params'])
-    super_admin = params["super_admin"]
+    uuid = params["uuid"]
+
+    fail 'uuid not given' if (Rails.env.production? && uuid.blank?)
+    fail 'uuid cannot be passed' if (Rails.env.sandbox? && uuid.present?)
+
+    if (Rails.env.staging? || Rails.env.development?) && uuid.blank?
+      fail "sandbox client in staging/development should have sandbox as prefix in domain" if params["web_host"].present? && !params["web_host"]["domain"].starts_with?("sandbox")
+
+      params["super_admins"].each do |super_admin|
+        fail "sandbox client in staging/development should have format->email+sandbox@ost.com for emails" unless
+            super_admin['email'].to_s.match?(GlobalConstant::Admin.sandbox_email_suffix)
+      end
+    end
+
+    if uuid.present?
+      params = get_sandbox_account_settings(uuid)
+      params["web_host"]["domain"].gsub!("sandbox", "") if params["web_host"].present?
+
+      params["super_admins"].each do |super_admin|
+        super_admin['email'].gsub!(GlobalConstant::Admin.sandbox_email_suffix, "@")
+      end if (Rails.env.staging? || Rails.env.development?)
+
+    else
+      uuid = GlobalConstant::Client.sandbox_prefix_uuid + "#{SecureRandom.hex}_#{Time.now.to_i}"
+      params["entity_type_and_data_hash"] = GlobalConstant::CmsConfigurator.custom_default_template_data if params["web_host"].present?
+    end
+
+    setup_account(uuid, params)
+  end
+
+  def get_sandbox_account_settings(uuid)
+    environment = Rails.env.production? ? GlobalConstant::RailsEnvironment.sandbox : Rails.env
+    puts "::Fetching details of sandbox account from environment-#{environment}::"
+
+    r = Request::SandboxApi::FetchClientSetupSetting.new.perform(environment, {uuid: uuid})
+    fail "#{r.to_json.inspect}" unless r.success?
+
+    puts "::Clients settins fetched::"
+
+    r.data['client_setting']
+  end
+
+  def setup_account(uuid, params)
+    puts "::Started account setup::"
+
+    puts "\tValidation started"
+
+    super_admins = params["super_admins"]
     aml_data = params["aml"]
     pepo_campaign_data = params["pepo_campaign"]
     web_host_data = params["web_host"]
@@ -89,11 +179,16 @@ namespace :onetimer do
       fail 'api_secret cannot be blank for pepo_campaign' if pepo_campaign_data['api_secret'].blank?
     end
 
+    fail 'Invalid Super Admin Email' if super_admins.blank?
 
-    if super_admin.blank? || super_admin['email'].blank? || super_admin['password'].blank? ||
-        super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
-      fail 'Invalid Super Admin Email'
+    super_admins.each do |super_admin|
+      if super_admin['email'].blank? || super_admin['password'].blank? ||
+          super_admin['name'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(super_admin['email'])
+        fail 'Invalid Super Admin Email'
+      end
     end
+
+    puts "\tValidation passed"
 
     setup_properties_val = 1
     setup_properties_val += 2 if pepo_campaign_data.present?
@@ -120,10 +215,18 @@ namespace :onetimer do
 
     client = Client.create(name: params["client_name"], status: GlobalConstant::Client.active_status,
                            setup_properties: setup_properties_val, api_key: api_key, api_salt: api_salt_e,
+                           uuid: uuid,
                            api_secret: api_secret_e)
     client_id = client.id
 
-    super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
+    puts "\tclient created"
+
+    super_admin_obj = nil
+    super_admins.each do |super_admin|
+      super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
+    end
+
+    puts "\tsuper admins created"
 
     ckps_obj = ClientKycPassSetting.new(client_id: client_id, face_match_percent: 100,
                                         approve_type: GlobalConstant::ClientKycPassSetting.manual_approve_type,
@@ -135,6 +238,7 @@ namespace :onetimer do
     end
     ckps_obj.save!
 
+    puts "\tKycPassSetting created"
 
     r = LocalCipher.new(api_salt_d).encrypt(aml_data['token'])
     return r unless r.success?
@@ -142,8 +246,10 @@ namespace :onetimer do
     aml_token_e = r.data[:ciphertext_blob]
 
     ClientAmlDetail.create(client_id: client_id, email_id: aml_data['email_id'], domain_name: aml_data['domain_name'],
-                                token: aml_token_e, base_url: aml_data['base_url'],
-                                status: GlobalConstant::ClientAmlDetail.active_status)
+                           token: aml_token_e, base_url: aml_data['base_url'],
+                           status: GlobalConstant::ClientAmlDetail.active_status)
+
+    puts "\tAML setup done"
 
     if pepo_campaign_data.present?
       r = LocalCipher.new(api_salt_d).encrypt(pepo_campaign_data['api_secret'])
@@ -155,20 +261,17 @@ namespace :onetimer do
                                       api_secret: pepo_campaign_api_secret_e,
                                       status: GlobalConstant::ClientPepoCampaignDetail.active_status)
 
+      puts "\tPepoCampaign setup done"
     end
 
-    if web_host_data.present?
-      ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
-                                  status: GlobalConstant::ClientWebHostDetail.active_status)
-
-      ClientManagement::SetupDefaultClientCustomDraft.new(admin_id: super_admin_obj.id, client_id: client_id).perform
-    end
+    start_time = token_sale_details["sale_start_timestamp"] || Time.now.to_i
+    end_time = token_sale_details["sale_end_timestamp"] || (start_time + 1.month.to_i)
 
     ClientTokenSaleDetail.create!(
         client_id: client_id,
-        sale_start_timestamp: Time.now.to_i,
-        registration_end_timestamp: nil,
-        sale_end_timestamp: Time.now.to_i + 1.month.to_i,
+        sale_start_timestamp: start_time,
+        registration_end_timestamp: token_sale_details["registration_end_timestamp"],
+        sale_end_timestamp: end_time,
         token_name: token_sale_details['token_name'],
         token_symbol: token_sale_details['token_symbol'],
         ethereum_deposit_address: nil,
@@ -176,10 +279,14 @@ namespace :onetimer do
         source: GlobalConstant::AdminActivityChangeLogger.script_source
     )
 
+    puts "\tTokenSale setup done"
     ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
-                                     residency_proof_nationalities: [],
-                                     blacklisted_countries: []
+                                     residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
+                                     blacklisted_countries: kyc_config["blacklisted_countries"] || [],
+                                     extra_kyc_fields: kyc_config['extra_kyc_fields'] || {}
     )
+
+    puts "\tKycConfig setup done"
 
     cp = ClientPlan.new(client_id: client_id,
                         kyc_submissions_count: client_plan['kyc_submissions_count'].to_i,
@@ -190,10 +297,21 @@ namespace :onetimer do
     end
     cp.save!
 
+    puts "\tClientPlan setup done"
+
+    if web_host_data.present?
+      ClientWebHostDetail.create!(client_id: client_id, domain: web_host_data["domain"],
+                                  status: GlobalConstant::ClientWebHostDetail.active_status)
+
+      ClientManagement::SetupDefaultClientCustomDraft.new(admin_id: super_admin_obj.id,
+                                                          client_id: client_id,
+                                                          entity_type_and_data_hash: params["entity_type_and_data_hash"]).perform
+
+      puts "\tWebHost setup done"
+    end
 
     puts "client_id= #{client_id}"
-    puts "api-key= #{api_key}"
-    puts "api-secret= #{client_api_secret_d}"
+    puts "uuid= #{uuid}"
   end
 
 end

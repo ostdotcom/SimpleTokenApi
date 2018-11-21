@@ -63,35 +63,21 @@ class User < EstablishSimpleTokenUserDbConnection
   # @returns [String] returns page name according to user properties
   #
   def get_token_sale_state_page_name
-
-    if (self.client_id == GlobalConstant::TokenSale.st_token_sale_client_id)
-
-      if properties_array.include?(GlobalConstant::User.doptin_done_property)
+    if !properties_array.include?(GlobalConstant::User.doptin_mail_sent_property)
+      # FOR API USERS and non verify page opted in users
+      if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
         GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-      elsif properties_array.include?(GlobalConstant::User.kyc_submitted_property)
-        GlobalConstant::User.get_token_sale_state_page_names("verification_page")
       else
         GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
       end
     else
-
-      if !properties_array.include?(GlobalConstant::User.doptin_mail_sent_property)
-        # FOR API USERS and non verify page opted in users
-        if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
-          GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-        else
-          GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
-        end
+      if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
+        GlobalConstant::User.get_token_sale_state_page_names("profile_page")
+      elsif properties_array.include?(GlobalConstant::User.doptin_done_property)
+        GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
       else
-        if properties_array.include?(GlobalConstant::User.kyc_submitted_property)
-          GlobalConstant::User.get_token_sale_state_page_names("profile_page")
-        elsif properties_array.include?(GlobalConstant::User.doptin_done_property)
-          GlobalConstant::User.get_token_sale_state_page_names("kyc_page")
-        else
-          GlobalConstant::User.get_token_sale_state_page_names("verification_page")
-        end
+        GlobalConstant::User.get_token_sale_state_page_names("verification_page")
       end
-
     end
   end
 

@@ -4,7 +4,10 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
       GlobalConstant::AdminActivityChangeLogger.client_token_sale_details_table =>
           {val: 1, columns: ['token_symbol', 'token_name',  'ethereum_deposit_address']},
       GlobalConstant::AdminActivityChangeLogger.client_webhook_settings_table =>
-          {val: 2, columns: ['secret_key', 'status',  'url', 'event_result_types', 'event_sources']}
+          {val: 2, columns: ['secret_key', 'status',  'url', 'event_result_types', 'event_sources']},
+      GlobalConstant::AdminActivityChangeLogger.client_kyc_detail_api_activations_table =>
+          {val: 3, columns: ['allowed_keys','extra_kyc_fields']}
+
   }.freeze
 
   enum source: {

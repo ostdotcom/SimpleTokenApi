@@ -152,9 +152,91 @@ module GlobalConstant
         blocked_fields
       end
 
+      # Entity config for BE for extra kyc fields instruction_text
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash]
+      #
+      def extra_kyc_field_instruction_text_config
+        {
+            data_kind: 'html',
+            validations: {
+                required: 0
+            },
+            max_length: 400,
+            default_value: ''
+
+        }.deep_stringify_keys
+      end
+
+      # Entity config for FE for extra kyc fields instruction_text
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] frontend config needed for configurator form build
+      #
+      def get_fe_config_for_instruction_text(key)
+        {
+            label:  "#{key} #{extra_kyc_field_instruction_text_suffix}",
+            placeholder: "",
+            tooltip: "",
+            inputType: "rich_text_editor"
+        }.deep_stringify_keys
+      end
+
+
+      # extra kyc fields instruction_text display section config for FE
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] collapse config needed for configurator form build
+      #
+      def get_dynamic_fields_fe_sequence_config(extra_kyc_fields_instructon_keys)
+        {
+                kyc_form: {
+                    kyc_configuration: {
+                        entities: ["kyc_form_title", "kyc_form_subtitle", "eth_address_instruction_text",
+                                   "document_id_instruction_text"] + extra_kyc_fields_instructon_keys
+                    }
+
+                }
+        }.deep_stringify_keys
+
+      end
+
+      # suffix for extra kyc fields instruction text field in configurator
+      #
+      # * Author: Mayur
+      # * Date: 05/11/2018
+      # * Reviewed By:
+      #
+      # @return [Hash] this is the suffix for all extra kyc fields instruction text key used in configurator
+      #
+      def extra_kyc_field_instruction_key_suffix
+        "_dynamic_kyc_field_instruction_text"
+      end
+
+      def extra_kyc_field_instruction_text_suffix
+        "instruction text"
+      end
+
       def get_entity_config_for_fe(entity_type, client_settings)
         config = get_entity_config(entity_type)
         blocked_fields = get_client_blocked_fields(entity_type, client_settings)
+
+        if entity_type == GlobalConstant::EntityGroupDraft.kyc_entity_type
+          extra_kyc_fields = client_settings[:kyc_config_detail_data][:extra_kyc_fields]
+          extra_kyc_fields.each do |kyc_field, _|
+            config["#{kyc_field.to_s}#{extra_kyc_field_instruction_key_suffix}"] = extra_kyc_field_instruction_text_config
+          end
+        end
 
         config.present? && config.each do |key, value|
           new_val = (value[GlobalConstant::CmsConfigurator.data_kind_key] == 'array') ? "#{key}[]" : key

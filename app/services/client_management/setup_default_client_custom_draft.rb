@@ -16,6 +16,7 @@ module ClientManagement
       super
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
+      @entity_type_and_data_hash = params[:entity_type_and_data_hash]
 
       @entity_group, @entity_draft_ids = nil, nil
     end
@@ -91,13 +92,12 @@ module ClientManagement
     #
     def create_entity_drafts
       @entity_draft_ids = {}
-      @default_template_data = GlobalConstant::CmsConfigurator.custom_default_template_data
 
       EntityGroupDraft.entity_types.each do |entity_type, _|
-        entity_data = @default_template_data[entity_type.to_s] || {}
+        entity_data = @entity_type_and_data_hash[entity_type.to_s] || {}
         obj = EntityDraft.create!(client_id: @client_id,
                                   last_updated_admin_id: @admin_id,
-                                  data: entity_data,
+                                  data: entity_data.deep_symbolize_keys,
                                   status: GlobalConstant::EntityDraft.active_status)
         @entity_draft_ids[entity_type] = obj.id
       end

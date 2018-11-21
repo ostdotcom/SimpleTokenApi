@@ -37,7 +37,12 @@ module GlobalConstant
       end
 
       ### Role End ###
-      #
+
+      # super admin Emails in staging/developemt should have this suffix for superadmins
+      def sandbox_email_suffix
+        "sandbox@"
+      end
+
     end
 
   end

@@ -33,11 +33,6 @@ Rails.application.routes.draw do
       match 'details' => :sale_details, via: :GET
     end
 
-    scope 'api/user', controller: 'web/saas_user/token_sale' do
-      match 'bt-submit' => :bt_submit, via: :POST
-      match 'check-ethereum-balance' => :check_ethereum_balance, via: :GET
-    end
-
   end
 
   constraints(InitKyc) do
@@ -96,6 +91,7 @@ Rails.application.routes.draw do
 
     scope 'api/admin/kyc', controller: 'web/admin/super_admin' do
       match 'get-kyc-report' => :get_kyc_report, via: :GET
+      match 'get-user-report' => :get_user_report, via: :POST
     end
 
     scope 'api/admin/users', controller: 'web/admin/user' do
@@ -141,7 +137,7 @@ Rails.application.routes.draw do
 
       # Publish is not allowed in sandbox environment
       if !Rails.env.sandbox?
-        match 'fetch-published-version' => :fetch_published_version, via: :GET
+        match 'fetch-published-version' => :fetch_published_version, via: :POST
       end
 
       # Configurator is not allowed in production environment
@@ -163,6 +159,13 @@ Rails.application.routes.draw do
     scope 'api/callback', controller: 'rest_api/callback/ops' do
       match 'whitelist-event' => :whitelist_event, via: :GET
       match 'get-whitelist-contract-addresses' => :get_whitelist_contract_addresses, via: :GET
+    end
+
+    if !Rails.env.production?
+      scope 'api/sandbox-env', controller: 'rest_api/sandbox/client' do
+        match 'configurator/get-published-draft' => :get_published_drafts, via: :GET
+        match 'account-setup-details' => :get_sandbox_account_setup_details, via: :POST
+      end
     end
 
     match '*permalink', to: 'application#not_found', via: :all

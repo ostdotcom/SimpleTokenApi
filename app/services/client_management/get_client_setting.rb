@@ -86,6 +86,7 @@ module ClientManagement
 
       {
           kyc_fields: kyc_fields,
+          extra_kyc_fields: @client_kyc_config_detail_obj.extra_kyc_fields,
           residency_proof_nationalities: @client_kyc_config_detail_obj.residency_proof_nationalities,
           blacklisted_countries: @client_kyc_config_detail_obj.blacklisted_countries,
           max_investor_proofs_allowed: max_investor_proofs_allowed

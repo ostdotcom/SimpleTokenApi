@@ -40,6 +40,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     client = Client.get_from_memcache(default_client_id)
     return 'Invalid client id' unless client.present?
 
+    return "sandbox client in staging/development should have format->email+sandbox@ost.com for emails" if client.is_sandbox_client_in_main_env? &&
+        !email.to_s.match?(GlobalConstant::Admin.sandbox_email_suffix)
+
     ga_secret = ROTP::Base32.random_base32
 
 

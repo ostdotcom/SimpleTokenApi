@@ -163,11 +163,11 @@ module AdminManagement
       #
       def fetch_admin
         @admin = Admin.where(id: @temporary_token_obj.entity_id).first
-        return unauthorized_access_response('am_l_arp_9') unless @admin.present? && @admin.password.present? &&
+        return unauthorized_access_response_for_web('am_l_arp_9', 'Invalid Admin') unless @admin.present? && @admin.password.present? &&
             (@admin.status == GlobalConstant::Admin.active_status)
 
         @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
-        return unauthorized_access_response('am_l_arp_10') unless @admin_secret.present?
+        return unauthorized_access_response_for_web('am_l_arp_10', 'Invalid Admin') unless @admin_secret.present?
   
         success
       end

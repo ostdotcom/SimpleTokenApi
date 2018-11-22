@@ -159,7 +159,7 @@ module AdminManagement
       #
       def fetch_admin
         @admin = Admin.where(id: @temporary_token_obj.entity_id).first
-        return unauthorized_access_response('am_au_aia_fa_1') unless @admin.present? &&
+        return unauthorized_access_response_for_web('am_au_aia_fa_1', 'Invalid Admin User') unless @admin.present? &&
             @admin.status == GlobalConstant::Admin.invited_status
 
         success

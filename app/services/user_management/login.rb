@@ -216,6 +216,24 @@ module UserManagement
       success_with_data(cookie_value: cookie_value, user_token_sale_state: @user.get_token_sale_state_page_name)
     end
 
+    # Unauthorized access response
+    #
+    # * Author: Kedar
+    # * Date: 11/10/2017
+    # * Reviewed By: Sunil
+    #
+    # @return [Result::Base]
+    #
+    def unauthorized_access_response(err, display_text = 'Incorrect login details.')
+      error_with_data(
+          err,
+          display_text,
+          display_text,
+          GlobalConstant::ErrorAction.default,
+          {}
+      )
+    end
+
   end
 
 end

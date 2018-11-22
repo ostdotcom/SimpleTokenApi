@@ -135,4 +135,22 @@ class ServicesBase
     error_with_identifier("unauthorized_access", internal_error_code)
   end
 
+  # Invalid User access response
+  #
+  # * Author: Aman
+  # * Date: 03/05/2018
+  # * Reviewed By:
+  #
+  # @return [Result::Base]
+  #
+  def unauthorized_access_response_for_web(err, display_text)
+    error_with_data(
+        err,
+        display_text,
+        display_text,
+        GlobalConstant::ErrorAction.default,
+        {}
+    )
+  end
+
 end

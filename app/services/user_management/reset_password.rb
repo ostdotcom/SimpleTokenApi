@@ -107,7 +107,7 @@ module UserManagement
 
       decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
       r = decryptor_obj.decrypt(@r_t)
-      return r unless r.success?
+      return invalid_url_error('um_rp_4') unless r.success?
 
       decripted_t = r.data[:plaintext]
 
@@ -192,13 +192,13 @@ module UserManagement
     #
     def fetch_user
       @user = User.get_from_memcache(@temporary_token_obj.entity_id)
-      return unauthorized_access_response('um_rp_9') unless @user.present? && @user.password.present? &&
+      return unauthorized_access_response_for_web('um_rp_9','Invalid User') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
-      return unauthorized_access_response('um_rp_11') if @user.client_id != @client_id
+      return unauthorized_access_response_for_web('um_rp_11','Invalid User') if @user.client_id != @client_id
 
       @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response('um_rp_10') unless @user_secret.present?
+      return unauthorized_access_response_for_web('um_rp_10','Invalid User') unless @user_secret.present?
 
       success
     end

@@ -100,7 +100,7 @@ module AdminManagement
   
         decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
         r = decryptor_obj.decrypt(@r_t)
-        return r unless r.success?
+        return invalid_url_error('am_l_arp_4') unless r.success?
   
         decripted_t = r.data[:plaintext]
   

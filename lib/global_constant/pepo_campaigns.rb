@@ -234,6 +234,10 @@ module GlobalConstant
         "admin_invite"
       end
 
+      def test_webhook_result_template
+        "test_webhook_result"
+      end
+
       # # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
       # def kyc_data_mismatch_template
       #   'kyc_data_mismatch'
@@ -343,6 +347,7 @@ module GlobalConstant
           user_forgot_password_template,
           kyc_issue_template,
           admin_invite_template,
+          test_webhook_result_template,
 
           # kyc_data_mismatch_template,
           # kyc_document_id_issue_template,

@@ -22,37 +22,54 @@ module Crons
         @cron_identifier = params[:cron_identifier]
 
         @start_timestamp = nil
-        @iteration_count = 0
+
       end
 
-      # private method to process logs
+      def perform
+        fail 'unimplemented method perform'
+      end
+
+      private
+
+      # Process logs for a batch
       #
       # * Author: Aman
       # * Date: 15/10/2018
       # * Reviewed By:
       #
-      def process_logs
-        webhook_send_logs_to_process do |w_s_logs|
-          event_ids = w_s_logs.pluck(:event_id)
-          events = Event.where(id: event_ids, client_id: client_webhook_setting.client_id).all.index_by(&:id)
+      # @returns [Hash] returns processed webhook send logs data
+      #
+      def process_webhook_logs(w_s_logs)
+        event_ids = w_s_logs.pluck(:event_id)
+        return {} if event_ids.blank?
 
-          w_s_logs.each do |w_s_log|
-            event = events[w_s_log.event_id]
 
-            if is_valid_event?(event)
-              r = process_event(w_s_log, event)
-              if r.success?
-                w_s_log.status = GlobalConstant::WebhookSendLog.processed_status
-              else
-                increase_failed_count(w_s_log)
-              end
+        events = Event.where(id: event_ids, client_id: client_webhook_setting.client_id).all.index_by(&:id)
 
+        logs_data = {}
+        w_s_logs.each do |w_s_log|
+          event = events[w_s_log.event_id]
+
+          if is_valid_event?(event)
+            r = process_event(w_s_log, event)
+            if r.success?
+              w_s_log.status = GlobalConstant::WebhookSendLog.processed_status
             else
-              w_s_log.status = GlobalConstant::WebhookSendLog.not_valid_status
+              increase_failed_count(w_s_log)
             end
-            w_s_log.save!
+
+          else
+            w_s_log.status = GlobalConstant::WebhookSendLog.not_valid_status
           end
+
+          w_s_log.save!
+
+          logs_data[w_s_log.id] = {
+              event_name: event.name,
+              status: w_s_log.status
+          }
         end
+        logs_data
       end
 
       # Process event
@@ -120,40 +137,27 @@ module Crons
 
       end
 
-      # get lock on webhook send logs to be processed
-      #
-      # * Author: Aman
-      # * Date: 15/10/2018
-      # * Reviewed By:
-      #
-      def webhook_send_logs_to_process
-        start_timestamp = current_timestamp
-        while (true)
-          @iteration_count += 1
-          lock_id = get_lock_on_records_with_lock_id
-
-          ws_logs = WebhookSendLog.where(lock_id: lock_id).to_be_processed.all
-          yield(ws_logs)
-          return if ws_logs.blank? || ((start_timestamp + MAX_RUN_TIME.to_i) < current_timestamp) ||
-              GlobalConstant::SignalHandling.sigint_received?
-        end
-      end
-
       # get lock on webhook send logs
       #
       # * Author: Aman
       # * Date: 15/10/2018
       # * Reviewed By:
       #
-      # @returns [String] returns unique Lock_id
-      #
-      def get_lock_on_records_with_lock_id
-        lock_id = get_lock_id
+      def get_lock_on_records(lock_id)
         WebhookSendLog.to_be_processed.where(client_id: client_webhook_setting.client_id,
                                              client_webhook_setting_id: client_webhook_setting.id).
             where('next_timestamp < ?', current_timestamp).where('lock_id is null').
             order(next_timestamp: :asc).limit(10).update_all(lock_id: lock_id)
-        lock_id
+      end
+
+      # Fetch logs with lock id
+      #
+      # * Author: Aman
+      # * Date: 15/10/2018
+      # * Reviewed By:
+      #
+      def fetch_logs(lock_id)
+        WebhookSendLog.where(lock_id: lock_id).all
       end
 
       # get formatted event data
@@ -275,7 +279,7 @@ module Crons
       #  @returns [String] returns a lock id generated unique for each iteration
       #
       def get_lock_id
-        "#{@cron_identifier}_#{Time.now.to_f}_#{client_webhook_setting.id}_#{@iteration_count}"
+        fail 'unimplemented method get_lock_id'
       end
 
       # get a client webhook setting to be processed based on last processed time

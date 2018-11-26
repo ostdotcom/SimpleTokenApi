@@ -12,7 +12,8 @@ class ProcessTestWebhookEvents < ApplicationJob
   #
   def perform(params)
     Crons::Webhooks::TestSend.new(lock_id: params[:lock_id],
-                                 client_webhook_setting_id: params[:client_webhook_setting_id]).perform
+                                  client_webhook_setting_id: params[:client_webhook_setting_id],
+                                  admin_id: params[:admin_id]).perform
 
   end
 

@@ -144,7 +144,8 @@ module ClientManagement
             ProcessTestWebhookEvents,
             {
                 lock_id: lock_id,
-                client_webhook_setting_id: @webhook_id
+                client_webhook_setting_id: @webhook_id,
+                admin_id: @admin_id
             }
         )
       end

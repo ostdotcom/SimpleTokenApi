@@ -79,8 +79,9 @@ module Crons
       # * Reviewed By:
       #
       def send_admin_email(logs_data)
-        test_send_data = {}
+        return if logs_data.blank?
 
+        test_send_data = {}
         logs_data.each do |_, log_data|
           next if log_data[:status] == GlobalConstant::WebhookSendLog.not_valid_status
           name = log_data[:event_name]
@@ -90,7 +91,6 @@ module Crons
           }
         end
 
-
         admin_email = Admin.where(id: @admin_id).first.email
         return if admin_email.blank?
 
@@ -99,7 +99,8 @@ module Crons
             email: admin_email,
             template_name: GlobalConstant::PepoCampaigns.test_webhook_result_template,
             template_vars: {
-                test_send_data: test_send_data
+                test_send_data: test_send_data,
+                webhook_url: client_webhook_setting.url
             }
         ).perform
 

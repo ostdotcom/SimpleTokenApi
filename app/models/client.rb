@@ -172,30 +172,6 @@ class Client < EstablishSimpleTokenClientDbConnection
     end
   end
 
-  # Get/Set Memcache data for Client from api key
-  #
-  # * Author: Aman
-  # * Date: 26/12/2017
-  # * Reviewed By
-  #
-  # @param [Integer] api_key - client api_key
-  #
-  # @return [AR] Client object
-  #
-  def self.get_client_for_api_key_from_memcache(api_key)
-    api_memcache_key_object = MemcacheKey.new('client.api_key_details')
-    Memcache.get_set_memcached(api_memcache_key_object.key_template % {api_key: api_key}, api_memcache_key_object.expiry) do
-      client_obj = Client.where(api_key: api_key).first
-
-      return nil if client_obj.blank?
-
-      r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)
-      client_obj.decrypted_api_salt = r.data[:plaintext] if  r.success?
-
-      client_obj
-    end
-  end
-
   private
 
   # Flush Memcache
@@ -210,14 +186,7 @@ class Client < EstablishSimpleTokenClientDbConnection
     client_memcache_key = Client.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(client_memcache_key)
 
-    if self.previous_changes["api_key"].present?
-      old_api_key = self.previous_changes["api_key"].first
-      old_api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: old_api_key}
-      Memcache.delete(old_api_memcache_key)
-    end
-
-    api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: self.api_key}
-    Memcache.delete(api_memcache_key)
+    ClientApiDetail.memcache_flush_of_client(self.id)
   end
 
 end

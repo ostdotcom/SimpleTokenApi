@@ -29,6 +29,7 @@ module Authentication::ApiRequest
 
       @parsed_request_time = nil
       @api_secret_d = nil
+      @client, @client_api_detail = nil, nil
 
     end
 
@@ -39,7 +40,7 @@ module Authentication::ApiRequest
     # * Reviewed By:
     #
     def request_time
-     fail 'request time function did not override'
+      fail 'request time function did not override'
     end
 
     # Get expiry window
@@ -103,8 +104,7 @@ module Authentication::ApiRequest
       @url_path = get_url_path
       @parsed_request_time = Time.at(@request_time.to_i)
 
-      return invalid_credentials_response("um_vac_1") unless
-          @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
+      return invalid_credentials_response("um_vac_1") unless @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
 
       @request_parameters.permit!
 
@@ -126,7 +126,9 @@ module Authentication::ApiRequest
     # Sets @client
     #
     def fetch_client
-      @client = Client.get_client_for_api_key_from_memcache(@api_key)
+      r = ClientApiDetailt.get_client_data(@api_key)
+      @client = r[:client]
+      @client_api_detail = r[:client_api_detail]
       puts "fetch_client : #{@client.inspect}"
     end
 
@@ -196,7 +198,7 @@ module Authentication::ApiRequest
         api_salt_d = r.data[:plaintext]
       end
 
-      r = LocalCipher.new(api_salt_d).decrypt(@client.api_secret)
+      r = LocalCipher.new(api_salt_d).decrypt(@client_api_detail.api_secret)
       return r unless r.success?
 
       @api_secret_d = r.data[:plaintext]

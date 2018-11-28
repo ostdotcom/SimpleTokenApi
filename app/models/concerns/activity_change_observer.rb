@@ -69,14 +69,14 @@ module ActivityChangeObserver
 
   # Do not log if it is a new records & create record logging is turned off for table
   #
-  # * Author: Aniket
-  # * Date: 11/10/2018
+  # * Author: Aman
+  # * Date: 28/11/2018
   # * Reviewed By:
   #
   # @returns [Array]
   #
   def skip_logging?
-    self.new_record? && table_log_config[:skip_log_on_create]
+    self.saved_changes["id"].present? && table_log_config[:skip_log_on_create]
   end
 
   # Create entry for column modified in logger

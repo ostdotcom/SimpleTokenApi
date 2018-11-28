@@ -103,6 +103,7 @@ namespace :onetimer do
 
   # params = params.to_json
   # rake RAILS_ENV=development onetimer:add_client params="{\"client_plan\":{\"add_ons\":[\"whitelist\",\"custom_front_end\"],\"kyc_submissions_count\":100},\"super_admin\":{\"email\":\"tejas+7@ost.com\",\"password\":\"tejas123\",\"name\":\"tejas\"},\"double_opt_in\":1,\"client_name\":\"test2\",\"aml\":{\"email_id\":\"tejas@ost.com\",\"domain_name\":\"OST_UAT\",\"token\":\"a2bf78a8-ae04-43be-8c44-5db71a91b2c2\",\"base_url\":\"https://p2.cynopsis-solutions.com/artemis_ost_uat\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"web_host\":{\"domain\":\"tejaskyc.developmentost.com\"},\"token_sale_details\":{\"token_name\":\"Tejas\",\"token_symbol\":\"T777\"},\"kyc_config\":{\"kyc_fields\":[\"first_name\",\"last_name\",\"birthdate\",\"country\",\"ethereum_address\",\"document_id_number\",\"nationality\",\"document_id_file_path\",\"selfie_file_path\",\"residence_proof_file_path\",\"investor_proof_files_path\",\"state\"]}}"
+  # rake RAILS_ENV=development onetimer:add_client params="{\"uuid\":\"abc\"}"
 
   task :add_client => :environment do
     params = JSON.parse(ENV['params'])
@@ -214,10 +215,17 @@ namespace :onetimer do
     api_key = Utility.generate_random_id
 
     client = Client.create(name: params["client_name"], status: GlobalConstant::Client.active_status,
-                           setup_properties: setup_properties_val, api_key: api_key, api_salt: api_salt_e,
-                           uuid: uuid,
-                           api_secret: api_secret_e)
+                           setup_properties: setup_properties_val,  api_salt: api_salt_e,
+                           uuid: uuid)
     client_id = client.id
+
+    ClientApiDetail.create!({
+                               client_id: client_id,
+                               api_key: api_key,
+                               api_secret: api_secret_e,
+                               status: GlobalConstant::ClientApiDetail.active_status
+
+                           })
 
     puts "\tclient created"
 

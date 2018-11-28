@@ -173,7 +173,8 @@ module AdminManagement
         # * Reviewed By:
         #
         def send_approved_email
-          return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? || @client.is_st_token_sale_client?
+          return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? ||
+              @client.is_st_token_sale_client? || ! @client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
           @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
 

@@ -164,6 +164,21 @@ module GlobalConstant
         ]
       end
 
+      def send_auto_approve_email
+        'send_auto_approve_email'
+      end
+
+      def send_auto_deny_email
+        'send_auto_deny_email'
+      end
+
+      def send_auto_report_issue_email
+        'send_auto_report_issue_email'
+      end
+
+
+
+
     end
 
   end

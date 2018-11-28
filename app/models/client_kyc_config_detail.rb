@@ -32,22 +32,31 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
 
     fail 'Invalid kyc fields' if (params[:kyc_fields] - ClientKycConfigDetail.kyc_fields_config.keys).present?
 
+    fail 'Invalid kyc auto send status email fields' if (params[:auto_send_kyc_status_email] - ClientKycConfigDetail.auto_send_kyc_status_email_config.keys).present?
+
     fail 'Invalid blacklisted_countries' if !params[:blacklisted_countries].is_a?(Array)
 
     fail 'Invalid residency_proof_nationalities' if !params[:residency_proof_nationalities].is_a?(Array)
 
     kyc_field_bit_value = 0
+    auto_status_email_bit_value = 0
 
     params[:kyc_fields].each do |field_name|
       kyc_field_bit_value += ClientKycConfigDetail.kyc_fields_config[field_name]
     end
+
+    params[:auto_send_kyc_status_email].each do |field_name|
+      auto_status_email_bit_value += ClientKycConfigDetail.auto_send_kyc_status_email_config[field_name]
+    end
+
 
     ClientKycConfigDetail.create!(
         client_id: params[:client_id],
         kyc_fields: kyc_field_bit_value,
         residency_proof_nationalities: params[:residency_proof_nationalities].map(&:upcase),
         blacklisted_countries: params[:blacklisted_countries].map(&:upcase),
-        extra_kyc_fields: params[:extra_kyc_fields].deep_symbolize_keys
+        extra_kyc_fields: params[:extra_kyc_fields].deep_symbolize_keys,
+        auto_send_kyc_status_email: auto_status_email_bit_value
     )
 
   end
@@ -91,6 +100,37 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
     }
   end
 
+
+  def auto_send_kyc_approve_email?
+    auto_send_kyc_status_email_array.include?(GlobalConstant::ClientKycConfigDetail.send_auto_approve_email)
+  end
+
+  def auto_send_kyc_deny_email?
+    auto_send_kyc_status_email_array.include?(GlobalConstant::ClientKycConfigDetail.send_auto_deny_email)
+  end
+
+  def auto_send_kyc_report_issue_email?
+    auto_send_kyc_status_email_array.include?(GlobalConstant::ClientKycConfigDetail.send_auto_report_issue_email)
+  end
+
+
+
+  def auto_send_kyc_status_email_array
+    @setup_properties_array = ClientKycConfigDetail.get_bits_set_for_auto_send_kyc_status_email(auto_send_kyc_status_email)
+  end
+
+
+  def self.auto_send_kyc_status_email_config
+    @auto_send_kyc_status_email_config ||= {
+        GlobalConstant::ClientKycConfigDetail.send_auto_approve_email => 1,
+        GlobalConstant::ClientKycConfigDetail.send_auto_deny_email => 2,
+        GlobalConstant::ClientKycConfigDetail.send_auto_report_issue_email => 4
+
+    }
+  end
+
+
+
   # Bitwise columns config
   #
   # * Author: Aman
@@ -99,7 +139,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   #
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
-        kyc_fields: kyc_fields_config
+        kyc_fields: kyc_fields_config,
+        auto_send_kyc_status_email: auto_send_kyc_status_email_config
     }
   end
 

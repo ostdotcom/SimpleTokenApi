@@ -419,7 +419,7 @@ module WhitelistManagement
     #
     def send_kyc_approved_mail
 
-      return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
+      return if !@client.is_email_setup_done? || @client.is_st_token_sale_client? || ! @client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
       fetch_client_token_sale_details
 

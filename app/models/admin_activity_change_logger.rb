@@ -2,11 +2,20 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
 
   TABLE_ALLOWED_KEYS_MAPPING = {
       GlobalConstant::AdminActivityChangeLogger.client_token_sale_details_table =>
-          {val: 1, columns: ['token_symbol', 'token_name',  'ethereum_deposit_address']},
+          {val: 1, skip_log_on_create: true,
+           columns: ['token_symbol', 'token_name',  'ethereum_deposit_address', 'sale_start_timestamp', 'registration_end_timestamp', 'sale_end_timestamp']},
       GlobalConstant::AdminActivityChangeLogger.client_webhook_settings_table =>
-          {val: 2, columns: ['secret_key', 'status',  'url', 'event_result_types', 'event_sources']},
+          {val: 2, skip_log_on_create: false,
+           columns: ['secret_key', 'status',  'url', 'event_result_types', 'event_sources']},
       GlobalConstant::AdminActivityChangeLogger.client_kyc_detail_api_activations_table =>
-          {val: 3, columns: ['allowed_keys','extra_kyc_fields']}
+          {val: 3, skip_log_on_create: false,
+           columns: ['allowed_keys','extra_kyc_fields']},
+      GlobalConstant::AdminActivityChangeLogger.client_kyc_config_details_table =>
+          {val: 4, skip_log_on_create: true,
+           columns: ['kyc_fields','extra_kyc_fields', 'residency_proof_nationalities', 'blacklisted_countries']},
+      GlobalConstant::AdminActivityChangeLogger.client_whitelist_details_table =>
+          {val: 5, skip_log_on_create: false,
+           columns: ['contract_address','whitelister_address', 'version_id']}
 
   }.freeze
 

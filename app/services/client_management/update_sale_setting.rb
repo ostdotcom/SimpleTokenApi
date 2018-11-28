@@ -158,6 +158,9 @@ module ClientManagement
       @client_token_sale_detail.sale_start_timestamp = @sale_start_timestamp
       @client_token_sale_detail.registration_end_timestamp = @registration_end_timestamp
       @client_token_sale_detail.sale_end_timestamp = @sale_end_timestamp
+      @client_token_sale_detail.logged_admin_id = @admin_id
+      @client_token_sale_detail.source = GlobalConstant::AdminActivityChangeLogger.web_source
+
       @client_token_sale_detail.save! if @client_token_sale_detail.changed?
     end
 

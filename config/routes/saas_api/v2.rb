@@ -3,9 +3,10 @@ scope module: :v2 do
 
   end
 
-  resources :users_kyc, path: 'users-kyc', only: [:index, :show], param: :user_id do
+  resources :users_kyc, path: 'users-kyc', only: [:index, :show], param: :user_id,
+            constraints: { user_id: /[0-9a-z\.\-]+/i } do
     collection do
-      post '/:user_id', action: :submit, constraints: { user_id: /[0-9a-z\.\-]+/i }
+      post '/:user_id', action: :submit
       get 'pre-signed-urls/for-put', action: :get_pre_singed_url_for_put
       get 'pre-signed-urls/for-post', action: :get_pre_singed_url_for_post
     end

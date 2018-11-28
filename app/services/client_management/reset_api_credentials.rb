@@ -95,13 +95,13 @@ module ClientManagement
 
       api_salt_d = r.data[:plaintext]
 
-      @client_api_secret_d = SecureRandom.hex
+      @client_api_secret_d = Utility.generate_random_id
 
       r = LocalCipher.new(api_salt_d).encrypt(@client_api_secret_d)
       return r unless r.success?
 
       api_secret_e = r.data[:ciphertext_blob]
-      api_key = SecureRandom.hex
+      api_key = Utility.generate_random_id
 
       @client.api_key = api_key
       @client.api_secret = api_secret_e

@@ -1,5 +1,7 @@
 class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
 
+  include ActivityChangeObserver
+
   enum status: {
            GlobalConstant::ClientWhitelistDetail.active_status => 1,
            GlobalConstant::ClientWhitelistDetail.inactive_status => 2

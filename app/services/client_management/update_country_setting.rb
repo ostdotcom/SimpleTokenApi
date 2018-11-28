@@ -139,6 +139,9 @@ module ClientManagement
       @client_kyc_config_details.residency_proof_nationalities = @residency_proof_nationalities
       @client_kyc_config_details.blacklisted_countries = @blacklisted_countries
 
+      @client_kyc_config_details.logged_admin_id = @admin_id
+      @client_kyc_config_details.source = GlobalConstant::AdminActivityChangeLogger.web_source
+
       @client_kyc_config_details.save! if @client_kyc_config_details.changed?
     end
 

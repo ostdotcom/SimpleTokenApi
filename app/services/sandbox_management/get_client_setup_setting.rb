@@ -102,7 +102,7 @@ module SandboxManagement
       super_admins_data = super_admins.map {|x|
         {
             email: x.email,
-            password: SecureRandom.hex,
+            password: Utility.generate_random_id,
             name: x.name
         }
       }

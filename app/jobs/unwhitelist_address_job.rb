@@ -125,7 +125,7 @@ class UnwhitelistAddressJob < ApplicationJob
     @kyc_whitelist_log = KycWhitelistLog.create!({
                                                      client_id: @client_id,
                                                      ethereum_address: api_data[:address],
-                                                     client_whitelist_detail_id: api_data[:client_whitelist_detail_obj].id,
+                                                     client_whitelist_detail_version_id: api_data[:client_whitelist_detail_obj].version_id,
                                                      phase: api_data[:phase],
                                                      transaction_hash: r.data[:transaction_hash],
                                                      nonce: r.data[:nonce],

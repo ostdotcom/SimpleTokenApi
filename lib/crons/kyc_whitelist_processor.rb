@@ -55,7 +55,7 @@ module Crons
             # move to next record in case of api failures
             next unless r.success?
 
-            create_kyc_whitelist_log(client_whitelist_detail.id)
+            create_kyc_whitelist_log(client_whitelist_detail.version_id)
 
             record_event_job
 
@@ -156,11 +156,11 @@ module Crons
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    def create_kyc_whitelist_log(whitelist_detail_id)
+    def create_kyc_whitelist_log(version_id)
       KycWhitelistLog.create!({
                                   client_id: @user_kyc_detail.client_id,
                                   ethereum_address: @api_data[:address],
-                                  client_whitelist_detail_id: whitelist_detail_id,
+                                  client_whitelist_detail_version_id: version_id,
                                   phase: @api_data[:phase],
                                   transaction_hash: @transaction_hash,
                                   nonce: @nonce,

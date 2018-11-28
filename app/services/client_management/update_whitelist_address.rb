@@ -26,7 +26,6 @@ module ClientManagement
 
       @client_whitelist_detail = nil
       @admin_secret_obj = nil
-      @active_client_whitelist_detail_obj = nil
     end
 
     # Perform
@@ -204,10 +203,33 @@ module ClientManagement
     #
     def set_whitelist_contract_address
       if @client_whitelist_detail.blank?
-        create_client_whitelist_detail
+        fetch_voa
+
+        @client_whitelist_detail = ClientWhitelistDetail.new(
+            client_id: @client_id,
+            whitelister_address: @verified_operator_addresses.address,
+            suspension_type: GlobalConstant::ClientWhitelistDetail.no_suspension_type,
+            status: GlobalConstant::ClientWhitelistDetail.active_status
+            )
+
+        check_unused_voa_count
       else
-        update_client_whitelist_detail
+        return error_with_identifier('invalid_api_params',
+                                     'cm_uwa_ucwd_1',
+                                     ['duplicate_whitelist_contract_address'],
+                                     'There were some errors in address submission. Please review and resubmit'
+        ) if @client_whitelist_detail.contract_address.downcase == @whitelist_contract_address.downcase
       end
+
+
+      @client_whitelist_detail.contract_address = @whitelist_contract_address
+      @client_whitelist_detail.last_acted_by = @admin_id
+      @client_whitelist_detail.version_id = Utility.generate_random_id
+      @client_whitelist_detail.source =  GlobalConstant::AdminActivityChangeLogger.web_source
+
+      @client_whitelist_detail.save!
+
+      success
     end
 
     # Update And Fetch VOA
@@ -228,62 +250,6 @@ module ClientManagement
 
       @verified_operator_addresses = VerifiedOperatorAddress.where(
           client_id: @client_id, status: GlobalConstant::VerifiedOperatorAddress.active_status).last
-    end
-
-    # Create Client Whitelist Detail
-    #
-    # * Author: Tejas
-    # * Date: 09/10/2018
-    # * Reviewed By:
-    #
-    # sets @active_client_whitelist_detail_obj
-    # @return [Result::Base]
-    #
-    def create_client_whitelist_detail
-      fetch_voa
-
-      @active_client_whitelist_detail_obj = ClientWhitelistDetail.create!(
-          client_id: @client_id, contract_address: @whitelist_contract_address,
-          whitelister_address: @verified_operator_addresses.address,
-          suspension_type: GlobalConstant::ClientWhitelistDetail.no_suspension_type,
-          last_acted_by: @admin_id,
-          status: GlobalConstant::ClientWhitelistDetail.active_status
-      )
-
-      check_unused_voa_count
-
-      success
-    end
-
-    # Update Client Whitelist Detail
-    #
-    # * Author: Tejas
-    # * Date: 09/10/2018
-    # * Reviewed By:
-    #
-    # sets @active_client_whitelist_detail_obj
-    #
-    # @return [Result::Base]
-    #
-    def update_client_whitelist_detail
-      return error_with_identifier('invalid_api_params',
-                                   'cm_uwa_ucwd_1',
-                                   ['duplicate_whitelist_contract_address'],
-                                   'There were some errors in address submission. Please review and resubmit'
-      ) if @client_whitelist_detail.contract_address.downcase == @whitelist_contract_address.downcase
-
-      @client_whitelist_detail.status = GlobalConstant::ClientWhitelistDetail.inactive_status
-      @client_whitelist_detail.save!
-
-      @active_client_whitelist_detail_obj = ClientWhitelistDetail.create!(
-          client_id: @client_id, contract_address: @whitelist_contract_address,
-          whitelister_address: @client_whitelist_detail.whitelister_address,
-          balance: @client_whitelist_detail.balance,
-          suspension_type: @client_whitelist_detail.suspension_type,
-          last_acted_by: @admin_id,
-          status: GlobalConstant::ClientWhitelistDetail.active_status
-      )
-      success
     end
 
     # Send email
@@ -355,8 +321,8 @@ module ClientManagement
     #
     def success_response_data
       {
-          whitelist_contract_address: @active_client_whitelist_detail_obj.contract_address,
-          verified_operator_address: @active_client_whitelist_detail_obj.whitelister_address
+          whitelist_contract_address: @client_whitelist_detail.contract_address,
+          verified_operator_address: @client_whitelist_detail.whitelister_address
       }
     end
 

@@ -24,6 +24,13 @@ module GlobalConstant
         'client_kyc_detail_api_activations'
       end
 
+      def client_kyc_config_details_table
+        'client_kyc_config_details'
+      end
+
+      def client_whitelist_details_table
+        'client_whitelist_details'
+      end
 
     end
   end

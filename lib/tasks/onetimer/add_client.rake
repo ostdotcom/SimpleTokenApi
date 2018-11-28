@@ -129,7 +129,7 @@ namespace :onetimer do
       end if (Rails.env.staging? || Rails.env.development?)
 
     else
-      uuid = GlobalConstant::Client.sandbox_prefix_uuid + "#{SecureRandom.hex}_#{Time.now.to_i}"
+      uuid = GlobalConstant::Client.sandbox_prefix_uuid + Utility.generate_random_id(Time.now.to_i.to_s)
       params["entity_type_and_data_hash"] = GlobalConstant::CmsConfigurator.custom_default_template_data if params["web_host"].present?
     end
 
@@ -205,13 +205,13 @@ namespace :onetimer do
     api_salt_e = resp.data[:ciphertext_blob]
     api_salt_d = resp.data[:plaintext]
 
-    client_api_secret_d = SecureRandom.hex
+    client_api_secret_d = Utility.generate_random_id
 
     r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
     return r unless r.success?
 
     api_secret_e = r.data[:ciphertext_blob]
-    api_key = SecureRandom.hex
+    api_key = Utility.generate_random_id
 
     client = Client.create(name: params["client_name"], status: GlobalConstant::Client.active_status,
                            setup_properties: setup_properties_val, api_key: api_key, api_salt: api_salt_e,
@@ -283,7 +283,8 @@ namespace :onetimer do
     ClientKycConfigDetail.add_config(client_id: client_id, kyc_fields: kyc_config["kyc_fields"],
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
                                      blacklisted_countries: kyc_config["blacklisted_countries"] || [],
-                                     extra_kyc_fields: kyc_config['extra_kyc_fields'] || {}
+                                     extra_kyc_fields: kyc_config['extra_kyc_fields'] || {},
+                                     source: GlobalConstant::AdminActivityChangeLogger.script_source
     )
 
     puts "\tKycConfig setup done"

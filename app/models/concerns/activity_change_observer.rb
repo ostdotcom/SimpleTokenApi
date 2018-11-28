@@ -40,10 +40,22 @@ module ActivityChangeObserver
   # @returns [String]
   #
   def table_name
-    self.class.table_name
+    self.class.table_name.downcase
   end
 
-  # get list of columns which needs to observ
+  # Admin activity log config for current table
+  #
+  # * Author: Aman
+  # * Date: 27/11/2018
+  # * Reviewed By:
+  #
+  # @returns [Hash]
+  #
+  def table_log_config
+    AdminActivityChangeLogger::TABLE_ALLOWED_KEYS_MAPPING[table_name]
+  end
+
+  # get list of columns which needs to observe
   #
   # * Author: Aniket
   # * Date: 11/10/2018
@@ -52,7 +64,19 @@ module ActivityChangeObserver
   # @returns [Array]
   #
   def table_columns_to_observe
-    @table_columns_to_observe ||= AdminActivityChangeLogger::TABLE_ALLOWED_KEYS_MAPPING[table_name][:columns]
+    @table_columns_to_observe ||= table_log_config[:columns]
+  end
+
+  # Do not log if it is a new records & create record logging is turned off for table
+  #
+  # * Author: Aniket
+  # * Date: 11/10/2018
+  # * Reviewed By:
+  #
+  # @returns [Array]
+  #
+  def skip_logging?
+    self.new_record? && table_log_config[:skip_log_on_create]
   end
 
   # Create entry for column modified in logger
@@ -63,6 +87,8 @@ module ActivityChangeObserver
   #
   #
   def create_entry_in_logger
+    return if skip_logging?
+
     saved_changes = self.saved_changes
     columns_to_log = (saved_changes.keys & table_columns_to_observe)
 

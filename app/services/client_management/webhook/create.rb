@@ -62,7 +62,7 @@ module ClientManagement
 
         api_salt_d = r.data[:plaintext]
 
-        client_api_secret_d = SecureRandom.hex
+        client_api_secret_d = Utility.generate_random_id
 
         r = LocalCipher.new(api_salt_d).encrypt(client_api_secret_d)
         return r unless r.success?

@@ -312,7 +312,6 @@ module AdminManagement
       # * Reviewed By:
       #
       def send_approved_email
-        # check if client has opted for auto_send_kyc_status_email
         return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? ||
             @client.is_st_token_sale_client? || ! @client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
@@ -323,10 +322,8 @@ module AdminManagement
             client_id: @client_id,
             email: user.email,
             template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-            template_vars: {
-                token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-                is_sale_active: client_token_sale_details_obj.has_token_sale_started?
-            }
+            template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id)
+
         ).perform
 
       end

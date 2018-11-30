@@ -413,6 +413,15 @@
     - :project_description
     - :kit_marketing
 
+
+'UserManagement::EmailKycStatus::Approve':
+  :mandatory:
+    - :client_id
+    - :email
+  :optional:
+    - :template_vars
+
+
 'ClientManagement::MigrateClientCustomDraft':
   :mandatory:
     - :client_id

@@ -100,7 +100,7 @@ module AdminManagement
             {}
         ) if @admin.default_client_id != @client.id
 
-        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+        @client_kyc_config_detail = @client.client_kyc_config_detail
 
         return error_with_data(
             'am_k_uea_3',

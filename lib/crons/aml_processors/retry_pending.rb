@@ -155,10 +155,7 @@ module Crons
               client_id: client_id,
               email: user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-              template_vars: {
-                  token_sale_participation_phase: user_kyc_detail.token_sale_participation_phase,
-                  is_sale_active: client_token_sale_details_objs[client_id].has_token_sale_started?
-              }
+              template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(client_id)
           ).perform
         end
       end

@@ -8,6 +8,7 @@ scope module: :v2 do
       post '/:user_id', action: :submit, constraints: { user_id: /[0-9a-z\.\-]+/i }
       get 'pre-signed-urls/for-put', action: :get_pre_singed_url_for_put
       get 'pre-signed-urls/for-post', action: :get_pre_singed_url_for_post
+      post 'email/approve', action: :email_kyc_approve
     end
   end
 

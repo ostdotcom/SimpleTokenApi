@@ -414,7 +414,7 @@
     - :kit_marketing
 
 
-'UserManagement::EmailKycStatus::Approve':
+'UserManagement::SendEmail::Approve':
   :mandatory:
     - :client_id
     - :email

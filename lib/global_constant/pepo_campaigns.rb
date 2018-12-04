@@ -381,7 +381,6 @@ module GlobalConstant
       end
 
       def kyc_approve_default_template_vars(client_id)
-
         client_token_sale_details = ::ClientTokenSaleDetail.get_from_memcache(client_id)
         {
             is_sale_active: client_token_sale_details.is_token_sale_live? # need to confirm is_token_sale_live? or has_token_sale_started?

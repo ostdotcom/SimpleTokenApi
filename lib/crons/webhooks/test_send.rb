@@ -81,12 +81,12 @@ module Crons
       def send_admin_email(logs_data)
         return if logs_data.blank?
 
-        test_send_data = {}
+        test_send_data = []
         logs_data.each do |_, log_data|
           next if log_data[:status] == GlobalConstant::WebhookSendLog.not_valid_status
-          name = log_data[:event_name]
 
-          test_send_data[name] = {
+          test_send_data << {
+              name: log_data[:event_name].humanize,
               status: log_data[:status]
           }
         end

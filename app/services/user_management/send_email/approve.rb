@@ -1,133 +1,182 @@
 module UserManagement
   module SendEmail
 
-  class Approve < ServicesBase
-    # Initialize
-    #
-    # * Author: Mayur
-    # * Date: 03/12/2018
-    # * Reviewed By:
-    #
-    # @param [Integer] client_id (mandatory) -  client id
-    # @param [String] email (mandatory) - email
-    # @param [Hash] template_vars (optional) - @template_vars
-    #
-    # @return [UserManagement::SendEmail::Approve]
-    #
+    class Approve < ServicesBase
+      # Initialize
+      #
+      # * Author: Mayur
+      # * Date: 03/12/2018
+      # * Reviewed By:
+      #
+      # @param [Integer] client_id (mandatory) -  client id
+      # @param [Integer] user_id (mandatory) - user id
+      # @param [Hash] template_vars (optional) - @template_vars
+      #
+      # @return [UserManagement::SendEmail::Approve]
+      #
+      def initialize(params)
+        super
 
-    def initialize(params)
-      super
+        @client_id = @params[:client_id]
+        @user_id = @params[:user_id]
+        @template_vars = @params[:template_vars] || {}
 
-      @client_id = @params[:client_id]
-      @email = @params[:email]
-      @template_vars = @params[:template_vars]
-    end
+        @client = nil
+        @user = nil
+      end
 
-    # Perform
-    #
-    # * Author: Mayur
-    # * Date: 03/12/2018
-    # * Reviewed By:
-    #
-    def perform
-      r = validate_and_sanitize
-      return r unless r.success?
+      # Perform
+      #
+      # * Author: Mayur
+      # * Date: 03/12/2018
+      # * Reviewed By:
+      #
+      def perform
+        r = validate_and_sanitize
+        return r unless r.success?
 
-      Email::HookCreator::SendTransactionalMail.new(
-          client_id: @client_id,
-          email: @email,
-          template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-          template_vars: @template_vars
-      ).perform
-      success
-    end
+        create_email_hook
 
-    # Validate and sanitize
-    #
-    # * Author: Mayur
-    # * Date: 03/12/2018
-    # * Reviewed By:
-    #
-    def validate_and_sanitize
-      r = validate
-      return r unless r.success?
+        success
+      end
 
-      r = validate_and_sanitize_params
-      return r unless r.success?
+      private
 
-      r = fetch_and_validate_client
-      return r unless r.success?
+      # Validate and sanitize
+      #
+      # * Author: Mayur
+      # * Date: 03/12/2018
+      # * Reviewed By:
+      #
+      def validate_and_sanitize
+        r = validate
+        return r unless r.success?
 
-      create_template_vars
+        r = validate_and_sanitize_params
+        return r unless r.success?
 
-      success
-    end
+        r = fetch_and_validate_user
+        return r unless r.success?
+
+        r = fetch_and_validate_user_kyc_detail
+        return r unless r.success?
+
+        r = fetch_and_validate_client
+        return r unless r.success?
+
+        success
+      end
+
+      # Validate and sanitize params
+      #
+      # * Author: Mayur
+      # * Date: 03/12/2018
+      # * Reviewed By:
+      #
+      def validate_and_sanitize_params
+        error_indentifiers = []
+        error_indentifiers << 'invalid_user_id' unless Util::CommonValidateAndSanitize.is_integer?(@user_id)
+        error_indentifiers << 'invalid_template_vars' unless is_valid_template_vars?
+
+        return error_with_identifier('invalid_api_params',
+                                     'um_se_a_vasp_1',
+                                     error_indentifiers
+        ) if error_indentifiers.any?
+        @user_id = @user_id.to_i
+
+        success
+      end
 
 
-    # Validate and sanitize params
-    #
-    # * Author: Mayur
-    # * Date: 03/12/2018
-    # * Reviewed By:
-    #
-    def validate_and_sanitize_params
-      puts is_nested_hash_or_array?
-      error_indentifiers = []
-      error_indentifiers << 'invalid_email' unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
-      error_indentifiers << 'invalid_template_vars' if is_nested_hash_or_array?
+      # Fetch and validate user
+      #
+      # * Author: Mayur
+      # * Date: 05/12/2018
+      # * Reviewed By:
+      #
+      def fetch_and_validate_user
+        @user = User.get_from_memcache(@user_id)
 
-      return error_with_identifier('invalid_api_params',
-                            'um_sa_1', # code can be changed
-                                   error_indentifiers
-      ) if error_indentifiers.any?
-      success
-    end
+        return error_with_identifier('resource_not_found',
+                                     'um_se_a_favu_1'
+        ) if (@user.blank?) || (@user.client_id != @client_id) || (@user.status != GlobalConstant::User.active_status)
+
+        success
+      end
+
+      # Fetch and validate user kyc details
+      #
+      # * Author: Mayur
+      # * Date: 05/12/2018
+      # * Reviewed By:
+      #
+      def fetch_and_validate_user_kyc_detail
+        user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+
+        return error_with_identifier('kyc_not_approved',
+                                     'um_se_a_favukd_1'
+        ) if (user_kyc_detail.blank? || (user_kyc_detail.client_id != @client_id)) || !(user_kyc_detail.kyc_approved?)
+
+        success
+      end
 
 
-    # Check if template_vars is nested object
-    #
-    # * Author: Mayur
-    # * Date: 03/12/2018
-    # * Reviewed By:
-    #
-    def is_nested_hash_or_array?
-      @template_vars.each do |key, val|
-        if Util::CommonValidateAndSanitize.is_hash?(val)
-          val.each do |k, v|
-            if check_if_hash_or_array(v)
-              return true
+      # Create email hook
+      #
+      # * Author: Mayur
+      # * Date: 05/12/2018
+      # * Reviewed By:
+      #
+      def create_email_hook
+        @template_vars = @template_vars.as_json.deep_symbolize_keys.
+            reverse_merge(GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id))
+
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: @client_id,
+            email: @user.email,
+            template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
+            template_vars: @template_vars
+        ).perform
+      end
+
+
+      # Check if template_vars is valid. nested objects or arrays are not allowed
+      #
+      # * Author: Mayur
+      # * Date: 03/12/2018
+      # * Reviewed By:
+      #
+      def is_valid_template_vars?
+
+        return false unless Util::CommonValidateAndSanitize.is_hash?(@template_vars)
+
+        @template_vars.each do |_, val|
+          if Util::CommonValidateAndSanitize.is_hash?(val)
+            val.each do |_, v|
+              return false if check_if_hash_or_array(v)
             end
-          end
-        elsif Util::CommonValidateAndSanitize.is_array?(val)
-          val.each do |v|
-            if check_if_hash_or_array(v)
-              return true
+          elsif Util::CommonValidateAndSanitize.is_array?(val)
+            val.each do |v|
+              return false if check_if_hash_or_array(v)
             end
           end
         end
-      end if @template_vars.present?
-      false
+
+        true
+      end
+
+      # Check if array or hash type
+      #
+      # * Author: Mayur
+      # * Date: 03/12/2018
+      # * Reviewed By:
+      #
+      def check_if_hash_or_array(v)
+        Util::CommonValidateAndSanitize.is_hash?(v) || Util::CommonValidateAndSanitize.is_array?(v)
+      end
+
+
     end
 
-    def check_if_hash_or_array(v)
-      Util::CommonValidateAndSanitize.is_hash?(v) || Util::CommonValidateAndSanitize.is_array?(v)
-    end
-
-
-    # Create template vars
-    #
-    # * Author: Mayur
-    # * Date: 03/12/2018
-    # * Reviewed By:
-    #
-    def create_template_vars
-      @template_vars = @template_vars.present? ? @template_vars.as_json.deep_symbolize_keys.reverse_merge(GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id))
-                           : GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id)
-    end
-
-
-
   end
-
-  end
-  end
+end

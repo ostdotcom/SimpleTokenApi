@@ -417,7 +417,7 @@
 'UserManagement::SendEmail::Approve':
   :mandatory:
     - :client_id
-    - :email
+    - :user_id
   :optional:
     - :template_vars
 

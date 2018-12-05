@@ -383,15 +383,14 @@ module GlobalConstant
       def kyc_approve_default_template_vars(client_id)
         client_token_sale_details = ::ClientTokenSaleDetail.get_from_memcache(client_id)
         {
-            is_sale_active: client_token_sale_details.is_token_sale_live? # need to confirm is_token_sale_live? or has_token_sale_started?
+            is_sale_active: client_token_sale_details.has_token_sale_started?
         }
       end
 
 
-      def templates_remove_entry_from_db
+      def delete_hook_for_templates
         [GlobalConstant::PepoCampaigns.kyc_approved_template]
       end
-
 
       private
 

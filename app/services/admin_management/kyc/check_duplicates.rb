@@ -38,7 +38,6 @@ module AdminManagement
         @new_duplicate_user_ids = []
         @user_kyc_active_duplicate_log_sql_values = []
         @user_kyc_inactive_duplicate_log_sql_values = []
-        @client_kyc_config_detail = nil
       end
 
       # Perform
@@ -57,7 +56,6 @@ module AdminManagement
 
         return success unless @user_kyc_details.unprocessed_kyc_duplicate_status?
 
-        fetch_client_kyc_config_detail
 
         fetch_existing_duplicate_data
         if @duplicate_log_ids.present?
@@ -91,17 +89,6 @@ module AdminManagement
         @md5_user_extended_details = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_details.user_extended_detail_id).first
       end
 
-      # Fetch client kyc config detail
-      #
-      # * Author: Aman
-      # * Date: 01/02/2018
-      # * Reviewed By:
-      #
-      # @return [Result::Base]
-      #
-      def fetch_client_kyc_config_detail
-        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
-      end
 
       # Fetch user details
       #
@@ -190,7 +177,7 @@ module AdminManagement
           new_duplicate_user_ids << md5_obj.user_id
         end
 
-        if @client_kyc_config_detail.kyc_fields_array.include?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
+        if @md5_user_extended_details.ethereum_address.present?
           # By Ethereum address
           Md5UserExtendedDetail.where(ethereum_address: @md5_user_extended_details.ethereum_address).all.each do |md5_obj|
             next if md5_obj.user_id == @user_id
@@ -199,9 +186,7 @@ module AdminManagement
           end
         end
 
-        if ([GlobalConstant::ClientKycConfigDetail.state_kyc_field,
-             GlobalConstant::ClientKycConfigDetail.city_kyc_field,
-             GlobalConstant::ClientKycConfigDetail.street_address_kyc_field] - @client_kyc_config_detail.kyc_fields_array).blank?
+        if @md5_user_extended_details.street_address.present? && @md5_user_extended_details.city.present? &&  @md5_user_extended_details.state.present?
           # By Address
           Md5UserExtendedDetail.where(street_address: @md5_user_extended_details.street_address, city: @md5_user_extended_details.city, state: @md5_user_extended_details.state).all.each do |md5_obj|
             next if md5_obj.user_id == @user_id

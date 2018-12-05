@@ -69,19 +69,10 @@ module Email
             send_mail_response
           )
         else
-          remove_email_entry_from_db
           success_with_data(send_mail_response)
         end
 
       end
-
-
-      def remove_email_entry_from_db
-        if GlobalConstant::PepoCampaigns.templates_remove_entry_from_db.include? (@hook.params[:template_name])
-          @hook.destroy
-        end
-
-    end
 
   end
 

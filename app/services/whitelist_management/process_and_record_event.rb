@@ -421,20 +421,11 @@ module WhitelistManagement
 
       return if !@client.is_email_setup_done? || @client.is_st_token_sale_client? || ! @client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
+      #
+      # return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
+      #                                                           [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
-      emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(
-          @client.id, GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
-
-      return if emails_hook_info.present? && emails_hook_info[@user.email].present?
-
-      return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
-                                                                [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
-
-      send_mail_response = pepo_campaign_obj.send_transactional_email(
-          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id).merge(@client.web_host_params))
-
-      send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
-
+      send_kyc_approved_mail_via_hooks
     end
 
 

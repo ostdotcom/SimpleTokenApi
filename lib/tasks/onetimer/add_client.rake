@@ -86,10 +86,10 @@ namespace :onetimer do
   #                 }
   #
   #             },
-  #             "auto_send_kyc_status_email" => [
-  #                 "send_auto_approve_email",
-  #                 "send_auto_deny_email",
-  #                 "send_auto_report_issue_email"
+  #             "auto_send_kyc_emails" => [
+  #                 "send_approve_email",
+  #                 "send_deny_email",
+  #                 "send_report_issue_email"
   #             ]
   #             "residency_proof_nationalities" => [],
   #             "blacklisted_countries" => []
@@ -289,7 +289,7 @@ namespace :onetimer do
                                      residency_proof_nationalities: kyc_config["residency_proof_nationalities"] || [],
                                      blacklisted_countries: kyc_config["blacklisted_countries"] || [],
                                      extra_kyc_fields: kyc_config['extra_kyc_fields'] || {},
-                                     auto_send_kyc_status_email: kyc_config['auto_send_kyc_status_email']
+                                     auto_send_kyc_emails: kyc_config['auto_send_kyc_emails']
     )
 
     puts "\tKycConfig setup done"

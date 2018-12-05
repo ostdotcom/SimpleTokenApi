@@ -106,6 +106,22 @@ module GlobalConstant
 
       ### kyc fields End ###
 
+
+      ### auto send email Start ###
+      def send_approve_email
+        'send_approve_email'
+      end
+
+      def send_deny_email
+        'send_deny_email'
+      end
+
+      def send_report_issue_email
+        'send_report_issue_email'
+      end
+
+      ### auto send email End ###
+
       def mandatory_client_fields
         [
             first_name_kyc_field,
@@ -163,21 +179,6 @@ module GlobalConstant
             investor_proof_files_path_kyc_field
         ]
       end
-
-      def send_auto_approve_email
-        'send_auto_approve_email'
-      end
-
-      def send_auto_deny_email
-        'send_auto_deny_email'
-      end
-
-      def send_auto_report_issue_email
-        'send_auto_report_issue_email'
-      end
-
-
-
 
     end
 

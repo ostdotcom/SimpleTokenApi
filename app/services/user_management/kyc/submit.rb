@@ -132,14 +132,13 @@ module UserManagement
         # NOTE: To be on safe side, check for generic errors as well
         # r = validate
         # return r unless r.success?
+        r = fetch_and_validate_client
+        return r unless r.success?
 
-        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+        @client_kyc_config_detail = @client.client_kyc_config_detail
 
         # Sanitize fields, validate and assign error
         r = validate_and_sanitize_params
-        return r unless r.success?
-
-        r = fetch_and_validate_client
         return r unless r.success?
 
         @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)

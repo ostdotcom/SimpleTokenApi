@@ -32,7 +32,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
 
     fail 'Invalid kyc fields' if (params[:kyc_fields] - ClientKycConfigDetail.kyc_fields_config.keys).present?
 
-    fail 'Invalid kyc auto send status email fields' if (params[:auto_send_kyc_status_email] - ClientKycConfigDetail.auto_send_kyc_status_email_config.keys).present?
+    fail 'Invalid kyc auto send status email fields' if (params[:auto_send_kyc_emails] - ClientKycConfigDetail.auto_send_kyc_emails_config.keys).present?
 
     fail 'Invalid blacklisted_countries' if !params[:blacklisted_countries].is_a?(Array)
 
@@ -45,8 +45,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
       kyc_field_bit_value += ClientKycConfigDetail.kyc_fields_config[field_name]
     end
 
-    params[:auto_send_kyc_status_email].each do |field_name|
-      auto_status_email_bit_value += ClientKycConfigDetail.auto_send_kyc_status_email_config[field_name]
+    params[:auto_send_kyc_emails].each do |field_name|
+      auto_status_email_bit_value += ClientKycConfigDetail.auto_send_kyc_emails_config[field_name]
     end
 
 
@@ -56,7 +56,7 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
         residency_proof_nationalities: params[:residency_proof_nationalities].map(&:upcase),
         blacklisted_countries: params[:blacklisted_countries].map(&:upcase),
         extra_kyc_fields: params[:extra_kyc_fields].deep_symbolize_keys,
-        auto_send_kyc_status_email: auto_status_email_bit_value
+        auto_send_kyc_emails: auto_status_email_bit_value
     )
 
   end
@@ -102,34 +102,29 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
 
 
   def auto_send_kyc_approve_email?
-    auto_send_kyc_status_email_array.include?(GlobalConstant::ClientKycConfigDetail.send_auto_approve_email)
+    auto_send_kyc_emails_array.include?(GlobalConstant::ClientKycConfigDetail.send_approve_email)
   end
 
   def auto_send_kyc_deny_email?
-    auto_send_kyc_status_email_array.include?(GlobalConstant::ClientKycConfigDetail.send_auto_deny_email)
+    auto_send_kyc_emails_array.include?(GlobalConstant::ClientKycConfigDetail.send_deny_email)
   end
 
   def auto_send_kyc_report_issue_email?
-    auto_send_kyc_status_email_array.include?(GlobalConstant::ClientKycConfigDetail.send_auto_report_issue_email)
+    auto_send_kyc_emails_array.include?(GlobalConstant::ClientKycConfigDetail.send_report_issue_email)
   end
 
-
-
-  def auto_send_kyc_status_email_array
-    @setup_properties_array = ClientKycConfigDetail.get_bits_set_for_auto_send_kyc_status_email(auto_send_kyc_status_email)
+  def auto_send_kyc_emails_array
+    ClientKycConfigDetail.get_bits_set_for_auto_send_kyc_emails(auto_send_kyc_emails)
   end
 
-
-  def self.auto_send_kyc_status_email_config
-    @auto_send_kyc_status_email_config ||= {
-        GlobalConstant::ClientKycConfigDetail.send_auto_approve_email => 1,
-        GlobalConstant::ClientKycConfigDetail.send_auto_deny_email => 2,
-        GlobalConstant::ClientKycConfigDetail.send_auto_report_issue_email => 4
+  def self.auto_send_kyc_emails_config
+    @auto_send_kyc_emails_config ||= {
+        GlobalConstant::ClientKycConfigDetail.send_approve_email => 1,
+        GlobalConstant::ClientKycConfigDetail.send_deny_email => 2,
+        GlobalConstant::ClientKycConfigDetail.send_report_issue_email => 4
 
     }
   end
-
-
 
   # Bitwise columns config
   #
@@ -140,41 +135,12 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   def self.bit_wise_columns_config
     @b_w_c_c ||= {
         kyc_fields: kyc_fields_config,
-        auto_send_kyc_status_email: auto_send_kyc_status_email_config
+        auto_send_kyc_emails: auto_send_kyc_emails_config
     }
   end
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
-
-  # Get Key Object
-  #
-  # * Author: Aman
-  # * Date: 08/02/2018
-  # * Reviewed By:
-  #
-  # @return [MemcacheKey] Key Object
-  #
-  def self.get_memcache_key_object
-    MemcacheKey.new('client.client_kyc_config_details')
-  end
-
-  # Get/Set Memcache data for clients kyc config details
-  #
-  # * Author: Aman
-  # * Date: 08/02/2018
-  # * Reviewed By:
-  #
-  # @param [Integer] client_id - client id
-  #
-  # @return [AR] ClientKycConfigDetail object
-  #
-  def self.get_from_memcache(client_id)
-    memcache_key_object = ClientKycConfigDetail.get_memcache_key_object
-    Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      ClientKycConfigDetail.where(client_id: client_id).first
-    end
-  end
 
   private
 
@@ -185,8 +151,8 @@ class ClientKycConfigDetail < EstablishSimpleTokenClientDbConnection
   # * Reviewed By:
   #
   def memcache_flush
-    client_kyc_config_details_memcache_key = ClientKycConfigDetail.get_memcache_key_object.key_template % {client_id: self.client_id}
-    Memcache.delete(client_kyc_config_details_memcache_key)
+    client_memcache_key = Client.get_memcache_key_object.key_template % {id: self.client_id}
+    Memcache.delete(client_memcache_key)
     ClientSetting.flush_client_settings_cache(self.client_id)
   end
 

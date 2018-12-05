@@ -135,7 +135,8 @@ module SandboxManagement
           kyc_config: {
               kyc_fields: kyc_config_detail.kyc_fields_array,
               residency_proof_nationalities: kyc_config_detail.residency_proof_nationalities,
-              blacklisted_countries: kyc_config_detail.blacklisted_countries
+              blacklisted_countries: kyc_config_detail.blacklisted_countries,
+              auto_send_kyc_emails: kyc_config_detail.auto_send_kyc_emails
           }
       }
 

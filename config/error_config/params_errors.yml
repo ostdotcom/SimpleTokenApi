@@ -458,6 +458,10 @@ missing_template_type:
   parameter: "template_type"
   msg: "template_type is mandatory."
 
+invalid_template_vars:
+  parameter: "template_vars"
+  msg: "Template variables are invalid"
+
 missing_token_sale_end_date:
   parameter: "token_sale_end_date"
   msg: "Token Sale End Date is mandatory."

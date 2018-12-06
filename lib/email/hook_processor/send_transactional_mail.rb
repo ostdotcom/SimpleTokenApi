@@ -74,8 +74,7 @@ module Email
 
       end
 
-    end
-
   end
 
-end
+  end
+ end

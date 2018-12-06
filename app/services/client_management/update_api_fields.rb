@@ -92,7 +92,7 @@ module ClientManagement
     # sets client_kyc_config_details
     #
     def validate_allowed_keys
-      client_kyc_config_details = ClientKycConfigDetail.get_from_memcache(@client_id)
+      client_kyc_config_details = @client.client_kyc_config_detail
 
       @kyc_fields = @set_allowed_keys & client_kyc_config_details.kyc_fields_array
 

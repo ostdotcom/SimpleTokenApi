@@ -385,6 +385,18 @@ module GlobalConstant
         ].include?(template_name)
       end
 
+      def kyc_approve_default_template_vars(client_id)
+        client_token_sale_details = ::ClientTokenSaleDetail.get_from_memcache(client_id)
+        {
+            is_sale_active: client_token_sale_details.has_token_sale_started?
+        }
+      end
+
+
+      def delete_hook_for_templates
+        [GlobalConstant::PepoCampaigns.kyc_approved_template]
+      end
+
       private
 
       def config

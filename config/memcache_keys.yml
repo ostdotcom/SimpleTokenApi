@@ -67,10 +67,6 @@ client:
     key_template: 'client_token_sale_detail_%{client_id}'
     expiry_in_seconds: 86400
 
-  client_kyc_config_details:
-    key_template: 'client_kyc_config_detail_%{client_id}'
-    expiry_in_seconds: 86400
-
   client_kyc_detail_api_activations:
       key_template: 'client_kyc_detail_api_activations_%{client_id}'
       expiry_in_seconds: 86400

@@ -100,7 +100,7 @@ namespace :cron_task do
       cron_identifier = ENV['cron_identifier'].to_s
 
       @process_name = "#{task}_#{cron_identifier}"
-      @performer_klass = 'Crons::WebhookProcessor'
+      @performer_klass = 'Crons::Webhooks::Send'
       @optional_params = {cron_identifier: cron_identifier}
       execute_continuous_task
     end

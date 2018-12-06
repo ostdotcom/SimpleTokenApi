@@ -243,7 +243,7 @@ class ClientWebhookSetting < EstablishSimpleTokenClientDbConnection
   # * Reviewed By:
   #
   def self.restricted_fields
-    [:secret_key]
+    [:secret_key, :last_processed_at]
   end
 
   # Flush Memcache

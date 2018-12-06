@@ -20,7 +20,7 @@ class DeleteDuplicateLogs < ApplicationJob
 
     unset_user_email_duplicates
 
-    RecordEventJob.perform_now(@event)
+    WebhookJob::RecordEvent.perform_now(@event)
     return if @user_kyc_detail.blank?
 
     fetch_existing_duplicate_data

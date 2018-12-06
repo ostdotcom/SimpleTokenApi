@@ -142,6 +142,16 @@ module AdminManagement
           log_to_user_activity(r) if !is_a_cron_task?
           save_aml_status
 
+          ApplicationMailer.notify(
+              body: {exception: {message: "There was some error in aml update"}},
+              data: {
+                  user_id: @user_kyc_detail.user_id,
+                  response: r.to_json
+              },
+              subject: 'There was some error in aml update'
+          ).deliver
+
+
           return error_with_data(
               'am_k_rcu_cca_1',
               "There was some error in aml update",

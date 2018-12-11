@@ -41,24 +41,41 @@ module GlobalConstant
 
     def self.allowed_http_codes
       [
-        ok,
-        unauthorized_access,
-        not_found,
-        forbidden,
-        unprocessable_entity,
-        invalid_request_parameters
+          ok,
+          unauthorized_access,
+          not_found,
+          forbidden,
+          unprocessable_entity,
+          invalid_request_parameters
       ]
     end
 
     def self.http_codes_for_web
       [
-        ok,
-        unauthorized_access,
-        not_found,
-        temporary_redirect
+          ok,
+          unauthorized_access,
+          not_found,
+          temporary_redirect
       ]
     end
 
+
+    def http_code_map
+      {
+          permanent_redirect => 'PERMANENT_REDIRECT',
+          temporary_redirect => 'TEMPORARY_REDIRECT',
+          invalid_request_parameters => 'BAD_REQUEST',
+          unauthorized_access => "UNAUTHORIZED",
+          forbidden => "FORBIDDEN",
+          not_found => "NOT_FOUND",
+          unprocessable_entity => "UNPROCESSABLE_ENTITY",
+          unhandled_exception => 'INTERNAL_SERVER_ERROR',
+      }
+    end
+
+    def error_code_for_http_code(http_code)
+      http_code_map[http_code].to_s
+    end
 
 
   end

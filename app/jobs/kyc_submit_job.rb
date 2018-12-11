@@ -49,7 +49,7 @@ class KycSubmitJob < ApplicationJob
   # @param [Hash] params
   #
   def init_params(params)
-    Rails.logger.info("-- init_params params: #{params.inspect}")
+    # Rails.logger.info("-- init_params params: #{params.inspect}")
 
     @user_id = params[:user_id]
     @user_extended_detail_id = params[:user_extended_detail_id]
@@ -181,7 +181,7 @@ class KycSubmitJob < ApplicationJob
   #
   def call_aml_api
     r = @user_kyc_detail.aml_user_id.blank? ? create_aml_case : update_aml_case
-    Rails.logger.info("-- call_aml_api r: #{r.inspect}")
+    # Rails.logger.info("-- call_aml_api r: #{r.inspect}")
 
     if !r.success? # aml status will turn failed
       @aml_status = GlobalConstant::UserKycDetail.failed_aml_status

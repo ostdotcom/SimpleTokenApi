@@ -115,7 +115,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      phase: api_data[:phase],
                                                      gasPrice: EstimatedGasPrice::CurrentPrice.new.fetch
                                                  })
-    Rails.logger.info("Whitelist API Response: #{r.inspect}")
+    # Rails.logger.info("Whitelist API Response: #{r.inspect}")
 
     unless r.success?
       get_client_whitelist_detail_obj.mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)

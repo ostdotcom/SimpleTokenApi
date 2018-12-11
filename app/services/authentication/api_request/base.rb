@@ -39,7 +39,7 @@ module Authentication::ApiRequest
     # * Reviewed By:
     #
     def request_time
-     fail 'request time function did not override'
+      fail 'request time function did not override'
     end
 
     # Get expiry window
@@ -98,13 +98,12 @@ module Authentication::ApiRequest
     #
     def validate_and_sanitize
       r = validate
-      return r unless r.success?
+      return invalid_credentials_response('a_ar_b_vas_1') unless r.success?
 
       @url_path = get_url_path
       @parsed_request_time = Time.at(@request_time.to_i)
 
-      return invalid_credentials_response("um_vac_1") unless
-          @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
+      return invalid_credentials_response("um_vac_1") unless @parsed_request_time && (@parsed_request_time.between?(Time.now - expiry_window, Time.now + expiry_window))
 
       @request_parameters.permit!
 

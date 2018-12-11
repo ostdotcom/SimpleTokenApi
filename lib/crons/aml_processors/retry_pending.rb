@@ -64,7 +64,7 @@ module Crons
         is_already_kyc_denied_by_admin = user_kyc_detail.kyc_denied?
 
         r = Aml::Customer.new(client_id: user_kyc_detail.client_id).check_status({rfrID: user_kyc_detail.aml_user_id})
-        Rails.logger.info("-- call_aml_check_status_api response: #{r.inspect}")
+        # Rails.logger.info("-- call_aml_check_status_api response: #{r.inspect}")
         return unless r.success?
 
         response_hash = ((r.data || {})[:response] || {})

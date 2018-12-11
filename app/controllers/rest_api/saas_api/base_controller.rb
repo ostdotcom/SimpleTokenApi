@@ -62,7 +62,7 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
       formatted_response.data = get_formatter_class.send(params['action'], formatted_response.data.dup)
     end
 
-    puts "\nFinal formatted response : #{formatted_response.inspect}"
+    # puts "\nFinal formatted response : #{formatted_response.inspect}"
     render_api_response(formatted_response)
   end
 

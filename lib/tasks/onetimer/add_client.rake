@@ -316,8 +316,8 @@ namespace :onetimer do
       puts "\tWebHost setup done"
     end
 
-    puts "client_id= #{client_id}"
-    puts "uuid= #{uuid}"
+    # puts "client_id= #{client_id}"
+    # puts "uuid= #{uuid}"
   end
 
 end

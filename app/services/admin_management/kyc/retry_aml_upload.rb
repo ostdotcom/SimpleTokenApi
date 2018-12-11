@@ -135,7 +135,7 @@ module AdminManagement
       #
       def call_aml_api
         r = @user_kyc_detail.aml_user_id.blank? ? create_aml_case : update_aml_case
-        Rails.logger.info("-- retry for call_aml_api r: #{r.inspect}")
+        # Rails.logger.info("-- retry for call_aml_api r: #{r.inspect}")
 
         if !r.success?
           # dont log activity if it is a cron task

@@ -79,6 +79,11 @@ client:
     key_template: 'client_setting_detail_%{client_id}_%{entity_type}'
     expiry_in_seconds: 86400
 
+  client_setting_detail_host:
+    key_template: 'client_setting_detail_host_%{host_url}_%{entity_type}'
+    expiry_in_seconds: 300
+    used_in_shared_env: true
+
   client_kyc_pass_active_setting:
     key_template: 'client_kyc_pass_active_setting_%{client_id}'
     expiry_in_seconds: 86400

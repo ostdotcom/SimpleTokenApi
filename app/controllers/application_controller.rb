@@ -114,7 +114,7 @@ class ApplicationController < ActionController::API
     if response_hash[:err].present?
       err = response_hash.delete(:err) || {}
       err_data = {}
-      puts err[:error_data].inspect
+      # puts err[:error_data].inspect
       err[:error_data].each {|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
       response_hash[:err] = {
           display_text: err[:web_msg] || err[:msg].to_s,

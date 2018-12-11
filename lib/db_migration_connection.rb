@@ -13,7 +13,7 @@ class DbMigrationConnection < ActiveRecord::Migration[5.1]
     config = (YAML.load(template.result(binding)))[config_key]
     db_name = config["database"]
     config.except!("database")
-    puts config
+    # puts config
     @connection = ApplicationRecord.establish_connection(config).connection
     execute "CREATE DATABASE IF NOT EXISTS " + db_name + " DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
     execute "USE " + db_name

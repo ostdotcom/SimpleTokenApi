@@ -127,7 +127,7 @@ module Authentication::ApiRequest
     #
     def fetch_client
       @client = Client.get_client_for_api_key_from_memcache(@api_key)
-      puts "fetch_client : #{@client.inspect}"
+      # puts "fetch_client : #{@client.inspect}"
     end
 
     # Validate client and its signature

@@ -102,7 +102,7 @@ module ClientManagement
     # Sets @client_kyc_config_detail
     #
     def fetch_client_kyc_config_detail
-      @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+      @client_kyc_config_detail = @client.client_kyc_config_detail
     end
 
     # Fetch Client Kyc Detail Api Activations

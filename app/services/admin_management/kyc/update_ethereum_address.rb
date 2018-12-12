@@ -100,7 +100,7 @@ module AdminManagement
             {}
         ) if @admin.default_client_id != @client.id
 
-        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+        @client_kyc_config_detail = @client.client_kyc_config_detail
 
         return error_with_data(
             'am_k_uea_3',
@@ -411,7 +411,7 @@ module AdminManagement
       #
       def enqueue_job
         BgJob.enqueue(
-            RecordEventJob,
+            WebhookJob::RecordEvent,
             {
                 client_id: @user_kyc_detail.client_id,
                 event_source: GlobalConstant::Event.web_source,

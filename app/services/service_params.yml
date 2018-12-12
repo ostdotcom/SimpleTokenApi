@@ -413,6 +413,15 @@
     - :project_description
     - :kit_marketing
 
+
+'UserManagement::SendEmail::Approve':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+    - :template_vars
+
+
 'ClientManagement::MigrateClientCustomDraft':
   :mandatory:
     - :client_id
@@ -554,14 +563,21 @@
      - :event_result_types
   :optional:
 
-'ClientManagement::DeleteWebhook':
+'ClientManagement::WebhookSetting::Delete':
   :mandatory:
      - :client_id
      - :admin_id
      - :webhook_id
   :optional:
 
-'ClientManagement::ResetSecretKey':
+'ClientManagement::WebhookSetting::Test':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
+'ClientManagement::WebhookSetting::ResetSecretKey':
   :mandatory:
      - :client_id
      - :admin_id

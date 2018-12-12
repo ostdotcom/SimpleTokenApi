@@ -4,37 +4,45 @@ class Event < EstablishOstKycWebhookDbConnection
       GlobalConstant::Event.user_register_name => {
           entity_val: 1,
           description: 'User has signed up',
-          result_type: GlobalConstant::Event.user_result_type
+          result_type: GlobalConstant::Event.user_result_type,
+          inavlid_source: [GlobalConstant::Event.kyc_system_source]
+
       },
       GlobalConstant::Event.user_dopt_in_name => {
           entity_val: 2,
           description: 'User has done double opt in',
-          result_type: GlobalConstant::Event.user_result_type
+          result_type: GlobalConstant::Event.user_result_type,
+          inavlid_source: [GlobalConstant::Event.kyc_system_source, GlobalConstant::Event.api_source]
       },
       GlobalConstant::Event.user_deleted_name => {
           entity_val: 3,
           description: 'User was deletd by admin',
-          result_type: GlobalConstant::Event.user_result_type
+          result_type: GlobalConstant::Event.user_result_type,
+          inavlid_source: [GlobalConstant::Event.kyc_system_source, GlobalConstant::Event.api_source]
       },
       GlobalConstant::Event.kyc_submit_name => {
           entity_val: 4,
           description: 'User has submitted kyc data',
-          result_type: GlobalConstant::Event.user_kyc_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type,
+          inavlid_source: [GlobalConstant::Event.kyc_system_source]
       },
       GlobalConstant::Event.update_ethereum_address_name => {
           entity_val: 5,
           description: 'Admin has updates ethereum address of user',
-          result_type: GlobalConstant::Event.user_kyc_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type,
+          inavlid_source: [GlobalConstant::Event.kyc_system_source, GlobalConstant::Event.api_source]
       },
       GlobalConstant::Event.kyc_status_update_name => {
           entity_val: 6,
           description: 'user kyc state has changed',
-          result_type: GlobalConstant::Event.user_kyc_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type,
+          inavlid_source: [GlobalConstant::Event.api_source]
       },
       GlobalConstant::Event.kyc_reopen_name => {
           entity_val: 7,
           description: 'user kyc case was reopened by admin',
-          result_type: GlobalConstant::Event.user_kyc_result_type
+          result_type: GlobalConstant::Event.user_kyc_result_type,
+          inavlid_source: [GlobalConstant::Event.kyc_system_source, GlobalConstant::Event.api_source]
       }
   }
 
@@ -56,7 +64,6 @@ class Event < EstablishOstKycWebhookDbConnection
     end
     name_map.freeze
   end
-
 
 
   def self.get_event_result_type(name)

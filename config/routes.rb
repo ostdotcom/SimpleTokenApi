@@ -128,6 +128,7 @@ Rails.application.routes.draw do
       match '/' => :create_webhook, via: :POST
       match '/:webhook_id' => :update_webhook, via: :POST
       match '/:webhook_id/reset-secret-key' => :reset_secret_key, via: :POST
+      match '/:webhook_id/test' => :test, via: :POST
       match '/:webhook_id/delete' => :delete_webhook, via: :POST
     end
 

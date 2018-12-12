@@ -44,9 +44,6 @@ module Crons
           # Process these Hooks
           process_hooks
 
-          # Mark Hooks as processed
-          update_status_to_processed
-
         rescue StandardError => se
 
           @hooks_to_be_processed.each do |hook|
@@ -61,6 +58,9 @@ module Crons
           end
 
         ensure
+
+          # Mark Hooks as processed or delete based on hook
+          update_status_or_delete_processed_hooks
 
           # For hooks which failed, mark them as failed
           release_lock_and_update_status_for_non_processed_hooks
@@ -223,7 +223,7 @@ module Crons
       # * Date: 11/11/2017
       # * Reviewed By:
       #
-      def update_status_to_processed
+      def update_status_or_delete_processed_hooks
         fail 'child class to implement'
       end
 

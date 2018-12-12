@@ -155,10 +155,7 @@ module Crons
               client_id: client_id,
               email: user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-              template_vars: {
-                  token_sale_participation_phase: user_kyc_detail.token_sale_participation_phase,
-                  is_sale_active: client_token_sale_details_objs[client_id].has_token_sale_started?
-              }
+              template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(client_id)
           ).perform
         end
       end
@@ -171,7 +168,7 @@ module Crons
       #
       def record_event_job(user_kyc_detail)
 
-        RecordEventJob.perform_now({
+        WebhookJob::RecordEvent.perform_now({
                                        client_id: user_kyc_detail.client_id,
                                        event_source: GlobalConstant::Event.kyc_system_source,
                                        event_name: GlobalConstant::Event.kyc_status_update_name,

@@ -88,7 +88,7 @@ module AdminManagement
       # Sets @client_kyc_config_detail_obj
       #
       def fetch_kyc_config_detail
-        @client_kyc_config_detail_obj = ClientKycConfigDetail.get_from_memcache(@client_id)
+        @client_kyc_config_detail_obj = @client.client_kyc_config_detail
       end
 
       # Create And Update Client Whitelist Detail

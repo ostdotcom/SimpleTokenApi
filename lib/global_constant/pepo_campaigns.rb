@@ -234,6 +234,10 @@ module GlobalConstant
         "admin_invite"
       end
 
+      def test_webhook_result_template
+        "test_webhook_result"
+      end
+
       # # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
       # def kyc_data_mismatch_template
       #   'kyc_data_mismatch'
@@ -343,6 +347,7 @@ module GlobalConstant
           user_forgot_password_template,
           kyc_issue_template,
           admin_invite_template,
+          test_webhook_result_template,
 
           # kyc_data_mismatch_template,
           # kyc_document_id_issue_template,
@@ -378,6 +383,18 @@ module GlobalConstant
         [
           GlobalConstant::PepoCampaigns.double_opt_in_template
         ].include?(template_name)
+      end
+
+      def kyc_approve_default_template_vars(client_id)
+        client_token_sale_details = ::ClientTokenSaleDetail.get_from_memcache(client_id)
+        {
+            is_sale_active: client_token_sale_details.has_token_sale_started?
+        }
+      end
+
+
+      def delete_hook_for_templates
+        [GlobalConstant::PepoCampaigns.kyc_approved_template]
       end
 
       private

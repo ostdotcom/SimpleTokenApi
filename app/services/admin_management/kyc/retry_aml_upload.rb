@@ -142,6 +142,16 @@ module AdminManagement
           log_to_user_activity(r) if !is_a_cron_task?
           save_aml_status
 
+          ApplicationMailer.notify(
+              body: {exception: {message: "There was some error in aml update"}},
+              data: {
+                  user_id: @user_kyc_detail.user_id,
+                  response: r.to_json
+              },
+              subject: 'There was some error in aml update'
+          ).deliver
+
+
           return error_with_data(
               'am_k_rcu_cca_1',
               "There was some error in aml update",
@@ -312,19 +322,17 @@ module AdminManagement
       # * Reviewed By:
       #
       def send_approved_email
-        return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? || @client.is_st_token_sale_client?
+        return if !@client.is_email_setup_done? || @client.is_whitelist_setup_done? ||
+            @client.is_st_token_sale_client? || ! @client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
         user = User.where(id: @user_kyc_detail.user_id).select(:email, :id).first
-        client_token_sale_details_obj = ClientTokenSaleDetail.get_from_memcache(@client_id)
 
         Email::HookCreator::SendTransactionalMail.new(
             client_id: @client_id,
             email: user.email,
             template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-            template_vars: {
-                token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-                is_sale_active: client_token_sale_details_obj.has_token_sale_started?
-            }
+            template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id)
+
         ).perform
 
       end
@@ -351,7 +359,7 @@ module AdminManagement
       #
       def enqueue_job
         BgJob.enqueue(
-            RecordEventJob,
+            WebhookJob::RecordEvent,
             {
                 client_id: @user_kyc_detail.client_id,
                 event_source: get_event_source,

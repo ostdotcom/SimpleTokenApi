@@ -214,7 +214,7 @@ module AdminManagement
     # * Reviewed By:
     #
     def record_event_job
-      RecordEventJob.perform_now({
+      WebhookJob::RecordEvent.perform_now({
                                      client_id: @user_kyc_detail.client_id,
                                      event_source: GlobalConstant::Event.web_source,
                                      event_name: GlobalConstant::Event.kyc_reopen_name,

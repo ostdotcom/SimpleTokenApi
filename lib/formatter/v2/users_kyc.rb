@@ -135,6 +135,17 @@ module Formatter
           end
         end
 
+
+        # Get response for sending KYC approve email
+        #
+        # * Author: Mayur
+        # * Date: 03/12/2018
+        # * Reviewed By:
+        #
+        def email_kyc_approve(data_to_format)
+          {}
+        end
+
       end
     end
   end

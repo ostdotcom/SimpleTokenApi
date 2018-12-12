@@ -63,6 +63,11 @@ case_closed:
   code: 'UNPROCESSABLE_ENTITY'
   message: "Case cannot be updated. It is already approved or denied."
 
+kyc_not_approved:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Could not process. KYC is not approved for user"
+
 token_sale_ended:
   http_code: '422'
   code: 'UNPROCESSABLE_ENTITY'

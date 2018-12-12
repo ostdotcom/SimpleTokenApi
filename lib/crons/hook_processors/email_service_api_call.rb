@@ -104,7 +104,7 @@ module Crons
       # * Date: 11/11/2017
       # * Reviewed By:
       #
-      def update_status_to_processed
+      def update_status_or_delete_processed_hooks
         @hooks_to_be_processed.each do |hook|
           response = @success_responses[hook.id]
           next if response.nil?

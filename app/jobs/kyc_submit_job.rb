@@ -35,7 +35,7 @@ class KycSubmitJob < ApplicationJob
                                          action_timestamp: @action_timestamp
                                      })
 
-    RecordEventJob.perform_now(@event.merge!(event_data: event_data))
+    WebhookJob::RecordEvent.perform_now(@event.merge!(event_data: event_data))
   end
 
   private

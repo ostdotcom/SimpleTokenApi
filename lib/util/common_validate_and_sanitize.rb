@@ -36,7 +36,10 @@ module Util
     #
     def self.get_words_regex_for_multi_space_support(word)
       return word if word.blank?
-      return word.gsub(/ +/, ' *')
+      word_escape = Util::CommonValidator.escape_regex(word)
+
+      # Note: (\\ )+ is used to replace multiple spaces as  escape_regex changes ' ' to '\\ '
+      return word_escape.gsub(/(\\ )+/, '(\\ )*')
     end
 
     # check whether give object is integer or not

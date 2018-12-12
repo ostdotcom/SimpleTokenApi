@@ -43,7 +43,8 @@ module Ocr
         @paragraph.split("\n").each do |line|
           next if line.blank?
           # full word match
-          return 100 if line.match(/\b#{@match_string}\b/i)
+          escaped_regex_string = Util::CommonValidator.escape_regex(@match_string)
+          return 100 if line.match(/\b#{escaped_regex_string}\b/i)
           # machine readable passport line has all  word of a name
           return 100 if passport_name_matched?(line)
         end

@@ -60,7 +60,7 @@ module GlobalConstant
     end
 
 
-    def http_code_map
+    def self.http_code_map
       {
           permanent_redirect => 'PERMANENT_REDIRECT',
           temporary_redirect => 'TEMPORARY_REDIRECT',
@@ -73,7 +73,7 @@ module GlobalConstant
       }
     end
 
-    def error_code_for_http_code(http_code)
+    def self.error_code_for_http_code(http_code)
       http_code_map[http_code].to_s
     end
 

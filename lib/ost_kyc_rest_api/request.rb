@@ -196,7 +196,7 @@ module OstKycRestApi
     def parse_api_response(http_response)
       response_data = Oj.load(http_response.body, mode: :strict) rescue {}
 
-      Rails.logger.info("=*=HTTPResponse=*= #{response_data.inspect}")
+      # Rails.logger.info("=*=HTTPResponse=*= #{response_data.inspect}")
 
       case http_response.class.name
         when 'Net::HTTPOK'

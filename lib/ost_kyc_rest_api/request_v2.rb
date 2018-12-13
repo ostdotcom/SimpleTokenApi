@@ -273,7 +273,7 @@ module OstKycRestApi
     def parse_api_response(http_response)
       response_data = Oj.load(http_response.body, mode: :strict) rescue {}
 
-      Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
+      # Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
       puts "http_response.class.name : #{http_response.class.name}"
 
       case http_response.class.name

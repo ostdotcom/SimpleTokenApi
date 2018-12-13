@@ -13,5 +13,6 @@ namespace :onetimer do
       entity_draft_data.merge!(show_sale_timer: '1') if entity_draft_data[:dashboard_title_text_color].present?
       ed.save! if ed.changed?
     end
+    Rails.cache.clear
   end
 end

@@ -129,7 +129,7 @@ module Crons
               email: user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_denied_template,
               template_vars: {}
-          ).perform if client.is_email_setup_done?
+          ).perform if client.is_email_setup_done? && client.client_kyc_config_detail.auto_send_kyc_deny_email?
 
         end
       end

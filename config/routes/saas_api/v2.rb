@@ -9,6 +9,8 @@ scope module: :v2 do
       get 'pre-signed-urls/for-put', action: :get_pre_singed_url_for_put
       get 'pre-signed-urls/for-post', action: :get_pre_singed_url_for_post
       post '/:user_id/email/approve', action: :email_kyc_approve
+      post '/:user_id/email/deny', action: :email_kyc_deny
+      post '/:user_id/email/report-issue', action: :email_kyc_report_issue
     end
   end
 

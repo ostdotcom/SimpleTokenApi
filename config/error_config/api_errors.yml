@@ -68,6 +68,16 @@ kyc_not_approved:
   code: 'UNPROCESSABLE_ENTITY'
   message: "Could not process. KYC is not approved for user"
 
+kyc_not_denied:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Could not process. KYC is not denied for user"
+
+kyc_not_reported_issue:
+  http_code: '422'
+  code: 'UNPROCESSABLE_ENTITY'
+  message: "Could not process. Issue is not reported for user"
+
 token_sale_ended:
   http_code: '422'
   code: 'UNPROCESSABLE_ENTITY'

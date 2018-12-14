@@ -302,7 +302,8 @@ module AdminManagement
       # * Reviewed By:
       #
       def send_denied_email
-        return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
+        return if (!@client.is_email_setup_done?) ||
+            (!@client.client_kyc_config_detail.auto_send_kyc_deny_email?)
 
         user = User.where(id: @user_kyc_detail.user_id).select(:email, :id).first
 

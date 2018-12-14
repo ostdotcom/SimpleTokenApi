@@ -421,6 +421,20 @@
   :optional:
     - :template_vars
 
+'UserManagement::SendEmail::Deny':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+    - :template_vars
+
+'UserManagement::SendEmail::ReportIssue':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+    - :template_vars
+
 
 'ClientManagement::MigrateClientCustomDraft':
   :mandatory:

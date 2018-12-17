@@ -1,18 +1,18 @@
 module UserManagement
   module SendEmail
 
-    class Approve < Base
+    class Deny < Base
       # Initialize
       #
       # * Author: Mayur
-      # * Date: 03/12/2018
+      # * Date: 14/12/2018
       # * Reviewed By:
       #
       # @param [Integer] client_id (mandatory) -  client id
       # @param [Integer] user_id (mandatory) - user id
       # @param [Hash] template_vars (optional) - @template_vars
       #
-      # @return [UserManagement::SendEmail::Approve]
+      # @return [UserManagement::SendEmail::Deny]
       #
       def initialize(params)
         super
@@ -21,7 +21,7 @@ module UserManagement
       # Perform
       #
       # * Author: Mayur
-      # * Date: 03/12/2018
+      # * Date: 14/12/2018
       # * Reviewed By:
       #
       def perform
@@ -31,7 +31,7 @@ module UserManagement
         r = fetch_and_validate_user_kyc_detail
         return r unless r.success?
 
-        create_email_hook(GlobalConstant::PepoCampaigns.kyc_approved_template)
+        create_email_hook(GlobalConstant::PepoCampaigns.kyc_denied_template)
 
         success
       end
@@ -41,18 +41,20 @@ module UserManagement
       # Fetch and validate user kyc details
       #
       # * Author: Mayur
-      # * Date: 05/12/2018
+      # * Date: 14/12/2018
       # * Reviewed By:
       #
       def fetch_and_validate_user_kyc_detail
         user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
 
-        return error_with_identifier('kyc_not_approved',
-                                     'um_se_a_favukd_1'
-        ) if (user_kyc_detail.blank? || (user_kyc_detail.client_id != @client_id)) || !(user_kyc_detail.kyc_approved?)
+        return error_with_identifier('kyc_not_denied',
+                                     'um_se_d_favukd_1'
+        ) if (user_kyc_detail.blank? || (user_kyc_detail.client_id != @client_id)) || !(user_kyc_detail.kyc_denied?)
 
         success
       end
+
+
 
     end
 

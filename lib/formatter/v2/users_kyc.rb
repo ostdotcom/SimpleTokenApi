@@ -146,6 +146,28 @@ module Formatter
           {}
         end
 
+        # Get response for sending KYC deny email
+        #
+        # * Author: Mayur
+        # * Date: 14/12/2018
+        # * Reviewed By:
+        #
+        def email_kyc_deny(data_to_format)
+          {}
+        end
+
+        # Get response for sending KYC report issue email
+        #
+        # * Author: Mayur
+        # * Date: 14/12/2018
+        # * Reviewed By:
+        #
+        def email_kyc_report_issue(data_to_format)
+          {}
+        end
+
+
+
       end
     end
   end

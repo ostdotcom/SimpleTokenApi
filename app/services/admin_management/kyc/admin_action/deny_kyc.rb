@@ -97,8 +97,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         def send_email
-          return unless @client.is_email_setup_done?
-
+          return if (!@client.is_email_setup_done?) || (!@client.client_kyc_config_detail.auto_send_kyc_deny_email?)
           if @user_kyc_detail.kyc_denied?
             Email::HookCreator::SendTransactionalMail.new(
                 client_id: @client.id,

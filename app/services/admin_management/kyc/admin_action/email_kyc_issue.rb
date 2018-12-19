@@ -146,7 +146,7 @@ module AdminManagement
               email: @user.email,
               template_name: GlobalConstant::PepoCampaigns.kyc_issue_template,
               template_vars: @sanitized_email_data
-          ).perform
+          ).perform if @client.client_kyc_config_detail.auto_send_kyc_report_issue_email?
 
         end
 

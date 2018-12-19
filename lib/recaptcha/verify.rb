@@ -18,7 +18,7 @@ module Recaptcha
     # @return [Recaptcha::Verify]
     #
     def initialize(params)
-      Rails.logger.info("--- Recaptcha::Verify params: #{params}")
+      # Rails.logger.info("--- Recaptcha::Verify params: #{params}")
       @params = params.merge!(:secret => GlobalConstant::Base.recaptcha['secret_key'])
     end
 
@@ -32,7 +32,7 @@ module Recaptcha
     #
     def perform
       r = send_request_of_type
-      Rails.logger.info("--- Recaptcha::Verify response: #{r.inspect}")
+      # Rails.logger.info("--- Recaptcha::Verify response: #{r.inspect}")
       return r
     end
 

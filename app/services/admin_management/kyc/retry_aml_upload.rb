@@ -135,7 +135,7 @@ module AdminManagement
       #
       def call_aml_api
         r = @user_kyc_detail.aml_user_id.blank? ? create_aml_case : update_aml_case
-        Rails.logger.info("-- retry for call_aml_api r: #{r.inspect}")
+        # Rails.logger.info("-- retry for call_aml_api r: #{r.inspect}")
 
         if !r.success?
           # dont log activity if it is a cron task
@@ -302,7 +302,8 @@ module AdminManagement
       # * Reviewed By:
       #
       def send_denied_email
-        return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
+        return if (!@client.is_email_setup_done?) ||
+            (!@client.client_kyc_config_detail.auto_send_kyc_deny_email?)
 
         user = User.where(id: @user_kyc_detail.user_id).select(:email, :id).first
 

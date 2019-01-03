@@ -137,7 +137,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def send_invite
-
+          # pass role of admin
           Email::HookCreator::SendTransactionalMail.new(
               client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
               email: @invite_admin_obj.email,

@@ -126,6 +126,7 @@ module AdminManagement
         # @return [Result::Base]
         #
         def check_max_allowed_admin_count
+          # find max allowed admins by admin role
           total = Admin.not_deleted.where(default_client_id: @client_id).count
 
           return error_with_data(
@@ -150,6 +151,8 @@ module AdminManagement
         # @return [Result::Base]
         #
         def check_if_admin_already_present
+          # what if existing admin is normal or super?
+          # If current role of admin is normal, if want to make it super. will that be allowed?
           @invite_admin_obj = Admin.where(email: @email).first
           return success if @invite_admin_obj.blank?
 
@@ -179,6 +182,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def add_or_update_admin
+          # add or update based on role instead of hardcoded normal admin role.
           if @invite_admin_obj.blank?
             @invite_admin_obj = Admin.new(email: @email, default_client_id: @client_id)
           end

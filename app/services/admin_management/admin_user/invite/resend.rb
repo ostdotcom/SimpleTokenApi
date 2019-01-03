@@ -49,6 +49,8 @@ module AdminManagement
         # @return [Result::Base]
         #
         def fetch_invite_admin
+          # what if already invited as normal but user did not accept invitation and now we want to invite as super admin
+          # Need changes here
           @invite_admin_obj = Admin.where(id: @invite_admin_id, default_client_id: @client_id).first
 
           return error_with_data(

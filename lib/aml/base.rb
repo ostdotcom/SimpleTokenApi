@@ -16,7 +16,7 @@ module Aml
     # @return [Aml::Base]
     #
     def initialize(params)
-      @client_id = params[:client_id]
+
     end
 
     private
@@ -33,7 +33,11 @@ module Aml
     # @return [Result::Base]
     #
     def get_request(path, params = {})
-      send_request_of_type('get', path, params)
+
+      r = HttpHelper::HttpRequest.new(get_params(path, params)).get
+
+      parse_api_response(r)
+
     end
 
     # POST request
@@ -48,141 +52,97 @@ module Aml
     # @return [Result::Base]
     #
     def post_request(path, params = {})
-      send_request_of_type('post', path, params)
+      r = HttpHelper::HttpRequest.new(get_params(path, params)).post
+
+      parse_api_response(r)
+
     end
 
-    # PUT request
-    #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
-    # * Reviewed By:
-    #
-    # @param [String] path - request path
-    # @param [Hash] params - request params
-    #
-    # @return [Result::Base]
-    #
-    def put_request(path, params = {})
-      send_request_of_type('put', path, params)
+
+
+
+    def get_params(path, params)
+      {
+          url: path,
+          request_parameters: params,
+          options: get_aml_request_header
+      }
     end
 
-    # Upload request
-    #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
-    # * Reviewed By:
-    #
-    # @param [String] path - request path
-    # @param [Hash] params - request params
-    #
-    # @return [Result::Base]
-    #
-    def upload_request(path, params = {})
-      send_request_of_type('upload', path, params)
+    def get_aml_request_header
+       {headers: { CaseSensitiveString.new('apiKey') => GlobalConstant::Base.aml_config[:search][:api_key] }}
     end
 
-    # Client aml detail obj
-    #
-    # * Author: Aman
-    # * Date: 02/01/2018
-    # * Reviewed By:
-    #
-    # @return [Ar] ClientAmlDetail object
-    #
-    def client_aml_detail
-      @client_aml_detail ||= ClientAmlDetail.get_from_memcache(@client_id)
-    end
 
-    # Client aml detail decrypted token
-    #
-    # * Author: Aman
-    # * Date: 02/01/2018
-    # * Reviewed By:
-    #
-    # @return [String] ClientAmlDetail decrypted token
-    #
-    def get_client_aml_token_decrypted
-      @client = Client.get_from_memcache(@client_id)
 
-      r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+    def parse_api_response(r)
+
       return r unless r.success?
 
-      api_salt_d = r.data[:plaintext]
+      http_response = r.data[:http_response]
 
-      r = LocalCipher.new(api_salt_d).decrypt(client_aml_detail.token)
-      return r unless r.success?
+      response_data = Oj.load(http_response.body, mode: :strict) rescue http_response.body
 
-      api_secret_d = r.data[:plaintext]
+      Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
+      puts "http_response.class.name : #{http_response.class.name}"
 
-      success_with_data({token_d: api_secret_d})
-    end
+      case http_response.class.name
+      when 'Net::HTTPOK'
+        success_result({aml_response: response_data})
+      when 'Net::HTTPBadRequest'
+        # 400
+        error_with_internal_code('c_whp_par_1',
+                                 'ost kyc webhook error',
+                                 GlobalConstant::ErrorCode.invalid_request_parameters,
+                                 {}, {}, ''
+        )
 
-    # Send required request
-    #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
-    # * Reviewed By:
-    #
-    # @param [String] request_type - request type
-    # @param [String] path - request path
-    # @param [Hash] params - request params
-    #
-    # @return [Result::Base]
-    #
-    def send_request_of_type(request_type, path, params)
-      begin
-        r = get_client_aml_token_decrypted
-        return r unless r.success?
+      when 'Net::HTTPUnprocessableEntity'
+        # 422
+        error_with_internal_code('c_whp_par_2',
+                                 'ost kyc webhook error',
+                                 GlobalConstant::ErrorCode.unprocessable_entity,
+                                 {}, {}, ''
+        )
+      when "Net::HTTPUnauthorized"
+        # 401
+        error_with_internal_code('c_whp_par_3',
+                                 'ost kyc webhook authentication failed',
+                                 GlobalConstant::ErrorCode.unauthorized_access,
+                                 {}, {}, ''
+        )
 
-        response = HTTP.headers('WEB2PY-USER-TOKEN' => r.data[:token_d])
-        request_path = client_aml_detail.base_url + path
-
-        case request_type
-          when 'get'
-            response = response.get(request_path, :params => params)
-          when 'post'
-            response = response.post(request_path, :json => params)
-          when 'put'
-            response = response.put(request_path, :json => params)
-          when 'upload'
-            response = response.post(request_path, :form => params)
-          else
-            return error_with_data('cb_1',
-                                   "Request type not implemented: #{request_type}",
-                                   'Something Went Wrong.',
-                                   GlobalConstant::ErrorAction.default,
-                                   {})
-        end
-
-        case response.status
-          when 200
-            response_hash = Oj.load(response.body.to_s)
-
-            return error_with_data(
-                'cb_2',
-                "Error in API call: #{response.status}",
-                'Something Went Wrong.',
-                GlobalConstant::ErrorAction.default,
-                response_hash['errors']
-            ) if response_hash['errors'].present?
-
-            return success_with_data(response: response_hash)
-          else
-            return error_with_data('cb_3',
-                                   "Error in API call: #{response.status}",
-                                   'Something Went Wrong.',
-                                   GlobalConstant::ErrorAction.default,
-                                   {})
-        end
-      rescue => e
-        return error_with_data('cb_4',
-                               "Exception in API call: #{e.message}",
-                               'Something Went Wrong.',
-                               GlobalConstant::ErrorAction.default,
-                               {})
+      when "Net::HTTPBadGateway"
+        #500
+        error_with_internal_code('c_whp_par_4',
+                                 'ost kyc webhook bad gateway',
+                                 GlobalConstant::ErrorCode.unhandled_exception,
+                                 {}, {}, ''
+        )
+      when "Net::HTTPInternalServerError"
+        error_with_internal_code('c_whp_par_5',
+                                 'ost kyc webhook bad internal server error',
+                                 GlobalConstant::ErrorCode.unhandled_exception,
+                                 {}, {}, ''
+        )
+      when "Net::HTTPForbidden"
+        #403
+        error_with_internal_code('c_whp_par_6',
+                                 'ost kyc webhook forbidden',
+                                 GlobalConstant::ErrorCode.forbidden,
+                                 {}, {}, ''
+        )
+      else
+        # HTTP error status code (500, 504...)
+        error_with_internal_code('c_whp_par_7',
+                                 "ost kyc webhook STATUS CODE #{http_response.code.to_i}",
+                                 GlobalConstant::ErrorCode.unhandled_exception,
+                                 {}, {}, 'ost kyc webhook exception'
+        )
       end
     end
 
-  end
 
+
+  end
 end

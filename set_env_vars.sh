@@ -85,6 +85,9 @@ export APP_SHARED_DIRECTORY="/Users/pankaj/simpleTokenWorkspace"
 
 export ADDENDUM_CLIENT_IDS='[]'
 
+export AML_SEARCH_API_KEY='59d40a35-33f6-4e24-a5d2-8fcf876b73ee'
+export AML_SEARCH_BASE_URL='https://api1.uat.c6-intelligence.com'
+
 export MAX_GAS_FOR_TRANSACTION_GWEI=100
 export MIN_GAS_FOR_TRANSACTION_GWEI=5
 export BUFFER_GAS_FOR_TRANSACTION_GWEI=2

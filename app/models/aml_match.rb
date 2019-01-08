@@ -1,0 +1,2 @@
+class AmlMatch < EstablishOstKycAmlDbConnection
+end

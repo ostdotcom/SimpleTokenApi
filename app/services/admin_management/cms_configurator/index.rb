@@ -116,7 +116,7 @@ module AdminManagement
       #
       def success_response_data
         {
-            domain_name: @client_web_host.domain,
+            domain_name: @client_web_host.present? ? @client_web_host.domain : nil,
             gid: @gid,
             uuid: @uuid
         }

@@ -8,23 +8,21 @@ module Aml
 
     # Initialize
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 8/1/2019
     # * Reviewed By:
     #
-    # @params [Integer] client id (mandatory) - Client id
+    # @params [Hash]
     # @return [Aml::Base]
     #
-    def initialize(params)
-
+    def initialize
     end
 
-    private
 
     # GET request
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
     # * Reviewed By:
     #
     # @param [String] path - request path
@@ -42,8 +40,8 @@ module Aml
 
     # POST request
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
     # * Reviewed By:
     #
     # @param [String] path - request path
@@ -58,9 +56,19 @@ module Aml
 
     end
 
+    private
 
-
-
+    # Params required for request
+    #
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
+    # * Reviewed By:
+    #
+    # @param [String] path - request path
+    # @param [Hash] params - request params
+    #
+    # @return [Hash]
+    #
     def get_params(path, params)
       {
           url: path,
@@ -69,11 +77,32 @@ module Aml
       }
     end
 
+    # header for requesting AML resource
+    #
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
+    # * Reviewed By:
+    #
+    # @param [String] path - request path
+    # @param [Hash] params - request params
+    #
+    # @return [Hash]
+    #
     def get_aml_request_header
        {headers: { CaseSensitiveString.new('apiKey') => GlobalConstant::Base.aml_config[:search][:api_key] }}
     end
 
 
+    # parses api response
+    #
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
+    # * Reviewed By:
+    #
+    # @param [Result::Base] r
+    #
+    # @return [Result::Base]
+    #
 
     def parse_api_response(r)
 
@@ -91,53 +120,53 @@ module Aml
         success_result({aml_response: response_data})
       when 'Net::HTTPBadRequest'
         # 400
-        error_with_internal_code('c_whp_par_1',
-                                 'ost kyc webhook error',
+        error_with_internal_code('c_ab_par_1',
+                                 'ost kyc aml error',
                                  GlobalConstant::ErrorCode.invalid_request_parameters,
                                  {}, {}, ''
         )
 
       when 'Net::HTTPUnprocessableEntity'
         # 422
-        error_with_internal_code('c_whp_par_2',
-                                 'ost kyc webhook error',
+        error_with_internal_code('c_ab_par_2',
+                                 'ost kyc aml error',
                                  GlobalConstant::ErrorCode.unprocessable_entity,
                                  {}, {}, ''
         )
       when "Net::HTTPUnauthorized"
         # 401
-        error_with_internal_code('c_whp_par_3',
-                                 'ost kyc webhook authentication failed',
+        error_with_internal_code('c_ab_par_3',
+                                 'ost kyc aml authentication failed',
                                  GlobalConstant::ErrorCode.unauthorized_access,
                                  {}, {}, ''
         )
 
       when "Net::HTTPBadGateway"
         #500
-        error_with_internal_code('c_whp_par_4',
-                                 'ost kyc webhook bad gateway',
+        error_with_internal_code('c_ab_par_4',
+                                 'ost kyc aml bad gateway',
                                  GlobalConstant::ErrorCode.unhandled_exception,
                                  {}, {}, ''
         )
       when "Net::HTTPInternalServerError"
-        error_with_internal_code('c_whp_par_5',
-                                 'ost kyc webhook bad internal server error',
+        error_with_internal_code('c_ab_par_5',
+                                 'ost kyc aml bad internal server error',
                                  GlobalConstant::ErrorCode.unhandled_exception,
                                  {}, {}, ''
         )
       when "Net::HTTPForbidden"
         #403
-        error_with_internal_code('c_whp_par_6',
-                                 'ost kyc webhook forbidden',
+        error_with_internal_code('c_ab_par_6',
+                                 'ost kyc aml forbidden',
                                  GlobalConstant::ErrorCode.forbidden,
                                  {}, {}, ''
         )
       else
         # HTTP error status code (500, 504...)
-        error_with_internal_code('c_whp_par_7',
-                                 "ost kyc webhook STATUS CODE #{http_response.code.to_i}",
+        error_with_internal_code('c_ab_par_7',
+                                 "ost kyc aml STATUS CODE #{http_response.code.to_i}",
                                  GlobalConstant::ErrorCode.unhandled_exception,
-                                 {}, {}, 'ost kyc webhook exception'
+                                 {}, {}, 'ost kyc aml exception'
         )
       end
     end

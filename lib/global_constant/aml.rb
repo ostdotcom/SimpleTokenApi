@@ -2,11 +2,11 @@
 module GlobalConstant
 
   class Aml
-    # GlobalConstant::Admin
+    # GlobalConstant::Aml
 
     class << self
 
-      ### Status Start ###
+      ### default query data ###
 
       def default_query_data
 
@@ -23,6 +23,7 @@ module GlobalConstant
         }
       end
 
+      ### query data mapping ###
       def query_data_mapping
         {
             "first_name" => "Forename",

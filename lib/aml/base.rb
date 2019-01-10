@@ -117,7 +117,7 @@ module Aml
 
       case http_response.class.name
       when 'Net::HTTPOK'
-        success_result({aml_response: response_data})
+        success_result({aml_response: response_data.deep_symbolize_keys})
       when 'Net::HTTPBadRequest'
         # 400
         error_with_internal_code('c_ab_par_1',
@@ -138,7 +138,7 @@ module Aml
         error_with_internal_code('c_ab_par_3',
                                  'ost kyc aml authentication failed',
                                  GlobalConstant::ErrorCode.unauthorized_access,
-                                 {}, {}, ''
+                                 http_response, {}, ''
         )
 
       when "Net::HTTPBadGateway"

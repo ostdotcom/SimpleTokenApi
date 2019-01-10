@@ -200,6 +200,11 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (kyc_approved? || kyc_denied?) || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
+  def case_closed?
+    kyc_approved? || kyc_denied?
+  end
+
+
   def case_closed_for_auto_approve?
     case_closed_for_admin? || last_reopened_at.to_i > 0 || admin_action_types_array.present?
   end

@@ -4,9 +4,10 @@ class CreateAmlMatches < DbMigrationConnection
 
       create_table :aml_matches do |t|
         t.column :aml_search_uuid, :string, limit: 100, null: false
-        t.column :match_id, :integer, limit: 30, null: true
+        t.column :match_id, :string, limit: 30, null: true
         t.column :qr_code, :string, limit: 30, null: false
-        t.column :data, :blob, null: false
+        t.column :status, :tinyint, limit: 4, null: false
+        t.column :data, :binary, :limit => 1.megabyte, null: false
         t.column :pdf_path, :string, limit: 500, null: true
         t.timestamps
       end

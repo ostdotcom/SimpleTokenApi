@@ -6,14 +6,48 @@ class AmlSearch < EstablishOstKycAmlDbConnection
       GlobalConstant::AmlSearch.deleted_status => 4
   }
 
-  enum steps_done: {
-      GlobalConstant::AmlSearch.no_step_done => 1,
-      GlobalConstant::AmlSearch.search_step_done => 2,
-      GlobalConstant::AmlSearch.pdf_step_done => 3
-  }
-
   after_commit :memcache_flush
 
+  # Array Of Steps Done Taken By Aml
+  #
+  # * Author: Tejas
+  # * Date: 10/01/2018
+  # * Reviewed By:
+  #
+  # @returns [Array<Symbol>] returns Array of steps done bits set for aml
+  #
+  def steps_done_array
+    @steps_done_array = AmlSearch.get_bits_set_for_steps_done(steps_done)
+  end
+
+  # Steps Done Config
+  #
+  # * Author: Tejas
+  # * Date: 10/01/2018
+  # * Reviewed By:
+  #
+  def self.steps_done_config
+    @steps_done_con ||= {
+        GlobalConstant::AmlSearch.no_step_done => 1,
+        GlobalConstant::AmlSearch.search_step_done => 2,
+        GlobalConstant::AmlSearch.pdf_step_done => 4
+    }
+  end
+
+  # Bitwise columns config
+  #
+  # * Author: Tejas
+  # * Date: 10/01/2018
+  # * Reviewed By:
+  #
+  def self.bit_wise_columns_config
+    @b_w_c_c ||= {
+        steps_done: steps_done_config
+    }
+  end
+
+  # Note : always include this after declaring bit_wise_columns_config method
+  include BitWiseConcern
 
   # Get Key Object
   #

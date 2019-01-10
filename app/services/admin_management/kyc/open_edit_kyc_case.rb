@@ -102,15 +102,15 @@ module AdminManagement
             'Kyc Details not found or its already open.',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || !@user_kyc_detail.case_closed_for_admin?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || !@user_kyc_detail.case_closed?
 
-        return error_with_data(
-            'am_k_oekc_5',
-            'Case is rejected by Cynopsis',
-            'Case is rejected by Cynopsis',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if @user_kyc_detail.aml_rejected?
+        # return error_with_data(
+        #     'am_k_oekc_5',
+        #     'Case is rejected by Cynopsis',
+        #     'Case is rejected by Cynopsis',
+        #     GlobalConstant::ErrorAction.default,
+        #     {}
+        # ) if @user_kyc_detail.aml_rejected?
 
         r = validate_is_whitelist_in_process
         return r unless r.success?
@@ -196,6 +196,8 @@ module AdminManagement
       #
       def mark_user_kyc_unprocessed
         @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
+        @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status
+        @user_kyc_detail.aml_user_id = nil
         @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
         @user_kyc_detail.last_acted_by = @admin_id
         @user_kyc_detail.last_acted_timestamp = Time.now.to_i

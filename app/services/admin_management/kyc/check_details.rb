@@ -418,16 +418,7 @@ module AdminManagement
       # @return [String] status of kyc
       #
       def kyc_status
-        case true
-          when @user_kyc_detail.kyc_approved?
-            GlobalConstant::UserKycDetail.kyc_approved_status
-          when @user_kyc_detail.kyc_denied?
-            GlobalConstant::UserKycDetail.kyc_denied_status
-          when @user_kyc_detail.kyc_pending?
-            GlobalConstant::UserKycDetail.kyc_pending_status
-          else
-            fail "Invalid kyc status"
-        end
+        @user_kyc_detail.kyc_status
       end
 
       # Last acted by

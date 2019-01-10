@@ -286,9 +286,9 @@ module UserManagement
 
         @country = @country.to_s.strip.upcase
         blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
-        updated_country_from_cynopsis = GlobalConstant::CountryNationality.updated_country_hash[@country]
+        updated_country_name = GlobalConstant::CountryNationality.updated_country_hash[@country]
 
-        @country = updated_country_from_cynopsis.upcase if updated_country_from_cynopsis.present?
+        @country = updated_country_name.upcase if updated_country_name.present?
 
 
         if !GlobalConstant::CountryNationality.countries.include?(@country)

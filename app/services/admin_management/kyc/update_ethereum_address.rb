@@ -131,7 +131,7 @@ module AdminManagement
             'Kyc Details not found or its closed.',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || @user_kyc_detail.case_closed_for_admin?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || @user_kyc_detail.case_closed?
 
         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
 
@@ -284,7 +284,7 @@ module AdminManagement
           already_approved_cases = []
           UserKycDetail.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
             if ukd.kyc_approved?
-              already_approved_cases << ukd.id
+              already_approved_cases << ukd.id if (ukd.id !=  @user_kyc_detail.id)
             end
           end
           return error_with_data(

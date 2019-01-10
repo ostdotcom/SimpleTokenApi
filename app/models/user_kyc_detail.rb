@@ -206,11 +206,12 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
 
   def case_closed_for_auto_approve?
-    case_closed_for_admin? || last_reopened_at.to_i > 0 || admin_action_types_array.present?
+    case_closed? || (last_reopened_at.to_i > 0) ||
+        admin_action_types_array.present? || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
   def can_delete?
-    self.aml_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(self.admin_status)
+    kyc_pending?
   end
 
   def kyc_pending?
@@ -235,10 +236,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
         GlobalConstant::UserKycDetail.never_kyc_duplicate_status
     ].include?(self.kyc_duplicate_status) && email_duplicate_status != GlobalConstant::UserKycDetail.yes_email_duplicate_status
 
-  end
-
-  def self.get_aml_user_id(user_id)
-    "ts_#{Rails.env[0..1]}_#{user_id}"
   end
 
   # Whitelist confirmation is pending till kyc_confirmed_at is populated and status is done

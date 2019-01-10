@@ -1,4 +1,9 @@
 class AmlMatch < EstablishOstKycAmlDbConnection
+  enum status: {
+      GlobalConstant::AmlMatch.unprocessed_status => 1,
+      GlobalConstant::AmlMatch.match_status => 2,
+      GlobalConstant::AmlMatch.no_match_status => 3
+  }
 
   after_commit :memcache_flush
 

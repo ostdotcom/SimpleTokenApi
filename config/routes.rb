@@ -82,7 +82,6 @@ Rails.application.routes.draw do
       match 'qualify' => :qualify, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
-      match 'retry-aml-upload' => :retry_aml_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
 
       match 'open-case' => :open_kyc_case, via: :POST
@@ -116,7 +115,6 @@ Rails.application.routes.draw do
     scope 'api/admin/setting', controller: 'web/admin/setting' do
       match 'reset-api-credentials' => :reset_api_credentials, via: :POST
       match 'update-api-fields' => :update_api_fields, via: :POST
-      match 'aml-details' => :get_aml_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
       match 'update-deposit-address' => :update_deposit_address, via: :POST
       match 'update-whitelist-address' => :update_whitelist_address, via: :POST

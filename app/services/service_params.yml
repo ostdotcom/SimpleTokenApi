@@ -517,12 +517,6 @@
      - :set_allowed_keys
   :optional:
 
-'ClientManagement::GetAmlDetail':
-  :mandatory:
-     - :client_id
-     - :admin_id
-  :optional:
-
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id
@@ -646,14 +640,6 @@
     - :client_id
   :optional:
     - :entity_group_id
-
-'AdminManagement::Kyc::RetryAmlUpload':
-  :mandatory:
-    - :client_id
-    - :id
-  :optional:
-    - :admin_id
-    - :cron_job
 
 'AdminManagement::AdminUser::Dashboard':
   :mandatory:

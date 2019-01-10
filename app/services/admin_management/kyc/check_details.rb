@@ -39,6 +39,8 @@ module AdminManagement
 
         @user_kyc_comparison_detail, @client_kyc_pass_setting = nil, nil
 
+        @aml_search = nil
+        @aml_matches = []
         @api_response_data = {}
       end
 
@@ -70,6 +72,8 @@ module AdminManagement
         fetch_user_kyc_comparison_detail
 
         fetch_client_pass_setting
+
+        fetch_client_aml_matches
 
         set_api_response_data
 
@@ -305,9 +309,28 @@ module AdminManagement
 
         end
 
+
+        if @aml_search.blank?
+          aml_processing_status = GlobalConstant::AmlSearch.unprocessed_aml_processing_status
+          all_matches_to_show = []
+        elsif @aml_search.status == GlobalConstant::AmlSearch.processed_status
+          aml_processing_status = GlobalConstant::AmlSearch.processed_aml_processing_status
+          all_matches_to_show = @aml_matches
+        else
+          aml_processing_status = GlobalConstant::AmlSearch.processing_aml_processing_status
+          all_matches_to_show = []
+        end
+
+        aml_detail = {
+            aml_processing_status: aml_processing_status,
+            aml_matches: all_matches_to_show.map {|x| {qr_code: x.qr_code, status: x.status}}
+        }
+
+
         @api_response_data = {
             user_detail: user_detail,
             case_detail: case_detail,
+            aml_detail: aml_detail,
             client_kyc_pass_setting: client_kyc_pass_setting,
             user_kyc_comparison_detail: user_kyc_comparison_detail,
             ai_pass_detail: ai_pass_details,
@@ -368,7 +391,7 @@ module AdminManagement
       def case_detail
         {
             admin_status: @user_kyc_detail.admin_status,
-            last_qualified_type: @user_kyc_detail.last_qualified_type,
+            last_qualified_type: last_qualified_type,
             aml_status: @user_kyc_detail.aml_status,
             retry_aml: (@user_kyc_detail.aml_status == GlobalConstant::UserKycDetail.failed_aml_status).to_i,
             submission_count: @user_kyc_detail.submission_count.to_i,
@@ -378,9 +401,9 @@ module AdminManagement
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
             last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map {|x| x.humanize},
-            is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
+            is_case_closed: @user_kyc_detail.case_closed?.to_i,
             kyc_status: kyc_status,
-            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.rejected_aml_status)).to_i,
+            can_reopen_case: 1,
             case_reopen_inprocess: is_case_reopening_under_process?,
             whitelist_confirmation_pending: whitelist_confirmation_pending.to_i
         }
@@ -693,6 +716,21 @@ module AdminManagement
                                      end
       end
 
+      # Fetch aml_search and aml_matches
+      #
+      # * Author: Aman
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # Sets @user_kyc_comparison_detail
+      #
+      def fetch_client_aml_matches
+        @aml_search = AmlSearch.get_from_memcache(@case_id, @user_extended_detail.id)
+        return if @aml_search.blank? || (@aml_search.status != GlobalConstant::AmlSearch.processed_status)
+
+        @aml_matches = AmlMatch.get_from_memcache(@aml_search.uuid)
+      end
+
       # Fetch user kyc comparison setting
       #
       # * Author: Aniket
@@ -705,7 +743,38 @@ module AdminManagement
         @user_kyc_comparison_detail = UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
       end
 
-    end
+      # Check if case is manually/automatically approved
+      #
+      # * Author: Aman
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [String] - Qualify type enum
+      #
+      def last_qualified_type
+        l_q_t = @user_kyc_detail.last_qualified_type
+        return l_q_t if l_q_t.blank?
 
+        # return manual if aml had matches/ or case was reopened
+        return (l_q_t == GlobalConstant::UserKycDetail.auto_approved_qualify_type) &&
+            aml_has_no_matches? &&
+            (@user_kyc_detail.last_reopened_at.to_i == 0 ) ?
+                   l_q_t : GlobalConstant::UserKycDetail.manually_approved_qualify_type
+      end
+
+      # Check if AML status is manually/automatically approved
+      #
+      # * Author: Aman
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Boolean] - true if no match were found and aml could be auto approved
+      #
+      def aml_has_no_matches?
+        @aml_search.present? && (@aml_search.status == GlobalConstant::AmlSearch.processed_status) && @aml_matches.blank?
+      end
+
+
+    end
   end
 end

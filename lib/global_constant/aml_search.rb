@@ -40,6 +40,23 @@ module GlobalConstant
 
       ### Steps Done End ###
 
+      ### Aml Processing Status start ###
+
+      def unprocessed_aml_processing_status
+        'unprocessed'
+      end
+
+      def processing_aml_processing_status
+        'processing'
+      end
+
+      def processed_aml_processing_status
+        'processed'
+      end
+
+
+      ### Aml Processing Status End ###
+
     end
 
   end

@@ -6,6 +6,11 @@ class AmlSearch < EstablishOstKycAmlDbConnection
       GlobalConstant::AmlSearch.deleted_status => 4
   }
 
+  MAX_RETRY_COUNT = 1
+
+  scope :to_be_processed, -> {where(status: [GlobalConstant::AmlSearch.unprocessed_status,
+                                             GlobalConstant::AmlSearch.failed_status]).where('retry_count <= ?', MAX_RETRY_COUNT)}
+
   after_commit :memcache_flush
 
   # Array Of Steps Done Taken By Aml

@@ -26,10 +26,6 @@ module GlobalConstant
 
       ### Steps Done start ###
 
-      def no_step_done
-        'no'
-      end
-
       def search_step_done
         'search'
       end

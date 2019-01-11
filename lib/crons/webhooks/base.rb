@@ -222,7 +222,7 @@ module Crons
             error_with_internal_code('c_whp_par_1',
                                      'ost kyc webhook error',
                                      GlobalConstant::ErrorCode.invalid_request_parameters,
-                                     {}, {}, ''
+                                     {}, [], ''
             )
 
           when 'Net::HTTPUnprocessableEntity'
@@ -230,14 +230,14 @@ module Crons
             error_with_internal_code('c_whp_par_2',
                                      'ost kyc webhook error',
                                      GlobalConstant::ErrorCode.unprocessable_entity,
-                                     {}, {}, ''
+                                     {}, [], ''
             )
           when "Net::HTTPUnauthorized"
             # 401
             error_with_internal_code('c_whp_par_3',
                                      'ost kyc webhook authentication failed',
                                      GlobalConstant::ErrorCode.unauthorized_access,
-                                     {}, {}, ''
+                                     {}, [], ''
             )
 
           when "Net::HTTPBadGateway"
@@ -245,27 +245,27 @@ module Crons
             error_with_internal_code('c_whp_par_4',
                                      'ost kyc webhook bad gateway',
                                      GlobalConstant::ErrorCode.unhandled_exception,
-                                     {}, {}, ''
+                                     {}, [], ''
             )
           when "Net::HTTPInternalServerError"
             error_with_internal_code('c_whp_par_5',
                                      'ost kyc webhook bad internal server error',
                                      GlobalConstant::ErrorCode.unhandled_exception,
-                                     {}, {}, ''
+                                     {}, [], ''
             )
           when "Net::HTTPForbidden"
             #403
             error_with_internal_code('c_whp_par_6',
                                      'ost kyc webhook forbidden',
                                      GlobalConstant::ErrorCode.forbidden,
-                                     {}, {}, ''
+                                     {}, [], ''
             )
           else
             # HTTP error status code (500, 504...)
             error_with_internal_code('c_whp_par_7',
                                      "ost kyc webhook STATUS CODE #{http_response.code.to_i}",
                                      GlobalConstant::ErrorCode.unhandled_exception,
-                                     {}, {}, 'ost kyc webhook exception'
+                                     {}, [], 'ost kyc webhook exception'
             )
         end
       end

@@ -161,15 +161,14 @@ module Kyc
       def validate_unmatched_ids
 
         return success if @matched_ids.present?
-
-        aml_matches = aml_matches.map(&:qr_code)
+        aml_matches_qr_codes = aml_matches.map(&:qr_code)
         return error_with_data(
             'ka_ad_vmi_1',
             'Select all records as unmatched or select at least one as matched',
             'Select all records as unmatched or select at least one as matched',
             GlobalConstant::ErrorAction.default,
             {}
-        ) unless (aml_matches - @unmatched_ids).blank? && (@unmatched_ids - aml_matches).blank?  # this condition check if aml_matches and unmatched_ids are same
+        ) unless (aml_matches_qr_codes - @unmatched_ids).blank? && (@unmatched_ids - aml_matches_qr_codes).blank?  # this condition check if aml_matches_qr_codes and unmatched_ids are same
 
         success
       end

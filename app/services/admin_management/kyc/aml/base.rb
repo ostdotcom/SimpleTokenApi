@@ -193,8 +193,8 @@ module Kyc
       def check_if_common_matched_unmatched_records
         return error_with_data(
             'ka_ad_vm_1',
-            'match record can not be matched and unmatched together',
-            'match record can not be matched and unmatched together',
+            'record can not be matched and unmatched together',
+            'record can not be matched and unmatched together',
             GlobalConstant::ErrorAction.default,
             {}
         ) if  (@matched_ids & @unmatched_ids).present?

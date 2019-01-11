@@ -80,10 +80,11 @@ module AdminManagement
         def create_aml_search_record
           AmlSearch.create!(user_kyc_detail_id: @user_kyc_detail.id,
                             user_extended_detail_id: @user_kyc_detail.user_extended_detail_id,
-                            uuid: aml_search_uuid,
+                            uuid: @user_kyc_detail.get_aml_search_uuid,
                             status: GlobalConstant::AmlSearch.unprocessed_status,
                             steps_done: 0,
-                            retry_count: 0) if @user_kyc_detail.is_aml_status_open? && aml_search.blank?
+                            retry_count: 0,
+                            lock_id: nil) if @user_kyc_detail.is_aml_status_open? && aml_search.blank?
         end
 
         # update user kyc status
@@ -182,18 +183,6 @@ module AdminManagement
           ) if @user_kyc_detail.case_closed_for_auto_approve?
 
           return success
-        end
-
-        # create aml search uuid
-        #
-        # * Author: mayur
-        # * Date: 10/01/2019
-        # * Reviewed By:
-        #
-        # @return [String]
-        #
-        def aml_search_uuid
-          "#{Rails.env[0..1]}_#{@user_kyc_detail.id}_#{@user_kyc_detail.user_extended_detail_id}"
         end
 
         # check if admin status is auto_approved

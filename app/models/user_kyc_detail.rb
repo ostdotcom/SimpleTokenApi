@@ -250,6 +250,17 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status && kyc_confirmed_at.present?)
   end
 
+  # get aml search uuid
+  #
+  # * Author: mayur
+  # * Date: 10/01/2019
+  # * Reviewed By:
+  #
+  # @return [String]
+  #
+  def get_aml_search_uuid
+    "#{Rails.env[0..1]}_#{id}_#{user_extended_detail_id}"
+  end
 
   # User Kyc Status
   #

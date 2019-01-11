@@ -3,6 +3,15 @@ module Kyc
   module Aml
     class ApproveCase < Base
 
+
+      # Initialize
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      # @params [Hash]
+      # @return [AdminManagement::Kyc::Aml::ApproveCase]
+      #
       def initialize(params)
         super
 
@@ -11,6 +20,15 @@ module Kyc
 
       end
 
+
+      # perform
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
         r = validate_and_sanitize
         return r unless r.success?
@@ -27,6 +45,14 @@ module Kyc
 
       end
 
+      # validate and sanitize
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def validate_and_sanitize
         r = super
         return r unless r.success?
@@ -43,6 +69,13 @@ module Kyc
         success
       end
 
+      # update user kyc status
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      #
       def update_user_kyc_status
         @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.qualified_admin_status
         @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.approved_aml_status
@@ -57,7 +90,14 @@ module Kyc
         end
       end
 
-
+      # check if aml is processed or not
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def validate_aml_process_state
         return error_with_data(
             'ka_ad_vaps_1',
@@ -69,14 +109,30 @@ module Kyc
         success
       end
 
+      # validate duplicacy check if admin status is unprocessed
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
 
       def validate_duplicacy_check
         if @user_kyc_detail.admin_status == GlobalConstant::UserKycDetail.unprocessed_admin_status
-          return is_duplicate_user?
+          return validate_for_duplicate_user
         end
         success
       end
 
+      # validate matched_ids and unmatched_ids
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def validate_matches
 
         return success if is_aml_auto_approved?
@@ -85,7 +141,6 @@ module Kyc
        r = validate_matched_unmatched_records
        return r unless r.success?
 
-       return success if @matched_ids.present?
 
        r = validate_unmatched_ids
        return r unless r.success?
@@ -95,8 +150,17 @@ module Kyc
       end
 
 
-
+      # validate unmatched_ids, i.e unmatched_ids should have all aml match records if matched_ids are abesnt
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def validate_unmatched_ids
+
+        return success if @matched_ids.present?
 
         aml_matches = aml_matches.map(&:qr_code)
         return error_with_data(

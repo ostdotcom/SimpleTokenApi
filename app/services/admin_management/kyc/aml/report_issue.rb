@@ -12,12 +12,9 @@ module AdminManagement
         # * Date: 10/1/19
         # * Reviewed By:
         #
-        # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
-        # @params [Integer] id (mandatory)
-        # @params [Hash] email_temp_vars (mandatory)
+        # @params [Hash]
         #
-        # @return [AdminManagement::Kyc::AdminAction::KycIssueEmail]
+        # @return [AdminManagement::Kyc::Aml::ReportIssue]
         #
         def initialize(params)
           super
@@ -26,7 +23,7 @@ module AdminManagement
           @sanitized_email_data = {}
         end
 
-        # Deny KYC by admin
+        # perform
         #
         # * Author: Mayur
         # * Date: 10/1/2019

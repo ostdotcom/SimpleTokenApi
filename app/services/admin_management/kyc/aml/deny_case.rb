@@ -3,6 +3,14 @@ module Kyc
   module Aml
     class DenyCase < Base
 
+      # Initialize
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      # @params [Hash]
+      # @return [AdminManagement::Kyc::Aml::DenyCase]
+      #
       def initialize(params)
         super
 
@@ -11,6 +19,14 @@ module Kyc
 
       end
 
+      # perform
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
         r = validate_and_sanitize
         return r unless r.success?
@@ -29,6 +45,14 @@ module Kyc
 
       end
 
+      # validate and sanitize
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def validate_and_sanitize
         r = super
         return r unless r.success?
@@ -39,6 +63,13 @@ module Kyc
         success
       end
 
+      # update user kyc status
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      #
       def update_user_kyc_status
         @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.denied_admin_status
         @user_kyc_detail.last_acted_by = @admin_id
@@ -51,6 +82,13 @@ module Kyc
 
       end
 
+      # removes reserved branded token
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      #
       def remove_reserved_branded_token
         return unless @user_kyc_detail.kyc_denied?
         return unless @client.is_st_token_sale_client?
@@ -60,6 +98,14 @@ module Kyc
       end
 
 
+      # validate matches
+      #
+      # * Author: mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
 
       def validate_matches
 
@@ -69,15 +115,18 @@ module Kyc
         r = validate_matched_unmatched_records
         return r unless r.success?
 
-        return success if @matched_ids.present?
-
-        r = validate_unmatched_ids
-        return r unless r.success?
-
         success
 
       end
 
+      # logging_action_type
+      #
+      # * Author: Mayur
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [String]
+      #
       def logging_action_type
         GlobalConstant::UserActivityLog.kyc_denied_action
       end

@@ -92,7 +92,7 @@ module Crons
           @aml_search_obj.status = GlobalConstant::AmlSearch.deleted_status
           @aml_search_obj.save! if @aml_search_obj.changed?
           return error_with_identifier('could_not_proceed',
-                                       'c_ap_b_favud_1'
+                                       'c_ap_s_favud_1'
           )
         end
         success
@@ -339,8 +339,8 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_log(request_type, data)
-        encr_data = local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob]
-        AmlLog.create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: encr_data)
+        e_data =  Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
+        AmlLog.create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: e_data)
       rescue => e
         ApplicationMailer.notify(
             body: e.backtrace,
@@ -356,17 +356,16 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_match(match)
-        encr_data = local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob]
+        e_data =  Rails.env.production? ? local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
         match_id = match[:person][:match_id]
         qr_code = match[:person][:id]
 
-
-        raise "Invalid match response from acuris- #{match}" if match_id.blank? || qr_code.blank?
+        raise "Invalid match response from acuris- #{match}" if qr_code.blank?
         AmlMatch.create!(aml_search_uuid: @aml_search_obj.uuid,
                          match_id: match_id,
                          qr_code: qr_code,
                          status: GlobalConstant::AmlMatch.unprocessed_status,
-                         data: encr_data,
+                         data: e_data,
                          pdf_path: nil)
       end
 

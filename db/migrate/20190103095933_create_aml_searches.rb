@@ -7,7 +7,7 @@ class CreateAmlSearches < DbMigrationConnection
         t.column :user_kyc_detail_id, :integer, limit: 8, null: false
         t.column :user_extended_detail_id, :integer, limit: 8, null: false
         t.column :status, :tinyint, limit: 4, null: false
-        t.column :steps_done, :tinyint, limit: 4, null: false
+        t.column :steps_done, :tinyint, limit: 4, null: false, default: 0
         t.column :retry_count, :tinyint, limit: 4, null: false
         t.column :lock_id, :string, limit: 50, null: true
         t.timestamps

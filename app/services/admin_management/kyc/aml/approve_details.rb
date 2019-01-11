@@ -84,7 +84,7 @@ module Kyc
                           user_extended_detail_id: @user_kyc_detail.user_extended_detail_id,
                           uuid: aml_search_uuid,
                           status: GlobalConstant::AmlSearch.unprocessed_status,
-                          steps_done: GlobalConstant::AmlSearch.no_step_done,
+                          steps_done: 0,
                           retry_count: 0)
       end
 

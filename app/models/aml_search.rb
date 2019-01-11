@@ -33,9 +33,8 @@ class AmlSearch < EstablishOstKycAmlDbConnection
   #
   def self.steps_done_config
     @steps_done_con ||= {
-        GlobalConstant::AmlSearch.no_step_done => 1,
-        GlobalConstant::AmlSearch.search_step_done => 2,
-        GlobalConstant::AmlSearch.pdf_step_done => 4
+        GlobalConstant::AmlSearch.search_step_done => 1,
+        GlobalConstant::AmlSearch.pdf_step_done => 2
     }
   end
 

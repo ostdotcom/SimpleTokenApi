@@ -7,7 +7,7 @@ class CreateAmlMatches < DbMigrationConnection
         t.column :match_id, :string, limit: 30, null: true
         t.column :qr_code, :string, limit: 30, null: false
         t.column :status, :tinyint, limit: 4, null: false
-        t.column :data, :binary, :limit => 1.megabyte, null: false
+        t.column :data, :text, null: false
         t.column :pdf_path, :string, limit: 500, null: true
         t.timestamps
       end

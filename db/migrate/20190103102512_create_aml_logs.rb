@@ -3,9 +3,9 @@ class CreateAmlLogs < DbMigrationConnection
     run_migration_for_db(EstablishOstKycAmlDbConnection.config_key) do
 
       create_table :aml_logs do |t|
-        t.column :aml_search_uuid, :integer, limit: 8, null: false
+        t.column :aml_search_uuid, :string, limit: 100, null: false
         t.column :request_type, :tinyint, limit: 4, null: false
-        t.column :response, :text, null: true
+        t.column :response, :binary, :limit => 1.megabyte, null: true
         t.timestamps
       end
       add_index :aml_logs, [:aml_search_uuid], unique: false, name: 'aml_search_uuid'

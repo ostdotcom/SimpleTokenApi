@@ -34,7 +34,7 @@ module Aml
       #
       def record_by_qr_code(query_params)
         qr_code = query_params.delete('qr_code')
-        get_request( "/api/v2_1/api/persons/#{qr_code}", {}, {has_string_response: true})
+        get_request( "/api/v2_1/api/persons/#{qr_code}")
       end
 
       # PDF by qr_code
@@ -49,7 +49,7 @@ module Aml
       #
       def pdf_by_qr_code(query_params)
         qr_code = query_params.delete('qr_code')
-        get_request( "/api/v2_1/api/persons/profilePDF/#{qr_code}")
+        get_request( "/api/v2_1/api/persons/profilePDF/#{qr_code}", {},{has_string_response: true})
       end
 
       # Country list

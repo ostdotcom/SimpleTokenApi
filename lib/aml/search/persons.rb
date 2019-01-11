@@ -18,7 +18,7 @@ module Aml
       #
       def data_by_query(query_params)
         post_request( get_search_base_url + data_by_query_endpoint,
-                      Formatter::RequestFormatter.new.format_query_data(query_params))
+                      Formatter::RequestFormatter.format_query_data(query_params))
       end
 
 
@@ -54,6 +54,19 @@ module Aml
         qr_code = query_params.delete('qr_code')
 
         get_request( get_search_base_url + pdf_by_qr_code_endpoint(qr_code), query_params)
+      end
+      # Country list
+      #
+      # * Author: mayur
+      # * Date: 11/1/2019
+      # * Reviewed By:
+      #
+      # @param [Hash] query_params
+      #
+      # @return [Result::Base]
+      #
+      def country_list
+        get_request( get_search_base_url + country_list_endpoint, {})
       end
 
       # data by query endpoint
@@ -105,6 +118,23 @@ module Aml
 
         "/api/v2_1/api/persons/profilePDF/#{qr_code}"
       end
+
+
+      # country list endpoint
+      #
+      # * Author: mayur
+      # * Date: 11/1/2019
+      # * Reviewed By:
+      #
+      #
+      #
+      # @return [String]
+      #
+
+      def country_list_endpoint
+        "/api/v2_1/api/countries/"
+      end
+
 
 
       private

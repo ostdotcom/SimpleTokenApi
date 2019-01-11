@@ -113,11 +113,11 @@ module Aml
       response_data = Oj.load(http_response.body, mode: :strict) rescue http_response.body
 
       Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
-      puts "http_response.class.name : #{http_response.class.name}"
 
       case http_response.class.name
       when 'Net::HTTPOK'
-        success_result({aml_response: response_data.deep_symbolize_keys})
+        response_data = response_data.deep_symbolize_keys if Util::CommonValidateAndSanitize.is_hash?(data)
+        success_result({aml_response: response_data})
       when 'Net::HTTPBadRequest'
         # 400
         error_with_internal_code('c_ab_par_1',

@@ -321,11 +321,17 @@ module AdminManagement
           all_matches_to_show = []
         end
 
+        aml_matches_data = []
+        all_matches_to_show.each do |match|
+          pdf_file_path = local_cipher_obj.decrypt(match.pdf_path).data[:plaintext]
+          pdf_url = get_url(pdf_file_path)
+          aml_matches_data << {qr_code: match.qr_code, status: match.status, pdf_url: pdf_url}
+        end
+
         aml_detail = {
             aml_processing_status: aml_processing_status,
-            aml_matches: all_matches_to_show.map {|x| {qr_code: x.qr_code, status: x.status}}
+            aml_matches: aml_matches_data
         }
-
 
         @api_response_data = {
             user_detail: user_detail,

@@ -749,28 +749,11 @@ module AdminManagement
       # @return [String] - Qualify type enum
       #
       def last_qualified_type
-        l_q_t = @user_kyc_detail.last_qualified_type
-        return l_q_t if l_q_t.blank?
+        return nil if (!@user_kyc_detail.kyc_approved?)
 
-        # return manual if aml had matches/ or case was reopened
-        return (l_q_t == GlobalConstant::UserKycDetail.auto_approved_qualify_type) &&
-            aml_has_no_matches? &&
-            (@user_kyc_detail.last_reopened_at.to_i == 0 ) ?
-                   l_q_t : GlobalConstant::UserKycDetail.manually_approved_qualify_type
+        return @user_kyc_detail.is_auto_approved? ? GlobalConstant::UserKycDetail.auto_approved_qualify_type :
+                   GlobalConstant::UserKycDetail.manually_approved_qualify_type
       end
-
-      # Check if AML status is manually/automatically approved
-      #
-      # * Author: Aman
-      # * Date: 10/01/2019
-      # * Reviewed By:
-      #
-      # @return [Boolean] - true if no match were found and aml could be auto approved
-      #
-      def aml_has_no_matches?
-        @aml_search.present? && (@aml_search.status == GlobalConstant::AmlSearch.processed_status) && @aml_matches.blank?
-      end
-
 
     end
   end

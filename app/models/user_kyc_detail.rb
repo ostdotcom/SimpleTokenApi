@@ -105,9 +105,9 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   # @returns [String] returns the last qualify type
   #
-  def last_qualified_type
-    qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
-                             GlobalConstant::UserKycDetail.manually_approved_qualify_type : qualify_types_array[0]
+  def is_auto_approved?
+    kyc_approved? && (last_reopened_at.to_i == 0) && (aml_status == GlobalConstant::UserKycDetail.cleared_aml_status) &&
+        qualify_types_array.exclude?(GlobalConstant::UserKycDetail.manually_approved_qualify_type)
   end
 
   # Array of Qualify types
@@ -258,14 +258,14 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   def kyc_status
     case true
-    when kyc_approved?
-      GlobalConstant::UserKycDetail.kyc_approved_status
-    when kyc_denied?
-      GlobalConstant::UserKycDetail.kyc_denied_status
-    when kyc_pending?
-      GlobalConstant::UserKycDetail.kyc_pending_status
-    else
-      fail "Invalid kyc status"
+      when kyc_approved?
+        GlobalConstant::UserKycDetail.kyc_approved_status
+      when kyc_denied?
+        GlobalConstant::UserKycDetail.kyc_denied_status
+      when kyc_pending?
+        GlobalConstant::UserKycDetail.kyc_pending_status
+      else
+        fail "Invalid kyc status"
     end
   end
 
@@ -338,7 +338,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   private
-
 
 
   # Flush Memcache

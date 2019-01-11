@@ -28,8 +28,6 @@ module HttpHelper
 
       @url = @params[:url]
       @request_parameters = @params[:request_parameters]
-      puts "@request_parameters "
-      puts @request_parameters
     end
 
     # make a post request

@@ -114,14 +114,16 @@
 #  :optional:
 #    - :ethereum_address
 
-'AdminManagement::Kyc::AdminAction::DenyKyc':
+'AdminManagement::Kyc::Aml::DenyCase':
   :mandatory:
     - :admin_id
     - :client_id
     - :id
   :optional:
+    - :matched_ids
+    - :unmatched_ids
 
-'AdminManagement::Kyc::AdminAction::EmailKycIssue':
+'AdminManagement::Kyc::Aml::ReportIssue':
   :mandatory:
     - :admin_id
     - :client_id
@@ -129,13 +131,25 @@
     - :email_temp_vars
   :optional:
 
-'AdminManagement::Kyc::AdminAction::Qualify':
+'AdminManagement::Kyc::Aml::ApproveDetails':
   :mandatory:
     - :admin_id
     - :client_id
     - :id
   :optional:
     - :is_auto_approve
+
+
+'AdminManagement::Kyc::Aml::ApproveCase':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+    - :is_auto_approve
+    - :matched_ids
+    - :unmatched_ids
+
 
 'AdminManagement::Kyc::CheckDuplicates':
   :mandatory:

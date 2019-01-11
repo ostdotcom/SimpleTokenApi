@@ -282,9 +282,9 @@ module AdminManagement
         if user_extended_detail_ids.present?
           # Check whether duplicate address kyc is already approved
           already_approved_cases = []
-          UserKycDetail.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
-            if ukd.kyc_approved?
-              already_approved_cases << ukd.id if (ukd.id !=  @user_kyc_detail.id)
+          UserKycDetail.active_kyc.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
+            if GlobalConstant::UserKycDetail.admin_approved_statuses.include?(ukd.admin_status)
+              already_approved_cases << ukd.id if (ukd.id != @user_kyc_detail.id)
             end
           end
           return error_with_data(
@@ -299,7 +299,6 @@ module AdminManagement
         success
 
       end
-
 
 
       # Enqueue Log Activity

@@ -204,6 +204,9 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     kyc_approved? || kyc_denied?
   end
 
+  def is_aml_status_open?
+    GlobalConstant::UserKycDetail.aml_open_statuses.include?(aml_status)
+  end
 
   def case_closed_for_auto_approve?
     case_closed? || (last_reopened_at.to_i > 0) ||

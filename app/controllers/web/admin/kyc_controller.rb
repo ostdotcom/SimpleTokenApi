@@ -123,7 +123,7 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # * Reviewed By: Sunil
   #
   def deny_kyc
-    service_response = AdminManagement::Kyc::AdminAction::DenyKyc.new(params).perform
+    service_response = AdminManagement::Kyc::AdminAction::DenyCase.new(params).perform
     render_api_response(service_response)
   end
 
@@ -134,18 +134,29 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # * Reviewed By: Sunil
   #
   def email_kyc_issue
-    service_response = AdminManagement::Kyc::AdminAction::EmailKycIssue.new(params).perform
+    service_response = AdminManagement::Kyc::AdminAction::ReportIssue.new(params).perform
     render_api_response(service_response)
   end
 
-  # Admin qualified kyc
+  # Admin approve details before aml processing
   #
-  # * Author: Alpesh
-  # * Date: 15/10/2017
-  # * Reviewed By: Sunil
+  # * Author: Mayur
+  # * Date: 11/01/2019
+  # * Reviewed By:
   #
-  def qualify
-    service_response = AdminManagement::Kyc::AdminAction::Qualify.new(params).perform
+  def approve_details
+    service_response = AdminManagement::Kyc::AdminAction::ApproveDetails.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Admin approve case
+  #
+  # * Author: Mayur
+  # * Date: 11/01/2019
+  # * Reviewed By:
+  #
+  def approve_case
+    service_response = AdminManagement::Kyc::AdminAction::ApproveCase.new(params).perform
     render_api_response(service_response)
   end
 

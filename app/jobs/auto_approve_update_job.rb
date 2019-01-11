@@ -35,7 +35,7 @@ class AutoApproveUpdateJob < ApplicationJob
           is_auto_approve: true
       }
 
-      service_response = AdminManagement::Kyc::AdminAction::Qualify.new(qualify_params).perform
+      service_response = AdminManagement::Kyc::AdminAction::ApproveDetails.new(qualify_params).perform
 
       ApplicationMailer.notify(
           body: 'Unable to Auto Approve a valid case',

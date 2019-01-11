@@ -8,6 +8,19 @@ class AmlMatch < EstablishOstKycAmlDbConnection
   after_commit :memcache_flush
 
 
+
+  # Bulk Flush memcache
+  #
+  # * Author: Aman
+  # * Date: 12/01/2019
+  # * Reviewed By
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.bulk_flush_matches_memcache(aml_match_obj)
+    aml_match_obj.memcache_flush
+  end
+
   # Get Key Object
   #
   # * Author: Aman

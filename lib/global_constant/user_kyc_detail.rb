@@ -41,6 +41,14 @@ module GlobalConstant
         [qualified_admin_status]
       end
 
+      def aml_open_statuses
+        [
+            unprocessed_aml_status,
+            pending_aml_status,
+            failed_aml_status
+        ]
+      end
+
 
       ### Admin Status Start ###
 

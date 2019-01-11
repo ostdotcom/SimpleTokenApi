@@ -79,7 +79,8 @@ Rails.application.routes.draw do
 
       match 'deny-kyc' => :deny_kyc, via: :POST
       match 'email-kyc-issue' => :email_kyc_issue, via: :POST
-      match 'qualify' => :qualify, via: :POST
+      match 'approve-details' => :approve_details, via: :POST
+      match 'approve-case' => :approve_case, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
       match 'dashboard' => :dashboard, via: :GET

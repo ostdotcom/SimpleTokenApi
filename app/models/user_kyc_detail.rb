@@ -211,7 +211,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   def can_delete?
-    kyc_pending?
+    !case_closed?
   end
 
   def kyc_pending?

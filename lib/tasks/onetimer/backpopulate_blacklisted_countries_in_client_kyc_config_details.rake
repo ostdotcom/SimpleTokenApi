@@ -15,11 +15,11 @@ namespace :onetimer do
       blacklisted_countries_from_maxmind = cts.data[:blacklisted_countries].map(&:upcase)
       blacklisted_countries = []
       blacklisted_countries_from_maxmind.each do |country|
-        cynopsis_country = GlobalConstant::CountryNationality.maxmind_to_cynopsis_country_hash[country]
-        if cynopsis_country.blank?
+        aml_country = GlobalConstant::CountryNationality.maxmind_to_aml_country_hash[country]
+        if aml_country.blank?
           puts "could not find mapping for country- #{country}"
         else
-          blacklisted_countries += cynopsis_country
+          blacklisted_countries += aml_country
         end
       end
       blacklisted_countries.uniq!

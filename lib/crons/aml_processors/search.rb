@@ -460,7 +460,7 @@ module Crons
             client_id: client.id,
             email: user.email,
             template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-            template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id)
+            template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(client.id)
         ).perform
 
       end

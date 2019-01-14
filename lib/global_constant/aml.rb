@@ -11,7 +11,7 @@ module GlobalConstant
       def default_query_data
 
         {
-        "Threshold"=>70,
+        "Threshold"=>65,
         "PEP"=>true,
         "PreviousSanctions"=>true,
         "CurrentSanctions"=>true,

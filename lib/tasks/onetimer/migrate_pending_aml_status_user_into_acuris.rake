@@ -8,7 +8,7 @@ namespace :onetimer do
   #
   # rake RAILS_ENV=development onetimer:migrate_pending_aml_status_user_into_acuris
   task :migrate_pending_aml_status_user_into_acuris => :environment do
-    UserKycDetail.where(aml_status: GlobalConstant::UserKycDetail.aml_open_statuses).all.each do |ukd|
+    UserKycDetail.active_kyc.where(aml_status: GlobalConstant::UserKycDetail.aml_open_statuses).all.each do |ukd|
       next if ukd.kyc_denied? || (ukd.client_id == GlobalConstant::TokenSale.st_token_sale_client_id)
       AmlSearch.create!(uuid: ukd.get_aml_search_uuid,
                         user_kyc_detail_id: ukd.id,

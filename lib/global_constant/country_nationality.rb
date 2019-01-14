@@ -249,6 +249,8 @@ module GlobalConstant
     #
     def self.deleted_countries
       [
+
+          # countries which were removed from  cynopsis list previously
           "BRITISH INDIAN OCEAN TERRITORY",
           "ASHMORE AND CARTIER ISLANDS",
           "AUSTRALIAN ANTARCTIC TERRITORY",
@@ -260,7 +262,42 @@ module GlobalConstant
           "CLIPPERTON ISLAND",
           "ROSS DEPENDENCY",
           "QUEEN MAUD LAND",
-          "PETER I ISLAND"
+          "PETER I ISLAND",
+
+          # countries not in acuris list
+          "ABKHAZIA",
+          "ALAND ISLANDS",
+          "ANTARCTICA",
+          "ASCENSION",
+          "BOUVET ISLAND",
+          "CHRISTMAS ISLAND",
+          "COCOS (KEELING) ISLANDS",
+          "CORAL SEA ISLANDS",
+          "CURACAO",
+          "FALKLAND ISLANDS",
+          "FRENCH SOUTHERN TERRITORIES",
+          "HEARD AND MCDONALD ISLANDS",
+          "HOWLAND ISLAND",
+          "JOHNSTON ATOLL",
+          "KINGMAN REEF",
+          "MIDWAY ISLANDS",
+          "NAGORNO-KARABAKH",
+          "NAVASSA ISLAND",
+          "NORTHERN CYPRUS",
+          "PALMYRA ATOLL",
+          "PITCAIRN",
+          "PITCAIRN ISLANDS",
+          "PRIDNESTROVIE (TRANSNISTRIA)",
+          "SAINT BARTHELEMY",
+          "SAINT HELENA",
+          "SAINT MARTIN (FRANCE)",
+          "SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS",
+          "SOUTH OSSETIA",
+          "SVALBARD AND JAN MAYEN ISLANDS",
+          "TOKELAU",
+          "TRISTAN DA CUNHA",
+          "UNITED STATES MINOR OUTLYING ISLANDS",
+          "WAKE ISLAND"
       ]
     end
 

@@ -285,16 +285,6 @@ module AdminManagement
           fail 'unimplemented method logging_action_type'
         end
 
-        # fetch case details
-        #
-        # * Author: Mayur
-        # * Date: 14/1/19
-        # * Reviewed By:
-        #
-        def fetch_case_details
-          AdminManagement::Kyc::CheckDetails.new({client_id: @client_id, admin_id: @admin_id, id: @case_id}).perform
-        end
-
       end
     end
   end

@@ -44,12 +44,7 @@ module AdminManagement
         r = open_case
         return r unless r.success?
 
-        data = r.data
-
-        r = fetch_case_details
-        return r unless r.success?
-
-        success_with_data(data.merge(r.data))
+        success_with_data(r.data)
       end
 
       private
@@ -302,17 +297,6 @@ module AdminManagement
             }
         )
 
-      end
-
-
-      # fetch case details
-      #
-      # * Author: Mayur
-      # * Date: 14/1/19
-      # * Reviewed By:
-      #
-      def fetch_case_details
-        AdminManagement::Kyc::CheckDetails.new({client_id: @client_id, admin_id: @admin_id, id: @case_id}).perform
       end
 
     end

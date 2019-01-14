@@ -38,7 +38,7 @@ module AdminManagement
 
           send_denied_email
 
-          fetch_case_details
+          success_with_data(@api_response_data)
 
         end
 

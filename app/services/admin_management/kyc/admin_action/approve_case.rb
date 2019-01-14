@@ -38,7 +38,7 @@ module AdminManagement
 
           send_approved_email
 
-          fetch_case_details
+          success_with_data(@api_response_data)
         end
 
         # validate and sanitize

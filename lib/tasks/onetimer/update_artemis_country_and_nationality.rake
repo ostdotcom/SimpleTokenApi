@@ -5,11 +5,11 @@ namespace :onetimer do
   #
   #         Files to be change once there is an Arthemis Update: (change the old countires and nationallities with the updated one)
   #         1) In API :-
-  #         a) cynopsis_country_to_maxmind_mapping.csv - For Country
+  #         a) aml_country_to_maxmind_mapping.csv - For Country
   #         c) nationality_and_country_mapping.csv     - For Nationality
   #
   #         2) In WEB :-
-  #         a) cynopsis_country_to_maxmind_mapping.csv - For Country
+  #         a) aml_country_to_maxmind_mapping.csv - For Country
   #         c) nationality_and_country_mapping.csv     - For Nationality
   #
   #         Things to do manually:

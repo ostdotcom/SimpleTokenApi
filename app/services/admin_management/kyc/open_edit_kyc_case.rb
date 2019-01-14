@@ -109,13 +109,6 @@ module AdminManagement
             {}
         ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || !@user_kyc_detail.case_closed?
 
-        # return error_with_data(
-        #     'am_k_oekc_5',
-        #     'Case is rejected by Cynopsis',
-        #     'Case is rejected by Cynopsis',
-        #     GlobalConstant::ErrorAction.default,
-        #     {}
-        # ) if @user_kyc_detail.aml_rejected?
 
         r = validate_is_whitelist_in_process
         return r unless r.success?

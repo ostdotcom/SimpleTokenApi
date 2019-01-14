@@ -44,7 +44,7 @@ module AdminManagement
 
           enqueue_job
 
-          success_with_data(@api_response_data)
+          fetch_case_details
         end
 
         private

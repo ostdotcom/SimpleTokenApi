@@ -41,7 +41,7 @@ module AdminManagement
 
           send_approved_email
 
-          success_with_data(@api_response_data)
+          fetch_case_details
         end
 
         private

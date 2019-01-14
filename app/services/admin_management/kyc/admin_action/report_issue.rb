@@ -136,6 +136,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def send_email
+          @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
           Email::HookCreator::SendTransactionalMail.new(
               client_id: @client.id,
               email: @user.email,

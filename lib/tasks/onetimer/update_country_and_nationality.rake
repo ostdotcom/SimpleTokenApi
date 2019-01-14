@@ -1,9 +1,9 @@
 namespace :onetimer do
 
 
-  # Steps for Arthemis Update:
+  # Steps for Update:
   #
-  #         Files to be change once there is an Arthemis Update: (change the old countires and nationallities with the updated one)
+  #         Files to be change once there is an Update: (change the old countires and nationallities with the updated one)
   #         1) In API :-
   #         a) aml_country_to_maxmind_mapping.csv - For Country
   #         c) nationality_and_country_mapping.csv     - For Nationality
@@ -16,7 +16,7 @@ namespace :onetimer do
   #             1) update the country_and_nationality.csv file which is present for sale setting page on s3 with the newly modified countries and nationalities.
   #             2) maintain hash for the updated countires and nationalities for some period of time
   #             3) for deleted countries add the country in GC if users with that country are present
-  #             4) Run rake task- rake RAILS_ENV=development onetimer:update_artemis_country_and_nationality
+  #             4) Run rake task- rake RAILS_ENV=development onetimer:update_country_and_nationality
 
   # params = {
   #     "update_country_hash" => {
@@ -31,16 +31,15 @@ namespace :onetimer do
   # }
 
   # params = params.to_json
-  # rake RAILS_ENV=development onetimer:update_artemis_country_and_nationality params="{\"update_country_hash\":{\"WESTERN SAHARAN\":\"WESTERN SAHARA\"},\"update_nationality_hash\":{\"AFGHANI\":\"AFGHAN\",\"BAHRAINIAN\":\"BAHRAINI\",\"LITHUNIAN\":\"LITHUANIAN\"}}"
-  # Arthemis Update
+  # rake RAILS_ENV=development onetimer:update_country_and_nationality params="{\"update_country_hash\":{\"WESTERN SAHARAN\":\"WESTERN SAHARA\"},\"update_nationality_hash\":{\"AFGHANI\":\"AFGHAN\",\"BAHRAINIAN\":\"BAHRAINI\",\"LITHUNIAN\":\"LITHUANIAN\"}}"
   #
   # * Author: Tejas
   # * Date: 27/07/2018
   # * Reviewed By:
   #
-  # rake RAILS_ENV=development onetimer:update_artemis_country_and_nationality
+  # rake RAILS_ENV=development onetimer:update_country_and_nationality
   #
-  task :update_artemis_country_and_nationality => :environment do
+  task :update_country_and_nationality => :environment do
 
     params = JSON.parse(ENV['params'])
 

@@ -67,7 +67,7 @@ module Aml
       {
           url: base_url + path,
           request_parameters: params,
-          options: get_aml_request_header
+          options: get_aml_request_options
       }
     end
 
@@ -82,8 +82,10 @@ module Aml
     #
     # @return [Hash]
     #
-    def get_aml_request_header
-       {headers: { CaseSensitiveString.new('apiKey') => GlobalConstant::Base.aml_config[:search][:api_key] }}
+    def get_aml_request_options
+       {headers: { CaseSensitiveString.new('apiKey') => GlobalConstant::Base.aml_config[:search][:api_key] },
+       timeout: 25
+       }
     end
 
 

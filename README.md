@@ -12,6 +12,7 @@ rake RAILS_ENV=development cron_task:lockable:populate_client_usage
 rake RAILS_ENV=development cron_task:lockable:refresh_dynamic_gas_price
 rake RAILS_ENV=development cron_task:continuous:process_webhooks cron_identifier=p1
 rake RAILS_ENV=development cron_task:continuous:process_user_aml_search cron_identifier=p1
+rake RAILS_ENV=development cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1
 
 one-timers
 1. Verify scripts

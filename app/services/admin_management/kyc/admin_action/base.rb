@@ -149,7 +149,7 @@ module AdminManagement
               aml_matches.where(qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
             end
 
-            bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
+            AmlMatch.bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
 
             # unprocessed_matches = aml_matches.map(&:qr_code) - (@matched_ids + @unmatched_ids)
             # aml_matches.where(qr_code: unprocessed_matches).update_all(status: GlobalConstant::AmlMatch.unprocessed_status) if unprocessed_matches.present?

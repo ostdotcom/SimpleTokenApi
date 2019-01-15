@@ -138,8 +138,10 @@ module Crons
         return success if @aml_search_obj.steps_done_array.include?(GlobalConstant::AmlSearch.pdf_step_done)
 
         @aml_matches.each do |aml_match|
-          r = process_match(aml_match) if aml_match.pdf_path.nil?
-          return r unless r.success?
+          if aml_match.pdf_path.nil?
+            r = process_match(aml_match)
+            return r unless r.success?
+          end
         end
 
         mark_step_done(GlobalConstant::AmlSearch.pdf_step_done)
@@ -169,7 +171,7 @@ module Crons
 
         if @user_kyc_detail.changed?
           @user_kyc_detail.save!(touch: false)
-          semd_approved_email if @user_kyc_detail.kyc_approved?
+          send_approved_email if @user_kyc_detail.kyc_approved?
           enqueue_job
         end
 
@@ -448,7 +450,7 @@ module Crons
       # * Date: 16/10/2018
       # * Reviewed By:
       #
-      def semd_approved_email
+      def send_approved_email
 
         client = Client.get_from_memcache(@user_kyc_detail.client_id)
         user = User.get_from_memcache(@user_kyc_detail.user_id)

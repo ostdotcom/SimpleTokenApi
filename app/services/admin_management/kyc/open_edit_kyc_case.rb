@@ -89,8 +89,8 @@ module AdminManagement
 
         return error_with_data(
             'am_k_oekc_3',
-            'Edit request is in process for this case.',
-            'Edit request is in process for this case.',
+            'Open case request is in process for this case.',
+            'Open case request is in process for this case.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if edit_kyc_request.present?

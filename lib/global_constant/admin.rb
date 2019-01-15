@@ -43,6 +43,18 @@ module GlobalConstant
         "sandbox@"
       end
 
+      ### Terms Of Use Start ###
+
+      def accepted_terms_of_use
+        'accepted'
+      end
+
+      def not_accepted_terms_of_use
+        'not_accepted'
+      end
+
+      ### Terms Of Use End ###
+
     end
 
   end

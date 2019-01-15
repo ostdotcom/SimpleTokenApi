@@ -58,7 +58,6 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/client', controller: 'web/admin/client' do
-      match 'profile' => :get_profile_detail, via: :GET
       match 'auto-approve-setting' => :get_auto_approve_setting, via: :GET
       match 'get-sale-setting' => :get_sale_setting, via: :GET
       match 'get-country-setting' => :get_country_setting, via: :GET

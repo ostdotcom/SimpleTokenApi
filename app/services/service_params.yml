@@ -467,12 +467,6 @@
     - :client_id
   :optional:
 
-'ClientManagement::GetProfileDetails':
-  :mandatory:
-     - :admin_id
-     - :client_id
-  :optional:
-
 'ClientManagement::GetAutoApproveSetting':
   :mandatory:
      - :admin_id

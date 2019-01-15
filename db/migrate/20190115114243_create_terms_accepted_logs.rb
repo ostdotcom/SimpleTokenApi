@@ -8,6 +8,7 @@ class CreateTermsAcceptedLogs < DbMigrationConnection
         t.timestamps
       end
 
+      add_index :terms_accepted_logs, [:admin_id, :terms_version], unique: true, name: 'uniq_admin_id_terms_version'
     end
   end
 

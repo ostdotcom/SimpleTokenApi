@@ -20,14 +20,14 @@ module AdminManagement
         #
         def initialize(params)
           super
-
+          @admin_id = params[:admin_id]
         end
 
         # Perform
         #
-        # * Author: Aman
-        # * Date: 10/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Mayur
+        # * Date: 15/01/2019
+        # * Reviewed By:
         #
         # @return [Result::Base]
         #
@@ -36,9 +36,26 @@ module AdminManagement
           r = validate
           return r unless r.success?
 
+          r = fetch_and_validate_admin
+          return r unless r.success?
 
+          entry_in_logs_table
 
-          success_with_data({})
+          admin_term_of_use_update
+
+          success
+        end
+
+        def entry_in_logs_table
+          TermsAcceptedLog.create!( admin_id: @admin_id,
+                                    terms_version: GlobalConstant::Admin.get_latest_terms_version.keys[0]
+          )
+        end
+
+        def admin_term_of_use_update
+
+          @admin.terms_of_use = GlobalConstant::Admin.accepted_terms_of_use
+          @admin.save!
         end
 
 

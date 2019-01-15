@@ -13,6 +13,11 @@ class Admin < EstablishSimpleTokenAdminDbConnection
       GlobalConstant::Admin.super_admin_role => 2
   }
 
+  enum terms_of_use: {
+      GlobalConstant::Admin.accepted_terms_of_use => 1,
+      GlobalConstant::Admin.not_accepted_terms_of_use => 2
+  }
+
   AUTO_APPROVE_ADMIN_ID = -1
 
   scope :not_deleted, -> {where(status: [GlobalConstant::Admin.active_status, GlobalConstant::Admin.invited_status])}

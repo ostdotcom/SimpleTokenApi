@@ -97,8 +97,8 @@ module AdminManagement
         def validate_aml_process_state_as_done
           return error_with_data(
               'ka_ad_vaps_1',
-              'Invalid Action. Aml is not processed for user',
-              'Invalid Action. Aml is not processed for user',
+              'Case was updated. Please refresh the page',
+              'Case was updated. Please refresh the page',
               GlobalConstant::ErrorAction.default,
               {}
           ) if !is_aml_processing_done?

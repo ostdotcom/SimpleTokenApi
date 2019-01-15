@@ -89,8 +89,8 @@ module AdminManagement
 
         return error_with_data(
             'am_k_oekc_3',
-            'Edit request is in process for this case.',
-            'Edit request is in process for this case.',
+            'Open case request is in process for this case.',
+            'Open case request is in process for this case.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if edit_kyc_request.present?
@@ -189,7 +189,7 @@ module AdminManagement
       #
       def mark_user_kyc_unprocessed
         @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
-        @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status
+        @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.unprocessed_aml_status
         @user_kyc_detail.aml_user_id = nil
         @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
         @user_kyc_detail.last_acted_by = @admin_id

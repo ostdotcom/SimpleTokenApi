@@ -213,10 +213,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
         admin_action_types_array.present? || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
-  def can_delete?
-    !case_closed?
-  end
-
   def kyc_pending?
     !kyc_approved? && !kyc_denied?
   end

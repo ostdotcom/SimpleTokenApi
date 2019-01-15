@@ -47,7 +47,7 @@ class AmlMatch < EstablishOstKycAmlDbConnection
     memcache_key_object = AmlMatch.get_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {aml_search_uuid: aml_search_uuid},
                                memcache_key_object.expiry) do
-      AmlMatch.where(aml_search_uuid: aml_search_uuid).all
+      AmlMatch.where(aml_search_uuid: aml_search_uuid).order(:id).all
     end
   end
 

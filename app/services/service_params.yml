@@ -36,6 +36,11 @@
     - :browser_user_agent
   :optional:
 
+'AdminManagement::Login::TermsOfUse::GetTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
 'AdminManagement::VerifyCookie::SingleAuth':
   :mandatory:
     - :cookie_value

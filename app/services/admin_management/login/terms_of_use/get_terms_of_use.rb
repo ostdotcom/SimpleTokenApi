@@ -8,25 +8,24 @@ module AdminManagement
 
         # Initialize
         #
-        # * Author: Aman
-        # * Date: 10/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Tejas
+        # * Date: 15/01/2018
+        # * Reviewed By:
         #
-        # @params [String] single_auth_cookie_value (mandatory) - single auth cookie value
-        # @params [String] otp (mandatory) - this is the Otp entered
-        # @params [String] browser_user_agent (mandatory) - browser user agent
+        # @params [String] admin_id (mandatory) - admin id
         #
-        # @return [AdminManagement::Login::Multifactor::Authenticate]
+        # @return [AdminManagement::Login::TermsOfUse::GetTermsOfUse]
         #
         def initialize(params)
           super
+          @admin_id = params[:admin_id]
         end
 
         # Perform
         #
-        # * Author: Aman
-        # * Date: 10/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Tejas
+        # * Date: 15/01/2018
+        # * Reviewed By:
         #
         # @return [Result::Base]
         #
@@ -35,8 +34,11 @@ module AdminManagement
           r = validate
           return r unless r.success?
 
-          r = fetch_admin
+          r = fetch_and_validate_admin
           return r unless r.success?
+
+          success_with_data(GlobalConstant::Admin.latest_admin_terms_of_use)
+
         end
 
       end

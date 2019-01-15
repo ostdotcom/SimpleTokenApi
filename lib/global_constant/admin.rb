@@ -55,6 +55,21 @@ module GlobalConstant
 
       ### Terms Of Use End ###
 
+      def admin_terms_of_use_array
+        {
+            "v1" => {
+                "text" => "Terms and conditions text for v1"
+            },
+            "v2" => {
+                "text" => "Terms and conditions text for v2"
+            }
+        }
+      end
+
+      def latest_admin_terms_of_use
+        admin_terms_of_use_array[admin_terms_of_use_array.keys[-1]]
+      end
+
     end
 
   end

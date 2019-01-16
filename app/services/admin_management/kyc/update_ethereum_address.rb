@@ -110,6 +110,15 @@ module AdminManagement
             {}
         ) if @client_kyc_config_detail.kyc_fields_array.exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
+        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+        return error_with_data(
+            'am_k_uea_5',
+            'Kyc Details not found or its closed.',
+            'Kyc Details not found or its closed.',
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || @user_kyc_detail.case_closed?
+
         r = validate_ethereum_address
         return r unless r.success?
 
@@ -123,15 +132,6 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         ) if edit_kyc_request.present?
-
-        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
-        return error_with_data(
-            'am_k_uea_5',
-            'Kyc Details not found or its closed.',
-            'Kyc Details not found or its closed.',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || @user_kyc_detail.case_closed?
 
         @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
 
@@ -257,12 +257,25 @@ module AdminManagement
       #
       def update_user_md5_extended_details
 
-        md5_user_extended_detail = Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
         @old_md5_ethereum_address = md5_user_extended_detail.ethereum_address
         md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
         md5_user_extended_detail.save!
 
         success
+      end
+
+      # MD5 user extended detail obj
+      #
+      # * Author: AMan
+      # * Date: 16/01/2019
+      # * Reviewed By:
+      #
+      # @return [AR] Md5UserExtendedDetail obj
+      #
+      # Sets @old_md5_ethereum_address
+      #
+      def md5_user_extended_detail
+        @md5_user_extended_detail ||= Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
       end
 
       # Check whether Ethereum address is already present
@@ -276,6 +289,16 @@ module AdminManagement
       def check_for_duplicate_ethereum
         # Check for duplicate Ethereum address
         hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
+
+        # check if same ethereum address
+        return error_with_data(
+            'am_k_uea_cfde_1',
+            "This Ethereum address already exists for the case.Please provide a different ethereum address",
+            "This Ethereum address already exists for the case.Please provide a different ethereum address",
+            GlobalConstant::ErrorAction.default,
+            {}
+        ) if md5_user_extended_detail.ethereum_address == hashed_db_ethereurm_address
+
         user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
 
         # Ethereum address is already present

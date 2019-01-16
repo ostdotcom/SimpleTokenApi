@@ -10,7 +10,6 @@ module UserManagement
       # * Date: 10/10/2017
       # * Reviewed By: Kedar
       #
-      # @params [Integer] client_id (mandatory) - client id
       # @params [Integer] user_id (mandatory) - user id
       # @params [Integer] client_id (mandatory) - client id
       # @params [String] first_name (mandatory) - first name
@@ -39,7 +38,7 @@ module UserManagement
         # super
         @params = params
 
-        @user_id = @params[:user_id]
+        @user_id = @params[:user_id].to_i
         @client_id = @params[:client_id]
         @first_name = @params[:first_name] # required
         @last_name = @params[:last_name] # required

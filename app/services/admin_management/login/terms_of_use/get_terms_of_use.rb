@@ -62,7 +62,6 @@ module AdminManagement
                                            {},
                                            {}
             )
-            #  use gc for '/admin/dashboard'
             err.set_error_extra_info({redirect_url: GlobalConstant::WebUrls.admin_dashboard})
             return err
           end

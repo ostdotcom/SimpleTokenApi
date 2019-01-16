@@ -71,7 +71,7 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
-    - :is_super_admin_role
+    - :options
   :optional:
 
 'AdminManagement::Kyc::CheckDetails':

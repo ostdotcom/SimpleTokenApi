@@ -248,7 +248,20 @@ module AdminManagement
       # Returns[Boolean] - True/False
       #
       def can_delete?(user_kyc_detail)
-        return true if user_kyc_detail.blank? || user_kyc_detail.can_delete?
+        return true if user_kyc_detail.blank? || (!user_kyc_detail.case_closed?)
+        return false
+      end
+
+      # IF reopen case request can be sent for this user
+      #
+      # * Author: Aman
+      # * Date: 15/05/2018
+      # * Reviewed By:
+      #
+      # Returns[Boolean] - True/False
+      #
+      def can_update_ethereum_address?(user_kyc_detail)
+        return true if user_kyc_detail.present? && (!user_kyc_detail.case_closed?)
         return false
       end
 
@@ -260,8 +273,8 @@ module AdminManagement
       #
       # Returns[Array] - keys of action under process
       #
-      def action_under_process(user_kyc_detail)
-        return [] if can_delete?(user_kyc_detail)
+      def case_close_action_under_process(user_kyc_detail)
+        return [] if user_kyc_detail.blank? || !user_kyc_detail.case_closed?
         data = []
         data << "case_reopen_inprocess" if @open_edit_cases.include?(user_kyc_detail.id)
         data << "whitelist_confirmation_pending" if @client.is_whitelist_setup_done? && user_kyc_detail.kyc_approved? && !user_kyc_detail.whitelist_confirmation_done?
@@ -277,8 +290,9 @@ module AdminManagement
       # Returns[Boolean] - True/False
       #
       def can_reopen_case?(user_kyc_detail)
-        return false if can_delete?(user_kyc_detail) || action_under_process(user_kyc_detail).present?
-        return true
+        return true if user_kyc_detail.present? && user_kyc_detail.case_closed? &&
+            case_close_action_under_process(user_kyc_detail).blank?
+        return false
       end
 
       # IF reopen case request can be sent for this user
@@ -291,17 +305,20 @@ module AdminManagement
       #
       def action_to_perform(user_kyc_detail)
         data = []
+
+        if can_update_ethereum_address?(user_kyc_detail)
+          data << "update_ethereum_address"
+        end
+        
         if can_delete?(user_kyc_detail)
           data << "delete"
-          return data
         end
-
+        
         if can_reopen_case?(user_kyc_detail)
           data << "reopen"
-          return data
         end
 
-        data += action_under_process(user_kyc_detail)
+        data += case_close_action_under_process(user_kyc_detail)
         data
       end
 

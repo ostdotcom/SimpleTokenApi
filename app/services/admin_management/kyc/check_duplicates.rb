@@ -18,7 +18,7 @@ module AdminManagement
       #
       def initialize(params)
         super
-        @user_id = @params[:user_id]
+        @user_id = @params[:user_id].to_i
 
         @user_kyc_details = nil
         @md5_user_extended_details = nil

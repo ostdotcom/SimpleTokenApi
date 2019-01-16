@@ -44,7 +44,7 @@ class KycSubmitJob < ApplicationJob
   def init_params(params)
     # Rails.logger.info("-- init_params params: #{params.inspect}")
 
-    @user_id = params[:user_id]
+    @user_id = params[:user_id].to_i
     @user_extended_detail_id = params[:user_extended_detail_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]

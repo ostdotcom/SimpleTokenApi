@@ -16,7 +16,7 @@ module SaasManagement
       super
 
       @client_id = @params[:client_id]
-      @user_id = @params[:user_id]
+      @user_id = @params[:user_id].to_i
 
       @user = nil
       @user_kyc_detail = nil

@@ -63,10 +63,13 @@ module GlobalConstant
         }
       end
 
-      def latest_admin_terms_of_use
-        admin_terms_of_use_hash[admin_terms_of_use_hash.keys[-1]]
+      def latest_admin_terms_of_use_version
+        @latest_admin_terms_of_use_version ||= admin_terms_of_use_hash.keys[-1]
       end
 
+      def latest_admin_terms_of_use
+        @latest_admin_terms_of_use ||= admin_terms_of_use_hash[latest_admin_terms_of_use_version]
+      end
 
     end
 

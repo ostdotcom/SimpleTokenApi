@@ -51,7 +51,7 @@ module AdminManagement
       #
       def entry_in_logs_table
         TermsAcceptedLog.create!(admin_id: @admin_id,
-                                 terms_version: GlobalConstant::Admin.admin_terms_of_use_hash.keys[-1]
+                                 terms_version: GlobalConstant::Admin.latest_admin_terms_of_use_version
         )
       end
 

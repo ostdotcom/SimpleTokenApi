@@ -10,7 +10,7 @@ class Web::Admin::BaseController < Web::WebController
   # * Date: 10/10/2017
   # * Reviewed By: Sunil Khedar
   #
-  def authenticate_request(options = {is_super_admin_role: false, validate_terms_of_use: true })
+  def authenticate_request(options={is_super_admin_role: false, validate_terms_of_use: true})
 
     service_response = AdminManagement::VerifyCookie::DoubleAuth.new(
         cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],

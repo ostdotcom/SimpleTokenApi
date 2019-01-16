@@ -36,12 +36,12 @@
     - :browser_user_agent
   :optional:
 
-'AdminManagement::Login::TermsOfUse::GetTermsOfUse':
+'AdminManagement::Profile::UpdateTermsOfUse':
   :mandatory:
     - :admin_id
   :optional:
 
-'AdminManagement::Login::TermsOfUse::UpdateTermsOfUse':
+'AdminManagement::Profile::GetTermsOfUse':
   :mandatory:
     - :admin_id
   :optional:

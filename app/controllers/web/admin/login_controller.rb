@@ -148,26 +148,4 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   end
 
 
-  # Get Terms Of Use
-  #
-  # * Author: Tejas
-  # * Date: 15/01/2019
-  # * Reviewed By:
-  #
-  def get_terms_of_use
-    service_response = AdminManagement::Login::TermsOfUse::GetTermsOfUse.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # Update Terms Of Use
-  #
-  # * Author: Tejas
-  # * Date: 15/01/2019
-  # * Reviewed By:
-  #
-  def update_terms_of_use
-    service_response = AdminManagement::Login::TermsOfUse::UpdateTermsOfUse.new(params).perform
-    render_api_response(service_response)
-  end
-
 end

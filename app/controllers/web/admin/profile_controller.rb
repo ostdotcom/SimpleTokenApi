@@ -1,6 +1,10 @@
 class Web::Admin::ProfileController < Web::Admin::BaseController
 
-  before_action :authenticate_request
+  before_action :authenticate_request, except: [:get_terms_of_use, :update_terms_of_use]
+
+  before_action only: [:get_terms_of_use, :update_terms_of_use] do
+    authenticate_request({validate_terms_of_use: false})
+  end
 
   # Change Password
   #
@@ -36,5 +40,29 @@ class Web::Admin::ProfileController < Web::Admin::BaseController
     service_response = AdminManagement::Profile::GetDetail.new(params).perform
     render_api_response(service_response)
   end
+
+  # Get Terms Of Use
+  #
+  # * Author: Tejas
+  # * Date: 15/01/2019
+  # * Reviewed By:
+  #
+  def get_terms_of_use
+    service_response = AdminManagement::Profile::GetTermsOfUse.new(params).perform
+    render_api_response(service_response)
+  end
+
+  # Update Terms Of Use
+  #
+  # * Author: Tejas
+  # * Date: 15/01/2019
+  # * Reviewed By:
+  #
+  def update_terms_of_use
+    service_response = AdminManagement::Profile::UpdateTermsOfUse.new(params).perform
+    render_api_response(service_response)
+  end
+
+
 
 end

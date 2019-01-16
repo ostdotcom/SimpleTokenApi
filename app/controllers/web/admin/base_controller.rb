@@ -17,7 +17,6 @@ class Web::Admin::BaseController < Web::WebController
         browser_user_agent: http_user_agent,
         is_super_admin_role: is_super_admin_role
     ).perform
-
     if service_response.success?
       # Update Cookie, if required
       extended_cookie_value = service_response.data[:extended_cookie_value]
@@ -33,7 +32,9 @@ class Web::Admin::BaseController < Web::WebController
       # Remove sensitive data
       service_response.data = {}
     else
-      delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
+      if service_response.http_code == GlobalConstant::ErrorCode.unauthorized_access
+        delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
+      end
       render_api_response(service_response)
     end
 

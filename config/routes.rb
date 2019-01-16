@@ -50,13 +50,13 @@ Rails.application.routes.draw do
       match 'send-reset-password-link' => :send_admin_reset_password_link, via: :POST
       match 'invite-detail' => :invite_detail, via: :GET
       match 'activate-invite' => :activate_invited_admin, via: :POST
-      match 'get-terms-of-use' => :get_terms_of_use, via: :GET
-      match 'update-terms-of-use' => :update_terms_of_use, via: :POST
     end
 
     scope 'api/admin/profile', controller: 'web/admin/profile' do
       match 'change-password' => :change_password, via: :POST
       match 'detail' => :get_detail, via: :GET
+      match 'get-terms-of-use' => :get_terms_of_use, via: :GET
+      match 'update-terms-of-use' => :update_terms_of_use, via: :POST
     end
 
     scope 'api/admin/client', controller: 'web/admin/client' do

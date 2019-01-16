@@ -78,9 +78,23 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_role = is_super_admin_role ? GlobalConstant::Admin.super_admin_role : GlobalConstant::Admin.normal_admin_role
 
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
-                          admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status, role: admin_role)
+                          admin_secret_id: admin_secrets_obj.id,
+                          terms_of_use: GlobalConstant::Admin.accepted_terms_of_use,
+                          status: GlobalConstant::Admin.active_status, role: admin_role)
     admin_obj.save!(validate: false)
     admin_obj
+  end
+
+  # Has accepted terms of use
+  #
+  # * Author: Mayur
+  # * Date: 16/01/2019
+  # * Reviewed By: Aman
+  #
+  # @return [Boolean] true/false
+  #
+  def has_accepted_terms_of_use?
+    terms_of_use == GlobalConstant::Admin.accepted_terms_of_use
   end
 
   # Get encrypted password

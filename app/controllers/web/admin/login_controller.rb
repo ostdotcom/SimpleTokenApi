@@ -147,6 +147,10 @@ class Web::Admin::LoginController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
+
+  # handle authentication redirects for terms of use route
+  # GetTermsOfUse -> Get
+  # # UpdateTermsOfUse -> Update
   # Get Terms Of Use
   #
   # * Author: Tejas

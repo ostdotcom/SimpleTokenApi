@@ -37,9 +37,21 @@ module AdminManagement
 
         return unauthorized_access_response('am_da_1') if @is_super_admin_role && (@admin.role != GlobalConstant::Admin.super_admin_role)
 
+        if !@admin.has_accepted_terms_of_use?
+          err = error_with_internal_code('am_vc_p_1',
+                                       'Terms of use not accepted',
+                                       GlobalConstant::ErrorCode.temporary_redirect,
+                                       {},
+                                       {},
+                                       {}
+          )
+          err.set_error_extra_info({redirect_url: GlobalConstant::WebUrls.terms_of_use})
+          return err
+        end
+
         set_extended_cookie_value
         r.data[:extended_cookie_value] = @extended_cookie_value
-        r.data[:client_id] =  @admin[:default_client_id]
+        r.data[:client_id] = @admin[:default_client_id]
 
         return r
 

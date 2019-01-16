@@ -41,6 +41,11 @@
     - :admin_id
   :optional:
 
+'AdminManagement::Login::TermsOfUse::UpdateTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
 'AdminManagement::VerifyCookie::SingleAuth':
   :mandatory:
     - :cookie_value

@@ -148,9 +148,6 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   end
 
 
-  # handle authentication redirects for terms of use route
-  # GetTermsOfUse -> Get
-  # # UpdateTermsOfUse -> Update
   # Get Terms Of Use
   #
   # * Author: Tejas

@@ -7,7 +7,7 @@ end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '5.1.6'
-gem 'mysql2', '0.4.9'
+gem 'mysql2', '0.5.2'
 gem 'oj', '3.3.8'
 gem 'rake', '12.1.0'
 gem 'maxminddb','0.1.14'

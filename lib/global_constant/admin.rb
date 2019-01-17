@@ -58,7 +58,7 @@ module GlobalConstant
       def admin_terms_of_use_hash
         {
             "v1" => {
-                "text" => "Terms and conditions text for v1"
+                "text" => "Effective 22 January 2019, by selecting “agree”, you are agreeing to <b>Acuris Risk Intelligence replacing Cynopsis Solutions Pte. Ltd as your external compliance provider</b> and you now will be able to make all of your AML/CTF decisions on the OST KYC platform. All other terms of your OST Software as a Service (SaaS) subscription agreement shall remain in force."
             }
         }
       end

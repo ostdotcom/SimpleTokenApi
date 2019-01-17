@@ -47,7 +47,7 @@ module AdminManagement
                                        {},
                                        {}
           )
-          err.set_error_extra_info({redirect_url: GlobalConstant::WebUrls.terms_of_use})
+          err.set_error_extra_info({redirect_url: GlobalConstant::WebUrls.terms_and_conditions})
           return err
         end
 

@@ -126,7 +126,7 @@ module AdminManagement
         # @return [String]
         #
         def redirect_url
-          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_of_use
+          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_and_conditions
         end
 
       end

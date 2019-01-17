@@ -10,8 +10,8 @@ module GlobalConstant
         "/admin/dashboard"
       end
 
-      def terms_of_use
-        "/admin/terms_of_use"
+      def terms_and_conditions
+        "/admin/terms-and-conditions"
       end
 
       ### Request Type End ###

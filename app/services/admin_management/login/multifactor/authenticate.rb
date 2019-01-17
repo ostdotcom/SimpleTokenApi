@@ -61,7 +61,8 @@ module AdminManagement
           return r unless r.success?
 
           success_with_data(
-              double_auth_cookie_value: @double_auth_cookie_value
+              double_auth_cookie_value: @double_auth_cookie_value,
+              redirect_url: redirect_url
           )
         end
 
@@ -114,6 +115,18 @@ module AdminManagement
           )
 
           success
+        end
+        # Set returns redirect url
+        #
+        # * Author: Mayur
+        # * Date: 17/01/2019
+        # * Reviewed By:
+        #
+        #
+        # @return [String]
+        #
+        def redirect_url
+          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_of_use
         end
 
       end

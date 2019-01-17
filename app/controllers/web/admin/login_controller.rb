@@ -96,7 +96,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
           GlobalConstant::Cookie.double_auth_expiry.from_now
       )
       # Remove sensitive data
-      service_response.data = {}
+      service_response.data.delete(:double_auth_cookie_value)
     end
 
     render_api_response(service_response)

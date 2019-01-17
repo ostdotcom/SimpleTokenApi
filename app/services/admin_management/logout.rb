@@ -48,7 +48,7 @@ module AdminManagement
       r = AdminManagement::VerifyCookie::DoubleAuth.new(
           cookie_value: @cookie_value,
           browser_user_agent: @browser_user_agent,
-          is_super_admin_role: false
+          options: {is_super_admin_role: false}
       ).perform
 
       return r unless r.success?

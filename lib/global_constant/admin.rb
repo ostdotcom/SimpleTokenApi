@@ -43,6 +43,34 @@ module GlobalConstant
         "sandbox@"
       end
 
+      ### Terms Of Use Start ###
+
+      def accepted_terms_of_use
+        'accepted'
+      end
+
+      def not_accepted_terms_of_use
+        'not_accepted'
+      end
+
+      ### Terms Of Use End ###
+
+      def admin_terms_of_use_hash
+        {
+            "v1" => {
+                "text" => "Terms and conditions text for v1"
+            }
+        }
+      end
+
+      def latest_admin_terms_of_use_version
+        @latest_admin_terms_of_use_version ||= admin_terms_of_use_hash.keys[-1]
+      end
+
+      def latest_admin_terms_of_use
+        @latest_admin_terms_of_use ||= admin_terms_of_use_hash[latest_admin_terms_of_use_version]
+      end
+
     end
 
   end

@@ -36,6 +36,16 @@
     - :browser_user_agent
   :optional:
 
+'AdminManagement::Profile::UpdateTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
+'AdminManagement::Profile::GetTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
 'AdminManagement::VerifyCookie::SingleAuth':
   :mandatory:
     - :cookie_value
@@ -61,7 +71,7 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
-    - :is_super_admin_role
+    - :options
   :optional:
 
 'AdminManagement::Kyc::CheckDetails':

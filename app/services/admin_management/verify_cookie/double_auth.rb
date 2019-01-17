@@ -12,13 +12,15 @@ module AdminManagement
       #
       # @params [String] cookie_value (mandatory) - this is the admin cookie value
       # @params [String] browser_user_agent (mandatory) - browser user agent
+      # @params [Hash] options (mandatory) - optional parameters
       #
       # @return [AdminManagement::VerifyCookie::DoubleAuth]
       #
       def initialize(params)
         super
-
-        @is_super_admin_role = @params[:is_super_admin_role]
+        options = @params[:options]
+        @is_super_admin_role = options[:is_super_admin_role].nil? ? false : options[:is_super_admin_role]
+        @validate_terms_of_use = options[:validate_terms_of_use].nil? ? true : options[:validate_terms_of_use]
         @extended_cookie_value = nil
       end
 
@@ -37,9 +39,21 @@ module AdminManagement
 
         return unauthorized_access_response('am_da_1') if @is_super_admin_role && (@admin.role != GlobalConstant::Admin.super_admin_role)
 
+        if  @validate_terms_of_use &&  !@admin.has_accepted_terms_of_use?
+          err = error_with_internal_code('am_vc_p_1',
+                                       'Terms of use not accepted',
+                                       GlobalConstant::ErrorCode.temporary_redirect,
+                                       {},
+                                       {},
+                                       {}
+          )
+          err.set_error_extra_info({redirect_url: GlobalConstant::WebUrls.terms_of_use})
+          return err
+        end
+
         set_extended_cookie_value
         r.data[:extended_cookie_value] = @extended_cookie_value
-        r.data[:client_id] =  @admin[:default_client_id]
+        r.data[:client_id] = @admin[:default_client_id]
 
         return r
 

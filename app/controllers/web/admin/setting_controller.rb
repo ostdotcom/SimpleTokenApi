@@ -2,7 +2,7 @@ class Web::Admin::SettingController < Web::Admin::BaseController
 
   before_action only: [:reset_api_credentials, :update_api_fields, :get_developer_detail, :update_contract_address,
                         :update_whitelist_address, :get_contract_addresses] do
-    authenticate_request(true)
+    authenticate_request({is_super_admin_role: true})
   end
 
   # Reset Api Credentials

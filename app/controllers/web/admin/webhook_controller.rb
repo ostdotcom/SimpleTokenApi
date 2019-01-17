@@ -1,7 +1,7 @@
 class Web::Admin::WebhookController < Web::Admin::BaseController
 
   before_action do
-    authenticate_request(true)
+    authenticate_request({is_super_admin_role: true})
   end
 
   # Get Webhook Detail

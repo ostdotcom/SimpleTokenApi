@@ -55,8 +55,8 @@ Rails.application.routes.draw do
     scope 'api/admin/profile', controller: 'web/admin/profile' do
       match 'change-password' => :change_password, via: :POST
       match 'detail' => :get_detail, via: :GET
-      match 'get-terms-of-use' => :get_terms_of_use, via: :GET
-      match 'update-terms-of-use' => :update_terms_of_use, via: :POST
+      match 'get-terms-and-conditions' => :get_terms_and_conditions, via: :GET
+      match 'update-terms-and-conditions' => :update_terms_and_conditions, via: :POST
     end
 
     scope 'api/admin/client', controller: 'web/admin/client' do

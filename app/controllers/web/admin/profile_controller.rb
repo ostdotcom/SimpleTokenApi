@@ -1,8 +1,8 @@
 class Web::Admin::ProfileController < Web::Admin::BaseController
 
-  before_action :authenticate_request, except: [:get_terms_of_use, :update_terms_of_use]
+  before_action :authenticate_request, except: [:get_terms_and_conditions, :update_terms_and_conditions]
 
-  before_action only: [:get_terms_of_use, :update_terms_of_use] do
+  before_action only: [:get_terms_and_conditions, :update_terms_and_conditions] do
     authenticate_request({validate_terms_of_use: false})
   end
 
@@ -47,7 +47,7 @@ class Web::Admin::ProfileController < Web::Admin::BaseController
   # * Date: 15/01/2019
   # * Reviewed By:
   #
-  def get_terms_of_use
+  def get_terms_and_conditions
     service_response = AdminManagement::Profile::GetTermsOfUse.new(params).perform
     render_api_response(service_response)
   end
@@ -58,7 +58,7 @@ class Web::Admin::ProfileController < Web::Admin::BaseController
   # * Date: 15/01/2019
   # * Reviewed By:
   #
-  def update_terms_of_use
+  def update_terms_and_conditions
     service_response = AdminManagement::Profile::UpdateTermsOfUse.new(params).perform
     render_api_response(service_response)
   end

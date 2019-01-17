@@ -35,7 +35,7 @@ module AdminManagement
         r = fetch_and_validate_admin
         return r unless r.success?
 
-        return success if has_accepted_terms_of_use?
+        return success if @admin.has_accepted_terms_of_use?
 
         entry_in_logs_table
 

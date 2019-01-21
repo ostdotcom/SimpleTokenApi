@@ -265,39 +265,14 @@ module GlobalConstant
           "PETER I ISLAND",
 
           # countries not in acuris list
-          "ABKHAZIA",
-          "ALAND ISLANDS",
           "ANTARCTICA",
-          "ASCENSION",
-          "BOUVET ISLAND",
-          "CHRISTMAS ISLAND",
-          "COCOS (KEELING) ISLANDS",
-          "CORAL SEA ISLANDS",
-          "CURACAO",
-          "FALKLAND ISLANDS",
           "FRENCH SOUTHERN TERRITORIES",
-          "HEARD AND MCDONALD ISLANDS",
           "HOWLAND ISLAND",
-          "JOHNSTON ATOLL",
           "KINGMAN REEF",
-          "MIDWAY ISLANDS",
           "NAGORNO-KARABAKH",
-          "NAVASSA ISLAND",
-          "NORTHERN CYPRUS",
-          "PALMYRA ATOLL",
-          "PITCAIRN",
-          "PITCAIRN ISLANDS",
           "PRIDNESTROVIE (TRANSNISTRIA)",
-          "SAINT BARTHELEMY",
-          "SAINT HELENA",
-          "SAINT MARTIN (FRANCE)",
-          "SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS",
           "SOUTH OSSETIA",
-          "SVALBARD AND JAN MAYEN ISLANDS",
-          "TOKELAU",
-          "TRISTAN DA CUNHA",
-          "UNITED STATES MINOR OUTLYING ISLANDS",
-          "WAKE ISLAND"
+          "UNITED STATES MINOR OUTLYING ISLANDS"
       ]
     end
 
@@ -470,7 +445,7 @@ module GlobalConstant
     def self.updated_country_hash
       {
           "BAHAMAS" => "BAHAMAS, THE",
-          "BURMA (REPUBLIC OF THE UNION OF MYANMAR)" => "BURMA",
+          "BURMA (REPUBLIC OF THE UNION OF MYANMAR)" => "MYANMAR",
           "CARIBBEAN NETHERLANDS" => "NETHERLANDS ANTILLES",
           "CAYMAN ISLANDS" => "CAYMAN ISLANDS, THE",
           "CONGO (REPUBLIC OF)" => "CONGO, REPUBLIC OF THE",
@@ -487,8 +462,36 @@ module GlobalConstant
           "SOUTH KOREA" => "KOREA, SOUTH",
           "TIMOR-LESTE" => "EAST TIMOR",
           "VATICAN" => "VATICAN CITY",
-          "WALLIS AND FUTUNA ISLANDS" => "WALLIS AND FUTUNA"
+          "WALLIS AND FUTUNA ISLANDS" => "WALLIS AND FUTUNA",
+
+
+          "ABKHAZIA"=> 'GEORGIA',
+          "ALAND ISLANDS"=> 'FINLAND',
+          "ASCENSION"=> 'UNITED KINGDOM',
+          "BOUVET ISLAND"=> 'NORWAY',
+          "CHRISTMAS ISLAND"=> 'AUSTRALIA',
+          "COCOS (KEELING) ISLANDS"=> 'AUSTRALIA',
+          "CORAL SEA ISLANDS"=> 'AUSTRALIA',
+          "CURACAO"=> 'NETHERLANDS ANTILLES', # as per google
+          "FALKLAND ISLANDS"=> 'UNITED KINGDOM',
+          "HEARD AND MCDONALD ISLANDS"=> 'AUSTRALIA',
+          "JOHNSTON ATOLL"=> 'UNITED STATES OF AMERICA',
+          "MIDWAY ISLANDS"=> 'UNITED STATES OF AMERICA',
+          "NAVASSA ISLAND"=> 'UNITED STATES OF AMERICA',
+          "NORTHERN CYPRUS"=> 'TURKEY',
+          "PALMYRA ATOLL"=> 'UNITED STATES OF AMERICA',
+          "PITCAIRN"=> 'UNITED KINGDOM',
+          "PITCAIRN ISLANDS"=> 'UNITED KINGDOM',
+          "SAINT BARTHELEMY"=> 'FRANCE',
+          "SAINT HELENA"=> 'UNITED KINGDOM',
+          "SAINT MARTIN (FRANCE)"=> 'FRANCE',
+          "SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS"=> 'UNITED KINGDOM',
+          "SVALBARD AND JAN MAYEN ISLANDS"=> 'NORWAY',
+          "TOKELAU"=> 'NEW ZEALAND',
+          "TRISTAN DA CUNHA"=> 'UNITED KINGDOM',
+          "WAKE ISLAND" => 'UNITED STATES OF AMERICA'
       }
+
     end
 
     # Updated Nationality Hash By Cynopsis

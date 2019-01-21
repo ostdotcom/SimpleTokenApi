@@ -11,7 +11,7 @@ namespace :onetimer do
   #         2) In WEB :-
   #         a) aml_country_to_maxmind_mapping.csv - For Country
   #         c) nationality_and_country_mapping.csv     - For Nationality
-  #         d) maxmind_country_to_preferred_cynopsis_country_map update this hash in country_natioanlity.rb
+  #         d) maxmind_country_to_preferred_aml_country_map update this hash in country_natioanlity.rb
   #
   #         Things to do manually:
   #             1) update the country_and_nationality.csv file which is present for sale setting page on s3 with the newly modified countries and nationalities.

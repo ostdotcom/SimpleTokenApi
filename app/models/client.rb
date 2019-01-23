@@ -12,6 +12,7 @@ class Client < EstablishSimpleTokenClientDbConnection
   after_commit :memcache_flush
 
   has_one :client_kyc_config_detail
+  has_one :client_shard
 
   # Check if whitelisting setup is done for client
   #
@@ -172,6 +173,7 @@ class Client < EstablishSimpleTokenClientDbConnection
     Memcache.get_set_memcached(memcache_key_object.key_template % {id: client_id}, memcache_key_object.expiry) do
       client = Client.where(id: client_id).first
       client.client_kyc_config_detail
+      client.client_shard
       client
     end
   end

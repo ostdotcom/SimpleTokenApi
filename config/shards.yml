@@ -1,0 +1,17 @@
+shards:
+  sql_config:
+    db:
+      shard_1:
+        model_suffix: 'shard1'
+        db: ost_kyc_user_shard_1
+
+      shard_2:
+        model_suffix: 'shard2'
+        db: ost_kyc_user_shard_2
+
+    models:
+      'User':
+        table: 'users'
+
+      'UserSecret':
+        table: 'user_secrets'

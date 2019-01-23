@@ -70,6 +70,10 @@ module SimpleTokenApi
 
     #config.action_mailer.deliver_later_queue_name = 'sta_med_email_notification'
 
+    config.to_prepare do
+      GlobalConstant::Shard.load_config
+    end
+
   end
 
 end

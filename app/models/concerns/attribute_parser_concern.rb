@@ -34,17 +34,6 @@ module AttributeParserConcern
       hashed_data.symbolize_keys
     end
 
-
-    # Columns to be removed from the hashed response
-    #
-    # * Author: Aman
-    # * Date: 28/09/2018
-    # * Reviewed By:
-    #
-    def self.restricted_fields
-      []
-    end
-
     # Set the extra needed data for hashed response
     #
     # * Author: Aman
@@ -59,6 +48,16 @@ module AttributeParserConcern
 
 
   class_methods do
+
+    # Columns to be removed from the hashed response
+    #
+    # * Author: Aman
+    # * Date: 28/09/2018
+    # * Reviewed By:
+    #
+    def restricted_fields
+      []
+    end
 
   end
 

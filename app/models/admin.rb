@@ -1,7 +1,5 @@
 class Admin < EstablishSimpleTokenAdminDbConnection
 
-  include AttributeParserConcern
-
   enum status: {
       GlobalConstant::Admin.active_status => 1,
       GlobalConstant::Admin.invited_status => 2,
@@ -23,6 +21,19 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   scope :not_deleted, -> {where(status: [GlobalConstant::Admin.active_status, GlobalConstant::Admin.invited_status])}
 
   after_commit :memcache_flush
+
+
+  # Sets the default notification types for the admin based on its role
+  #
+  # * Author: Aman
+  # * Date: 24/01/2019
+  # * Reviewed By:
+  #
+  def set_default_notification_types
+    GlobalConstant::Admin.notifications_mandatory_for_super_admins.each do |n_type|
+      self.send("set_#{n_type}")
+    end if self.role == GlobalConstant::Admin.super_admin_role
+  end
 
   # Add Admin
   #
@@ -77,13 +88,45 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     admin_role = is_super_admin_role ? GlobalConstant::Admin.super_admin_role : GlobalConstant::Admin.normal_admin_role
 
+
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
                           admin_secret_id: admin_secrets_obj.id,
                           terms_of_use: GlobalConstant::Admin.accepted_terms_of_use,
                           status: GlobalConstant::Admin.active_status, role: admin_role)
+    admin_obj.set_default_notification_types
     admin_obj.save!(validate: false)
     admin_obj
   end
+
+  # properties config
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  def self.notification_types_config
+    @a_nt_con ||= begin
+      c = {}
+      GlobalConstant::Admin.notification_types_config.map {|x, y| c[x.to_s] = y[:bitwise_value]}
+      c
+    end
+  end
+
+  # Bitwise columns config
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  def self.bit_wise_columns_config
+    @b_w_c_c ||= {
+        notification_types: notification_types_config
+    }
+  end
+
+  # Note : always include this after declaring bit_wise_columns_config method
+  include BitWiseConcern
+  include AttributeParserConcern
 
   # Has accepted terms of use
   #

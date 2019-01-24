@@ -277,7 +277,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # * Reviewed By:
   #
   def self.restricted_fields
-    [:admin_secret_id, :password]
+    [:admin_secret_id, :password, :last_otp_at]
   end
 
   private

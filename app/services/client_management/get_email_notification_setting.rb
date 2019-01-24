@@ -102,12 +102,12 @@ module ClientManagement
     #
     def success_response_data
       admin_details = {}
-      super_admins_data = []
-      normal_admins_data = []
+      super_admins_data = {}
+      normal_admins_data = {}
       admin_names = []
       sorted_super_admin_ids = []
       sorted_normal_admin_ids = []
-      group_email_setting_data = []
+      group_email_setting_data = {}
 
       Admin.notification_types_config.each do |n_type, _|
         group_email_setting_data[n_type.to_sym] = []
@@ -131,15 +131,13 @@ module ClientManagement
         end
       end
 
-      admin_names.sort.uniq!
-
+      admin_names = admin_names.sort.uniq
 
       admin_names.each do |name|
-        sanitized_admin_name = admin.name.to_s.downcase
+        sanitized_admin_name = name.to_s.downcase
         sorted_super_admin_ids += (super_admins_data[sanitized_admin_name] || []).sort
         sorted_normal_admin_ids += (normal_admins_data[sanitized_admin_name] || []).sort
       end
-
       order = sorted_super_admin_ids + sorted_normal_admin_ids
       sections = []
 
@@ -151,7 +149,7 @@ module ClientManagement
             checked: checked,
             disabled: disabled,
             order: order,
-            data_keyname: notification_type
+            data_keyname: notification_type.to_s
         }
         sections << section
       end

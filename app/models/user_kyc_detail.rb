@@ -335,6 +335,10 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     admin.present? ? admin.get_hash : {}
   end
 
+  def ddb_shard
+    's0'
+  end
+
   private
 
 

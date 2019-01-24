@@ -122,7 +122,7 @@ module ClientManagement
       super_admin_ids = @super_admins.keys
       all_admin_ids = @normal_admins.keys + super_admin_ids
 
-      all_admins_in_setting = @email_setting.values.compact.uniq!
+      all_admins_in_setting = @email_setting.values.flatten.uniq
 
       return error_with_identifier('invalid_api_params',
                                    'cm_uens_ves_1',
@@ -159,9 +159,9 @@ module ClientManagement
 
         @admins.each do |admin|
           if include_admin_ids.include?(admin.id)
-            admins.send("set_#{n_type.to_s}")
+            admin.send("set_#{n_type.to_s}")
           else
-            admins.send("unset_#{n_type.to_s}")
+            admin.send("unset_#{n_type.to_s}")
           end
         end
 

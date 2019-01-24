@@ -55,7 +55,8 @@ class ReprocessKycAutoApproveJob < ApplicationJob
     BgJob.enqueue(
         AutoApproveUpdateJob,
         {
-            user_extended_details_id: user_extended_details_id
+            user_extended_details_id: user_extended_details_id,
+            reprocess: 1
         }
     )
     Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")

@@ -121,6 +121,8 @@ Rails.application.routes.draw do
       match 'update-deposit-address' => :update_deposit_address, via: :POST
       match 'update-whitelist-address' => :update_whitelist_address, via: :POST
       match 'contract-addresses' => :get_contract_addresses, via: :GET
+      match 'email-notification' => :get_email_notification, via: :GET
+      match 'email-notification' => :update_email_notification, via: :POST
     end
 
     scope 'api/admin/webhook', controller: 'web/admin/webhook' do

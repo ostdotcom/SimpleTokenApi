@@ -341,7 +341,7 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_log(request_type, data)
-        e_data =  Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
+        e_data = Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
         AmlLog.create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: e_data)
       rescue => e
         ApplicationMailer.notify(
@@ -358,7 +358,7 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_match(match)
-        e_data =  Rails.env.production? ? local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
+        e_data = Rails.env.production? ? local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
         match_id = match[:person][:match_id]
         qr_code = match[:person][:id]
 
@@ -465,6 +465,22 @@ module Crons
             template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(client.id)
         ).perform
 
+      end
+
+      # Send Manual review needed email to admins
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      #
+      def send_manual_review_needed_email
+        return if (@aml_search_obj.status != GlobalConstant::AmlSearch.processed_status) &&
+            GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) &&
+            !@user_kyc_detail.send_manual_review_needed_email?
+
+        return if GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
+                                                                        {template_variables: {}})
       end
 
       # Lock Id for table

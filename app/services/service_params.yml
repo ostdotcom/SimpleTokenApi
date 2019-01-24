@@ -562,6 +562,19 @@
      - :admin_id
   :optional:
 
+'ClientManagement::GetEmailNotificationSetting':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
+'ClientManagement::UpdateEmailNotificationSetting':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :email_setting
+  :optional:
+
 'ClientManagement::GetWebhookDetail':
   :mandatory:
      - :client_id

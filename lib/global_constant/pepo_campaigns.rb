@@ -296,6 +296,11 @@ module GlobalConstant
         'low_whitelister_balance'
       end
 
+      # email to admins for manual review of a case
+      def manual_review_needed_template
+        'manual_review_needed'
+      end
+
       # email to admin with csv download link
       def kyc_report_download_template
         'kyc_report_download'
@@ -360,6 +365,7 @@ module GlobalConstant
           altdrop_sent,
           contact_us_template,
           low_whitelister_balance_template,
+          manual_review_needed_template,
           billing_plan_notification_template,
           update_ethereum_request_outcome_template,
           open_case_request_outcome_template,

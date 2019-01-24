@@ -224,6 +224,35 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     MemcacheKey.new('admin.admin_details')
   end
 
+  # Get Key Object for all admins of a client
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_all_admins_memcache_key_object
+    MemcacheKey.new('admin.all_admin_details')
+  end
+
+  # Get/Set Memcache data for all admins of a client
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] user_id - user id
+  #
+  # @return [AR] User object
+  #
+  def self.get_all_admins_from_memcache(client_id)
+    memcache_key_object = Admin.get_all_admins_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
+      Admin.where(default_client_id: client_id).is_active.all
+    end
+  end
+
   # Get/Set Memcache data for User
   #
   # * Author: Aman
@@ -262,6 +291,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   def memcache_flush
     admin_details_memcache_key = Admin.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(admin_details_memcache_key)
+
+    all_admin_details_memcache_key = Admin.get_all_admins_memcache_key_object.key_template % {client_id: self.default_client_id}
+    Memcache.delete(all_admin_details_memcache_key)
   end
 
 end

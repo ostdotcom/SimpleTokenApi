@@ -92,21 +92,6 @@ module GlobalConstant
         }.deep_symbolize_keys
       end
 
-
-      # list of notification types (stringified) which should always be on for super admins
-      #
-      # * Author: Aman
-      # * Date: 24/01/2019
-      # * Reviewed By:
-      #
-      # Returns [Array] - A list of notification types (stringified) which should always be on for super admins
-      #
-      def notifications_mandatory_for_super_admins
-        @notifications_mandatory_for_super_admins ||= notification_types_config.map {|x, y|
-          x.to_s if y[:super_admin_mandatory]
-        }.compact
-      end
-
       def manual_review_needed_notification_type
         "manual_review_needed"
       end
@@ -131,6 +116,58 @@ module GlobalConstant
         "contract_address_update"
       end
 
+
+      # list of notification types (stringified) which should always be on for super admins
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @returns [Array<String>] - A list of notification types (stringified) which should always be on for super admins
+      #
+      def notifications_mandatory_for_super_admins
+        @notifications_mandatory_for_super_admins ||= notification_types_config.map {|x, y|
+          x.to_s if y[:super_admin_mandatory]
+        }.compact
+      end
+
+      # list of active admins who should receive a particular notification
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @param [String] client_id
+      # @param [String] notification_type
+      #
+      # @returns [Array<AR>] - An array of Admin AR objects
+      #
+      def get_all_admins_for(client_id, notification_type)
+        notification_type = notification_type.to_s
+        admins = Admin.where(default_client_id: client_id).is_active.all
+        res = []
+
+        admins.each do |admin_obj|
+          res << admin_obj if admin_obj.notification_types_array.include?(notification_type)
+        end
+        res
+      end
+
+      # list of active admins emails who should receive a particular notification
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @param [String] client_id
+      # @param [String] notification_type
+      #
+      # @returns [Array<String>] - An array of Admin email ids
+      #
+      def get_all_admin_emails_for(client_id, notification_type)
+        admin_objs = get_all_admins_for(client_id, notification_type)
+        admin_objs.pluck(:email)
+      end
 
       #### notification types End ###
 

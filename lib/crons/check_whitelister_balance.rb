@@ -64,7 +64,11 @@ module Crons
     # check whitelister address eth balance
     #
     def send_report_email(client_id, whitelister_address, ether_value)
-      admin_emails = Admin.client_admin_emails(client_id)
+
+      admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+          client_id,
+          GlobalConstant::Admin.low_whitelister_balance_notification_type
+      )
 
       admin_emails.each do |admin_email|
         Email::HookCreator::SendTransactionalMail.new(

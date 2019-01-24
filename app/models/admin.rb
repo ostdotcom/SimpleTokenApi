@@ -19,6 +19,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   AUTO_APPROVE_ADMIN_ID = -1
 
   scope :not_deleted, -> {where(status: [GlobalConstant::Admin.active_status, GlobalConstant::Admin.invited_status])}
+  scope :is_active, -> {where(status: GlobalConstant::Admin.active_status)}
 
   after_commit :memcache_flush
 
@@ -33,6 +34,18 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     GlobalConstant::Admin.notifications_mandatory_for_super_admins.each do |n_type|
       self.send("set_#{n_type}")
     end if self.role == GlobalConstant::Admin.super_admin_role
+  end
+
+  # Array of Properties symbols
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  # @returns [Array<Symbol>] returns Array of properties bits set for user
+  #
+  def notification_types_array
+    @notification_types_array = Admin.get_bits_set_for_notification_types(notification_types)
   end
 
   # Add Admin
@@ -226,35 +239,6 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     Memcache.get_set_memcached(memcache_key_object.key_template % {id: admin_id}, memcache_key_object.expiry) do
       Admin.where(id: admin_id).first
     end
-  end
-
-  # Get email ids of all admins of a client
-  #
-  # * Author: Aman
-  # * Date: 23/01/2018
-  # * Reviewed By:
-  #
-  # @param [Integer] client id
-  #
-  # @return [Array <String>] emails of admin
-  #
-  def self.client_admin_emails(client_id)
-    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status).pluck(:email)
-  end
-
-  # Get email ids of all super admins of a client
-  #
-  # * Author: Tejas
-  # * Date: 02/07/2018
-  # * Reviewed By: Aman
-  #
-  # @param [Integer] client id
-  #
-  # @return [Array <String>] emails of super admin
-  #
-
-  def self.client_super_admin_emails(client_id)
-    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role).pluck(:email)
   end
 
   # Columns to be removed from the hashed response

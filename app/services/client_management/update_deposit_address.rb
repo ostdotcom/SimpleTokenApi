@@ -262,9 +262,12 @@ module ClientManagement
     # * Reviewed By:
     #
     def send_email
-      super_admin_emails = Admin.client_super_admin_emails(@client_id)
+      admin_emails_for_notification = GlobalConstant::Admin.get_all_admin_emails_for(
+          @client_id,
+          GlobalConstant::Admin.contract_address_update_notification_type
+      )
 
-      super_admin_emails.each do |admin_email|
+      admin_emails_for_notification.each do |admin_email|
         Email::HookCreator::SendTransactionalMail.new(
             client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: admin_email,

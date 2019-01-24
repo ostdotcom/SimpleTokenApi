@@ -4,7 +4,7 @@ class AddColumnNotifiactionTypesInAdmin < DbMigrationConnection
       add_column :admins, :notification_types, :integer, :limit => 2,  after: :status, null: false, default: 0
     end
 
-    Admin.where(status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role).all.each do |a_obj|
+    Admin.is_active.where(role: GlobalConstant::Admin.super_admin_role).all.each do |a_obj|
       a_obj.set_default_notification_types
       a_obj.save!
     end

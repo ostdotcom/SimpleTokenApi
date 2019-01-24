@@ -5,9 +5,6 @@ class User
 
     included do
 
-
-      # Note : always include this after declaring bit_wise_columns_config method
-
       enum status: {
           GlobalConstant::User.active_status => 1,
           GlobalConstant::User.inactive_status => 2,
@@ -101,6 +98,7 @@ class User
         Memcache.delete(user_details_memcache_key)
       end
 
+      # Note : always include this after declaring bit_wise_columns_config method
       include BitWiseConcern
       include AttributeParserConcern
     end
@@ -220,9 +218,9 @@ class User
       # @return [AR] User object
       #
       def get_from_memcache(user_id)
-        memcache_key_object = self.get_memcache_key_object
+        memcache_key_object = get_memcache_key_object
         Memcache.get_set_memcached(memcache_key_object.key_template % {id: user_id}, memcache_key_object.expiry) do
-          self.where(id: user_id).first
+          where(id: user_id).first
         end
       end
 
@@ -234,7 +232,7 @@ class User
       #
       def bulk_flush(user_ids)
         user_ids.each do |uid|
-          user_memcache_key = self.get_memcache_key_object.key_template % {id: uid}
+          user_memcache_key = get_memcache_key_object.key_template % {id: uid}
           Memcache.delete(user_memcache_key)
         end
       end

@@ -15,3 +15,18 @@ shards:
 
       'UserSecret':
         table: 'user_secrets'
+
+      'UserKycDetail':
+        table: 'user_kyc_details'
+
+      'UserKycComparisonDetail':
+        table: 'user_kyc_comparison_details'
+
+      'UserExtendedDetail':
+        table: 'user_extended_details'
+
+      'Md5UserExtendedDetail':
+        table: 'md5_user_extended_details'
+
+      'DeletedUser':
+        table: 'deleted_users'

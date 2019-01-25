@@ -9,7 +9,7 @@ module UserManagement
       # * Date: 24/09/2018
       # * Reviewed By:
       #
-      # @param [Integer] client_id (mandatory) -  client id
+      # @param [AR] client (mandatory) - client obj
       # @param [Integer] user_id (mandatory) - user id
       #
       #
@@ -18,8 +18,10 @@ module UserManagement
       def initialize(params)
         super
 
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @user_id = @params[:user_id]
+
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @user_extended_detail_obj = nil
@@ -68,9 +70,6 @@ module UserManagement
         r = validate_and_sanitize_params
         return r unless r.success?
 
-        r = fetch_and_validate_client
-        return r unless r.success?
-
         success
       end
 
@@ -100,7 +99,7 @@ module UserManagement
       # Sets @user_kyc_detail
       #
       def fetch_user_kyc_detail
-        @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
 
         return error_with_identifier('resource_not_found',
                                      'um_kd_g_fukd_1'
@@ -119,7 +118,8 @@ module UserManagement
       # Sets @user_extended_details
       #
       def fetch_user_extended_detail
-        @user_extended_detail_obj = UserExtendedDetail.get_from_memcache(@user_kyc_detail.user_extended_detail_id)
+        @user_extended_detail_obj = UserExtendedDetail.using_client_shard(client: @client).
+            get_from_memcache(@user_kyc_detail.user_extended_detail_id)
       end
 
       # fetch and validate client kyc detail api activations
@@ -141,7 +141,8 @@ module UserManagement
       # * Reviewed By:
       #
       def allowed_kyc_fields
-        @allowed_kyc_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.kyc_fields_array : []
+        @allowed_kyc_fields ||= @client_kyc_detail_api_activations.present? ?
+                                    @client_kyc_detail_api_activations.kyc_fields_array : []
       end
 
       # Get Allowed extra kyc fields for User Extended Detail Hash
@@ -151,7 +152,8 @@ module UserManagement
       # * Reviewed By:
       #
       def allowed_extra_kyc_fields
-        @allowed_extra_kyc_fields ||= @client_kyc_detail_api_activations.present? ? @client_kyc_detail_api_activations.extra_kyc_fields : []
+        @allowed_extra_kyc_fields ||= @client_kyc_detail_api_activations.present? ?
+                                          @client_kyc_detail_api_activations.extra_kyc_fields : []
       end
 
       # Get Local Cipher Obj
@@ -240,7 +242,8 @@ module UserManagement
       #
       def get_url(s3_path)
         return nil unless s3_path.present?
-        s3_manager_obj.get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path, {expires_in: IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL})
+        s3_manager_obj.get_signed_url_for(GlobalConstant::Aws::Common.kyc_bucket, s3_path,
+                                          {expires_in: IMAGES_URL_EXPIRY_TIMESTAMP_INTERVAL})
       end
 
       # S3 Job Manager

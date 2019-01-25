@@ -31,7 +31,9 @@ class SendDoubleOptIn < ApplicationJob
   def init_params(params)
     @client_id = params[:client_id]
     @user_id = params[:user_id]
-    @user = User.find(@user_id)
+
+    @client = Client.get_from_memcache(@client_id)
+    @user = User.using_client_shard(client: @client).find(@user_id)
     @double_opt_in_token = nil
   end
 

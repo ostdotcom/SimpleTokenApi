@@ -10,7 +10,7 @@ module AdminManagement
         # * Reviewed By:
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
+        # @param [AR] client (mandatory) - client obj
         # @params [Integer] id (mandatory)
         #
         # @params [Boolean] is_auto_approve (Optional) - if its an auto approve qualify

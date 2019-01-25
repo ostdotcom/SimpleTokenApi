@@ -10,6 +10,7 @@ module UserManagement
     #
     # @params [String] t (mandatory)
     # @params [Integer] user_id (mandatory)
+    # @param [AR] client (mandatory) - client obj
     #
     # @return [UserManagement::DoubleOptIn]
     #
@@ -17,6 +18,9 @@ module UserManagement
       super
       @t = @params[:t]
       @user_id = @params[:user_id]
+      @client = @params[:client]
+
+      @client_id = @client.id
     end
 
     # Perform
@@ -90,7 +94,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user_data
-      @user = User.get_from_memcache(@user_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
       return invalid_url_error('um_doi_2') if @user.blank?
       success
     end

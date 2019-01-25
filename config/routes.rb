@@ -66,17 +66,9 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin/kyc', controller: 'web/admin/kyc' do
-      # match 'change-address-and-open-case' => :change_address_and_open_case, via: :POST
-
-      # match 'run-pos-bonus-process' => :run_pos_bonus_process, via: :GET
-      # match 'run-alt-token-bonus-process' => :run_alt_token_bonus_process, via: :GET
       match 'check-details' => :check_details, via: :GET
       match 'fetch-duplicate' => :fetch_duplicate, via: :GET
       match 'kyc-action-logs' => :kyc_action_logs, via: :GET
-      # match 'whitelist-dashboard' => :whitelist_dashboard, via: :GET
-      # match 'sale-daily-dashboard' => :sale_daily_dashboard, via: :GET
-      # match 'sale-all-dashboard' => :sale_all_dashboard, via: :GET
-      # match 'contract-events-dashboard' => :contract_events_dashboard, via: :GET
 
       match 'deny-kyc' => :deny_kyc, via: :POST
       match 'email-kyc-issue' => :email_kyc_issue, via: :POST

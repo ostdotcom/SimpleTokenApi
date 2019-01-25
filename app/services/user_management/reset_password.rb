@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 13/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [String] r_t (mandatory) - token for reset
     # @params [String] password (mandatory) - this is the new password
     # @params [String] confirm_password (mandatory) - this is the confirm password
@@ -21,9 +21,9 @@ module UserManagement
       @r_t = @params[:r_t]
       @password = @params[:password]
       @confirm_password = @params[:confirm_password]
-      @client_id = @params[:client_id]
+      @client = @params[:client]
 
-      @client = nil
+      @client_id = @client.id
       @reset_token = nil
       @temporary_token_id = nil
       @temporary_token_obj = nil
@@ -43,9 +43,6 @@ module UserManagement
     def perform
 
       r = validate_and_sanitize
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details
@@ -191,13 +188,13 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.get_from_memcache(@temporary_token_obj.entity_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@temporary_token_obj.entity_id)
       return unauthorized_access_response_for_web('um_rp_9','Invalid User') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
       return unauthorized_access_response_for_web('um_rp_11','Invalid User') if @user.client_id != @client_id
 
-      @user_secret = UserSecret.where(id: @user.user_secret_id).first
+      @user_secret = UserSecret.using_client_shard(client: @client).where(id: @user.user_secret_id).first
       return unauthorized_access_response_for_web('um_rp_10','Invalid User') unless @user_secret.present?
 
       success

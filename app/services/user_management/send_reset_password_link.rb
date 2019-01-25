@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [String] email (mandatory) - this is the email entered
     #
     # @return [UserManagement::SendResetPasswordLink]
@@ -17,9 +17,9 @@ module UserManagement
       super
 
       @email = @params[:email]
-      @client_id = @params[:client_id]
+      @client = @params[:client]
 
-      @client = nil
+      @client_id = @client.id
       @user = nil
       @reset_password_token = nil
     end
@@ -35,9 +35,6 @@ module UserManagement
     def perform
 
       r = validate
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details
@@ -93,7 +90,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.where(client_id: @client_id, email: @email).first
+      @user = User.using_client_shard(client: @client).where(client_id: @client_id, email: @email).first
 
       return error_with_data(
           'um_srpl_2',

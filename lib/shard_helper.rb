@@ -10,7 +10,7 @@ module ShardHelper
     end
 
     def using_client_shard(params)
-      using_shard(shard: params[:client].client_shard.shard_identifier)
+      using_shard(shard_identifier: params[:client].client_shard.shard_identifier)
     end
   end
 end

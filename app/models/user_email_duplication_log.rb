@@ -1,16 +1,28 @@
-class UserEmailDuplicationLog < EstablishSimpleTokenLogDbConnection
+class UserEmailDuplicationLog
 
-  enum status: {
-           GlobalConstant::UserEmailDuplicationLog.active_status => 1,
-           GlobalConstant::UserEmailDuplicationLog.inactive_status => 2
-       }
+  module Methods
+    extend ActiveSupport::Concern
+    included do
 
-  def self.bulk_insert(new_email_duplicate_log_rows)
+      enum status: {
+          GlobalConstant::UserEmailDuplicationLog.active_status => 1,
+          GlobalConstant::UserEmailDuplicationLog.inactive_status => 2
+      }
 
-    logs_sql = "INSERT INTO `user_email_duplication_logs` (`user1_id`, `user2_id`, `status`,`created_at`, `updated_at`)" +
-        "VALUES #{new_email_duplicate_log_rows.join(', ')} ;"
 
-    self.connection.execute(logs_sql)
+    end
+
+    module ClassMethods
+
+      def bulk_insert(new_email_duplicate_log_rows)
+
+        logs_sql = "INSERT INTO `user_email_duplication_logs` (`user1_id`, `user2_id`, `status`,`created_at`, `updated_at`)" +
+            "VALUES #{new_email_duplicate_log_rows.join(', ')} ;"
+
+        self.connection.execute(logs_sql)
+      end
+
+    end
   end
 
 

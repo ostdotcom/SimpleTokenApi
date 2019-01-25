@@ -99,7 +99,7 @@ class UserKycDetail
       # @returns [Array<Symbol>] returns Array of admin action bits set for user
       #
       def admin_action_types_array
-        @admin_action_types_array = UserKycDetail.get_bits_set_for_admin_action_types(admin_action_types)
+        @admin_action_types_array = self.singleton_class.get_bits_set_for_admin_action_types(admin_action_types)
       end
 
       # last qualified by admin type
@@ -124,8 +124,7 @@ class UserKycDetail
       # @returns [Array<Symbol>] returns Array of Qualify types bits set for user
       #
       def qualify_types_array
-        # puts "qualify_types : #{qualify_types.inspect}"
-        @admin_action_types_array = UserKycDetail.get_bits_set_for_qualify_types(qualify_types)
+        @admin_action_types_array = self.singleton_class.get_bits_set_for_qualify_types(qualify_types)
       end
 
       # Check if case was ever auto approved
@@ -277,7 +276,7 @@ class UserKycDetail
       # * Reviewed By: Kedar
       #
       def memcache_flush
-        UserKycDetail.bulk_flush([self.user_id])
+        self.singleton_class.bulk_flush([self.user_id])
       end
 
 
@@ -354,9 +353,12 @@ class UserKycDetail
       # @return [AR] UserKycDetail object
       #
       def get_from_memcache(user_id)
-        memcache_key_object = UserKycDetail.get_memcache_key_object
-        Memcache.get_set_memcached(memcache_key_object.key_template % {user_id: user_id}, memcache_key_object.expiry) do
-          UserKycDetail.where(user_id: user_id).first
+        memcache_key_object = self.get_memcache_key_object
+        Memcache.get_set_memcached(memcache_key_object.key_template % {
+            user_id: user_id,
+            shard_identifier: self.shard_identifier
+        }, memcache_key_object.expiry) do
+          self.where(user_id: user_id).first
         end
       end
 
@@ -368,8 +370,11 @@ class UserKycDetail
       #
       def bulk_flush(user_ids)
         user_ids.each do |uid|
-          user_details_memcache_key = UserKycDetail.get_memcache_key_object.key_template % {user_id: uid}
-          Memcache.delete(user_details_memcache_key)
+          user_kyc_details_memcache_key = self.get_memcache_key_object.key_template % {
+              user_id: uid,
+              shard_identifier: self.shard_identifier
+          }
+          Memcache.delete(user_kyc_details_memcache_key)
         end
       end
 

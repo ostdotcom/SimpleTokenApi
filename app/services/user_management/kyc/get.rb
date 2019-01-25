@@ -8,7 +8,7 @@ module UserManagement
       # * Date: 24/09/2018
       # * Reviewed By:
       #
-      # @param [Integer] client_id (mandatory) -  client id
+      # @param [AR] client (mandatory) - client obj
       # @param [Integer] user_id (mandatory) - user id
       #
       #
@@ -17,8 +17,10 @@ module UserManagement
       def initialize(params)
         super
 
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @user_id = @params[:user_id]
+
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @admin = nil
@@ -60,9 +62,6 @@ module UserManagement
         r = validate_and_sanitize_params
         return r unless r.success?
 
-        r = fetch_and_validate_client
-        return r unless r.success?
-
         success
       end
 
@@ -93,7 +92,7 @@ module UserManagement
       #
       def fetch_and_validate_user_kyc_detail
 
-        @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
         return error_with_identifier('resource_not_found',
                                      'um_k_g_favukd_1'
         )if (@user_kyc_detail.blank? || (@user_kyc_detail.status != GlobalConstant::UserKycDetail.active_status) ||

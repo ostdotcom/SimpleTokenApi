@@ -13,7 +13,7 @@ module AdminManagement
         # * Reviewed By: Sunil
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
+        # @param [AR] client (mandatory) - client obj
         # @params [Hash] filters (optional)
         # @params [Hash] sortings (optional)
         # @params [Integer] page_number (optional)
@@ -25,7 +25,7 @@ module AdminManagement
           super
 
           @admin_id = @params[:admin_id]
-          @client_id = @params[:client_id]
+          @client = @params[:client]
 
           @filters = @params[:filters]
           @sortings = @params[:sortings]
@@ -33,12 +33,13 @@ module AdminManagement
           @page_number = @params[:page_number].to_i
           @page_size =  @params[:page_size].to_i
 
+          @client_id = @params[:client_id]
+
           @duplicate_user_extended_detail_ids, @email_duplicate_user_extended_detail_ids, @duplicate_kyc_type_data = [], [], {}
           @duplicate_user_ids = []
           @admin_details = {}
 
           @admin = nil
-          @client = nil
         end
 
         private
@@ -119,9 +120,6 @@ module AdminManagement
           @page_number = 1 if @page_number < 1
           @page_size = 20 if @page_size == 0 || @page_size > 100
 
-          r = fetch_and_validate_client
-          return r unless r.success?
-
           r = fetch_and_validate_admin
           return r unless r.success?
 
@@ -155,8 +153,10 @@ module AdminManagement
 
           fetch_duplicate_type
 
-          @user_extended_details = UserExtendedDetail.where(id: @user_extended_detail_ids).index_by(&:id)
-          @md5_user_extended_details = Md5UserExtendedDetail.select('id, user_extended_detail_id, country, nationality').
+          @user_extended_details = UserExtendedDetail.using_client_shard(client: @client).
+              where(id: @user_extended_detail_ids).index_by(&:id)
+          @md5_user_extended_details = Md5UserExtendedDetail.using_client_shard(client: @client).
+              select('id, user_extended_detail_id, country, nationality').
               where(user_extended_detail_id: @user_extended_detail_ids).index_by(&:user_extended_detail_id)
 
           if @admin_ids.present?
@@ -178,9 +178,12 @@ module AdminManagement
 
           duplicate_data = []
 
-          duplicate_data += UserKycDuplicationLog.select('distinct user_extended_details1_id as user_extended_details_id, duplicate_type').
+          duplicate_data += UserKycDuplicationLog.using_client_shard(client: @client).
+              select('distinct user_extended_details1_id as user_extended_details_id, duplicate_type').
               where(user1_id: @duplicate_user_ids, status: GlobalConstant::UserKycDuplicationLog.active_status, user_extended_details1_id: @duplicate_user_extended_detail_ids).all
-          duplicate_data += UserKycDuplicationLog.select('distinct user_extended_details2_id as user_extended_details_id, duplicate_type').
+
+          duplicate_data += UserKycDuplicationLog.using_client_shard(client: @client).
+              select('distinct user_extended_details2_id as user_extended_details_id, duplicate_type').
               where(user2_id: @duplicate_user_ids, status: GlobalConstant::UserKycDuplicationLog.active_status, user_extended_details2_id: @duplicate_user_extended_detail_ids).all
 
           duplicate_data.each do |duplicate|
@@ -188,8 +191,10 @@ module AdminManagement
             @duplicate_kyc_type_data[duplicate.user_extended_details_id] ||= duplicate.duplicate_type
 
             if @duplicate_kyc_type_data[duplicate.user_extended_details_id].blank? ||
-                UserKycDuplicationLog.duplicate_types[@duplicate_kyc_type_data[duplicate.user_extended_details_id]] >
-                    UserKycDuplicationLog.duplicate_types[duplicate.duplicate_type]
+                UserKycDuplicationLog.using_client_shard(client: @client).
+                    duplicate_types[@duplicate_kyc_type_data[duplicate.user_extended_details_id]] >
+                    UserKycDuplicationLog.using_client_shard(client: @client).
+                        duplicate_types[duplicate.duplicate_type]
 
               @duplicate_kyc_type_data[duplicate.user_extended_details_id] = duplicate.duplicate_type
             end

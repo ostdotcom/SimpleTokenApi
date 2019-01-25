@@ -11,7 +11,7 @@ module UserManagement
       # * Reviewed By: Kedar
       #
       # @params [Integer] user_id (mandatory) - user id
-      # @params [Integer] client_id (mandatory) - client id
+      # @param [AR] client (mandatory) - client obj
       # @params [String] first_name (mandatory) - first name
       # @params [String] last_name (mandatory) - last name
       # @params [String] birthdate (mandatory) - birth date
@@ -39,7 +39,7 @@ module UserManagement
         @params = params
 
         @user_id = @params[:user_id].to_i
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @first_name = @params[:first_name] # required
         @last_name = @params[:last_name] # required
         @birthdate = @params[:birthdate] # format - 'dd/mm/yyyy'
@@ -57,11 +57,12 @@ module UserManagement
         @state = @params[:state]
         @postal_code = @params[:postal_code]
 
+        @client_id = @client.id
+
         @uploaded_files = {}
         @extra_kyc_fields = {}
 
         @source_of_request = @params[:source_of_request]
-        @client = nil
         @client_token_sale_details = nil
         @client_kyc_config_detail = nil
         @user = nil
@@ -131,8 +132,6 @@ module UserManagement
         # NOTE: To be on safe side, check for generic errors as well
         # r = validate
         # return r unless r.success?
-        r = fetch_and_validate_client
-        return r unless r.success?
 
         @client_kyc_config_detail = @client.client_kyc_config_detail
 
@@ -147,7 +146,7 @@ module UserManagement
         ) if @client_token_sale_details.has_token_sale_ended?
 
         # Check if user KYC is already approved
-        @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
 
         if @user_kyc_detail.present?
           # resource not found
@@ -503,7 +502,7 @@ module UserManagement
       # Sets @user
       #
       def fetch_user_data
-        @user = User.get_from_memcache(@user_id)
+        @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
 
         return error_with_identifier('resource_not_found',
                                      'um_ks_4'
@@ -596,11 +595,11 @@ module UserManagement
           md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.get_hashed_value(value)
         end
 
-        @user_extended_detail = UserExtendedDetail.create!(user_extended_details_params)
+        @user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).create!(user_extended_details_params)
 
         md5_user_extended_details_params.merge!(user_extended_detail_id: @user_extended_detail.id)
 
-        Md5UserExtendedDetail.create!(md5_user_extended_details_params)
+        Md5UserExtendedDetail.using_client_shard(client: @client).create!(md5_user_extended_details_params)
 
         success
       end
@@ -630,7 +629,7 @@ module UserManagement
 
         # Update records
         if @user_kyc_detail.blank?
-          @user_kyc_detail = UserKycDetail.new(user_id: @user_id)
+          @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).new(user_id: @user_id)
           @user_kyc_detail.client_id = @user.client_id
           @user_kyc_detail.token_sale_participation_phase = GlobalConstant::TokenSale.early_access_token_sale_phase
           @user_kyc_detail.email_duplicate_status = GlobalConstant::UserKycDetail.no_email_duplicate_status
@@ -675,6 +674,7 @@ module UserManagement
         BgJob.enqueue(
             KycSubmitJob,
             {
+                client_id: @client_id,
                 user_id: @user_id,
                 user_extended_detail_id: @user_extended_detail.id,
                 action: GlobalConstant::UserActivityLog.update_kyc_action,

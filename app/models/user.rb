@@ -94,7 +94,10 @@ class User
       # * Reviewed By:
       #
       def memcache_flush
-        user_details_memcache_key = self.singleton_class.get_memcache_key_object.key_template % {id: self.id}
+        user_details_memcache_key = self.singleton_class.get_memcache_key_object.key_template % {
+            id: self.id,
+            shard_identifier: self.singleton_class.shard_identifier
+        }
         Memcache.delete(user_details_memcache_key)
       end
 
@@ -219,7 +222,10 @@ class User
       #
       def get_from_memcache(user_id)
         memcache_key_object = get_memcache_key_object
-        Memcache.get_set_memcached(memcache_key_object.key_template % {id: user_id}, memcache_key_object.expiry) do
+        Memcache.get_set_memcached(memcache_key_object.key_template % {
+            id: user_id,
+            shard_identifier: self.shard_identifier
+        }, memcache_key_object.expiry) do
           where(id: user_id).first
         end
       end
@@ -232,7 +238,10 @@ class User
       #
       def bulk_flush(user_ids)
         user_ids.each do |uid|
-          user_memcache_key = get_memcache_key_object.key_template % {id: uid}
+          user_memcache_key = get_memcache_key_object.key_template % {
+              id: uid,
+              shard_identifier: self.shard_identifier
+          }
           Memcache.delete(user_memcache_key)
         end
       end

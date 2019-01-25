@@ -60,10 +60,11 @@ class Md5UserExtendedDetail
 
         sha_ethereum = get_hashed_value(ethereum_address)
 
-        ued_ids = Md5UserExtendedDetail.where(ethereum_address: sha_ethereum).pluck(:user_extended_detail_id)
+        ued_ids = self.where(ethereum_address: sha_ethereum).pluck(:user_extended_detail_id)
         return [] if ued_ids.blank?
 
-        UserKycDetail.where(client_id: client_id, user_extended_detail_id: ued_ids).kyc_admin_and_aml_approved.all
+        UserKycDetail.using_shard(shard_identifier: self.shard_identifier).
+            where(client_id: client_id, user_extended_detail_id: ued_ids).kyc_admin_and_aml_approved.all
       end
 
     end

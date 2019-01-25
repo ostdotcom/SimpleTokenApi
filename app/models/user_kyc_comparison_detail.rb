@@ -20,9 +20,8 @@ class UserKycComparisonDetail
       serialize :selfie_dimensions, Hash
 
 
-
       def auto_approve_failed_reasons_array
-        @auto_approve_failed_reasons_array = UserKycComparisonDetail.get_bits_set_for_auto_approve_failed_reasons(auto_approve_failed_reasons)
+        @auto_approve_failed_reasons_array = self.singleton_class.get_bits_set_for_auto_approve_failed_reasons(auto_approve_failed_reasons)
       end
 
       # Flush Memcache
@@ -32,8 +31,11 @@ class UserKycComparisonDetail
       # * Reviewed By:
       #
       def memcache_flush
-        client_memcache_key = UserKycComparisonDetail.get_by_ued_memcache_key_object.key_template % {user_extended_detail_id: self.user_extended_detail_id}
-        Memcache.delete(client_memcache_key)
+        ukcd_memcache_key = self.singleton_class.get_by_ued_memcache_key_object.key_template % {
+            user_extended_detail_id: self.user_extended_detail_id,
+            shard_identifier: self.singleton_class.shard_identifier
+        }
+        Memcache.delete(ukcd_memcache_key)
       end
 
     end
@@ -102,8 +104,11 @@ class UserKycComparisonDetail
       #
       def self.get_by_ued_from_memcache(user_extended_detail_id)
         memcache_key_object = UserKycComparisonDetail.get_by_ued_memcache_key_object
-        Memcache.get_set_memcached(memcache_key_object.key_template % {user_extended_detail_id: user_extended_detail_id}, memcache_key_object.expiry) do
-          UserKycComparisonDetail.where(user_extended_detail_id: user_extended_detail_id).first
+        Memcache.get_set_memcached(memcache_key_object.key_template % {
+            user_extended_detail_id: user_extended_detail_id,
+            shard_identifier: self.shard_identifier
+        }, memcache_key_object.expiry) do
+          self.where(user_extended_detail_id: user_extended_detail_id).first
         end
       end
 

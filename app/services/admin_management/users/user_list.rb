@@ -161,7 +161,8 @@ module AdminManagement
         @users = user_relational_query.limit(@page_size).offset(offset).all
         # No need to query kyc detail if filter applied is kyc_submitted_no
         if @allowed_filters[GlobalConstant::User.is_kyc_submitted_filter].to_s != GlobalConstant::User.kyc_submitted_false
-          @user_kyc_details = UserKycDetail.where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
+          @user_kyc_details = UserKycDetail.using_client_shard(client: @client).
+              where(user_id: @users.collect(&:id)).all.index_by(&:user_id)
         end
       end
 
@@ -175,7 +176,8 @@ module AdminManagement
       #
       def get_model_query
 
-        user_relational_query = User.where(client_id: @client_id).is_active.filter_by(@allowed_filters)
+        user_relational_query = User.using_client_shard(client: @client).
+            where(client_id: @client_id).is_active.filter_by(@allowed_filters)
         user_relational_query.sorting_by(@sortings)
       end
 
@@ -192,7 +194,8 @@ module AdminManagement
         return if @user_kyc_details.blank?
 
         case_ids = @user_kyc_details.map {|x| x[1].id}
-        @open_edit_cases = EditKycRequests.under_process.where(case_id: case_ids).collect(&:case_id)
+        @open_edit_cases = EditKycRequest.using_client_shard(client: @client).
+            under_process.where(case_id: case_ids).collect(&:case_id)
       end
 
       # Set API response data

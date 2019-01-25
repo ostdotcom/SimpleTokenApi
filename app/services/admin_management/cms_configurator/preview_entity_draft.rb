@@ -10,7 +10,7 @@ module AdminManagement
       # * Date: 16/08/2018
       # * Reviewed By:
       #
-      # @param [Integer] client_id (mandatory) - client id
+      # @param [AR] client (mandatory) - client obj
       # @params [String] template_type (mandatory) - this is the page template name
       # @params [Integer] gid (mandatory) - this is to open urls in preview mode for some group id
       #
@@ -73,7 +73,7 @@ module AdminManagement
       end
 
       def fetch_user
-        @user = User.new
+        @user = User.using_shard(shard_identifier: @client.sql_shard_identifier).new
         @user.id = Random.rand(100..1000)
         @user.properties = User.properties_config[GlobalConstant::User.kyc_submitted_property]
         @user_token_sale_state = @user.get_token_sale_state_page_name

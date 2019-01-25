@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By:
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @params [Integer] case_id (mandatory) - search term to find case
       #
       # @return [AdminManagement::Kyc::OpenEditKycCase]
@@ -20,8 +20,10 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @case_id = @params[:id]
+
+        @client_id = @params[:client_id]
 
         @user_kyc_detail = nil
       end
@@ -61,9 +63,6 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        r = fetch_and_validate_client
-        return r unless r.success?
-
         # Default Client is not allowed to open case
         return error_with_data(
             'am_k_oekc_1',
@@ -85,7 +84,7 @@ module AdminManagement
         ) if @admin.default_client_id != @client.id
 
         # Check for pending edit kyc requests
-        edit_kyc_request = EditKycRequests.under_process.where(case_id: @case_id).first
+        edit_kyc_request = EditKycRequest.using_client_shard(client: @client).under_process.where(case_id: @case_id).first
 
         return error_with_data(
             'am_k_oekc_3',
@@ -95,7 +94,8 @@ module AdminManagement
             {}
         ) if edit_kyc_request.present?
 
-        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id, id: @case_id).first
         return error_with_data(
             'am_k_oekc_4',
             'KYC detail not found or its already open.',
@@ -145,7 +145,7 @@ module AdminManagement
       # Sets @edit_kyc_request
       #
       def create_edit_kyc_request
-        @edit_kyc_request = EditKycRequests.create!(
+        @edit_kyc_request = EditKycRequest.using_client_shard(client: @client).create!(
             case_id: @case_id,
             admin_id: @admin_id,
             user_id: @user_kyc_detail.user_id,
@@ -221,6 +221,7 @@ module AdminManagement
         BgJob.enqueue(
             UserActivityLogJob,
             {
+                client_id: @client_id,
                 user_id: @user_kyc_detail.user_id,
                 admin_id: @admin.id,
                 action: GlobalConstant::UserActivityLog.open_case,

@@ -27,6 +27,7 @@ class UserActivityLogJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def init_params(params)
+    @client_id = @params[:client_id]
     @user_id = params[:user_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]
@@ -36,7 +37,8 @@ class UserActivityLogJob < ApplicationJob
     # NOTE: Called from two places, one time it's hash with indifferent access and another is normal hash
     # so following line is required and can't be changed. Talk to Sunil, before you touch it.
     @extra_data = params[:extra_data].present? ? params[:extra_data].deep_symbolize_keys : nil
-    
+
+    @client = Client.get_from_memcache(@client_id)
     @e_extra_data = nil
   end
 
@@ -72,7 +74,7 @@ class UserActivityLogJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def create_log
-    UserActivityLog.create!(
+    UserActivityLog.using_client_shard(client: @client).create!(
         user_id: @user_id,
         admin_id: @admin_id,
         log_type: log_type,
@@ -89,7 +91,9 @@ class UserActivityLogJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def log_type
-    GlobalConstant::UserActivityLog.admin_actions.include?(@action) ? GlobalConstant::UserActivityLog.admin_log_type : GlobalConstant::UserActivityLog.developer_log_type
+    GlobalConstant::UserActivityLog.admin_actions.include?(@action) ?
+        GlobalConstant::UserActivityLog.admin_log_type :
+        GlobalConstant::UserActivityLog.developer_log_type
   end
 
 end

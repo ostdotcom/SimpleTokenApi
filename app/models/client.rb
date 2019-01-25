@@ -1,9 +1,9 @@
 class Client < EstablishSimpleTokenClientDbConnection
 
   enum status: {
-           GlobalConstant::Client.active_status => 1,
-           GlobalConstant::Client.inactive_status => 2
-       }
+      GlobalConstant::Client.active_status => 1,
+      GlobalConstant::Client.inactive_status => 2
+  }
 
   OST_KYC_CLIENT_IDENTIFIER = -1
 
@@ -13,6 +13,18 @@ class Client < EstablishSimpleTokenClientDbConnection
 
   has_one :client_kyc_config_detail
   has_one :client_shard
+
+  # Get SQL shard_identifier of the client
+  #
+  # * Author: Aman
+  # * Date: 01/02/2018
+  # * Reviewed By:
+  #
+  # @returns [String] returns SQL shard_identifier of the client
+  #
+  def sql_shard_identifier
+    @shard_identifier ||= client_shard.shard_identifier
+  end
 
   # Check if whitelisting setup is done for client
   #
@@ -192,11 +204,13 @@ class Client < EstablishSimpleTokenClientDbConnection
     api_memcache_key_object = MemcacheKey.new('client.api_key_details')
     Memcache.get_set_memcached(api_memcache_key_object.key_template % {api_key: api_key}, api_memcache_key_object.expiry) do
       client_obj = Client.where(api_key: api_key).first
-
       return nil if client_obj.blank?
 
       r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)
-      client_obj.decrypted_api_salt = r.data[:plaintext] if  r.success?
+      client_obj.decrypted_api_salt = r.data[:plaintext] if r.success?
+
+      client_obj.client_kyc_config_detail
+      client_obj.client_shard
 
       client_obj
     end

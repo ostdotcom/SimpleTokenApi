@@ -6,7 +6,9 @@ class RestApi::SaasApi::V1::KycController < RestApi::SaasApi::V1::BaseController
   # * Reviewed By:
   #
   def add_kyc
-    service_response = SaasManagement::AddUser.new(client_id: params[:client_id], email: params[:email], user_ip_address: params[:user_ip_address]).perform
+    service_response = SaasManagement::AddUser.new(client: params[:client],
+                                                   email: params[:email],
+                                                   user_ip_address: params[:user_ip_address]).perform
 
     if service_response.success?
       service_response = UserManagement::Kyc::Submit.new(params.merge(user_id: service_response.data[:user_id])).perform

@@ -1,7 +1,7 @@
 class RemoveOpenCaseColumnFromEditKyc < DbMigrationConnection
   def self.up
 
-    EditKycRequests.all.each do |ekr|
+    EditKycRequest.all.each do |ekr|
       Rails.logger.info "Edit Kyc request processing : #{ekr.id}"
       if ekr.open_case_only == 1
         ekr.update_action = GlobalConstant::EditKycRequest.open_case_update_action

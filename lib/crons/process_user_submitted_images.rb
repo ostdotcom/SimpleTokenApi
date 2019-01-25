@@ -380,7 +380,7 @@ module Crons
     #
     # @return [LocalCipher]
     #
-    def get_local_cipher_object(kyc_salt=nil)
+    def get_local_cipher_object(kyc_salt = nil)
       @lco ||= LocalCipher.new(kyc_salt)
     end
 
@@ -536,7 +536,10 @@ module Crons
     # * Reviewed By:
     #
     def trigger_auto_approval
-      AutoApproveUpdateJob.perform_now({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
+      AutoApproveUpdateJob.perform_now({
+                                           client_id: @user_kyc_comparison_detail.client_id,
+                                           user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id
+                                       })
     end
 
     # Convert pdf to image
@@ -580,7 +583,7 @@ module Crons
 
       # Rotate image at 0 degree angle to remove its metadata
       strip_image_result = FileProcessing::RmagickImageRotation.new(file_directory, original_downloaded_image,
-                                                     GlobalConstant::ImageProcessing.rotation_angle_0).perform
+                                                                    GlobalConstant::ImageProcessing.rotation_angle_0).perform
 
       # If first rotation of image failed then close the process
       return strip_image_result unless strip_image_result.success?

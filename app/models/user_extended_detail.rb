@@ -14,7 +14,10 @@ class UserExtendedDetail
       # * Reviewed By:
       #
       def memcache_flush
-        user_extended_detail_memcache_key = UserExtendedDetail.get_memcache_key_object.key_template % {id: self.id}
+        user_extended_detail_memcache_key = self.singleton_class.get_memcache_key_object.key_template % {
+            id: self.id,
+            shard_identifier: self.singleton_class.shard_identifier
+        }
         Memcache.delete(user_extended_detail_memcache_key)
       end
     end
@@ -31,7 +34,7 @@ class UserExtendedDetail
       # return [Bool] true/false
       #
       def is_duplicate_kyc_approved_user?(client_id, user_extended_detail_id)
-        u_e_d = UserExtendedDetail.where(id: user_extended_detail_id).first
+        u_e_d = self.where(id: user_extended_detail_id).first
 
         hashed_nationality = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.nationality)
         hashed_document_id_number = Util::Encryption::Admin.get_sha256_hashed_value_from_kms_encrypted_value(u_e_d.kyc_salt, u_e_d.document_id_number)
@@ -45,13 +48,16 @@ class UserExtendedDetail
           where_clause_values << hashed_ethereurm_address
         end
 
-        user_extended_detail_ids = Md5UserExtendedDetail.
+        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: self.shard_identifier)
             where([where_clause] + where_clause_values).
             pluck(:user_extended_detail_id)
 
         user_extended_detail_ids.delete(user_extended_detail_id)
         return false if user_extended_detail_ids.blank?
-        UserKycDetail.active_kyc.where(client_id: client_id, user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
+        UserKycDetail.using_shard(shard_identifier: self.shard_identifier).
+            active_kyc.where(client_id: client_id,
+                             user_extended_detail_id: user_extended_detail_ids,
+                             admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
       end
 
       # Get Key Object
@@ -77,9 +83,12 @@ class UserExtendedDetail
       # @return [AR] UserExtendedDetail object
       #
       def get_from_memcache(id)
-        memcache_key_object = UserExtendedDetail.get_memcache_key_object
-        Memcache.get_set_memcached(memcache_key_object.key_template % {id: id}, memcache_key_object.expiry) do
-          UserExtendedDetail.where(id: id).first
+        memcache_key_object = self.get_memcache_key_object
+        Memcache.get_set_memcached(memcache_key_object.key_template % {
+            id: id,
+            shard_identifier: self.shard_identifier
+        }, memcache_key_object.expiry) do
+          self.where(id: id).first
         end
       end
 

@@ -1,18 +1,18 @@
 user:
   user_details:
-    key_template: 'u_det_%{id}'
+    key_template: 'u_det_%{id}_%{shard_identifier}'
     expiry_in_seconds: 86400
 
   user_kyc_details:
-    key_template: 'u_kyc_det_%{user_id}'
+    key_template: 'u_kyc_det_%{user_id}_%{shard_identifier}'
     expiry_in_seconds: 86400
 
   user_extended_detail:
-      key_template: 'user_extended_detail_%{id}'
+      key_template: 'user_extended_detail_%{id}_%{shard_identifier}'
       expiry_in_seconds: 86400
 
   user_kyc_comparison_detail:
-    key_template: 'user_kyc_comparison_detail_by_ued_%{user_extended_detail_id}'
+    key_template: 'user_kyc_comparison_detail_by_ued_%{user_extended_detail_id}_%{shard_identifier}'
     expiry_in_seconds: 86400
 
 alternate_token:

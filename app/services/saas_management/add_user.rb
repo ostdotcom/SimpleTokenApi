@@ -7,7 +7,7 @@ module SaasManagement
     # * Date: 10/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @param [String] client_id (mandatory) -  api key of client
+    # @param [AR] client (mandatory) - client obj
     # @param [String] email (mandatory) - generated signature
     # @param [String] user_ip_address (optional ) - user ip address
     #
@@ -17,9 +17,11 @@ module SaasManagement
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
       @email = @params[:email]
       @user_ip_address = @params[:user_ip_address]
+
+      @client_id = @client.id
 
       @geoip_country = nil
       @new_user_added = false
@@ -71,9 +73,6 @@ module SaasManagement
           {},
           {}
       ) unless Util::CommonValidateAndSanitize.is_valid_email?(@email)
-
-      r = fetch_and_validate_client
-      return r unless r.success?
 
       fetch_client_token_sale_details
 
@@ -134,7 +133,7 @@ module SaasManagement
     # Sets @user
     #
     def find_or_initialize_user
-      @user = User.find_or_initialize_by(client_id: @client_id, email: @email)
+      @user = User.using_client_shard(client: @client).find_or_initialize_by(client_id: @client_id, email: @email)
       @new_user_added = true if @user.new_record?
       @user.save! if @user.changed?
     end
@@ -153,6 +152,7 @@ module SaasManagement
       BgJob.enqueue(
           NewUserRegisterJob,
           {
+              client_id: @client_id,
               user_id: @user.id,
               ip_address: @user_ip_address,
               geoip_country: @geoip_country,

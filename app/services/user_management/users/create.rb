@@ -9,7 +9,7 @@ module UserManagement
       # * Date: 10/10/2017
       # * Reviewed By: Sunil Khedar
       #
-      # @param [Integer] client_id (mandatory) -  client id of user
+      # @param [AR] client (mandatory) - client obj
       # @param [String] email (mandatory) - email of user
       #
       # Sets user, new_user_added
@@ -19,8 +19,10 @@ module UserManagement
       def initialize(params)
         super
 
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @email = @params[:email]
+
+        @client_id = @client.id
 
         @user = nil
       end
@@ -70,9 +72,6 @@ module UserManagement
         r = fetch_and_validate_user
         return r unless r.success?
 
-        r = fetch_and_validate_client
-        return r unless r.success?
-
         success
       end
 
@@ -117,7 +116,7 @@ module UserManagement
       # Sets user
       #
       def fetch_and_validate_user
-        @user = User.where(client_id: @client_id, email: @email).is_active.first
+        @user = User.using_client_shard(client: @client).where(client_id: @client_id, email: @email).is_active.first
         return error_with_identifier('invalid_api_params',
                                      'um_u_c_ve_2',
                                      ['user_already_present']
@@ -137,7 +136,7 @@ module UserManagement
             client_id: @client_id,
             email: @email
         }
-        @user = User.create!(params)
+        @user = User.using_client_shard(client: @client).create!(params)
       end
 
       # Do remaining task in sidekiq
@@ -150,6 +149,7 @@ module UserManagement
         BgJob.enqueue(
             NewUserRegisterJob,
             {
+                client_id: @client_id,
                 user_id: @user.id,
                 ip_address: nil,
                 geoip_country: nil,

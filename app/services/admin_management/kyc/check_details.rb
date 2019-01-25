@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @params [Integer] id (mandatory)
       # @params [Hash] filters (optional) - Dashboard filter to go back on same dash page
       # @params [Hash] sortings (optional) - Dashboard sorting to go back on same dash page
@@ -22,10 +22,12 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @case_id = @params[:id]
         @filters = @params[:filters]
         @sortings = @params[:sortings]
+
+        @client_id = @params[:client_id]
 
         @user_kyc_detail = nil
         @user = nil
@@ -128,9 +130,6 @@ module AdminManagement
         @filters = sanitized_filter
         @sortings = sanitized_sorting
 
-        r = fetch_and_validate_client
-        return r unless r.success?
-
         r = fetch_and_validate_admin
         return r unless r.success?
 
@@ -146,10 +145,11 @@ module AdminManagement
       # Sets @user, @user_kyc_detail
       #
       def fetch_user_kyc_detail
-        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id, id: @case_id).first
         return err_response('am_k_cd_2') if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
 
-        @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
+        @user = User.using_client_shard(client: @client).where(client_id: @client_id, id: @user_kyc_detail.user_id).first
         return err_response('am_k_cd_3') if @user.blank?
 
         success
@@ -178,7 +178,7 @@ module AdminManagement
       def fetch_surround_kyc_ids
         return if @filters.blank? && @sortings.blank?
 
-        ar_relation = UserKycDetail.where(client_id: @client_id).active_kyc
+        ar_relation = UserKycDetail.using_client_shard(client: @client).where(client_id: @client_id).active_kyc
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation = ar_relation.select(:id)
 
@@ -204,12 +204,14 @@ module AdminManagement
       # Sets @user_extended_detail, @kyc_salt_e
       #
       def fetch_user_extended_detail
-        @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+        @user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).
+            where(id: @user_kyc_detail.user_extended_detail_id).first
         return err_response('am_k_cd_4') if @user_extended_detail.blank?
 
         @kyc_salt_e = @user_extended_detail.kyc_salt
 
-        user_registration_data = UserActivityLog.where(user_id: @user.id, action: GlobalConstant::UserActivityLog.register_action).first
+        user_registration_data = UserActivityLog.using_client_shard(client: @client).
+            where(user_id: @user.id, action: GlobalConstant::UserActivityLog.register_action).first
         if user_registration_data.present? && user_registration_data.e_data.present?
           decrypted_data = user_registration_data.decrypted_extra_data
           @user_geoip_data[:country] = decrypted_data[:geoip_country]
@@ -679,7 +681,8 @@ module AdminManagement
         # Client has opted for whitelisting & kyc is approved, then only unwhitelisting would happen in background.
         # So check for any open edit kyc requests
         if @client.is_whitelist_setup_done? && @user_kyc_detail.kyc_approved?
-          under_process = EditKycRequests.under_process.where(case_id: @user_kyc_detail.id).exists?.to_i
+          under_process = EditKycRequest.using_client_shard(client: @client).
+              under_process.where(case_id: @user_kyc_detail.id).exists?.to_i
         end
 
         under_process
@@ -737,7 +740,8 @@ module AdminManagement
       # Sets @user_kyc_comparison_detail
       #
       def fetch_user_kyc_comparison_detail
-        @user_kyc_comparison_detail = UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
+        @user_kyc_comparison_detail = UserKycComparisonDetail.using_client_shard(client: @client).
+            get_by_ued_from_memcache(@user_extended_detail.id)
       end
 
       # Check if case is manually/automatically approved

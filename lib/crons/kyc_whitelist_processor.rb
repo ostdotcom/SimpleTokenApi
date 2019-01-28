@@ -13,6 +13,7 @@ module Crons
     # @return [Crons::KycWhitelistProcessor]
     #
     def initialize(params)
+      @shard_identifiers = params[:shard_identifiers].present? || GlobalConstant::Shard.shards_to_process_for_crons
       @api_data = {}
       @user_kyc_detail = nil
       @transaction_hash = nil
@@ -31,15 +32,14 @@ module Crons
       client_ids = ClientWhitelistDetail.not_suspended.
           where(status: GlobalConstant::ClientWhitelistDetail.active_status).pluck(:client_id)
 
-      # todo: crons should run for given shards only
-      shards_to_process = GlobalConstant::Shard.shards_to_process
-      shards_to_process.each do |shard_identifier|
+
+      @shard_identifiers.each do |shard_identifier|
 
         UserKycDetail.using_shard(shard_identifier: shard_identifier).
             where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
             kyc_admin_and_aml_approved.# records which are approved by both admin and aml
         whitelist_status_unprocessed.# records which are not yet processed for whitelisting
-        find_in_batches(batch_size: 10) do |u_k_detail_objs|
+        find_in_batches(batch_size: 5) do |u_k_detail_objs|
 
           u_k_detail_objs.each do |user_kyc_detail|
             begin

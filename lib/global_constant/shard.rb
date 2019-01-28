@@ -5,12 +5,21 @@ module GlobalConstant
 
     # GlobalConstant::Shard
 
-    def shard_id(shard_identifier)
-      shard_config[shard_identifier][:id]
+    def self.primary_shard_identifier
+      "shard_1"
     end
 
-    def shards_to_process
-      @shards_to_process ||= shard_config.keys
+    def self.shards_to_process_for_crons
+      all_shard_identifiers - [primary_shard_identifier]
+    end
+
+
+    # def self.shard_id(shard_identifier)
+    #   shard_config[shard_identifier][:id]
+    # end
+
+    def self.all_shard_identifiers
+      @all_shard_identifiers ||= shard_config.keys
     end
 
     def self.shard_config
@@ -37,8 +46,8 @@ module GlobalConstant
 
     # database_shard_type -> shard_identifier -> config
     # {
-    #     :user => {:shard_1 => {:model_suffix => "shard1", :db_prefix => "ost_kyc", :connection_model => EstablishOstKycUserShard1DbConnection(abstract)},
-    #               :shard_2 => {:model_suffix => "shard2", :db_prefix => "ost_kyc", :connection_model => EstablishOstKycUserShard2DbConnection(abstract)}
+    #     :user => {:shard_1 => {:model_suffix => "shard1", :connection_model => EstablishOstKycUserShard1DbConnection(abstract)},
+    #               :shard_2 => {:model_suffix => "shard2", :connection_model => EstablishOstKycUserShard2DbConnection(abstract)}
     #     }
     # }
     def self.sql_shards_db_config
@@ -94,8 +103,8 @@ module GlobalConstant
 
         s_d_c = {}
         shard_config.each do |shard_identifier, data|
-          db_name = "#{data[:db_prefix].to_s}_#{database_shard_type.to_s}_#{shard_identifier.to_s}"
-          connection_model_name = "Establish#{db_name.camelize}DbConnection"
+          db_config_key = get_db_config_key(database_shard_type, shard_identifier)
+          connection_model_name = "Establish#{db_config_key.camelize}DbConnection"
           c = Object.const_get(connection_model_name) rescue nil
 
           unless c
@@ -104,7 +113,7 @@ module GlobalConstant
             end
             Object.const_set(connection_model_name, klass)
             c = Object.const_get(connection_model_name)
-            c.establish_connection("#{db_name}_#{Rails.env}".to_sym)
+            c.establish_connection("#{db_config_key}_#{Rails.env}".to_sym)
           end
 
           data[:connection_model] = c
@@ -116,6 +125,11 @@ module GlobalConstant
       end
       class_variable_set('@@sql_shards_models', s_s_m)
       class_variable_set('@@sql_shards_db_config', s_s_d_c)
+    end
+
+
+    def self.get_db_config_key(database_shard_type, shard_identifier)
+      "ost_kyc_#{database_shard_type.to_s}_#{shard_identifier.to_s}"
     end
 
     private

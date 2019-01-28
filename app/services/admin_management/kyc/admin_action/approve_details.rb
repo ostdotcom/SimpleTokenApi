@@ -78,7 +78,8 @@ module AdminManagement
         #
         #
         def create_aml_search_record
-          AmlSearch.create!(user_kyc_detail_id: @user_kyc_detail.id,
+          AmlSearch.using_client_shard(client: @client).
+              create!(user_kyc_detail_id: @user_kyc_detail.id,
                             user_extended_detail_id: @user_kyc_detail.user_extended_detail_id,
                             uuid: @user_kyc_detail.get_aml_search_uuid,
                             status: GlobalConstant::AmlSearch.unprocessed_status,

@@ -74,7 +74,7 @@ module AdminManagement
         def validate_for_duplicate_user
           if UserExtendedDetail.using_client_shard(client: @client).
               is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id,
-                                                                @user_kyc_detail.user_extended_detail_id)
+                                              @user_kyc_detail.user_extended_detail_id)
             return error_with_data(
                 GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc,
                 'Duplicate Kyc User for approval.',
@@ -93,8 +93,9 @@ module AdminManagement
         # * Reviewed By:
         #
         def aml_search
-          @aml_search ||= AmlSearch.where(user_kyc_detail_id: @user_kyc_detail.id,
-                                          user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
+          @aml_search ||= AmlSearch.using_client_shard(client: @client).
+              where(user_kyc_detail_id: @user_kyc_detail.id,
+                    user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
         end
 
         # aml matches instance
@@ -104,7 +105,10 @@ module AdminManagement
         # * Reviewed By:
         #
         def aml_matches
-          @aml_matches ||= is_aml_processing_done? ? AmlMatch.where(aml_search_uuid: aml_search.uuid).all : []
+          @aml_matches ||= is_aml_processing_done? ?
+                               AmlMatch.using_client_shard(client: @client).
+                                   where(aml_search_uuid: aml_search.uuid).all :
+                               []
         end
 
         # send approval email
@@ -145,14 +149,16 @@ module AdminManagement
 
 
             if mark_as_match.present?
-              aml_matches.where(qr_code: mark_as_match).update_all(status: GlobalConstant::AmlMatch.match_status)
+              AmlMatch.using_client_shard(client: @client).
+                  where(qr_code: mark_as_match).update_all(status: GlobalConstant::AmlMatch.match_status)
             end
 
             if mark_as_nomatch.present?
-              aml_matches.where(qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
+              AmlMatch.using_client_shard(client: @client).
+                  where(qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
             end
 
-            AmlMatch.bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
+            AmlMatch.using_client_shard(client: @client).bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
 
             # unprocessed_matches = aml_matches.map(&:qr_code) - (@matched_ids + @unmatched_ids)
             # aml_matches.where(qr_code: unprocessed_matches).update_all(status: GlobalConstant::AmlMatch.unprocessed_status) if unprocessed_matches.present?

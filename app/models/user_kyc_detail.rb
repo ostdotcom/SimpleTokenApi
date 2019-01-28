@@ -215,7 +215,7 @@ class UserKycDetail
       # @return [String]
       #
       def get_aml_search_uuid
-        "#{Rails.env[0..1]}_#{id}_#{user_extended_detail_id}"
+        "#{Rails.env[0..1]}_#{client_id}_#{id}_#{user_extended_detail_id}"
       end
 
       # User Kyc Status

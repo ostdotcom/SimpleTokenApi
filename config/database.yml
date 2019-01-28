@@ -72,3 +72,11 @@ ost_kyc_user_log_shard_1_<%= Rails.env%>:
 ost_kyc_user_log_shard_2_<%= Rails.env%>:
   <<: *default
   database: ost_kyc_user_log_shard_2_<%= Rails.env%>
+
+ost_kyc_aml_shard_1_<%= Rails.env%>:
+  <<: *default
+  database: ost_kyc_aml_shard_1_<%= Rails.env%>
+
+ost_kyc_aml_shard_2_<%= Rails.env%>:
+  <<: *default
+  database: ost_kyc_aml_shard_2_<%= Rails.env%>

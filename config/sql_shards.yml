@@ -3,11 +3,9 @@ sql_shard_config:
     shard_1:
       id: 1
       model_suffix: 'shard1'
-      db_prefix: ost_kyc
     shard_2:
       id: 2
       model_suffix: 'shard2'
-      db_prefix: ost_kyc
 
   models:
       user:
@@ -47,3 +45,13 @@ sql_shard_config:
 
         'EditKycRequest':
           table: 'edit_kyc_requests'
+
+      aml:
+        'AmlSearch':
+          table: 'aml_searches'
+
+        'AmlMatch':
+          table: 'aml_matches'
+
+        'AmlLog':
+          table: 'aml_logs'

@@ -725,10 +725,10 @@ module AdminManagement
       # Sets @user_kyc_comparison_detail
       #
       def fetch_client_aml_matches
-        @aml_search = AmlSearch.get_from_memcache(@case_id, @user_extended_detail.id)
+        @aml_search = AmlSearch.using_client_shard(client: @client).get_from_memcache(@case_id, @user_extended_detail.id)
         return if @aml_search.blank? || (@aml_search.status != GlobalConstant::AmlSearch.processed_status)
 
-        @aml_matches = AmlMatch.get_from_memcache(@aml_search.uuid)
+        @aml_matches = AmlMatch.using_client_shard(client: @client).get_from_memcache(@aml_search.uuid)
       end
 
       # Fetch user kyc comparison setting

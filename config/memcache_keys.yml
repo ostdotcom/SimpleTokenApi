@@ -106,11 +106,11 @@ admin:
 
 aml:
   aml_search:
-    key_template: 'aml_search_%{user_kyc_detail_id}_%{user_extended_detail_id}'
+    key_template: 'aml_search_%{user_kyc_detail_id}_%{user_extended_detail_id}_%{shard_identifier}'
     expiry_in_seconds: 86400
 
   all_aml_match:
-    key_template: 'aml_match_%{aml_search_uuid}'
+    key_template: 'aml_match_%{aml_search_uuid}_%{shard_identifier}'
     expiry_in_seconds: 86400
 
 customization:

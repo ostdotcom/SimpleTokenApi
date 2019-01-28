@@ -33,6 +33,7 @@ class AutoApproveUpdateJob < ApplicationJob
           id: @user_kyc_detail.id,
           admin_id: Admin::AUTO_APPROVE_ADMIN_ID,
           client_id: @user_kyc_detail.client_id,
+          client: @client,
           is_auto_approve: true
       }
 

@@ -163,7 +163,9 @@ module AdminManagement
       #
       def fetch_admin
         @admin = Admin.where(id: @temporary_token_obj.entity_id).first
-        return unauthorized_access_response_for_web('am_l_arp_9', 'Invalid Admin') unless @admin.present? && @admin.password.present? &&
+        return unauthorized_access_response_for_web('am_l_arp_9', 'Invalid Admin') unless @admin.present? &&
+            @admin.password.present? &&
+            (@admin.default_client_id == @temporary_token_obj.client_id) &&
             (@admin.status == GlobalConstant::Admin.active_status)
 
         @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
@@ -213,6 +215,7 @@ module AdminManagement
         @temporary_token_obj.save!
   
         TemporaryToken.where(
+            client_id: @temporary_token_obj.client_id,
             entity_id: @admin.id,
             kind: GlobalConstant::TemporaryToken.admin_reset_password_kind,
             status: GlobalConstant::TemporaryToken.active_status

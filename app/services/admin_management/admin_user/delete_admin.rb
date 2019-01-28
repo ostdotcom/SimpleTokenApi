@@ -116,6 +116,7 @@ module AdminManagement
         return if @delete_admin_obj.status != GlobalConstant::Admin.invited_status
 
         TemporaryToken.where(
+            client_id: @client_id,
             entity_id: @delete_admin_obj.id,
             kind: GlobalConstant::TemporaryToken.admin_invite_kind,
             status: GlobalConstant::TemporaryToken.active_status

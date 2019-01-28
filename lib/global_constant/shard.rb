@@ -5,6 +5,10 @@ module GlobalConstant
 
     # GlobalConstant::Shard
 
+    def shard_id(shard_identifier)
+      shard_config[shard_identifier][:id]
+    end
+
     def shards_to_process
       @shards_to_process ||= shard_config.keys
     end

@@ -109,7 +109,8 @@ module UserManagement
     #
     def fetch_token_sale_double_opt_in_token
 
-      @token_sale_double_opt_in_token_obj = TemporaryToken.where(id: @token_sale_double_opt_in_token_id).first
+      @token_sale_double_opt_in_token_obj = TemporaryToken.where(id: @token_sale_double_opt_in_token_id,
+                                                                 client_id: @client_id).first
 
       return invalid_url_error('um_doi_3') if @token_sale_double_opt_in_token_obj.blank?
 
@@ -144,6 +145,7 @@ module UserManagement
       @token_sale_double_opt_in_token_obj.save!
 
       TemporaryToken.where(
+          client_id: @client_id,
           entity_id: @user.id,
           kind: GlobalConstant::TemporaryToken.double_opt_in_kind,
           status: GlobalConstant::TemporaryToken.active_status

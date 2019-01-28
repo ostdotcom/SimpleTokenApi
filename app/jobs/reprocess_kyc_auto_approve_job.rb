@@ -18,8 +18,8 @@ class ReprocessKycAutoApproveJob < ApplicationJob
   #
   # Sets @client_id
   #
-  def init_params(parmas)
-    @client_id = parmas[:client_id]
+  def init_params(params)
+    @client_id = params[:client_id]
   end
 
   # Trigger auto_approve_update rescue task for users

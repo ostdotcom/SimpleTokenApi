@@ -66,8 +66,8 @@ class AutoApproveUpdateJob < ApplicationJob
   #
   # Sets @user_extended_detail_id
   #
-  def init_params(parmas)
-    @user_extended_detail_id = parmas[:user_extended_details_id]
+  def init_params(params)
+    @user_extended_detail_id = params[:user_extended_details_id]
     @reprocess = params[:reprocess].to_i
   end
 

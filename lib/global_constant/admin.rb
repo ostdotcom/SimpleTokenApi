@@ -144,7 +144,7 @@ module GlobalConstant
       #
       def get_all_admins_for(client_id, notification_type)
         notification_type = notification_type.to_s
-        admins = Admin.get_all_admins_from_memcache(client_id)
+        admins = ::Admin.get_all_admins_from_memcache(client_id)
         res = []
 
         admins.each do |admin_obj|

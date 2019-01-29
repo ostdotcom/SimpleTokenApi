@@ -475,6 +475,22 @@ module Crons
 
       end
 
+      # Send Manual review needed email to admins
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      #
+      def send_manual_review_needed_email
+        return if (@aml_search_obj.status != GlobalConstant::AmlSearch.processed_status) &&
+            GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) &&
+            !@user_kyc_detail.send_manual_review_needed_email?
+
+        return if GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
+                                                                        {template_variables: {}})
+      end
+
       # Lock Id for table
       #
       # * Author: Tejas

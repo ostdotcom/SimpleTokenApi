@@ -48,6 +48,8 @@ class AutoApproveUpdateJob < ApplicationJob
           subject: 'Unable to Auto Approve a valid case'
       ).deliver if !service_response.success?
 
+    else
+      send_manual_review_needed_email
     end
 
     @user_kyc_comparison_detail.client_kyc_pass_settings_id = @client_kyc_pass_setting.id
@@ -69,6 +71,7 @@ class AutoApproveUpdateJob < ApplicationJob
   def init_params(params)
     @client_id = params[:client_id]
     @user_extended_detail_id = params[:user_extended_details_id]
+    @reprocess = params[:reprocess].to_i
   end
 
   # Fetch required models
@@ -159,6 +162,20 @@ class AutoApproveUpdateJob < ApplicationJob
       end
     end
 
+  end
+
+  # Send Manual review needed email to admins
+  #
+  # * Author: Aman
+  # * Date: 24/01/2019
+  # * Reviewed By:
+  #
+  #
+  def send_manual_review_needed_email
+    return if (@reprocess == 1) || !@user_kyc_detail.send_manual_review_needed_email?
+
+    GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
+                                                          {template_variables: {}})
   end
 
 end

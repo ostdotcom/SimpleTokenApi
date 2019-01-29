@@ -165,12 +165,23 @@ module AdminManagement
     def send_email(is_success)
       user_email = User.using_client_shard(client: @client).get_from_memcache(@edit_kyc_request.user_id).email
 
-      Email::HookCreator::SendTransactionalMail.new(
-          client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
-          email: Admin.get_from_memcache(@edit_kyc_request.admin_id).email,
-          template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-          template_vars: {success: is_success.to_i, email: user_email, reason_failure: "UnWhitelist Transaction has failed"}
-      ).perform
+      admin_emails_for_notification = GlobalConstant::Admin.get_all_admin_emails_for(
+          @user_kyc_detail.client_id,
+          GlobalConstant::Admin.open_case_request_outcome_notification_type
+      )
+      current_admin = Admin.get_from_memcache(@edit_kyc_request.admin_id).email
+
+      admin_emails_for_notification << current_admin.email if current_admin.status == GlobalConstant::Admin.active_status
+      admin_emails_for_notification.uniq!
+
+      admin_emails_for_notification.each do |email_id|
+        Email::HookCreator::SendTransactionalMail.new(
+            client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+            email: email_id,
+            template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
+            template_vars: {success: is_success.to_i, email: user_email, reason_failure: "UnWhitelist Transaction has failed"}
+        ).perform
+      end
 
       # Send internal email in case of failure
       unless is_success

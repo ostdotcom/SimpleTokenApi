@@ -115,6 +115,18 @@ class UserKycDetail
             qualify_types_array.exclude?(GlobalConstant::UserKycDetail.manually_approved_qualify_type)
       end
 
+      # Check if manual review needed email needs to be sent
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @returns [Boolean] returns True/False
+      #
+      def send_manual_review_needed_email?
+        !case_closed? && admin_action_types_array.blank?
+      end
+
       # Array of Qualify types
       #
       # * Author: Aman

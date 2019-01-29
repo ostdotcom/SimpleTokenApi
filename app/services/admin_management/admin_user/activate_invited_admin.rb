@@ -200,7 +200,8 @@ module AdminManagement
 
         @admin.password = encrypted_password
         @admin.admin_secret_id = admin_secret_obj.id
-        @admin.status = GlobalConstant::Admin.active_status
+        @admin.status =  GlobalConstant::Admin.active_status
+        @admin.set_default_notification_types
         @admin.save!(validate: false)
 
         success

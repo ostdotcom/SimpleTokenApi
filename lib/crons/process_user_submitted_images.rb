@@ -59,7 +59,7 @@ module Crons
           success
         rescue => e
           update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unexpected_reason, GlobalConstant::ImageProcessing.failed_image_process_status)
-
+          send_manual_review_needed_email
           ApplicationMailer.notify(
               body: e.backtrace,
               data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
@@ -78,6 +78,25 @@ module Crons
     end
 
     private
+
+    # Send Manual review needed email to admins
+    #
+    # * Author: Aman
+    # * Date: 24/01/2019
+    # * Reviewed By:
+    #
+    def send_manual_review_needed_email
+      return if @user_kyc_comparison_detail.blank?
+      user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
+                                             user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
+                                             status: GlobalConstant::UserKycDetail.active_status).first
+
+      return if !user_kyc_detail.send_manual_review_needed_email?
+
+      GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
+                                                            {template_variables: {}})
+
+    end
 
     # Fetch records on which image processing is not yet performed
     #

@@ -57,6 +57,7 @@ class ReprocessKycAutoApproveJob < ApplicationJob
         AutoApproveUpdateJob,
         {
             client_id: @client_id,
+            reprocess: 1,
             user_extended_details_id: user_extended_details_id
         }
     )

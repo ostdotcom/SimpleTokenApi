@@ -1,4 +1,4 @@
-class AmlMatch < EstablishOstKycAmlDbConnection
+class AmlMatch
 
   module Methods
     extend ActiveSupport::Concern

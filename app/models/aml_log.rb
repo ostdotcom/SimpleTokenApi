@@ -1,4 +1,4 @@
-class AmlLog < EstablishOstKycAmlDbConnection
+class AmlLog
 
   module Methods
     extend ActiveSupport::Concern

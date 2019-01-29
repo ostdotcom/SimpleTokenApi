@@ -1,4 +1,4 @@
-class AmlSearch < EstablishOstKycAmlDbConnection
+class AmlSearch
 
   module Methods
     extend ActiveSupport::Concern

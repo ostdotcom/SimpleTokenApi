@@ -198,10 +198,10 @@ module GlobalConstant
         )
 
         admin_emails.each do |admin_email|
-          Email::HookCreator::SendTransactionalMail.new(
-              client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+          ::Email::HookCreator::SendTransactionalMail.new(
+              client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
               email: admin_email,
-              template_name: GlobalConstant::PepoCampaigns.manual_review_needed_template,
+              template_name: ::GlobalConstant::PepoCampaigns.manual_review_needed_template,
               template_vars: params[:template_variables]
           ).perform
 

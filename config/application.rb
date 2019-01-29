@@ -71,13 +71,19 @@ module SimpleTokenApi
     #config.action_mailer.deliver_later_queue_name = 'sta_med_email_notification'
 
     config.to_prepare do
+      puts "Reloading application config"
       GlobalConstant::Shard.load_config
 
-      Dir["db/sql_shard_migration/base.rb", "db/sql_shard_migration/[0-9]*_*.rb"].each do |seed|
-        load seed
+      module_name = "sql_shard_migration"
+      puts "loading module_name -#{module_name}"
+
+      Dir["db/#{module_name}/base.rb", "db/#{module_name}/[0-9]*_*.rb"].each do |file_path|
+        basename = File.basename(file_path, '.rb').gsub(/([0-9]+_)/,'')
+        class_name = "#{module_name}/#{basename}".camelize
+        puts "class_name-#{class_name}"
+        Module.const_get(class_name) rescue  load file_path
       end
     end
-
 
   end
 

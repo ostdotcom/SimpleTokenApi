@@ -481,7 +481,7 @@ module Crons
             GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) &&
             !@user_kyc_detail.send_manual_review_needed_email?
 
-        GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
+        GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_detail.client_id,
                                                               {template_variables: {}})
       end
 

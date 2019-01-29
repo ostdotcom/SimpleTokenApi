@@ -53,6 +53,8 @@ module Crons
             r = mark_processed
             return r unless r.success?
 
+            send_manual_review_needed_email
+
             success
           rescue => e
             r = error_with_identifier('internal_server_error', 'c_ap_s_p_1',
@@ -487,8 +489,8 @@ module Crons
             GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) &&
             !@user_kyc_detail.send_manual_review_needed_email?
 
-        return if GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
-                                                                        {template_variables: {}})
+        GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
+                                                              {template_variables: {}})
       end
 
       # Lock Id for table

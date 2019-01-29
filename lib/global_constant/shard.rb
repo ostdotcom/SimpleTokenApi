@@ -10,7 +10,7 @@ module GlobalConstant
     end
 
     def self.shards_to_process_for_crons
-      all_shard_identifiers - [primary_shard_identifier]
+      Rails.env.production? ?  [primary_shard_identifier] : all_shard_identifiers
     end
 
     def self.all_shard_identifiers
@@ -58,7 +58,8 @@ module GlobalConstant
       database_shard_type = model_config[:database_shard_type]
       shard_db_config = sql_shards_db_config[database_shard_type.to_sym][shard_identifier]
 
-      return base_model if model_config.blank? || shard_db_config.blank?
+
+      fail "Invalid request base_model: #{base_model} - shard_identifier: #{shard_identifier}" if model_config.blank? || shard_db_config.blank?
 
       class_name = "#{base_model}#{shard_db_config[:model_suffix].camelize}"
       c = def_class.const_get(class_name) rescue nil

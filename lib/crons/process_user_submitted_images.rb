@@ -15,7 +15,11 @@ module Crons
     def initialize(params)
       @shard_identifier = nil
       @cron_identifier = params[:cron_identifier].to_s
-      @shard_identifiers = params[:shard_identifiers].present? || GlobalConstant::Shard.shards_to_process_for_crons
+
+      @shard_identifiers = params[:shard_identifiers].present? ?
+                               params[:shard_identifiers] :
+                               GlobalConstant::Shard.shards_to_process_for_crons
+
       @user_kyc_comparison_detail = nil
       @decrypted_user_data = {}
       @zero_rotated_documents = {}
@@ -39,7 +43,7 @@ module Crons
         @shard_identifier = shard_identifier
         fetch_unprocessed_user_kyc_record
 
-        continue if @user_kyc_comparison_detail.nil?
+        next if @user_kyc_comparison_detail.nil?
 
         begin
           r = fetch_and_decrypt_user_data

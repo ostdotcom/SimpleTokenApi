@@ -13,7 +13,10 @@ module Crons
       # @return [Crons::AmlProcessors::Search]
       #
       def initialize(params)
-        @shard_identifiers = params[:shard_identifiers].present? || GlobalConstant::Shard.shards_to_process_for_crons
+        @shard_identifiers = params[:shard_identifiers].present? ?
+                                 params[:shard_identifiers] :
+                                 GlobalConstant::Shard.shards_to_process_for_crons
+
         @cron_identifier = params[:cron_identifier].to_s
 
         @aml_search_obj = nil
@@ -35,7 +38,7 @@ module Crons
           @shard_identifier = shard_identifier
 
           fetch_aml_search_obj
-          continue if @aml_search_obj.nil?
+          next if @aml_search_obj.nil?
 
           begin
             r = fetch_and_validate_user_data

@@ -278,16 +278,16 @@ module GlobalConstant
             "#{admin_action_types_key}" => {
                 "no_admin_action" => {admin_action_types: 0},
                 "#{data_mismatch_admin_action_type}" => ["(admin_action_types & ?) = ?",
-                                                         ::UserKycDetail.admin_action_types_config[data_mismatch_admin_action_type],
-                                                         ::UserKycDetail.admin_action_types_config[data_mismatch_admin_action_type]
+                                                         ::UserKycDetail.use_any_instance.admin_action_types_config[data_mismatch_admin_action_type],
+                                                         ::UserKycDetail.use_any_instance.admin_action_types_config[data_mismatch_admin_action_type]
                 ],
                 "#{document_issue_admin_action_type}" => ["(admin_action_types & ?) = ?",
-                                                          ::UserKycDetail.admin_action_types_config[document_issue_admin_action_type],
-                                                          ::UserKycDetail.admin_action_types_config[document_issue_admin_action_type]
+                                                          ::UserKycDetail.use_any_instance.admin_action_types_config[document_issue_admin_action_type],
+                                                          ::UserKycDetail.use_any_instance.admin_action_types_config[document_issue_admin_action_type]
                 ],
                 "#{other_issue_admin_action_type}" => ["(admin_action_types & ?) = ?",
-                                                       ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type],
-                                                       ::UserKycDetail.admin_action_types_config[other_issue_admin_action_type]
+                                                       ::UserKycDetail.use_any_instance.admin_action_types_config[other_issue_admin_action_type],
+                                                       ::UserKycDetail.use_any_instance.admin_action_types_config[other_issue_admin_action_type]
                 ]
             }
         }

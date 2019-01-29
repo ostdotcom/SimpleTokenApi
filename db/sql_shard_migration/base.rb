@@ -1,5 +1,5 @@
 module SqlShardMigration
-  class Base < DbMigrationConnection
+  class Base < ::DbMigrationConnection
 
     def initialize(params)
       @shard_identifier = params[:shard_identifier]

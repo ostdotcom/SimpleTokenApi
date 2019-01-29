@@ -67,7 +67,7 @@ module Crons
         next if ClientPlan.notification_types[client_plan.notification_type].to_i >= ClientPlan.notification_types[notification_type]
         next if client_usage_obj.kyc_submissions_count < ((client_plan.kyc_submissions_count * threshold_percent) / 100.0)
         client = Client.get_from_memcache(client_plan.client_id)
-        send_report_email(template_variables.merge(client_name: client.name, threshold_percent: threshold_percent))
+        send_report_email(client_plan.client_id, template_variables.merge(client_name: client.name, threshold_percent: threshold_percent))
         client_plan.notification_type = notification_type
       end
 
@@ -80,9 +80,9 @@ module Crons
     # * Date: 18/09/2018
     # * Reviewed By:
     #
-    def send_report_email(template_variables)
+    def send_report_email(client_id, template_variables)
      admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
-          client_plan.client_id,
+          client_id,
           GlobalConstant::Admin.billing_plan_notification_notification_type
       )
 

@@ -72,7 +72,12 @@ module SimpleTokenApi
 
     config.to_prepare do
       GlobalConstant::Shard.load_config
+
+      Dir["db/sql_shard_migration/base.rb", "db/sql_shard_migration/[0-9]*_*.rb"].each do |seed|
+        load seed
+      end
     end
+
 
   end
 

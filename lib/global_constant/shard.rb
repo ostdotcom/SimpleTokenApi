@@ -13,11 +13,6 @@ module GlobalConstant
       all_shard_identifiers - [primary_shard_identifier]
     end
 
-
-    # def self.shard_id(shard_identifier)
-    #   shard_config[shard_identifier][:id]
-    # end
-
     def self.all_shard_identifiers
       @all_shard_identifiers ||= shard_config.keys
     end

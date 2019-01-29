@@ -5,8 +5,6 @@ class AmlSearch
 
     included do
 
-      MAX_RETRY_COUNT = 1
-
       enum status: {
           GlobalConstant::AmlSearch.unprocessed_status => 1,
           GlobalConstant::AmlSearch.processed_status => 2,
@@ -16,7 +14,7 @@ class AmlSearch
 
       scope :to_be_processed, -> {where(status: [GlobalConstant::AmlSearch.unprocessed_status,
                                                  GlobalConstant::AmlSearch.failed_status]).
-          where('retry_count <= ?', MAX_RETRY_COUNT)}
+          where('retry_count <= ?', 1)}
 
       after_commit :memcache_flush
 

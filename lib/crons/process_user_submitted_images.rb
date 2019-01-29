@@ -141,6 +141,7 @@ module Crons
     # * Reviewed By:
     #
     def update_user_comparison_record(failed_reason, image_processing_status)
+      # insert to dynamo
       @user_kyc_comparison_detail.auto_approve_failed_reasons = @user_kyc_comparison_detail.send("set_#{failed_reason}") if failed_reason.present?
       @user_kyc_comparison_detail.image_processing_status = image_processing_status if image_processing_status.present?
       @user_kyc_comparison_detail.save!

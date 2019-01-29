@@ -285,7 +285,7 @@ module AdminManagement
               face_match_percent: [@user_kyc_comparison_detail.big_face_match_percent,
                                    @user_kyc_comparison_detail.small_face_match_percent].min
           }
-
+          # put_item to dynamo
           if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
             automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
 

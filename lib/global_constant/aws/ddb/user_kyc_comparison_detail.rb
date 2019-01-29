@@ -1,7 +1,7 @@
 module GlobalConstant
   module Aws
     module Ddb
-      class UserKycComparisonDetails
+      class UserKycComparisonDetail
         class << self
 
 
@@ -18,8 +18,20 @@ module GlobalConstant
                 },
                 d_id_n_mp: {
                     keys: [:document_id_number_match_percent]
+                },
+                k_1: {
+                    keys: [:key_1]
+                },
+                k_2: {
+                    keys: [:key_2]
+                },
+                k_3: {
+                    keys: [:key_3]
+                },
+                p2: {
+                    keys: [:param_2]
                 }
-            }
+            }.with_indifferent_access
           end
 
           def partition_keys

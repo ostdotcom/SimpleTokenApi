@@ -15,6 +15,10 @@ module GlobalConstant
       @aws ||= fetch_config.fetch('aws', {}).with_indifferent_access
     end
 
+    def self.dynamo_db
+      @dynamo_db ||= fetch_config.fetch('dynamo_db', {}).with_indifferent_access
+    end
+
     def self.pepo_campaigns_config
       @pepo_campaigns_config ||= fetch_config.fetch('pepo_campaigns', {}).with_indifferent_access
     end

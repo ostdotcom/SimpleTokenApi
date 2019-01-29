@@ -57,11 +57,19 @@ namespace :onetimer do
         countries_present_in_blacklisted_countries[country]=  row.client_id if blacklisted_countries.include?(country)
       end
 
-      # todo shard support
-      hashed_db_country = Md5UserExtendedDetail.get_hashed_value(country)
-      user_extended_detail_ids = Md5UserExtendedDetail.where(country: hashed_db_country).pluck(:user_extended_detail_id)
-      puts "The country #{country} is present in our DB." if user_extended_detail_ids.present?
-      countries_present_in_db[country]=  user_extended_detail_ids.length if user_extended_detail_ids.present?
+      GlobalConstant::Shard.all_shard_identifiers.each do |shard_identifier|
+
+        hashed_db_country = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).get_hashed_value(country)
+        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            where(country: hashed_db_country).pluck(:user_extended_detail_id)
+
+        if user_extended_detail_ids.present?
+          puts "The country #{country} is present in our DB."
+          countries_present_in_db[country] ||= 0
+          countries_present_in_db[country] +=  user_extended_detail_ids.length
+        end
+
+      end
     end
 
     nationality_array.each do |nationality|
@@ -70,12 +78,23 @@ namespace :onetimer do
         nationality_present_in_residency_proof_nationalities[nationality]=  row.client_id if residency_proof_nationalities.include?(nationality)
       end
 
-      hashed_db_nationality = Md5UserExtendedDetail.get_hashed_value(nationality)
-      user_extended_detail_ids = Md5UserExtendedDetail.where(country: hashed_db_nationality).pluck(:user_extended_detail_id)
-      puts "The nationality #{nationality} is present in our DB." if user_extended_detail_ids.present?
-      nationality_present_in_db[nationality]=  user_extended_detail_ids.length if user_extended_detail_ids.present?
-    end
+      GlobalConstant::Shard.all_shard_identifiers.each do |shard_identifier|
 
+        hashed_db_nationality = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            get_hashed_value(nationality)
+
+        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            where(country: hashed_db_nationality).pluck(:user_extended_detail_id)
+
+        if user_extended_detail_ids.present?
+          puts "The nationality #{nationality} is present in our DB."
+          nationality_present_in_db[nationality] ||= 0
+          nationality_present_in_db[nationality] +=  user_extended_detail_ids.length
+        end
+
+      end
+
+    end
 
 
     puts nationality_present_in_db

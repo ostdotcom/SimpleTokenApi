@@ -96,21 +96,21 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_and_decrypt_user_data
-      user_extended_detail = UserExtendedDetail.where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
+      @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
 
-      r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
+      r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
       kyc_salt_d = r.data[:plaintext]
       get_local_cipher_object(kyc_salt_d)
 
-      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
+      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
 
-      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
+      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
 
       ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
         if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name.to_s)
-          @decrypted_user_data[field_name.to_sym] = user_extended_detail[field_name]
+          @decrypted_user_data[field_name.to_sym] = @user_extended_detail[field_name]
         else
-          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(user_extended_detail[field_name]).data[:plaintext]
+          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(@user_extended_detail[field_name]).data[:plaintext]
         end
       end
 
@@ -142,9 +142,22 @@ module Crons
     #
     def update_user_comparison_record(failed_reason, image_processing_status)
       # insert to dynamo
+      @user_kyc_details = UserKycDetail.get_from_memcache(@user_extended_detail.user_id)
       @user_kyc_comparison_detail.auto_approve_failed_reasons = @user_kyc_comparison_detail.send("set_#{failed_reason}") if failed_reason.present?
       @user_kyc_comparison_detail.image_processing_status = image_processing_status if image_processing_status.present?
-      @user_kyc_comparison_detail.save!
+
+
+      attributes = convert_ts_format(@user_kyc_comparison_detail.attributes)
+      r = Ddb::UserKycComparisonDetail.new({shard_id: @user_kyc_details.shard_identifier},
+                                       {use_column_mapping: true})
+          .put_item(item: attributes)
+      @user_kyc_comparison_detail.save! unless r.success?
+    end
+
+    def convert_ts_format(item)
+      item["updated_at"] = item["updated_at"].to_i if item["updated_at"].present?
+      item["created_at"] = item["created_at"].to_i if item["created_at"].present?
+      item
     end
 
     # Process document id image

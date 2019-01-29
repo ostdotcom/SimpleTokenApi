@@ -86,7 +86,7 @@ export VISION_KEYFILE_JSON='{
 '
 export VISION_PROJECT_ID="ost-kyc-ocr"
 
-export APP_SHARED_DIRECTORY="/Users/pankaj/simpleTokenWorkspace"
+export APP_SHARED_DIRECTORY="~/Downloads"
 
 export ADDENDUM_CLIENT_IDS='[]'
 

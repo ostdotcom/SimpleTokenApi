@@ -702,7 +702,10 @@ module AdminManagement
       # Sets @user_kyc_comparison_detail
       #
       def fetch_user_kyc_comparison_detail
-        @user_kyc_comparison_detail = UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
+        @user_kyc_comparison_detail = r = Ddb::UserKycComparisonDetail.new({shard_id: @user_kyc_detail.shard_identifier},
+                                                                           {use_column_mapping: true})
+                                              .get_item(key: {user_extended_detail_id: @user_extended_detail.id})
+          #UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
       end
 
     end

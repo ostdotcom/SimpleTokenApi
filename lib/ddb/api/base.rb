@@ -5,7 +5,9 @@ module Ddb
       include Util::ResultHelper
 
       def initialize(params)
-        @params = params
+        @params = params[:params]
+        @retry_count = params[:retry_count]
+        @current_retry_count = 0
       end
 
       def ddb_client

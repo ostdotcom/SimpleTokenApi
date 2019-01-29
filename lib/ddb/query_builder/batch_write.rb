@@ -1,25 +1,22 @@
 module Ddb
   module QueryBuilder
-    class PutItem < Base
+    class BatchWrite < Base
       def initialize(params)
         super
-
-
-
       end
 
       def perform
-
         r = validate
         return r unless r.success?
+        request_items = {}
+        request_items[@table_info[:name]] = @params
         success_with_data ({
-            item: @params[:item],
-            table_name: @table_info[:name]
+            request_items: request_items
         })
-
       end
 
       def validate
+        return success
         r = validate_for_keys(:partition_keys)
         return r unless r.success?
 

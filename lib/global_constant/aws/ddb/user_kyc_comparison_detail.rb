@@ -4,38 +4,70 @@ module GlobalConstant
       class UserKycComparisonDetail
         class << self
 
-
           def merged_columns
             {
-                uedi_lt: {
-                    keys:  [:user_extended_details_id, :log_type]
+                u_e_d_i: {
+                    keys:  [:user_extended_detail_id]
                 },
-                lt: {
-                    keys: [:log_type]
+                c_i: {
+                    keys: [:client_id]
                 },
-                ts: {
-                    keys: [:timestamp]
+                l_i: {
+                    keys: [:lock_id]
                 },
-                d_id_n_mp: {
+                d_d: {
+                    keys: [:document_dimensions]
+                },
+                s_d: {
+                    keys: [:selfie_dimensions]
+                },
+                f_n_m_p: {
+                    keys: [:first_name_match_percent]
+                },
+                l_n_m_p: {
+                    keys: [:last_name_match_percent]
+                },
+                b_d_m_p: {
+                keys: [:birthdate_match_percent]
+                },
+                d_i_n_m_p: {
                     keys: [:document_id_number_match_percent]
                 },
-                k_1: {
-                    keys: [:key_1]
+                n_m_p: {
+                    keys: [:nationality_match_percent]
                 },
-                k_2: {
-                    keys: [:key_2]
+                b_f_m_p: {
+                    keys: [:big_face_match_percent]
                 },
-                k_3: {
-                    keys: [:key_3]
+                s_f_m_p: {
+                    keys: [:small_face_match_percent]
                 },
-                p2: {
-                    keys: [:param_2]
+                s_h_l_p: {
+                    keys: [:selfie_human_labels_percent]
+                },
+                i_p_s: {
+                    keys: [:image_processing_status]
+                },
+                k_a_a_s: {
+                    keys: [:kyc_auto_approved_status]
+                },
+                a_a_f_r: {
+                    keys: [:auto_approve_failed_reasons]
+                },
+                c_k_p_s_i: {
+                    keys: [:client_kyc_pass_settings_id]
+                },
+                c_a: {
+                    keys: [:create_at]
+                },
+                u_a: {
+                    keys: [:updated_at]
                 }
             }.with_indifferent_access
           end
 
           def partition_keys
-            [:user_extended_details_id, :log_type]
+            [:user_extended_detail_id]
           end
 
           def sort_keys
@@ -43,12 +75,12 @@ module GlobalConstant
           end
 
           def indexes
-            {
-                index_name: {
-                    partition_key: [],
-                    sort_key: []
-                }
-            }
+             {
+            #     index_name: {
+            #         partition_key: [],
+            #         sort_key: []
+            #     }
+             }
           end
 
         end

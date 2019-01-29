@@ -9,9 +9,10 @@ module Ddb
 
       def query(query)
         query = use_column_mapping? ? query_params_mapping(query) : query
-        r = Ddb::QueryBuilder::Query.new({params: query, table_info: table_info }).perform
+        r = Ddb::QueryBuilder::Query.new({params: query, table_info: table_info}).perform
         return r unless r.success?
         ddb_r = Ddb::Api::Query.new(r.data).perform
+        return ddb_r unless ddb_r.success?
         ddb_r[:items] = parse_response_array(ddb_r.data[:items])
         success_with_data(data: ddb_r)
       end
@@ -33,7 +34,9 @@ module Ddb
         item = update_params_mapping(item)
         r = Ddb::QueryBuilder::UpdateItem.new({params: item, table_info: table_info}).perform
         return r unless r.success?
-        Ddb::Api::UpdateItem.new(r.data).perform
+        ddb_r = Ddb::Api::UpdateItem.new(r.data).perform
+        ddb_r unless ddb_r.success?
+        success_with_data(data: ddb_r)
       end
 
 
@@ -47,7 +50,7 @@ module Ddb
           end if item[operation].present?
         end
         item[:remove].each do |remove_item|
-          remove_list <<   get_short_key_name([remove_item])
+          remove_list << get_short_key_name([remove_item])
         end if item[:remove].present?
         item[:remove] = remove_list
         item
@@ -57,7 +60,8 @@ module Ddb
         item[:item] = use_column_mapping? ? params_mapping(item[:item]) : item[:item]
         r = Ddb::QueryBuilder::PutItem.new({params: item, table_info: table_info}).perform
         return r unless r.success?
-        ddb_r = Ddb::Api::PutItem.new(r.data).perform
+        ddb_r = Ddb::Api::PutItem.new(params: r.data, retry_count: 3).perform
+        ddb_r unless ddb_r.success?
         success_with_data(data: ddb_r)
       end
 
@@ -83,11 +87,22 @@ module Ddb
         success_with_data(data: ddb_r.data)
       end
 
+      def batch_write(items)
+        items.each_with_index do |item, index|
+          items[index][:put_request][:item] = params_mapping(item[:put_request][:item])
+        end
+        r = Ddb::QueryBuilder::BatchWrite.new({params: items, table_info: table_info}).perform
+        ddb_r = Ddb::Api::BatchWrite.new(r.data).perform
+        return ddb_r unless ddb_r.success?
+        success
+      end
+
 
       def params_mapping(item)
         s_n_h = {}
+        item.deep_symbolize_keys!
         table_info[:merged_columns].each do |short_name, columns_info|
-          if  item.values_at(*columns_info[:keys]).all?{ |e| e.present? } # => true
+          if item.values_at(*columns_info[:keys]).all? {|e| e.present?} # => true
             s_n_h[short_name] = columns_info[:keys].length == 1 ? item[columns_info[:keys][0]] :
                                     item.values_at(*columns_info[:keys]).compact.join(table_info[:delimiter])
           end
@@ -96,11 +111,12 @@ module Ddb
       end
 
 
-      def scan(query={})
+      def scan(query = {})
         query = use_column_mapping? ? query_params_mapping(query) : query
         r = Ddb::QueryBuilder::Scan.new({params: query, table_info: table_info}).perform
         return r unless r.success?
         ddb_r = Ddb::Api::Scan.new(r.data).perform
+        return ddb_r unless ddb_r.success?
         ddb_r[:items] = parse_response_array(ddb_r.data[:items])
         success_with_data(data: ddb_r)
       end
@@ -116,17 +132,17 @@ module Ddb
       def parse_response(r)
         res = {}
         r.each do |k, v|
-          v = v.class == String ? v.split(table_info[:delimiter]): v
+          v = v.class == String ? v.split(table_info[:delimiter]) : v
           table_info[:merged_columns][k][:keys].each_with_index do |long_name, index|
-            res[long_name] = v.class == Array ?  v[index] : v
+            res[long_name] = v.class == Array ? v[index] : v
           end
         end
         res
       end
 
       def get_short_key_name(condition)
-      table_info[:merged_columns].
-          select {|_, v| v[:keys].sort == condition.sort}.keys.first
+        table_info[:merged_columns].
+            select {|_, v| v[:keys].sort == condition.sort}.keys.first
       end
 
 
@@ -139,9 +155,6 @@ module Ddb
 
       def raw_table_name
         self.table_info[:raw_name]
-      end
-
-      def parse_response(r)
       end
 
     end

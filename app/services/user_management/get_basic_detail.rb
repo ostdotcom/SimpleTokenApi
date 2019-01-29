@@ -185,7 +185,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user
-      @user = User.get_from_memcache(@user_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
       @user_token_sale_state = @user.get_token_sale_state_page_name
     end
 

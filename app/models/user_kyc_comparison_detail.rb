@@ -38,13 +38,14 @@ class UserKycComparisonDetail
         Memcache.delete(ukcd_memcache_key)
       end
 
+      # Note : always include this after declaring bit_wise_columns_config method
+      include BitWiseConcern
     end
-
 
 
     module ClassMethods
 
-      def self.auto_approve_failed_reasons_config
+      def auto_approve_failed_reasons_config
         @auto_approve_failed_reasons_config ||= {
             GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 1,
             GlobalConstant::KycAutoApproveFailedReason.document_file_invalid => 2,
@@ -59,10 +60,7 @@ class UserKycComparisonDetail
             GlobalConstant::KycAutoApproveFailedReason.case_closed_for_auto_approve => 512,
             GlobalConstant::KycAutoApproveFailedReason.human_labels_percentage_low => 1024
         }
-
       end
-
-
 
       # Bitwise columns config
       #
@@ -70,14 +68,11 @@ class UserKycComparisonDetail
       # * Date: 10/07/2018
       # * Reviewed By:
       #
-      def self.bit_wise_columns_config
+      def bit_wise_columns_config
         @b_w_c_c ||= {
             auto_approve_failed_reasons: auto_approve_failed_reasons_config
         }
       end
-
-      # Note : always include this after declaring bit_wise_columns_config method
-      include BitWiseConcern
 
 
       # Get Key Object
@@ -88,7 +83,7 @@ class UserKycComparisonDetail
       #
       # @return [MemcacheKey] Key Object
       #
-      def self.get_by_ued_memcache_key_object
+      def get_by_ued_memcache_key_object
         MemcacheKey.new('user.user_kyc_comparison_detail')
       end
 
@@ -102,8 +97,9 @@ class UserKycComparisonDetail
       #
       # @return [AR] UserKycComparisonDetail object
       #
-      def self.get_by_ued_from_memcache(user_extended_detail_id)
-        memcache_key_object = UserKycComparisonDetail.get_by_ued_memcache_key_object
+      def get_by_ued_from_memcache(user_extended_detail_id)
+        memcache_key_object = self.get_by_ued_memcache_key_object
+
         Memcache.get_set_memcached(memcache_key_object.key_template % {
             user_extended_detail_id: user_extended_detail_id,
             shard_identifier: self.shard_identifier

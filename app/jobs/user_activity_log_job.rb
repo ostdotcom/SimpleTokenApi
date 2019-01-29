@@ -27,7 +27,7 @@ class UserActivityLogJob < ApplicationJob
   # * Reviewed By: Sunil
   #
   def init_params(params)
-    @client_id = @params[:client_id]
+    @client_id = params[:client_id]
     @user_id = params[:user_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]

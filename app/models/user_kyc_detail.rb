@@ -151,7 +151,6 @@ class UserKycDetail
         qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
       end
 
-
       def is_re_submitted?
         submission_count.to_i > 1 ? 1 : 0
       end
@@ -277,9 +276,6 @@ class UserKycDetail
         end
         admin.present? ? admin.get_hash : {}
       end
-
-      private
-
 
       # Flush Memcache
       #

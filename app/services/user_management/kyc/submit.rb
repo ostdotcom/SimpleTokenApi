@@ -592,7 +592,8 @@ module UserManagement
 
         data_to_md5.each do |key, value|
           next if value.blank?
-          md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.get_hashed_value(value)
+          md5_user_extended_details_params[key.to_sym] = Md5UserExtendedDetail.using_client_shard(client: @client).
+              get_hashed_value(value)
         end
 
         @user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).create!(user_extended_details_params)

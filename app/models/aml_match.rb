@@ -64,15 +64,14 @@ class AmlMatch
       #
       # @return [AR] AmlSearch object
       #
-      def self.get_from_memcache(aml_search_uuid)
+      def get_from_memcache(aml_search_uuid)
         memcache_key_object = self.get_memcache_key_object
         Memcache.get_set_memcached(memcache_key_object.key_template % {
             shard_identifier: self.shard_identifier,
             aml_search_uuid: aml_search_uuid
         },
                                    memcache_key_object.expiry) do
-          AmlMatch.using_shard(shard_identifier: self.shard_identifier).
-              where(aml_search_uuid: aml_search_uuid).order(:id).all
+          self.where(aml_search_uuid: aml_search_uuid).order(:id).all
         end
       end
 

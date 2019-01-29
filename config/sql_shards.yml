@@ -46,6 +46,9 @@ sql_shard_config:
         'EditKycRequest':
           table: 'edit_kyc_requests'
 
+        'ImageProcessingLog':
+          table: 'image_processing_logs'
+
       aml:
         'AmlSearch':
           table: 'aml_searches'

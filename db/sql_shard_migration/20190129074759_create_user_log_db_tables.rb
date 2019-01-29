@@ -72,6 +72,17 @@ module SqlShardMigration
 
         add_index :edit_kyc_requests, [:case_id, :status], unique: false, name: 'case_id_status'
 
+
+        create_table :image_processing_logs do |t|
+          t.column :user_kyc_comparison_detail_id, :bigint, null: false
+          t.column :service_used, :tinyint, limit: 2, null: false
+          t.column :input_params, :text, null: false
+          t.column :debug_data, :mediumblob, null: true
+          t.timestamps
+        end
+
+        add_index :image_processing_logs, :user_kyc_comparison_detail_id, name: 'user_kyc_comparison_detail_indx'
+
       end
     end
 
@@ -83,6 +94,7 @@ module SqlShardMigration
         drop_table :user_activity_logs
         drop_table :user_kyc_duplication_logs
         drop_table :edit_kyc_requests
+        drop_table :image_processing_logs
 
       end
     end

@@ -1,4 +1,4 @@
-class ImageProcessingLog < EstablishSimpleTokenLogDbConnection
+class ImageProcessingLog
 
 
   module Methods

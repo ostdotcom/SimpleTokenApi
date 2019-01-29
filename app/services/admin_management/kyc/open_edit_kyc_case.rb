@@ -23,7 +23,7 @@ module AdminManagement
         @client = @params[:client]
         @case_id = @params[:id]
 
-        @client_id = @params[:client_id]
+        @client_id = @client.id
 
         @user_kyc_detail = nil
       end

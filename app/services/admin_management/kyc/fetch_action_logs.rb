@@ -27,7 +27,7 @@ module AdminManagement
         @page_number = @params[:page_number].to_i
         @page_size = @params[:page_size].to_i
 
-        @client_id = @params[:client_id]
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @logs_ars = nil

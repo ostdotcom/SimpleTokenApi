@@ -48,7 +48,7 @@ class UserExtendedDetail
           where_clause_values << hashed_ethereurm_address
         end
 
-        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: self.shard_identifier)
+        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: self.shard_identifier).
             where([where_clause] + where_clause_values).
             pluck(:user_extended_detail_id)
 

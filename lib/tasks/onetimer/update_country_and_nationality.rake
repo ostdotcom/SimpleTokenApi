@@ -78,6 +78,7 @@ namespace :onetimer do
     update_country_hash.each do |old_country, new_country|
 
       puts "updating country-#{old_country}"
+      # todo shard support
 
       hashed_db_country = Md5UserExtendedDetail.get_hashed_value(old_country)
       user_extended_detail_ids = Md5UserExtendedDetail.where(country: hashed_db_country).pluck(:user_extended_detail_id)

@@ -151,7 +151,7 @@ module GlobalConstant
     def self.generate_md5_map_for(arr_list)
       md5_map = {}
       arr_list.each do |value|
-        md5_value = Md5UserExtendedDetail.get_hashed_value(value)
+        md5_value = Md5UserExtendedDetail.use_any_instance.get_hashed_value(value)
         md5_map[md5_value] = value
       end
       md5_map

@@ -57,6 +57,7 @@ namespace :onetimer do
         countries_present_in_blacklisted_countries[country]=  row.client_id if blacklisted_countries.include?(country)
       end
 
+      # todo shard support
       hashed_db_country = Md5UserExtendedDetail.get_hashed_value(country)
       user_extended_detail_ids = Md5UserExtendedDetail.where(country: hashed_db_country).pluck(:user_extended_detail_id)
       puts "The country #{country} is present in our DB." if user_extended_detail_ids.present?

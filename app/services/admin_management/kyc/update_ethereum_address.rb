@@ -25,7 +25,7 @@ module AdminManagement
         @case_id = @params[:id]
         @new_ethereum_address = @params[:ethereum_address]
 
-        @client_id = @params[:client_id]
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @user_extended_details = nil

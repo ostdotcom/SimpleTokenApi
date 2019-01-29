@@ -27,7 +27,7 @@ module AdminManagement
         @filters = @params[:filters]
         @sortings = @params[:sortings]
 
-        @client_id = @params[:client_id]
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @user = nil

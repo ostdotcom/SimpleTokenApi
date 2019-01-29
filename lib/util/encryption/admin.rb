@@ -21,7 +21,7 @@ module Util
         decryptor_obj = LocalCipher.new(kyc_salt_d)
         r = decryptor_obj.decrypt(ciphertext_blob)
         fail "local cipher decryption of string failed for salt- #{kyc_salt_e}, string-#{ciphertext_blob}" unless r.success?
-        Md5UserExtendedDetail.get_hashed_value(r.data[:plaintext])
+        Md5UserExtendedDetail.use_any_instance.get_hashed_value(r.data[:plaintext])
       end
 
       # Generate md5

@@ -24,7 +24,7 @@ module AdminManagement
         @email = @params[:email]
 
         @page_size = 10
-        @client_id = @params[:client_id]
+        @client_id = @client.id
 
         @user_ids = []
         @matching_users = {}

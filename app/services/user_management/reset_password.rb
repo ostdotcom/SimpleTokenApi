@@ -228,7 +228,7 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def update_password
-      @user.password = User.get_encrypted_password(@password, @login_salt_d)
+      @user.password = User.using_client_shard(client: @client).get_encrypted_password(@password, @login_salt_d)
       @user.save!
     end
 

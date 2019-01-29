@@ -42,7 +42,7 @@ class DeleteDuplicateLogs < ApplicationJob
   # @return [DeleteDuplicates]
   #
   def init_params(params)
-    @client_id = @params[:client_id]
+    @client_id = params[:client_id]
     @user_id = params[:user_id]
     @event = params[:event]
 

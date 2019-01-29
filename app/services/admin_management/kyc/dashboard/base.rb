@@ -33,7 +33,7 @@ module AdminManagement
           @page_number = @params[:page_number].to_i
           @page_size =  @params[:page_size].to_i
 
-          @client_id = @params[:client_id]
+          @client_id = @client.id
 
           @duplicate_user_extended_detail_ids, @email_duplicate_user_extended_detail_ids, @duplicate_kyc_type_data = [], [], {}
           @duplicate_user_ids = []

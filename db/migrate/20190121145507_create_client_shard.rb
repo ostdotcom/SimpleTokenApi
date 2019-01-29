@@ -10,6 +10,11 @@ class CreateClientShard < DbMigrationConnection
 
       add_index :client_shards, [:client_id], unique: true, name: 'uniq_client_id'
     end
+
+    Client.all.each do |client|
+      ClientShard.create!(client_id: client.id, shard_identifier: GlobalConstant::Shard.primary_shard_identifier.to_s)
+    end
+
   end
 
   def down

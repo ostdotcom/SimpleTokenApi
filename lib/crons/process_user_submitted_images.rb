@@ -91,7 +91,8 @@ module Crons
     #
     def send_manual_review_needed_email
       return if @user_kyc_comparison_detail.blank?
-      user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
+      user_kyc_detail = UserKycDetail.using_shard(shard_identifier: @shard_identifier).
+          where(client_id: @user_kyc_comparison_detail.client_id,
                                              user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
                                              status: GlobalConstant::UserKycDetail.active_status).first
 

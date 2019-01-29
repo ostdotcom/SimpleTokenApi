@@ -139,7 +139,8 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.investor_proof)
     end
 
-    if UserExtendedDetail.is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id, @user_extended_detail_id)
+    if UserExtendedDetail.using_client_shard(client: @client).
+        is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id, @user_extended_detail_id)
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc)
     end
 

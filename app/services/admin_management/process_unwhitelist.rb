@@ -169,7 +169,7 @@ module AdminManagement
           @user_kyc_detail.client_id,
           GlobalConstant::Admin.open_case_request_outcome_notification_type
       )
-      current_admin = Admin.get_from_memcache(@edit_kyc_request.admin_id).email
+      current_admin = Admin.get_from_memcache(@edit_kyc_request.admin_id)
 
       admin_emails_for_notification << current_admin.email if current_admin.status == GlobalConstant::Admin.active_status
       admin_emails_for_notification.uniq!

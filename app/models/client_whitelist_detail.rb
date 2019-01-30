@@ -56,7 +56,7 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
 
     admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
         self.client_id,
-        GlobalConstant::Admin.low_balance_whitelisting_suspended_notification_type
+        GlobalConstant::Admin.whitelisting_balance_alert_notification_type
     )
 
     admin_emails.each do |admin_email|

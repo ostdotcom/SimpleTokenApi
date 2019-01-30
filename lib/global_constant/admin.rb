@@ -69,25 +69,20 @@ module GlobalConstant
                 super_admin_mandatory: true,
                 bitwise_value: 2
             },
-            "#{low_whitelister_balance_notification_type}" => {
-                display_text: "LOW WHITELISTER BALANCE",
+            "#{whitelisting_balance_alert_notification_type}" => {
+                display_text: "WHITELISTING BALANCE ALERT",
                 super_admin_mandatory: true,
                 bitwise_value: 4
-            },
-            "#{low_balance_whitelisting_suspended_notification_type}" => {
-                display_text: "LOW BALANCE - WHITELISTING SUSPENDED",
-                super_admin_mandatory: true,
-                bitwise_value: 8
             },
             "#{open_case_request_outcome_notification_type}" => {
                 display_text: "REOPEN CASE RESULT",
                 super_admin_mandatory: false,
-                bitwise_value: 16
+                bitwise_value: 8
             },
             "#{contract_address_update_notification_type}" => {
                 display_text: "CONTRACT ADDRESS UPDATE",
                 super_admin_mandatory: true,
-                bitwise_value: 32
+                bitwise_value: 16
             }
         }.deep_symbolize_keys
       end
@@ -100,12 +95,8 @@ module GlobalConstant
         "billing_plan_notification"
       end
 
-      def low_whitelister_balance_notification_type
-        "low_whitelister_balance"
-      end
-
-      def low_balance_whitelisting_suspended_notification_type
-        "low_balance_whitelisting_suspended"
+      def whitelisting_balance_alert_notification_type
+        "whitelisting_balance_alert"
       end
 
       def open_case_request_outcome_notification_type
@@ -188,24 +179,6 @@ module GlobalConstant
 
       def latest_admin_terms_of_use
         @latest_admin_terms_of_use ||= admin_terms_of_use_hash[latest_admin_terms_of_use_version]
-      end
-
-
-      def send_manual_review_needed_email(client_id, params)
-        admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
-            client_id,
-            GlobalConstant::Admin.manual_review_needed_notification_type
-        )
-
-        admin_emails.each do |admin_email|
-          ::Email::HookCreator::SendTransactionalMail.new(
-              client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
-              email: admin_email,
-              template_name: ::GlobalConstant::PepoCampaigns.manual_review_needed_template,
-              template_vars: params[:template_variables]
-          ).perform
-
-        end
       end
 
     end

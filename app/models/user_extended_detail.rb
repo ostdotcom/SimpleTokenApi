@@ -13,6 +13,16 @@ class UserExtendedDetail
       # * Date: 27/09/2018
       # * Reviewed By:
       #
+      def get_full_name
+        (self.first_name + " " + self.last_name).capitalize
+      end
+
+      # Flush Memcache
+      #
+      # * Author: Tejas
+      # * Date: 27/09/2018
+      # * Reviewed By:
+      #
       def memcache_flush
         user_extended_detail_memcache_key = self.singleton_class.get_memcache_key_object.key_template % {
             id: self.id,

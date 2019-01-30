@@ -98,8 +98,31 @@ module Crons
 
       return if !user_kyc_detail.send_manual_review_needed_email?
 
-      GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_comparison_detail.client_id,
-                                                            {template_variables: {}})
+      client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_comparison_detail.client_id)
+
+      review_type = (client_kyc_pass_setting.approve_type != GlobalConstant::ClientKycPassSetting.auto_approve_type) ?
+                        GlobalConstant::PepoCampaigns.manual_review_type :
+                        GlobalConstant::PepoCampaigns.ocr_fr_failed_review_type
+
+      template_variables = {
+          case_id: user_kyc_detail.id,
+          full_name: @user_extended_detail.get_full_name,
+          review_type: review_type
+      }
+
+      admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+          @user_kyc_detail.client_id,
+          GlobalConstant::Admin.manual_review_needed_notification_type
+      )
+
+      admin_emails.each do |admin_email|
+        ::Email::HookCreator::SendTransactionalMail.new(
+            client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
+            email: admin_email,
+            template_name: ::GlobalConstant::PepoCampaigns.manual_review_needed_template,
+            template_vars: template_variables
+        ).perform
+      end
 
     end
 
@@ -131,22 +154,22 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_and_decrypt_user_data
-      user_extended_detail = UserExtendedDetail.using_shard(shard_identifier: @shard_identifier).
+      @user_extended_detail = UserExtendedDetail.using_shard(shard_identifier: @shard_identifier).
           where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
 
-      r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
+      r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
       kyc_salt_d = r.data[:plaintext]
       get_local_cipher_object(kyc_salt_d)
 
-      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
+      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
 
-      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
+      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
 
       ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
         if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name.to_s)
-          @decrypted_user_data[field_name.to_sym] = user_extended_detail[field_name]
+          @decrypted_user_data[field_name.to_sym] = @user_extended_detail[field_name]
         else
-          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(user_extended_detail[field_name]).data[:plaintext]
+          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(@user_extended_detail[field_name]).data[:plaintext]
         end
       end
 

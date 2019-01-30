@@ -12,7 +12,7 @@ class CreateClientShard < DbMigrationConnection
     end
 
     Client.all.each do |client|
-      ClientShard.create!(client_id: client.id, shard_identifier: GlobalConstant::Shard.primary_shard_identifier.to_s)
+      ClientShard.create!(client_id: client.id, shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier.to_s)
     end
 
   end

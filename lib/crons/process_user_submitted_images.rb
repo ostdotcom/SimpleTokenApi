@@ -18,7 +18,7 @@ module Crons
 
       @shard_identifiers = params[:shard_identifiers].present? ?
                                params[:shard_identifiers] :
-                               GlobalConstant::Shard.shards_to_process_for_crons
+                               GlobalConstant::SqlShard.shards_to_process_for_crons
 
       @user_kyc_comparison_detail = nil
       @decrypted_user_data = {}

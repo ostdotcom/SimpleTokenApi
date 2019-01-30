@@ -220,7 +220,7 @@ namespace :onetimer do
     puts "\tclient created"
 
 
-    ClientShard.create!(client_id: client_id, shard_identifier: GlobalConstant::Shard.primary_shard_identifier.to_s)
+    ClientShard.create!(client_id: client_id, shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier.to_s)
 
     super_admin_obj = nil
     super_admins.each do |super_admin|

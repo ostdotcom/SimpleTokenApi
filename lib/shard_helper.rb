@@ -6,7 +6,7 @@ module ShardHelper
 
   module ClassMethods
     def using_shard(params)
-      GlobalConstant::Shard.get_model(self, params)
+      GlobalConstant::SqlShard.get_model(self, params)
     end
 
     def using_client_shard(params)
@@ -14,8 +14,8 @@ module ShardHelper
     end
 
     def use_any_instance
-      params = {shard_identifier: GlobalConstant::Shard.primary_shard_identifier}
-      GlobalConstant::Shard.get_model(self, params)
+      params = {shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier}
+      GlobalConstant::SqlShard.get_model(self, params)
     end
 
   end

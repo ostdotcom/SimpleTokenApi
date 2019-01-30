@@ -57,7 +57,7 @@ namespace :onetimer do
         countries_present_in_blacklisted_countries[country]=  row.client_id if blacklisted_countries.include?(country)
       end
 
-      GlobalConstant::Shard.all_shard_identifiers.each do |shard_identifier|
+      GlobalConstant::SqlShard.all_shard_identifiers.each do |shard_identifier|
 
         hashed_db_country = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).get_hashed_value(country)
         user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
@@ -78,7 +78,7 @@ namespace :onetimer do
         nationality_present_in_residency_proof_nationalities[nationality]=  row.client_id if residency_proof_nationalities.include?(nationality)
       end
 
-      GlobalConstant::Shard.all_shard_identifiers.each do |shard_identifier|
+      GlobalConstant::SqlShard.all_shard_identifiers.each do |shard_identifier|
 
         hashed_db_nationality = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
             get_hashed_value(nationality)

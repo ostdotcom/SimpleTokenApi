@@ -75,7 +75,7 @@ namespace :onetimer do
     end
 
 
-    GlobalConstant::Shard.all_shard_identifiers.each do |shard_identifier|
+    GlobalConstant::SqlShard.all_shard_identifiers.each do |shard_identifier|
 
       update_country_hash.each do |old_country, new_country|
 

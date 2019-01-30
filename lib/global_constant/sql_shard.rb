@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 module GlobalConstant
 
-  class Shard
+  class SqlShard
 
-    # GlobalConstant::Shard
+    # GlobalConstant::SqlShard
 
     def self.primary_shard_identifier
       "shard_1"
@@ -37,7 +37,6 @@ module GlobalConstant
     def self.sql_shards_models
       @@sql_shards_models
     end
-
 
     # database_shard_type -> shard_identifier -> config
     # {

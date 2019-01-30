@@ -6,7 +6,7 @@ module SqlShardMigration
     end
 
     def db_config_key
-      GlobalConstant::Shard.get_db_config_key(database_shard_type, @shard_identifier) + "_#{Rails.env.to_s}"
+      GlobalConstant::SqlShard.get_db_config_key(database_shard_type, @shard_identifier) + "_#{Rails.env.to_s}"
     end
 
     def database_shard_type

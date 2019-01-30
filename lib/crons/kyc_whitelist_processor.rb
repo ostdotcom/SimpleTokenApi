@@ -15,7 +15,7 @@ module Crons
     def initialize(params)
       @shard_identifiers = params[:shard_identifiers].present? ?
                                params[:shard_identifiers] :
-                               GlobalConstant::Shard.shards_to_process_for_crons
+                               GlobalConstant::SqlShard.shards_to_process_for_crons
       @api_data = {}
       @user_kyc_detail = nil
       @transaction_hash = nil

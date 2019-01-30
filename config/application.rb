@@ -72,7 +72,7 @@ module SimpleTokenApi
 
     config.to_prepare do
       puts "Reloading application config"
-      GlobalConstant::Shard.load_config
+      GlobalConstant::SqlShard.load_config
 
       module_name = "sql_shard_migration"
       puts "loading module_name -#{module_name}"

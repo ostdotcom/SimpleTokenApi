@@ -10,7 +10,7 @@ class AddClientIdInTemporaryToken < DbMigrationConnection
     TemporaryToken.where(kind: [GlobalConstant::TemporaryToken.double_opt_in_kind,
                                 GlobalConstant::TemporaryToken.reset_password_kind]).
     find_in_batches(batch_size: 1000).each do |batch_objs|
-      users = User.using_shard(shard_identifier: GlobalConstant::Shard.primary_shard_identifier).
+      users = User.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier).
           where(id: batch_objs.pluck(:entity_id)).index_by(&:id)
       batch_objs.each do |temp_token_obj|
         cid = users[temp_token_obj.entity_id].client_id

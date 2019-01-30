@@ -67,7 +67,7 @@ module Crons
 
       admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
           client_id,
-          GlobalConstant::Admin.low_whitelister_balance_notification_type
+          GlobalConstant::Admin.whitelisting_balance_alert_notification_type
       )
 
       admin_emails.each do |admin_email|

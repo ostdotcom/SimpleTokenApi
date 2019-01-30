@@ -377,6 +377,25 @@ module GlobalConstant
         ]
       end
 
+
+
+      ### Review Type template variable for manual review needed template Start ###
+
+      def ocr_fr_failed_review_type
+        'ocr_fr_failed'
+      end
+
+      def aml_check_review_type
+        'aml_check'
+      end
+
+      def manual_review_type
+        'manual'
+      end
+
+      ### Review Type template variable for manual review needed template End ###
+
+
       # is this template related to double opt in email
       #
       # * Author: Puneet

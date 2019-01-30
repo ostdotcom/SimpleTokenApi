@@ -481,8 +481,28 @@ module Crons
             GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) &&
             !@user_kyc_detail.send_manual_review_needed_email?
 
-        GlobalConstant::Admin.send_manual_review_needed_email(@user_kyc_detail.client_id,
-                                                              {template_variables: {}})
+        template_variables = {
+            case_id: @user_kyc_detail.id,
+            full_name: @user_extended_detail.get_full_name,
+            review_type: GlobalConstant::PepoCampaigns.aml_check_review_type
+        }
+
+        admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+            @user_kyc_detail.client_id,
+            GlobalConstant::Admin.manual_review_needed_notification_type
+        )
+
+        admin_emails.each do |admin_email|
+          ::Email::HookCreator::SendTransactionalMail.new(
+              client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
+              email: admin_email,
+              template_name: ::GlobalConstant::PepoCampaigns.manual_review_needed_template,
+              template_vars: template_variables
+          ).perform
+
+        end
+
+
       end
 
       # Lock Id for table

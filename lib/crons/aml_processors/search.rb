@@ -477,8 +477,8 @@ module Crons
       #
       #
       def send_manual_review_needed_email
-        return if (@aml_search_obj.status != GlobalConstant::AmlSearch.processed_status) &&
-            GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) &&
+        return if (@aml_search_obj.status != GlobalConstant::AmlSearch.processed_status) ||
+            !GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) ||
             !@user_kyc_detail.send_manual_review_needed_email?
 
         template_variables = {

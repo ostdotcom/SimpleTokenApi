@@ -44,6 +44,8 @@ module AdminManagement
         r = open_case
         return r unless r.success?
 
+        send_open_case_request_outcome_email if (!r.data[:is_processing])
+
         success_with_data(r.data)
       end
 
@@ -245,6 +247,39 @@ module AdminManagement
       def update_edit_kyc_request(status)
         @edit_kyc_request.status = status
         @edit_kyc_request.save!
+      end
+
+      # Send Open Case Request Outcome email to admins
+      #
+      # * Author: Tejas
+      # * Date: 31/01/2019
+      # * Reviewed By:
+      #
+      #
+      def send_open_case_request_outcome_email
+        user_email = User.get_from_memcache(@user_kyc_detail.user_id).email
+        template_variables = {
+            email: user_email,
+            success: 1,
+            reason_failure: ""
+        }
+
+        admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+            @user_kyc_detail.client_id,
+            GlobalConstant::Admin.open_case_request_outcome_notification_type
+        )
+
+        admin_emails.each do |admin_email|
+          ::Email::HookCreator::SendTransactionalMail.new(
+              client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
+              email: admin_email,
+              template_name: ::GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
+              template_vars: template_variables
+          ).perform
+
+        end
+
+
       end
 
       # Enqueue Unwhitelisting

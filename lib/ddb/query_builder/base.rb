@@ -5,30 +5,27 @@ module Ddb
       include Util::ResultHelper
 
       def initialize(params)
+
         @params = params[:params]
         @table_info = params[:table_info]
         @delimiter = @table_info[:delimiter]
         @expression_attribute_values = {}
+        @expression_attribute_names = {}
       end
 
-      def validate_for_keys(key_type)
-        short_key = get_short_key_name(@table_info[key_type])
+      def validate_primary_key
+        key = [@table_info[:partition_key], @table_info[:sort_key]].compact
 
-
-        return error_with_identifier('',
-                                     '',
-                                     '',
-                                     '',
-                                     {}
-        ) if (short_key.present? && list_of_keys.exclude?(short_key))
-        success
+        return success if (@key_hash.keys - key).blank? && (key - @key_hash.keys).blank?
+        error_with_identifier('invalid_keys',
+                              '',
+                              '',
+                              '',
+                              {}
+        )
       end
 
       def list_of_keys
-        fail "child class has to implement this"
-      end
-
-      def input_hash_with_long_name
         fail "child class has to implement this"
       end
 
@@ -38,33 +35,28 @@ module Ddb
       end
 
 
-      def filter_expression
+      def condition_expression(conditions, logical_operator)
         expression = []
-        conditions = @params[:filter_conditions] && @params[:filter_conditions][:conditions]
-        puts "dnnnnnn #{conditions}"
-        return nil if conditions.blank?
         conditions.each do |condition|
-          operator = condition[:operator]
-          condition[:attribute].each do |attr_key, attr_val|
-            puts "----94394394 #{attr_val} #{attr_key}"
-            expression << " #{attr_key} #{operator} :#{attr_key}"
-            @expression_attribute_values[":#{attr_key.to_s}"] = attr_val
-          end
+          key = condition[:attribute].keys[0].to_s
+          val = condition[:attribute].values[0]
+          expression << "##{key}_name #{condition[:operator]} :#{key}_val"
+          @expression_attribute_values[":#{key}_val"] = val
+          @expression_attribute_names["##{key}_name"] = key
         end
-        expression.join(" #{@params[:filter_conditions][:logical_operator]}")
-
+        expression.join(" #{logical_operator} ")
       end
 
 
-      def get_key
+      def get_formatted_item_hash(param_key)
 
-        hash = @params[:key]
+        hash = {}
+        @params[param_key].each do |val|
+          expression = val[:attribute]
+          hash[expression.keys[0]] = expression.values[0]
+        end
 
-        ddb_partition_key = get_short_key_name(@table_info[:partition_keys])
-
-        ddb_sort_key = get_short_key_name(@table_info[:sort_keys])
-
-        hash.reject! {|k| ! [ddb_partition_key, ddb_sort_key].include?(k)}
+        hash.deep_symbolize_keys
       end
 
     end

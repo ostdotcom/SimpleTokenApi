@@ -30,6 +30,7 @@ module Ddb
           # Increase throughput
         when StandardError
           # aassa
+          #
           puts "How i m here"
         else
           puts "How i m here2"

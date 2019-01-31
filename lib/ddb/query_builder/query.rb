@@ -9,71 +9,53 @@ module Ddb
 
       def validate
 
-        r = validate_for_keys(:partition_keys)
-        return r unless r.success?
+        if @index_name.present?
+          return success if ([@table_info[:indexes][@index_name][:partition_key]] - list_of_keys).blank?
+        else
+          return success if ([@table_info[:partition_key]] - list_of_keys).blank?
+        end
+        error_with_identifier('invalid_keys',
+                              '')
 
-        success
       end
+
 
       def list_of_keys
         primary_keys = []
+
         @params[:key_conditions].each do |condition|
+          condition.deep_symbolize_keys!
           primary_keys += condition[:attribute].keys
         end
         primary_keys
       end
 
       def perform
+
+        @index_name = @params[:index_name]
+
         r = validate
 
         return r unless r.success?
 
-        filter_key_conditions
-
+        filter_expn = condition_expression(@params[:filter_conditions][:conditions],
+                                           @params[:filter_conditions][:logical_operator]) if @params[:filter_conditions].present?
         success_with_data(
             {
-                key_condition_expression: key_condition_expression,
+                key_condition_expression: condition_expression(@params[:key_conditions], 'AND'),
                 table_name: @table_info[:name],
-                filter_expression: filter_expression,
+                filter_expression: filter_expn,
                 exclusive_start_key: @params[:exclusive_start_key],
-                page_size: @params[:page_size],
-                expression_attribute_values: @expression_attribute_values
+                limit: @params[:limit],
+                expression_attribute_values: @expression_attribute_values,
+                expression_attribute_names: @expression_attribute_names,
+                index_name: @params[:index_name],
+                return_consumed_capacity: @params[:return_consumed_capacity],
+                projection_expression: @params[:projection_expression],
+                consistent_read: @params[:consistent_read]
+
             }.delete_if {|_, v| v.nil?}
         )
-      end
-
-      def filter_key_conditions
-
-        ddb_partition_key = get_short_key_name(@table_info[:partition_keys])
-
-        ddb_sort_key = get_short_key_name(@table_info[:sort_keys])
-
-        @params[:key_conditions].each_with_index do |value, index|
-          @params[:key_conditions][index][:attribute] = value[:attribute].reject! {|k|
-            ! [ddb_partition_key, ddb_sort_key].include?(k)}
-        end
-      end
-
-      def key_condition_expression
-        expression = []
-        get_key_hash.each do |key, val|
-          expression << " #{key.to_s}#{val[:operator]} :#{key.to_s}"
-          @expression_attribute_values[":#{key.to_s}"] = val[:value]
-        end
-
-        puts "key condition expression #{expression.join(" AND")}"
-        puts "dddssss #{@expression_attribute_values}"
-
-        expression.join(" AND")
-      end
-
-      def get_key_hash
-        key_hash = {}
-        @params[:key_conditions].each do |condition|
-          key_hash[condition[:attribute].keys[0]] = {value: condition[:attribute].values[0],
-                                                     operator: condition[:operator]} if condition[:attribute].keys.present?
-        end
-        key_hash
       end
 
     end

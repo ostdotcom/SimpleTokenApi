@@ -8,36 +8,27 @@ module Ddb
 
       def perform
 
-        r = validate
-        return r unless r.success?
+        filter_expn = condition_expression(@params[:filter_conditions][:conditions],
+                                           @params[:filter_conditions][:logical_operator] ) if @params[:filter_conditions].present?
+
 
         success_with_data({
-                              filter_expression: filter_expression,
+                              filter_expression: filter_expn,
                               table_name: @table_info[:name],
-                              expression_attribute_values:
-                                  @expression_attribute_values.present? ? @expression_attribute_values : nil,
+                              expression_attribute_values: @expression_attribute_values.present? ? @expression_attribute_values : nil,
+                              expression_attribute_names: @expression_attribute_names.present? ? @expression_attribute_names : nil,
                               exclusive_start_key: @params[:exclusive_start_key],
-                              page_size: @params[:page_size]
+                              limit: @params[:limit],
+                              index_name: @params[:index_name],
+                              consistent_read: @params[:consistent_read],
+                              return_consumed_capacity: @params[:return_consumed_capacity],
+                              projection_expression: @params[:projection_expression]
                           }.delete_if {|_, v| v.nil?}
         )
 
       end
 
-      def validate
-        success
-      end
 
-
-      def get_key
-
-        hash = @params[:key]
-
-        ddb_partition_key = get_short_key_name(@table_info[:partition_keys])
-
-        ddb_sort_key = get_short_key_name(@table_info[:sort_keys])
-
-        hash.reject! {|k| ![ddb_partition_key, ddb_sort_key].include?(k)}
-      end
 
 
     end

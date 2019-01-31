@@ -4,6 +4,7 @@ module GlobalConstant
       class UserKycComparisonDetail
         class << self
 
+          # column config
           def merged_columns
             {
                 u_e_d_i: {
@@ -28,7 +29,7 @@ module GlobalConstant
                     keys: [:last_name_match_percent]
                 },
                 b_d_m_p: {
-                keys: [:birthdate_match_percent]
+                    keys: [:birthdate_match_percent]
                 },
                 d_i_n_m_p: {
                     keys: [:document_id_number_match_percent]
@@ -58,7 +59,7 @@ module GlobalConstant
                     keys: [:client_kyc_pass_settings_id]
                 },
                 c_a: {
-                    keys: [:create_at]
+                    keys: [:created_at]
                 },
                 u_a: {
                     keys: [:updated_at]
@@ -66,21 +67,23 @@ module GlobalConstant
             }.with_indifferent_access
           end
 
-          def partition_keys
-            [:user_extended_detail_id]
+          # keep short name
+          # expose a function to return the full name of any short name key
+          def partition_key
+            :u_e_d_i
           end
 
-          def sort_keys
-            []
+          def sort_key
+
           end
 
           def indexes
-             {
-            #     index_name: {
-            #         partition_key: [],
-            #         sort_key: []
-            #     }
-             }
+            {
+                #     index_name: {
+                #         partition_key: [],
+                #         sort_key: []
+                #     }
+            }
           end
 
         end

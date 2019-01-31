@@ -8,7 +8,8 @@ module Ddb
 
       def perform
 
-        with_error_handling {ddb_client.put_item @params}
+        with_error_handling    {ddb_client.put_item @params}
+        #ddb_client.put_item @params
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info{'Ddb::Api::PutItem::Sleeping..Retrying..'}
         # increase_read_capacity

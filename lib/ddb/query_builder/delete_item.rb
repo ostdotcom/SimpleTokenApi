@@ -8,43 +8,30 @@ module Ddb
 
       def perform
 
-        r = validate
-        return r unless r.success?
+        @key_hash = get_formatted_item_hash(:key)
 
+        r = validate_primary_key
+        return r unless r.success?
+        p = {
+            key: @key_hash,
+            table_name: @table_info[:name],
+            return_values: @params[:return_values]
+        }
         success_with_data({
-                              key: get_key,
-                              table_name: @table_info[:name]
-                          })
+                              key: @key_hash,
+                              table_name: @table_info[:name],
+                              return_values: @params[:return_values],
+                              return_item_collection_metrics: @params[:return_item_collection_metrics],
+                              return_consumed_capacity: @params[:return_consumed_capacity],
+                          }..delete_if {|_, v| v.nil?}
+        )
 
       end
 
-      def validate
-        r = validate_for_keys(:partition_keys)
-        return r unless r.success?
-
-        r = validate_for_keys(:sort_keys)
-
-        return r unless r.success?
-
-        success
-
-      end
 
       def list_of_keys
         @params[:key].keys
       end
-
-      def get_key
-
-        hash = @params[:key]
-
-        ddb_partition_key = get_short_key_name(@table_info[:partition_keys])
-
-        ddb_sort_key = get_short_key_name(@table_info[:sort_keys])
-
-        hash.reject! {|k| ! [ddb_partition_key, ddb_sort_key].include?(k)}
-      end
-
 
 
     end

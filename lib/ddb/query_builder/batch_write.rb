@@ -6,34 +6,34 @@ module Ddb
       end
 
       def perform
-        r = validate
-        return r unless r.success?
-        request_items = {}
-        request_items[@table_info[:name]] = @params
+        list = []
+        @params[:items].each do | item |
+
+          list << {
+              put_request: {
+                  item: get_formatted_item_hash(item)
+              }
+          }
+
+        end
+
         success_with_data ({
-            request_items: request_items
-        })
-      end
-
-      def validate
-        return success
-        r = validate_for_keys(:partition_keys)
-        return r unless r.success?
-
-        r = validate_for_keys(:sort_keys)
-        return r unless r.success?
-
-        success
-
+            request_items: {
+                "#{@table_info[:name]}" => list
+                }
+            })
 
       end
 
-      def input_hash_with_long_name
-        @params[:item]
-      end
 
-      def list_of_keys
-        @params[:item].keys
+      def get_formatted_item_hash(list)
+        hash = {}
+        list.each do |val|
+          expression = val[:attribute]
+          hash[expression.keys[0]] = expression.values[0]
+        end
+
+        hash.deep_symbolize_keys
       end
 
 

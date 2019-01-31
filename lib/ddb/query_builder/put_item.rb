@@ -5,40 +5,43 @@ module Ddb
         super
 
 
-
       end
 
       def perform
 
+        @key_hash = get_formatted_item_hash(:item)
+
         r = validate
         return r unless r.success?
-        success_with_data ({
-            item: @params[:item],
-            table_name: @table_info[:name]
-        })
+
+
+        success_with_data (
+                              {
+                                  item: @key_hash,
+                                  table_name: @table_info[:name],
+                                  return_values: @params[:return_values],
+                                  return_consumed_capacity: @params[:return_consumed_capacity],
+                                  return_item_collection_metrics: @params[:return_item_collection_metrics]
+                              }.delete_if {|_, v| v.nil?
+                              }
+                          )
 
       end
 
       def validate
-        r = validate_for_keys(:partition_keys)
-        return r unless r.success?
+        key = [@table_info[:partition_key], @table_info[:sort_key]].compact
 
-        r = validate_for_keys(:sort_keys)
-        return r unless r.success?
+        return success if (key - @key_hash.keys).blank?
+        error_with_identifier('invalid_keys',
+                              '',
 
-        success
-
-
+        )
       end
 
-      def input_hash_with_long_name
-        @params[:item]
-      end
 
       def list_of_keys
         @params[:item].keys
       end
-
 
 
     end

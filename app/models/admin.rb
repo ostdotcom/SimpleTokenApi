@@ -249,7 +249,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   def self.get_all_admins_from_memcache(client_id)
     memcache_key_object = Admin.get_all_admins_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      Admin.where(default_client_id: client_id).is_active.all
+      Admin.where(default_client_id: client_id).is_active.all.to_a
     end
   end
 

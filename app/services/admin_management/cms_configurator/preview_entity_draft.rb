@@ -75,7 +75,7 @@ module AdminManagement
       def fetch_user
         @user = User.using_shard(shard_identifier: @client.sql_shard_identifier).new
         @user.id = Random.rand(100..1000)
-        @user.properties = User.properties_config[GlobalConstant::User.kyc_submitted_property]
+        @user.properties = User.use_any_instance.properties_config[GlobalConstant::User.kyc_submitted_property]
         @user_token_sale_state = @user.get_token_sale_state_page_name
       end
 

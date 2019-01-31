@@ -92,29 +92,29 @@ module GlobalConstant
         {
           "#{is_kyc_submitted_filter}" => {
               "true" => ["(properties & ?) = ?",
-                        ::User.properties_config[kyc_submitted_property],
-                        ::User.properties_config[kyc_submitted_property]
+                        ::User.use_any_instance.properties_config[kyc_submitted_property],
+                        ::User.use_any_instance.properties_config[kyc_submitted_property]
               ],
               "false" => ["(properties & ?) = 0",
-                        ::User.properties_config[kyc_submitted_property]
+                        ::User.use_any_instance.properties_config[kyc_submitted_property]
               ]
           },
           "#{is_doptin_done_filter}" => {
               "true" => ["(properties & ?) = ?",
-                         ::User.properties_config[doptin_done_property],
-                         ::User.properties_config[doptin_done_property]
+                         ::User.use_any_instance.properties_config[doptin_done_property],
+                         ::User.use_any_instance.properties_config[doptin_done_property]
               ],
               "false" => ["(properties & ?) = 0",
-                          ::User.properties_config[doptin_done_property]
+                          ::User.use_any_instance.properties_config[doptin_done_property]
               ]
           },
           "#{is_doptin_mail_sent_filter}" => {
               "true" => ["(properties & ?) = ?",
-                         ::User.properties_config[doptin_mail_sent_property],
-                         ::User.properties_config[doptin_mail_sent_property]
+                         ::User.use_any_instance.properties_config[doptin_mail_sent_property],
+                         ::User.use_any_instance.properties_config[doptin_mail_sent_property]
               ],
               "false" => ["(properties & ?) = 0",
-                         ::User.properties_config[doptin_mail_sent_property]
+                         ::User.use_any_instance.properties_config[doptin_mail_sent_property]
               ]
           }
         }

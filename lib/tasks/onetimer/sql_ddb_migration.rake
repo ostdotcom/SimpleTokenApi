@@ -2,7 +2,7 @@ namespace :onetimer do
   LIMIT = 5
   task :sql_ddb_migration => :environment do
 
-    @final_id = UserKycComparisonDetail.where(image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status).last.id
+    @final_id = UserKycComparisonDetail.where(image_processing_status: GlobalConstant::ImageProcessing.processed_image_process_status).last.id
     offset = 5
     arr = []
 
@@ -46,17 +46,19 @@ namespace :onetimer do
 
         item.each do |attr, val|
           new_item << {
-
               attribute: {
                   "#{attr}".to_sym => val
               }
           }
-
-
         end
         insert_in_ddb << new_item
+
+
       end
-      Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).batch_write({items: insert_in_ddb})
+      r = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).
+          batch_write({items: insert_in_ddb})
+
+
     end
 
     while true do

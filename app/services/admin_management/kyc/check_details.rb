@@ -298,7 +298,7 @@ module AdminManagement
             }
 
             ClientKycPassSetting.ocr_comparison_fields_config.keys.each do |key|
-              ai_pass_details[:ocr_match_fields][key] = (@user_kyc_comparison_detail["#{key}_match_percent"].to_i == 100)
+              ai_pass_details[:ocr_match_fields][key] = (@user_kyc_comparison_detail.instance_variable_get("@#{key}_match_percent").to_i == 100)
             end
 
           end
@@ -396,14 +396,14 @@ module AdminManagement
       #
       def kyc_status
         case true
-          when @user_kyc_detail.kyc_approved?
-            GlobalConstant::UserKycDetail.kyc_approved_status
-          when @user_kyc_detail.kyc_denied?
-            GlobalConstant::UserKycDetail.kyc_denied_status
-          when @user_kyc_detail.kyc_pending?
-            GlobalConstant::UserKycDetail.kyc_pending_status
-          else
-            fail "Invalid kyc status"
+        when @user_kyc_detail.kyc_approved?
+          GlobalConstant::UserKycDetail.kyc_approved_status
+        when @user_kyc_detail.kyc_denied?
+          GlobalConstant::UserKycDetail.kyc_denied_status
+        when @user_kyc_detail.kyc_pending?
+          GlobalConstant::UserKycDetail.kyc_pending_status
+        else
+          fail "Invalid kyc status"
         end
       end
 
@@ -702,10 +702,13 @@ module AdminManagement
       # Sets @user_kyc_comparison_detail
       #
       def fetch_user_kyc_comparison_detail
-        @user_kyc_comparison_detail = r = Ddb::UserKycComparisonDetail.new({shard_id: @user_kyc_detail.shard_identifier},
-                                                                           {use_column_mapping: true})
-                                              .get_item(key: {user_extended_detail_id: @user_extended_detail.id})
-          #UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
+        r = Ddb::UserKycComparisonDetail.new({shard_id: @user_kyc_detail.shard_identifier})
+                .get_item(key: [{attribute: {user_extended_detail_id: @user_extended_detail.id}}])
+        if r.success? && r.data[:data].present?
+          @user_kyc_comparison_detail = r.data[:data]
+        else
+          @user_kyc_comparison_detail = UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
+        end
       end
 
     end

@@ -14,7 +14,6 @@ class UserKycComparisonDetail < EstablishSimpleTokenUserDbConnection
   serialize :document_dimensions, Hash
   serialize :selfie_dimensions, Hash
 
-
   def self.auto_approve_failed_reasons_config
     @auto_approve_failed_reasons_config ||= {
         GlobalConstant::KycAutoApproveFailedReason.unexpected_reason => 1,

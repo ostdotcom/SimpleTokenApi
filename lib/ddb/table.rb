@@ -7,13 +7,14 @@ module Ddb
     included do
       cattr_accessor :table_info
 
+      def self.allowed_params
+        GlobalConstant::Aws::Ddb::Config.allowed_params
+      end
+
 
       def query(query)
-        @mandatory_options = [:key_conditions]
-        @optional_options = [:filter_conditions, :consistent_read, :exclusive_start_key,
-                             :return_consumed_capacity, :limit, :projection_expression, :index_name]
-
-        r = validate_for_ddb_options query
+        instance_array = []
+        r = validate_for_ddb_options(query, self.class.allowed_params[:query])
         return r unless r.success?
 
         r = validate_item query[:key_conditions]
@@ -22,26 +23,24 @@ module Ddb
           r = validate_item query[:filter_conditions][:conditions]
           return r unless r.success?
         end
-
         query = use_column_mapping? ? query_params_mapping(query) : query
-
-
         r = Ddb::QueryBuilder::Query.new({params: query, table_info: table_info}).perform
         return r unless r.success?
-        ddb_r = Ddb::Api::Query.new(params: r.data, retry_count: 3).perform
+        ddb_r = Ddb::Api::Query.new(params: r.data).perform
         return ddb_r unless ddb_r.success?
 
-        parsed_resp = parse_response_array(ddb_r.data[:data][:items])
-        success_with_data(data: parsed_resp)
+        parsed_resp = use_column_mapping? ? parse_response_array(ddb_r.data[:data][:items]) : ddb_r.data[:data][:items]
+
+        parsed_resp.each do |resp|
+          instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
+        end
+
+        success_with_data(data: instance_array)
       end
 
 
       def delete_item(item)
-        @mandatory_options = [:key]
-
-        @optional_options = [:return_item_collection_metrics, :return_consumed_capacity, :return_values]
-
-        r = validate_for_ddb_options item
+        r = validate_for_ddb_options(item, self.class.allowed_params[:delete_item])
         return r unless r.success?
 
         r = validate_item item[:key]
@@ -52,25 +51,20 @@ module Ddb
         r = Ddb::QueryBuilder::DeleteItem.new({params: item, table_info: table_info}).perform
 
         return r unless r.success?
-        ddb_r = Ddb::Api::DeleteItem.new(params: r.data, retry_count: 3).perform
+        ddb_r = Ddb::Api::DeleteItem.new(params: r.data).perform
         return ddb_r unless ddb_r.success?
 
 
         attributes = use_column_mapping? && ddb_r.data[:data][:attributes].present? ?
                          parse_response(ddb_r.data[:data][:attributes]) : ddb_r.data[:data][:attributes]
 
-        success_with_data(data: attributes)
+        success_with_data(data: initialize_instance_variables(attributes))
       end
 
 
       def get_item(item)
 
-        @mandatory_options = [:key]
-
-        @optional_options = [:projection_expression, :consistent_read, :return_consumed_capacity]
-
-
-        r = validate_for_ddb_options item
+        r = validate_for_ddb_options(item, self.class.allowed_params[:get_item])
         return r unless r.success?
 
         r = validate_item item[:key]
@@ -81,27 +75,20 @@ module Ddb
         r = Ddb::QueryBuilder::GetItem.new({params: item, table_info: table_info}).perform
 
         return r unless r.success?
-        ddb_r = Ddb::Api::GetItem.new(params: r.data, retry_count: 3).perform
-        return ddb_r unless ddb_r.success?
+        ddb_r = Ddb::Api::GetItem.new(params: r.data).perform
+        return ddb_r unless (ddb_r.success? && ddb_r[:item].present?)
 
         ddb_r = ddb_r.data[:data]
-
         ddb_r[:item] = use_column_mapping? && ddb_r[:item].present? ? parse_response(ddb_r[:item]) : ddb_r[:item]
-
-        success_with_data(data: ddb_r[:item])
+        processed_data = process_dynamo_data(ddb_r[:item])
+        success_with_data(data: initialize_instance_variables(processed_data))
 
       end
 
 
       def put_item(item)
 
-
-        @mandatory_options = [:item]
-
-        @optional_options = [:return_item_collection_metrics, :return_consumed_capacity, :return_values]
-
-
-        r = validate_for_ddb_options item
+        r = validate_for_ddb_options(item, self.class.allowed_params[:put_item])
         return r unless r.success?
 
         r = validate_item item[:item]
@@ -120,39 +107,36 @@ module Ddb
                          parse_response(ddb_r.data[:data][:attributes]) : ddb_r.data[:data][:attributes]
 
         ddb_r unless ddb_r.success?
-        success_with_data(data: attributes)
+        success_with_data(data: initialize_instance_variables(attributes))
       end
 
 
       def scan(query = {})
 
-        @mandatory_options = []
+        instance_array = []
 
-        @optional_options = [:filter_conditions, :index_name, :consistent_read, :exclusive_start_key,
-                             :return_consumed_capacity, :limit, :projection_expression]
-
-
-        r = validate_for_ddb_options query
+        r = validate_for_ddb_options(query, self.class.allowed_params[:scan])
         return r unless r.success?
 
         query = use_column_mapping? ? query_params_mapping(query) : query
 
         r = Ddb::QueryBuilder::Scan.new({params: query, table_info: table_info}).perform
         return r unless r.success?
-        ddb_r = Ddb::Api::Scan.new(params: r.data, retry_count: 3).perform
+        ddb_r = Ddb::Api::Scan.new(params: r.data).perform
         return ddb_r unless ddb_r.success?
         parsed_resp = parse_response_array(ddb_r.data[:data][:items])
-        success_with_data(data: parsed_resp)
+
+        parsed_resp.each do |resp|
+          instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
+        end
+
+        success_with_data(data: instance_array)
 
       end
 
       def update_item(item)
 
-        @mandatory_options = [:key]
-
-        @optional_options = [ :set, :add, :remove, :return_consumed_capacity, :return_item_collection_metrics, :return_values ]
-
-        r = validate_for_ddb_options item
+        r = validate_for_ddb_options(item, self.class.allowed_params[:update_item])
         return r unless r.success?
 
 
@@ -167,48 +151,45 @@ module Ddb
         return r unless r.success?
 
 
-        ddb_r = Ddb::Api::UpdateItem.new(params: r.data, retry_count: 3).perform
+        ddb_r = Ddb::Api::UpdateItem.new(params: r.data).perform
         ddb_r unless ddb_r.success?
-        success_with_data(data: ddb_r)
+        success_with_data(data: initialize_instance_variables(ddb_r.data[:data].attributes))
       end
-
 
 
       def validate_item(item_list)
 
-          item_list.each do |item|
+        item_list.each do |item|
 
-            return error_with_identifier('extra_item_param_given',
-                                         'sb_1',
-                                         []
-            ) if (get_short_key_name(item[:attribute].keys).blank? && use_column_mapping?) &&
-                table_info[:merged_columns][item[:attribute].keys[0]].blank?
-          end
+          return error_with_identifier('extra_item_param_given',
+                                       'sb_1',
+                                       []
+          ) if (get_short_key_name(item[:attribute].keys).blank? && use_column_mapping?) &&
+              table_info[:merged_columns][item[:attribute].keys[0]].blank?
+        end
 
         success
       end
 
-      def validate_for_ddb_options(item)
+      def validate_for_ddb_options(item, params)
+        mandatory_params = params[:mandatory]
+        optional_params = params[:optional]
         return error_with_identifier('mandatory_params_missing',
                                      'sb_1',
-                                     (@mandatory_options - item.keys)
-        ) if (@mandatory_options - item.keys).present?
+                                     (mandatory_params - item.keys)
+        ) if (mandatory_params - item.keys).present?
 
         return error_with_identifier('unexpected_params_present',
                                      'sb_1',
-                                     (item.keys - (@optional_options + @mandatory_options))
-        ) if (item.keys - (@optional_options + @mandatory_options)).present?
+                                     (item.keys - (optional_params + mandatory_params))
+        ) if (item.keys - (mandatory_params + optional_params)).present?
         success
       end
 
 
       def batch_write(items)
-
-
-        @mandatory_options = [:items]
-        @optional_options = []
-        items_list = []
-        r = validate_for_ddb_options items
+        items_list, resp_list, instance_array = [], [], []
+        r = validate_for_ddb_options(items, self.class.allowed_params[:batch_write])
         cnt = 0
         return r unless r.success?
         items[:items].each do |item|
@@ -219,17 +200,26 @@ module Ddb
 
         r = Ddb::QueryBuilder::BatchWrite.new({params: {items: items_list}, table_info: table_info}).perform
 
-        ddb_r = Ddb::Api::BatchWrite.new(params: r.data, retry_count: 3).perform
-        puts ddb_r.inspect
-        success
+        ddb_r = Ddb::Api::BatchWrite.new(params: r.data).perform
+
+        list = ddb_r.data[:data][:unprocessed_items][table_info[:name].to_s]
+        list.each do |l|
+          resp_list << use_column_mapping? ? parse_response(l["put_request"]["item"]) : l["put_request"]["item"]
+        end if list.present?
+        return success if list.blank?
+        resp_list.each do |resp|
+          instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
+        end
+        error_with_identifier('unprocessed_entities',
+                              'sb_1',
+                              [],
+                              '',
+                              {unprocessed: resp_list}
+        )
       end
 
 
-
-
-
       def update_params_mapping(item)
-        # merge columns
         return item unless use_column_mapping?
 
         remove_list = []
@@ -267,9 +257,6 @@ module Ddb
         item_list
       end
 
-
-
-
       def parse_response_array(item_list)
         items = []
         item_list.each do |item|
@@ -301,6 +288,13 @@ module Ddb
             select {|_, v| v[:keys].sort == condition.sort}.keys.first
       end
 
+      def process_dynamo_data(data)
+        list_of_integer_keys = self.class.list_of_integer_keys
+        list_of_integer_keys.each do |key|
+          data[key] = data[key].to_i
+        end if data.present?
+        data
+      end
 
     end
 
@@ -317,4 +311,3 @@ module Ddb
 
   end
 end
-

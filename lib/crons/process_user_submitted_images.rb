@@ -113,7 +113,6 @@ module Crons
           @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(@user_extended_detail[field_name]).data[:plaintext]
         end
       end
-
       success
     end
 
@@ -147,17 +146,26 @@ module Crons
       @user_kyc_comparison_detail.image_processing_status = image_processing_status if image_processing_status.present?
 
 
-      attributes = convert_ts_format(@user_kyc_comparison_detail.attributes)
+      attributes = format_to_ddb_structure(@user_kyc_comparison_detail.attributes)
       r = Ddb::UserKycComparisonDetail.new({shard_id: @user_kyc_details.shard_identifier},
-                                       {use_column_mapping: true})
-          .put_item(item: attributes)
+                                           {use_column_mapping: true})
+              .put_item(item: format_to_ddb_structure(attributes))
       @user_kyc_comparison_detail.save! unless r.success?
     end
 
-    def convert_ts_format(item)
+    def format_to_ddb_structure(item)
+      formatted_item = []
+      item.delete "id"
       item["updated_at"] = item["updated_at"].to_i if item["updated_at"].present?
       item["created_at"] = item["created_at"].to_i if item["created_at"].present?
-      item
+      item.each do |attr, val|
+        formatted_item << {
+            attribute: {
+                "#{attr}".to_sym => val
+            }
+        }
+      end
+      formatted_item
     end
 
     # Process document id image
@@ -394,7 +402,7 @@ module Crons
     #
     # @return [LocalCipher]
     #
-    def get_local_cipher_object(kyc_salt=nil)
+    def get_local_cipher_object(kyc_salt = nil)
       @lco ||= LocalCipher.new(kyc_salt)
     end
 
@@ -594,7 +602,7 @@ module Crons
 
       # Rotate image at 0 degree angle to remove its metadata
       strip_image_result = FileProcessing::RmagickImageRotation.new(file_directory, original_downloaded_image,
-                                                     GlobalConstant::ImageProcessing.rotation_angle_0).perform
+                                                                    GlobalConstant::ImageProcessing.rotation_angle_0).perform
 
       # If first rotation of image failed then close the process
       return strip_image_result unless strip_image_result.success?

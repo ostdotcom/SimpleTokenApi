@@ -84,7 +84,6 @@ module Ddb
                         attribute: {
                             user_extended_detail_id: 90
                         }
-
                     }],
               remove: [[:first_name_match_percent]],
               return_values: "UPDATED_OLD"

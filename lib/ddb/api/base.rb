@@ -16,11 +16,23 @@ module Ddb
         @retry_after_duration = INITIAL_RETRY_AFTER
       end
 
+
+      # get dynamo db client
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
       def ddb_client
         @ddb_client ||= Ddb.client
       end
 
-
+      # error handling wrapper for ddb requests
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
       def with_error_handling
         success_with_data(data: yield)
 
@@ -28,16 +40,23 @@ module Ddb
         handle_error(e)
       end
 
-
+      # handling exception as per cases
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      # @return [Result::Base || Exception ]
+      #
       def handle_error(e)
         case e
         when Aws::DynamoDB::Errors::ProvisionedThroughputExceededException
           raise e
-          # Increase throughput
         when StandardError
-          #
+          return error_with_identifier('ddb_standard_error', 'standard_error',
+                                       [],e.message, {})
         else
-          #
+          return error_with_identifier('swr', 'swr',
+                                       [],'Something went wrong', {})
         end
       end
     end

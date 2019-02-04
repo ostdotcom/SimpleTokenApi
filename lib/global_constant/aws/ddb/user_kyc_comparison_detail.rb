@@ -4,7 +4,7 @@ module GlobalConstant
       class UserKycComparisonDetail
         class << self
 
-          # column config
+          # mapping between long name and backend name(short name)
           def merged_columns
             {
                 u_e_d_i: {
@@ -67,16 +67,16 @@ module GlobalConstant
             }.with_indifferent_access
           end
 
-          # keep short name
-          # expose a function to return the full name of any short name key
+          # returns partition key
           def partition_key
             :u_e_d_i
           end
 
+          # returns sort key
           def sort_key
-
           end
 
+          # returns list of indexes
           def indexes
             {
                 #     index_name: {

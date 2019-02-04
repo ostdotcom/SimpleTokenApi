@@ -5,8 +5,14 @@ module Ddb
         super
       end
 
+      # perform batch write
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
       def perform
-        batch_write_operation
+        with_error_handling {batch_write_operation}
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info {'Ddb::Api::BatchWrite::Sleeping..Retrying..'}
         #increase_read_capacity
@@ -22,7 +28,14 @@ module Ddb
 
       end
 
-
+      # batch write api call with retry mechanism
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # # @return [Result::Base]
+      #
       def batch_write_operation
         batch_write_resp = ddb_client.batch_write_item @params
         if batch_write_resp.unprocessed_items.present? && @retry_count < @current_retry_count

@@ -6,9 +6,17 @@ module Ddb
 
       end
 
+      # returns get item query as per ddb format
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
 
-        @key_hash = get_formatted_item_hash(:key)
+        @key_hash = get_formatted_item_hash(@params[:key])
 
         r = validate_primary_key
         return r unless r.success?
@@ -21,11 +29,6 @@ module Ddb
                           }.delete_if {|_, v| v.nil?})
 
       end
-
-      def list_of_keys
-        @params[:key].keys
-      end
-
 
     end
   end

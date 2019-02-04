@@ -5,6 +5,15 @@ module Ddb
         super
       end
 
+
+      # returns batch write query as per ddb format
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
         list = []
         @params[:items].each do | item |
@@ -16,24 +25,12 @@ module Ddb
           }
 
         end
-
         success_with_data ({
             request_items: {
                 "#{@table_info[:name]}" => list
                 }
             })
 
-      end
-
-
-      def get_formatted_item_hash(list)
-        hash = {}
-        list.each do |val|
-          expression = val[:attribute]
-          hash[expression.keys[0]] = expression.values[0]
-        end
-
-        hash.deep_symbolize_keys
       end
 
 

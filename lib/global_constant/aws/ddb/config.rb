@@ -4,6 +4,8 @@ module GlobalConstant
       class Config
         class << self
 
+
+          # hash specifying ddb operations and parameters required/those can be used for these operations
           def allowed_params
             {
                 query: {

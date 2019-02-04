@@ -3,13 +3,19 @@ module Ddb
     class PutItem < Base
       def initialize(params)
         super
-
-
       end
 
+      # returns put item query as per ddb format
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
 
-        @key_hash = get_formatted_item_hash(:item)
+        @key_hash = get_formatted_item_hash(@params[:item])
 
         r = validate
         return r unless r.success?
@@ -38,10 +44,6 @@ module Ddb
         )
       end
 
-
-      def list_of_keys
-        @params[:item].keys
-      end
 
 
     end

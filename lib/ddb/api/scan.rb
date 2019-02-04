@@ -5,6 +5,15 @@ module Ddb
         super
       end
 
+
+      # scan api call with retry mechanism
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
         with_error_handling {ddb_client.scan @params}
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e

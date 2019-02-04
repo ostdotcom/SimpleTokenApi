@@ -7,9 +7,17 @@ module Ddb
 
       end
 
+      # returns update item query
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
 
-        @key_hash = get_formatted_item_hash(:key)
+        @key_hash = get_formatted_item_hash(@params[:key])
 
         r = validate_primary_key
         return r unless r.success?
@@ -26,7 +34,14 @@ module Ddb
                           )
       end
 
-
+      # create update expression
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def create_update_expression
         set_expression, add_expression = [], []
         @params[:set].each do |v|

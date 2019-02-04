@@ -5,9 +5,15 @@ module Ddb
         super
       end
 
+      # query  api call with retry mechanism
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
-
-
         with_error_handling {ddb_client.query @params}
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info {'Ddb::Api::Query::Sleeping..Retrying..'}

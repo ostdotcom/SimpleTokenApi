@@ -5,6 +5,16 @@ module Ddb
         super
       end
 
+
+
+      # update item api call with retry mechanism
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
         ddb_client.update_item @params
         with_error_handling {ddb_client.update_item @params}

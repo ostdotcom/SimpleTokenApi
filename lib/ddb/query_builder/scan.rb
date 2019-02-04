@@ -6,10 +6,18 @@ module Ddb
 
       end
 
+      # returns scan query
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
 
         filter_expn = condition_expression(@params[:filter_conditions][:conditions],
-                                           @params[:filter_conditions][:logical_operator] ) if @params[:filter_conditions].present?
+                      @params[:filter_conditions][:logical_operator] ) if @params[:filter_conditions].present?
 
 
         success_with_data({
@@ -27,9 +35,6 @@ module Ddb
         )
 
       end
-
-
-
 
     end
   end

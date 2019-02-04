@@ -4,32 +4,16 @@ module Ddb
       def initialize(params)
         super
 
-
       end
 
-      def validate
-
-        if @index_name.present?
-          return success if ([@table_info[:indexes][@index_name][:partition_key]] - list_of_keys).blank?
-        else
-          return success if ([@table_info[:partition_key]] - list_of_keys).blank?
-        end
-        error_with_identifier('invalid_keys',
-                              '')
-
-      end
-
-
-      def list_of_keys
-        primary_keys = []
-
-        @params[:key_conditions].each do |condition|
-          condition.deep_symbolize_keys!
-          primary_keys += condition[:attribute].keys
-        end
-        primary_keys
-      end
-
+      # returns query for ddb query operation
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
       def perform
 
         @index_name = @params[:index_name]
@@ -57,6 +41,47 @@ module Ddb
             }.delete_if {|_, v| v.nil?}
         )
       end
+
+      # validate params for query operation
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def validate
+
+        if @index_name.present?
+          return success if ([@table_info[:indexes][@index_name][:partition_key]] - list_of_keys).blank?
+        else
+          return success if ([@table_info[:partition_key]] - list_of_keys).blank?
+        end
+        error_with_identifier('invalid_keys',
+                              '')
+
+      end
+
+
+      # return list of keys
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @return [Result::Base]
+      #
+      def list_of_keys
+        primary_keys = []
+
+        @params[:key_conditions].each do |condition|
+          condition.deep_symbolize_keys!
+          primary_keys += condition[:attribute].keys
+        end
+        primary_keys
+      end
+
+
 
     end
   end

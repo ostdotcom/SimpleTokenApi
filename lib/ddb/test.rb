@@ -2,11 +2,11 @@ module Ddb
   class Test
 
     def self.get_item
-      Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).
+      r = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).
           get_item({
                        key: [{
                                  attribute: {
-                                     user_extended_detail_id: 183
+                                     :user_extended_detail_id => 99
                                  }
                              }]
                    })
@@ -33,27 +33,60 @@ module Ddb
 
 
     def self.scan
-      Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).scan()
+      r = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).scan(limit: 5, filter_conditions: {
+          conditions: [
+              {
+                  attribute: {
+                      image_processing_status: "unprocessed"
+                  },
+                  operator: "="
+              }
+
+          ],
+          logical_operator: "AND"
+      })
+      puts "rrrr #{r.inspect}"
+      #r_1 = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).scan(limit: 5, exclusive_start_key: r.data[:data][:last_evaluated_key])
+    end
+
+    def self.query
+      Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).query(
+          {
+              key_conditions: [
+                  {
+                      attribute: {
+                          user_extended_detail_id: 90
+                      },
+                      operator: "="
+                  }
+              ],
+              filter_conditions: {
+                  conditions: [
+                      {
+                          attribute: {
+                              image_processing_status: "processed"
+                          },
+                          operator: "="
+                      }
+
+                  ],
+                  logical_operator: "AND"
+              },
+              limit: 1
+          }
+      )
     end
 
     def self.update_item
       Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).update_item(
           {
               key: [{
-                  attribute: {
-                      user_extended_detail_id: 86
-                  }
+                        attribute: {
+                            user_extended_detail_id: 90
+                        }
 
-              }],
-              set: [
-                  {attribute: {
-                      image_processing_status: "processed",
-                  }
-                  }],
-              add: [
-                  {attribute: {
-                      kyc_auto_approved_status: 32
-                  }}],
+                    }],
+              remove: [[:first_name_match_percent]],
               return_values: "UPDATED_OLD"
           })
 

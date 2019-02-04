@@ -6,6 +6,7 @@ module Ddb
       end
 
       def perform
+        ddb_client.update_item @params
         with_error_handling {ddb_client.update_item @params}
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info {'Ddb::Api::UpdateItem::Sleeping..Retrying..'}

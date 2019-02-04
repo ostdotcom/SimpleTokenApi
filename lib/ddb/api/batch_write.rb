@@ -32,13 +32,8 @@ module Ddb
           @retry_after_duration += @retry_time_incrementer
           batch_write_operation
         else
-          return error_with_identifier('batch_write_retry_count_exceeded', '',
-                                       [], 'Batch write operation failed',
-                                       batch_write_resp.unprocessed_items) if batch_write_resp.unprocessed_items.present?
-          success
+          success_with_data({data: batch_write_resp.unprocessed_items})
         end
-
-
       end
 
 

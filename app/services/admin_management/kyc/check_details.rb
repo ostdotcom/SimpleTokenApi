@@ -704,8 +704,8 @@ module AdminManagement
       def fetch_user_kyc_comparison_detail
         r = Ddb::UserKycComparisonDetail.new({shard_id: @user_kyc_detail.shard_identifier})
                 .get_item(key: [{attribute: {user_extended_detail_id: @user_extended_detail.id}}])
-        if r.success? && r.data[:data].present?
-          @user_kyc_comparison_detail = r.data[:data]
+        if r.success? && r.data[:data][:item].present?
+          @user_kyc_comparison_detail = r.data[:data][:item]
         else
           @user_kyc_comparison_detail = UserKycComparisonDetail.get_by_ued_from_memcache(@user_extended_detail.id)
         end

@@ -70,7 +70,7 @@ class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
   # * Reviewed By:
   #
   def get_full_name
-    (self.first_name + " " + self.last_name).capitalize
+    (self.first_name + " " + self.last_name).titleize
   end
 
   private

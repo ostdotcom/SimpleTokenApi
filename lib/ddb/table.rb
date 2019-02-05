@@ -48,7 +48,7 @@ module Ddb
 
         parsed_resp = parse_response_array(ddb_r.data[:data][:items])
 
-        last_evaluated_key = ddb_r.data[:data][:last_evaluated_key]
+        last_evaluated_key = format_last_eval_key ddb_r.data[:data][:last_evaluated_key]
 
         parsed_resp.each do |resp|
           instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
@@ -209,7 +209,7 @@ module Ddb
       #
       def scan(query = {})
 
-        instance_array, processed_data = [], []
+        instance_array, last_eval_key = [], {}
 
         r = validate_for_ddb_options(query, self.class.allowed_params[:scan])
         return r unless r.success?
@@ -227,7 +227,7 @@ module Ddb
 
         parsed_resp = parse_response_array(ddb_r.data[:data][:items])
 
-        last_evaluated_key = ddb_r.data[:data][:last_evaluated_key].to_hash
+        last_evaluated_key = format_last_eval_key ddb_r.data[:data][:last_evaluated_key]
 
         parsed_resp.each do |resp|
           instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
@@ -561,6 +561,23 @@ module Ddb
               a = v[:keys].map {|k| k[:name]}
               a.sort == condition.sort
             }.keys.first
+      end
+
+      # format last evaluated key
+      #
+      # * Author: mayur
+      # * Date: 01/02/2019
+      # * Reviewed By:
+      #
+      # @param last_eval_key [Hash] (mandatory)
+      #
+      def format_last_eval_key(last_eval_key)
+        return nil if last_eval_key.blank?
+        last_evaluated_key = {}
+        last_eval_key.each do |k,v|
+          last_evaluated_key[k] = v.to_hash
+        end
+        last_evaluated_key
       end
 
 

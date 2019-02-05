@@ -133,7 +133,7 @@ module ClientManagement
                                    'Admins do not exist'
       ) if (all_admins_in_setting - all_admin_ids).present?
 
-      @notification_types_config_hash = GlobalConstant::Admin.notification_types_config
+      @notification_types_config_hash = GlobalConstant::Admin.notification_types_config.dup
       @notification_types_config_hash.delete(GlobalConstant::Admin.whitelisting_balance_alert_notification_type.to_sym) if (!@client.is_whitelist_setup_done?)
       @notification_types_config_hash.delete(GlobalConstant::Admin.contract_address_update_notification_type.to_sym) if (!@client.is_web_host_setup_done? && !@client.is_whitelist_setup_done?)
 

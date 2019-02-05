@@ -143,7 +143,7 @@ module ClientManagement
 
       GlobalConstant::Admin.notification_types_config.each do |notification_type, data|
 
-        next if (!@client.is_whitelist_setup_done? &&
+        next if ((!@client.is_whitelist_setup_done?) &&
             (notification_type.to_s == GlobalConstant::Admin.whitelisting_balance_alert_notification_type))
 
         next if (!@client.is_web_host_setup_done? && !@client.is_whitelist_setup_done? &&

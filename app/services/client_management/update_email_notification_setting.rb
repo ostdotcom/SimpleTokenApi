@@ -23,6 +23,7 @@ module ClientManagement
 
       @admins = []
       @super_admins, @normal_admins = {}, {}
+      @notification_types_config_hash = {}
     end
 
     # Perform
@@ -130,7 +131,11 @@ module ClientManagement
                                    'Admins do not exist'
       ) if (all_admins_in_setting - all_admin_ids).present?
 
-      GlobalConstant::Admin.notification_types_config.each do |n_type, data|
+      @notification_types_config_hash = GlobalConstant::Admin.notification_types_config
+      @notification_types_config_hash.delete(GlobalConstant::Admin.whitelisting_balance_alert_notification_type.to_sym) if (!@client.is_whitelist_setup_done?)
+      @notification_types_config_hash.delete(GlobalConstant::Admin.contract_address_update_notification_type.to_sym) if (!@client.is_web_host_setup_done? && !@client.is_whitelist_setup_done?)
+
+      @notification_types_config_hash.each do |n_type, data|
         if data[:super_admin_mandatory] && (super_admin_ids - @email_setting[n_type.to_s]).present?
           params_error_data[n_type.to_sym] = 'Super Admins are Mandatory for this notification'
         end
@@ -154,7 +159,7 @@ module ClientManagement
     #
     def update_admins
 
-      GlobalConstant::Admin.notification_types_config.each do |n_type, data|
+      @notification_types_config_hash.each do |n_type, data|
         include_admin_ids = @email_setting[n_type.to_s]
 
         @admins.each do |admin|

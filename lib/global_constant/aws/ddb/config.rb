@@ -46,6 +46,22 @@ module GlobalConstant
             }
           end
 
+          def variable_types
+            {
+                number: :n,
+                string: :s,
+                array: :l,
+                hash: :m
+            }
+
+
+
+
+
+
+
+          end
+
         end
       end
     end

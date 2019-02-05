@@ -142,9 +142,12 @@ module Ddb
       end
 
       def normalize_response(hash)
+        data_type_array_hash = [ GlobalConstant::Aws::Ddb::Config.variable_types[:array],
+                                 GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
         result_hash = {}
         hash.each do |k, v|
-          val = [:l, :m].include?(k['type']) ? format_value(v[k['type']]) : convert_var_to_correct_format(v[k['type']], k['type'])
+          val = data_type_array_hash.include?(k['type']) ? format_value(v[k['type']]) :
+                    convert_var_to_correct_format(v[k['type']], k['type'])
           result_hash[k['name']] = val
         end if hash.present?
         result_hash
@@ -209,7 +212,7 @@ module Ddb
       #
       def scan(query = {})
 
-        instance_array, last_eval_key = [], {}
+        instance_array = []
 
         r = validate_for_ddb_options(query, self.class.allowed_params[:scan])
         return r unless r.success?
@@ -345,12 +348,14 @@ module Ddb
       end
 
       def format_value(value)
+        data_type_array_hash = [ GlobalConstant::Aws::Ddb::Config.variable_types[:array],
+                                 GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
         if value.class == Hash
           result_obj = {}
           value.each do |param, type|
             type_of_var = type.to_hash.keys[0]
             value_of_var = type.to_hash.values[0]
-            result_obj[param] = [:l, :m].include?(type_of_var) ? format_value(value_of_var) :
+            result_obj[param] = data_type_array_hash.include?(type_of_var) ? format_value(value_of_var) :
                                     convert_var_to_correct_format(value_of_var, type_of_var)
           end
         elsif value.class == Array
@@ -358,7 +363,7 @@ module Ddb
           value.each do |type|
             type_of_var = type.to_hash.keys[0]
             value_of_var = type.to_hash.values[0]
-            result_obj << [:l, :m].include?(type_of_var) ? format_value(value_of_var) :
+            result_obj << data_type_array_hash.include?(type_of_var) ? format_value(value_of_var) :
                 convert_var_to_correct_format(value_of_var, type_of_var)
           end
         else
@@ -368,7 +373,7 @@ module Ddb
       end
 
       def convert_var_to_correct_format(value_of_var, type_of_var)
-        if type_of_var == :n
+        if type_of_var ==  GlobalConstant::Aws::Ddb::Config.variable_types[:number]
           return value_of_var.to_i
         end
         value_of_var
@@ -527,11 +532,12 @@ module Ddb
       def parse_response(r)
         return r unless r.present?
         merged_col, separate_col = {}, {}
+        data_type_string = GlobalConstant::Aws::Ddb::Config.variable_types[:string]
         if use_column_mapping?
           r.each do |key, val|
             merged_columns = table_info[:merged_columns][key][:keys]
             if merged_columns.length > 1
-              val = val[:s].split(table_info[:delimiter])
+              val = val[data_type_string].split(table_info[:delimiter])
               merged_columns.each_with_index do |long_name, index|
                 merged_col[long_name[:name]] = {long_name[:type] => val[index]}
               end

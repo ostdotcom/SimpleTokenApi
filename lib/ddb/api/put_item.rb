@@ -1,6 +1,6 @@
 module Ddb
   module Api
-    class PutItem < Base
+    class PutItem < Api::Base
 
       def initialize(params)
         super

@@ -1,6 +1,6 @@
 module Ddb
   module QueryBuilder
-    class BatchWrite < Base
+    class BatchWrite < QueryBuilder::Base
       def initialize(params)
         super
       end

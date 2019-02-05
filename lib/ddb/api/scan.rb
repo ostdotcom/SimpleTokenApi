@@ -1,6 +1,6 @@
 module Ddb
   module Api
-    class Scan < Base
+    class Scan < Api::Base
       def initialize(params)
         super
       end

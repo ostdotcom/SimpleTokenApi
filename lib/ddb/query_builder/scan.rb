@@ -1,6 +1,6 @@
 module Ddb
   module QueryBuilder
-    class Scan < Base
+    class Scan < QueryBuilder::Base
       def initialize(params)
         super
       end

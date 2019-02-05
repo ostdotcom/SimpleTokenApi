@@ -5,7 +5,6 @@ module Ddb
       include Util::ResultHelper
 
       def initialize(params)
-
         @params = params[:params]
         @table_info = params[:table_info]
         @delimiter = @table_info[:delimiter]
@@ -20,6 +19,9 @@ module Ddb
       # * Reviewed By:
       #
       def validate_primary_key
+        puts "@key_hash #{@key_hash} @table_info[:sort_key] #{@table_info[:sort_key]} @table_info[:partition_key] #{@table_info[:partition_key]}"
+
+
         key = [@table_info[:partition_key], @table_info[:sort_key]].compact
 
         return success if (@key_hash.keys - key).blank? && (key - @key_hash.keys).blank?

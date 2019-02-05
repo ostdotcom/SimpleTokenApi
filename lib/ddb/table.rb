@@ -1,6 +1,4 @@
 module Ddb
-
-
   module Table
     extend ActiveSupport::Concern
 
@@ -12,7 +10,7 @@ module Ddb
       cattr_accessor :table_info
 
       def self.allowed_params
-        GlobalConstant::Aws::Ddb::Config.allowed_params
+        GlobalConstant::Aws::Ddb::Base.allowed_params
       end
 
 
@@ -115,7 +113,6 @@ module Ddb
       #
 
       def get_item(item)
-
         r = validate_for_ddb_options(item, self.class.allowed_params[:get_item])
         return r unless r.success?
 
@@ -126,8 +123,6 @@ module Ddb
           return r unless r.success?
           item[:projection_expression] = r.data[:data]
         end
-
-
         return r unless r.success?
         item[:key] = r.data[:data]
         r = Ddb::QueryBuilder::GetItem.new({params: item, table_info: table_info}).perform
@@ -349,9 +344,9 @@ module Ddb
       end
 
       def format_value(value)
-        if value.first[0] == GlobalConstant::Aws::Ddb::Config.variable_types[:string]
+        if value.first[0] == GlobalConstant::Aws::Ddb::Base.variable_type[:string]
           return parse_json value.first[1]
-        elsif value.first[0] == GlobalConstant::Aws::Ddb::Config.variable_types[:number]
+        elsif value.first[0] == GlobalConstant::Aws::Ddb::Base.variable_type[:number]
           return value.first[1].to_i
         else
           return value.first[1]
@@ -361,7 +356,6 @@ module Ddb
       def parse_json(string)
         JSON.parse(string) rescue string
       end
-
 
       # mapping (i.e. full name -> short name conversion ) for update function
       #
@@ -401,7 +395,7 @@ module Ddb
             result_list << short_name
           else
             return error_with_identifier('extra_item_param_given',
-                                         'sb_1',
+                                         'sb_2',
                                          []
             ) if table_info[:merged_columns][remove_item].blank?
             result_list << remove_item
@@ -455,8 +449,8 @@ module Ddb
       # @return [Result Base]
       #
       def validate_and_map_params(item_list)
-        data_type_array_hash = [GlobalConstant::Aws::Ddb::Config.variable_types[:array],
-                                GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
+        data_type_array_hash = [GlobalConstant::Aws::Ddb::Base.variable_type[:array],
+                                GlobalConstant::Aws::Ddb::Base.variable_type[:hash]]
         temp_item_list = []
         return success unless item_list
         if use_column_mapping?
@@ -490,17 +484,22 @@ module Ddb
           item_list.each do |item|
             column_info = table_info[:merged_columns][item[:attribute].keys[0]]
             return error_with_identifier('extra_item_param_given',
-                                         'sb_1',
+                                         'sb_4',
                                          []
             ) if column_info.blank?
             attr = {}
             item_attr = item[:attribute]
-            if data_type_array_hash.include? column_info[:keys][0][:type]
-              attr[item_attr.keys[0]] = item_attr.values[0].to_json
-              item[:attribute] = attr
+            if column_info[:keys].length > 1
+                attr[item_attr.keys[0]] = {  GlobalConstant::Aws::Ddb::Base.variable_type[:string] => item_attr.values[0].to_s}
             else
-              attr[item_attr.keys[0]] = item_attr.values[0].to_s
+              if data_type_array_hash.include? column_info[:keys][0][:type]
+                attr[item_attr.keys[0]] = {GlobalConstant::Aws::Ddb::Base.variable_type[:string] => item_attr.values[0].to_json}
+              else
+                attr[item_attr.keys[0]] = {  column_info[:keys][0][:type] => item_attr.values[0].to_s}
+
+              end
             end
+            item[:attribute] = attr
             temp_item_list << item
           end
           return success_with_data(data: temp_item_list)
@@ -535,11 +534,11 @@ module Ddb
       # @return [Hash]
       #
       def parse_response(r)
-        data_type_array_hash = [GlobalConstant::Aws::Ddb::Config.variable_types[:array],
-                                GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
+        data_type_array_hash = [GlobalConstant::Aws::Ddb::Base.variable_type[:array],
+                                GlobalConstant::Aws::Ddb::Base.variable_type[:hash]]
         return r unless r.present?
         merged_col, separate_col = {}, {}
-        data_type_string = GlobalConstant::Aws::Ddb::Config.variable_types[:string]
+        data_type_string = GlobalConstant::Aws::Ddb::Base.variable_type[:string]
         #puts "rrrrrrr  #{r}"
         if use_column_mapping?
           r.each do |key, val|
@@ -554,7 +553,6 @@ module Ddb
             end
 
           end
-          puts "--------- #{separate_col}"
           normalize_response separate_col.merge(merged_col)
         else
           normalize_response r

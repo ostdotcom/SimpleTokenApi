@@ -1,6 +1,6 @@
 module Ddb
   module QueryBuilder
-    class DeleteItem < Base
+    class DeleteItem < QueryBuilder::Base
       def initialize(params)
         super
 

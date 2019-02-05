@@ -1,6 +1,6 @@
 module Ddb
   # todo: use base
-  class UserKycComparisonDetail
+  class UserKycComparisonDetail < Base
 
     include Ddb::Table
 
@@ -11,6 +11,9 @@ module Ddb
           :merged_columns => GlobalConstant::Aws::Ddb::UserKycComparisonDetail.merged_columns,
           :delimiter => "#"
 
+    def initialize(params, options = {})
+      super
+    end
 
     # todo: enum handle mapping
     def self.image_processing_status_enum
@@ -19,14 +22,6 @@ module Ddb
           1 => GlobalConstant::ImageProcessing.processed_image_process_status,
           2 => GlobalConstant::ImageProcessing.failed_image_process_status
       }
-    end
-
-
-    def initialize(params, options = {})
-      @shard_id = params[:shard_id]
-      @use_column_mapping = options[:use_column_mapping]
-
-      set_table_name
     end
 
     def self.auto_approve_failed_reasons_config
@@ -57,25 +52,8 @@ module Ddb
       }
     end
 
-    # test all valid functions with ddb object
+
     include BitWiseConcern
-
-    # todo: move to base
-    def initialize_instance_variables(hash)
-      hash.each do |k, v|
-        instance_variable_set("@#{k}", v)
-        self.class.send(:attr_accessor, k)
-      end if hash.present?
-      self
-    end
-
-    def set_table_name
-      table_info[:name] = "#{Rails.env}_#{@shard_id}_#{self.class.raw_table_name}"
-    end
-
-    def use_column_mapping?
-      @use_column_mapping == false ? false : true
-    end
 
   end
 end

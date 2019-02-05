@@ -1,6 +1,6 @@
 module Ddb
   module Api
-    class GetItem < Base
+    class GetItem < Api::Base
       def initialize(params)
         super
       end

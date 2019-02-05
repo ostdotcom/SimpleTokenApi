@@ -1,6 +1,6 @@
 module Ddb
   module Api
-    class DeleteItem < Base
+    class DeleteItem < Api::Base
       def initialize(params)
         super
       end

@@ -1,6 +1,6 @@
 module Ddb
   module Api
-    class BatchWrite < Base
+    class BatchWrite < Api::Base
       def initialize(params)
         super
       end

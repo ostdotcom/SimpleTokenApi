@@ -1,6 +1,6 @@
 module Ddb
   module QueryBuilder
-    class GetItem < Base
+    class GetItem < QueryBuilder::Base
       def initialize(params)
         super
       end

@@ -1,6 +1,6 @@
 module Ddb
   module QueryBuilder
-    class UpdateItem < Base
+    class UpdateItem < QueryBuilder::Base
       def initialize(params)
         super
 

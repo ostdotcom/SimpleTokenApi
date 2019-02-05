@@ -1,7 +1,7 @@
 module GlobalConstant
   module Aws
     module Ddb
-      class Config
+      class Base
         class << self
 
 
@@ -224,14 +224,37 @@ module GlobalConstant
 
                 batch_write: {
                     mandatory: [:items],
-                    # todo: check return_values
-                    optional: []
+                    optional: [:return_consumed_capacity, :return_item_collection_metrics]
                 }
             }
           end
 
-          # todo: do not support hash and array
-          def variable_types
+
+
+          # returns partition key
+          def partition_key
+            nil
+          end
+
+          # returns sort key
+          def sort_key
+            nil
+          end
+
+          # Example Usage of index
+          # {
+          #     index_name: {
+          #         partition_key: :id,
+          #         sort_key: :timestamp
+          #     }
+          # }
+          #
+          # returns list of indexes
+          def indexes
+            {}
+          end
+
+          def variable_type
             {
                 number: :n,
                 string: :s,
@@ -239,6 +262,11 @@ module GlobalConstant
                 hash: :m
             }
           end
+
+
+
+
+
 
         end
       end

@@ -1,16 +1,16 @@
 module GlobalConstant
   module Aws
     module Ddb
-      class UserKycComparisonDetail
-        class << self
+      class UserKycComparisonDetail < Ddb::Base
 
+        class <<  self
           # todo: use base.rb for gc
           #
           # mapping between long name and backend name(short name)
           def merged_columns
             {
                 u_e_d_i: {
-                    keys: [{name: :user_extended_detail_id, type: variable_type[:number] }]
+                    keys: [{name: :user_extended_detail_id, type: self.variable_type[:number] }]
                 },
                 c_i: {
                     keys: [{name: :client_id, type:variable_type[:number] }]
@@ -69,33 +69,8 @@ module GlobalConstant
             }.with_indifferent_access
           end
 
-
-          def variable_type
-            GlobalConstant::Aws::Ddb::Config.variable_types
-          end
-
-          # returns partition key
           def partition_key
             :u_e_d_i
-          end
-
-          # todo: blank array
-          # returns sort key
-          def sort_key
-            nil
-          end
-
-          # Example Usage of index
-          # {
-          #     index_name: {
-          #         partition_key: :id,
-          #         sort_key: :timestamp
-          #     }
-          # }
-          #
-          # returns list of indexes
-          def indexes
-            {}
           end
 
         end

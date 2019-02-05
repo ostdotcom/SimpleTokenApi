@@ -1,6 +1,6 @@
 module Ddb
   module Api
-    class Query < Base
+    class Query < Api::Base
       def initialize(params)
         super
       end

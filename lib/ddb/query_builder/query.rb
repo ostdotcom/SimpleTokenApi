@@ -3,7 +3,6 @@ module Ddb
     class Query < Base
       def initialize(params)
         super
-
       end
 
       # returns query for ddb query operation
@@ -43,6 +42,7 @@ module Ddb
         )
       end
 
+
       # validate params for query operation
       #
       # * Author: mayur
@@ -81,8 +81,6 @@ module Ddb
         end
         primary_keys
       end
-
-
 
     end
   end

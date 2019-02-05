@@ -16,7 +16,7 @@ module Ddb
       #
       def perform
         list = []
-        @params[:items].each do | item |
+        @params[:items].each do |item|
 
           list << {
               put_request: {
@@ -28,13 +28,10 @@ module Ddb
         success_with_data ({
             request_items: {
                 "#{@table_info[:name]}" => list
-                }
-            })
+            }
+        })
 
       end
-
-
-
     end
   end
 end

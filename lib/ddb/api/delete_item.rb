@@ -29,7 +29,6 @@ module Ddb
         end
       end
 
-
     end
   end
 end

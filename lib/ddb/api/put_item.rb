@@ -15,7 +15,6 @@ module Ddb
       # @return [Result::Base]
       #
       def perform
-
         with_error_handling {ddb_client.put_item @params}
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info {'Ddb::Api::PutItem::Sleeping..Retrying..'}
@@ -29,11 +28,7 @@ module Ddb
           @retry_after_duration += @retry_time_incrementer
           retry
         end
-
-
-
       end
-
 
     end
   end

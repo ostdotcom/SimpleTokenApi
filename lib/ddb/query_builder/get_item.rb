@@ -3,7 +3,6 @@ module Ddb
     class GetItem < Base
       def initialize(params)
         super
-
       end
 
       # returns get item query as per ddb format
@@ -30,7 +29,6 @@ module Ddb
                           }.delete_if {|_, v| v.nil?})
 
       end
-
     end
   end
 end

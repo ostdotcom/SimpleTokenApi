@@ -3,7 +3,6 @@ module Ddb
     class Scan < Base
       def initialize(params)
         super
-
       end
 
       # returns scan query
@@ -15,10 +14,8 @@ module Ddb
       # @return [Result::Base]
       #
       def perform
-
         filter_expn = condition_expression(@params[:filter_conditions][:conditions],
                       @params[:filter_conditions][:logical_operator] ) if @params[:filter_conditions].present?
-
 
         success_with_data({
                               filter_expression: filter_expn,
@@ -34,7 +31,6 @@ module Ddb
                                                          @params[:projection_expression].join(", ") : nil,
                           }.delete_if {|_, v| v.nil?}
         )
-
       end
 
     end

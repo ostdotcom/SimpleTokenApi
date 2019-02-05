@@ -14,7 +14,6 @@ module Ddb
       # @return [Result::Base]
       #
       def perform
-
         @key_hash = get_formatted_item_hash(@params[:item])
 
         r = validate
@@ -34,6 +33,7 @@ module Ddb
 
       end
 
+
       def validate
         key = [@table_info[:partition_key], @table_info[:sort_key]].compact
 
@@ -43,9 +43,6 @@ module Ddb
 
         )
       end
-
-
-
     end
   end
 end

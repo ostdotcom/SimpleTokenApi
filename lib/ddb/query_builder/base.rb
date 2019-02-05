@@ -13,8 +13,6 @@ module Ddb
         @expression_attribute_names = {}
       end
 
-
-
       # validate primary key (partition key + sort key)
       #
       # * Author: mayur
@@ -33,7 +31,6 @@ module Ddb
         )
       end
 
-
       # returns backend name of key list(multiple keys can be mapped with single backend name)
       #
       # * Author: mayur
@@ -46,7 +43,6 @@ module Ddb
         @table_info[:merged_columns].
             select {|_, v| v[:keys].sort == key_list.sort}.keys.first
       end
-
 
       # create condition expression string from input conditions, all conditions are joined by given logical operator
       #
@@ -89,7 +85,5 @@ module Ddb
       end
 
     end
-
-
   end
 end

@@ -25,7 +25,6 @@ module Ddb
           @retry_after_duration += @retry_time_incrementer
           retry
         end
-
       end
 
       # batch write api call with retry mechanism
@@ -48,7 +47,6 @@ module Ddb
           success_with_data({data: batch_write_resp.unprocessed_items})
         end
       end
-
 
     end
   end

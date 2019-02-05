@@ -27,11 +27,6 @@ module Ddb
           @retry_after_duration += @retry_time_incrementer
           retry
         end
-
-
-
-
-
       end
     end
   end

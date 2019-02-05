@@ -31,6 +31,7 @@ module Ddb
           retry
         end
       end
+
     end
   end
 end

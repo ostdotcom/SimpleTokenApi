@@ -24,6 +24,7 @@ module ClientManagement
       @admins = []
       @super_admins, @normal_admins = {}, {}
       @notification_types_config_hash = {}
+      @was_notification_setting_updated = false
     end
 
     # Perform
@@ -43,7 +44,8 @@ module ClientManagement
       r = validate_email_settings
       return r unless r.success?
 
-      update_admins
+      r = update_admins
+      return r unless r.success?
 
       success
     end
@@ -173,9 +175,21 @@ module ClientManagement
       end
 
       @admins.each do |admin|
-        admin.save! if admin.changed?
+        if admin.changed?
+          admin.save!
+          @was_notification_setting_updated = true
+        end
       end
 
+      return error_with_data(
+          's_cm_uens_ua_1',
+          'Invalid parameters',
+          'You are choosing to save existing settings.',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !@was_notification_setting_updated
+
+      success
     end
 
 

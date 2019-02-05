@@ -14,6 +14,9 @@ module Ddb
       end
 
 
+      # todo: put example
+
+
       # Query on dynamodb
       #
       # * Author: MAYUR

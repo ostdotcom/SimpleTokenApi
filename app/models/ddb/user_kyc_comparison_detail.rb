@@ -1,4 +1,5 @@
 module Ddb
+  # todo: use base
   class UserKycComparisonDetail
 
     include Ddb::Table
@@ -8,8 +9,10 @@ module Ddb
           :sort_key => GlobalConstant::Aws::Ddb::UserKycComparisonDetail.sort_key,
           :indexes => GlobalConstant::Aws::Ddb::UserKycComparisonDetail.indexes,
           :merged_columns => GlobalConstant::Aws::Ddb::UserKycComparisonDetail.merged_columns,
-          :delimiter => "_"
+          :delimiter => "#"
 
+
+    # todo: enum handle mapping
     def self.image_processing_status_enum
       {
           0 => GlobalConstant::ImageProcessing.unprocessed_image_process_status,
@@ -20,10 +23,9 @@ module Ddb
 
 
     def initialize(params, options = {})
-
-      @params = params
-      @options = options
       @shard_id = params[:shard_id]
+      @use_column_mapping = options[:use_column_mapping]
+
       set_table_name
     end
 
@@ -55,8 +57,10 @@ module Ddb
       }
     end
 
+    # test all valid functions with ddb object
     include BitWiseConcern
 
+    # todo: move to base
     def initialize_instance_variables(hash)
       hash.each do |k, v|
         instance_variable_set("@#{k}", v)
@@ -70,7 +74,7 @@ module Ddb
     end
 
     def use_column_mapping?
-      @options[:use_column_mapping] == false ? false : true
+      @use_column_mapping == false ? false : true
     end
 
   end

@@ -4,6 +4,8 @@ module GlobalConstant
       class UserKycComparisonDetail
         class << self
 
+          # todo: use base.rb for gc
+          #
           # mapping between long name and backend name(short name)
           def merged_columns
             {
@@ -67,6 +69,7 @@ module GlobalConstant
             }.with_indifferent_access
           end
 
+
           def variable_type
             GlobalConstant::Aws::Ddb::Config.variable_types
           end
@@ -76,18 +79,23 @@ module GlobalConstant
             :u_e_d_i
           end
 
+          # todo: blank array
           # returns sort key
           def sort_key
+            nil
           end
 
+          # Example Usage of index
+          # {
+          #     index_name: {
+          #         partition_key: :id,
+          #         sort_key: :timestamp
+          #     }
+          # }
+          #
           # returns list of indexes
           def indexes
-            {
-                #     index_name: {
-                #         partition_key: [],
-                #         sort_key: []
-                #     }
-            }
+            {}
           end
 
         end

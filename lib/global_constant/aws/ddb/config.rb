@@ -5,9 +5,192 @@ module GlobalConstant
         class << self
 
 
-          # eg for: exclusive_start_key
-          # projection_expression - use same format as in remove - [[:id, :u_k_d_id], [:id]]
+          # simple attributes is false
 
+          # eg for: exclusive_start_key
+          #
+
+          # use_column_mapping: if true: use full_name, supports merge columns logic
+          #                       if false: use short name. columns should be merged and then used
+          #
+
+          # key_conditions:- specify atleast partition key, supports use_column_mapping, merge_columns.
+          #     outer queries are joined by AND
+          #
+          # eg:
+          # [
+          #     {
+          #         attribute: {
+          #             user_extended_detail_id: 90
+          #         },
+          #         operator: "="
+          #     },
+          #     {
+          #         attribute: {
+          #             user_extended_detail_id: 90,
+          #             time: 11
+          #         },
+          #         operator: "="
+          #     }
+          # ]
+          #
+
+
+          #
+          # filter_conditions:  do not specify any key which is part of primary key.
+          #      supports use_column_mapping, merge_columns.
+          #
+          #     operator:- supported values: =, <, >, <>
+          #     logical_operator:- outer queries are joined by this. supported values: AND, OR
+          # eg:
+          # {
+          #     conditions: [
+          #         {
+          #             attribute: {
+          #                 image_processing_status: "processed"
+          #             },
+          #             operator: "="
+          #         },
+          #         {
+          #             attribute: {
+          #                 image_processing_status: "processed",
+          #                 time: 12
+          #             },
+          #             operator: "="
+          #         }
+          #
+          #     ],
+          #     logical_operator: "AND"
+          # }
+          #
+
+          # exclusive_start_key:- used for pagination. does not supports use_column_mapping, merge_columns.
+          #     use backend keys name always
+          #
+          # eg:-
+          # {
+          #     u_e_id: {n: 90},
+          #     u_e_id_ts: {n: 90}
+          # }
+          #
+          # limit:- pass a integer
+          #
+          # projection_expression:- use same format as in remove - supports use_column_mapping, merge_columns.
+          #
+          # eg:- when using full name
+          # [[:time, :image_processing_status], [:time]]
+          #
+          # eg:- when using short name
+          # [:id, :ued_id_id]
+          #
+
+          # index_name- used in query, scan methods of ddb.
+          # eg:-
+          # "GSI_1"
+
+          # key:- specify primary key, supports use_column_mapping, merge_columns.
+          #     outer queries are joined by AND
+          #
+          # eg:
+          # [
+          #     {
+          #         attribute: {
+          #             user_extended_detail_id: 90
+          #         },
+          #         operator: "="
+          #     },
+          #     {
+          #         attribute: {
+          #             user_extended_detail_id: 90,
+          #             time: 11
+          #         },
+          #         operator: "="
+          #     }
+          # ]
+          #
+          # [
+          #     {
+          #         attribute: {
+          #             u_e_d_id: 90
+          #         },
+          #         operator: "="
+          #     },
+          #     {
+          #         attribute: {
+          #             u_e_d_id_tm: '90_11'
+          #         },
+          #         operator: "="
+          #     }
+          # ]
+          #
+          #
+
+          # return_values: - String. supported values: NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW
+          #
+
+          # item:-  specify atleast primary key, supports use_column_mapping, merge_columns.
+          #
+          # eg:
+          # [
+          #     {
+          #         attribute: {
+          #             user_extended_detail_id: 90
+          #         },
+          #     },
+          #     {
+          #         attribute: {
+          #             user_extended_detail_id: 90,
+          #             time: 11
+          #         },
+          #     }
+          # ]
+          #
+          # [
+          #     {
+          #         attribute: {
+          #             u_e_d_id: 90
+          #         },
+          #     },
+          #     {
+          #         attribute: {
+          #             u_e_d_id_tm: '90_11'
+          #         },
+          #     }
+          # ]
+
+          #
+          # items: used in Batch Write. Array of item. supports use_column_mapping, merge_columns.
+          #
+          # eg:
+          # [
+          #     [
+          #         {
+          #             attribute: {
+          #                 user_extended_detail_id: 90
+          #             },
+          #         },
+          #         {
+          #             attribute: {
+          #                 user_extended_detail_id: 90,
+          #                 time: 11
+          #             },
+          #         }
+          #     ],
+          #     [
+          #         {
+          #             attribute: {
+          #                 user_extended_detail_id: 91
+          #             },
+          #         },
+          #         {
+          #             attribute: {
+          #                 user_extended_detail_id: 91,
+          #                 time: 12
+          #             },
+          #         }
+          #     ],
+          # ]
+          #
 
           # hash specifying ddb operations and parameters required/those can be used for these operations
           def allowed_params
@@ -41,11 +224,13 @@ module GlobalConstant
 
                 batch_write: {
                     mandatory: [:items],
+                    # todo: check return_values
                     optional: []
                 }
             }
           end
 
+          # todo: do not support hash and array
           def variable_types
             {
                 number: :n,

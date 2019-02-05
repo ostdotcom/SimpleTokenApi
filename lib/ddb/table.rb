@@ -53,7 +53,6 @@ module Ddb
         parsed_resp.each do |resp|
           instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
         end
-
         success_with_data(data: {items: instance_array, last_evaluated_key: last_evaluated_key})
       end
 
@@ -75,7 +74,6 @@ module Ddb
       #
 
       def delete_item(item)
-        attributes = nil
         r = validate_for_ddb_options(item, self.class.allowed_params[:delete_item])
         return r unless r.success?
 

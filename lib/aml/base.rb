@@ -4,7 +4,7 @@ module Aml
 
     require 'http'
 
-    include Util::ResultHelperinclude Util::ResultHelper
+    include Util::ResultHelper
 
     # Initialize
     #

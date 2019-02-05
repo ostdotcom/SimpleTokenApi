@@ -5,6 +5,10 @@ module GlobalConstant
         class << self
 
 
+          # eg for: exclusive_start_key
+          # projection_expression - use same format as in remove - [[:id, :u_k_d_id], [:id]]
+
+
           # hash specifying ddb operations and parameters required/those can be used for these operations
           def allowed_params
             {

@@ -1,6 +1,7 @@
 class Web::Admin::LoginController < Web::Admin::BaseController
 
   before_action :authenticate_request, except: [
+      :check_logged_in,
       :password_auth,
       :get_ga_url,
       :multifactor_auth,
@@ -10,7 +11,36 @@ class Web::Admin::LoginController < Web::Admin::BaseController
       :activate_invited_admin,
       :logout
   ]
+
+  before_action :validate_double_auth_logged_in, only: [
+      :get_ga_url,
+      :check_logged_in,
+      :send_admin_reset_password_link,
+      :admin_reset_password,
+      :invite_detail,
+      :activate_invited_admin
+  ]
+
+  before_action :validate_single_auth_logged_in, only: [
+      :check_logged_in,
+      :send_admin_reset_password_link,
+      :admin_reset_password,
+      :invite_detail,
+      :activate_invited_admin
+  ]
+
   before_action :verify_recaptcha, only: [:password_auth]
+
+
+  # Check if cookie is present for logged out page loads(includes 1FA page)
+  #
+  # * Author: Aman
+  # * Date: 05/02/2019
+  # * Reviewed By:
+  #
+  def check_logged_in
+  #   return success
+  end
 
   # Password auth
   #

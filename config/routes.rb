@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin', controller: 'web/admin/login' do
+      match 'check-logged-in' => :check_logged_in, via: :GET
       match 'login' => :password_auth, via: :POST
       match 'logout' => :logout, via: :GET
       match 'get-ga-url' => :get_ga_url, via: :GET

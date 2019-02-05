@@ -14,6 +14,9 @@ module GlobalConstant
         "/admin/terms-and-conditions"
       end
 
+      def multifactor_auth
+        "/admin/authentication"
+      end
       ### Request Type End ###
 
     end

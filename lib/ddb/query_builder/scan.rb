@@ -30,7 +30,8 @@ module Ddb
                               index_name: @params[:index_name],
                               consistent_read: @params[:consistent_read],
                               return_consumed_capacity: @params[:return_consumed_capacity],
-                              projection_expression: @params[:projection_expression]
+                              projection_expression: @params[:projection_expression].present? ?
+                                                         @params[:projection_expression].join(", ") : nil,
                           }.delete_if {|_, v| v.nil?}
         )
 

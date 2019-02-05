@@ -27,7 +27,7 @@ module Ddb
       #   exclusive_start_key [Hash] (optional)
       #   return_consumed_capacity [String] (optional)
       #   limit [Number] (optional)
-      #   projection_expression [String] (optional)
+      #   projection_expression [Array] (optional)
       #   index_name [String] (optional)
       # @return [Result::Base] - response from dynamodb
       # items in response can be accessed as *r.data[:data][:items]*
@@ -106,7 +106,7 @@ module Ddb
       #   key [Hash] (mandatory) - Primary key
       #   consistent_read [Boolean] (optional)
       #   return_consumed_capacity [String] (optional)
-      #   projection_expression [String] (optional)
+      #   projection_expression [Array] (optional)
       # @return [Result::Base] - response from dynamodb
       # # items in response can be accessed as *r.data[:data][:item]*
       #
@@ -117,6 +117,12 @@ module Ddb
         return r unless r.success?
 
         r = validate_and_map_params(item[:key])
+
+        if item[:projection_expression].present?
+          r = map_list_to_be_name item[:projection_expression]
+          return r unless r.success?
+          item[:projection_expression] = r.data[:data]
+        end
 
 
         return r unless r.success?
@@ -143,9 +149,6 @@ module Ddb
         end if hash.present?
         result_hash
       end
-
-
-
 
 
       # put item to dynamodb
@@ -199,7 +202,7 @@ module Ddb
       #   exclusive_start_key [Hash] (optional)
       #   return_consumed_capacity [Hash] (optional)
       #   limit [Number] (optional)
-      #   projection_expression [String] (optional)
+      #   projection_expression [Array] (optional)
       #   index_name [String] (optional)
       # @return [Result::Base] - response from dynamodb -
       # items in response can be accessed as *r.data[:data][:items]*
@@ -390,25 +393,35 @@ module Ddb
           return r unless r.success?
           item[operation] = r.data[:data]
         end
-        item[:remove].each do |remove_item|
+        r = map_list_to_be_name(item[:remove])
+        return r unless r.success?
+        item[:remove] = r.data[:data]
+
+        success_with_data(data: item)
+      end
+
+      def map_list_to_be_name(list)
+        result_list = []
+
+        list.each do |remove_item|
           if use_column_mapping?
             short_name = get_short_key_name(remove_item)
             return error_with_identifier('extra_item_param_given',
                                          'sb_1',
                                          []
             ) if short_name.blank?
-            remove_list << short_name
+            result_list << short_name
           else
             return error_with_identifier('extra_item_param_given',
                                          'sb_1',
                                          []
             ) if table_info[:merged_columns][remove_item].blank?
-            remove_list << remove_item
+            result_list << remove_item
           end
         end
-        item[:remove] = remove_list
-        success_with_data(data: item)
+        success_with_data(data: result_list)
       end
+
 
       # mapping (i.e. full name -> short name conversion ) for query, scan function
       #
@@ -434,6 +447,12 @@ module Ddb
           updated_query[:filter_conditions][:conditions] = r.data[:data]
 
         end
+        if updated_query[:projection_expression].present?
+          r = map_list_to_be_name updated_query[:projection_expression]
+          return r unless r.success?
+          updated_query[:projection_expression] = r.data[:data]
+        end
+
         success_with_data(data: updated_query)
 
       end

@@ -39,6 +39,8 @@ module AdminManagement
 
         @user_kyc_comparison_detail, @client_kyc_pass_setting = nil, nil
 
+        @aml_search = nil
+        @aml_matches = []
         @api_response_data = {}
       end
 
@@ -70,6 +72,8 @@ module AdminManagement
         fetch_user_kyc_comparison_detail
 
         fetch_client_pass_setting
+
+        fetch_client_aml_matches
 
         set_api_response_data
 
@@ -305,9 +309,34 @@ module AdminManagement
 
         end
 
+
+        if @aml_search.blank?
+          aml_processing_status = GlobalConstant::AmlSearch.unprocessed_aml_processing_status
+          all_matches_to_show = []
+        elsif @aml_search.status == GlobalConstant::AmlSearch.processed_status
+          aml_processing_status = GlobalConstant::AmlSearch.processed_aml_processing_status
+          all_matches_to_show = @aml_matches
+        else
+          aml_processing_status = GlobalConstant::AmlSearch.processing_aml_processing_status
+          all_matches_to_show = []
+        end
+
+        aml_matches_data = []
+        all_matches_to_show.each do |match|
+          pdf_file_path = local_cipher_obj.decrypt(match.pdf_path).data[:plaintext]
+          pdf_url = get_url(pdf_file_path)
+          aml_matches_data << {qr_code: match.qr_code, status: match.status, pdf_url: pdf_url}
+        end
+
+        aml_detail = {
+            aml_processing_status: aml_processing_status,
+            aml_matches: aml_matches_data
+        }
+
         @api_response_data = {
             user_detail: user_detail,
             case_detail: case_detail,
+            aml_detail: aml_detail,
             client_kyc_pass_setting: client_kyc_pass_setting,
             user_kyc_comparison_detail: user_kyc_comparison_detail,
             ai_pass_detail: ai_pass_details,
@@ -395,16 +424,7 @@ module AdminManagement
       # @return [String] status of kyc
       #
       def kyc_status
-        case true
-        when @user_kyc_detail.kyc_approved?
-          GlobalConstant::UserKycDetail.kyc_approved_status
-        when @user_kyc_detail.kyc_denied?
-          GlobalConstant::UserKycDetail.kyc_denied_status
-        when @user_kyc_detail.kyc_pending?
-          GlobalConstant::UserKycDetail.kyc_pending_status
-        else
-          fail "Invalid kyc status"
-        end
+        @user_kyc_detail.kyc_status
       end
 
       # Last acted by
@@ -693,6 +713,21 @@ module AdminManagement
                                      end
       end
 
+      # Fetch aml_search and aml_matches
+      #
+      # * Author: Aman
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # Sets @user_kyc_comparison_detail
+      #
+      def fetch_client_aml_matches
+        @aml_search = AmlSearch.get_from_memcache(@case_id, @user_extended_detail.id)
+        return if @aml_search.blank? || (@aml_search.status != GlobalConstant::AmlSearch.processed_status)
+
+        @aml_matches = AmlMatch.get_from_memcache(@aml_search.uuid)
+      end
+
       # Fetch user kyc comparison setting
       #
       # * Author: Aniket
@@ -711,7 +746,21 @@ module AdminManagement
         end
       end
 
-    end
+      # Check if case is manually/automatically approved
+      #
+      # * Author: Aman
+      # * Date: 10/01/2019
+      # * Reviewed By:
+      #
+      # @return [String] - Qualify type enum
+      #
+      def last_qualified_type
+        return nil if (!@user_kyc_detail.kyc_approved?)
 
+        return @user_kyc_detail.is_auto_approved? ? GlobalConstant::UserKycDetail.auto_approved_qualify_type :
+                   GlobalConstant::UserKycDetail.manually_approved_qualify_type
+      end
+
+    end
   end
 end

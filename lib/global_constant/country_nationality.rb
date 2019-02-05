@@ -6,7 +6,7 @@ module GlobalConstant
 
     # GlobalConstant::CountryNationality
 
-    # Get Cynopsis Country From Ip
+    # Get Aml Country From Ip
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -14,10 +14,10 @@ module GlobalConstant
     #
     # @return [Array]
     #
-    def self.get_cynopsis_country_from_ip(ip_address)
+    def self.get_aml_country_from_ip(ip_address)
       geoip_country = get_maxmind_country_from_ip(ip_address)
       return [] if geoip_country.blank?
-      blacklisted_country = maxmind_to_cynopsis_country_hash[geoip_country.upcase]
+      blacklisted_country = maxmind_to_aml_country_hash[geoip_country.upcase]
       blacklisted_country.present? ? blacklisted_country : []
     end
 
@@ -63,7 +63,7 @@ module GlobalConstant
     #   }
     # end
 
-    # list of cynopsis countries
+    # list of aml countries
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -72,7 +72,7 @@ module GlobalConstant
     # @return [Array]
     #
     def self.countries
-      @countries ||= cynopsis_country_to_maxmind_hash.keys
+      @countries ||= aml_country_to_maxmind_hash.keys
     end
 
     # Get country name from its MD5 hash
@@ -87,7 +87,7 @@ module GlobalConstant
       country_md5_map[md5_country] || ''
     end
 
-    # List of cynopsis nationalities
+    # List of aml nationalities
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -114,7 +114,7 @@ module GlobalConstant
     private
 
 
-    # Generate MD5 to cynopsis country name hash
+    # Generate MD5 to aml country name hash
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -127,7 +127,7 @@ module GlobalConstant
     end
 
 
-    # Generate MD5 to cynopsis nationality name hash
+    # Generate MD5 to aml nationality name hash
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -158,18 +158,18 @@ module GlobalConstant
     end
 
 
-    # Cynopsis country name to Maxmind country hash
+    # Aml country name to Maxmind country hash
     #
     # * Author: Tejas
     # * Date: 01/08/2018
     # * Reviewed By: Aman
     #
-    # @return [Hash] one cynopsis country can have multiple maxmind country name
+    # @return [Hash] one aml country can have multiple maxmind country name
     #
-    def self.cynopsis_country_to_maxmind_hash
-      @cynopsis_country_to_maxmind_hash ||= begin
+    def self.aml_country_to_maxmind_hash
+      @aml_country_to_maxmind_hash ||= begin
         country_mapping = {}
-        cynopsis_country_to_maxmind_data.each do |row|
+        aml_country_to_maxmind_data.each do |row|
           key = row[0].upcase
           value = row.drop(1)
           country_mapping[key] = value
@@ -179,7 +179,7 @@ module GlobalConstant
     end
 
 
-    # Maxmind country name to Cynopsis country hash
+    # Maxmind country name to Aml country hash
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -187,14 +187,14 @@ module GlobalConstant
     #
     # @return [Hash]
     #
-    def self.maxmind_to_cynopsis_country_hash
-      @maxmind_to_cynopsis_country_hash ||= begin
+    def self.maxmind_to_aml_country_hash
+      @maxmind_to_aml_country_hash ||= begin
         inverse_hash = {}
-        cynopsis_country_to_maxmind_hash.each do |cynopsis_country, maxmind_countries|
+        aml_country_to_maxmind_hash.each do |aml_country, maxmind_countries|
           maxmind_countries.each do |maxmind_country|
             key = maxmind_country.upcase
             inverse_hash[key] ||= []
-            inverse_hash[key] << cynopsis_country
+            inverse_hash[key] << aml_country
           end
         end
         inverse_hash
@@ -209,8 +209,8 @@ module GlobalConstant
     #
     # @return [Hash]
     #
-    def self.cynopsis_country_to_maxmind_data
-      @cynopsis_country_to_maxmind_data ||= CSV.read("#{Rails.root}/config/cynopsis_country_to_maxmind_mapping.csv")
+    def self.aml_country_to_maxmind_data
+      @aml_country_to_maxmind_data ||= CSV.read("#{Rails.root}/config/aml_country_to_maxmind_mapping.csv")
     end
 
     # list of cynopsis nationalities removed from previous list of cynopsis nationalities
@@ -239,16 +239,18 @@ module GlobalConstant
       ]
     end
 
-    # list of cynopsis countries removed from previous list of cynopsis countries
+    # list of aml countries removed from previous list of aml countries
     #
     # * Author: Tejas
     # * Date: 01/08/2018
     # * Reviewed By: Aman
     #
-    # @return [Array]  # these countries were deleted from our list of cynopsis country on 01/08/2018
+    # @return [Array]  # these countries were deleted from our list of aml country on 01/08/2018
     #
     def self.deleted_countries
       [
+
+          # countries which were removed from  cynopsis list previously
           "BRITISH INDIAN OCEAN TERRITORY",
           "ASHMORE AND CARTIER ISLANDS",
           "AUSTRALIAN ANTARCTIC TERRITORY",
@@ -260,7 +262,17 @@ module GlobalConstant
           "CLIPPERTON ISLAND",
           "ROSS DEPENDENCY",
           "QUEEN MAUD LAND",
-          "PETER I ISLAND"
+          "PETER I ISLAND",
+
+          # countries not in acuris list
+          "ANTARCTICA",
+          "FRENCH SOUTHERN TERRITORIES",
+          "HOWLAND ISLAND",
+          "KINGMAN REEF",
+          "NAGORNO-KARABAKH",
+          "PRIDNESTROVIE (TRANSNISTRIA)",
+          "SOUTH OSSETIA",
+          "UNITED STATES MINOR OUTLYING ISLANDS"
       ]
     end
 
@@ -420,6 +432,8 @@ module GlobalConstant
     end
 
     # Updated Country Hash By Cynopsis
+
+    # renamed country hash for difference in cynopsis and acuris
     #
     # * Author: Tejas
     # * Date: 01/08/2018
@@ -427,8 +441,57 @@ module GlobalConstant
     #
     # @return [Hash]
     #
+
     def self.updated_country_hash
-      {}
+      {
+          "BAHAMAS" => "BAHAMAS, THE",
+          "BURMA (REPUBLIC OF THE UNION OF MYANMAR)" => "MYANMAR",
+          "CARIBBEAN NETHERLANDS" => "NETHERLANDS ANTILLES",
+          "CAYMAN ISLANDS" => "CAYMAN ISLANDS, THE",
+          "CONGO (REPUBLIC OF)" => "CONGO, REPUBLIC OF THE",
+          "COTE D'IVOIRE (IVORY COAST)" => "CÔTE D'IVOIRE",
+          "DEMOCRATIC REPUBLIC OF THE CONGO" => "CONGO, DEMOCRATIC REPUBLIC OF THE",
+          "GAMBIA" => "GAMBIA, THE",
+          "MACEDONIA" => "MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF",
+          "MICRONESIA" => "MICRONESIA, FEDERATED STATES OF",
+          "NORTH KOREA" => "KOREA, NORTH",
+          "RUSSIAN FEDERATION" => "RUSSIA",
+          "SAINT MARTIN (NETHERLANDS)" => "ST. MAARTEN",
+          "SAINT VINCENT AND GRENADINES" => "SAINT VINCENT AND THE GRENADINES",
+          "SOMALILAND" => "SOMALIA",
+          "SOUTH KOREA" => "KOREA, SOUTH",
+          "TIMOR-LESTE" => "EAST TIMOR",
+          "VATICAN" => "VATICAN CITY",
+          "WALLIS AND FUTUNA ISLANDS" => "WALLIS AND FUTUNA",
+
+
+          "ABKHAZIA"=> 'GEORGIA',
+          "ALAND ISLANDS"=> 'FINLAND',
+          "ASCENSION"=> 'UNITED KINGDOM',
+          "BOUVET ISLAND"=> 'NORWAY',
+          "CHRISTMAS ISLAND"=> 'AUSTRALIA',
+          "COCOS (KEELING) ISLANDS"=> 'AUSTRALIA',
+          "CORAL SEA ISLANDS"=> 'AUSTRALIA',
+          "CURACAO"=> 'NETHERLANDS ANTILLES', # as per google
+          "FALKLAND ISLANDS"=> 'UNITED KINGDOM',
+          "HEARD AND MCDONALD ISLANDS"=> 'AUSTRALIA',
+          "JOHNSTON ATOLL"=> 'UNITED STATES OF AMERICA',
+          "MIDWAY ISLANDS"=> 'UNITED STATES OF AMERICA',
+          "NAVASSA ISLAND"=> 'UNITED STATES OF AMERICA',
+          "NORTHERN CYPRUS"=> 'CYPRUS',
+          "PALMYRA ATOLL"=> 'UNITED STATES OF AMERICA',
+          "PITCAIRN"=> 'UNITED KINGDOM',
+          "PITCAIRN ISLANDS"=> 'UNITED KINGDOM',
+          "SAINT BARTHELEMY"=> 'FRANCE',
+          "SAINT HELENA"=> 'UNITED KINGDOM',
+          "SAINT MARTIN (FRANCE)"=> 'FRANCE',
+          "SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS"=> 'UNITED KINGDOM',
+          "SVALBARD AND JAN MAYEN ISLANDS"=> 'NORWAY',
+          "TOKELAU"=> 'NEW ZEALAND',
+          "TRISTAN DA CUNHA"=> 'UNITED KINGDOM',
+          "WAKE ISLAND" => 'UNITED STATES OF AMERICA'
+      }
+
     end
 
     # Updated Nationality Hash By Cynopsis

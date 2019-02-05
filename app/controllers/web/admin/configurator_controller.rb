@@ -4,7 +4,7 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   before_action :sanitize_params
 
   before_action only: [:publish_entity_group, :fetch_published_version] do
-    authenticate_request(true)
+    authenticate_request({is_super_admin_role: true})
   end
 
   before_action :validate_configurator_settings, except: [:index]

@@ -4,20 +4,17 @@ module AdminManagement
 
     module AdminAction
 
-      class EmailKycIssue < AdminManagement::Kyc::AdminAction::Base
+      class ReportIssue < Base
 
         # Initialize
         #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Mayur
+        # * Date: 10/1/19
+        # * Reviewed By:
         #
-        # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
-        # @params [Integer] id (mandatory)
-        # @params [Hash] email_temp_vars (mandatory)
+        # @params [Hash]
         #
-        # @return [AdminManagement::Kyc::AdminAction::KycIssueEmail]
+        # @return [AdminManagement::Kyc::AdminAction::ReportIssue]
         #
         def initialize(params)
           super
@@ -26,20 +23,17 @@ module AdminManagement
           @sanitized_email_data = {}
         end
 
-        # Deny KYC by admin
+        # perform
         #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Mayur
+        # * Date: 10/1/2019
+        # * Reviewed By:
         #
         # return [Result::Base]
         #
         def perform
 
           r = validate_and_sanitize
-          return r unless r.success?
-
-          r = validate_for_email_setup
           return r unless r.success?
 
           log_admin_action
@@ -57,21 +51,23 @@ module AdminManagement
 
         # Validate & sanitize
         #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Mayur
+        # * Date: 10/1/2019
+        # * Reviewed By:
         #
         # Sets @sanitized_email_data
         #
         # return [Result::Base]
         #
         def validate_and_sanitize
-
           r = super
           return r unless r.success?
 
+          r = validate_for_email_setup
+          return r unless r.success?
+
           return error_with_data(
-              'am_k_aa_eki_1',
+              'am_k_ari_vs_1',
               'Please select options for email issue',
               'Please mention the reason to email issue',
               GlobalConstant::ErrorAction.default,
@@ -86,7 +82,7 @@ module AdminManagement
             issue_data_enum = GlobalConstant::UserActivityLog.kyc_issue_email_sent_action_categories[issue_category]
 
             return error_with_data(
-                'am_k_aa_eki_2',
+                'am_k_ari_vs_2',
                 'Invalid option for kyc issue',
                 'Invalid option for kyc issue',
                 GlobalConstant::ErrorAction.default,
@@ -113,7 +109,7 @@ module AdminManagement
           end
 
           return error_with_data(
-              'am_k_aa_eki_3',
+              'am_k_ari_vs_3',
               'NO option selected for kyc issue',
               'Please mention the reason to email issue',
               GlobalConstant::ErrorAction.default,
@@ -122,7 +118,7 @@ module AdminManagement
           ) unless @sanitized_email_data.present?
 
           return error_with_data(
-              'am_k_aa_eki_4',
+              'am_k_ari_vs_4',
               'Invalid option for kyc issue',
               '',
               GlobalConstant::ErrorAction.default,
@@ -135,12 +131,12 @@ module AdminManagement
 
         # Send email
         #
-        # * Author: Alpesh
-        # * Date: 15/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Mayur
+        # * Date: 10/1/2019
+        # * Reviewed By:
         #
         def send_email
-
+          @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
           Email::HookCreator::SendTransactionalMail.new(
               client_id: @client.id,
               email: @user.email,
@@ -152,15 +148,15 @@ module AdminManagement
 
         # Update Kyc Details
         #
-        # * Author: Aman
-        # * Date: 25/10/2017
+        # * Author: Mayur
+        # * Date: 10/1/2019
         # * Reviewed By:
         #
         def update_kyc_details
           @email_temp_vars.each do |issue_category, issue|
             @user_kyc_detail.send("set_" + issue_category.to_s) if issue.present?
           end
-
+          @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
           @user_kyc_detail.last_acted_by = @admin_id
           @user_kyc_detail.last_acted_timestamp = Time.now.to_i
           @user_kyc_detail.save! if @user_kyc_detail.changed?
@@ -168,35 +164,35 @@ module AdminManagement
 
         # user action log table action name
         #
-        # * Author: Aman
-        # * Date: 21/10/2017
-        # * Reviewed By: Sunil
+        # * Author: Mayur
+        # * Date: 10/1/19
+        # * Reviewed By:
         #
         def logging_action_type
           GlobalConstant::UserActivityLog.kyc_issue_email_sent_action
         end
 
-        # Do remaining task in sidekiq
+        # check if client has email setup
         #
-        # * Author: Tejas
-        # * Date: 16/10/2018
+        # * Author: Mayur
+        # * Date: 10/1/2019
         # * Reviewed By:
         #
-        def enqueue_job
-          BgJob.enqueue(
-              WebhookJob::RecordEvent,
-              {
-                  client_id: @user_kyc_detail.client_id,
-                  event_source: GlobalConstant::Event.web_source,
-                  event_name: GlobalConstant::Event.kyc_status_update_name,
-                  event_data: {
-                      user_kyc_detail: @user_kyc_detail.get_hash,
-                      admin: @admin.get_hash
-                  },
-                  event_timestamp: Time.now.to_i
-              }
-          )
+        # @return [Result::Base]
+        #
+        # Sets @client
+        #
+        def validate_for_email_setup
 
+          return error_with_data(
+              'am_k_ari_vfes_1',
+              'Client has not completed email setup',
+              'Client has not completed email setup',
+              GlobalConstant::ErrorAction.default,
+              {}
+          ) unless @client.is_email_setup_done?
+
+          success
         end
 
       end

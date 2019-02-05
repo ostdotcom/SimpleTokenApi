@@ -2,7 +2,7 @@ class Web::Admin::SuperAdminController < Web::Admin::BaseController
 
   before_action only: [:get_kyc_report, :get_user_report, :invite, :resend_invite, :reset_mfa, :delete_admin,
                        :update_auto_approve_setting, :update_sale_setting, :update_country_setting] do
-    authenticate_request(true)
+    authenticate_request({is_super_admin_role: true})
   end
 
   before_action :authenticate_request, only: [:dashboard]

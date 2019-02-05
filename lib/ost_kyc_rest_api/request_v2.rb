@@ -303,7 +303,7 @@ module OstKycRestApi
           error_with_internal_code('h_hh_par_3',
                                    'ost kyc api authentication failed',
                                    GlobalConstant::ErrorCode.unauthorized_access,
-                                   {}, {},
+                                   {}, [],
                                    response_data['err']['msg']
           )
 
@@ -312,20 +312,20 @@ module OstKycRestApi
           error_with_internal_code('h_hh_par_4',
                                    'ost kyc api bad gateway',
                                    GlobalConstant::ErrorCode.unhandled_exception,
-                                   {},{}, ''
+                                   {},[], ''
           )
         when "Net::HTTPInternalServerError"
           error_with_internal_code('h_hh_par_5',
                                    'ost kyc api bad internal server error',
                                    GlobalConstant::ErrorCode.unhandled_exception,
-                                   {},{},''
+                                   {},[],''
           )
         when "Net::HTTPForbidden"
           #403
           error_with_internal_code('h_hh_par_6',
                                    'ost kyc api forbidden',
                                    GlobalConstant::ErrorCode.forbidden,
-                                   {},{},response_data['err']['msg']
+                                   {},[],response_data['err']['msg']
           )
         else
           # HTTP error status code (500, 504...)

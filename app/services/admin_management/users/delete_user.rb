@@ -116,12 +116,12 @@ module AdminManagement
 
         return error_with_data(
             'am_u_du_3',
-            'Kyc Case is closed or Whitelisting is in process. Please wait for sometime.',
-            'Kyc Case is closed or Whitelisting is in process. Please wait for sometime.',
+            'Kyc Case is closed.',
+            'Kyc Case is closed',
             GlobalConstant::ErrorAction.default,
             {},
             {}
-        ) if !@user_kyc_detail.can_delete?
+        ) if @user_kyc_detail.case_closed?
 
         success
       end
@@ -142,6 +142,9 @@ module AdminManagement
         @user.save!
 
         if @user_kyc_detail.present?
+          if @user_kyc_detail.admin_status == GlobalConstant::UserKycDetail.qualified_admin_status
+            @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
+          end
           @user_kyc_detail.status = GlobalConstant::UserKycDetail.inactive_status
           @user_kyc_detail.save!
         end

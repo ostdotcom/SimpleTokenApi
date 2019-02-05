@@ -36,6 +36,16 @@
     - :browser_user_agent
   :optional:
 
+'AdminManagement::Profile::UpdateTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
+'AdminManagement::Profile::GetTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
 'AdminManagement::VerifyCookie::SingleAuth':
   :mandatory:
     - :cookie_value
@@ -61,7 +71,7 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
-    - :is_super_admin_role
+    - :options
   :optional:
 
 'AdminManagement::Kyc::CheckDetails':
@@ -114,14 +124,16 @@
 #  :optional:
 #    - :ethereum_address
 
-'AdminManagement::Kyc::AdminAction::DenyKyc':
+'AdminManagement::Kyc::AdminAction::DenyCase':
   :mandatory:
     - :admin_id
     - :client_id
     - :id
   :optional:
+    - :matched_ids
+    - :unmatched_ids
 
-'AdminManagement::Kyc::AdminAction::EmailKycIssue':
+'AdminManagement::Kyc::AdminAction::ReportIssue':
   :mandatory:
     - :admin_id
     - :client_id
@@ -129,13 +141,23 @@
     - :email_temp_vars
   :optional:
 
-'AdminManagement::Kyc::AdminAction::Qualify':
+'AdminManagement::Kyc::AdminAction::ApproveDetails':
   :mandatory:
     - :admin_id
     - :client_id
     - :id
   :optional:
     - :is_auto_approve
+
+'AdminManagement::Kyc::AdminAction::ApproveCase':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+    - :matched_ids
+    - :unmatched_ids
+
 
 'AdminManagement::Kyc::CheckDuplicates':
   :mandatory:
@@ -511,12 +533,6 @@
      - :set_allowed_keys
   :optional:
 
-'ClientManagement::GetAmlDetail':
-  :mandatory:
-     - :client_id
-     - :admin_id
-  :optional:
-
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id
@@ -640,14 +656,6 @@
     - :client_id
   :optional:
     - :entity_group_id
-
-'AdminManagement::Kyc::RetryAmlUpload':
-  :mandatory:
-    - :client_id
-    - :id
-  :optional:
-    - :admin_id
-    - :cron_job
 
 'AdminManagement::AdminUser::Dashboard':
   :mandatory:

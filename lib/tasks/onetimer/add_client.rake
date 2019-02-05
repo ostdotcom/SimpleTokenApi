@@ -23,12 +23,6 @@ namespace :onetimer do
   #                            }],
   #         "double_opt_in" => 1,
   #         "client_name" => "Pepo",
-  #         "aml" => {
-  #             "email_id" =>  'paul@simpletoken.org',
-  #             "domain_name" => "OST_UAT",
-  #             "token" => "a2bf78a8-ae04-43be-8c44-5db71a91b2c2",
-  #             "base_url" => "https://p2.cynopsis-solutions.com/artemis_ost_uat"
-  #         },
   #         "pepo_campaign" => {
   #             "api_key" => '0455fbd02e9512168211903ff25094d8',
   #             "api_secret" => '4c1b4ec0983ab6b1e37d1c1fc31de5e6'
@@ -102,12 +96,12 @@ namespace :onetimer do
   # }
 
   #   system("rake RAILS_ENV=#{Rails.env} onetimer:add_client params='
-  # {\"client_name\":\"thirdtoken\",\"aml\":{\"domain_name\":\"SIMPLETOKEN\",\"token\":\"11e73a1b-b41f-425d-b10e-36dfcbdab6ed-1234\",\"base_url\":\"https://d1.aml-solutions.com/artemis_simpletoken\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"}
+  # {\"client_name\":\"thirdtoken\",\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"}
   # '")
 
 
   # params = params.to_json
-  # rake RAILS_ENV=development onetimer:add_client params="{\"client_plan\":{\"add_ons\":[\"whitelist\",\"custom_front_end\"],\"kyc_submissions_count\":100},\"super_admin\":{\"email\":\"tejas+7@ost.com\",\"password\":\"tejas123\",\"name\":\"tejas\"},\"double_opt_in\":1,\"client_name\":\"test2\",\"aml\":{\"email_id\":\"tejas@ost.com\",\"domain_name\":\"OST_UAT\",\"token\":\"a2bf78a8-ae04-43be-8c44-5db71a91b2c2\",\"base_url\":\"https://p2.cynopsis-solutions.com/artemis_ost_uat\"},\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"web_host\":{\"domain\":\"tejaskyc.developmentost.com\"},\"token_sale_details\":{\"token_name\":\"Tejas\",\"token_symbol\":\"T777\"},\"kyc_config\":{\"kyc_fields\":[\"first_name\",\"last_name\",\"birthdate\",\"country\",\"ethereum_address\",\"document_id_number\",\"nationality\",\"document_id_file_path\",\"selfie_file_path\",\"residence_proof_file_path\",\"investor_proof_files_path\",\"state\"]}}"
+  # rake RAILS_ENV=development onetimer:add_client params="{\"client_plan\":{\"add_ons\":[\"whitelist\",\"custom_front_end\"],\"kyc_submissions_count\":100},\"super_admin\":{\"email\":\"tejas+7@ost.com\",\"password\":\"tejas123\",\"name\":\"tejas\"},\"double_opt_in\":1,\"client_name\":\"test2\",\"pepo_campaign\":{\"api_key\":\"0455fbd02e9512168211903ff25094d8\",\"api_secret\":\"4c1b4ec0983ab6b1e37d1c1fc31de5e6\"},\"web_host\":{\"domain\":\"tejaskyc.developmentost.com\"},\"token_sale_details\":{\"token_name\":\"Tejas\",\"token_symbol\":\"T777\"},\"kyc_config\":{\"kyc_fields\":[\"first_name\",\"last_name\",\"birthdate\",\"country\",\"ethereum_address\",\"document_id_number\",\"nationality\",\"document_id_file_path\",\"selfie_file_path\",\"residence_proof_file_path\",\"investor_proof_files_path\",\"state\"]}}"
 
   task :add_client => :environment do
     params = JSON.parse(ENV['params'])
@@ -159,7 +153,7 @@ namespace :onetimer do
     puts "\tValidation started"
 
     super_admins = params["super_admins"]
-    aml_data = params["aml"]
+
     pepo_campaign_data = params["pepo_campaign"]
     web_host_data = params["web_host"]
     token_sale_details = params["token_sale_details"]
@@ -176,8 +170,7 @@ namespace :onetimer do
     fail 'Whitelist cannot be setup if Ethereum Address is not selected for kyc form' if has_whitelist_ad_on &&
         kyc_config["kyc_fields"].exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
-    fail 'token cannot be blank for aml' if aml_data['token'].blank? || token_sale_details.blank? || kyc_config.blank?
-    fail "aml email id(#{aml_data['email_id']}) is not valid " if aml_data['email_id'].blank? || !Util::CommonValidateAndSanitize.is_valid_email?(aml_data['email_id'])
+    fail 'token sale details cannot be blank' if  token_sale_details.blank? || kyc_config.blank?
 
     if pepo_campaign_data.present?
       fail 'api_key cannot be blank for pepo_campaign' if pepo_campaign_data['api_key'].blank?
@@ -195,7 +188,7 @@ namespace :onetimer do
 
     puts "\tValidation passed"
 
-    setup_properties_val = 1
+    setup_properties_val = 1 # aml setup is done
     setup_properties_val += 2 if pepo_campaign_data.present?
     setup_properties_val += 4 if has_whitelist_ad_on.present?
     setup_properties_val += 8 if web_host_data.present?
@@ -244,17 +237,6 @@ namespace :onetimer do
     ckps_obj.save!
 
     puts "\tKycPassSetting created"
-
-    r = LocalCipher.new(api_salt_d).encrypt(aml_data['token'])
-    return r unless r.success?
-
-    aml_token_e = r.data[:ciphertext_blob]
-
-    ClientAmlDetail.create(client_id: client_id, email_id: aml_data['email_id'], domain_name: aml_data['domain_name'],
-                           token: aml_token_e, base_url: aml_data['base_url'],
-                           status: GlobalConstant::ClientAmlDetail.active_status)
-
-    puts "\tAML setup done"
 
     if pepo_campaign_data.present?
       r = LocalCipher.new(api_salt_d).encrypt(pepo_campaign_data['api_secret'])

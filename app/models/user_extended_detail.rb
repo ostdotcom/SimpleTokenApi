@@ -31,7 +31,7 @@ class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
 
     user_extended_detail_ids.delete(user_extended_detail_id)
     return false if user_extended_detail_ids.blank?
-    UserKycDetail.where(client_id: client_id, user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
+    UserKycDetail.active_kyc.where(client_id: client_id, user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
   end
 
   # Get Key Object

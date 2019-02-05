@@ -92,7 +92,6 @@ module SandboxManagement
     #
     def get_client_settings
       cp = ClientPlan.get_client_plan_from_memcache(@client_id)
-      aml = ClientAmlDetail.get_from_memcache(@client_id)
       pepo_campaign = ClientPepoCampaignDetail.get_from_memcache(@client_id)
       web_host = ClientWebHostDetail.get_from_memcache_by_client_id(@client_id)
       token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
@@ -115,12 +114,6 @@ module SandboxManagement
           super_admins: super_admins_data,
           double_opt_in: @client.is_verify_page_active_for_client?,
           client_name: @client.name,
-          aml: {
-              email_id: aml.email_id,
-              domain_name: aml.domain_name,
-              token: decrypted_value(aml.token),
-              base_url: aml.base_url
-          },
           pepo_campaign: {
               api_key: pepo_campaign.api_key,
               api_secret: decrypted_value(pepo_campaign.api_secret)

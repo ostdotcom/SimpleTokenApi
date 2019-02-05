@@ -105,9 +105,9 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   # @returns [String] returns the last qualify type
   #
-  def last_qualified_type
-    qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
-                             GlobalConstant::UserKycDetail.manually_approved_qualify_type : qualify_types_array[0]
+  def is_auto_approved?
+    kyc_approved? && (last_reopened_at.to_i == 0) && (aml_status == GlobalConstant::UserKycDetail.cleared_aml_status) &&
+        qualify_types_array.exclude?(GlobalConstant::UserKycDetail.manually_approved_qualify_type)
   end
 
   # Array of Qualify types
@@ -200,12 +200,17 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (kyc_approved? || kyc_denied?) || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
-  def case_closed_for_auto_approve?
-    case_closed_for_admin? || last_reopened_at.to_i > 0 || admin_action_types_array.present?
+  def case_closed?
+    kyc_approved? || kyc_denied?
   end
 
-  def can_delete?
-    self.aml_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(self.admin_status)
+  def is_aml_status_open?
+    GlobalConstant::UserKycDetail.aml_open_statuses.include?(aml_status)
+  end
+
+  def case_closed_for_auto_approve?
+    case_closed? || (last_reopened_at.to_i > 0) ||
+        admin_action_types_array.present? || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
   def kyc_pending?
@@ -232,10 +237,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   end
 
-  def self.get_aml_user_id(user_id)
-    "ts_#{Rails.env[0..1]}_#{user_id}"
-  end
-
   # Whitelist confirmation is pending till kyc_confirmed_at is populated and status is done
   #
   # * Author: Pankaj
@@ -245,6 +246,17 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status && kyc_confirmed_at.present?)
   end
 
+  # get aml search uuid
+  #
+  # * Author: mayur
+  # * Date: 10/01/2019
+  # * Reviewed By:
+  #
+  # @return [String]
+  #
+  def get_aml_search_uuid
+    "#{Rails.env[0..1]}_#{id}_#{user_extended_detail_id}"
+  end
 
   # User Kyc Status
   #
@@ -256,14 +268,14 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   def kyc_status
     case true
-    when kyc_approved?
-      GlobalConstant::UserKycDetail.kyc_approved_status
-    when kyc_denied?
-      GlobalConstant::UserKycDetail.kyc_denied_status
-    when kyc_pending?
-      GlobalConstant::UserKycDetail.kyc_pending_status
-    else
-      fail "Invalid kyc status"
+      when kyc_approved?
+        GlobalConstant::UserKycDetail.kyc_approved_status
+      when kyc_denied?
+        GlobalConstant::UserKycDetail.kyc_denied_status
+      when kyc_pending?
+        GlobalConstant::UserKycDetail.kyc_pending_status
+      else
+        fail "Invalid kyc status"
     end
   end
 
@@ -340,7 +352,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   end
 
   private
-
 
 
   # Flush Memcache

@@ -2,7 +2,7 @@ class Web::Admin::SettingController < Web::Admin::BaseController
 
   before_action only: [:reset_api_credentials, :update_api_fields, :get_developer_detail, :update_contract_address,
                         :update_whitelist_address, :get_contract_addresses] do
-    authenticate_request(true)
+    authenticate_request({is_super_admin_role: true})
   end
 
   # Reset Api Credentials
@@ -35,17 +35,6 @@ class Web::Admin::SettingController < Web::Admin::BaseController
   #
   def get_developer_detail
     service_response = ClientManagement::DeveloperDetail.new(params).perform
-    render_api_response(service_response)
-  end
-
-  # get Aml Detail
-  #
-  # * Author: Aniket
-  # * Date: 02/07/2018
-  # * Reviewed By:
-  #
-  def get_aml_detail
-    service_response = ClientManagement::GetAmlDetail.new(params).perform
     render_api_response(service_response)
   end
 

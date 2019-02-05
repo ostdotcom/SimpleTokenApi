@@ -55,6 +55,8 @@ Rails.application.routes.draw do
     scope 'api/admin/profile', controller: 'web/admin/profile' do
       match 'change-password' => :change_password, via: :POST
       match 'detail' => :get_detail, via: :GET
+      match 'get-terms-and-conditions' => :get_terms_and_conditions, via: :GET
+      match 'update-terms-and-conditions' => :update_terms_and_conditions, via: :POST
     end
 
     scope 'api/admin/client', controller: 'web/admin/client' do
@@ -78,10 +80,10 @@ Rails.application.routes.draw do
 
       match 'deny-kyc' => :deny_kyc, via: :POST
       match 'email-kyc-issue' => :email_kyc_issue, via: :POST
-      match 'qualify' => :qualify, via: :POST
+      match 'approve-details' => :approve_details, via: :POST
+      match 'approve-case' => :approve_case, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
-      match 'retry-aml-upload' => :retry_aml_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
 
       match 'open-case' => :open_kyc_case, via: :POST
@@ -115,7 +117,6 @@ Rails.application.routes.draw do
     scope 'api/admin/setting', controller: 'web/admin/setting' do
       match 'reset-api-credentials' => :reset_api_credentials, via: :POST
       match 'update-api-fields' => :update_api_fields, via: :POST
-      match 'aml-details' => :get_aml_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
       match 'update-deposit-address' => :update_deposit_address, via: :POST
       match 'update-whitelist-address' => :update_whitelist_address, via: :POST

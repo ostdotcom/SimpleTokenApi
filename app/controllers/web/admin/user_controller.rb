@@ -1,6 +1,6 @@
 class Web::Admin::UserController < Web::Admin::BaseController
 
-  before_action {authenticate_request(true)}
+  before_action {authenticate_request({is_super_admin_role: true})}
 
   # Get users list
   #

@@ -26,6 +26,18 @@ module Util
       safe_paragraph
     end
 
+    # Encode String To Hexadecimal String
+    #
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
+    #
+    # @return [string] Returns hexadecimal string
+    #
+    def self.encode_string_to_hexadecimal_string(qr_code)
+      qr_code.bytes.map{|x| "00#{x.to_s(16)}"}.join()
+    end
+
     # convert words separated by space to allow multiple or 0 spaces in between words
     #
     # * Author: Aniket

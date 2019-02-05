@@ -289,7 +289,6 @@ module AdminManagement
               face_match_percent: [@user_kyc_comparison_detail.big_face_match_percent,
                                    @user_kyc_comparison_detail.small_face_match_percent].min
           }
-          # put_item to dynamo
           if @user_kyc_comparison_detail.image_processing_status == GlobalConstant::ImageProcessing.processed_image_process_status
             automation_passed = @user_kyc_detail.qualify_types_array.include?(GlobalConstant::UserKycDetail.auto_approved_qualify_type)
 
@@ -397,7 +396,7 @@ module AdminManagement
       def case_detail
         {
             admin_status: @user_kyc_detail.admin_status,
-            last_qualified_type: @user_kyc_detail.last_qualified_type,
+            last_qualified_type: last_qualified_type,
             aml_status: @user_kyc_detail.aml_status,
             retry_aml: (@user_kyc_detail.aml_status == GlobalConstant::UserKycDetail.failed_aml_status).to_i,
             submission_count: @user_kyc_detail.submission_count.to_i,
@@ -407,9 +406,9 @@ module AdminManagement
             whitelist_status: @user_kyc_detail.whitelist_status,
             last_issue_email_sent: @user_kyc_detail.admin_action_types_array,
             last_issue_email_sent_humanized: @user_kyc_detail.admin_action_types_array.map {|x| x.humanize},
-            is_case_closed: @user_kyc_detail.case_closed_for_admin?.to_i,
+            is_case_closed: @user_kyc_detail.case_closed?.to_i,
             kyc_status: kyc_status,
-            can_reopen_case: (@user_kyc_detail.case_closed_for_admin? && (@user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.rejected_aml_status)).to_i,
+            can_reopen_case:1,
             case_reopen_inprocess: is_case_reopening_under_process?,
             whitelist_confirmation_pending: whitelist_confirmation_pending.to_i
         }

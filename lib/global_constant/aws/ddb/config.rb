@@ -53,13 +53,6 @@ module GlobalConstant
                 array: :l,
                 hash: :m
             }
-
-
-
-
-
-
-
           end
 
         end

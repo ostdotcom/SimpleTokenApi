@@ -6,7 +6,7 @@ module Ddb
           get_item({
                        key: [{
                                  attribute: {
-                                     :user_extended_detail_id => 99
+                                     :user_extended_detail_id => 7
                                  }
                              }]
                    })
@@ -14,7 +14,7 @@ module Ddb
 
     def self.put_item
       new_item = []
-      item = ::UserKycComparisonDetail.second_to_last
+      item = ::UserKycComparisonDetail.second
       item = item.attributes
       item.delete "id"
       item["created_at"] = item["created_at"].to_i

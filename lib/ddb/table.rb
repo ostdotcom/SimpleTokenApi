@@ -6,6 +6,8 @@ module Ddb
 
     include Util::ResultHelper
 
+    include JSON
+
     included do
       cattr_accessor :table_info
 
@@ -142,18 +144,6 @@ module Ddb
 
       end
 
-      def normalize_response(hash)
-        data_type_array_hash = [ GlobalConstant::Aws::Ddb::Config.variable_types[:array],
-                                 GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
-        result_hash = {}
-        hash.each do |k, v|
-          val = data_type_array_hash.include?(k['type']) ? format_value(v[k['type']]) :
-                    convert_var_to_correct_format(v[k['type']], k['type'])
-          result_hash[k['name']] = val
-        end if hash.present?
-        result_hash
-      end
-
 
       # put item to dynamodb
       #
@@ -175,13 +165,14 @@ module Ddb
 
         r = validate_for_ddb_options(item, self.class.allowed_params[:put_item])
         return r unless r.success?
-
         r = validate_and_map_params(item[:item])
 
         return r unless r.success?
         item[:item] = r.data[:data]
 
+
         r = Ddb::QueryBuilder::PutItem.new({params: item, table_info: table_info}).perform
+
 
         return r unless r.success?
 
@@ -348,36 +339,27 @@ module Ddb
         success
       end
 
-      def format_value(value)
-        data_type_array_hash = [ GlobalConstant::Aws::Ddb::Config.variable_types[:array],
-                                 GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
-        if value.class == Hash
-          result_obj = {}
-          value.each do |param, type|
-            type_of_var = type.to_hash.keys[0]
-            value_of_var = type.to_hash.values[0]
-            result_obj[param] = data_type_array_hash.include?(type_of_var) ? format_value(value_of_var) :
-                                    convert_var_to_correct_format(value_of_var, type_of_var)
-          end
-        elsif value.class == Array
-          result_obj = []
-          value.each do |type|
-            type_of_var = type.to_hash.keys[0]
-            value_of_var = type.to_hash.values[0]
-            result_obj << data_type_array_hash.include?(type_of_var) ? format_value(value_of_var) :
-                convert_var_to_correct_format(value_of_var, type_of_var)
-          end
-        else
-          return value
-        end
-        result_obj
+
+      def normalize_response(hash)
+        result_hash = {}
+        hash.each do |k, v|
+          result_hash[k] = format_value v.to_hash
+        end if hash.present?
+        result_hash
       end
 
-      def convert_var_to_correct_format(value_of_var, type_of_var)
-        if type_of_var ==  GlobalConstant::Aws::Ddb::Config.variable_types[:number]
-          return value_of_var.to_i
+      def format_value(value)
+        if value.first[0] == GlobalConstant::Aws::Ddb::Config.variable_types[:string]
+          return parse_json value.first[1]
+        elsif value.first[0] == GlobalConstant::Aws::Ddb::Config.variable_types[:number]
+          return value.first[1].to_i
+        else
+          return value.first[1]
         end
-        value_of_var
+      end
+
+      def parse_json(string)
+        JSON.parse(string) rescue string
       end
 
 
@@ -473,6 +455,8 @@ module Ddb
       # @return [Result Base]
       #
       def validate_and_map_params(item_list)
+        data_type_array_hash = [GlobalConstant::Aws::Ddb::Config.variable_types[:array],
+                                GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
         temp_item_list = []
         return success unless item_list
         if use_column_mapping?
@@ -485,21 +469,41 @@ module Ddb
                                          'sb_1',
                                          []
             ) if short_attr_name.blank?
-            attr[short_attr_name] = item_attr.values.length > 1 ?
-                                        {s: item_attr.values.join(table_info[:delimiter])} :
-                                        {table_info[:merged_columns][short_attr_name][:keys][0][:type] => item_attr.values[0].to_s}
+            if item_attr.values.length > 1
+              attr[short_attr_name] = {s: item_attr.values.join(table_info[:delimiter])}
+            else
+              data_type = table_info[:merged_columns][short_attr_name][:keys][0][:type]
+              if data_type_array_hash.include?(data_type)
+                val = item_attr.values[0].to_json
+                attr[short_attr_name] = {s: val}
+              else
+
+                attr[short_attr_name] = {data_type => item_attr.values[0].to_s}
+              end
+            end
+
             item[:attribute] = attr
             temp_item_list << item
           end
           return success_with_data(data: temp_item_list)
         else
           item_list.each do |item|
+            column_info = table_info[:merged_columns][item[:attribute].keys[0]]
             return error_with_identifier('extra_item_param_given',
                                          'sb_1',
                                          []
-            ) if table_info[:merged_columns][item[:attribute].keys[0]].blank?
+            ) if column_info.blank?
+            attr = {}
+            item_attr = item[:attribute]
+            if data_type_array_hash.include? column_info[:keys][0][:type]
+              attr[item_attr.keys[0]] = item_attr.values[0].to_json
+              item[:attribute] = attr
+            else
+              attr[item_attr.keys[0]] = item_attr.values[0].to_s
+            end
+            temp_item_list << item
           end
-          return success_with_data(data: item_list)
+          return success_with_data(data: temp_item_list)
         end
       end
 
@@ -531,9 +535,12 @@ module Ddb
       # @return [Hash]
       #
       def parse_response(r)
+        data_type_array_hash = [GlobalConstant::Aws::Ddb::Config.variable_types[:array],
+                                GlobalConstant::Aws::Ddb::Config.variable_types[:hash]]
         return r unless r.present?
         merged_col, separate_col = {}, {}
         data_type_string = GlobalConstant::Aws::Ddb::Config.variable_types[:string]
+        #puts "rrrrrrr  #{r}"
         if use_column_mapping?
           r.each do |key, val|
             merged_columns = table_info[:merged_columns][key][:keys]
@@ -543,9 +550,11 @@ module Ddb
                 merged_col[long_name[:name]] = {long_name[:type] => val[index]}
               end
             else
-              separate_col[merged_columns[0]] = val
+              separate_col[merged_columns[0]["name"]] = val
             end
+
           end
+          puts "--------- #{separate_col}"
           normalize_response separate_col.merge(merged_col)
         else
           normalize_response r
@@ -581,7 +590,7 @@ module Ddb
       def format_last_eval_key(last_eval_key)
         return nil if last_eval_key.blank?
         last_evaluated_key = {}
-        last_eval_key.each do |k,v|
+        last_eval_key.each do |k, v|
           last_evaluated_key[k] = v.to_hash
         end
         last_evaluated_key

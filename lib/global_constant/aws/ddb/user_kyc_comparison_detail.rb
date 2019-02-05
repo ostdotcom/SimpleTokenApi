@@ -16,7 +16,7 @@ module GlobalConstant
                     keys: [{name: :client_id, type:variable_type[:number] }]
                 },
                 l_i: {
-                    keys:  [{name: :lock_id, type: variable_type[:number]  }]
+                    keys:  [{name: :lock_id, type: variable_type[:string]  }]
                 },
                 d_d: {
                     keys: [{name: :document_dimensions, type: variable_type[:hash] }]

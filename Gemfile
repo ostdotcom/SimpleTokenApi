@@ -39,7 +39,7 @@ gem 'rmagick', '2.16.0'
 
 gem 'google-cloud-vision', '0.28.0'
 
-gem 'aws-sdk-dynamodb'
+gem 'aws-sdk-dynamodb', '1.20.0'
 
 group :development, :test do
   # Use Puma as the app server

@@ -119,7 +119,7 @@ module AdminManagement
     def reopen_case
       # Update USer kyc detail
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
-      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status  if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.unprocessed_aml_status
+      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.unprocessed_aml_status
       @user_kyc_detail.aml_user_id = nil
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.kyc_confirmed_at = nil
@@ -177,7 +177,8 @@ module AdminManagement
             client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: email_id,
             template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-            template_vars: {success: is_success.to_i, email: user_email, reason_failure: "UnWhitelist Transaction has failed"}
+            template_vars: {success: is_success.to_i, email: user_email, reason_failure: "UnWhitelist Transaction has failed",
+                            case_id: @user_kyc_detail.id}
         ).perform
       end
 
@@ -228,18 +229,17 @@ module AdminManagement
     #
     def record_event_job
       WebhookJob::RecordEvent.perform_now({
-                                     client_id: @user_kyc_detail.client_id,
-                                     event_source: GlobalConstant::Event.web_source,
-                                     event_name: GlobalConstant::Event.kyc_reopen_name,
-                                     event_data: {
-                                         user_kyc_detail: @user_kyc_detail.get_hash,
-                                         admin: @user_kyc_detail.get_last_acted_admin_hash
-                                     },
-                                     event_timestamp: Time.now.to_i
-                                 })
+                                              client_id: @user_kyc_detail.client_id,
+                                              event_source: GlobalConstant::Event.web_source,
+                                              event_name: GlobalConstant::Event.kyc_reopen_name,
+                                              event_data: {
+                                                  user_kyc_detail: @user_kyc_detail.get_hash,
+                                                  admin: @user_kyc_detail.get_last_acted_admin_hash
+                                              },
+                                              event_timestamp: Time.now.to_i
+                                          })
 
     end
-
 
 
   end

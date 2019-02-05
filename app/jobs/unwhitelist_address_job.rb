@@ -250,7 +250,7 @@ class UnwhitelistAddressJob < ApplicationJob
           client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
           email: email_id,
           template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-          template_vars: {success: 0, email: user_email, reason_failure: error_message}
+          template_vars: {success: 0, email: user_email, reason_failure: error_message, case_id: @user_kyc_detail_id}
       ).perform
     end
 

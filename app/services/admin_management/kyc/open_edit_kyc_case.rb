@@ -261,13 +261,16 @@ module AdminManagement
         template_variables = {
             email: user_email,
             success: 1,
-            reason_failure: ""
+            reason_failure: "",
+            case_id: @user_kyc_detail.id
         }
 
         admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
             @user_kyc_detail.client_id,
             GlobalConstant::Admin.open_case_request_outcome_notification_type
         )
+
+        admin_emails << @admin.email unless admin_emails.include?(@admin.email)
 
         admin_emails.each do |admin_email|
           ::Email::HookCreator::SendTransactionalMail.new(

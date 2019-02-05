@@ -80,7 +80,7 @@ module ClientManagement
       success
     end
 
-    # Fetch Client Plan
+    # Fetch Admins
     #
     # * Author: Aman
     # * Date: 24/01/2019
@@ -142,6 +142,13 @@ module ClientManagement
       sections = []
 
       GlobalConstant::Admin.notification_types_config.each do |notification_type, data|
+
+        next if (!@client.is_whitelist_setup_done? &&
+            (notification_type.to_s == GlobalConstant::Admin.whitelisting_balance_alert_notification_type))
+
+        next if (!@client.is_web_host_setup_done? && !@client.is_whitelist_setup_done? &&
+            (notification_type.to_s == GlobalConstant::Admin.contract_address_update_notification_type))
+
         checked = group_email_setting_data[notification_type.to_sym]
         disabled = data[:super_admin_mandatory] ? sorted_super_admin_ids : []
         section = {

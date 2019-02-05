@@ -65,7 +65,7 @@ module GlobalConstant
                 bitwise_value: 1
             },
             "#{billing_plan_notification_notification_type}" => {
-                display_text: "BILLING PLAN NOTIFICATION",
+                display_text: "BILLING PLAN ALERT",
                 super_admin_mandatory: true,
                 bitwise_value: 2
             },
@@ -75,12 +75,12 @@ module GlobalConstant
                 bitwise_value: 4
             },
             "#{open_case_request_outcome_notification_type}" => {
-                display_text: "REOPEN CASE RESULT",
+                display_text: "REOPEN CASE ALERT",
                 super_admin_mandatory: false,
                 bitwise_value: 8
             },
             "#{contract_address_update_notification_type}" => {
-                display_text: "CONTRACT ADDRESS UPDATE",
+                display_text: "CONTRACT ADDRESS UPDATED",
                 super_admin_mandatory: true,
                 bitwise_value: 16
             }

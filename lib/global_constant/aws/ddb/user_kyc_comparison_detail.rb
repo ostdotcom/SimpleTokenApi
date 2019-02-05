@@ -8,61 +8,61 @@ module GlobalConstant
           def merged_columns
             {
                 u_e_d_i: {
-                    keys:  [:user_extended_detail_id]
+                    keys: [{name: :user_extended_detail_id, type: :n }]
                 },
                 c_i: {
-                    keys: [:client_id]
+                    keys: [{name: :client_id, type: :n }]
                 },
                 l_i: {
-                    keys: [:lock_id]
+                    keys:  [{name: :lock_id, type: :n }]
                 },
                 d_d: {
-                    keys: [:document_dimensions]
+                    keys: [{name: :document_dimensions, type: :m }]
                 },
                 s_d: {
-                    keys: [:selfie_dimensions]
+                    keys: [{name: :selfie_dimensions, type: :m }]
                 },
                 f_n_m_p: {
-                    keys: [:first_name_match_percent]
+                    keys: [{name: :first_name_match_percent, type: :n }]
                 },
                 l_n_m_p: {
-                    keys: [:last_name_match_percent]
+                    keys:  [{name: :last_name_match_percent, type: :n }]
                 },
                 b_d_m_p: {
-                    keys: [:birthdate_match_percent]
+                    keys: [{name: :birthdate_match_percent, type: :n }]
                 },
                 d_i_n_m_p: {
-                    keys: [:document_id_number_match_percent]
+                    keys:[{name: :document_id_number_match_percent, type: :n }]
                 },
                 n_m_p: {
-                    keys: [:nationality_match_percent]
+                    keys: [{name: :nationality_match_percent, type: :n }]
                 },
                 b_f_m_p: {
-                    keys: [:big_face_match_percent]
+                    keys: [{name: :big_face_match_percent, type: :n }]
                 },
                 s_f_m_p: {
-                    keys: [:small_face_match_percent]
+                    keys: [{name: :small_face_match_percent, type: :n }]
                 },
                 s_h_l_p: {
-                    keys: [:selfie_human_labels_percent]
+                    keys:  [{name: :selfie_human_labels_percent, type: :n }]
                 },
                 i_p_s: {
-                    keys: [:image_processing_status]
+                    keys:  [{name: :image_processing_status, type: :s }]
                 },
                 k_a_a_s: {
-                    keys: [:kyc_auto_approved_status]
+                    keys: [{name: :kyc_auto_approved_status, type: :n }]
                 },
                 a_a_f_r: {
-                    keys: [:auto_approve_failed_reasons]
+                    keys: [{name: :auto_approve_failed_reasons, type: :n }]
                 },
                 c_k_p_s_i: {
-                    keys: [:client_kyc_pass_settings_id]
+                    keys: [{name: :client_kyc_pass_settings_id, type: :n }]
                 },
                 c_a: {
-                    keys: [:created_at]
+                    keys: [{name: :created_at, type: :n }]
                 },
                 u_a: {
-                    keys: [:updated_at]
+                    keys: [{name: :updated_at, type: :n }]
                 }
             }.with_indifferent_access
           end

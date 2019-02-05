@@ -8,7 +8,7 @@ module Ddb
   end
 
   def fetch_client
-    Aws::DynamoDB::Client.new(ddb_credentials)
+    Aws::DynamoDB::Client.new(ddb_credentials.merge({simple_attributes: false}))
   end
 
   def ddb_credentials

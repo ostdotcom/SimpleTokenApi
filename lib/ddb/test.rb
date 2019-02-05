@@ -31,6 +31,18 @@ module Ddb
       r = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).put_item(item: new_item)
     end
 
+    def self.delete_item
+      r = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).
+          delete_item({
+                       key: [{
+                                 attribute: {
+                                     :user_extended_detail_id => 99
+                                 }
+                             }]
+                   })
+
+    end
+
 
     def self.scan
       r = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).scan(limit: 5, filter_conditions: {
@@ -46,7 +58,7 @@ module Ddb
           logical_operator: "AND"
       })
       puts "rrrr #{r.inspect}"
-      #r_1 = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).scan(limit: 5, exclusive_start_key: r.data[:data][:last_evaluated_key])
+      r_1 = Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).scan(limit: 5, exclusive_start_key: r.data[:data][:last_evaluated_key])
     end
 
     def self.query
@@ -85,22 +97,10 @@ module Ddb
                             user_extended_detail_id: 90
                         }
                     }],
-              remove: [[:first_name_match_percent]],
+              remove: [[:last_name_match_percent]],
               return_values: "UPDATED_OLD"
           })
 
     end
-
-
   end
 end
-
-#
-# Ddb::UserKycComparisonDetail.new({shard_id: 's1'}, {use_column_mapping: true}).
-#     get_item({
-#                  key: [{
-#                            attribute: {
-#                                user_extended_detail_id: 17
-#                            }
-#                        }]
-#              })

@@ -38,7 +38,6 @@ module Ddb
         return r unless r.success?
 
         r = query_params_mapping(query)
-
         return r unless r.success?
 
         query = r.data[:data]
@@ -47,7 +46,7 @@ module Ddb
         ddb_r = Ddb::Api::Query.new(params: r.data).perform
         return ddb_r unless (ddb_r.success? && ddb_r.data[:data][:items].present?)
 
-        parsed_resp = use_column_mapping? ? parse_response_array(ddb_r.data[:data][:items]) : ddb_r.data[:data][:items]
+        parsed_resp = parse_response_array(ddb_r.data[:data][:items])
 
         last_evaluated_key = ddb_r.data[:data][:last_evaluated_key]
 
@@ -76,6 +75,7 @@ module Ddb
       #
 
       def delete_item(item)
+        attributes = nil
         r = validate_for_ddb_options(item, self.class.allowed_params[:delete_item])
         return r unless r.success?
 
@@ -90,8 +90,7 @@ module Ddb
         ddb_r = Ddb::Api::DeleteItem.new(params: r.data).perform
         return ddb_r unless ddb_r.success?
 
-        attributes = use_column_mapping? && ddb_r.data[:data][:attributes].present? ?
-                         parse_response(ddb_r.data[:data][:attributes]) : ddb_r.data[:data][:attributes]
+        attributes = parse_response(ddb_r.data[:data][:attributes])
 
         success_with_data(data: {attributes: initialize_instance_variables(attributes)})
       end
@@ -119,9 +118,9 @@ module Ddb
 
         r = validate_and_map_params(item[:key])
 
+
         return r unless r.success?
         item[:key] = r.data[:data]
-
         r = Ddb::QueryBuilder::GetItem.new({params: item, table_info: table_info}).perform
         return r unless r.success?
         ddb_r = Ddb::Api::GetItem.new(params: r.data).perform
@@ -130,13 +129,23 @@ module Ddb
 
         return ddb_r unless (ddb_r.success? && resp_item.present?)
 
-        resp_item = use_column_mapping? ? parse_response(resp_item) : resp_item
+        resp_item = parse_response(resp_item)
 
-        processed_data = process_dynamo_data(resp_item)
-
-        success_with_data(data: {item: initialize_instance_variables(processed_data)})
+        success_with_data(data: {item: initialize_instance_variables(resp_item)})
 
       end
+
+      def normalize_response(hash)
+        result_hash = {}
+        hash.each do |k, v|
+          val = [:l, :m].include?(k['type']) ? format_value(v[k['type']]) : convert_var_to_correct_format(v[k['type']], k['type'])
+          result_hash[k['name']] = val
+        end if hash.present?
+        result_hash
+      end
+
+
+
 
 
       # put item to dynamodb
@@ -171,12 +180,10 @@ module Ddb
 
         ddb_r = Ddb::Api::PutItem.new(params: r.data).perform
 
-        attributes = ddb_r.data[:data][:attributes]
+        return ddb_r unless ddb_r.success?
 
-        attributes = use_column_mapping? && attributes.present? ?
-                         parse_response(attributes) : attributes
+        attributes = parse_response(ddb_r.data[:data][:attributes])
 
-        ddb_r unless ddb_r.success?
         success_with_data(data: {attributes: initialize_instance_variables(attributes)})
       end
 
@@ -199,7 +206,7 @@ module Ddb
       #
       def scan(query = {})
 
-        instance_array = []
+        instance_array, processed_data = [], []
 
         r = validate_for_ddb_options(query, self.class.allowed_params[:scan])
         return r unless r.success?
@@ -217,7 +224,7 @@ module Ddb
 
         parsed_resp = parse_response_array(ddb_r.data[:data][:items])
 
-        last_evaluated_key = ddb_r.data[:data][:last_evaluated_key]
+        last_evaluated_key = ddb_r.data[:data][:last_evaluated_key].to_hash
 
         parsed_resp.each do |resp|
           instance_array << self.class.new(@params, @options).initialize_instance_variables(resp)
@@ -262,7 +269,9 @@ module Ddb
 
         ddb_r unless ddb_r.success?
 
-        success_with_data(data: {attributes: initialize_instance_variables(ddb_r.data[:data].attributes)})
+        attributes = parse_response(ddb_r.data[:data][:attributes])
+
+        success_with_data(data: {attributes: initialize_instance_variables(attributes)})
       end
 
       # Batch write in dynamo db
@@ -291,7 +300,7 @@ module Ddb
 
         list = ddb_r.data[:data][:unprocessed_items][table_info[:name].to_s]
         list.each do |l|
-          resp_list << use_column_mapping? ? parse_response(l["put_request"]["item"]) : l["put_request"]["item"]
+          resp_list << parse_response(l["put_request"]["item"])
         end if list.present?
         return success if list.blank?
         resp_list.each do |resp|
@@ -304,8 +313,6 @@ module Ddb
                               {unprocessed: resp_list}
         )
       end
-
-
 
 
       # validate parameters for ddb action functions
@@ -332,6 +339,36 @@ module Ddb
                                      (item.keys - (optional_params + mandatory_params))
         ) if (item.keys - (mandatory_params + optional_params)).present?
         success
+      end
+
+      def format_value(value)
+        if value.class == Hash
+          result_obj = {}
+          value.each do |param, type|
+            type_of_var = type.to_hash.keys[0]
+            value_of_var = type.to_hash.values[0]
+            result_obj[param] = [:l, :m].include?(type_of_var) ? format_value(value_of_var) :
+                                    convert_var_to_correct_format(value_of_var, type_of_var)
+          end
+        elsif value.class == Array
+          result_obj = []
+          value.each do |type|
+            type_of_var = type.to_hash.keys[0]
+            value_of_var = type.to_hash.values[0]
+            result_obj << [:l, :m].include?(type_of_var) ? format_value(value_of_var) :
+                convert_var_to_correct_format(value_of_var, type_of_var)
+          end
+        else
+          return value
+        end
+        result_obj
+      end
+
+      def convert_var_to_correct_format(value_of_var, type_of_var)
+        if type_of_var == :n
+          return value_of_var.to_i
+        end
+        value_of_var
       end
 
 
@@ -424,7 +461,8 @@ module Ddb
                                          []
             ) if short_attr_name.blank?
             attr[short_attr_name] = item_attr.values.length > 1 ?
-                                        item_attr.values.join(table_info[:delimiter]) : item_attr.values[0]
+                                        {s: item_attr.values.join(table_info[:delimiter])} :
+                                        {table_info[:merged_columns][short_attr_name][:keys][0][:type] => item_attr.values[0].to_s}
             item[:attribute] = attr
             temp_item_list << item
           end
@@ -468,20 +506,24 @@ module Ddb
       # @return [Hash]
       #
       def parse_response(r)
+        return r unless r.present?
         merged_col, separate_col = {}, {}
-
-        r.each do |key, val|
-          merged_columns = table_info[:merged_columns][key][:keys]
-          if merged_columns.length > 1
-            val = val.split(table_info[:delimiter])
-            merged_columns.each_with_index do |long_name, index|
-              merged_col[long_name] = val[index]
+        if use_column_mapping?
+          r.each do |key, val|
+            merged_columns = table_info[:merged_columns][key][:keys]
+            if merged_columns.length > 1
+              val = val[:s].split(table_info[:delimiter])
+              merged_columns.each_with_index do |long_name, index|
+                merged_col[long_name[:name]] = {long_name[:type] => val[index]}
+              end
+            else
+              separate_col[merged_columns[0]] = val
             end
-          else
-            separate_col[merged_columns[0]] = val
           end
+          normalize_response separate_col.merge(merged_col)
+        else
+          normalize_response r
         end
-        separate_col.merge(merged_col)
       end
 
       # get short key name from long name
@@ -495,25 +537,13 @@ module Ddb
       #
       def get_short_key_name(condition)
         table_info[:merged_columns].
-            select {|_, v| v[:keys].sort == condition.sort}.keys.first
+            select {
+                |_, v|
+              a = v[:keys].map {|k| k[:name]}
+              a.sort == condition.sort
+            }.keys.first
       end
 
-      # processes dynamo data, i.e. numbers values from dynamo comes with decimals - converting them to int
-      #
-      # * Author: mayur
-      # * Date: 01/02/2019
-      # * Reviewed By:
-      #
-      # @param data [Hash] (mandatory)
-      # @return [Hash]
-      #
-      def process_dynamo_data(data)
-        list_of_integer_keys = self.class.list_of_integer_keys
-        list_of_integer_keys.each do |key|
-          data[key] = data[key].to_i
-        end if data.present?
-        data
-      end
 
     end
 

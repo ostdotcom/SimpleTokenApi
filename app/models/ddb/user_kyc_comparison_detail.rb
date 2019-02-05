@@ -23,18 +23,9 @@ module Ddb
 
       @params = params
       @options = options
-
       @shard_id = params[:shard_id]
       set_table_name
     end
-
-
-    def self.list_of_integer_keys
-      ['auto_approve_failed_reasons', 'kyc_auto_approved_status']
-    end
-
-
-
 
     def self.auto_approve_failed_reasons_config
       @auto_approve_failed_reasons_config ||= {

@@ -509,8 +509,8 @@ module Ddb
       # * Date: 01/02/2019
       # * Reviewed By:
       #
-      # @param query [Hash] (mandatory)
-      # @return [Result Base]
+      # @param item_list [Array] (mandatory)
+      # @return [Array]
       #
       def parse_response_array(item_list)
         items = []
@@ -557,7 +557,7 @@ module Ddb
       # * Date: 01/02/2019
       # * Reviewed By:
       #
-      # @param r [Hash] (mandatory)
+      # @param condition [Array] (mandatory)
       # @return [Hash]
       #
       def get_short_key_name(condition)

@@ -24,6 +24,9 @@ module GlobalConstant
         'client_kyc_detail_api_activations'
       end
 
+      def admin_session_setting_table
+        'admin_session_settings'
+      end
 
     end
   end

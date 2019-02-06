@@ -217,11 +217,24 @@ namespace :onetimer do
                            api_secret: api_secret_e)
     client_id = client.id
 
+    obj = AdminSessionSetting.new(
+        client_id: client.id,
+        status: GlobalConstant::AdminSessionSetting.active_status,
+        log_sync: true,
+        source: GlobalConstant::AdminActivityChangeLogger.script_source
+    )
+
+    AdminSessionSetting.admin_types_config.map{|at,_|  obj.send("set_#{at.to_s}") }
+    obj.default_setting!
+    obj.save!
+
+
     puts "\tclient created"
 
     super_admin_obj = nil
     super_admins.each do |super_admin|
-      super_admin_obj = Admin.add_admin(client_id, super_admin['email'], super_admin['password'], super_admin['name'], true)
+      super_admin_obj = Admin.add_admin(client_id, super_admin['email'],
+                                        super_admin['password'], super_admin['name'], true)
     end
 
     puts "\tsuper admins created"

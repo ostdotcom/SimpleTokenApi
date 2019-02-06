@@ -120,7 +120,9 @@ module AdminManagement
     def reopen_case
       # Update USer kyc detail
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
-      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.unprocessed_aml_status
+      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status !=
+          GlobalConstant::UserKycDetail.unprocessed_aml_status
+
       @user_kyc_detail.aml_user_id = nil
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.kyc_confirmed_at = nil

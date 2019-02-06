@@ -258,7 +258,7 @@ module AdminManagement
       #
       #
       def send_open_case_request_outcome_email
-        user_email = User.get_from_memcache(@user_kyc_detail.user_id).email
+        user_email = User.using_client_shard(client: @client).get_from_memcache(@user_kyc_detail.user_id).email
         template_variables = {
             email: user_email,
             success: 1,

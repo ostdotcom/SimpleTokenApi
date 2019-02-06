@@ -186,11 +186,11 @@ module AdminManagement
 
         mfa_log_id = parts[0].to_i
         token = parts[1]
-        last_mfa_time = parts[2]
+        last_mfa_time = parts[2].to_i
 
         mfa_log = MfaLog.where(id: mfa_log_id).first
 
-        if mfa_log.blank? || (mfa_log.admin_id != @admin_id) || (mfa_log.ip_address != @ip_address) ||
+        if mfa_log.blank? || (mfa_log.admin_id != @admin.id) || (mfa_log.ip_address != @ip_address) ||
             (mfa_log.browser_user_agent != @browser_user_agent) || (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
             (mfa_log.token != token) || (mfa_log.status != GlobalConstant::MfaLog.active_status)
 

@@ -25,7 +25,7 @@ class MfaLog < EstablishSimpleTokenAdminDbConnection
   # @return [String] MFA Session value
   #
   def session_key
-    get_mfa_session_key(self.admin_id, self.ip_address, self.browser_user_agent)
+    MfaLog.get_mfa_session_key(self.admin_id, self.ip_address, self.browser_user_agent)
   end
 
   # Get MFA Session Key

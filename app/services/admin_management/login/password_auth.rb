@@ -216,7 +216,6 @@ module AdminManagement
         @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value
 
         @has_valid_mfa_session = true
-        @mfa_session_cookie_value
       end
 
 

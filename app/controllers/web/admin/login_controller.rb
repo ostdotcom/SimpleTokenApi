@@ -1,5 +1,7 @@
 class Web::Admin::LoginController < Web::Admin::BaseController
 
+  include ::Util::ResultHelper
+
   before_action :authenticate_request, except: [
       :check_logged_in,
       :password_auth,
@@ -39,7 +41,8 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def check_logged_in
-    #   return success
+    service_response = success
+    render_api_response(service_response)
   end
 
   # Password auth

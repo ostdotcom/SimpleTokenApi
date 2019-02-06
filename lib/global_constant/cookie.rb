@@ -9,6 +9,10 @@ module GlobalConstant
         'ta'
       end
 
+      def mfa_session_cookie_name
+        'tm'
+      end
+
       def user_cookie_name
         'tu'
       end
@@ -19,6 +23,10 @@ module GlobalConstant
 
       def double_auth_expiry
         1.hour
+      end
+
+      def mfa_session_expiry
+        30.days
       end
 
       def user_expiry

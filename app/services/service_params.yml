@@ -3,7 +3,9 @@
     - :email
     - :password
     - :browser_user_agent
+    - :ip_address
   :optional:
+    - :mfa_session_cookie_value_hash
 
 'AdminManagement::Logout':
   :mandatory:
@@ -28,7 +30,9 @@
     - :single_auth_cookie_value
     - :otp
     - :browser_user_agent
+    - :ip_address
   :optional:
+    - :mfa_session_cookie_value
 
 'AdminManagement::Login::Multifactor::GetGaUrl':
   :mandatory:

@@ -77,10 +77,12 @@ class Admin < EstablishSimpleTokenAdminDbConnection
 
     admin_role = is_super_admin_role ? GlobalConstant::Admin.super_admin_role : GlobalConstant::Admin.normal_admin_role
 
+    admin_session_setting = AdminSessionSetting.is_active.where(client_id: default_client_id).first
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
                           admin_secret_id: admin_secrets_obj.id,
                           terms_of_use: GlobalConstant::Admin.accepted_terms_of_use,
-                          status: GlobalConstant::Admin.active_status, role: admin_role)
+                          status: GlobalConstant::Admin.active_status, role: admin_role,
+                          session_inactivity_timeout: admin_session_setting.session_inactivity_timeout)
     admin_obj.save!(validate: false)
     admin_obj
   end

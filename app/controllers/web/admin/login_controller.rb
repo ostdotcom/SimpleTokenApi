@@ -51,7 +51,9 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   def password_auth
 
     service_response = AdminManagement::Login::PasswordAuth.new(
-        params.merge(browser_user_agent: http_user_agent)
+        params.merge(mfa_session_cookie_value_hash: cookies[GlobalConstant::Cookie.mfa_session_cookie_name.to_sym],
+                     ip_address: ip_address,
+                     browser_user_agent: http_user_agent)
     ).perform
 
     if service_response.success?
@@ -114,7 +116,9 @@ class Web::Admin::LoginController < Web::Admin::BaseController
     service_response = AdminManagement::Login::Multifactor::Authenticate.new(
         params.merge({
                          single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
-                         browser_user_agent: http_user_agent
+                         mfa_session_cookie_value: cookies[GlobalConstant::Cookie.mfa_session_cookie_name.to_sym],
+                         browser_user_agent: http_user_agent,
+                         ip_address: ip_address
                      })
     ).perform
 
@@ -125,12 +129,18 @@ class Web::Admin::LoginController < Web::Admin::BaseController
           service_response.data[:double_auth_cookie_value],
           GlobalConstant::Cookie.double_auth_expiry.from_now
       )
+
+      set_cookie(
+          GlobalConstant::Cookie.mfa_session_cookie,
+          service_response.data[:mfa_session_cookie_value],
+          GlobalConstant::Cookie.mfa_session_expiry.from_now
+      )
       # Remove sensitive data
       service_response.data.delete(:double_auth_cookie_value)
+      service_response.data.delete(:mfa_session_cookie_value)
     end
 
     render_api_response(service_response)
-
   end
 
   # Send Admin Reset Password Link

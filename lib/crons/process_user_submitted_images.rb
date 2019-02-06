@@ -81,6 +81,7 @@ module Crons
                                              user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
                                              status: GlobalConstant::UserKycDetail.active_status).first
 
+      return if user_kyc_detail.blank?
       return if !user_kyc_detail.send_manual_review_needed_email?
 
       client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_comparison_detail.client_id)
@@ -96,7 +97,7 @@ module Crons
       }
 
       admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
-          @user_kyc_detail.client_id,
+          user_kyc_detail.client_id,
           GlobalConstant::Admin.manual_review_needed_notification_type
       )
 

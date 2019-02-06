@@ -67,12 +67,17 @@ class Web::Admin::LoginController < Web::Admin::BaseController
           GlobalConstant::Cookie.single_auth_expiry.from_now
       )
 
-      set_cookie(
-          GlobalConstant::Cookie.mfa_session_cookie_name,
-          service_response.data[:mfa_session_cookie_value],
-          GlobalConstant::Cookie.mfa_session_expiry.from_now,
-          true
-      ) if service_response.data[:mfa_session_cookie_value].present?
+      if service_response.data[:mfa_session_cookie_value].present?
+        set_cookie(
+            GlobalConstant::Cookie.mfa_session_cookie_name,
+            service_response.data[:mfa_session_cookie_value],
+            GlobalConstant::Cookie.mfa_session_expiry.from_now,
+            true
+        )
+      else
+        delete_cookie(GlobalConstant::Cookie.mfa_session_cookie_name)
+      end
+
 
       # Remove sensitive data
       service_response.data.delete(:admin_auth_cookie_value)
@@ -146,7 +151,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
           service_response.data[:mfa_session_cookie_value],
           GlobalConstant::Cookie.mfa_session_expiry.from_now,
           true
-      ) if service_response.data[:mfa_session_cookie_value].present?
+      )
 
       # Remove sensitive data
       service_response.data.delete(:double_auth_cookie_value)

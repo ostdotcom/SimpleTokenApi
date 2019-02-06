@@ -95,13 +95,6 @@ class Web::Admin::BaseController < Web::WebController
     if service_response.http_code == GlobalConstant::ErrorCode.temporary_redirect
       render_api_response(service_response)
     elsif service_response.success?
-      extended_cookie_value = service_response.data[:extended_cookie_value]
-      set_cookie(
-          GlobalConstant::Cookie.admin_cookie_name,
-          extended_cookie_value,
-          GlobalConstant::Cookie.double_auth_expiry.from_now
-      ) if extended_cookie_value.present?
-
       err = error_with_internal_code('c_w_a_bc_vdali_1',
                                      'Redirecting',
                                      GlobalConstant::ErrorCode.temporary_redirect,
@@ -110,7 +103,6 @@ class Web::Admin::BaseController < Web::WebController
                                      {}
       )
       err.set_error_extra_info({redirect_url: GlobalConstant::WebUrls.admin_dashboard})
-
       render_api_response(err)
     else
       # delete_cookie(GlobalConstant::Cookie.admin_cookie_name)

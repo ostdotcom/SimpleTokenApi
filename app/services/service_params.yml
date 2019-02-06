@@ -5,7 +5,7 @@
     - :browser_user_agent
     - :ip_address
   :optional:
-    - :mfa_session_cookie_value_hash
+    - :mfa_session_cookie_value
 
 'AdminManagement::Logout':
   :mandatory:

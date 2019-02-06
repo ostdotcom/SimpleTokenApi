@@ -24,9 +24,10 @@ module AdminManagement
         def initialize(params)
           super
 
-          @mfa_session_cookie_value = params[:mfa_session_cookie_value]
           @otp = @params[:otp].to_s
-          @ip_address = params[:ip_address]
+          @ip_address = @params[:ip_address]
+
+          @mfa_session_cookie_value = @params[:mfa_session_cookie_value]
 
           @double_auth_cookie_value = nil
           @mfa_log = nil
@@ -167,7 +168,7 @@ module AdminManagement
             @mfa_session_cookie_value = {}
           end
 
-          @mfa_session_cookie_value[@mfa_log.get_mfa_session_key] = @mfa_log.get_mfa_session_value
+          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value
 
           success
         end

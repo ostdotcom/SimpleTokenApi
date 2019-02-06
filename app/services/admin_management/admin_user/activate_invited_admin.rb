@@ -197,7 +197,11 @@ module AdminManagement
         admin_secret_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
         admin_secret_obj.save!(validate: false)
 
-        admin_session_setting = AdminSessionSetting.is_active.where(client_id: @admin.default_client_id).first
+        ar = AdminSessionSetting.is_active
+        ar = (@admin.role == GlobalConstant::Admin.super_admin_role) ? ar.is_super_admin : ar.is_normal_admin
+
+        admin_session_setting = ar.where(client_id: @admin.default_client_id).first
+
         @admin.password = encrypted_password
         @admin.admin_secret_id = admin_secret_obj.id
         @admin.status =  GlobalConstant::Admin.active_status

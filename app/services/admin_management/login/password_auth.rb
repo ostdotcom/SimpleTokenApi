@@ -13,6 +13,9 @@ module AdminManagement
       # @params [String] email (mandatory) - this is the email entered
       # @params [String] password (mandatory) - this is the password entered
       # @params [String] browser_user_agent (mandatory) - browser user agent
+      # @params [String] ip_address (mandatory) - ip_address
+      #
+      # @params [String] mfa_session_cookie_value (optional) - mfa session auth cookie value
       #
       # @return [AdminManagement::Login::PasswordAuth]
       #
@@ -22,11 +25,16 @@ module AdminManagement
         @email = @params[:email]
         @password = @params[:password]
         @browser_user_agent = @params[:browser_user_agent]
+        @ip_address = @params[:ip_address]
 
+        @mfa_session_cookie_value = @params[:mfa_session_cookie_value]
+
+
+        @has_valid_mfa_session = false
         @admin = nil
         @admin_secret = nil
         @login_salt_d = nil
-        @single_auth_cookie_value = nil
+        @admin_auth_cookie_value = nil
       end
 
       # Perform
@@ -54,10 +62,16 @@ module AdminManagement
         r = match_password_hash
         return r unless r.success?
 
-        r = set_single_auth_cookie_value
+        check_mfa_session_and_set_cookie
+
+        r = set_admin_auth_cookie_value
         return r unless r.success?
 
-        success_with_data(single_auth_cookie_value: @single_auth_cookie_value)
+        success_with_data(
+            mfa_session_cookie_value: @mfa_session_cookie_value,
+            admin_auth_cookie_value: @admin_auth_cookie_value,
+            redirect_url: redirect_url
+        )
 
       end
 
@@ -141,28 +155,103 @@ module AdminManagement
         success
       end
 
+      # Check the MFA Session and set cookie accordingly
+      #
+      # * Author: Kedar
+      # * Date: 10/10/2017
+      # * Reviewed By: Sunil
+      #
+      # Sets
+      #
+      # @return [Result::Base]
+      #
+      def check_mfa_session_and_set_cookie
+        if !Util::CommonValidateAndSanitize.is_hash?(@mfa_session_cookie_value)
+          @mfa_session_cookie_value = {}
+          return
+        end
+
+        mfa_session_key = MfaLog.get_mfa_session_key(@admin.id, @ip_address, @browser_user_agent)
+        mfa_session_value = @mfa_session_cookie_value[mfa_session_key]
+
+        return if mfa_session_value.blank?
+
+        parts = mfa_session_value.split(':')
+
+        if parts.length != 3
+          @mfa_session_cookie_value.delete(mfa_session_key)
+          return
+        end
+
+
+        mfa_log_id = parts[0].to_i
+        token = parts[1]
+        last_mfa_time = parts[2]
+
+        mfa_log = MfaLog.where(id: mfa_log_id).first
+
+        if mfa_log.blank? || (mfa_log.admin_id != @admin_id) || (mfa_log.ip_address != @ip_address) ||
+            (mfa_log.browser_user_agent != @browser_user_agent) || (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
+            (mfa_log.token != token) || (mfa_log.status != GlobalConstant::MfaLog.active_status)
+
+          @mfa_session_cookie_value.delete(mfa_session_key)
+          return
+        end
+
+
+        ar = AdminSessionSetting.is_active
+        ar = (@admin.role == GlobalConstant::Admin.super_admin_role) ? ar.is_super_admin : ar.is_normal_admin
+        admin_setting = ar.where(client_id: @admin.default_client_id).first
+
+        if (last_mfa_time + admin_setting.mfa_frequency) <= Time.now.to_i
+          mfa_log.status = GlobalConstant::MfaLog.deleted_status
+          mfa_log.save!
+          @mfa_session_cookie_value.delete(mfa_session_key)
+          return
+        end
+
+
+        mfa_log.token = SecureRandom.hex
+        mfa_log.save!
+        @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value
+
+        @has_valid_mfa_session = true
+        @mfa_session_cookie_value
+      end
+
+
       # Set single auth cookie value
       #
       # * Author: Kedar
       # * Date: 10/10/2017
       # * Reviewed By: Sunil
       #
-      # Sets @single_auth_cookie_value
+      # Sets @admin_auth_cookie_value
       #
       # @return [Result::Base]
       #
-      def set_single_auth_cookie_value
+      def set_admin_auth_cookie_value
 
-        @single_auth_cookie_value = Admin.get_cookie_value(
-            @admin.id,
-            @admin.password,
-            @admin.last_otp_at,
-            @browser_user_agent,
-            GlobalConstant::Cookie.single_auth_prefix
-        )
+        if @has_valid_mfa_session
+
+          @admin_auth_cookie_value = Admin.get_cookie_value(
+              @admin.id,
+              @admin.password,
+              @admin.last_otp_at,
+              @browser_user_agent,
+              GlobalConstant::Cookie.double_auth_prefix
+          )
+        else
+          @admin_auth_cookie_value = Admin.get_cookie_value(
+              @admin.id,
+              @admin.password,
+              @admin.last_otp_at,
+              @browser_user_agent,
+              GlobalConstant::Cookie.single_auth_prefix
+          )
+        end
 
         success
-
       end
 
       # Incorrect login error
@@ -181,6 +270,23 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         )
+      end
+
+      # Set returns redirect url
+      #
+      # * Author: Aman
+      # * Date: 17/01/2019
+      # * Reviewed By:
+      #
+      #
+      # @return [String]
+      #
+      def redirect_url
+        if !@has_valid_mfa_session
+          GlobalConstant::WebUrls.multifactor_auth
+        else
+          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_and_conditions
+        end
       end
 
     end

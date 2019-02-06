@@ -61,8 +61,9 @@ class Web::WebController < ApplicationController
   # * Date: 15/10/2017
   # * Reviewed By: Sunil
   #
-  def set_cookie(cookie_name, value, expires)
-    cookies[cookie_name.to_sym] = {
+  def set_cookie(cookie_name, value, expires, encrypt=false)
+    cookie_obj = (encrypt == true) ? cookies.encrypted : cookies
+    cookie_obj[cookie_name.to_sym] = {
         value: value,
         expires: expires,
         domain: request.host,

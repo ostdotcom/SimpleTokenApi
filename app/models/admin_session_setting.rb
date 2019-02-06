@@ -9,6 +9,13 @@ class AdminSessionSetting < EstablishSimpleTokenAdminDbConnection
 
   scope :is_active, -> {where(status: GlobalConstant::AdminSessionSetting.active_status)}
 
+  scope :is_super_admin, -> {where("(admin_types & ?) = ?",
+                                   AdminSessionSetting.admin_types_config[GlobalConstant::Admin.super_admin_role],
+                                   AdminSessionSetting.admin_types_config[GlobalConstant::Admin.super_admin_role])}
+
+  scope :is_normal_admin, -> {where("(admin_types & ?) = ?",
+                                   AdminSessionSetting.admin_types_config[GlobalConstant::Admin.normal_admin_role],
+                                   AdminSessionSetting.admin_types_config[GlobalConstant::Admin.normal_admin_role])}
 
   # Sets the default session settings for the client
   #

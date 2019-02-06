@@ -39,7 +39,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   # * Reviewed By:
   #
   def check_logged_in
-  #   return success
+    #   return success
   end
 
   # Password auth
@@ -51,7 +51,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
   def password_auth
 
     service_response = AdminManagement::Login::PasswordAuth.new(
-        params.merge(mfa_session_cookie_value_hash: cookies[GlobalConstant::Cookie.mfa_session_cookie_name.to_sym],
+        params.merge(mfa_session_cookie_value: cookies.encrypted[GlobalConstant::Cookie.mfa_session_cookie_name.to_sym],
                      ip_address: ip_address,
                      browser_user_agent: http_user_agent)
     ).perform
@@ -60,12 +60,20 @@ class Web::Admin::LoginController < Web::Admin::BaseController
       # Set cookie
       set_cookie(
           GlobalConstant::Cookie.admin_cookie_name,
-          service_response.data[:single_auth_cookie_value],
+          service_response.data[:admin_auth_cookie_value],
           GlobalConstant::Cookie.single_auth_expiry.from_now
       )
 
+      set_cookie(
+          GlobalConstant::Cookie.mfa_session_cookie_name,
+          service_response.data[:mfa_session_cookie_value],
+          GlobalConstant::Cookie.mfa_session_expiry.from_now,
+          true
+      )
+
       # Remove sensitive data
-      service_response.data = {}
+      service_response.data.delete(:admin_auth_cookie_value)
+      service_response.data.delete(:mfa_session_cookie_value)
     end
 
     render_api_response(service_response)
@@ -116,7 +124,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
     service_response = AdminManagement::Login::Multifactor::Authenticate.new(
         params.merge({
                          single_auth_cookie_value: cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym],
-                         mfa_session_cookie_value: cookies[GlobalConstant::Cookie.mfa_session_cookie_name.to_sym],
+                         mfa_session_cookie_value: cookies.encrypted[GlobalConstant::Cookie.mfa_session_cookie_name.to_sym],
                          browser_user_agent: http_user_agent,
                          ip_address: ip_address
                      })
@@ -131,9 +139,10 @@ class Web::Admin::LoginController < Web::Admin::BaseController
       )
 
       set_cookie(
-          GlobalConstant::Cookie.mfa_session_cookie,
+          GlobalConstant::Cookie.mfa_session_cookie_name,
           service_response.data[:mfa_session_cookie_value],
-          GlobalConstant::Cookie.mfa_session_expiry.from_now
+          GlobalConstant::Cookie.mfa_session_expiry.from_now,
+          true
       )
       # Remove sensitive data
       service_response.data.delete(:double_auth_cookie_value)

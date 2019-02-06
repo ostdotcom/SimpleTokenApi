@@ -70,9 +70,6 @@ module Request
       def parse_api_response(http_response)
         response_data = Oj.load(http_response.body.to_s, mode: :strict) rescue {}
 
-        # Rails.logger.info("=*=HTTP-Response*= #{response_data.inspect}")
-        puts "http_response.class.name : #{http_response.class.name}"
-
         case http_response.code
           when 200
             if response_data['success']

@@ -14,7 +14,7 @@ class UserExtendedDetail
       # * Reviewed By:
       #
       def get_full_name
-        (self.first_name + " " + self.last_name).capitalize
+        (self.first_name + " " + self.last_name).titleize
       end
 
       # Flush Memcache

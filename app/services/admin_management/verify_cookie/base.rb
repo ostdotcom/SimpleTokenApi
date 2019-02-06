@@ -69,6 +69,11 @@ module AdminManagement
         @admin_id = parts[0].to_i
         return unauthorized_access_response('am_vc_3') unless @admin_id > 0
 
+        @admin = Admin.get_from_memcache(@admin_id)
+
+        return unauthorized_access_response('am_vc_5') unless @admin.present? &&
+            (@admin[:status] == GlobalConstant::Admin.active_status)
+
         @created_ts = parts[1].to_i
         return unauthorized_access_response('am_vc_4') unless @created_ts + valid_upto >= Time.now.to_i
 
@@ -86,10 +91,6 @@ module AdminManagement
       # @return [Result::Base]
       #
       def validate_token
-        @admin = Admin.get_from_memcache(@admin_id)
-
-        return unauthorized_access_response('am_vc_5') unless @admin.present? &&
-            (@admin[:status] == GlobalConstant::Admin.active_status)
 
         evaluated_token = Admin.get_cookie_token(
             @admin_id,

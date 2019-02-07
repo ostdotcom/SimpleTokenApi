@@ -122,6 +122,8 @@ Rails.application.routes.draw do
       match 'update-deposit-address' => :update_deposit_address, via: :POST
       match 'update-whitelist-address' => :update_whitelist_address, via: :POST
       match 'contract-addresses' => :get_contract_addresses, via: :GET
+      match 'get-mfa-session-settings' => :get_mfa_session_settings, via: :GET
+      match 'post-mfa-session-settings' => :post_mfa_session_settings, via: :POST
     end
 
     scope 'api/admin/webhook', controller: 'web/admin/webhook' do

@@ -16,11 +16,14 @@ module Ddb
     end
 
     # todo: enum handle mapping
-    def self.image_processing_status_enum
+    def self.enum
       {
-          0 => GlobalConstant::ImageProcessing.unprocessed_image_process_status,
-          1 => GlobalConstant::ImageProcessing.processed_image_process_status,
-          2 => GlobalConstant::ImageProcessing.failed_image_process_status
+          image_processing_status: {
+              GlobalConstant::ImageProcessing.unprocessed_image_process_status => 0 ,
+              GlobalConstant::ImageProcessing.processed_image_process_status => 1,
+              GlobalConstant::ImageProcessing.failed_image_process_status => 2
+
+          }
       }
     end
 

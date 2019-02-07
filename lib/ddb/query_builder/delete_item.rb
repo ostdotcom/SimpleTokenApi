@@ -30,7 +30,7 @@ module Ddb
                               table_name: @table_info[:name],
                               return_values: @params[:return_values],
                               return_item_collection_metrics: @params[:return_item_collection_metrics],
-                              return_consumed_capacity: @params[:return_consumed_capacity],
+                              return_consumed_capacity: @params[:return_consumed_capacity]
                           }.delete_if {|_, v| v.nil?}
         )
 

@@ -259,7 +259,8 @@ module GlobalConstant
                 number: :n,
                 string: :s,
                 array: :l,
-                hash: :m
+                hash: :m,
+                enum: :e
             }
           end
 

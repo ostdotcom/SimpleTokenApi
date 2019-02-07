@@ -12,7 +12,7 @@ module Ddb
       # * Reviewed By:
       #
       def perform
-        with_error_handling {batch_write_operation}
+        batch_write_operation
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info {'Ddb::Api::BatchWrite::Sleeping..Retrying..'}
         #increase_read_capacity

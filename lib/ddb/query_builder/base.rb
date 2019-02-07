@@ -19,8 +19,6 @@ module Ddb
       # * Reviewed By:
       #
       def validate_primary_key
-        puts "@key_hash #{@key_hash} @table_info[:sort_key] #{@table_info[:sort_key]} @table_info[:partition_key] #{@table_info[:partition_key]}"
-
 
         key = [@table_info[:partition_key], @table_info[:sort_key]].compact
 
@@ -76,7 +74,6 @@ module Ddb
       # @return [Hash]
       #
       def get_formatted_item_hash(param_list)
-
         hash = {}
         param_list.each do |val|
           expression = val[:attribute]

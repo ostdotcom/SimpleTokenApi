@@ -11,6 +11,17 @@ module Ddb
             :merged_columns => TestConstants.merged_columns,
             :delimiter => "#"
 
+      def self.enum
+        {
+            image_processing_status: {
+                GlobalConstant::ImageProcessing.unprocessed_image_process_status => 0 ,
+                GlobalConstant::ImageProcessing.processed_image_process_status => 1,
+                GlobalConstant::ImageProcessing.failed_image_process_status => 2
+
+            }
+        }.with_indifferent_access
+      end
+
       def initialize(params, options = {})
         super
       end

@@ -5,9 +5,10 @@ module Ddb
 
 
     def initialize(params, options = {})
+      @params = params
+      @options = options
       @shard_id = params[:shard_id]
       @use_column_mapping = options[:use_column_mapping]
-      puts "----- #{@use_column_mapping}"
 
       set_table_name
     end

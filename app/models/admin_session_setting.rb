@@ -17,6 +17,8 @@ class AdminSessionSetting < EstablishSimpleTokenAdminDbConnection
                                    AdminSessionSetting.admin_types_config[GlobalConstant::Admin.normal_admin_role],
                                    AdminSessionSetting.admin_types_config[GlobalConstant::Admin.normal_admin_role])}
 
+  after_commit :memcache_flush
+
   # Sets the default session settings for the client
   #
   # * Author: Tejas
@@ -71,4 +73,47 @@ class AdminSessionSetting < EstablishSimpleTokenAdminDbConnection
 
   # Note : always include this after declaring bit_wise_columns_config method
   include BitWiseConcern
+
+  # Get Key Object
+  #
+  # * Author: Aman
+  # * Date: 16/10/2018
+  # * Reviewed By
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_active_memcache_key_object
+    MemcacheKey.new('admin.admin_session_settings_active')
+  end
+
+  # Get/Set Memcache data for ClientWebhookSetting
+  #
+  # * Author: Aman
+  # * Date: 15/10/2018
+  # * Reviewed By
+  #
+  # @param [Integer] client_id - client_id
+  #
+  # @return [AR] ClientWebhookSetting object
+  #
+  def self.get_active_from_memcache(client_id)
+    memcache_key_object = AdminSessionSetting.get_active_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
+      AdminSessionSetting.is_active.where(client_id: client_id).order('id DESC').all
+    end
+  end
+
+  private
+
+  # Flush Memcache
+  #
+  # * Author: Tejas
+  # * Date: 25/10/2018
+  # * Reviewed By:
+  #
+  def memcache_flush
+    admin_session_setting_memcache_key = AdminSessionSetting.get_active_memcache_key_object.key_template % {client_id: self.client_id}
+    Memcache.delete(admin_session_setting_memcache_key)
+  end
+
 end

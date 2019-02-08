@@ -566,6 +566,13 @@
      - :admin_id
   :optional:
 
+'ClientManagement::GetMfaSessionSettings':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+
 'ClientManagement::UpdateMfaSessionSettings':
   :mandatory:
      - :client_id

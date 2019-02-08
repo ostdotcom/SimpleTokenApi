@@ -71,13 +71,11 @@ module ClientManagement
       result_obj = {}
       @admin_session_setting = AdminSessionSetting.get_active_from_memcache(@client_id)
       if @admin_session_setting.length == 1
-        result_obj[:admin_setting] =  create_session_info_hash(@admin_session_setting.first)
+        result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.first)
         result_obj[:has_sa_setting] = 0
       else
-        @admin_session_setting.each do |a_s_s|
-          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.is_super_admin.first)
-          result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.is_normal_admin.first)
-        end
+        result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.is_super_admin.first)
+        result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.is_normal_admin.first)
         result_obj[:has_sa_setting] = 1
       end
       result_obj
@@ -90,14 +88,12 @@ module ClientManagement
     # * Reviewed By:
     #
     #
-    def create_session_info_hash( admin_setting )
+    def create_session_info_hash(admin_setting)
       {
           mfa_type: admin_setting.mfa_frequency.zero? ? 0 : 1,
           mfa_frequency: admin_setting.mfa_frequency / 3600,
           session_timeout: admin_setting.session_inactivity_timeout / 3600
       }
     end
-
-
   end
 end

@@ -102,7 +102,7 @@ module AdminManagement
         # * Reviewed By:
         #
         def aml_matches
-          @aml_matches ||= is_aml_processing_done? ? AmlMatch.where(aml_search_uuid: aml_search.uuid).all.to_a : []
+          @aml_matches ||= is_aml_processing_done? ? AmlMatch.where(aml_search_uuid: aml_search.uuid).all : []
         end
 
         # send approval email

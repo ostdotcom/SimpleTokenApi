@@ -99,7 +99,7 @@ class AdminSessionSetting < EstablishSimpleTokenAdminDbConnection
   def self.get_active_from_memcache(client_id)
     memcache_key_object = AdminSessionSetting.get_active_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
-      AdminSessionSetting.is_active.where(client_id: client_id).order('id DESC').all
+      AdminSessionSetting.is_active.where(client_id: client_id).order('id DESC').all.to_a
     end
   end
 

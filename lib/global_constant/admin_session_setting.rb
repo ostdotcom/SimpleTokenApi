@@ -22,6 +22,18 @@ module GlobalConstant
         0.days.to_i
       end
 
+      def min_session_inactivity_timeout
+        1.to_i
+      end
+
+      def max_session_inactivity_timeout
+        3.to_i
+      end
+
+      def max_mfa_frequency_value
+        14.to_i
+      end
+
     end
   end
 end

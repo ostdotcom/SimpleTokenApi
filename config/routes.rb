@@ -123,7 +123,7 @@ Rails.application.routes.draw do
       match 'update-whitelist-address' => :update_whitelist_address, via: :POST
       match 'contract-addresses' => :get_contract_addresses, via: :GET
       match 'get-mfa-session-settings' => :get_mfa_session_settings, via: :GET
-      match 'post-mfa-session-settings' => :post_mfa_session_settings, via: :POST
+      match 'update-mfa-session-settings' => :update_mfa_session_settings, via: :POST
       match 'email-notification' => :get_email_notification, via: :GET
       match 'email-notification' => :update_email_notification, via: :POST
     end

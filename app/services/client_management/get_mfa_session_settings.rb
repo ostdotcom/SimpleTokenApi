@@ -74,8 +74,13 @@ module ClientManagement
         result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.first)
         result_obj[:has_sa_setting] = 0
       else
-        result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.is_super_admin.first)
-        result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.is_normal_admin.first)
+        if @admin_session_setting.first.admin_types == GlobalConstant::Admin.super_admin_role
+          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.first)
+          result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.last)
+        else
+          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.last)
+          result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.first)
+        end
         result_obj[:has_sa_setting] = 1
       end
       result_obj
@@ -91,7 +96,7 @@ module ClientManagement
     def create_session_info_hash(admin_setting)
       {
           mfa_type: admin_setting.mfa_frequency.zero? ? 0 : 1,
-          mfa_frequency: admin_setting.mfa_frequency / 3600,
+          mfa_frequency: admin_setting.mfa_frequency / 86400,
           session_timeout: admin_setting.session_inactivity_timeout / 3600
       }
     end

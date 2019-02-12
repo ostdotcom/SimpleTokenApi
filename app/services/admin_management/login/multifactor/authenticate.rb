@@ -28,7 +28,7 @@ module AdminManagement
           @ip_address = @params[:ip_address]
 
           @mfa_session_cookie_value = @params[:mfa_session_cookie_value]
-
+          @next_url = @params[:next_url] || ""
           @double_auth_cookie_value = nil
           @mfa_log = nil
           @token = nil
@@ -183,8 +183,18 @@ module AdminManagement
         # @return [String]
         #
         def redirect_url
-          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_and_conditions
+          @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions
         end
+
+
+        def get_application_url
+          @next_url = CGI.unescape @next_url
+          if @next_url.present? && ValidateLink.is_valid?(@next_url)
+            return @next_url
+          end
+          GlobalConstant::WebUrls.admin_dashboard
+        end
+
 
       end
 

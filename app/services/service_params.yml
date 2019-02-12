@@ -6,6 +6,7 @@
     - :ip_address
   :optional:
     - :mfa_session_cookie_value
+    - :next_url
 
 'AdminManagement::Logout':
   :mandatory:
@@ -33,6 +34,7 @@
     - :ip_address
   :optional:
     - :mfa_session_cookie_value
+    - :next_url
 
 'AdminManagement::Login::Multifactor::GetGaUrl':
   :mandatory:

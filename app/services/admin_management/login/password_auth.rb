@@ -35,6 +35,9 @@ module AdminManagement
         @admin_secret = nil
         @login_salt_d = nil
         @admin_auth_cookie_value = nil
+        @next_url = @params[:next_url] || ""
+
+
       end
 
       # Perform
@@ -284,8 +287,16 @@ module AdminManagement
         if !@has_valid_mfa_session
           GlobalConstant::WebUrls.multifactor_auth
         else
-          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_and_conditions
+          @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions
         end
+      end
+
+      def get_application_url
+        @next_url = CGI.unescape @next_url
+        if @next_url.present? && ValidateLink.is_valid?(@next_url)
+          return @next_url
+        end
+        GlobalConstant::WebUrls.admin_dashboard
       end
 
     end

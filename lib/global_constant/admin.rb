@@ -53,6 +53,116 @@ module GlobalConstant
         'not_accepted'
       end
 
+
+      #### notification types Start ###
+
+
+      def notification_types_config
+        @notification_types_config ||= {
+            "#{manual_review_needed_notification_type}" => {
+                display_text: "MANUAL REVIEW NEEDED",
+                super_admin_mandatory: false,
+                bitwise_value: 1
+            },
+            "#{billing_plan_notification_notification_type}" => {
+                display_text: "BILLING PLAN ALERT",
+                super_admin_mandatory: true,
+                bitwise_value: 2
+            },
+            "#{whitelisting_balance_alert_notification_type}" => {
+                display_text: "WHITELISTING BALANCE ALERT",
+                super_admin_mandatory: true,
+                bitwise_value: 4
+            },
+            "#{open_case_request_outcome_notification_type}" => {
+                display_text: "REOPEN CASE ALERT",
+                super_admin_mandatory: false,
+                bitwise_value: 8
+            },
+            "#{contract_address_update_notification_type}" => {
+                display_text: "CONTRACT ADDRESS UPDATED",
+                super_admin_mandatory: true,
+                bitwise_value: 16
+            }
+        }.deep_symbolize_keys
+      end
+
+      def manual_review_needed_notification_type
+        "manual_review_needed"
+      end
+
+      def billing_plan_notification_notification_type
+        "billing_plan_notification"
+      end
+
+      def whitelisting_balance_alert_notification_type
+        "whitelisting_balance_alert"
+      end
+
+      def open_case_request_outcome_notification_type
+        "open_case_request_outcome"
+      end
+
+      def contract_address_update_notification_type
+        "contract_address_update"
+      end
+
+
+      # list of notification types (stringified) which should always be on for super admins
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @returns [Array<String>] - A list of notification types (stringified) which should always be on for super admins
+      #
+      def notifications_mandatory_for_super_admins
+        @notifications_mandatory_for_super_admins ||= notification_types_config.map {|x, y|
+          x.to_s if y[:super_admin_mandatory]
+        }.compact
+      end
+
+      # list of active admins who should receive a particular notification
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @param [String] client_id
+      # @param [String] notification_type
+      #
+      # @returns [Array<AR>] - An array of Admin AR objects
+      #
+      def get_all_admins_for(client_id, notification_type)
+        notification_type = notification_type.to_s
+        admins = ::Admin.get_all_admins_from_memcache(client_id)
+        res = []
+
+        admins.each do |admin_obj|
+          res << admin_obj if admin_obj.notification_types_array.include?(notification_type)
+        end
+        res
+      end
+
+      # list of active admins emails who should receive a particular notification
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      # @param [String] client_id
+      # @param [String] notification_type
+      #
+      # @returns [Array<String>] - An array of Admin email ids
+      #
+      def get_all_admin_emails_for(client_id, notification_type)
+        admin_objs = get_all_admins_for(client_id, notification_type)
+        admin_objs.pluck(:email)
+      end
+
+      #### notification types End ###
+
+
       ### Terms Of Use End ###
 
       def admin_terms_of_use_hash

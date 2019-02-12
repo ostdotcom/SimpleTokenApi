@@ -100,12 +100,17 @@ admin:
   admin_details:
     key_template: 'admin_det_%{id}'
     expiry_in_seconds: 86400
+
   admin_secret_details:
     key_template: 'admin_secrets_det_%{id}'
     expiry_in_seconds: 86400
   admin_session_settings_active:
       key_template: 'admin_session_settings_det_%{client_id}'
       expiry_in_seconds: 86400
+
+  all_admin_details:
+    key_template: 'all_admin_det_%{client_id}'
+    expiry_in_seconds: 86400
 
 aml:
   aml_search:

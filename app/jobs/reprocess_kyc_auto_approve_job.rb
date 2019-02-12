@@ -18,8 +18,8 @@ class ReprocessKycAutoApproveJob < ApplicationJob
   #
   # Sets @client_id
   #
-  def init_params(parmas)
-    @client_id = parmas[:client_id]
+  def init_params(params)
+    @client_id = params[:client_id]
   end
 
   # Trigger auto_approve_update rescue task for users
@@ -55,7 +55,8 @@ class ReprocessKycAutoApproveJob < ApplicationJob
     BgJob.enqueue(
         AutoApproveUpdateJob,
         {
-            user_extended_details_id: user_extended_details_id
+            user_extended_details_id: user_extended_details_id,
+            reprocess: 1
         }
     )
     Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")

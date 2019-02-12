@@ -50,6 +50,8 @@ module Crons
           r = mark_processed
           return r unless r.success?
 
+          send_manual_review_needed_email
+
           success
         rescue => e
           r = error_with_identifier('internal_server_error', 'c_ap_s_p_1',
@@ -341,7 +343,7 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_log(request_type, data)
-        e_data =  Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
+        e_data = Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
         AmlLog.create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: e_data)
       rescue => e
         ApplicationMailer.notify(
@@ -358,7 +360,7 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_match(match)
-        e_data =  Rails.env.production? ? local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
+        e_data = Rails.env.production? ? local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
         match_id = match[:person][:match_id]
         qr_code = match[:person][:id]
 
@@ -464,6 +466,42 @@ module Crons
             template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
             template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(client.id)
         ).perform
+
+      end
+
+      # Send Manual review needed email to admins
+      #
+      # * Author: Aman
+      # * Date: 24/01/2019
+      # * Reviewed By:
+      #
+      #
+      def send_manual_review_needed_email
+        return if (@aml_search_obj.status != GlobalConstant::AmlSearch.processed_status) ||
+            GlobalConstant::UserKycDetail.aml_approved_statuses.include?(@user_kyc_detail.aml_status) ||
+            !@user_kyc_detail.send_manual_review_needed_email?
+
+        template_variables = {
+            case_id: @user_kyc_detail.id,
+            full_name: @user_extended_detail.get_full_name,
+            review_type: GlobalConstant::PepoCampaigns.aml_check_review_type
+        }
+
+        admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+            @user_kyc_detail.client_id,
+            GlobalConstant::Admin.manual_review_needed_notification_type
+        )
+
+        admin_emails.each do |admin_email|
+          ::Email::HookCreator::SendTransactionalMail.new(
+              client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
+              email: admin_email,
+              template_name: ::GlobalConstant::PepoCampaigns.manual_review_needed_template,
+              template_vars: template_variables
+          ).perform
+
+        end
+
 
       end
 

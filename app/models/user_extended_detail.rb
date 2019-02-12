@@ -63,6 +63,16 @@ class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
     end
   end
 
+  # Flush Memcache
+  #
+  # * Author: Tejas
+  # * Date: 27/09/2018
+  # * Reviewed By:
+  #
+  def get_full_name
+    (self.first_name + " " + self.last_name).titleize
+  end
+
   private
 
   # Flush Memcache

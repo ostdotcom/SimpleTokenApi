@@ -54,8 +54,10 @@ class ClientWhitelistDetail < EstablishSimpleTokenClientDbConnection
     self.suspension_type = GlobalConstant::ClientWhitelistDetail.low_balance_suspension_type
     self.save!
 
-    # Send email to all admins
-    admin_emails = Admin.client_admin_emails(self.client_id)
+    admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+        self.client_id,
+        GlobalConstant::Admin.whitelisting_balance_alert_notification_type
+    )
 
     admin_emails.each do |admin_email|
       Email::HookCreator::SendTransactionalMail.new(

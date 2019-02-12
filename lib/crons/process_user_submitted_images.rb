@@ -54,7 +54,7 @@ module Crons
         success
       rescue => e
         update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unexpected_reason, GlobalConstant::ImageProcessing.failed_image_process_status)
-
+        send_manual_review_needed_email
         ApplicationMailer.notify(
             body: e.backtrace,
             data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
@@ -68,6 +68,49 @@ module Crons
     end
 
     private
+
+    # Send Manual review needed email to admins
+    #
+    # * Author: Aman
+    # * Date: 24/01/2019
+    # * Reviewed By:
+    #
+    def send_manual_review_needed_email
+      return if @user_kyc_comparison_detail.blank?
+      user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
+                                             user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
+                                             status: GlobalConstant::UserKycDetail.active_status).first
+
+      return if user_kyc_detail.blank?
+      return if !user_kyc_detail.send_manual_review_needed_email?
+
+      client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_comparison_detail.client_id)
+
+      review_type = (client_kyc_pass_setting.approve_type != GlobalConstant::ClientKycPassSetting.auto_approve_type) ?
+                        GlobalConstant::PepoCampaigns.manual_review_type :
+                        GlobalConstant::PepoCampaigns.ocr_fr_failed_review_type
+
+      template_variables = {
+          case_id: user_kyc_detail.id,
+          full_name: @user_extended_detail.get_full_name,
+          review_type: review_type
+      }
+
+      admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+          user_kyc_detail.client_id,
+          GlobalConstant::Admin.manual_review_needed_notification_type
+      )
+
+      admin_emails.each do |admin_email|
+        ::Email::HookCreator::SendTransactionalMail.new(
+            client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
+            email: admin_email,
+            template_name: ::GlobalConstant::PepoCampaigns.manual_review_needed_template,
+            template_vars: template_variables
+        ).perform
+      end
+
+    end
 
     # Fetch records on which image processing is not yet performed
     #
@@ -96,21 +139,21 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_and_decrypt_user_data
-      user_extended_detail = UserExtendedDetail.where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
+      @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
 
-      r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
+      r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
       kyc_salt_d = r.data[:plaintext]
       get_local_cipher_object(kyc_salt_d)
 
-      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(user_extended_detail.document_id_file_path).data[:plaintext]
+      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
 
-      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(user_extended_detail.selfie_file_path).data[:plaintext]
+      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
 
       ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
         if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name.to_s)
-          @decrypted_user_data[field_name.to_sym] = user_extended_detail[field_name]
+          @decrypted_user_data[field_name.to_sym] = @user_extended_detail[field_name]
         else
-          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(user_extended_detail[field_name]).data[:plaintext]
+          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(@user_extended_detail[field_name]).data[:plaintext]
         end
       end
 
@@ -380,7 +423,7 @@ module Crons
     #
     # @return [LocalCipher]
     #
-    def get_local_cipher_object(kyc_salt=nil)
+    def get_local_cipher_object(kyc_salt = nil)
       @lco ||= LocalCipher.new(kyc_salt)
     end
 
@@ -580,7 +623,7 @@ module Crons
 
       # Rotate image at 0 degree angle to remove its metadata
       strip_image_result = FileProcessing::RmagickImageRotation.new(file_directory, original_downloaded_image,
-                                                     GlobalConstant::ImageProcessing.rotation_angle_0).perform
+                                                                    GlobalConstant::ImageProcessing.rotation_angle_0).perform
 
       # If first rotation of image failed then close the process
       return strip_image_result unless strip_image_result.success?

@@ -63,6 +63,13 @@ module GlobalConstant
         ]
       end
 
+      def ocr_fr_review_type_failed_reasons
+        [
+            ocr_unmatch,
+            fr_unmatch
+        ]
+      end
+
     end
 
   end

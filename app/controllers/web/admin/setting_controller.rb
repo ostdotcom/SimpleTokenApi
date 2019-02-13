@@ -2,7 +2,7 @@ class Web::Admin::SettingController < Web::Admin::BaseController
 
   before_action only: [:reset_api_credentials, :update_api_fields, :get_developer_detail, :update_contract_address,
                         :update_whitelist_address, :get_contract_addresses, :get_mfa_session_settings,
-                 :update_mfa_session_settings, :update_email_notification
+                 :update_mfa_session_settings, :update_email_notification, :get_email_notification
   ] do
     authenticate_request({is_super_admin_role: true})
   end
@@ -73,11 +73,23 @@ class Web::Admin::SettingController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
+  # Get Mfa Session Settings
+  #
+  # * Author: Tejas
+  # * Date: 07/02/2019
+  # * Reviewed By:
+  #
   def get_mfa_session_settings
     service_response = ClientManagement::GetMfaSessionSettings.new(params).perform
     render_api_response(service_response)
   end
 
+  # Update Mfa Session Settings
+  #
+  # * Author: Tejas
+  # * Date: 07/02/2019
+  # * Reviewed By:
+  #
   def update_mfa_session_settings
     service_response = ClientManagement::UpdateMfaSessionSettings.new(params).perform
     render_api_response(service_response)

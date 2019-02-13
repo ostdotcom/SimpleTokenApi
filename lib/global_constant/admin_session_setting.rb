@@ -23,15 +23,23 @@ module GlobalConstant
       end
 
       def min_session_inactivity_timeout
-        1.to_i
+        1
       end
 
       def max_session_inactivity_timeout
-        3.to_i
+        3
       end
 
       def max_mfa_frequency_value
-        14.to_i
+        14
+      end
+
+      def allowed_mfa_types
+        [0,1]
+      end
+
+      def allowed_sa_types
+        [0,1]
       end
 
     end

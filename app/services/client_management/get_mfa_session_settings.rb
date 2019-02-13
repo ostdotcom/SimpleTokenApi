@@ -17,6 +17,8 @@ module ClientManagement
       @client_id = @params[:client_id]
       @admin_id = @params[:admin_id]
 
+      @admin_session_settings = []
+
     end
 
     # Perform
@@ -69,17 +71,17 @@ module ClientManagement
     #
     def get_mfa_session_settings
       result_obj = {}
-      @admin_session_setting = AdminSessionSetting.get_active_from_memcache(@client_id)
-      if @admin_session_setting.length == 1
-        result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.first)
+      @admin_session_settings = AdminSessionSetting.get_active_from_memcache(@client_id)
+      if @admin_session_settings.length == 1
+        result_obj[:admin_setting] = create_session_info_hash(@admin_session_settings.first)
         result_obj[:has_sa_setting] = 0
       else
-        if @admin_session_setting.first.admin_types == GlobalConstant::Admin.super_admin_role
-          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.first)
-          result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.last)
+        if @admin_session_settings.first.admin_types == GlobalConstant::Admin.super_admin_role
+          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_settings.first)
+          result_obj[:admin_setting] = create_session_info_hash(@admin_session_settings.last)
         else
-          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_setting.last)
-          result_obj[:admin_setting] = create_session_info_hash(@admin_session_setting.first)
+          result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_settings.last)
+          result_obj[:admin_setting] = create_session_info_hash(@admin_session_settings.first)
         end
         result_obj[:has_sa_setting] = 1
       end
@@ -96,8 +98,8 @@ module ClientManagement
     def create_session_info_hash(admin_setting)
       {
           mfa_type: admin_setting.mfa_frequency.zero? ? 0 : 1,
-          mfa_frequency: admin_setting.mfa_frequency / 86400,
-          session_timeout: admin_setting.session_inactivity_timeout / 3600
+          mfa_frequency: admin_setting.mfa_frequency / 1.day.to_i,
+          session_timeout: admin_setting.session_inactivity_timeout / 1.hour.to_i
       }
     end
   end

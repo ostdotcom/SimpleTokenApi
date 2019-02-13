@@ -76,7 +76,7 @@ module ClientManagement
         result_obj[:admin_setting] = create_session_info_hash(@admin_session_settings.first)
         result_obj[:has_sa_setting] = 0
       else
-        if @admin_session_settings.first.admin_types == GlobalConstant::Admin.super_admin_role
+        if @admin_session_settings.first.admin_types_array.include?(GlobalConstant::Admin.super_admin_role)
           result_obj[:super_admin_setting] = create_session_info_hash(@admin_session_settings.first)
           result_obj[:admin_setting] = create_session_info_hash(@admin_session_settings.last)
         else

@@ -24,7 +24,7 @@ module ClientManagement
       @super_admin_setting = @params[:super_admin_setting] || {}
       @has_sa_setting = @params[:has_sa_setting].to_i
 
-      @admin_session_settings = nil
+      @admin_session_settings = []
     end
 
     # Perform
@@ -199,15 +199,26 @@ module ClientManagement
 
       end
 
+      is_admin_session_setting_obj_changed = false
       if admin_setting_obj.changed?
         admin_setting_obj.source = GlobalConstant::AdminActivityChangeLogger.web_source
         admin_setting_obj.save!
+        is_admin_session_setting_obj_changed = true
       end
 
       if super_admin_setting_obj.present? && super_admin_setting_obj.changed?
         super_admin_setting_obj.source = GlobalConstant::AdminActivityChangeLogger.web_source
         super_admin_setting_obj.save!
+        is_admin_session_setting_obj_changed = true
       end
+
+      return error_with_data(
+          'cm_umss_uass_1',
+          'Invalid parameters',
+          'You are choosing to save existing settings.',
+          GlobalConstant::ErrorAction.default,
+          {}
+      ) if !is_admin_session_setting_obj_changed
 
       success
     end

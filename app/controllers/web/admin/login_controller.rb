@@ -14,7 +14,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
       :logout
   ]
 
-  before_action :validate_double_auth_logged_in, only: [
+  before_action :is_double_auth_logged_in, only: [
       :get_ga_url,
       :check_logged_in,
       :send_admin_reset_password_link,
@@ -23,7 +23,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
       :activate_invited_admin
   ]
 
-  before_action :validate_single_auth_logged_in, only: [
+  before_action :is_single_auth_logged_in, only: [
       :check_logged_in,
       :send_admin_reset_password_link,
       :admin_reset_password,

@@ -48,7 +48,7 @@ class Web::Admin::BaseController < Web::WebController
   # * Date: 05/02/2019
   # * Reviewed By:
   #
-  def validate_single_auth_logged_in
+  def is_single_auth_logged_in
     auth_cookie = cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym]
     return if auth_cookie.blank?
 
@@ -56,7 +56,6 @@ class Web::Admin::BaseController < Web::WebController
         cookie_value: auth_cookie,
         browser_user_agent: http_user_agent
     ).perform
-
 
 
     if service_response.success?
@@ -82,7 +81,7 @@ class Web::Admin::BaseController < Web::WebController
   # * Date: 05/02/2019
   # * Reviewed By:
   #
-  def validate_double_auth_logged_in
+  def is_double_auth_logged_in
     auth_cookie = cookies[GlobalConstant::Cookie.admin_cookie_name.to_sym]
     return if auth_cookie.blank?
 

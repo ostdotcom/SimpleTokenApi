@@ -580,9 +580,9 @@
      - :client_id
      - :admin_id
      - :admin_setting
-     - :super_admin_setting
      - :has_sa_setting
   :optional:
+     - :super_admin_setting
 
 'ClientManagement::GetEmailNotificationSetting':
   :mandatory:

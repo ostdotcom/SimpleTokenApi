@@ -64,7 +64,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
       set_cookie(
           GlobalConstant::Cookie.admin_cookie_name,
           service_response.data[:admin_auth_cookie_value],
-          GlobalConstant::Cookie.single_auth_expiry.from_now
+          service_response.data[:admin_auth_cookie_value_expiry_time].from_now
       )
 
       if service_response.data[:mfa_session_cookie_value].present?
@@ -81,6 +81,7 @@ class Web::Admin::LoginController < Web::Admin::BaseController
 
       # Remove sensitive data
       service_response.data.delete(:admin_auth_cookie_value)
+      service_response.data.delete(:admin_auth_cookie_value_expiry_time)
       service_response.data.delete(:mfa_session_cookie_value)
     end
 

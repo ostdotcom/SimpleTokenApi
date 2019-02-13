@@ -36,8 +36,7 @@ module AdminManagement
         @admin_secret = nil
         @login_salt_d = nil
         @admin_auth_cookie_value = nil
-
-
+        @admin_auth_cookie_value_expiry_time = nil
       end
 
       # Perform
@@ -73,7 +72,8 @@ module AdminManagement
         success_with_data(
             mfa_session_cookie_value: @mfa_session_cookie_value,
             admin_auth_cookie_value: @admin_auth_cookie_value,
-            redirect_url: redirect_url
+            redirect_url: redirect_url,
+            admin_auth_cookie_value_expiry_time: @admin_auth_cookie_value_expiry_time
         )
 
       end
@@ -235,6 +235,7 @@ module AdminManagement
       def set_admin_auth_cookie_value
 
         if @has_valid_mfa_session
+          @admin_auth_cookie_value_expiry_time = GlobalConstant::Cookie.double_auth_expiry
 
           @admin_auth_cookie_value = Admin.get_cookie_value(
               @admin.id,
@@ -244,6 +245,8 @@ module AdminManagement
               GlobalConstant::Cookie.double_auth_prefix
           )
         else
+          @admin_auth_cookie_value_expiry_time = GlobalConstant::Cookie.single_auth_expiry
+
           @admin_auth_cookie_value = Admin.get_cookie_value(
               @admin.id,
               @admin.password,

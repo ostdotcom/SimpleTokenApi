@@ -22,7 +22,8 @@ module GlobalConstant
       end
 
       def double_auth_expiry
-        1.hour
+        # set max value
+        GlobalConstant::AdminSessionSetting.max_session_inactivity_timeout.hours
       end
 
       def mfa_session_expiry

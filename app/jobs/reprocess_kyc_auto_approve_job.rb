@@ -33,7 +33,7 @@ class ReprocessKycAutoApproveJob < ApplicationJob
         where(client_id: @client_id,
               status: GlobalConstant::UserKycDetail.active_status,
               admin_status: GlobalConstant::UserKycDetail.unprocessed_admin_status).
-        order({client_id: :desc}).
+        order({id: :desc}).
         find_in_batches(batch_size: 100) do |ukds|
 
       ukds.each do |ukd|

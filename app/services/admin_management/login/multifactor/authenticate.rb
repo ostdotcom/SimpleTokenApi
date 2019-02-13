@@ -18,6 +18,7 @@ module AdminManagement
         # @params [String] ip_address (mandatory) - browser user agent
         #
         # @params [String] mfa_session_cookie_value (optional) - mfa session auth cookie value
+        # @params [String] next_url (optional) - relative url to redirect on login
         #
         # @return [AdminManagement::Login::Multifactor::Authenticate]
         #
@@ -186,12 +187,18 @@ module AdminManagement
           @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions
         end
 
-
+        # returns application_url
+        #
+        # * Author: Mayur
+        # * Date: 17/01/2019
+        # * Reviewed By:
+        #
+        #
+        # @return [String]
+        #
         def get_application_url
           @next_url = CGI.unescape @next_url
-          if @next_url.present? && ValidateLink.is_valid?(@next_url)
-            return @next_url
-          end
+          return @next_url if @next_url.present? && ValidateLink.is_valid_redirect_path?(@next_url)
           GlobalConstant::WebUrls.admin_dashboard
         end
 

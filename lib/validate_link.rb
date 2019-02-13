@@ -2,12 +2,13 @@ class ValidateLink
 
   class << self
 
-    def is_valid?(url)
-      !url.match(valid_url_regex).nil?
+    def is_valid_redirect_path?(url)
+      uri = URI.parse(url) rescue return false
+      uri.host.blank? && !url.match(valid_redirect_path_regex).nil?
     end
 
-    def valid_url_regex
-      /\A[a-zA-Z0-9\-_.~:\/?#\[\]@!$'()+*,;=]*\z/
+    def valid_redirect_path_regex
+      /\A\/[A-Z0-9\-\_\/]+(\?[A-Z0-9\-\_\/\&\=\.\[\]\+\#\?\@\!\']*)?\z/i
     end
   end
 end

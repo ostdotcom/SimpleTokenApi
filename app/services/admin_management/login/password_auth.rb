@@ -16,6 +16,7 @@ module AdminManagement
       # @params [String] ip_address (mandatory) - ip_address
       #
       # @params [String] mfa_session_cookie_value (optional) - mfa session auth cookie value
+      # @params [String] next_url (optional) - relative url to redirect on login
       #
       # @return [AdminManagement::Login::PasswordAuth]
       #
@@ -28,14 +29,13 @@ module AdminManagement
         @ip_address = @params[:ip_address]
 
         @mfa_session_cookie_value = @params[:mfa_session_cookie_value]
-
+        @next_url = @params[:next_url] || ""
 
         @has_valid_mfa_session = false
         @admin = nil
         @admin_secret = nil
         @login_salt_d = nil
         @admin_auth_cookie_value = nil
-        @next_url = @params[:next_url] || ""
 
 
       end
@@ -284,19 +284,30 @@ module AdminManagement
       # @return [String]
       #
       def redirect_url
+        if @next_url.present?
+          @next_url = CGI.unescape(@next_url)
+          @next_url = nil if !ValidateLink.is_valid_redirect_path?(@next_url)
+        end
+
         if !@has_valid_mfa_session
-          GlobalConstant::WebUrls.multifactor_auth
+          next_url_param = @next_url.present? ? "next=#{@next_url}" : nil
+          GlobalConstant::WebUrls.multifactor_auth + next_url_param
         else
           @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions
         end
       end
 
+      # Set redirect url
+      #
+      # * Author: Aman
+      # * Date: 17/01/2019
+      # * Reviewed By:
+      #
+      #
+      # @return [String]
+      #
       def get_application_url
-        @next_url = CGI.unescape @next_url
-        if @next_url.present? && ValidateLink.is_valid?(@next_url)
-          return @next_url
-        end
-        GlobalConstant::WebUrls.admin_dashboard
+        @next_url.present? ? @next_url : GlobalConstant::WebUrls.admin_dashboard
       end
 
     end

@@ -104,6 +104,7 @@ admin:
   admin_secret_details:
     key_template: 'admin_secrets_det_%{id}'
     expiry_in_seconds: 86400
+
   admin_session_settings_active:
       key_template: 'admin_session_settings_det_%{client_id}'
       expiry_in_seconds: 86400

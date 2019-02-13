@@ -32,6 +32,8 @@ export STA_GEOIP_FILE_WITH_PATH='../GeoIP2-City.mmdb'
 
 # not used in code
 #export STA_RECAPTCHA_SITE_KEY="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+# valid on local
+#export STA_RECAPTCHA_SECRET="6LfbfzQUAAAAAMX0uq9h6ledP8jQSa9BGKSFJyxe"
 
 export STA_RECAPTCHA_SECRET="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 

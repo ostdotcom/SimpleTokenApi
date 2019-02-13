@@ -3,7 +3,10 @@ class ValidateLink
   class << self
 
     def is_valid_redirect_path?(url)
-      uri = URI.parse(url) rescue return false
+      uri = URI.parse(url)
+    rescue
+       return false
+    else
       uri.host.blank? && !url.match(valid_redirect_path_regex).nil?
     end
 

@@ -290,7 +290,7 @@ module AdminManagement
         end
 
         if !@has_valid_mfa_session
-          next_url_param = @next_url.present? ? "next=#{@next_url}" : nil
+          next_url_param = @next_url.present? ? "?next=#{CGI.escape @next_url}" : ""
           GlobalConstant::WebUrls.multifactor_auth + next_url_param
         else
           @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions

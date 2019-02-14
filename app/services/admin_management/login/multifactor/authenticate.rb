@@ -169,7 +169,7 @@ module AdminManagement
             @mfa_session_cookie_value = {}
           end
 
-          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value
+          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value(@admin_secret.id)
 
           success
         end

@@ -101,8 +101,8 @@ admin:
     key_template: 'admin_det_%{id}'
     expiry_in_seconds: 86400
 
-  admin_secret_details:
-    key_template: 'admin_secrets_det_%{id}'
+  admin_secret_details_active:
+    key_template: 'admin_secrets_det_active%{id}'
     expiry_in_seconds: 86400
 
   admin_session_settings_active:

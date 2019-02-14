@@ -12,8 +12,8 @@ class MfaLog < EstablishSimpleTokenAdminDbConnection
   #
   # @return [String] MFA Session value
   #
-  def get_mfa_session_value
-    "#{self.id}:#{self.token}:#{self.last_mfa_time}"
+  def get_mfa_session_value(admin_secret_id)
+    "#{self.id}:#{self.token}:#{self.last_mfa_time}:#{admin_secret_id}"
   end
 
   # Get MFA Session key

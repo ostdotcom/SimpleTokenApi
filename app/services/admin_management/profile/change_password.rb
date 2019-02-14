@@ -139,7 +139,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin_secret
-        @admin_secret = AdminSecret.get_from_memcache(@admin.admin_secret_id)
+        @admin_secret = AdminSecret.get_active_from_memcache(@admin.admin_secret_id)
         return incorrect_login_error('am_l_cp_4') unless @admin_secret.present?
 
         success

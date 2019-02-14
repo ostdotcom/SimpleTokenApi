@@ -94,7 +94,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     encrypted_ga_secret = r.data[:ciphertext_blob]
 
     #create admin secrets
-    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
+    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob,
+                                        ga_secret: encrypted_ga_secret,
+                                        status: GlobalConstant::AdminSecret.active_status)
     admin_secrets_obj.save!(validate: false)
 
     #create admin

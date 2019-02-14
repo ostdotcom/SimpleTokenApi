@@ -155,7 +155,7 @@ module ClientManagement
     # @return [Result::Base]
     #
     def fetch_admin_secret_obj
-      @admin_secret_obj = AdminSecret.get_from_memcache(@admin.admin_secret_id)
+      @admin_secret_obj = AdminSecret.get_active_from_memcache(@admin.admin_secret_id)
 
       success
     end

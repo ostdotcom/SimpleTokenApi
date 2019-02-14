@@ -194,7 +194,9 @@ module AdminManagement
         encrypted_ga_secret = r.data[:ciphertext_blob]
 
         #create admin secrets
-        admin_secret_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
+        admin_secret_obj = AdminSecret.new(login_salt: ciphertext_blob,
+                                           ga_secret: encrypted_ga_secret,
+                                           status: GlobalConstant::AdminSecret.active_status)
         admin_secret_obj.save!(validate: false)
 
         ar = AdminSessionSetting.is_active

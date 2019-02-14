@@ -113,7 +113,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin_secret
-        @admin_secret = AdminSecret.get_from_memcache(@admin.admin_secret_id)
+        @admin_secret = AdminSecret.get_active_from_memcache(@admin.admin_secret_id)
         return incorrect_login_error('am_l_pa_2') unless @admin_secret.present?
 
         success
@@ -181,7 +181,7 @@ module AdminManagement
 
         parts = mfa_session_value.split(':')
 
-        if parts.length != 3
+        if parts.length != 4
           @mfa_session_cookie_value.delete(mfa_session_key)
           return
         end
@@ -190,12 +190,14 @@ module AdminManagement
         mfa_log_id = parts[0].to_i
         token = parts[1]
         last_mfa_time = parts[2].to_i
+        admin_secret_id = parts[3].to_i
 
         mfa_log = MfaLog.where(id: mfa_log_id).first
 
         if mfa_log.blank? || (mfa_log.admin_id != @admin.id) || (mfa_log.ip_address != @ip_address) ||
             (mfa_log.browser_user_agent != @browser_user_agent) || (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
-            (mfa_log.token != token) || (mfa_log.status != GlobalConstant::MfaLog.active_status)
+            (mfa_log.token != token) || (mfa_log.status != GlobalConstant::MfaLog.active_status) ||
+            (admin_secret_id != @admin_secret.id)
 
           @mfa_session_cookie_value.delete(mfa_session_key)
           return
@@ -216,7 +218,7 @@ module AdminManagement
 
         mfa_log.token = SecureRandom.hex
         mfa_log.save!
-        @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value
+        @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value(@admin_secret.id)
 
         @has_valid_mfa_session = true
       end

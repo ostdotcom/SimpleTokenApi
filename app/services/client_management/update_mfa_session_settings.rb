@@ -258,7 +258,8 @@ module ClientManagement
     #
     def is_valid_mfa_frequency?(setting)
       (setting[:mfa_frequency].to_i >= 0) &&
-          (setting[:mfa_frequency].to_i <= GlobalConstant::AdminSessionSetting.max_mfa_frequency_value)
+          (setting[:mfa_frequency].to_i <= GlobalConstant::AdminSessionSetting.max_mfa_frequency_value) &&
+          (Util::CommonValidateAndSanitize.is_integer?(setting[:mfa_frequency]))
     end
 
     # Is Valid Mfa Frequency
@@ -271,7 +272,8 @@ module ClientManagement
     #
     def is_valid_session_inactivity_timeout?(setting)
       (setting[:session_timeout].to_i >= GlobalConstant::AdminSessionSetting.min_session_inactivity_timeout) &&
-          (setting[:session_timeout].to_i <= GlobalConstant::AdminSessionSetting.max_session_inactivity_timeout)
+          (setting[:session_timeout].to_i <= GlobalConstant::AdminSessionSetting.max_session_inactivity_timeout) &&
+          (Util::CommonValidateAndSanitize.is_integer?(setting[:session_timeout]))
     end
 
     # Is Valid Mfa Type

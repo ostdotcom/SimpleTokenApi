@@ -74,6 +74,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     order(order_clause)
   }
 
+  before_save :set_last_admin_id
+
   after_commit :memcache_flush
 
   #todo: WEBCODECHANGE
@@ -280,14 +282,14 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   def kyc_status
     case true
-      when kyc_approved?
-        GlobalConstant::UserKycDetail.kyc_approved_status
-      when kyc_denied?
-        GlobalConstant::UserKycDetail.kyc_denied_status
-      when kyc_pending?
-        GlobalConstant::UserKycDetail.kyc_pending_status
-      else
-        fail "Invalid kyc status"
+    when kyc_approved?
+      GlobalConstant::UserKycDetail.kyc_approved_status
+    when kyc_denied?
+      GlobalConstant::UserKycDetail.kyc_denied_status
+    when kyc_pending?
+      GlobalConstant::UserKycDetail.kyc_pending_status
+    else
+      fail "Invalid kyc status"
     end
   end
 
@@ -359,8 +361,27 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     admin.present? ? admin.get_hash : {}
   end
 
+  # Get
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def get_last_edited_admin_id
+    (self.last_admin_id.to_i > 0) ? self.last_admin_id : self.last_acted_by.to_i
+  end
+
   private
 
+  # Sets last admin id if last acted by is changed
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  def set_last_admin_id
+    self.last_admin_id = self.last_acted_by if self.last_acted_by_changed? && self.last_acted_by.to_i > 0
+  end
 
   # Flush Memcache
   #

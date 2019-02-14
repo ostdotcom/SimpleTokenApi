@@ -142,7 +142,7 @@ module AdminManagement
 
           @user_kycs.each do |u_k|
             @user_extended_detail_ids << u_k.user_extended_detail_id
-            @admin_ids << u_k.last_acted_by if u_k.last_acted_by.present?
+            @admin_ids << u_k.get_last_edited_admin_id if u_k.get_last_edited_admin_id > 0
             if u_k.email_duplicate_status == GlobalConstant::UserKycDetail.yes_email_duplicate_status
               @email_duplicate_user_extended_detail_ids << u_k.user_extended_detail_id
             else
@@ -205,10 +205,10 @@ module AdminManagement
         #
         # @return [String]
         #
-        def last_acted_by(last_acted_by_id)
-          if (last_acted_by_id > 0)
-            return @admin_details[last_acted_by_id].name
-          elsif (last_acted_by_id == Admin::AUTO_APPROVE_ADMIN_ID )
+        def last_acted_by(last_edited_admin_id)
+          if (last_edited_admin_id > 0)
+            return @admin_details[last_edited_admin_id].name
+          elsif (last_edited_admin_id == Admin::AUTO_APPROVE_ADMIN_ID )
             return GlobalConstant::Admin.auto_approved_admin_name
           else
             return nil

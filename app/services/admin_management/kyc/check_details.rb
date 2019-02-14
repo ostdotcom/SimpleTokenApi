@@ -436,9 +436,11 @@ module AdminManagement
       # @return [String]
       #
       def last_acted_by
-        if (@user_kyc_detail.last_acted_by.to_i > 0)
-          return Admin.where(id: @user_kyc_detail.last_acted_by).first.name
-        elsif (@user_kyc_detail.last_acted_by.to_i == Admin::AUTO_APPROVE_ADMIN_ID)
+        last_edited_admin_id = @user_kyc_detail.get_last_edited_admin_id
+
+        if (last_edited_admin_id > 0)
+          return Admin.where(id: last_edited_admin_id).first.name
+        elsif (last_edited_admin_id == Admin::AUTO_APPROVE_ADMIN_ID)
           GlobalConstant::Admin.auto_approved_admin_name
         else
           return ''

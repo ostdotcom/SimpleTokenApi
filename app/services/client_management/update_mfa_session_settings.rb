@@ -101,16 +101,21 @@ module ClientManagement
     def validate_mfa_frequency_and_session_inactivity_timeout
       err_data = {}
 
-      err_data[:admin_setting][:session_timeout] = 'Please select a session timeout within the range mentioned.' if !is_valid_session_inactivity_timeout?(normal_admin_setting)
-      err_data[:admin_setting][:mfa_type] = 'Invalid Mfa Type.' if !is_valid_mfa_type?(normal_admin_setting)
-      err_data[:admin_setting][:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(normal_admin_setting)
+      admin_setting_err = {}
+      admin_setting_err[:session_timeout] = 'Please select a session timeout within the range mentioned.' if !is_valid_session_inactivity_timeout?(normal_admin_setting)
+      admin_setting_err[:mfa_type] = 'Invalid Mfa Type.' if !is_valid_mfa_type?(normal_admin_setting)
+      admin_setting_err[:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(normal_admin_setting)
+
+      err_data[:admin_setting] = admin_setting_err if admin_setting_err.present?
 
       err_data[:has_sa_setting] = 'Invalid Super Admin Setting.' if GlobalConstant::AdminSessionSetting.allowed_mfa_types.exclude?(@has_sa_setting)
 
       if @has_sa_setting == 1
-        err_data[:super_admin_setting][:session_timeout] = 'Please select a session timeout within the range mentioned.' if !is_valid_session_inactivity_timeout?(super_admin_setting)
-        err_data[:super_admin_setting][:mfa_type] = 'Invalid Mfa Type.' if !is_valid_mfa_type?(super_admin_setting)
-        err_data[:super_admin_setting][:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(super_admin_setting)
+        super_admin_setting_err = {}
+        super_admin_setting_err[:session_timeout] = 'Please select a session timeout within the range mentioned.' if !is_valid_session_inactivity_timeout?(super_admin_setting)
+        super_admin_setting_err[:mfa_type] = 'Invalid Mfa Type.' if !is_valid_mfa_type?(super_admin_setting)
+        super_admin_setting_err[:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(super_admin_setting)
+        err_data[:super_admin_setting] = super_admin_setting_err if super_admin_setting_err.present?
       end
 
       return error_with_identifier('invalid_api_params',

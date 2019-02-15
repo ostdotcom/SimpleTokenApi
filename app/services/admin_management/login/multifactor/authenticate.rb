@@ -171,7 +171,7 @@ module AdminManagement
             @mfa_session_cookie_value = {}
           end
 
-          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value(@admin_secret.id)
+          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value(@admin_secret.id, Time.now.to_i)
 
           success
         end
@@ -191,20 +191,20 @@ module AdminManagement
           @mfa_session_cookie_value.each do |s_k, s_v|
             parts = s_v.split(':') rescue nil
 
-            if parts.length != 4
+            if parts.length != 5
               mfa_session_cookie_value_dup.delete(s_k)
               next
             end
 
-            last_mfa_time = parts[2].to_i
+            last_login_time = parts[3].to_i
 
-            if (last_mfa_time + GlobalConstant::AdminSessionSetting.max_mfa_frequency_value.days.to_i) <= Time.now.to_i
+            if (last_login_time + GlobalConstant::AdminSessionSetting.max_mfa_frequency_value.days.to_i) <= Time.now.to_i
               mfa_session_cookie_value_dup.delete(s_k)
               next
             end
 
-            all_cookies[last_mfa_time] ||= []
-            all_cookies[last_mfa_time] << s_k
+            all_cookies[last_login_time] ||= []
+            all_cookies[last_login_time] << s_k
             count += 1
           end
 

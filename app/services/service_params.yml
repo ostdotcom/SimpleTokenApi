@@ -3,7 +3,10 @@
     - :email
     - :password
     - :browser_user_agent
+    - :ip_address
   :optional:
+    - :mfa_session_cookie_value
+    - :next_url
 
 'AdminManagement::Logout':
   :mandatory:
@@ -28,7 +31,10 @@
     - :single_auth_cookie_value
     - :otp
     - :browser_user_agent
+    - :ip_address
   :optional:
+    - :mfa_session_cookie_value
+    - :next_url
 
 'AdminManagement::Login::Multifactor::GetGaUrl':
   :mandatory:
@@ -555,6 +561,22 @@
      - :client_id
      - :admin_id
   :optional:
+
+'ClientManagement::GetMfaSessionSettings':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+
+'ClientManagement::UpdateMfaSessionSettings':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :admin_setting
+     - :has_sa_setting
+  :optional:
+     - :super_admin_setting
 
 'ClientManagement::GetEmailNotificationSetting':
   :mandatory:

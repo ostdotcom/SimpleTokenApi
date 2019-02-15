@@ -100,6 +100,8 @@ module AdminManagement
 
             duplicate_type = get_duplicate_type(u_k.user_extended_detail_id)
 
+            last_edited_admin_id = u_k.get_last_edited_admin_id
+
             @curr_page_data << {
                 id: u_k.id,
                 name: "#{user_extended_detail.first_name} #{user_extended_detail.last_name}",
@@ -112,7 +114,7 @@ module AdminManagement
                 is_re_submitted: u_k.is_re_submitted?,
                 submission_count: u_k.submission_count.to_i,
                 is_duplicate: u_k.show_duplicate_status.to_i,
-                last_acted_by: last_acted_by(u_k.last_acted_by.to_i),
+                last_acted_by: last_acted_by(last_edited_admin_id),
                 last_acted_timestamp: get_formatted_time(u_k.last_acted_timestamp),
                 duplicate_type: duplicate_type,
             }

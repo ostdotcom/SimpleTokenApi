@@ -94,7 +94,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     encrypted_ga_secret = r.data[:ciphertext_blob]
 
     #create admin secrets
-    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
+    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob,
+                                        ga_secret: encrypted_ga_secret,
+                                        status: GlobalConstant::AdminSecret.active_status)
     admin_secrets_obj.save!(validate: false)
 
     #create admin
@@ -102,10 +104,15 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     admin_role = is_super_admin_role ? GlobalConstant::Admin.super_admin_role : GlobalConstant::Admin.normal_admin_role
 
 
+    ar = AdminSessionSetting.is_active
+    ar = is_super_admin_role ? ar.is_super_admin : ar.is_normal_admin
+
+    admin_session_setting = ar.where(client_id: default_client_id).first
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
                           admin_secret_id: admin_secrets_obj.id,
                           terms_of_use: GlobalConstant::Admin.accepted_terms_of_use,
-                          status: GlobalConstant::Admin.active_status, role: admin_role)
+                          status: GlobalConstant::Admin.active_status, role: admin_role,
+                          session_inactivity_timeout: admin_session_setting.session_inactivity_timeout)
     admin_obj.set_default_notification_types
     admin_obj.save!(validate: false)
     admin_obj

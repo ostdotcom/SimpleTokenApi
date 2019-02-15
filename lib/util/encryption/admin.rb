@@ -24,7 +24,7 @@ module Util
         Md5UserExtendedDetail.use_any_instance.get_hashed_value(r.data[:plaintext])
       end
 
-      # Generate md5
+      # Get Uuid
       #
       # * Author: Aniket
       # * Date: 09/08/2018

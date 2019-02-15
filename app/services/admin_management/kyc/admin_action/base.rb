@@ -150,18 +150,16 @@ module AdminManagement
 
             if mark_as_match.present?
               AmlMatch.using_client_shard(client: @client).
-                  where(qr_code: mark_as_match).update_all(status: GlobalConstant::AmlMatch.match_status)
+                  where(aml_search_uuid: aml_search.uuid, qr_code: mark_as_match).update_all(status: GlobalConstant::AmlMatch.match_status)
             end
 
             if mark_as_nomatch.present?
               AmlMatch.using_client_shard(client: @client).
-                  where(qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
+                  where(aml_search_uuid: aml_search.uuid, qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
             end
 
             AmlMatch.using_client_shard(client: @client).bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
 
-            # unprocessed_matches = aml_matches.map(&:qr_code) - (@matched_ids + @unmatched_ids)
-            # aml_matches.where(qr_code: unprocessed_matches).update_all(status: GlobalConstant::AmlMatch.unprocessed_status) if unprocessed_matches.present?
           end
         end
 

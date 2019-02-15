@@ -33,7 +33,7 @@ module GlobalConstant
       end
 
       def auto_approved_admin_name
-        ''
+        'KYC system'
       end
 
       ### Role End ###

@@ -6,7 +6,9 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
       GlobalConstant::AdminActivityChangeLogger.client_webhook_settings_table =>
           {val: 2, columns: ['secret_key', 'status',  'url', 'event_result_types', 'event_sources']},
       GlobalConstant::AdminActivityChangeLogger.client_kyc_detail_api_activations_table =>
-          {val: 3, columns: ['allowed_keys','extra_kyc_fields']}
+          {val: 3, columns: ['allowed_keys','extra_kyc_fields']},
+      GlobalConstant::AdminActivityChangeLogger.admin_session_setting_table =>
+          {val: 4, columns: ['admin_types','session_inactivity_timeout','status','mfa_frequency']}
 
   }.freeze
 

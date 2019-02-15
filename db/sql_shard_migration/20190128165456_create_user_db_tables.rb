@@ -51,6 +51,8 @@ module SqlShardMigration
 
 
           t.column :last_acted_by, :integer, limit: 8, null: true
+          t.column :last_admin_id, :integer, limit: 8, null: false, default: 0
+
           t.column :last_acted_timestamp, :integer, limit: 4, null: true
           t.column :last_reopened_at, :integer, limit: 4, null: true, default: 0
           t.column :qualify_types, :tinyint, limit: 1, null: false, default: 0

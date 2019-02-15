@@ -15,6 +15,10 @@ module AdminManagement
         # @params [String] single_auth_cookie_value (mandatory) - single auth cookie value
         # @params [String] otp (mandatory) - this is the Otp entered
         # @params [String] browser_user_agent (mandatory) - browser user agent
+        # @params [String] ip_address (mandatory) - browser user agent
+        #
+        # @params [String] mfa_session_cookie_value (optional) - mfa session auth cookie value
+        # @params [String] next_url (optional) - relative url to redirect on login
         #
         # @return [AdminManagement::Login::Multifactor::Authenticate]
         #
@@ -22,8 +26,13 @@ module AdminManagement
           super
 
           @otp = @params[:otp].to_s
+          @ip_address = @params[:ip_address]
 
+          @mfa_session_cookie_value = @params[:mfa_session_cookie_value]
+          @next_url = @params[:next_url] || ""
           @double_auth_cookie_value = nil
+          @mfa_log = nil
+          @token = nil
         end
 
         # Perform
@@ -60,8 +69,15 @@ module AdminManagement
           r = set_double_auth_cookie_value
           return r unless r.success?
 
+          r = create_entry_in_mfa_log
+          return r unless r.success?
+
+          r = set_mfa_session_cookie
+          return r unless r.success?
+
           success_with_data(
               double_auth_cookie_value: @double_auth_cookie_value,
+              mfa_session_cookie_value: @mfa_session_cookie_value,
               redirect_url: redirect_url
           )
         end
@@ -116,6 +132,48 @@ module AdminManagement
 
           success
         end
+
+        # create_entry_in_mfa_log
+        #
+        # * Author: Tejas
+        # * Date: 05/02/2019
+        # * Reviewed By:
+        #
+        # @return [String]
+        #
+        def create_entry_in_mfa_log
+          @token = SecureRandom.hex
+
+          @mfa_log = MfaLog.create!(admin_id: @admin.id,
+                                    ip_address: @ip_address,
+                                    browser_user_agent: @browser_user_agent,
+                                    status: GlobalConstant::MfaLog.active_status,
+                                    token: @token,
+                                    last_mfa_time: Time.now.to_i)
+          success
+        end
+
+        # Set Last 2fa Login Time Cookie
+        #
+        # * Author: Tejas
+        # * Date: 05/02/2019
+        # * Reviewed By:
+        #
+        # Sets @mfa_session_cookie_value
+        #
+        # @return [Result::Base]
+        #
+        def set_mfa_session_cookie
+
+          if !Util::CommonValidateAndSanitize.is_hash?(@mfa_session_cookie_value)
+            @mfa_session_cookie_value = {}
+          end
+
+          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value(@admin_secret.id)
+
+          success
+        end
+
         # Set returns redirect url
         #
         # * Author: Mayur
@@ -126,8 +184,24 @@ module AdminManagement
         # @return [String]
         #
         def redirect_url
-          @admin.has_accepted_terms_of_use? ? GlobalConstant::WebUrls.admin_dashboard : GlobalConstant::WebUrls.terms_and_conditions
+          @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions
         end
+
+        # returns application_url
+        #
+        # * Author: Mayur
+        # * Date: 17/01/2019
+        # * Reviewed By:
+        #
+        #
+        # @return [String]
+        #
+        def get_application_url
+          @next_url = CGI.unescape @next_url
+          return @next_url if @next_url.present? && ValidateLink.is_valid_redirect_path?(@next_url)
+          GlobalConstant::WebUrls.admin_dashboard
+        end
+
 
       end
 

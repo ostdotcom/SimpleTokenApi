@@ -174,7 +174,7 @@ module AdminManagement
           return
         end
 
-        mfa_session_key = MfaLog.get_mfa_session_key(@admin.id, @ip_address, @browser_user_agent)
+        mfa_session_key = MfaLog.get_mfa_session_key(@admin.id, @ip_address)
         mfa_session_value = @mfa_session_cookie_value[mfa_session_key]
 
         return if mfa_session_value.blank?
@@ -195,7 +195,7 @@ module AdminManagement
         mfa_log = MfaLog.where(id: mfa_log_id).first
 
         if mfa_log.blank? || (mfa_log.admin_id != @admin.id) || (mfa_log.ip_address != @ip_address) ||
-            (mfa_log.browser_user_agent != @browser_user_agent) || (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
+            (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
             (mfa_log.token != token) || (mfa_log.status != GlobalConstant::MfaLog.active_status) ||
             (admin_secret_id != @admin_secret.id)
 

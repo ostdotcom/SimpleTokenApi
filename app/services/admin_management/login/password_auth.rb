@@ -216,7 +216,7 @@ module AdminManagement
         end
 
 
-        mfa_log.token = SecureRandom.hex
+        mfa_log.token = SecureRandom.hex(8)
         mfa_log.save!
         @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value(@admin_secret.id)
 

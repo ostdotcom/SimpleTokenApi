@@ -144,7 +144,7 @@ module AdminManagement
         # @return [String]
         #
         def create_entry_in_mfa_log
-          @token = SecureRandom.hex
+          @token = SecureRandom.hex(8)
 
           @mfa_log = MfaLog.create!(admin_id: @admin.id,
                                     ip_address: @ip_address,
@@ -176,7 +176,7 @@ module AdminManagement
           success
         end
 
-        # Removes expired cookies and last set cookie if count more than 30
+        # Removes expired cookies and last set cookie if count more than 15
         #
         # * Author: Tejas
         # * Date: 05/02/2019
@@ -210,8 +210,8 @@ module AdminManagement
 
           @mfa_session_cookie_value = mfa_session_cookie_value_dup
 
-          # allow max 30 cookies remove last logged in ip
-          if count > 30
+          # allow max 15 cookies remove last logged in ip
+          if count > 15
             all_cookies.each do |_, keys|
               keys.each do |key|
                 @mfa_session_cookie_value.delete(key)

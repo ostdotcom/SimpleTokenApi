@@ -37,7 +37,7 @@ class ClientApiDetail < EstablishSimpleTokenClientDbConnection
   def self.get_client_data(api_key)
     r = Memcache.get_set_memcached(get_memcache_key_object.key_template % {api_key: api_key}, get_memcache_key_object.expiry) do
       client_api_detail_obj = ClientApiDetail.non_deleted.where(api_key: api_key).first
-      return nil if client_api_detail_obj.blank?
+      return {} if client_api_detail_obj.blank?
 
       client_obj = Client.where(id: client_api_detail_obj.client_id).first
 

@@ -2,7 +2,7 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
 
   TABLE_ALLOWED_KEYS_MAPPING = {
       GlobalConstant::AdminActivityChangeLogger.client_token_sale_details_table =>
-          {val: 1, skip_log_on_create: true,
+          {val: 1, skip_log_on_create: false,
            columns: ['token_symbol', 'token_name',  'ethereum_deposit_address', 'sale_start_timestamp', 'registration_end_timestamp', 'sale_end_timestamp']},
       GlobalConstant::AdminActivityChangeLogger.client_webhook_settings_table =>
           {val: 2, skip_log_on_create: false,
@@ -14,7 +14,7 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
           {val: 4, skip_log_on_create: false,
            columns: ['admin_types','session_inactivity_timeout','status','mfa_frequency']},
       GlobalConstant::AdminActivityChangeLogger.client_kyc_config_details_table =>
-          {val: 5, skip_log_on_create: true,
+          {val: 5, skip_log_on_create: false,
            columns: ['kyc_fields','extra_kyc_fields', 'residency_proof_nationalities', 'blacklisted_countries']},
       GlobalConstant::AdminActivityChangeLogger.client_whitelist_details_table =>
           {val: 6, skip_log_on_create: false,

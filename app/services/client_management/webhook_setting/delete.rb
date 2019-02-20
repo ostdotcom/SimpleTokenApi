@@ -92,6 +92,7 @@ module ClientManagement
       def delete_client_webhook_setting
         @client_webhook_setting.status = GlobalConstant::ClientWebhookSetting.deleted_status
         @client_webhook_setting.source = GlobalConstant::AdminActivityChangeLogger.web_source
+        @client_webhook_setting.last_acted_by = @admin_id
         @client_webhook_setting.save! if @client_webhook_setting.changed?
       end
 

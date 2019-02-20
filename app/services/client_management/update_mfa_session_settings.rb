@@ -232,12 +232,14 @@ module ClientManagement
       is_admin_session_setting_obj_changed = false
       if admin_setting_obj.changed?
         admin_setting_obj.source = GlobalConstant::AdminActivityChangeLogger.web_source
+        admin_setting_obj.last_acted_by = @admin_id
         admin_setting_obj.save!
         is_admin_session_setting_obj_changed = true
       end
 
       if super_admin_setting_obj.present? && super_admin_setting_obj.changed?
         super_admin_setting_obj.source = GlobalConstant::AdminActivityChangeLogger.web_source
+        super_admin_setting_obj.last_acted_by = @admin_id
         super_admin_setting_obj.save!
         is_admin_session_setting_obj_changed = true
       end

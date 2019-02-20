@@ -103,7 +103,7 @@ module ClientManagement
         @client_webhook_setting.secret_key = client_api_secret_e
         @client_webhook_setting.set_decrypted_secret_key(client_api_secret_d)
         @client_webhook_setting.source = GlobalConstant::AdminActivityChangeLogger.web_source
-
+        @client_webhook_setting.last_acted_by = @admin_id
         @client_webhook_setting.save! if @client_webhook_setting.changed?
       end
 

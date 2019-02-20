@@ -4,9 +4,6 @@ class RemoveUsSalt < DbMigrationConnection
     run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
       remove_column :user_secrets, :us_login_salt
       remove_column :user_extended_details, :us_kyc_salt
-
-      remove_column :user_secrets, :us_login_salt
-      remove_column :user_secrets, :us_login_salt
     end
   end
 

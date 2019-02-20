@@ -25,7 +25,7 @@ class AddClientIdInTemporaryToken < DbMigrationConnection
     find_in_batches(batch_size: 1000).each do |batch_objs|
       admins = Admin.where(id: batch_objs.pluck(:entity_id)).index_by(&:id)
       batch_objs.each do |temp_token_obj|
-        cid = admins[temp_token_obj.entity_id].default_client_id
+        cid = admins[temp_token_obj.entity_id].default_client_id rescue 0
         ids_map[cid] ||= []
         ids_map[cid] << temp_token_obj.id
       end

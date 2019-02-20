@@ -48,13 +48,7 @@ class RewhitelistJob < ApplicationJob
     return if user_ids.blank?
 
     ar_obj.update_all(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status)
-
-    user_ids.each do |user_id|
-      user_details_memcache_key = UserKycDetail.using_client_shard(client: @client).
-          get_memcache_key_object.key_template % {user_id: user_id}
-      Memcache.delete(user_details_memcache_key)
-    end
-
+    ar_obj.bulk_flush(user_ids)
   end
 
   def ar_obj

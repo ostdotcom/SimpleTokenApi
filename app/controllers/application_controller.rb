@@ -113,14 +113,17 @@ class ApplicationController < ActionController::API
     # sanitizing out error and data. only display_text and display_heading are allowed to be sent to FE.
     if response_hash[:err].present?
       err = response_hash.delete(:err) || {}
+      err_code_for_web =  err[:code]
+      err_code_for_web = GlobalConstant::ErrorCode.error_code_for_http_code(response_hash[:http_code]) if err_code_for_web.blank?
       err_data = {}
-      puts err[:error_data].inspect
+      # puts err[:error_data].inspect
       err[:error_data].each {|ed| err_data[ed[:parameter]] = ed[:msg]} if err[:error_data].present?
       response_hash[:err] = {
           display_text: err[:web_msg] || err[:msg].to_s,
           display_heading: "Error",
           error_data: err_data,
-          code: err[:internal_id]
+          internal_id: err[:internal_id],
+          code: err_code_for_web
       }
       response_hash[:err].merge!(error_extra_info: err[:error_extra_info]) if err[:error_extra_info].present?
     end

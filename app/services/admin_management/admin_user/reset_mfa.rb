@@ -58,7 +58,7 @@ module AdminManagement
         r = reset_mfa
         return r unless r.success?
 
-        success_with_data({})
+        success
       end
 
       private
@@ -118,7 +118,7 @@ module AdminManagement
       # @return [Result::Base]
       #
       def fetch_admin_secret_obj
-        @admin_secret_obj = AdminSecret.get_from_memcache(@reset_admin_obj.admin_secret_id)
+        @admin_secret_obj = AdminSecret.get_active_from_memcache(@reset_admin_obj.admin_secret_id)
 
         return error_with_data(
             'am_au_rm_faso_1',
@@ -150,11 +150,17 @@ module AdminManagement
         return r unless r.success?
         encrypted_ga_secret = r.data[:ciphertext_blob]
 
-        @admin_secret_obj.ga_secret = encrypted_ga_secret
-        @admin_secret_obj.save!
+        new_admin_secret_obj = AdminSecret.new(login_salt: @admin_secret_obj.login_salt,
+                                               ga_secret: encrypted_ga_secret,
+                                               status: GlobalConstant::AdminSecret.active_status)
+        new_admin_secret_obj.save!
 
         @reset_admin_obj.last_otp_at = nil
+        @reset_admin_obj.admin_secret_id = new_admin_secret_obj.id
         @reset_admin_obj.save! if @reset_admin_obj.changed?
+
+        @admin_secret_obj.status = GlobalConstant::AdminSecret.deleted_status
+        @admin_secret_obj.save!
 
         success
       end

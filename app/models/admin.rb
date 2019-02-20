@@ -1,7 +1,5 @@
 class Admin < EstablishSimpleTokenAdminDbConnection
 
-  include AttributeParserConcern
-
   enum status: {
       GlobalConstant::Admin.active_status => 1,
       GlobalConstant::Admin.invited_status => 2,
@@ -13,11 +11,42 @@ class Admin < EstablishSimpleTokenAdminDbConnection
       GlobalConstant::Admin.super_admin_role => 2
   }
 
+  enum terms_of_use: {
+      GlobalConstant::Admin.accepted_terms_of_use => 1,
+      GlobalConstant::Admin.not_accepted_terms_of_use => 2
+  }
+
   AUTO_APPROVE_ADMIN_ID = -1
 
   scope :not_deleted, -> {where(status: [GlobalConstant::Admin.active_status, GlobalConstant::Admin.invited_status])}
+  scope :is_active, -> {where(status: GlobalConstant::Admin.active_status)}
 
   after_commit :memcache_flush
+
+
+  # Sets the default notification types for the admin based on its role
+  #
+  # * Author: Aman
+  # * Date: 24/01/2019
+  # * Reviewed By:
+  #
+  def set_default_notification_types
+    GlobalConstant::Admin.notifications_mandatory_for_super_admins.each do |n_type|
+      self.send("set_#{n_type}")
+    end if self.role == GlobalConstant::Admin.super_admin_role
+  end
+
+  # Array of Properties symbols
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  # @returns [Array<Symbol>] returns Array of properties bits set for user
+  #
+  def notification_types_array
+    @notification_types_array = Admin.get_bits_set_for_notification_types(notification_types)
+  end
 
   # Add Admin
   #
@@ -65,17 +94,70 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     encrypted_ga_secret = r.data[:ciphertext_blob]
 
     #create admin secrets
-    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
+    admin_secrets_obj = AdminSecret.new(login_salt: ciphertext_blob,
+                                        ga_secret: encrypted_ga_secret,
+                                        status: GlobalConstant::AdminSecret.active_status)
     admin_secrets_obj.save!(validate: false)
 
     #create admin
 
     admin_role = is_super_admin_role ? GlobalConstant::Admin.super_admin_role : GlobalConstant::Admin.normal_admin_role
 
+
+    ar = AdminSessionSetting.is_active
+    ar = is_super_admin_role ? ar.is_super_admin : ar.is_normal_admin
+
+    admin_session_setting = ar.where(client_id: default_client_id).first
     admin_obj = Admin.new(email: email, password: encrypted_password, name: name, default_client_id: default_client_id,
-                          admin_secret_id: admin_secrets_obj.id, status: GlobalConstant::Admin.active_status, role: admin_role)
+                          admin_secret_id: admin_secrets_obj.id,
+                          terms_of_use: GlobalConstant::Admin.accepted_terms_of_use,
+                          status: GlobalConstant::Admin.active_status, role: admin_role,
+                          session_inactivity_timeout: admin_session_setting.session_inactivity_timeout)
+    admin_obj.set_default_notification_types
     admin_obj.save!(validate: false)
     admin_obj
+  end
+
+  # properties config
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  def self.notification_types_config
+    @a_nt_con ||= begin
+      c = {}
+      GlobalConstant::Admin.notification_types_config.map {|x, y| c[x.to_s] = y[:bitwise_value]}
+      c
+    end
+  end
+
+  # Bitwise columns config
+  #
+  # * Author: Aman
+  # * Date: 11/10/2017
+  # * Reviewed By: Sunil
+  #
+  def self.bit_wise_columns_config
+    @b_w_c_c ||= {
+        notification_types: notification_types_config
+    }
+  end
+
+  # Note : always include this after declaring bit_wise_columns_config method
+  include BitWiseConcern
+  include AttributeParserConcern
+
+  # Has accepted terms of use
+  #
+  # * Author: Mayur
+  # * Date: 16/01/2019
+  # * Reviewed By: Aman
+  #
+  # @return [Boolean] true/false
+  #
+  def has_accepted_terms_of_use?
+    terms_of_use == GlobalConstant::Admin.accepted_terms_of_use
   end
 
   # Get encrypted password
@@ -149,6 +231,35 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     MemcacheKey.new('admin.admin_details')
   end
 
+  # Get Key Object for all admins of a client
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @return [MemcacheKey] Key Object
+  #
+  def self.get_all_admins_memcache_key_object
+    MemcacheKey.new('admin.all_admin_details')
+  end
+
+  # Get/Set Memcache data for all admins of a client
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] user_id - user id
+  #
+  # @return [AR] User object
+  #
+  def self.get_all_admins_from_memcache(client_id)
+    memcache_key_object = Admin.get_all_admins_memcache_key_object
+    Memcache.get_set_memcached(memcache_key_object.key_template % {client_id: client_id}, memcache_key_object.expiry) do
+      Admin.where(default_client_id: client_id).is_active.all.to_a
+    end
+  end
+
   # Get/Set Memcache data for User
   #
   # * Author: Aman
@@ -166,35 +277,6 @@ class Admin < EstablishSimpleTokenAdminDbConnection
     end
   end
 
-  # Get email ids of all admins of a client
-  #
-  # * Author: Aman
-  # * Date: 23/01/2018
-  # * Reviewed By:
-  #
-  # @param [Integer] client id
-  #
-  # @return [Array <String>] emails of admin
-  #
-  def self.client_admin_emails(client_id)
-    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status).pluck(:email)
-  end
-
-  # Get email ids of all super admins of a client
-  #
-  # * Author: Tejas
-  # * Date: 02/07/2018
-  # * Reviewed By: Aman
-  #
-  # @param [Integer] client id
-  #
-  # @return [Array <String>] emails of super admin
-  #
-
-  def self.client_super_admin_emails(client_id)
-    Admin.where(default_client_id: client_id, status: GlobalConstant::Admin.active_status, role: GlobalConstant::Admin.super_admin_role).pluck(:email)
-  end
-
   # Columns to be removed from the hashed response
   #
   # * Author: Aman
@@ -202,7 +284,7 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   # * Reviewed By:
   #
   def self.restricted_fields
-    [:admin_secret_id, :password]
+    [:admin_secret_id, :password, :last_otp_at]
   end
 
   private
@@ -216,6 +298,9 @@ class Admin < EstablishSimpleTokenAdminDbConnection
   def memcache_flush
     admin_details_memcache_key = Admin.get_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(admin_details_memcache_key)
+
+    all_admin_details_memcache_key = Admin.get_all_admins_memcache_key_object.key_template % {client_id: self.default_client_id}
+    Memcache.delete(all_admin_details_memcache_key)
   end
 
 end

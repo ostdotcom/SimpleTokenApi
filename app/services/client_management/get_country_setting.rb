@@ -67,7 +67,7 @@ module ClientManagement
     # sets @client_kyc_config_details
     #
     def get_country_setting
-      @client_kyc_config_details = ClientKycConfigDetail.get_from_memcache(@client_id)
+      @client_kyc_config_details = @client.client_kyc_config_detail
     end
 
     # Api response data

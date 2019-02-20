@@ -154,7 +154,7 @@ module ClientManagement
     # @return [Result::Base]
     #
     def fetch_admin_secret_obj
-      @admin_secret_obj = AdminSecret.get_from_memcache(@admin.admin_secret_id)
+      @admin_secret_obj = AdminSecret.get_active_from_memcache(@admin.admin_secret_id)
 
       success
     end
@@ -259,9 +259,12 @@ module ClientManagement
     # * Reviewed By:
     #
     def send_email
-      super_admin_emails = Admin.client_super_admin_emails(@client_id)
+      admin_emails_for_notification = GlobalConstant::Admin.get_all_admin_emails_for(
+          @client_id,
+          GlobalConstant::Admin.contract_address_update_notification_type
+      )
 
-      super_admin_emails.each do |admin_email|
+      admin_emails_for_notification.each do |admin_email|
         Email::HookCreator::SendTransactionalMail.new(
             client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
             email: admin_email,

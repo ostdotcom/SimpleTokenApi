@@ -74,6 +74,8 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     order(order_clause)
   }
 
+  before_save :set_last_admin_id
+
   after_commit :memcache_flush
 
   #todo: WEBCODECHANGE
@@ -105,9 +107,21 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   #
   # @returns [String] returns the last qualify type
   #
-  def last_qualified_type
-    qualify_types_array.include?(GlobalConstant::UserKycDetail.manually_approved_qualify_type) ?
-                             GlobalConstant::UserKycDetail.manually_approved_qualify_type : qualify_types_array[0]
+  def is_auto_approved?
+    kyc_approved? && (last_reopened_at.to_i == 0) && (aml_status == GlobalConstant::UserKycDetail.cleared_aml_status) &&
+        qualify_types_array.exclude?(GlobalConstant::UserKycDetail.manually_approved_qualify_type)
+  end
+
+  # Check if manual review needed email needs to be sent
+  #
+  # * Author: Aman
+  # * Date: 24/01/2019
+  # * Reviewed By:
+  #
+  # @returns [Boolean] returns True/False
+  #
+  def send_manual_review_needed_email?
+    !case_closed? && admin_action_types_array.blank?
   end
 
   # Array of Qualify types
@@ -119,7 +133,7 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
   # @returns [Array<Symbol>] returns Array of Qualify types bits set for user
   #
   def qualify_types_array
-    puts "qualify_types : #{qualify_types.inspect}"
+    # puts "qualify_types : #{qualify_types.inspect}"
     @admin_action_types_array = UserKycDetail.get_bits_set_for_qualify_types(qualify_types)
   end
 
@@ -200,12 +214,17 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (kyc_approved? || kyc_denied?) || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
-  def case_closed_for_auto_approve?
-    case_closed_for_admin? || last_reopened_at.to_i > 0 || admin_action_types_array.present?
+  def case_closed?
+    kyc_approved? || kyc_denied?
   end
 
-  def can_delete?
-    self.aml_rejected? || GlobalConstant::UserKycDetail.admin_approved_statuses.exclude?(self.admin_status)
+  def is_aml_status_open?
+    GlobalConstant::UserKycDetail.aml_open_statuses.include?(aml_status)
+  end
+
+  def case_closed_for_auto_approve?
+    case_closed? || (last_reopened_at.to_i > 0) ||
+        admin_action_types_array.present? || GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
   end
 
   def kyc_pending?
@@ -232,10 +251,6 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
 
   end
 
-  def self.get_aml_user_id(user_id)
-    "ts_#{Rails.env[0..1]}_#{user_id}"
-  end
-
   # Whitelist confirmation is pending till kyc_confirmed_at is populated and status is done
   #
   # * Author: Pankaj
@@ -245,6 +260,17 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     (whitelist_status == GlobalConstant::UserKycDetail.done_whitelist_status && kyc_confirmed_at.present?)
   end
 
+  # get aml search uuid
+  #
+  # * Author: mayur
+  # * Date: 10/01/2019
+  # * Reviewed By:
+  #
+  # @return [String]
+  #
+  def get_aml_search_uuid
+    "#{Rails.env[0..1]}_#{id}_#{user_extended_detail_id}"
+  end
 
   # User Kyc Status
   #
@@ -335,9 +361,27 @@ class UserKycDetail < EstablishSimpleTokenUserDbConnection
     admin.present? ? admin.get_hash : {}
   end
 
+  # Get
+  #
+  # * Author: Aman
+  # * Date: 28/09/2018
+  # * Reviewed By:
+  #
+  def get_last_edited_admin_id
+    (self.last_admin_id.to_i > 0) ? self.last_admin_id : self.last_acted_by.to_i
+  end
+
   private
 
-
+  # Sets last admin id if last acted by is changed
+  #
+  # * Author: Aman
+  # * Date: 09/01/2018
+  # * Reviewed By:
+  #
+  def set_last_admin_id
+    self.last_admin_id = self.last_acted_by if self.last_acted_by_changed? && self.last_acted_by.to_i > 0
+  end
 
   # Flush Memcache
   #

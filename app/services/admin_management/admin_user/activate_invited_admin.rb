@@ -194,12 +194,21 @@ module AdminManagement
         encrypted_ga_secret = r.data[:ciphertext_blob]
 
         #create admin secrets
-        admin_secret_obj = AdminSecret.new(login_salt: ciphertext_blob, ga_secret: encrypted_ga_secret)
+        admin_secret_obj = AdminSecret.new(login_salt: ciphertext_blob,
+                                           ga_secret: encrypted_ga_secret,
+                                           status: GlobalConstant::AdminSecret.active_status)
         admin_secret_obj.save!(validate: false)
+
+        ar = AdminSessionSetting.is_active
+        ar = (@admin.role == GlobalConstant::Admin.super_admin_role) ? ar.is_super_admin : ar.is_normal_admin
+
+        admin_session_setting = ar.where(client_id: @admin.default_client_id).first
 
         @admin.password = encrypted_password
         @admin.admin_secret_id = admin_secret_obj.id
         @admin.status =  GlobalConstant::Admin.active_status
+        @admin.session_inactivity_timeout = admin_session_setting.session_inactivity_timeout
+        @admin.set_default_notification_types
         @admin.save!(validate: false)
   
         success

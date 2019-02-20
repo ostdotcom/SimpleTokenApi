@@ -71,4 +71,38 @@ class RestApi::SaasApi::V2::UsersKycController < RestApi::SaasApi::V2::BaseContr
     Formatter::V2::UsersKyc
   end
 
+  # Send Kyc approve email
+  #
+  # * Author: Mayur
+  # * Date: 03/12/2018
+  # * Reviewed By:
+  #
+  def email_kyc_approve
+    @service_response = UserManagement::SendEmail::Approve.new(params).perform
+    format_service_response
+  end
+
+  # Send Kyc deny email
+  #
+  # * Author: Mayur
+  # * Date: 03/12/2018
+  # * Reviewed By:
+  #
+  def email_kyc_deny
+    @service_response = UserManagement::SendEmail::Deny.new(params).perform
+    format_service_response
+  end
+
+  # Send Kyc issue report email
+  #
+  # * Author: Mayur
+  # * Date: 03/12/2018
+  # * Reviewed By:
+  #
+  def email_kyc_report_issue
+    @service_response = UserManagement::SendEmail::ReportIssue.new(params).perform
+    format_service_response
+  end
+
+
 end

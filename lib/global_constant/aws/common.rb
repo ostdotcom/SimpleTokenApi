@@ -25,6 +25,10 @@ module GlobalConstant
           GlobalConstant::Base.aws['region']
         end
 
+        def aml_bucket
+          GlobalConstant::Base.s3['kyc_bucket']
+        end
+
         def kyc_bucket
           GlobalConstant::Base.s3['kyc_bucket']
         end

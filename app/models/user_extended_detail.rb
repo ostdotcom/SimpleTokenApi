@@ -31,7 +31,7 @@ class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
 
     user_extended_detail_ids.delete(user_extended_detail_id)
     return false if user_extended_detail_ids.blank?
-    UserKycDetail.where(client_id: client_id, user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
+    UserKycDetail.active_kyc.where(client_id: client_id, user_extended_detail_id: user_extended_detail_ids, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses).exists?
   end
 
   # Get Key Object
@@ -61,6 +61,16 @@ class UserExtendedDetail < EstablishSimpleTokenUserDbConnection
     Memcache.get_set_memcached(memcache_key_object.key_template % {id: id}, memcache_key_object.expiry) do
       UserExtendedDetail.where(id: id).first
     end
+  end
+
+  # Flush Memcache
+  #
+  # * Author: Tejas
+  # * Date: 27/09/2018
+  # * Reviewed By:
+  #
+  def get_full_name
+    (self.first_name + " " + self.last_name).titleize
   end
 
   private

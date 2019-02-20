@@ -31,9 +31,11 @@ export STA_CAMPAIGN_ALPHA4_USER_LIST="4820"
 export STA_GEOIP_FILE_WITH_PATH='../GeoIP2-City.mmdb'
 
 # not used in code
-#export STA_RECAPTCHA_SITE_KEY="6LfbfzQUAAAAAObwp0iXySZxH69WXY6NsLdKZF6B"
+#export STA_RECAPTCHA_SITE_KEY="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+# valid on local
+#export STA_RECAPTCHA_SECRET="6LfbfzQUAAAAAMX0uq9h6ledP8jQSa9BGKSFJyxe"
 
-export STA_RECAPTCHA_SECRET="6LfbfzQUAAAAAMX0uq9h6ledP8jQSa9BGKSFJyxe"
+export STA_RECAPTCHA_SECRET="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 
 export STA_COOKIE_SECRET_KEY='byfd#ss@#4nflkn%^!~wkk^^&71o{23dpi~@jwe$pi'
 export STA_EMAIL_TOKENS_DECRIPTOR_KEY='3d3w6fs0983ab6b1e37d1c1fs64hm8g9'
@@ -81,9 +83,12 @@ export VISION_KEYFILE_JSON='{
 '
 export VISION_PROJECT_ID="ost-kyc-ocr"
 
-export APP_SHARED_DIRECTORY="/Users/pankaj/simpleTokenWorkspace"
+export APP_SHARED_DIRECTORY=".."
 
 export ADDENDUM_CLIENT_IDS='[]'
+
+export AML_SEARCH_API_KEY='59d40a35-33f6-4e24-a5d2-8fcf876b73ee'
+export AML_SEARCH_BASE_URL='https://api1.uat.c6-intelligence.com'
 
 export MAX_GAS_FOR_TRANSACTION_GWEI=100
 export MIN_GAS_FOR_TRANSACTION_GWEI=5

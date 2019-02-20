@@ -41,7 +41,7 @@ module ReportJob
     #
     def fetch_details
       super
-      @client_kyc_config = ClientKycConfigDetail.get_from_memcache(@client_id)
+      @client_kyc_config = @client.client_kyc_config_detail
     end
 
     # validate

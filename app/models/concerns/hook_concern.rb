@@ -70,12 +70,18 @@ module HookConcern
     # @param [Hash] sucess_log - log to be written in success response column
     #
     def mark_processed(sucess_log)
-      update_attributes!(
-        lock_identifier: nil,
-        locked_at: nil,
-        success_response: sucess_log,
-        status: self.class.processed_status
-      )
+      if (event_type == GlobalConstant::EmailServiceApiCallHook.send_transactional_mail_event_type) &&
+          (GlobalConstant::PepoCampaigns.delete_hook_for_templates.include?(params[:template_name]))
+        destroy
+      else
+        update_attributes!(
+            lock_identifier: nil,
+            locked_at: nil,
+            success_response: sucess_log,
+            status: self.class.processed_status
+        )
+      end
+
     end
 
     # Mark Hook as Failed Which would have to be retried Later

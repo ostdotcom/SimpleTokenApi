@@ -115,7 +115,7 @@ class UnwhitelistAddressJob < ApplicationJob
                                                      phase: api_data[:phase],
                                                      gasPrice: EstimatedGasPrice::CurrentPrice.new.fetch
                                                  })
-    Rails.logger.info("Whitelist API Response: #{r.inspect}")
+    # Rails.logger.info("Whitelist API Response: #{r.inspect}")
 
     unless r.success?
       get_client_whitelist_detail_obj.mark_client_eth_balance_low if GlobalConstant::ClientWhitelistDetail.low_balance_error?(r.error)
@@ -237,12 +237,22 @@ class UnwhitelistAddressJob < ApplicationJob
   def notify_errors(error_message, result_base = nil)
     user_email = User.get_from_memcache(@user_id).email
 
-    Email::HookCreator::SendTransactionalMail.new(
-        client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
-        email: @admin_email,
-        template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
-        template_vars: {success: 0, email: user_email, reason_failure: error_message}
-    ).perform
+    admin_emails_for_notification = GlobalConstant::Admin.get_all_admin_emails_for(
+        @client_id,
+        GlobalConstant::Admin.open_case_request_outcome_notification_type
+    )
+
+    admin_emails_for_notification << @admin_email
+    admin_emails_for_notification.uniq!
+
+    admin_emails_for_notification.each do |email_id|
+      Email::HookCreator::SendTransactionalMail.new(
+          client_id: Client::OST_KYC_CLIENT_IDENTIFIER,
+          email: email_id,
+          template_name: GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
+          template_vars: {success: 0, email: user_email, reason_failure: error_message, case_id: @user_kyc_detail_id}
+      ).perform
+    end
 
     # Send internal email in case of failure
     if result_base.present?

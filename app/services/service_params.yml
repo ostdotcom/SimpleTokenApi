@@ -3,7 +3,10 @@
     - :email
     - :password
     - :browser_user_agent
+    - :ip_address
   :optional:
+    - :mfa_session_cookie_value
+    - :next_url
 
 'AdminManagement::Logout':
   :mandatory:
@@ -28,12 +31,25 @@
     - :single_auth_cookie_value
     - :otp
     - :browser_user_agent
+    - :ip_address
   :optional:
+    - :mfa_session_cookie_value
+    - :next_url
 
 'AdminManagement::Login::Multifactor::GetGaUrl':
   :mandatory:
     - :single_auth_cookie_value
     - :browser_user_agent
+  :optional:
+
+'AdminManagement::Profile::UpdateTermsOfUse':
+  :mandatory:
+    - :admin_id
+  :optional:
+
+'AdminManagement::Profile::GetTermsOfUse':
+  :mandatory:
+    - :admin_id
   :optional:
 
 'AdminManagement::VerifyCookie::SingleAuth':
@@ -61,7 +77,7 @@
   :mandatory:
     - :cookie_value
     - :browser_user_agent
-    - :is_super_admin_role
+    - :options
   :optional:
 
 'AdminManagement::Kyc::CheckDetails':
@@ -114,14 +130,16 @@
 #  :optional:
 #    - :ethereum_address
 
-'AdminManagement::Kyc::AdminAction::DenyKyc':
+'AdminManagement::Kyc::AdminAction::DenyCase':
   :mandatory:
     - :admin_id
     - :client_id
     - :id
   :optional:
+    - :matched_ids
+    - :unmatched_ids
 
-'AdminManagement::Kyc::AdminAction::EmailKycIssue':
+'AdminManagement::Kyc::AdminAction::ReportIssue':
   :mandatory:
     - :admin_id
     - :client_id
@@ -129,13 +147,23 @@
     - :email_temp_vars
   :optional:
 
-'AdminManagement::Kyc::AdminAction::Qualify':
+'AdminManagement::Kyc::AdminAction::ApproveDetails':
   :mandatory:
     - :admin_id
     - :client_id
     - :id
   :optional:
     - :is_auto_approve
+
+'AdminManagement::Kyc::AdminAction::ApproveCase':
+  :mandatory:
+    - :admin_id
+    - :client_id
+    - :id
+  :optional:
+    - :matched_ids
+    - :unmatched_ids
+
 
 'AdminManagement::Kyc::CheckDuplicates':
   :mandatory:
@@ -413,6 +441,29 @@
     - :project_description
     - :kit_marketing
 
+
+'UserManagement::SendEmail::Approve':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+    - :template_vars
+
+'UserManagement::SendEmail::Deny':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+    - :template_vars
+
+'UserManagement::SendEmail::ReportIssue':
+  :mandatory:
+    - :client_id
+    - :user_id
+  :optional:
+    - :template_vars
+
+
 'ClientManagement::MigrateClientCustomDraft':
   :mandatory:
     - :client_id
@@ -430,12 +481,6 @@
 'ClientManagement::GetClientSetting':
   :mandatory:
     - :client_id
-  :optional:
-
-'ClientManagement::GetProfileDetails':
-  :mandatory:
-     - :admin_id
-     - :client_id
   :optional:
 
 'ClientManagement::GetAutoApproveSetting':
@@ -494,12 +539,6 @@
      - :set_allowed_keys
   :optional:
 
-'ClientManagement::GetAmlDetail':
-  :mandatory:
-     - :client_id
-     - :admin_id
-  :optional:
-
 'ClientManagement::DeveloperDetail':
   :mandatory:
      - :admin_id
@@ -529,6 +568,35 @@
      - :admin_id
   :optional:
 
+'ClientManagement::GetMfaSessionSettings':
+  :mandatory:
+    - :client_id
+    - :admin_id
+  :optional:
+
+
+'ClientManagement::UpdateMfaSessionSettings':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :admin_setting
+     - :has_sa_setting
+  :optional:
+     - :super_admin_setting
+
+'ClientManagement::GetEmailNotificationSetting':
+  :mandatory:
+     - :client_id
+     - :admin_id
+  :optional:
+
+'ClientManagement::UpdateEmailNotificationSetting':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :email_setting
+  :optional:
+
 'ClientManagement::GetWebhookDetail':
   :mandatory:
      - :client_id
@@ -554,14 +622,21 @@
      - :event_result_types
   :optional:
 
-'ClientManagement::DeleteWebhook':
+'ClientManagement::WebhookSetting::Delete':
   :mandatory:
      - :client_id
      - :admin_id
      - :webhook_id
   :optional:
 
-'ClientManagement::ResetSecretKey':
+'ClientManagement::WebhookSetting::Test':
+  :mandatory:
+     - :client_id
+     - :admin_id
+     - :webhook_id
+  :optional:
+
+'ClientManagement::WebhookSetting::ResetSecretKey':
   :mandatory:
      - :client_id
      - :admin_id
@@ -616,14 +691,6 @@
     - :client_id
   :optional:
     - :entity_group_id
-
-'AdminManagement::Kyc::RetryAmlUpload':
-  :mandatory:
-    - :client_id
-    - :id
-  :optional:
-    - :admin_id
-    - :cron_job
 
 'AdminManagement::AdminUser::Dashboard':
   :mandatory:

@@ -2,6 +2,13 @@ class AdminSecret < EstablishSimpleTokenAdminDbConnection
 
   after_commit :memcache_flush
 
+  enum status: {
+      GlobalConstant::AdminSessionSetting.active_status => 1,
+      GlobalConstant::AdminSessionSetting.deleted_status => 2
+  }
+
+  scope :is_active, -> {where(status: GlobalConstant::AdminSecret.active_status)}
+
   # Login Salt Decrypted
   #
   # * Author: Aman
@@ -42,24 +49,24 @@ class AdminSecret < EstablishSimpleTokenAdminDbConnection
   #
   # @return [MemcacheKey] Key Object
   #
-  def self.get_memcache_key_object
-    MemcacheKey.new('admin.admin_secret_details')
+  def self.get_active_memcache_key_object
+    MemcacheKey.new('admin.admin_secret_details_active')
   end
 
-  # Get/Set Memcache data for User
+  # Get/Set Memcache data for Active Admin Secret
   #
   # * Author: Aman
   # * Date: 09/01/2018
   # * Reviewed By:
   #
-  # @param [Integer] user_id - user id
+  # @param [Integer] admin_secret_id - admin secret id
   #
-  # @return [AR] User object
+  # @return [AR] AdminSecret object
   #
-  def self.get_from_memcache(admin_secret_id)
-    memcache_key_object = AdminSecret.get_memcache_key_object
+  def self.get_active_from_memcache(admin_secret_id)
+    memcache_key_object = AdminSecret.get_active_memcache_key_object
     Memcache.get_set_memcached(memcache_key_object.key_template % {id: admin_secret_id}, memcache_key_object.expiry) do
-      AdminSecret.where(id: admin_secret_id).first
+      AdminSecret.is_active.where(id: admin_secret_id).first
     end
   end
 
@@ -72,7 +79,7 @@ class AdminSecret < EstablishSimpleTokenAdminDbConnection
   # * Reviewed By:
   #
   def memcache_flush
-    admin_secret_details_memcache_key = AdminSecret.get_memcache_key_object.key_template % {id: self.id}
+    admin_secret_details_memcache_key = AdminSecret.get_active_memcache_key_object.key_template % {id: self.id}
     Memcache.delete(admin_secret_details_memcache_key)
   end
 end

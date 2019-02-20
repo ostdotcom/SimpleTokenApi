@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     end
 
     scope 'api/admin', controller: 'web/admin/login' do
+      match 'check-logged-in' => :check_logged_in, via: :GET
       match 'login' => :password_auth, via: :POST
       match 'logout' => :logout, via: :GET
       match 'get-ga-url' => :get_ga_url, via: :GET
@@ -55,10 +56,11 @@ Rails.application.routes.draw do
     scope 'api/admin/profile', controller: 'web/admin/profile' do
       match 'change-password' => :change_password, via: :POST
       match 'detail' => :get_detail, via: :GET
+      match 'get-terms-and-conditions' => :get_terms_and_conditions, via: :GET
+      match 'update-terms-and-conditions' => :update_terms_and_conditions, via: :POST
     end
 
     scope 'api/admin/client', controller: 'web/admin/client' do
-      match 'profile' => :get_profile_detail, via: :GET
       match 'auto-approve-setting' => :get_auto_approve_setting, via: :GET
       match 'get-sale-setting' => :get_sale_setting, via: :GET
       match 'get-country-setting' => :get_country_setting, via: :GET
@@ -79,10 +81,10 @@ Rails.application.routes.draw do
 
       match 'deny-kyc' => :deny_kyc, via: :POST
       match 'email-kyc-issue' => :email_kyc_issue, via: :POST
-      match 'qualify' => :qualify, via: :POST
+      match 'approve-details' => :approve_details, via: :POST
+      match 'approve-case' => :approve_case, via: :POST
 
       match 'get-cases-by-email' => :get_cases_by_email, via: [:GET, :POST]
-      match 'retry-aml-upload' => :retry_aml_upload, via: :POST
       match 'dashboard' => :dashboard, via: :GET
 
       match 'open-case' => :open_kyc_case, via: :POST
@@ -116,11 +118,14 @@ Rails.application.routes.draw do
     scope 'api/admin/setting', controller: 'web/admin/setting' do
       match 'reset-api-credentials' => :reset_api_credentials, via: :POST
       match 'update-api-fields' => :update_api_fields, via: :POST
-      match 'aml-details' => :get_aml_detail, via: :GET
       match 'developer-details' => :get_developer_detail, via: :GET
       match 'update-deposit-address' => :update_deposit_address, via: :POST
       match 'update-whitelist-address' => :update_whitelist_address, via: :POST
       match 'contract-addresses' => :get_contract_addresses, via: :GET
+      match 'get-mfa-session-settings' => :get_mfa_session_settings, via: :GET
+      match 'update-mfa-session-settings' => :update_mfa_session_settings, via: :POST
+      match 'email-notification' => :get_email_notification, via: :GET
+      match 'email-notification' => :update_email_notification, via: :POST
     end
 
     scope 'api/admin/webhook', controller: 'web/admin/webhook' do
@@ -128,6 +133,7 @@ Rails.application.routes.draw do
       match '/' => :create_webhook, via: :POST
       match '/:webhook_id' => :update_webhook, via: :POST
       match '/:webhook_id/reset-secret-key' => :reset_secret_key, via: :POST
+      match '/:webhook_id/test' => :test, via: :POST
       match '/:webhook_id/delete' => :delete_webhook, via: :POST
     end
 

@@ -26,6 +26,18 @@ module Util
       safe_paragraph
     end
 
+    # Encode String To Hexadecimal String
+    #
+    # * Author: Aniket
+    # * Date: 05/07/2018
+    # * Reviewed By:
+    #
+    # @return [string] Returns hexadecimal string
+    #
+    def self.encode_string_to_hexadecimal_string(qr_code)
+      qr_code.bytes.map{|x| "00#{x.to_s(16)}"}.join()
+    end
+
     # convert words separated by space to allow multiple or 0 spaces in between words
     #
     # * Author: Aniket
@@ -36,7 +48,10 @@ module Util
     #
     def self.get_words_regex_for_multi_space_support(word)
       return word if word.blank?
-      return word.gsub(/ +/, ' *')
+      word_escape = Util::CommonValidator.escape_regex(word)
+
+      # Note: (\\ )+ is used to replace multiple spaces as  escape_regex changes ' ' to '\\ '
+      return word_escape.gsub(/(\\ )+/, '(\\ )*')
     end
 
     # check whether give object is integer or not

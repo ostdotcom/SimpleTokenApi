@@ -15,6 +15,10 @@ module AdminManagement
         # @params [String] single_auth_cookie_value (mandatory) - single auth cookie value
         # @params [String] otp (mandatory) - this is the Otp entered
         # @params [String] browser_user_agent (mandatory) - browser user agent
+        # @params [String] ip_address (mandatory) - browser user agent
+        #
+        # @params [String] mfa_session_cookie_value (optional) - mfa session auth cookie value
+        # @params [String] next_url (optional) - relative url to redirect on login
         #
         # @return [AdminManagement::Login::Multifactor::Authenticate]
         #
@@ -22,8 +26,13 @@ module AdminManagement
           super
 
           @otp = @params[:otp].to_s
+          @ip_address = @params[:ip_address]
 
+          @mfa_session_cookie_value = @params[:mfa_session_cookie_value]
+          @next_url = @params[:next_url] || ""
           @double_auth_cookie_value = nil
+          @mfa_log = nil
+          @token = nil
         end
 
         # Perform
@@ -60,8 +69,18 @@ module AdminManagement
           r = set_double_auth_cookie_value
           return r unless r.success?
 
+          r = create_entry_in_mfa_log
+          return r unless r.success?
+
+          r = set_mfa_session_cookie
+          return r unless r.success?
+
+          delete_expired_cookies
+
           success_with_data(
-              double_auth_cookie_value: @double_auth_cookie_value
+              double_auth_cookie_value: @double_auth_cookie_value,
+              mfa_session_cookie_value: @mfa_session_cookie_value,
+              redirect_url: redirect_url
           )
         end
 
@@ -115,6 +134,123 @@ module AdminManagement
 
           success
         end
+
+        # create_entry_in_mfa_log
+        #
+        # * Author: Tejas
+        # * Date: 05/02/2019
+        # * Reviewed By:
+        #
+        # @return [String]
+        #
+        def create_entry_in_mfa_log
+          @token = SecureRandom.hex(8)
+
+          @mfa_log = MfaLog.create!(admin_id: @admin.id,
+                                    ip_address: @ip_address,
+                                    browser_user_agent: @browser_user_agent,
+                                    status: GlobalConstant::MfaLog.active_status,
+                                    token: @token,
+                                    last_mfa_time: Time.now.to_i)
+          success
+        end
+
+        # Set Last 2fa Login Time Cookie
+        #
+        # * Author: Tejas
+        # * Date: 05/02/2019
+        # * Reviewed By:
+        #
+        # Sets @mfa_session_cookie_value
+        #
+        # @return [Result::Base]
+        #
+        def set_mfa_session_cookie
+
+          if !Util::CommonValidateAndSanitize.is_hash?(@mfa_session_cookie_value)
+            @mfa_session_cookie_value = {}
+          end
+
+          @mfa_session_cookie_value[@mfa_log.session_key] = @mfa_log.get_mfa_session_value(@admin_secret.id, Time.now.to_i)
+
+          success
+        end
+
+        # Removes expired cookies and last set cookie if count more than 15
+        #
+        # * Author: Tejas
+        # * Date: 05/02/2019
+        # * Reviewed By:
+        #
+        # Sets @mfa_session_cookie_value
+        #
+        def delete_expired_cookies
+          #  delete all expired,
+          all_cookies, count = {}, 0
+          mfa_session_cookie_value_dup = @mfa_session_cookie_value.dup
+          @mfa_session_cookie_value.each do |s_k, s_v|
+            parts = s_v.split(':') rescue nil
+
+            if parts.length != 5
+              mfa_session_cookie_value_dup.delete(s_k)
+              next
+            end
+
+            last_login_time = parts[3].to_i
+
+            if (last_login_time + GlobalConstant::AdminSessionSetting.max_mfa_frequency_value.days.to_i) <= Time.now.to_i
+              mfa_session_cookie_value_dup.delete(s_k)
+              next
+            end
+
+            all_cookies[last_login_time] ||= []
+            all_cookies[last_login_time] << s_k
+            count += 1
+          end
+
+          @mfa_session_cookie_value = mfa_session_cookie_value_dup
+
+          # allow max 15 cookies remove last logged in ip
+          if count > 15
+            all_cookies.each do |_, keys|
+              keys.each do |key|
+                @mfa_session_cookie_value.delete(key)
+                count -= 1
+                return if count <= 30
+              end
+            end
+          end
+
+        end
+
+        # Set returns redirect url
+        #
+        # * Author: Mayur
+        # * Date: 17/01/2019
+        # * Reviewed By:
+        #
+        #
+        # @return [String]
+        #
+        def redirect_url
+          @admin.has_accepted_terms_of_use? ? get_application_url : GlobalConstant::WebUrls.terms_and_conditions
+        end
+
+        # returns application_url
+        #
+        # * Author: Mayur
+        # * Date: 17/01/2019
+        # * Reviewed By:
+        #
+        #
+        # @return [String]
+        #
+        def get_application_url
+          @next_url = CGI.unescape @next_url
+          return @next_url if @next_url.present? && ValidateLink.is_valid_redirect_path?(@next_url)
+          GlobalConstant::WebUrls.admin_dashboard
+        end
+
 
       end
 

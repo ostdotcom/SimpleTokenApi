@@ -92,11 +92,10 @@ module SandboxManagement
     #
     def get_client_settings
       cp = ClientPlan.get_client_plan_from_memcache(@client_id)
-      aml = ClientAmlDetail.get_from_memcache(@client_id)
       pepo_campaign = ClientPepoCampaignDetail.get_from_memcache(@client_id)
       web_host = ClientWebHostDetail.get_from_memcache_by_client_id(@client_id)
       token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@client_id)
-      kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+      kyc_config_detail = @client.client_kyc_config_detail
       super_admins = Admin.where(default_client_id: @client_id, role: GlobalConstant::Admin.super_admin_role).not_deleted.all
 
       super_admins_data = super_admins.map {|x|
@@ -115,12 +114,6 @@ module SandboxManagement
           super_admins: super_admins_data,
           double_opt_in: @client.is_verify_page_active_for_client?,
           client_name: @client.name,
-          aml: {
-              email_id: aml.email_id,
-              domain_name: aml.domain_name,
-              token: decrypted_value(aml.token),
-              base_url: aml.base_url
-          },
           pepo_campaign: {
               api_key: pepo_campaign.api_key,
               api_secret: decrypted_value(pepo_campaign.api_secret)
@@ -135,7 +128,8 @@ module SandboxManagement
           kyc_config: {
               kyc_fields: kyc_config_detail.kyc_fields_array,
               residency_proof_nationalities: kyc_config_detail.residency_proof_nationalities,
-              blacklisted_countries: kyc_config_detail.blacklisted_countries
+              blacklisted_countries: kyc_config_detail.blacklisted_countries,
+              auto_send_kyc_emails: kyc_config_detail.auto_send_kyc_emails
           }
       }
 

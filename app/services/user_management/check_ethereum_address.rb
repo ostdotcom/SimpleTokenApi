@@ -81,7 +81,7 @@ module UserManagement
       return error_with_identifier('invalid_api_params',
                                    'um_cea_2',
                                    ['invalid_ethereum_address']
-      )if !r.success?
+      )if !r.success? && r.data[:web3_js_error]
 
       success
     end

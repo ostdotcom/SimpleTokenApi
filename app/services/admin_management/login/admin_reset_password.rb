@@ -166,7 +166,7 @@ module AdminManagement
         return unauthorized_access_response_for_web('am_l_arp_9', 'Invalid Admin') unless @admin.present? && @admin.password.present? &&
             (@admin.status == GlobalConstant::Admin.active_status)
 
-        @admin_secret = AdminSecret.where(id: @admin.admin_secret_id).first
+        @admin_secret = AdminSecret.get_active_from_memcache(@admin.admin_secret_id)
         return unauthorized_access_response_for_web('am_l_arp_10', 'Invalid Admin') unless @admin_secret.present?
   
         success

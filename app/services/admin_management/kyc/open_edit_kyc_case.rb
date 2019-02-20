@@ -44,6 +44,8 @@ module AdminManagement
         r = open_case
         return r unless r.success?
 
+        send_open_case_request_outcome_email if (!r.data[:is_processing])
+
         success_with_data(r.data)
       end
 
@@ -89,8 +91,8 @@ module AdminManagement
 
         return error_with_data(
             'am_k_oekc_3',
-            'Edit request is in process for this case.',
-            'Edit request is in process for this case.',
+            'Open case request is in process for this case.',
+            'Open case request is in process for this case.',
             GlobalConstant::ErrorAction.default,
             {}
         ) if edit_kyc_request.present?
@@ -102,15 +104,8 @@ module AdminManagement
             'Kyc Details not found or its already open.',
             GlobalConstant::ErrorAction.default,
             {}
-        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || !@user_kyc_detail.case_closed_for_admin?
+        ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status? || !@user_kyc_detail.case_closed?
 
-        return error_with_data(
-            'am_k_oekc_5',
-            'Case is rejected by Cynopsis',
-            'Case is rejected by Cynopsis',
-            GlobalConstant::ErrorAction.default,
-            {}
-        ) if @user_kyc_detail.aml_rejected?
 
         r = validate_is_whitelist_in_process
         return r unless r.success?
@@ -196,6 +191,8 @@ module AdminManagement
       #
       def mark_user_kyc_unprocessed
         @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
+        @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.unprocessed_aml_status
+        @user_kyc_detail.aml_user_id = nil
         @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
         @user_kyc_detail.last_acted_by = @admin_id
         @user_kyc_detail.last_acted_timestamp = Time.now.to_i
@@ -252,6 +249,42 @@ module AdminManagement
         @edit_kyc_request.save!
       end
 
+      # Send Open Case Request Outcome email to admins
+      #
+      # * Author: Tejas
+      # * Date: 31/01/2019
+      # * Reviewed By:
+      #
+      #
+      def send_open_case_request_outcome_email
+        user_email = User.get_from_memcache(@user_kyc_detail.user_id).email
+        template_variables = {
+            email: user_email,
+            success: 1,
+            reason_failure: "",
+            case_id: @user_kyc_detail.id
+        }
+
+        admin_emails = GlobalConstant::Admin.get_all_admin_emails_for(
+            @user_kyc_detail.client_id,
+            GlobalConstant::Admin.open_case_request_outcome_notification_type
+        )
+
+        admin_emails << @admin.email unless admin_emails.include?(@admin.email)
+
+        admin_emails.each do |admin_email|
+          ::Email::HookCreator::SendTransactionalMail.new(
+              client_id: ::Client::OST_KYC_CLIENT_IDENTIFIER,
+              email: admin_email,
+              template_name: ::GlobalConstant::PepoCampaigns.open_case_request_outcome_template,
+              template_vars: template_variables
+          ).perform
+
+        end
+
+
+      end
+
       # Enqueue Unwhitelisting
       #
       # * Author: Pankaj
@@ -282,7 +315,7 @@ module AdminManagement
       #
       def enqueue_job
         BgJob.enqueue(
-            RecordEventJob,
+            WebhookJob::RecordEvent,
             {
                 client_id: @user_kyc_detail.client_id,
                 event_source: GlobalConstant::Event.web_source,

@@ -99,7 +99,7 @@ module Authentication::ApiRequest
     #
     def validate_and_sanitize
       r = validate
-      return r unless r.success?
+      return invalid_credentials_response('a_ar_b_vas_1') unless r.success?
 
       @url_path = get_url_path
       @parsed_request_time = Time.at(@request_time.to_i)
@@ -126,10 +126,10 @@ module Authentication::ApiRequest
     # Sets @client
     #
     def fetch_client
+      # check if client not present?
       r = ClientApiDetailt.get_client_data(@api_key)
       @client = r[:client]
       @client_api_detail = r[:client_api_detail]
-      puts "fetch_client : #{@client.inspect}"
     end
 
     # Validate client and its signature

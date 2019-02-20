@@ -252,7 +252,7 @@ module Crons
     # * Reviewed By:
     #
     def record_event_job
-      RecordEventJob.perform_now({
+      WebhookJob::RecordEvent.perform_now({
                                      client_id: @user_kyc_detail.client_id,
                                      event_source: GlobalConstant::Event.kyc_system_source,
                                      event_name: GlobalConstant::Event.kyc_status_update_name,

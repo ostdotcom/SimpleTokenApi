@@ -43,10 +43,6 @@ client:
     key_template: 'client_api_key_detail_%{api_key}'
     expiry_in_seconds: 86400
 
-  client_aml_details:
-    key_template: 'client_aml_details_%{client_id}'
-    expiry_in_seconds: 86400
-
   client_whitelist_details:
     key_template: 'client_whitelist_detail_%{client_id}'
     expiry_in_seconds: 86400
@@ -67,10 +63,6 @@ client:
     key_template: 'client_token_sale_detail_%{client_id}'
     expiry_in_seconds: 86400
 
-  client_kyc_config_details:
-    key_template: 'client_kyc_config_detail_%{client_id}'
-    expiry_in_seconds: 86400
-
   client_kyc_detail_api_activations:
       key_template: 'client_kyc_detail_api_activations_%{client_id}'
       expiry_in_seconds: 86400
@@ -82,6 +74,11 @@ client:
   client_setting_detail:
     key_template: 'client_setting_detail_%{client_id}_%{entity_type}'
     expiry_in_seconds: 86400
+
+  client_setting_detail_host:
+    key_template: 'client_setting_detail_host_%{host_url}_%{entity_type}'
+    expiry_in_seconds: 300
+    used_in_shared_env: true
 
   client_kyc_pass_active_setting:
     key_template: 'client_kyc_pass_active_setting_%{client_id}'
@@ -103,8 +100,26 @@ admin:
   admin_details:
     key_template: 'admin_det_%{id}'
     expiry_in_seconds: 86400
-  admin_secret_details:
-    key_template: 'admin_secrets_det_%{id}'
+
+  admin_secret_details_active:
+    key_template: 'admin_secrets_det_active%{id}'
+    expiry_in_seconds: 86400
+
+  admin_session_settings_active:
+      key_template: 'admin_session_settings_det_%{client_id}'
+      expiry_in_seconds: 86400
+
+  all_admin_details:
+    key_template: 'all_admin_det_%{client_id}'
+    expiry_in_seconds: 86400
+
+aml:
+  aml_search:
+    key_template: 'aml_search_%{user_kyc_detail_id}_%{user_extended_detail_id}'
+    expiry_in_seconds: 86400
+
+  all_aml_match:
+    key_template: 'aml_match_%{aml_search_uuid}'
     expiry_in_seconds: 86400
 
 customization:

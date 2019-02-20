@@ -182,9 +182,20 @@ class ClientSetting
   #
   def self.flush_client_settings_cache(client_id)
     memcache_key_object = MemcacheKey.new('client.client_setting_detail')
+    memcache_key_object_for_web = MemcacheKey.new('client.client_setting_detail_host')
+
+    cwd = ClientWebHostDetail.get_from_memcache_by_client_id(client_id)
+
     EntityGroupDraft.entity_types.each_key do |entity_type|
       memcache_template_key = memcache_key_object.key_template % {client_id: client_id, entity_type: entity_type}
       Memcache.delete(memcache_template_key)
+
+      if cwd.present?
+        memcache_template_key_for_web = memcache_key_object_for_web.key_template % {host_url: cwd.domain, entity_type: entity_type}
+        Memcache.delete(memcache_template_key_for_web)
+      end
+
+
     end
   end
 

@@ -8,23 +8,20 @@ module Aml
 
     # Initialize
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 8/1/2019
     # * Reviewed By:
     #
-    # @params [Integer] client id (mandatory) - Client id
+    # @params [Hash]
     # @return [Aml::Base]
     #
-    def initialize(params)
-      @client_id = params[:client_id]
+    def initialize
     end
-
-    private
 
     # GET request
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
     # * Reviewed By:
     #
     # @param [String] path - request path
@@ -32,14 +29,15 @@ module Aml
     #
     # @return [Result::Base]
     #
-    def get_request(path, params = {})
-      send_request_of_type('get', path, params)
+    def get_request(path, params = {}, options={})
+      r = HttpHelper::HttpRequest.new(get_params(path, params)).get
+      parse_api_response(r, options)
     end
 
     # POST request
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
     # * Reviewed By:
     #
     # @param [String] path - request path
@@ -47,142 +45,151 @@ module Aml
     #
     # @return [Result::Base]
     #
-    def post_request(path, params = {})
-      send_request_of_type('post', path, params)
+    def post_request(path, params = {}, options={})
+      r = HttpHelper::HttpRequest.new(get_params(path, params)).post
+      parse_api_response(r, options)
     end
 
-    # PUT request
+    private
+
+    # Params required for request
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
     # * Reviewed By:
     #
     # @param [String] path - request path
     # @param [Hash] params - request params
     #
-    # @return [Result::Base]
+    # @return [Hash]
     #
-    def put_request(path, params = {})
-      send_request_of_type('put', path, params)
+    def get_params(path, params)
+      {
+          url: base_url + path,
+          request_parameters: params,
+          options: get_aml_request_options
+      }
     end
 
-    # Upload request
+    # header for requesting AML resource
     #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
     # * Reviewed By:
     #
     # @param [String] path - request path
     # @param [Hash] params - request params
     #
+    # @return [Hash]
+    #
+    def get_aml_request_options
+       {headers: { CaseSensitiveString.new('apiKey') => GlobalConstant::Base.aml_config[:search][:api_key] },
+       timeout: 25
+       }
+    end
+
+
+    # parses api response
+    #
+    # * Author: Mayur Patil
+    # * Date: 9/1/2019
+    # * Reviewed By:
+    #
+    # @param [Result::Base] r
+    # @param [Hash] options - optional config for parsing
+    #
     # @return [Result::Base]
     #
-    def upload_request(path, params = {})
-      send_request_of_type('upload', path, params)
-    end
 
-    # Client aml detail obj
-    #
-    # * Author: Aman
-    # * Date: 02/01/2018
-    # * Reviewed By:
-    #
-    # @return [Ar] ClientAmlDetail object
-    #
-    def client_aml_detail
-      @client_aml_detail ||= ClientAmlDetail.get_from_memcache(@client_id)
-    end
-
-    # Client aml detail decrypted token
-    #
-    # * Author: Aman
-    # * Date: 02/01/2018
-    # * Reviewed By:
-    #
-    # @return [String] ClientAmlDetail decrypted token
-    #
-    def get_client_aml_token_decrypted
-      @client = Client.get_from_memcache(@client_id)
-
-      r = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt)
+    def parse_api_response(r, options={})
       return r unless r.success?
 
-      api_salt_d = r.data[:plaintext]
+      http_response = r.data[:http_response]
 
-      r = LocalCipher.new(api_salt_d).decrypt(client_aml_detail.token)
-      return r unless r.success?
+      # Note: For get Pdf api the response is a string and therefore no JSON parse and only for success case
+      if (options[:has_string_response] == true) && (http_response.class.name == 'Net::HTTPOK')
+        response_data = http_response.body
+      else
+        response_data = Oj.load(http_response.body, mode: :strict)
+      end
 
-      api_secret_d = r.data[:plaintext]
+      case http_response.class.name
+        when 'Net::HTTPOK'
+        response_data = response_data.deep_symbolize_keys if Util::CommonValidateAndSanitize.is_hash?(response_data)
+        success_result({aml_response: response_data})
+      when 'Net::HTTPBadRequest'
+        # 400
+        error_with_internal_code('c_ab_par_1',
+                                 'ost kyc aml error',
+                                 GlobalConstant::ErrorCode.invalid_request_parameters,
+                                 response_data, [], response_data['message']
+        )
 
-      success_with_data({token_d: api_secret_d})
-    end
+      when 'Net::HTTPUnprocessableEntity'
+        # 422
+        error_with_internal_code('c_ab_par_2',
+                                 'ost kyc aml error',
+                                 GlobalConstant::ErrorCode.unprocessable_entity,
+                                 response_data, [], response_data['message']
+        )
+      when "Net::HTTPUnauthorized"
+        # 401
+        error_with_internal_code('c_ab_par_3',
+                                 'ost kyc aml authentication failed',
+                                 GlobalConstant::ErrorCode.unauthorized_access,
+                                 response_data, [], response_data['message']
+        )
 
-    # Send required request
-    #
-    # * Author: Sunil Khedar
-    # * Date: 10/10/2017
-    # * Reviewed By:
-    #
-    # @param [String] request_type - request type
-    # @param [String] path - request path
-    # @param [Hash] params - request params
-    #
-    # @return [Result::Base]
-    #
-    def send_request_of_type(request_type, path, params)
-      begin
-        r = get_client_aml_token_decrypted
-        return r unless r.success?
-
-        response = HTTP.headers('WEB2PY-USER-TOKEN' => r.data[:token_d])
-        request_path = client_aml_detail.base_url + path
-
-        case request_type
-          when 'get'
-            response = response.get(request_path, :params => params)
-          when 'post'
-            response = response.post(request_path, :json => params)
-          when 'put'
-            response = response.put(request_path, :json => params)
-          when 'upload'
-            response = response.post(request_path, :form => params)
-          else
-            return error_with_data('cb_1',
-                                   "Request type not implemented: #{request_type}",
-                                   'Something Went Wrong.',
-                                   GlobalConstant::ErrorAction.default,
-                                   {})
-        end
-
-        case response.status
-          when 200
-            response_hash = Oj.load(response.body.to_s)
-
-            return error_with_data(
-                'cb_2',
-                "Error in API call: #{response.status}",
-                'Something Went Wrong.',
-                GlobalConstant::ErrorAction.default,
-                response_hash['errors']
-            ) if response_hash['errors'].present?
-
-            return success_with_data(response: response_hash)
-          else
-            return error_with_data('cb_3',
-                                   "Error in API call: #{response.status}",
-                                   'Something Went Wrong.',
-                                   GlobalConstant::ErrorAction.default,
-                                   {})
-        end
-      rescue => e
-        return error_with_data('cb_4',
-                               "Exception in API call: #{e.message}",
-                               'Something Went Wrong.',
-                               GlobalConstant::ErrorAction.default,
-                               {})
+      when "Net::HTTPBadGateway"
+        #500
+        error_with_internal_code('c_ab_par_4',
+                                 'ost kyc aml bad gateway',
+                                 GlobalConstant::ErrorCode.unhandled_exception,
+                                 response_data, [], response_data['message']
+        )
+      when "Net::HTTPInternalServerError"
+        error_with_internal_code('c_ab_par_5',
+                                 'ost kyc aml bad internal server error',
+                                 GlobalConstant::ErrorCode.unhandled_exception,
+                                 response_data, [], response_data['message']
+        )
+      when "Net::HTTPForbidden"
+        #403
+        error_with_internal_code('c_ab_par_6',
+                                 'ost kyc aml forbidden',
+                                 GlobalConstant::ErrorCode.forbidden,
+                                 response_data, [], response_data['message']
+        )
+        when "Net::HTTPNotFound"
+          #404
+          error_with_internal_code('c_ab_par_7',
+                                   'ost kyc aml not_found',
+                                   GlobalConstant::ErrorCode.not_found,
+                                   response_data, [], response_data['message']
+          )
+      else
+        # HTTP error status code (500, 504...)
+        error_with_internal_code('c_ab_par_8',
+                                 "ost kyc aml STATUS CODE #{http_response.code.to_i}",
+                                 GlobalConstant::ErrorCode.unhandled_exception,
+                                 response_data, [], 'ost kyc aml exception'
+        )
       end
     end
 
-  end
+    # get base url
+    #
+    # * Author: mayur
+    # * Date: 8/1/2019
+    # * Reviewed By:
+    #
+    #
+    #
+    # @return [String]
+    #
+    def base_url
+     fail 'base_url not implemented'
+    end
 
+  end
 end

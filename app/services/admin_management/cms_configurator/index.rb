@@ -20,6 +20,7 @@ module AdminManagement
 
         @client_id = @params[:client_id]
         @admin_id = @params[:admin_id]
+        @client_web_host = nil
 
         @entity_group = nil
         @gid = nil
@@ -41,6 +42,8 @@ module AdminManagement
 
         r = fetch_entity_group_id
         return r unless r.success?
+
+        fetch_client_web_host
 
         success_with_data(success_response_data)
 
@@ -90,6 +93,19 @@ module AdminManagement
         success
       end
 
+
+      # Fetch Client Web Host
+      #
+      # * Author: Tejas
+      # * Date: 02/07/2018
+      # * Reviewed By: Aman
+      #
+      # Sets @client_web_host
+      #
+      def fetch_client_web_host
+        @client_web_host = ClientWebHostDetail.get_from_memcache_by_client_id(@client_id)
+      end
+
       # Api response data
       #
       # * Author: Tejas
@@ -100,6 +116,7 @@ module AdminManagement
       #
       def success_response_data
         {
+            domain_name: @client_web_host.present? ? @client_web_host.domain : nil,
             gid: @gid,
             uuid: @uuid
         }

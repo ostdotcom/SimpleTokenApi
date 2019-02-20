@@ -419,36 +419,15 @@ module WhitelistManagement
     #
     def send_kyc_approved_mail
 
-      return if !@client.is_email_setup_done? || @client.is_st_token_sale_client?
+      return if !@client.is_email_setup_done? || @client.is_st_token_sale_client? || ! @client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
-      fetch_client_token_sale_details
+      #
+      # return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
+      #                                                           [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
 
-      emails_hook_info = EmailServiceApiCallHook.get_emails_hook_info(
-          @client.id, GlobalConstant::PepoCampaigns.kyc_approved_template, [@user.email])
-
-      return if emails_hook_info.present? && emails_hook_info[@user.email].present?
-
-      return if (KycWhitelistLog.where(client_id: @client_id, ethereum_address: @ethereum_address, status:
-                                                                [GlobalConstant::KycWhitelistLog.done_status, GlobalConstant::KycWhitelistLog.confirmed_status]).count > 1)
-
-      send_mail_response = pepo_campaign_obj.send_transactional_email(
-          @user.email, GlobalConstant::PepoCampaigns.kyc_approved_template, kyc_approved_template_vars.merge(@client.web_host_params))
-
-      send_kyc_approved_mail_via_hooks if send_mail_response['error'].present?
-
+      send_kyc_approved_mail_via_hooks
     end
 
-    # Fetch token sale details
-    #
-    # * Author: Aman
-    # * Date: 01/02/2018
-    # * Reviewed By:
-    #
-    # @return [Result::Base]
-    #
-    def fetch_client_token_sale_details
-      @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
-    end
 
     # pepo campaign klass
     #
@@ -476,20 +455,6 @@ module WhitelistManagement
 
     end
 
-    # KYC approved email transactional var data
-    #
-    # * Author: Aman
-    # * Date: 04/11/2017
-    # * Reviewed By: Sunil
-    #
-    # @return [Hash] variable data for transactional email
-    #
-    def kyc_approved_template_vars
-      {
-          token_sale_participation_phase: @user_kyc_detail.token_sale_participation_phase,
-          is_sale_active: @client_token_sale_details.has_token_sale_started?
-      }
-    end
 
     # Send Email via hook processor
     #
@@ -503,7 +468,7 @@ module WhitelistManagement
           client_id: @client_id,
           email: @user.email,
           template_name: GlobalConstant::PepoCampaigns.kyc_approved_template,
-          template_vars: kyc_approved_template_vars
+          template_vars: GlobalConstant::PepoCampaigns.kyc_approve_default_template_vars(@client_id)
       ).perform
     end
 
@@ -549,7 +514,7 @@ module WhitelistManagement
     #
     def enqueue_job
       BgJob.enqueue(
-          RecordEventJob,
+          WebhookJob::RecordEvent,
           {
               client_id: @user_kyc_detail.client_id,
               event_source: GlobalConstant::Event.kyc_system_source,

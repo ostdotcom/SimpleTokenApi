@@ -32,6 +32,10 @@ module GlobalConstant
         'client_whitelist_details'
       end
 
+      def admin_session_setting_table
+        'admin_session_settings'
+      end
+
     end
   end
 end

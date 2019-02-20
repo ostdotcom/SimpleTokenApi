@@ -24,6 +24,8 @@ module HttpHelper
 
       @timeout = @options[:timeout] || DEFAULT_TIMEOUT
 
+      @headers = @options[:headers] || {}
+
       @url = @params[:url]
       @request_parameters = @params[:request_parameters]
     end
@@ -40,7 +42,7 @@ module HttpHelper
       uri = post_api_uri
       result = handle_with_exception(uri) do |http|
         uri_path = uri.path.present? ? uri.path : "/"
-        http.post(uri_path, @request_parameters.to_query)
+        @headers.present? ? http.post(uri_path, @request_parameters.to_query, @headers) : http.post(uri_path, @request_parameters.to_query)
       end
 
       result
@@ -57,7 +59,7 @@ module HttpHelper
     def get
       uri = get_api_uri
       result = handle_with_exception(uri) do |http|
-        http.get(uri)
+        @headers.present? ? http.get(uri, @headers): http.get(uri)
       end
 
       result
@@ -124,6 +126,7 @@ module HttpHelper
     #
     def setup_request(uri)
       http = Net::HTTP.new(uri.host, uri.port)
+      #http.set_debug_output($stdout)
       if uri.scheme == "https"
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER

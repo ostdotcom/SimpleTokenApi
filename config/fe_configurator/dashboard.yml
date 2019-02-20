@@ -1,3 +1,10 @@
+show_sale_timer:
+  data_kind: 'text'
+  validations:
+    required: 1
+    includes: ['0', '1']
+  default_value: '1'
+
 dashboard_title_text_color:
   data_kind: 'color'
   validations:

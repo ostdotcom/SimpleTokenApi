@@ -184,8 +184,10 @@ module AdminManagement
           end
 
           @invite_admin_obj.status = GlobalConstant::Admin.invited_status
+          @invite_admin_obj.terms_of_use =  GlobalConstant::Admin.accepted_terms_of_use
           @invite_admin_obj.role = GlobalConstant::Admin.normal_admin_role
           @invite_admin_obj.name = @name
+          @invite_admin_obj.session_inactivity_timeout = GlobalConstant::AdminSessionSetting.default_session_inactivity_timeout
 
           @invite_admin_obj.save! if @invite_admin_obj.changed?
         end

@@ -109,3 +109,8 @@ constants:
     min_gas_price: <%= ENV['MIN_GAS_FOR_TRANSACTION_GWEI'] %>
     buffer_gas: <%= ENV['BUFFER_GAS_FOR_TRANSACTION_GWEI'] %>
     default_gas_price: <%= ENV['DEFAULT_GAS_FOR_TRANSACTION_GWEI'] %>
+
+  aml_config:
+    search:
+      api_key: <%= ENV['AML_SEARCH_API_KEY'] %>
+      base_url: <%= ENV['AML_SEARCH_BASE_URL'] %>

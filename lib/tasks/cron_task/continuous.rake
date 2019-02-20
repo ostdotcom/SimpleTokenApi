@@ -100,7 +100,7 @@ namespace :cron_task do
       cron_identifier = ENV['cron_identifier'].to_s
 
       @process_name = "#{task}_#{cron_identifier}"
-      @performer_klass = 'Crons::WebhookProcessor'
+      @performer_klass = 'Crons::Webhooks::Send'
       @optional_params = {cron_identifier: cron_identifier}
       execute_continuous_task
     end
@@ -119,6 +119,24 @@ namespace :cron_task do
       @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
       @performer_klass = 'Crons::ReadBlockEvents'
       @optional_params = {}
+      execute_continuous_task
+    end
+
+    # Process User Aml Search
+    #
+    # * Author: Tejas
+    # * Date: 10/01/2018
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:continuous:process_user_aml_search cron_identifier=p1"
+    desc "*/1 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_user_aml_search cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/process_user_aml_search.log"
+    task :process_user_aml_search do |task|
+      @sleep_interval = 1
+
+      cron_identifier = ENV['cron_identifier'].to_s
+      @process_name = "#{task}_#{cron_identifier}"
+      @performer_klass = 'Crons::AmlProcessors::Search'
+      @optional_params = {cron_identifier: cron_identifier}
       execute_continuous_task
     end
 

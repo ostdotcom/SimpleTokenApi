@@ -234,6 +234,10 @@ module GlobalConstant
         "admin_invite"
       end
 
+      def test_webhook_result_template
+        "test_webhook_result"
+      end
+
       # # kyc_data_mismatch email - sent when user clicks on data_mismatch on admin panel
       # def kyc_data_mismatch_template
       #   'kyc_data_mismatch'
@@ -292,6 +296,11 @@ module GlobalConstant
         'low_whitelister_balance'
       end
 
+      # email to admins for manual review of a case
+      def manual_review_needed_template
+        'manual_review_needed'
+      end
+
       # email to admin with csv download link
       def kyc_report_download_template
         'kyc_report_download'
@@ -343,6 +352,7 @@ module GlobalConstant
           user_forgot_password_template,
           kyc_issue_template,
           admin_invite_template,
+          test_webhook_result_template,
 
           # kyc_data_mismatch_template,
           # kyc_document_id_issue_template,
@@ -355,6 +365,7 @@ module GlobalConstant
           altdrop_sent,
           contact_us_template,
           low_whitelister_balance_template,
+          manual_review_needed_template,
           billing_plan_notification_template,
           update_ethereum_request_outcome_template,
           open_case_request_outcome_template,
@@ -365,6 +376,25 @@ module GlobalConstant
           contract_address_update_template
         ]
       end
+
+
+
+      ### Review Type template variable for manual review needed template Start ###
+
+      def ocr_fr_failed_review_type
+        'ocr_fr_failed'
+      end
+
+      def aml_check_review_type
+        'aml_check'
+      end
+
+      def manual_review_type
+        'manual'
+      end
+
+      ### Review Type template variable for manual review needed template End ###
+
 
       # is this template related to double opt in email
       #
@@ -378,6 +408,18 @@ module GlobalConstant
         [
           GlobalConstant::PepoCampaigns.double_opt_in_template
         ].include?(template_name)
+      end
+
+      def kyc_approve_default_template_vars(client_id)
+        client_token_sale_details = ::ClientTokenSaleDetail.get_from_memcache(client_id)
+        {
+            is_sale_active: client_token_sale_details.has_token_sale_started?
+        }
+      end
+
+
+      def delete_hook_for_templates
+        [GlobalConstant::PepoCampaigns.kyc_approved_template]
       end
 
       private

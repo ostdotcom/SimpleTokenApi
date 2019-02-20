@@ -83,6 +83,11 @@ module GlobalConstant
       @estimated_gas_constants ||= fetch_config.fetch('gas_estimation_constants', {}).with_indifferent_access
     end
 
+    def self.aml_config
+      @aml_config ||= fetch_config.fetch('aml_config', {}).with_indifferent_access
+    end
+
+
     private
 
     def self.fetch_config

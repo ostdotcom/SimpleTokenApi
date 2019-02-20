@@ -10,7 +10,6 @@ module UserManagement
       # * Date: 10/10/2017
       # * Reviewed By: Kedar
       #
-      # @params [Integer] client_id (mandatory) - client id
       # @params [Integer] user_id (mandatory) - user id
       # @params [Integer] client_id (mandatory) - client id
       # @params [String] first_name (mandatory) - first name
@@ -39,7 +38,7 @@ module UserManagement
         # super
         @params = params
 
-        @user_id = @params[:user_id]
+        @user_id = @params[:user_id].to_i
         @client_id = @params[:client_id]
         @first_name = @params[:first_name] # required
         @last_name = @params[:last_name] # required
@@ -132,14 +131,13 @@ module UserManagement
         # NOTE: To be on safe side, check for generic errors as well
         # r = validate
         # return r unless r.success?
+        r = fetch_and_validate_client
+        return r unless r.success?
 
-        @client_kyc_config_detail = ClientKycConfigDetail.get_from_memcache(@client_id)
+        @client_kyc_config_detail = @client.client_kyc_config_detail
 
         # Sanitize fields, validate and assign error
         r = validate_and_sanitize_params
-        return r unless r.success?
-
-        r = fetch_and_validate_client
         return r unless r.success?
 
         @client_token_sale_details = ClientTokenSaleDetail.get_from_memcache(@client_id)
@@ -287,9 +285,9 @@ module UserManagement
 
         @country = @country.to_s.strip.upcase
         blacklisted_countries = @client_kyc_config_detail.blacklisted_countries
-        updated_country_from_cynopsis = GlobalConstant::CountryNationality.updated_country_hash[@country]
+        updated_country_name = GlobalConstant::CountryNationality.updated_country_hash[@country]
 
-        @country = updated_country_from_cynopsis.upcase if updated_country_from_cynopsis.present?
+        @country = updated_country_name.upcase if updated_country_name.present?
 
 
         if !GlobalConstant::CountryNationality.countries.include?(@country)

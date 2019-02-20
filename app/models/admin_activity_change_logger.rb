@@ -10,11 +10,14 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
       GlobalConstant::AdminActivityChangeLogger.client_kyc_detail_api_activations_table =>
           {val: 3, skip_log_on_create: false,
            columns: ['allowed_keys','extra_kyc_fields']},
+      GlobalConstant::AdminActivityChangeLogger.admin_session_setting_table =>
+          {val: 4, skip_log_on_create: false,
+           columns: ['admin_types','session_inactivity_timeout','status','mfa_frequency']},
       GlobalConstant::AdminActivityChangeLogger.client_kyc_config_details_table =>
-          {val: 4, skip_log_on_create: true,
+          {val: 5, skip_log_on_create: true,
            columns: ['kyc_fields','extra_kyc_fields', 'residency_proof_nationalities', 'blacklisted_countries']},
       GlobalConstant::AdminActivityChangeLogger.client_whitelist_details_table =>
-          {val: 5, skip_log_on_create: false,
+          {val: 6, skip_log_on_create: false,
            columns: ['contract_address','whitelister_address', 'version_id']}
 
   }.freeze

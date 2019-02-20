@@ -45,6 +45,18 @@ module Util
       ethereum_address
     end
 
+    # Escape Regex
+    #
+    # * Author: Tejas
+    # * Date: 11/12/2018
+    # * Reviewed By:
+    #
+    # @return [String] returns escaped regex string
+    #
+    def self.escape_regex(string)
+      return Regexp.quote(string)
+    end
+
   end
 
 end

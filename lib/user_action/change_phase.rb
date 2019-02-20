@@ -64,7 +64,7 @@ module UserAction
         )
       end
 
-      @admin = Admin.where(email: @admin_email, status: GlobalConstant::Admin.active_status).first
+      @admin = Admin.where(email: @admin_email).is_active.first
 
       if @admin.blank?
         return error_with_data(

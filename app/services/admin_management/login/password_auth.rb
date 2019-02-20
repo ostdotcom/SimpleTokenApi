@@ -174,14 +174,14 @@ module AdminManagement
           return
         end
 
-        mfa_session_key = MfaLog.get_mfa_session_key(@admin.id, @ip_address, @browser_user_agent)
+        mfa_session_key = MfaLog.get_mfa_session_key(@admin.id, @ip_address)
         mfa_session_value = @mfa_session_cookie_value[mfa_session_key]
 
         return if mfa_session_value.blank?
 
         parts = mfa_session_value.split(':')
 
-        if parts.length != 4
+        if parts.length != 5
           @mfa_session_cookie_value.delete(mfa_session_key)
           return
         end
@@ -190,12 +190,13 @@ module AdminManagement
         mfa_log_id = parts[0].to_i
         token = parts[1]
         last_mfa_time = parts[2].to_i
-        admin_secret_id = parts[3].to_i
+        last_login_time = parts[3].to_i
+        admin_secret_id = parts[4].to_i
 
         mfa_log = MfaLog.where(id: mfa_log_id).first
 
         if mfa_log.blank? || (mfa_log.admin_id != @admin.id) || (mfa_log.ip_address != @ip_address) ||
-            (mfa_log.browser_user_agent != @browser_user_agent) || (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
+            (mfa_log.last_mfa_time.to_i != last_mfa_time) ||
             (mfa_log.token != token) || (mfa_log.status != GlobalConstant::MfaLog.active_status) ||
             (admin_secret_id != @admin_secret.id)
 
@@ -216,9 +217,9 @@ module AdminManagement
         end
 
 
-        mfa_log.token = SecureRandom.hex
+        mfa_log.token = SecureRandom.hex(8)
         mfa_log.save!
-        @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value(@admin_secret.id)
+        @mfa_session_cookie_value[mfa_session_key] = mfa_log.get_mfa_session_value(@admin_secret.id, Time.now.to_i)
 
         @has_valid_mfa_session = true
       end

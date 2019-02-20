@@ -12,8 +12,8 @@ class MfaLog < EstablishSimpleTokenAdminDbConnection
   #
   # @return [String] MFA Session value
   #
-  def get_mfa_session_value(admin_secret_id)
-    "#{self.id}:#{self.token}:#{self.last_mfa_time}:#{admin_secret_id}"
+  def get_mfa_session_value(admin_secret_id, last_login_time)
+    "#{self.id}:#{self.token}:#{self.last_mfa_time}:#{last_login_time}:#{admin_secret_id}"
   end
 
   # Get MFA Session key
@@ -25,7 +25,7 @@ class MfaLog < EstablishSimpleTokenAdminDbConnection
   # @return [String] MFA Session value
   #
   def session_key
-    MfaLog.get_mfa_session_key(self.admin_id, self.ip_address, self.browser_user_agent)
+    MfaLog.get_mfa_session_key(self.admin_id, self.ip_address)
   end
 
   # Get MFA Session Key
@@ -36,8 +36,8 @@ class MfaLog < EstablishSimpleTokenAdminDbConnection
   #
   # @return [String] MFA Session value
   #
-  def self.get_mfa_session_key(admin_id, ip_address, browser_user_agent)
-    "#{admin_id}##{ip_address}##{browser_user_agent}"
+  def self.get_mfa_session_key(admin_id, ip_address)
+    "#{admin_id}##{ip_address}"
   end
 
 

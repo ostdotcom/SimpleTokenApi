@@ -103,8 +103,16 @@ module ClientManagement
 
       admin_setting_err = {}
       admin_setting_err[:session_timeout] = 'Please select a session timeout within the range mentioned.' if !is_valid_session_inactivity_timeout?(normal_admin_setting)
+      admin_setting_err[:session_timeout] = 'Decimal numbers are not allowed.' if !(Util::CommonValidateAndSanitize.is_integer?(normal_admin_setting[:session_timeout]))
+
       admin_setting_err[:mfa_type] = 'Invalid Mfa Type.' if !is_valid_mfa_type?(normal_admin_setting)
-      admin_setting_err[:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(normal_admin_setting)
+
+      if (@admin_setting[:mfa_type].to_i != 0)
+        admin_setting_err[:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(normal_admin_setting)
+        admin_setting_err[:mfa_frequency] = 'Decimal numbers are not allowed.' if !(Util::CommonValidateAndSanitize.is_integer?(normal_admin_setting[:mfa_frequency]))
+      else
+        @admin_setting[:mfa_frequency] = nil
+      end
 
       err_data[:admin_setting] = admin_setting_err if admin_setting_err.present?
 
@@ -112,9 +120,26 @@ module ClientManagement
 
       if @has_sa_setting == 1
         super_admin_setting_err = {}
-        super_admin_setting_err[:session_timeout] = 'Please select a session timeout within the range mentioned.' if !is_valid_session_inactivity_timeout?(super_admin_setting)
+
+        super_admin_setting_err[:session_timeout] = 'Please select a session timeout within the range mentioned.' if
+            !is_valid_session_inactivity_timeout?(super_admin_setting)
+
+        super_admin_setting_err[:session_timeout] = 'Decimal numbers are not allowed.' if
+            !(Util::CommonValidateAndSanitize.is_integer?(super_admin_setting[:session_timeout]))
+
         super_admin_setting_err[:mfa_type] = 'Invalid Mfa Type.' if !is_valid_mfa_type?(super_admin_setting)
-        super_admin_setting_err[:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if !is_valid_mfa_frequency?(super_admin_setting)
+
+        if (super_admin_setting[:mfa_type].to_i != 0)
+
+          super_admin_setting_err[:mfa_frequency] = 'Please select a Mfa Frequency within the range mentioned.' if
+              !is_valid_mfa_frequency?(super_admin_setting)
+
+          super_admin_setting_err[:mfa_frequency] = 'Decimal numbers are not allowed.' if
+              !(Util::CommonValidateAndSanitize.is_integer?(super_admin_setting[:mfa_frequency]))
+        else
+          super_admin_setting[:mfa_frequency] = nil
+        end
+
         err_data[:super_admin_setting] = super_admin_setting_err if super_admin_setting_err.present?
       end
 
@@ -122,7 +147,7 @@ module ClientManagement
                                    'cm_umss_vmfasit_1',
                                    '',
                                    '',
-                                   err_data
+                                   Util::CustomErrorFormatter.format_error_for_update_config(err_data)
       ) if err_data.present?
 
       success
@@ -263,8 +288,7 @@ module ClientManagement
     #
     def is_valid_mfa_frequency?(setting)
       (setting[:mfa_frequency].to_i >= 0) &&
-          (setting[:mfa_frequency].to_i <= GlobalConstant::AdminSessionSetting.max_mfa_frequency_value) &&
-          (Util::CommonValidateAndSanitize.is_integer?(setting[:mfa_frequency]))
+          (setting[:mfa_frequency].to_i <= GlobalConstant::AdminSessionSetting.max_mfa_frequency_value)
     end
 
     # Is Valid Mfa Frequency
@@ -277,8 +301,7 @@ module ClientManagement
     #
     def is_valid_session_inactivity_timeout?(setting)
       (setting[:session_timeout].to_i >= GlobalConstant::AdminSessionSetting.min_session_inactivity_timeout) &&
-          (setting[:session_timeout].to_i <= GlobalConstant::AdminSessionSetting.max_session_inactivity_timeout) &&
-          (Util::CommonValidateAndSanitize.is_integer?(setting[:session_timeout]))
+          (setting[:session_timeout].to_i <= GlobalConstant::AdminSessionSetting.max_session_inactivity_timeout)
     end
 
     # Is Valid Mfa Type

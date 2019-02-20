@@ -20,6 +20,7 @@ module ClientManagement
       @admin_id = @params[:admin_id]
 
       @client = nil
+      @client_api_detail = nil
       @api_secret_d = nil
     end
 
@@ -58,6 +59,9 @@ module ClientManagement
       r = validate_client_and_admin
       return r unless r.success?
 
+      r = fetch_and_validate_client_api_details
+      return r unless r.success?
+
       success
     end
 
@@ -79,6 +83,23 @@ module ClientManagement
       success
     end
 
+    # Fetch Client Api detail row
+    #
+    # * Author: Aman
+    # * Date: 20/02/2019
+    # * Reviewed By:
+    #
+    # Sets @client_api_detail
+    #
+    def fetch_and_validate_client_api_details
+      @client_api_detail = ClientApiDetail.non_deleted.where(client_id: @client_id).last
+
+      return error_with_identifier('invalid_client_id', 'cm_dd_favcad_1') if @client_api_detail.blank? ||
+          (@client_api_detail.status != GlobalConstant::ClientApiDetail.active_status)
+
+      success
+    end
+
     # Fetch Secret Decrypt
     #
     # * Author: Aniket
@@ -89,8 +110,7 @@ module ClientManagement
     #
     def fetch_api_keys
       api_salt_d = Aws::Kms.new('saas', 'saas').decrypt(@client.api_salt).data[:plaintext]
-
-      @api_secret_d = LocalCipher.new(api_salt_d).decrypt(@client.api_secret).data[:plaintext]
+      @api_secret_d = LocalCipher.new(api_salt_d).decrypt(@client_api_detail.api_secret).data[:plaintext]
     end
 
     # Fetch Client Kyc Config Detail
@@ -136,7 +156,7 @@ module ClientManagement
       applicable_api_fields = @client_kyc_config_detail.kyc_fields_array + @client_kyc_config_detail.extra_kyc_fields.stringify_keys.keys
 
       {
-          api_key: @client.api_key,
+          api_key: @client_api_detail.api_key,
           api_secret: @api_secret_d,
           selected_api_fields: selected_api_fields,
           applicable_api_fields: applicable_api_fields,
@@ -147,13 +167,13 @@ module ClientManagement
 
     def extra_fields_array
       extra_fields = []
-      @client_kyc_config_detail.extra_kyc_fields.each do | key, value |
+      @client_kyc_config_detail.extra_kyc_fields.each do |key, value|
         extra_fields << {
             value: key,
             display_text: value[:label]
         }
       end
-    extra_fields
+      extra_fields
     end
 
   end

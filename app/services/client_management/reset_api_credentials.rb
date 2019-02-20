@@ -19,6 +19,7 @@ module ClientManagement
       @admin_id = @params[:admin_id]
 
       @client_api_secret_d = nil
+      @client_api_detail = nil
     end
 
     # Perform
@@ -57,6 +58,9 @@ module ClientManagement
       r = validate_client_and_admin
       return r unless r.success?
 
+      r = fetch_and_validate_client_api_details
+      return r unless r.success?
+
       success
     end
 
@@ -74,6 +78,23 @@ module ClientManagement
 
       r = fetch_and_validate_admin
       return r unless r.success?
+
+      success
+    end
+
+    # Fetch Client Api detail row
+    #
+    # * Author: Aman
+    # * Date: 20/02/2019
+    # * Reviewed By:
+    #
+    # Sets @client_api_detail
+    #
+    def fetch_and_validate_client_api_details
+      @client_api_detail = ClientApiDetail.non_deleted.where(client_id: @client_id).last
+
+      return error_with_identifier('invalid_client_id', 'cm_rac_favcad_1') if @client_api_detail.blank? ||
+          (@client_api_detail.status != GlobalConstant::ClientApiDetail.active_status)
 
       success
     end
@@ -103,9 +124,9 @@ module ClientManagement
       api_secret_e = r.data[:ciphertext_blob]
       api_key = Utility.generate_random_id
 
-      @client.api_key = api_key
-      @client.api_secret = api_secret_e
-      @client.save!
+      @client_api_detail.api_key = api_key
+      @client_api_detail.api_secret = api_secret_e
+      @client_api_detail.save!
       success
     end
 
@@ -119,7 +140,7 @@ module ClientManagement
     #
     def success_response_data
       {
-          api_key: @client.api_key,
+          api_key: @client_api_detail.api_key,
           api_secret: @client_api_secret_d
       }
     end

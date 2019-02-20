@@ -21,7 +21,6 @@ module UserManagement
 
       @client_id = @client.id
 
-      @client = nil
       @client_token_sale_details = nil
       @user_kyc_detail = nil
       @token_sale_ethereum_address = nil

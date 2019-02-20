@@ -4,6 +4,10 @@ sql_shard_config:
       id: 1
       model_suffix: 'shard1'
 
+    shard_2:
+      id: 2
+      model_suffix: 'shard2'
+
   models:
       user:
         'User':

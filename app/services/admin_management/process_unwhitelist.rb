@@ -145,7 +145,7 @@ module AdminManagement
       BgJob.enqueue(
           UserActivityLogJob,
           {
-              client_id: @client_id,
+              client_id: @client.id,
               user_id: @edit_kyc_request.user_id,
               admin_id: @edit_kyc_request.admin_id,
               action: GlobalConstant::UserActivityLog.open_case,

@@ -13,7 +13,7 @@ module AdminManagement
     # @return [AdminManagement::ProcessUnwhitelist]
     #
     def initialize(params)
-      @client = @params[:client]
+      @client = params[:client]
       @user_kyc_detail = params[:user_kyc_detail]
       @kyc_whitelist_log = params[:kyc_whitelist_log]
 

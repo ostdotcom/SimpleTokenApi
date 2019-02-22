@@ -251,19 +251,6 @@ class UserKycDetail
         end
       end
 
-
-      # Set the extra needed data for hashed response
-      #
-      # * Author: Aman
-      # * Date: 28/09/2018
-      # * Reviewed By:
-      #
-      def extra_fields_to_set
-        {
-            kyc_status: self.kyc_status
-        }
-      end
-
       # Get
       #
       # * Author: Aman
@@ -313,6 +300,18 @@ class UserKycDetail
       # Note : always include this after declaring bit_wise_columns_config method
       include BitWiseConcern
       include AttributeParserConcern
+
+      # Set the extra needed data for hashed response
+      #
+      # * Author: Aman
+      # * Date: 28/09/2018
+      # * Reviewed By:
+      #
+      def extra_fields_to_set
+        {
+            kyc_status: self.kyc_status
+        }
+      end
     end
 
 

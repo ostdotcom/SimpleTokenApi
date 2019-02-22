@@ -181,6 +181,10 @@ Rails.application.routes.draw do
     scope 'api/kyc', controller: 'web/iframe/kyc' do
       match 'basic-detail' => :basic_detail, via: :GET
     end
+    scope 'api/user', controller: 'web/iframe/kyc' do
+      match 'kyc-submit' => :kyc_submit, via: :POST
+      match 'upload-params' => :get_upload_params, via: :GET
+    end
   end
 
   scope 'api/user', controller: 'web/saas_user/login' do

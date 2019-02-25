@@ -18,11 +18,6 @@ module Crons
                                  GlobalConstant::SqlShard.shards_to_process_for_crons
 
         @cron_identifier = params[:cron_identifier].to_s
-
-        @aml_search_obj = nil
-        @user_kyc_detail = nil
-        @user_extended_detail = nil
-        @aml_matches = []
       end
 
       # Perform
@@ -36,6 +31,8 @@ module Crons
       def perform
         @shard_identifiers.each do |shard_identifier|
           @shard_identifier = shard_identifier
+
+          init_params
 
           fetch_aml_search_obj
           next if @aml_search_obj.nil?
@@ -73,6 +70,20 @@ module Crons
 
       private
 
+      # Reset variables
+      #
+      # * Author: Aman
+      # * Date: 25/01/2019
+      # * Reviewed By:
+      #
+      def init_params
+        @aml_search_obj = nil
+        @user_kyc_detail = nil
+        @user_extended_detail = nil
+        @aml_matches = []
+        @local_cipher_obj = nil
+      end
+
       # Fetch records on which aml search is to be performed
       #
       # * Author: Tejas
@@ -82,6 +93,7 @@ module Crons
       # @sets @aml_search_obj
       #
       def fetch_aml_search_obj
+        lock_id = get_lock_id
         AmlSearch.using_shard(shard_identifier: @shard_identifier).where(lock_id: nil).to_be_processed.
             order(id: :asc).limit(1).update_all(lock_id: lock_id)
 
@@ -107,6 +119,9 @@ module Crons
                                        'c_ap_s_favud_1'
           )
         end
+
+        @local_cipher_obj = get_local_cipher_obj
+
         success
       end
 
@@ -214,8 +229,8 @@ module Crons
         {
             "first_name" => @user_extended_detail.first_name,
             "last_name" => @user_extended_detail.last_name,
-            "birthdate" => local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext],
-            "country" => local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext]
+            "birthdate" => @local_cipher_obj.decrypt(@user_extended_detail.birthdate).data[:plaintext],
+            "country" => @local_cipher_obj.decrypt(@user_extended_detail.country).data[:plaintext]
         }
       end
 
@@ -353,7 +368,7 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_log(request_type, data)
-        e_data = Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
+        e_data = Rails.env.production? ? @local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
         AmlLog.using_shard(shard_identifier: @shard_identifier).
             create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: e_data)
       rescue => e
@@ -371,17 +386,17 @@ module Crons
       # * Reviewed By:
       #
       def create_an_entry_in_aml_match(match)
-        e_data = Rails.env.production? ? local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
+        e_data = Rails.env.production? ? @local_cipher_obj.encrypt(match.to_json).data[:ciphertext_blob] : match.to_json
         match_id = match[:person][:match_id]
         qr_code = match[:person][:id]
 
         raise "Invalid match response from acuris- #{match}" if qr_code.blank?
         AmlMatch.using_shard(shard_identifier: @shard_identifier).create!(aml_search_uuid: @aml_search_obj.uuid,
-                         match_id: match_id,
-                         qr_code: qr_code,
-                         status: GlobalConstant::AmlMatch.unprocessed_status,
-                         data: e_data,
-                         pdf_path: nil)
+                                                                          match_id: match_id,
+                                                                          qr_code: qr_code,
+                                                                          status: GlobalConstant::AmlMatch.unprocessed_status,
+                                                                          data: e_data,
+                                                                          pdf_path: nil)
       end
 
       # Update An Entry In Aml Match
@@ -393,7 +408,7 @@ module Crons
       # @sets match
       #
       def update_an_entry_in_aml_match(aml_match, s3_pdf_path)
-        encr_s3_pdf_path = local_cipher_obj.encrypt(s3_pdf_path).data[:ciphertext_blob]
+        encr_s3_pdf_path = @local_cipher_obj.encrypt(s3_pdf_path).data[:ciphertext_blob]
         aml_match.pdf_path = encr_s3_pdf_path
         aml_match.save! if aml_match.changed?
       end
@@ -421,12 +436,10 @@ module Crons
       #
       # @return [LocalCipher]
       #
-      def local_cipher_obj
-        @local_cipher_obj ||= begin
-          r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
-          raise r unless r.success?
-          LocalCipher.new(r.data[:plaintext])
-        end
+      def get_local_cipher_obj
+        r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
+        raise r unless r.success?
+        LocalCipher.new(r.data[:plaintext])
       end
 
       # Do remaining task in sidekiq
@@ -524,8 +537,8 @@ module Crons
       #
       # @returns [String] lock_id
       #
-      def lock_id
-        @lock_id ||= "#{@cron_identifier}_#{Time.now.to_f}"
+      def get_lock_id
+        "#{@cron_identifier}_#{Time.now.to_f}"
       end
 
     end

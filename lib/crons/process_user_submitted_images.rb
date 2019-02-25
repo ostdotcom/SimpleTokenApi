@@ -20,13 +20,9 @@ module Crons
                                params[:shard_identifiers] :
                                GlobalConstant::SqlShard.shards_to_process_for_crons
 
-      @user_kyc_comparison_detail = nil
-      @decrypted_user_data = {}
-      @zero_rotated_documents = {}
-      @new_doc_s3_file_name = nil
-      @new_selfie_s3_file_name = nil
       @ocr_unmatched = ClientKycPassSetting::ocr_comparison_fields_config.keys
     end
+
 
     # Perform
     #
@@ -41,6 +37,9 @@ module Crons
       @shard_identifiers.each do |shard_identifier|
 
         @shard_identifier = shard_identifier
+
+        init_params
+
         fetch_unprocessed_user_kyc_record
 
         next if @user_kyc_comparison_detail.nil?
@@ -72,7 +71,7 @@ module Crons
 
         ensure
           # Delete file directory once complete process is done
-          Util::FileSystem.delete_directory(file_directory)
+          Util::FileSystem.delete_directory(@file_directory)
         end
 
         return if GlobalConstant::SignalHandling.sigint_received?
@@ -82,6 +81,22 @@ module Crons
     end
 
     private
+
+    # Reset variables
+    #
+    # * Author: Aman
+    # * Date: 25/01/2019
+    # * Reviewed By:
+    #
+    def init_params
+      @user_kyc_comparison_detail = nil
+      @decrypted_user_data = {}
+      @zero_rotated_documents = {}
+      @new_doc_s3_file_name = nil
+      @new_selfie_s3_file_name = nil
+      @file_directory = nil
+      @local_cipher_object = nil
+    end
 
     # Send Manual review needed email to admins
     #
@@ -93,8 +108,8 @@ module Crons
       return if @user_kyc_comparison_detail.blank?
       user_kyc_detail = UserKycDetail.using_shard(shard_identifier: @shard_identifier).
           where(client_id: @user_kyc_comparison_detail.client_id,
-                                             user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
-                                             status: GlobalConstant::UserKycDetail.active_status).first
+                user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
+                status: GlobalConstant::UserKycDetail.active_status).first
 
       return if user_kyc_detail.blank?
       return if !user_kyc_detail.send_manual_review_needed_email?
@@ -136,6 +151,7 @@ module Crons
     # @sets @user_kyc_comparison_detail
     #
     def fetch_unprocessed_user_kyc_record
+      table_lock_id = get_table_lock_id
       UserKycComparisonDetail.using_shard(shard_identifier: @shard_identifier).where('lock_id IS NULL').
           where(image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status).
           order({id: :desc}).limit(1).update_all(lock_id: table_lock_id)
@@ -160,17 +176,18 @@ module Crons
 
       r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
       kyc_salt_d = r.data[:plaintext]
-      get_local_cipher_object(kyc_salt_d)
+      @local_cipher_object = get_local_cipher_object(kyc_salt_d)
+      @file_directory = get_file_directory
 
-      @decrypted_user_data[:document_id_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
+      @decrypted_user_data[:document_id_file_path] = @local_cipher_object.decrypt(@user_extended_detail.document_id_file_path).data[:plaintext]
 
-      @decrypted_user_data[:selfie_file_path] = get_local_cipher_object.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
+      @decrypted_user_data[:selfie_file_path] = @local_cipher_object.decrypt(@user_extended_detail.selfie_file_path).data[:plaintext]
 
       ClientKycPassSetting::ocr_comparison_fields_config.keys.each do |field_name|
         if GlobalConstant::ClientKycConfigDetail.unencrypted_fields.include?(field_name.to_s)
           @decrypted_user_data[field_name.to_sym] = @user_extended_detail[field_name]
         else
-          @decrypted_user_data[field_name.to_sym] = get_local_cipher_object.decrypt(@user_extended_detail[field_name]).data[:plaintext]
+          @decrypted_user_data[field_name.to_sym] = @local_cipher_object.decrypt(@user_extended_detail[field_name]).data[:plaintext]
         end
       end
 
@@ -355,7 +372,7 @@ module Crons
           rotated_image = @zero_rotated_documents[image_type]
         else
           puts "#{rotate_angle} - Image Rotation started"
-          resp = FileProcessing::RmagickImageRotation.new(file_directory, original_file, rotate_angle).perform
+          resp = FileProcessing::RmagickImageRotation.new(@file_directory, original_file, rotate_angle).perform
           return error_with_data("cr_pusi_4", "Rotate image failed", "Rotate image failed", nil, zero_rotated_image) unless resp.success?
           rotated_image = resp.data
         end
@@ -389,7 +406,7 @@ module Crons
     def download_file(s3_file_path, is_image)
       puts "#{s3_file_path} - Image downloading started"
       downloaded_file_name = s3_file_path.split("/").last
-      local_file_path = "#{file_directory}/#{downloaded_file_name}"
+      local_file_path = "#{@file_directory}/#{downloaded_file_name}"
       local_file_path += ".jpg" if is_image
 
       Aws::S3Manager.new('kyc', 'admin').get(local_file_path, s3_file_path, GlobalConstant::Aws::Common.kyc_bucket)
@@ -422,14 +439,12 @@ module Crons
     #
     # @return String - File directory
     #
-    def file_directory
+    def get_file_directory
       # Make directory if not exisits
-      if @dir.nil?
-        shared_dir = GlobalConstant::Base.kyc_app['shared_directory']
-        @dir = shared_dir.to_s + "/app_data/#{Rails.env}/images/#{@shard_identifier}" + "/#{@user_kyc_comparison_detail.id}"
-        Util::FileSystem.check_and_create_directory(@dir)
-      end
-      @dir
+      shared_dir = GlobalConstant::Base.kyc_app['shared_directory']
+      dir = shared_dir.to_s + "/app_data/#{Rails.env}/images/#{@shard_identifier}" + "/#{@user_kyc_comparison_detail.id}"
+      Util::FileSystem.check_and_create_directory(dir)
+      dir
     end
 
     # Get local cipher object
@@ -441,7 +456,7 @@ module Crons
     # @return [LocalCipher]
     #
     def get_local_cipher_object(kyc_salt = nil)
-      @lco ||= LocalCipher.new(kyc_salt)
+      LocalCipher.new(kyc_salt)
     end
 
     # Make an entry in image process log
@@ -451,7 +466,7 @@ module Crons
     # * Reviewed By:
     #
     def add_image_process_log(service, input, debug_data)
-      encr_data = get_local_cipher_object.encrypt(debug_data.to_json).data[:ciphertext_blob]
+      encr_data = @local_cipher_object.encrypt(debug_data.to_json).data[:ciphertext_blob]
       ImageProcessingLog.using_shard(shard_identifier: @shard_identifier).create!(
           user_kyc_comparison_detail_id: @user_kyc_comparison_detail.id,
           service_used: service,
@@ -586,9 +601,8 @@ module Crons
     #
     # @eturns [String] table lock id
     #
-    def table_lock_id
-      @table_lock_id ||= "#{@cron_identifier}_#{Time.now.to_i}"
-      @table_lock_id
+    def get_table_lock_id
+      "#{@cron_identifier}_#{Time.now.to_i}"
     end
 
     # Trigger Auto approval for the processed image
@@ -614,7 +628,7 @@ module Crons
       puts "Convert pdf to image - #{pdf_file_path}"
       pdf_file = download_file(pdf_file_path, false)
 
-      FileProcessing::PdfToImage.new(file_directory, pdf_file).perform
+      FileProcessing::PdfToImage.new(@file_directory, pdf_file).perform
     end
 
     # Perform basic validation on files and convert them into zero rotated images if required
@@ -644,7 +658,7 @@ module Crons
       end
 
       # Rotate image at 0 degree angle to remove its metadata
-      strip_image_result = FileProcessing::RmagickImageRotation.new(file_directory, original_downloaded_image,
+      strip_image_result = FileProcessing::RmagickImageRotation.new(@file_directory, original_downloaded_image,
                                                                     GlobalConstant::ImageProcessing.rotation_angle_0).perform
 
       # If first rotation of image failed then close the process

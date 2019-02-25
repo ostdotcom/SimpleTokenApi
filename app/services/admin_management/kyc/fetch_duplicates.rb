@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @params [Integer] id (mandatory) - user kyc details id
       #
       # @return [AdminManagement::Kyc::FetchDuplicates]
@@ -20,8 +20,10 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @case_id = @params[:id]
+
+        @client_id = @client.id
 
         @duplicate_kycs = {}
         @api_response_data = {}
@@ -65,7 +67,8 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id, id: @case_id).first
         return error_with_data(
             'am_k_fd_1',
             'KYC detail id not found',
@@ -73,9 +76,6 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
-
-        r = fetch_and_validate_client
-        return r unless r.success?
 
         r = fetch_and_validate_admin
         return r unless r.success?
@@ -96,10 +96,14 @@ module AdminManagement
 
         duplicate_with_users = []
 
-        duplicate_with_users += UserKycDuplicationLog.non_deleted.where(user1_id: @user_kyc_detail.user_id, user_extended_details1_id: @user_kyc_detail.user_extended_detail_id)
+        duplicate_with_users += UserKycDuplicationLog.using_client_shard(client: @client).
+            non_deleted.where(user1_id: @user_kyc_detail.user_id, user_extended_details1_id: @user_kyc_detail.user_extended_detail_id)
                                     .order('status ASC, id DESC').limit(100).all
-        duplicate_with_users += UserKycDuplicationLog.non_deleted.where(user2_id: @user_kyc_detail.user_id, user_extended_details2_id: @user_kyc_detail.user_extended_detail_id)
+
+        duplicate_with_users += UserKycDuplicationLog.using_client_shard(client: @client).
+            non_deleted.where(user2_id: @user_kyc_detail.user_id, user_extended_details2_id: @user_kyc_detail.user_extended_detail_id)
                                     .order('status ASC, id DESC').limit(100).all
+
         duplicate_with_users.each do |duplicate|
           duplicate_with_uid = (duplicate.user1_id == @user_kyc_detail.user_id) ? duplicate.user2_id : duplicate.user1_id
           @duplicate_kycs[duplicate_with_uid] ||= {
@@ -111,7 +115,8 @@ module AdminManagement
           end
         end
 
-        UserKycDetail.active_kyc.where(client_id: @client_id, user_id: @duplicate_kycs.keys).each do |u_k_d|
+        UserKycDetail.using_client_shard(client: @client).
+            active_kyc.where(client_id: @client_id, user_id: @duplicate_kycs.keys).each do |u_k_d|
           if u_k_d.inactive_status?
             @duplicate_kycs.delete(u_k_d.user_id)
             next
@@ -136,10 +141,14 @@ module AdminManagement
 
         duplicate_email_user_ids = []
 
-        duplicate_email_user_ids += UserEmailDuplicationLog.where(user1_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user2_id)
-        duplicate_email_user_ids += UserEmailDuplicationLog.where(user2_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
+        duplicate_email_user_ids += UserEmailDuplicationLog.using_client_shard(client: @client).
+            where(user1_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user2_id)
 
-        UserKycDetail.active_kyc.where(client_id: @client_id, user_id: duplicate_email_user_ids).all.each do |u_k_d|
+        duplicate_email_user_ids += UserEmailDuplicationLog.using_client_shard(client: @client).
+            where(user2_id: @user_kyc_detail.user_id, status: GlobalConstant::UserEmailDuplicationLog.active_status).pluck(:user1_id)
+
+        UserKycDetail.using_client_shard(client: @client).
+            active_kyc.where(client_id: @client_id, user_id: duplicate_email_user_ids).all.each do |u_k_d|
           if u_k_d.inactive_status?
             @duplicate_kycs.delete(u_k_d.user_id)
             next
@@ -149,7 +158,8 @@ module AdminManagement
               GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym => []
           }
 
-          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] << GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.humanize
+          @duplicate_kycs[u_k_d.user_id][GlobalConstant::UserKycDuplicationLog.active_status.to_sym] <<
+              GlobalConstant::UserEmailDuplicationLog.email_duplicate_type.humanize
           @duplicate_kycs[u_k_d.user_id][:id] = u_k_d.id
           @duplicate_kycs[u_k_d.user_id][:admin_status] = u_k_d.admin_status
           @duplicate_kycs[u_k_d.user_id][:aml_status] = u_k_d.aml_status
@@ -165,8 +175,12 @@ module AdminManagement
       #
       def format_duplicate_data
         @duplicate_kycs.each do |_, kyc_data|
-          kyc_data[GlobalConstant::UserKycDuplicationLog.active_status.to_sym] = kyc_data[GlobalConstant::UserKycDuplicationLog.active_status.to_sym].map {|x| x.humanize}
-          kyc_data[GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym] = kyc_data[GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym].map {|x| x.humanize}
+
+          kyc_data[GlobalConstant::UserKycDuplicationLog.active_status.to_sym] =
+              kyc_data[GlobalConstant::UserKycDuplicationLog.active_status.to_sym].map {|x| x.humanize}
+
+          kyc_data[GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym] =
+              kyc_data[GlobalConstant::UserKycDuplicationLog.inactive_status.to_sym].map {|x| x.humanize}
         end
       end
 

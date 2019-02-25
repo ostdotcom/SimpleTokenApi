@@ -13,7 +13,13 @@ module Crons
     # @return [Result::Base]
     #
     def initialize(params)
+      @shard_identifier = nil
       @cron_identifier = params[:cron_identifier].to_s
+
+      @shard_identifiers = params[:shard_identifiers].present? ?
+                               params[:shard_identifiers] :
+                               GlobalConstant::SqlShard.shards_to_process_for_crons
+
       @user_kyc_comparison_detail = nil
       @decrypted_user_data = {}
       @zero_rotated_documents = {}
@@ -32,39 +38,47 @@ module Crons
     #
     def perform
 
-      fetch_unprocessed_user_kyc_record
+      @shard_identifiers.each do |shard_identifier|
 
-      return success if @user_kyc_comparison_detail.nil?
+        @shard_identifier = shard_identifier
+        fetch_unprocessed_user_kyc_record
 
-      begin
-        r = fetch_and_decrypt_user_data
-        raise r.to_json.to_json unless r.success?
+        next if @user_kyc_comparison_detail.nil?
 
-        r = process_document_id_image
-        raise r.to_json.to_json unless r.success?
+        begin
+          r = fetch_and_decrypt_user_data
+          raise r.to_json.to_json unless r.success?
 
-        process_selfie_image
+          r = process_document_id_image
+          raise r.to_json.to_json unless r.success?
 
-        make_face_comparisons
+          process_selfie_image
 
-        update_user_comparison_record(nil, GlobalConstant::ImageProcessing.processed_image_process_status)
+          make_face_comparisons
 
-        trigger_auto_approval
+          update_user_comparison_record(nil, GlobalConstant::ImageProcessing.processed_image_process_status)
 
-        success
-      rescue => e
-        update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unexpected_reason, GlobalConstant::ImageProcessing.failed_image_process_status)
-        send_manual_review_needed_email
-        ApplicationMailer.notify(
-            body: e.backtrace,
-            data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
-            subject: "Exception in ProcessUserSubmittedImages"
-        ).deliver
+          trigger_auto_approval
 
-      ensure
-        # Delete file directory once complete process is done
-        Util::FileSystem.delete_directory(file_directory)
+          success
+        rescue => e
+          update_user_comparison_record(GlobalConstant::KycAutoApproveFailedReason.unexpected_reason, GlobalConstant::ImageProcessing.failed_image_process_status)
+          send_manual_review_needed_email
+          ApplicationMailer.notify(
+              body: e.backtrace,
+              data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
+              subject: "Exception in ProcessUserSubmittedImages"
+          ).deliver
+
+        ensure
+          # Delete file directory once complete process is done
+          Util::FileSystem.delete_directory(file_directory)
+        end
+
+        return if GlobalConstant::SignalHandling.sigint_received?
+
       end
+
     end
 
     private
@@ -77,7 +91,8 @@ module Crons
     #
     def send_manual_review_needed_email
       return if @user_kyc_comparison_detail.blank?
-      user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
+      user_kyc_detail = UserKycDetail.using_shard(shard_identifier: @shard_identifier).
+          where(client_id: @user_kyc_comparison_detail.client_id,
                                              user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
                                              status: GlobalConstant::UserKycDetail.active_status).first
 
@@ -121,11 +136,12 @@ module Crons
     # @sets @user_kyc_comparison_detail
     #
     def fetch_unprocessed_user_kyc_record
-      UserKycComparisonDetail.where('lock_id IS NULL').
+      UserKycComparisonDetail.using_shard(shard_identifier: @shard_identifier).where('lock_id IS NULL').
           where(image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status).
           order({id: :desc}).limit(1).update_all(lock_id: table_lock_id)
 
-      @user_kyc_comparison_detail = UserKycComparisonDetail.where(lock_id: table_lock_id).last
+      @user_kyc_comparison_detail = UserKycComparisonDetail.using_shard(shard_identifier: @shard_identifier).
+          where(lock_id: table_lock_id).last
     end
 
     # Fetch user extended details and decrypt user data for further processing
@@ -139,7 +155,8 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_and_decrypt_user_data
-      @user_extended_detail = UserExtendedDetail.where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
+      @user_extended_detail = UserExtendedDetail.using_shard(shard_identifier: @shard_identifier).
+          where(id: @user_kyc_comparison_detail.user_extended_detail_id).first
 
       r = Aws::Kms.new('kyc', 'admin').decrypt(@user_extended_detail.kyc_salt)
       kyc_salt_d = r.data[:plaintext]
@@ -409,7 +426,7 @@ module Crons
       # Make directory if not exisits
       if @dir.nil?
         shared_dir = GlobalConstant::Base.kyc_app['shared_directory']
-        @dir = shared_dir.to_s + "/app_data/#{Rails.env}/images" + "/#{@user_kyc_comparison_detail.id}"
+        @dir = shared_dir.to_s + "/app_data/#{Rails.env}/images/#{@shard_identifier}" + "/#{@user_kyc_comparison_detail.id}"
         Util::FileSystem.check_and_create_directory(@dir)
       end
       @dir
@@ -435,14 +452,16 @@ module Crons
     #
     def add_image_process_log(service, input, debug_data)
       encr_data = get_local_cipher_object.encrypt(debug_data.to_json).data[:ciphertext_blob]
-      ImageProcessingLog.create!(user_kyc_comparison_detail_id: @user_kyc_comparison_detail.id,
-                                 service_used: service,
-                                 input_params: input,
-                                 debug_data: encr_data)
+      ImageProcessingLog.using_shard(shard_identifier: @shard_identifier).create!(
+          user_kyc_comparison_detail_id: @user_kyc_comparison_detail.id,
+          service_used: service,
+          input_params: input,
+          debug_data: encr_data)
     rescue => e
       ApplicationMailer.notify(
           body: e.backtrace,
-          data: {user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
+          data: {client_id: @user_kyc_comparison_detail.client_id,
+                 user_kyc_comparison_detail: @user_kyc_comparison_detail.id, message: e.message},
           subject: "Could not create ImageProcessingLog"
       ).deliver
     end
@@ -579,7 +598,10 @@ module Crons
     # * Reviewed By:
     #
     def trigger_auto_approval
-      AutoApproveUpdateJob.perform_now({user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id})
+      AutoApproveUpdateJob.perform_now({
+                                           client_id: @user_kyc_comparison_detail.client_id,
+                                           user_extended_details_id: @user_kyc_comparison_detail.user_extended_detail_id
+                                       })
     end
 
     # Convert pdf to image

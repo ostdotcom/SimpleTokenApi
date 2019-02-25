@@ -13,7 +13,7 @@ module AdminManagement
         # * Reviewed By:
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
+        # @param [AR] client (mandatory) - client obj
         # @params [Hash] filters (optional)
         # @params [Hash] sortings (optional)
         # @params [Integer] page_number (optional)
@@ -71,7 +71,8 @@ module AdminManagement
         # Sets @user_kycs, @total_filtered_kycs
         #
         def fetch_user_kyc_details
-          ar_relation = UserKycDetail.where(client_id: @client_id, status: GlobalConstant::UserKycDetail.active_status)
+          ar_relation = UserKycDetail.using_client_shard(client: @client).
+              where(client_id: @client_id, status: GlobalConstant::UserKycDetail.active_status)
           ar_relation = ar_relation.filter_by(@filters)
           ar_relation = ar_relation.sorting_by(@sortings)
 

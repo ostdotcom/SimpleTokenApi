@@ -23,7 +23,7 @@ module UserManagement
       @domain = @params[:domain]
 
       @user_id = nil
-      @client_id = nil
+      @client = nil
     end
 
     # Perform
@@ -54,10 +54,10 @@ module UserManagement
       r = UserManagement::VerifyClientHost.new(domain: @domain).perform
       return r unless r.success?
 
-      @client_id = r.data[:client_id]
+      @client = r.data[:client]
 
       r = UserManagement::VerifyCookie.new(
-          client_id: @client_id,
+          client: @client,
           cookie_value: @cookie_value,
           browser_user_agent: @browser_user_agent
       ).perform
@@ -75,7 +75,7 @@ module UserManagement
     # * Reviewed By:
     #
     def logout_user
-      @user = User.get_from_memcache(@user_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
       return error_with_data('s_um_l_lu_1',
                              'Invalid user',
                              'Invalid user',

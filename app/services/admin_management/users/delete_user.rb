@@ -77,7 +77,7 @@ module AdminManagement
         r = fetch_and_validate_admin
         return r unless r.success?
 
-        @user = User.where(id: @user_id).first
+        @user = User.using_client_shard(client: @client).where(id: @user_id).first
 
         return error_with_data(
             'am_u_du_1',
@@ -101,7 +101,7 @@ module AdminManagement
       # * Reviewed By:
       #
       def validate_user_kyc
-        @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).where(user_id: @user_id).first
 
         return error_with_data(
             'am_u_du_2',
@@ -133,7 +133,7 @@ module AdminManagement
       # * Reviewed By:
       #
       def deactivate_user
-        DeletedUser.create!(user_id: @user_id, client_id: @client_id,
+        DeletedUser.using_client_shard(client: @client).create!(user_id: @user_id, client_id: @client_id,
                             deleted_by_admin: @admin_id, email: @user.email)
 
         @user_email_for_webhook = {email: @user.email}
@@ -162,6 +162,7 @@ module AdminManagement
         BgJob.enqueue(
             DeleteDuplicateLogs,
             {
+                client_id: @client_id,
                 user_id: @user.id,
                 event: {
                     client_id: @user.client_id,

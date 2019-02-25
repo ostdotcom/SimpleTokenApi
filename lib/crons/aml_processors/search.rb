@@ -13,6 +13,10 @@ module Crons
       # @return [Crons::AmlProcessors::Search]
       #
       def initialize(params)
+        @shard_identifiers = params[:shard_identifiers].present? ?
+                                 params[:shard_identifiers] :
+                                 GlobalConstant::SqlShard.shards_to_process_for_crons
+
         @cron_identifier = params[:cron_identifier].to_s
 
         @aml_search_obj = nil
@@ -30,35 +34,41 @@ module Crons
       # @return [Result::Base]
       #
       def perform
+        @shard_identifiers.each do |shard_identifier|
+          @shard_identifier = shard_identifier
 
-        fetch_aml_search_obj
-        return success if @aml_search_obj.nil?
+          fetch_aml_search_obj
+          next if @aml_search_obj.nil?
 
-        begin
-          r = fetch_and_validate_user_data
-          return r unless r.success?
+          begin
+            r = fetch_and_validate_user_data
+            return r unless r.success?
 
-          r = execute_search
-          return r unless r.success?
+            r = execute_search
+            return r unless r.success?
 
-          r = execute_match
-          return r unless r.success?
+            r = execute_match
+            return r unless r.success?
 
-          r = update_aml_status
-          return r unless r.success?
+            r = update_aml_status
+            return r unless r.success?
 
-          r = mark_processed
-          return r unless r.success?
+            r = mark_processed
+            return r unless r.success?
 
-          send_manual_review_needed_email
+            send_manual_review_needed_email
 
-          success
-        rescue => e
-          r = error_with_identifier('internal_server_error', 'c_ap_s_p_1',
-                                    [], 'Exception in process Aml Search',
-                                    {message: e.message, backtrace: e.backtrace})
-          update_aml_search_as_failed(r)
+            success
+          rescue => e
+            r = error_with_identifier('internal_server_error', 'c_ap_s_p_1',
+                                      [], 'Exception in process Aml Search',
+                                      {message: e.message, backtrace: e.backtrace})
+            update_aml_search_as_failed(r)
+          end
+
+          return if GlobalConstant::SignalHandling.sigint_received?
         end
+
       end
 
       private
@@ -72,10 +82,10 @@ module Crons
       # @sets @aml_search_obj
       #
       def fetch_aml_search_obj
-        AmlSearch.where(lock_id: nil).to_be_processed.
+        AmlSearch.using_shard(shard_identifier: @shard_identifier).where(lock_id: nil).to_be_processed.
             order(id: :asc).limit(1).update_all(lock_id: lock_id)
 
-        @aml_search_obj = AmlSearch.to_be_processed.where(lock_id: lock_id).last
+        @aml_search_obj = AmlSearch.using_shard(shard_identifier: @shard_identifier).to_be_processed.where(lock_id: lock_id).last
       end
 
       # Fetch And Validate User Data
@@ -87,8 +97,8 @@ module Crons
       # @return [Result::Base]
       #
       def fetch_and_validate_user_data
-        @user_extended_detail = UserExtendedDetail.where(id: @aml_search_obj.user_extended_detail_id).first
-        @user_kyc_detail = UserKycDetail.get_from_memcache(@user_extended_detail.user_id)
+        @user_extended_detail = UserExtendedDetail.using_shard(shard_identifier: @shard_identifier).where(id: @aml_search_obj.user_extended_detail_id).first
+        @user_kyc_detail = UserKycDetail.using_shard(shard_identifier: @shard_identifier).get_from_memcache(@user_extended_detail.user_id)
         if @user_kyc_detail.blank? || (@user_kyc_detail.status != GlobalConstant::UserKycDetail.active_status) ||
             (@user_kyc_detail.user_extended_detail_id != @aml_search_obj.user_extended_detail_id)
           @aml_search_obj.status = GlobalConstant::AmlSearch.deleted_status
@@ -110,7 +120,7 @@ module Crons
       #
       def execute_search
         if @aml_search_obj.steps_done_array.include?(GlobalConstant::AmlSearch.search_step_done)
-          @aml_matches = AmlMatch.where(aml_search_uuid: @aml_search_obj.uuid).all
+          @aml_matches = AmlMatch.using_shard(shard_identifier: @shard_identifier).where(aml_search_uuid: @aml_search_obj.uuid).all
           return success
         end
 
@@ -344,11 +354,12 @@ module Crons
       #
       def create_an_entry_in_aml_log(request_type, data)
         e_data = Rails.env.production? ? local_cipher_obj.encrypt(data.to_json).data[:ciphertext_blob] : data.to_json
-        AmlLog.create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: e_data)
+        AmlLog.using_shard(shard_identifier: @shard_identifier).
+            create!(aml_search_uuid: @aml_search_obj.uuid, request_type: request_type, response: e_data)
       rescue => e
         ApplicationMailer.notify(
             body: e.backtrace,
-            data: {search_id: @aml_search_obj.id, message: e.message},
+            data: {shard_identifier: @shard_identifier, search_id: @aml_search_obj.id, message: e.message},
             subject: "Could not create AmlLog"
         ).deliver
       end
@@ -365,7 +376,7 @@ module Crons
         qr_code = match[:person][:id]
 
         raise "Invalid match response from acuris- #{match}" if qr_code.blank?
-        AmlMatch.create!(aml_search_uuid: @aml_search_obj.uuid,
+        AmlMatch.using_shard(shard_identifier: @shard_identifier).create!(aml_search_uuid: @aml_search_obj.uuid,
                          match_id: match_id,
                          qr_code: qr_code,
                          status: GlobalConstant::AmlMatch.unprocessed_status,
@@ -397,7 +408,7 @@ module Crons
         ApplicationMailer.notify(
             to: GlobalConstant::Email.default_to,
             body: "Call to Acuris Api failed",
-            data: {aml_search_id: @aml_search_obj.id, response: response.inspect},
+            data: {shard_identifier: @shard_identifier, aml_search_id: @aml_search_obj.id, response: response.inspect},
             subject: "Something went wrong with Acuris Api."
         ).deliver
       end
@@ -455,7 +466,7 @@ module Crons
       def send_approved_email
 
         client = Client.get_from_memcache(@user_kyc_detail.client_id)
-        user = User.get_from_memcache(@user_kyc_detail.user_id)
+        user = User.using_shard(shard_identifier: @shard_identifier).get_from_memcache(@user_kyc_detail.user_id)
 
         return if !client.is_email_setup_done? || client.is_whitelist_setup_done? ||
             client.is_st_token_sale_client? || (!client.client_kyc_config_detail.auto_send_kyc_approve_email?)

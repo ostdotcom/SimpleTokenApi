@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By:
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @params [Integer] case_id (mandatory) - search term to find case
       # @params [String] ethereum_address (mandatory) - Ethereum address to be changed.
       #
@@ -21,9 +21,11 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @case_id = @params[:id]
         @new_ethereum_address = @params[:ethereum_address]
+
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @user_extended_details = nil
@@ -77,9 +79,6 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        r = fetch_and_validate_client
-        return r unless r.success?
-
         # Default Client is not allowed to open case
         return error_with_data(
             'am_k_uea_1',
@@ -110,7 +109,8 @@ module AdminManagement
             {}
         ) if @client_kyc_config_detail.kyc_fields_array.exclude?(GlobalConstant::ClientKycConfigDetail.ethereum_address_kyc_field)
 
-        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id, id: @case_id).first
         return error_with_data(
             'am_k_uea_5',
             'Kyc Details not found or its closed.',
@@ -123,7 +123,7 @@ module AdminManagement
         return r unless r.success?
 
         # Check for pending edit kyc requests
-        edit_kyc_request = EditKycRequests.under_process.where(case_id: @case_id).first
+        edit_kyc_request = EditKycRequest.using_client_shard(client: @client).under_process.where(case_id: @case_id).first
 
         return error_with_data(
             'am_k_uea_4',
@@ -133,7 +133,8 @@ module AdminManagement
             {}
         ) if edit_kyc_request.present?
 
-        @user_extended_details = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+        @user_extended_details = UserExtendedDetail.using_client_shard(client: @client).
+            where(id: @user_kyc_detail.user_extended_detail_id).first
 
         success
       end
@@ -207,7 +208,7 @@ module AdminManagement
       # Sets @edit_kyc_request
       #
       def create_edit_kyc_request
-        @edit_kyc_request = EditKycRequests.create!(
+        @edit_kyc_request = EditKycRequest.using_client_shard(client: @client).create!(
             case_id: @case_id,
             admin_id: @admin_id,
             user_id: @user_kyc_detail.user_id,
@@ -258,7 +259,8 @@ module AdminManagement
       def update_user_md5_extended_details
 
         @old_md5_ethereum_address = md5_user_extended_detail.ethereum_address
-        md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
+        md5_user_extended_detail.ethereum_address = Md5UserExtendedDetail.using_client_shard(client: @client).
+            get_hashed_value(@new_ethereum_address)
         md5_user_extended_detail.save!
 
         success
@@ -275,7 +277,8 @@ module AdminManagement
       # Sets @old_md5_ethereum_address
       #
       def md5_user_extended_detail
-        @md5_user_extended_detail ||= Md5UserExtendedDetail.where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
+        @md5_user_extended_detail ||= Md5UserExtendedDetail.using_client_shard(client: @client).
+            where(user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
       end
 
       # Check whether Ethereum address is already present
@@ -288,7 +291,8 @@ module AdminManagement
       #
       def check_for_duplicate_ethereum
         # Check for duplicate Ethereum address
-        hashed_db_ethereurm_address = Md5UserExtendedDetail.get_hashed_value(@new_ethereum_address)
+        hashed_db_ethereurm_address = Md5UserExtendedDetail.using_client_shard(client: @client).
+            get_hashed_value(@new_ethereum_address)
 
         # check if same ethereum address
         return error_with_data(
@@ -299,13 +303,15 @@ module AdminManagement
             {}
         ) if md5_user_extended_detail.ethereum_address == hashed_db_ethereurm_address
 
-        user_extended_detail_ids = Md5UserExtendedDetail.where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
+        user_extended_detail_ids = Md5UserExtendedDetail.using_client_shard(client: @client).
+            where(ethereum_address: hashed_db_ethereurm_address).pluck(:user_extended_detail_id)
 
         # Ethereum address is already present
         if user_extended_detail_ids.present?
           # Check whether duplicate address kyc is already approved
           already_approved_cases = []
-          UserKycDetail.active_kyc.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
+          UserKycDetail.using_client_shard(client: @client).
+              active_kyc.where(client_id: @client_id, user_extended_detail_id: user_extended_detail_ids).each do |ukd|
             if GlobalConstant::UserKycDetail.admin_approved_statuses.include?(ukd.admin_status)
               already_approved_cases << ukd.id if (ukd.id != @user_kyc_detail.id)
             end
@@ -334,6 +340,7 @@ module AdminManagement
         BgJob.enqueue(
             UserActivityLogJob,
             {
+                client_id: @client_id,
                 user_id: @user_kyc_detail.user_id,
                 admin_id: @admin.id,
                 action: GlobalConstant::UserActivityLog.update_ethereum_address,
@@ -359,20 +366,28 @@ module AdminManagement
         all_non_current_user_dup_user_extended_details_ids = []
 
         # Fetch all user_extended_details corresponding to current user_extended_details1_id
-        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.non_deleted.where(
+        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.using_client_shard(client: @client).
+            non_deleted.where(
             user_extended_details1_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details2_id)
 
         # Fetch all user_extended_details corresponding to current user_extended_details2_id
-        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.non_deleted.where(
+        all_non_current_user_dup_user_extended_details_ids += UserKycDuplicationLog.using_client_shard(client: @client).
+            non_deleted.where(
             user_extended_details2_id: @user_kyc_detail.user_extended_detail_id, status: GlobalConstant::UserKycDuplicationLog.active_status).pluck(:user_extended_details1_id)
 
         # Initiailize
         active_dup_user_extended_details_ids, inactive_dup_user_extended_details_ids, user_ids = [], [], []
         # Fetch active, inactive user_extended_details_ids
-        UserKycDuplicationLog.non_deleted.where("user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)", all_non_current_user_dup_user_extended_details_ids, all_non_current_user_dup_user_extended_details_ids)
+        UserKycDuplicationLog.using_client_shard(client: @client).non_deleted.
+            where(
+                "user_extended_details1_id IN (?) OR user_extended_details2_id IN (?)",
+                all_non_current_user_dup_user_extended_details_ids,
+                all_non_current_user_dup_user_extended_details_ids
+            )
             .select(:id, :user1_id, :user2_id, :user_extended_details1_id, :user_extended_details2_id, :status).all.each do |ukdl|
 
-          next if (ukdl.user_extended_details1_id == @user_kyc_detail.user_extended_detail_id) || (ukdl.user_extended_details2_id == @user_kyc_detail.user_extended_detail_id)
+          next if (ukdl.user_extended_details1_id == @user_kyc_detail.user_extended_detail_id) ||
+              (ukdl.user_extended_details2_id == @user_kyc_detail.user_extended_detail_id)
 
           if ukdl.status == GlobalConstant::UserKycDuplicationLog.active_status
             active_dup_user_extended_details_ids << ukdl.user_extended_details1_id
@@ -397,7 +412,7 @@ module AdminManagement
         # Mark inactive user_extended_details_ids as was_kyc_duplicate_status
         # Active user_kyc_details will already be is_kyc_duplicate_status
         if inactive_dup_user_extended_details_ids.present?
-          UserKycDetail.active_kyc.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
+          UserKycDetail.using_client_shard(client: @client).active_kyc.where(user_extended_detail_id: inactive_dup_user_extended_details_ids).
               update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.was_kyc_duplicate_status,
                          updated_at: Time.now.to_s(:db))
         end
@@ -405,22 +420,22 @@ module AdminManagement
         never_dup_user_extended_details_ids = (all_non_current_user_dup_user_extended_details_ids - active_dup_user_extended_details_ids - inactive_dup_user_extended_details_ids)
         # Mark missing dup_user_extended_details_ids as never_kyc_duplicate_status
         if never_dup_user_extended_details_ids.present?
-          UserKycDetail.where(user_extended_detail_id: never_dup_user_extended_details_ids).
+          UserKycDetail.using_client_shard(client: @client).where(user_extended_detail_id: never_dup_user_extended_details_ids).
               update_all(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status, updated_at: Time.now.to_s(:db))
         end
 
         # Delete all entries corresponding to all_non_current_user_dup_user_extended_details_ids
-        UserKycDuplicationLog.where("user_extended_details1_id = ? OR user_extended_details2_id = ?",
+        UserKycDuplicationLog.using_client_shard(client: @client).where("user_extended_details1_id = ? OR user_extended_details2_id = ?",
                                     @user_kyc_detail.user_extended_detail_id, @user_kyc_detail.user_extended_detail_id).delete_all
 
         # Mark current user as unprocessed
         @user_kyc_detail.kyc_duplicate_status = GlobalConstant::UserKycDetail.unprocessed_kyc_duplicate_status
         @user_kyc_detail.save!
         # Perform Check duplicates again for current user id
-        r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_kyc_detail.user_id).perform
+        r = AdminManagement::Kyc::CheckDuplicates.new({client: @client, user_id: @user_kyc_detail.user_id}).perform
         return r unless r.success?
 
-        UserKycDetail.bulk_flush(user_ids)
+        UserKycDetail.using_client_shard(client: @client).bulk_flush(user_ids)
 
         success
       end

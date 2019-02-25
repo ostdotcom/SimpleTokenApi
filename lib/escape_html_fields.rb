@@ -13,7 +13,6 @@ class EscapeHtmlFields
     #
     # Sets @entity_config, @params[:form_data]
     #
-    # @return [AdminManagement::Kyc::Dashboard::Status]
     #
     def initialize(params)
       @entity_type = params["entity_type"]

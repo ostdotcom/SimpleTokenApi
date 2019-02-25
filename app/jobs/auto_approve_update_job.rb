@@ -12,6 +12,7 @@ class AutoApproveUpdateJob < ApplicationJob
   # * Reviewed By:
   #
   # @param [Integer] user_extended_details_id - user extended details id
+  # @param [Integer] client_id - client id
   #
   #
   def perform(params)
@@ -32,6 +33,7 @@ class AutoApproveUpdateJob < ApplicationJob
           id: @user_kyc_detail.id,
           admin_id: Admin::AUTO_APPROVE_ADMIN_ID,
           client_id: @user_kyc_detail.client_id,
+          client: @client,
           is_auto_approve: true
       }
 
@@ -67,6 +69,7 @@ class AutoApproveUpdateJob < ApplicationJob
   # Sets @user_extended_detail_id
   #
   def init_params(params)
+    @client_id = params[:client_id]
     @user_extended_detail_id = params[:user_extended_details_id]
     @reprocess = params[:reprocess].to_i
   end
@@ -77,10 +80,14 @@ class AutoApproveUpdateJob < ApplicationJob
   # * Date: 11/07/2018
   # * Reviewed By:
   #
-  # Sets @user_kyc_comparison_detail, @user_kyc_detail, @client_token_sale_detail, @client_kyc_pass_setting, @user_extended_detail
+  # Sets @client, @user_kyc_comparison_detail, @user_kyc_detail,
+  #     @client_token_sale_detail, @client_kyc_pass_setting, @user_extended_detail
   #
   def fetch_and_validate_models
-    @user_kyc_comparison_detail = UserKycComparisonDetail.where(user_extended_detail_id: @user_extended_detail_id).first
+    @client = Client.get_from_memcache(@client_id)
+
+    @user_kyc_comparison_detail = UserKycComparisonDetail.using_client_shard(client: @client).
+        where(user_extended_detail_id: @user_extended_detail_id).first
 
     if @user_kyc_comparison_detail.blank?
       ApplicationMailer.notify(
@@ -94,16 +101,17 @@ class AutoApproveUpdateJob < ApplicationJob
     return false if @user_kyc_comparison_detail.image_processing_status !=
         GlobalConstant::ImageProcessing.processed_image_process_status
 
-    @user_kyc_detail = UserKycDetail.where(client_id: @user_kyc_comparison_detail.client_id,
-                                           user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
-                                           status: GlobalConstant::UserKycDetail.active_status).first
+    @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+        where(client_id: @user_kyc_comparison_detail.client_id,
+              user_extended_detail_id: @user_kyc_comparison_detail.user_extended_detail_id,
+              status: GlobalConstant::UserKycDetail.active_status).first
 
     return false if @user_kyc_detail.blank? || @user_kyc_detail.has_been_auto_approved?
 
     @client_kyc_pass_setting = ClientKycPassSetting.get_active_setting_from_memcache(@user_kyc_detail.client_id)
 
     @client_token_sale_detail = ClientTokenSaleDetail.get_from_memcache(@user_kyc_detail.client_id)
-    @user_extended_detail = UserExtendedDetail.where(id: @user_extended_detail_id).first
+    @user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).where(id: @user_extended_detail_id).first
 
     true
   end
@@ -131,7 +139,8 @@ class AutoApproveUpdateJob < ApplicationJob
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.investor_proof)
     end
 
-    if UserExtendedDetail.is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id, @user_extended_detail_id)
+    if UserExtendedDetail.using_client_shard(client: @client).
+        is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id, @user_extended_detail_id)
       @user_kyc_comparison_detail.send('set_' + GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc)
     end
 

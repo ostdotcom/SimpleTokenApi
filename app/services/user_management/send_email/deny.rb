@@ -8,7 +8,7 @@ module UserManagement
       # * Date: 14/12/2018
       # * Reviewed By:
       #
-      # @param [Integer] client_id (mandatory) -  client id
+      # @param [AR] client (mandatory) - client obj
       # @param [Integer] user_id (mandatory) - user id
       # @param [Hash] template_vars (optional) - @template_vars
       #
@@ -45,7 +45,7 @@ module UserManagement
       # * Reviewed By:
       #
       def fetch_and_validate_user_kyc_detail
-        user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+        user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
 
         return error_with_identifier('kyc_not_denied',
                                      'um_se_d_favukd_1'

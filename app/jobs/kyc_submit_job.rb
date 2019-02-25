@@ -23,6 +23,7 @@ class KycSubmitJob < ApplicationJob
     add_kyc_comparison_details
 
     UserActivityLogJob.new().perform({
+                                         client_id: @client_id,
                                          user_id: @user_id,
                                          action: @action,
                                          action_timestamp: @action_timestamp
@@ -43,16 +44,18 @@ class KycSubmitJob < ApplicationJob
   #
   def init_params(params)
     # Rails.logger.info("-- init_params params: #{params.inspect}")
-
+    @client_id = params[:client_id]
     @user_id = params[:user_id].to_i
     @user_extended_detail_id = params[:user_extended_detail_id]
     @action = params[:action]
     @action_timestamp = params[:action_timestamp]
     @event = params[:event]
 
-    @user = User.find(@user_id)
-    @user_extended_detail = UserExtendedDetail.find(@user_extended_detail_id)
-    @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+    @client = Client.get_from_memcache(@client_id)
+
+    @user = User.using_client_shard(client: @client).find(@user_id)
+    @user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).find(@user_extended_detail_id)
+    @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
 
     Rails.logger.info("-- init_params @user_extended_detail: #{@user_extended_detail.id}")
   end
@@ -87,7 +90,7 @@ class KycSubmitJob < ApplicationJob
   #
   def check_duplicate_kyc_documents
     Rails.logger.info('-- check_duplicate_kyc_documents')
-    r = AdminManagement::Kyc::CheckDuplicates.new(user_id: @user_id).perform
+    r = AdminManagement::Kyc::CheckDuplicates.new({client: @client, user_id: @user_id}).perform
     return r unless r.success?
 
     @user_kyc_detail.reload
@@ -103,8 +106,11 @@ class KycSubmitJob < ApplicationJob
   # * Reviewed By:
   #
   def add_kyc_comparison_details
-    UserKycComparisonDetail.create!(user_extended_detail_id: @user_extended_detail.id, client_id: @user_kyc_detail.client_id,
-                                    image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status)
+    UserKycComparisonDetail.using_client_shard(client: @client).create!(
+        user_extended_detail_id: @user_extended_detail.id,
+        client_id: @user_kyc_detail.client_id,
+        image_processing_status: GlobalConstant::ImageProcessing.unprocessed_image_process_status
+    )
   end
 
   # event data for webhooks

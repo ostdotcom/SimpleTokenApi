@@ -10,7 +10,7 @@ module AdminManagement
         # * Reviewed By:
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
+        # @param [AR] client (mandatory) - client obj
         # @params [Integer] id (mandatory)
         #
         # @params [Boolean] is_auto_approve (Optional) - if its an auto approve qualify
@@ -78,7 +78,8 @@ module AdminManagement
         #
         #
         def create_aml_search_record
-          AmlSearch.create!(user_kyc_detail_id: @user_kyc_detail.id,
+          AmlSearch.using_client_shard(client: @client).
+              create!(user_kyc_detail_id: @user_kyc_detail.id,
                             user_extended_detail_id: @user_kyc_detail.user_extended_detail_id,
                             uuid: @user_kyc_detail.get_aml_search_uuid,
                             status: GlobalConstant::AmlSearch.unprocessed_status,

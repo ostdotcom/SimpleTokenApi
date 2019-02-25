@@ -1,29 +1,20 @@
 class CreateUsers < DbMigrationConnection
 
   def up
-
-    run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
-
-      create_table :users do |t|
-        t.column :user_secret_id, :integer, limit: 8, null: false
-        t.column :email, :string, null: false
-        t.column :password, :string, null: false
-        t.column :bt_name, :string, null: true
-        t.column :properties, :tinyint, null: false, default: 0
-        t.column :status, :tinyint, limit: 1, null: false, default: 1
-        t.timestamps
-      end
-
-      add_index :users, :email, unique: true, name: 'uniq_email'
-      add_index :users, :bt_name, unique: true, name: 'uniq_bt_name'
-
+    shard_identifiers = GlobalConstant::SqlShard.all_shard_identifiers
+    shard_identifiers.each do |shard_identifier|
+      SqlShardMigration::CreateUserDbTables.new(shard_identifier: shard_identifier).up
+      SqlShardMigration::CreateUserLogDbTables.new(shard_identifier: shard_identifier).up
+      SqlShardMigration::CreateAmlDbTables.new(shard_identifier: shard_identifier).up
     end
-
   end
 
   def down
-    run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
-      drop_table :users
+    shard_identifiers = GlobalConstant::SqlShard.all_shard_identifiers
+    shard_identifiers.each do |shard_identifier|
+      SqlShardMigration::CreateUserDbTables.new(shard_identifier: shard_identifier).down
+      SqlShardMigration::CreateUserLogDbTables.new(shard_identifier: shard_identifier).down
+      SqlShardMigration::CreateAmlDbTables.new(shard_identifier: shard_identifier).down
     end
   end
 

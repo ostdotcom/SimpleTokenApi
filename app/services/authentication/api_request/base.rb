@@ -81,7 +81,8 @@ module Authentication::ApiRequest
       r = validate_client
       return r unless r.success?
 
-      success_with_data(client_id: @client.id)
+      success_with_data({client_id: @client.id,
+                         client: @client})
 
     end
 

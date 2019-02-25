@@ -1,9 +1,9 @@
 module AdminManagement
-  
+
   module AdminUser
 
     class ActivateInvitedAdmin < ServicesBase
-  
+
       # Initialize
       #
       # * Author: Aman
@@ -18,7 +18,7 @@ module AdminManagement
       #
       def initialize(params)
         super
-  
+
         @i_t = @params[:i_t]
         @password = @params[:password]
         @confirm_password = @params[:confirm_password]
@@ -28,7 +28,7 @@ module AdminManagement
         @temporary_token_obj = nil
         @admin = nil
       end
-  
+
       # Perform
       #
       # * Author: Aman
@@ -38,30 +38,30 @@ module AdminManagement
       # @return [Result::Base]
       #
       def perform
-  
+
         r = validate_and_sanitize
         return r unless r.success?
-  
+
         fetch_temporary_token_obj
-  
+
         r = validate_invite_token
         return r unless r.success?
-  
+
         r = fetch_admin
         return r unless r.success?
-  
+
         r = update_admin
         return r unless r.success?
-  
+
         r = update_token_status
         return r unless r.success?
-  
+
         success
-  
+
       end
-  
+
       private
-  
+
       # Validate and sanitize
       #
       # * Author: Aman
@@ -73,12 +73,12 @@ module AdminManagement
       # @return [Result::Base]
       #
       def validate_and_sanitize
-  
+
         validation_errors = {}
-  
+
         validation_errors[:password] = 'Password should be minimum 8 characters' if @password.length < 8
         validation_errors[:confirm_password] = 'Passwords do not match' if @confirm_password != @password
-  
+
         return error_with_data(
             'am_au_aia_vas_1',
             'Invalid password',
@@ -87,30 +87,30 @@ module AdminManagement
             {},
             validation_errors
         ) if validation_errors.present?
-  
+
         return invalid_url_error('am_au_aia_vas_2') if @i_t.blank?
-  
+
         # NOTE: To be on safe side, check for generic errors as well
         r = validate
         return r unless r.success?
-  
+
         decryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)
         r = decryptor_obj.decrypt(@i_t)
         return r unless r.success?
-  
+
         decripted_t = r.data[:plaintext]
-  
+
         splited_invite_token = decripted_t.split(':')
-  
+
         return invalid_url_error('am_au_aia_vas_3') if splited_invite_token.length != 2
-  
+
         @invite_token = splited_invite_token[1].to_s
-  
+
         @temporary_token_id = splited_invite_token[0].to_i
-  
+
         success
       end
-  
+
       # Fetch temporary token obj
       #
       # * Author: Aman
@@ -122,7 +122,7 @@ module AdminManagement
       def fetch_temporary_token_obj
         @temporary_token_obj = TemporaryToken.where(id: @temporary_token_id).first
       end
-  
+
       # Validate Token
       #
       # * Author: Aman
@@ -132,21 +132,21 @@ module AdminManagement
       # @return [Result::Base]
       #
       def validate_invite_token
-  
+
         return invalid_url_error('am_au_aia_vit_1') if @temporary_token_obj.blank?
-  
+
         return invalid_url_error('am_au_aia_vit_2') if @temporary_token_obj.token != @invite_token
-  
+
         return invalid_url_error('am_au_aia_vit_3') if @temporary_token_obj.status != GlobalConstant::TemporaryToken.active_status
-  
-        return invalid_url_error('am_au_aia_vit_4')  if @temporary_token_obj.is_expired?
-  
+
+        return invalid_url_error('am_au_aia_vit_4') if @temporary_token_obj.is_expired?
+
         return invalid_url_error('am_au_aia_vit_5') if @temporary_token_obj.kind != GlobalConstant::TemporaryToken.admin_invite_kind
-  
+
         success
-  
+
       end
-  
+
       # Fetch Admin
       #
       # * Author: Aman
@@ -160,11 +160,12 @@ module AdminManagement
       def fetch_admin
         @admin = Admin.where(id: @temporary_token_obj.entity_id).first
         return unauthorized_access_response_for_web('am_au_aia_fa_1', 'Invalid Admin User') unless @admin.present? &&
-            @admin.status == GlobalConstant::Admin.invited_status
+            @admin.status == GlobalConstant::Admin.invited_status &&
+            @admin.default_client_id == @temporary_token_obj.client_id
 
         success
       end
-  
+
       # Generate login salt and admin secret obj
       #
       # * Author: Aman
@@ -210,10 +211,10 @@ module AdminManagement
         @admin.session_inactivity_timeout = admin_session_setting.session_inactivity_timeout
         @admin.set_default_notification_types
         @admin.save!(validate: false)
-  
+
         success
       end
-  
+
       # Update active tokens
       #
       # * Author: Aman
@@ -223,8 +224,9 @@ module AdminManagement
       def update_token_status
         @temporary_token_obj.status = GlobalConstant::TemporaryToken.used_status
         @temporary_token_obj.save!
-  
+
         TemporaryToken.where(
+            client_id: @temporary_token_obj.client_id,
             entity_id: @admin.id,
             kind: GlobalConstant::TemporaryToken.admin_invite_kind,
             status: GlobalConstant::TemporaryToken.active_status
@@ -233,7 +235,7 @@ module AdminManagement
         )
         success
       end
-  
+
       # Invalid Request Response
       #
       # * Author: Aman
@@ -251,9 +253,9 @@ module AdminManagement
             {}
         )
       end
-  
+
     end
-    
+
   end
 
 end

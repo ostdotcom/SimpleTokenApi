@@ -83,7 +83,8 @@ module ReportJob
 
     def user_model_query
       @user_model_query ||= begin
-        ar_relation = ::User.where(client_id: @client_id, status: GlobalConstant::User.active_status)
+        ar_relation = ::User.using_client_shard(client: @client).
+            where(client_id: @client_id, status: GlobalConstant::User.active_status)
         ar_relation = ar_relation.sorting_by(@sortings)
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation

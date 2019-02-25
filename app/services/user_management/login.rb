@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
@@ -19,13 +19,13 @@ module UserManagement
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
       @ip_address = @params[:ip_address]
 
-      @client = nil
+      @client_id = @client.id
       @client_token_sale_details = nil
       @user_secret = nil
       @user = nil
@@ -43,9 +43,6 @@ module UserManagement
     def perform
 
       r = validate
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details
@@ -114,7 +111,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.where(client_id: @client_id, email: @email).first
+      @user = User.using_client_shard(client: @client).where(client_id: @client_id, email: @email).first
       return unauthorized_access_response('um_l_1') unless @user.present? && @user.password.present? &&
           (@user.status == GlobalConstant::User.active_status)
 
@@ -129,7 +126,7 @@ module UserManagement
           (!@user.send("#{GlobalConstant::User.kyc_submitted_property}?") ||
           (@client.is_st_token_sale_client? && !@user.send("#{GlobalConstant::User.doptin_done_property}?")))
 
-      @user_secret = UserSecret.where(id: @user.user_secret_id).first
+      @user_secret = UserSecret.using_client_shard(client: @client).where(id: @user.user_secret_id).first
       return unauthorized_access_response('um_l_2') unless @user_secret.present?
 
       success
@@ -162,7 +159,7 @@ module UserManagement
     #
     def validate_password
 
-      evaluated_password_e = User.get_encrypted_password(@password, @login_salt_d)
+      evaluated_password_e = User.using_client_shard(client: @client).get_encrypted_password(@password, @login_salt_d)
       return unauthorized_access_response('um_l_3') unless (evaluated_password_e == @user.password)
 
       success
@@ -178,6 +175,7 @@ module UserManagement
       BgJob.enqueue(
           UserActivityLogJob,
           {
+              client_id: @client_id,
               user_id: @user.id,
               action: GlobalConstant::UserActivityLog.login_action,
               action_timestamp: Time.now.to_i,
@@ -211,7 +209,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def set_cookie_value
-      cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
+      cookie_value = User.using_client_shard(client: @client).get_cookie_value(@user.id, @user.password, @browser_user_agent)
 
       success_with_data(cookie_value: cookie_value, user_token_sale_state: @user.get_token_sale_state_page_name)
     end

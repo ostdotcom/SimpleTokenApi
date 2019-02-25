@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [Integer] user_id (mandatory) - this is the user id
     # @params [String] template_type (optional) - this is the page template name
     # @params [String] token (optional) - this is the double opt in token
@@ -18,15 +18,15 @@ module UserManagement
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
       @user_id = @params[:user_id]
       @template_type = @params[:template_type]
       @token = @params[:token]
 
+      @client_id = @client.id
       @token_invalid = false
       @account_activated = false
       @user_token_sale_state = nil
-      @client = nil
       @user = nil
       @client_setting_data = {}
       @has_double_opt_in = false
@@ -42,9 +42,6 @@ module UserManagement
     #
     def perform
       r = validate_and_sanitize
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details
@@ -167,7 +164,7 @@ module UserManagement
     def validate_token
       return success if @token.blank?
 
-      service_response = UserManagement::DoubleOptIn.new({t: @token, user_id: @user_id}).perform
+      service_response = UserManagement::DoubleOptIn.new({client: @client, t: @token, user_id: @user_id}).perform
       #TODO: user_token_sale_state should be sent to web.
       return unauthorized_access_response('um_gbd_2') unless service_response.success?
       @user.reload
@@ -188,7 +185,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user
-      @user = User.get_from_memcache(@user_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
       @user_token_sale_state = @user.get_token_sale_state_page_name
     end
 

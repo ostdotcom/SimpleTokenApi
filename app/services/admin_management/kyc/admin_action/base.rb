@@ -10,7 +10,7 @@ module AdminManagement
         # * Reviewed By:
         #
         # @params [Integer] admin_id (mandatory) - logged in admin
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
+        # @param [AR] client (mandatory) - client obj
         # @params [Integer] id (mandatory) - case id
         #
         # @return [AdminManagement::Kyc::AdminAction::Base]
@@ -19,8 +19,11 @@ module AdminManagement
           super
 
           @admin_id = @params[:admin_id]
-          @client_id = @params[:client_id]
+          @client = @params[:client]
           @case_id = @params[:id]
+
+          @client_id = @client.id
+
           @api_response_data = {}
           @extra_data = {}
           @user_kyc_detail = nil
@@ -37,13 +40,11 @@ module AdminManagement
           r = validate
           return r unless r.success?
 
-          r = fetch_and_validate_client
-          return r unless r.success?
-
           r = fetch_and_validate_admin
           return r unless r.success?
 
-          @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+          @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+              where(client_id: @client_id, id: @case_id).first
 
           return error_with_data(
               'ka_b_vs_1',
@@ -71,8 +72,9 @@ module AdminManagement
         # * Reviewed By:
         #
         def validate_for_duplicate_user
-          if UserExtendedDetail.is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id,
-                                                                @user_kyc_detail.user_extended_detail_id)
+          if UserExtendedDetail.using_client_shard(client: @client).
+              is_duplicate_kyc_approved_user?(@user_kyc_detail.client_id,
+                                              @user_kyc_detail.user_extended_detail_id)
             return error_with_data(
                 GlobalConstant::KycAutoApproveFailedReason.duplicate_kyc,
                 'Duplicate Kyc User for approval.',
@@ -91,8 +93,9 @@ module AdminManagement
         # * Reviewed By:
         #
         def aml_search
-          @aml_search ||= AmlSearch.where(user_kyc_detail_id: @user_kyc_detail.id,
-                                          user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
+          @aml_search ||= AmlSearch.using_client_shard(client: @client).
+              where(user_kyc_detail_id: @user_kyc_detail.id,
+                    user_extended_detail_id: @user_kyc_detail.user_extended_detail_id).first
         end
 
         # aml matches instance
@@ -102,7 +105,10 @@ module AdminManagement
         # * Reviewed By:
         #
         def aml_matches
-          @aml_matches ||= is_aml_processing_done? ? AmlMatch.where(aml_search_uuid: aml_search.uuid).all.to_a : []
+          @aml_matches ||= is_aml_processing_done? ?
+                               AmlMatch.using_client_shard(client: @client).
+                                   where(aml_search_uuid: aml_search.uuid).all.to_a :
+                               []
         end
 
         # send approval email
@@ -115,7 +121,8 @@ module AdminManagement
           return if !@user_kyc_detail.kyc_approved? || !@client.is_email_setup_done? || @client.is_whitelist_setup_done? ||
               @client.is_st_token_sale_client? || !@client.client_kyc_config_detail.auto_send_kyc_approve_email?
 
-          @user = User.where(client_id: @client_id, id: @user_kyc_detail.user_id).first
+          @user = User.using_client_shard(client: @client).
+              where(client_id: @client_id, id: @user_kyc_detail.user_id).first
 
           Email::HookCreator::SendTransactionalMail.new(
               client_id: @client.id,
@@ -142,16 +149,16 @@ module AdminManagement
 
 
             if mark_as_match.present?
-              AmlMatch.where(aml_search_uuid: aml_search.uuid,
-                             qr_code: mark_as_match).update_all(status: GlobalConstant::AmlMatch.match_status)
+              AmlMatch.using_client_shard(client: @client).
+                  where(aml_search_uuid: aml_search.uuid, qr_code: mark_as_match).update_all(status: GlobalConstant::AmlMatch.match_status)
             end
 
             if mark_as_nomatch.present?
-              AmlMatch.where(aml_search_uuid: aml_search.uuid,
-                                qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
+              AmlMatch.using_client_shard(client: @client).
+                  where(aml_search_uuid: aml_search.uuid, qr_code: mark_as_nomatch).update_all(status: GlobalConstant::AmlMatch.no_match_status)
             end
 
-            AmlMatch.bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
+            AmlMatch.using_client_shard(client: @client).bulk_flush_matches_memcache(aml_matches[0]) if (mark_as_match + mark_as_nomatch).present?
 
           end
         end
@@ -231,7 +238,7 @@ module AdminManagement
           BgJob.enqueue(
               WebhookJob::RecordEvent,
               {
-                  client_id: @user_kyc_detail.client_id,
+                  client_id: @client_id,
                   event_source: event_source,
                   event_name: GlobalConstant::Event.kyc_status_update_name,
                   event_data: {
@@ -254,6 +261,7 @@ module AdminManagement
           BgJob.enqueue(
               UserActivityLogJob,
               {
+                  client_id: @client_id,
                   user_id: @user_kyc_detail.user_id,
                   case_id: @case_id,
                   admin_id: @admin_id,

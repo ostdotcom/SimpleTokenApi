@@ -12,14 +12,16 @@ module UserManagement
         # * Date: 13/10/2017
         # * Reviewed By:
         #
-        # @params [Integer] client_id (mandatory) - logged in admin's client id
+        # @param [AR] client (mandatory) - client obj
         # @param [Hash] files (mandatory)
         #
         #
         def initialize(params)
           super
 
-          @client_id = @params[:client_id]
+          @client = @params[:client]
+
+          @client_id = @client.id
 
           @files = @params[:files] || {}
           @upload_params = {}
@@ -69,9 +71,6 @@ module UserManagement
         #
         def validate
           r = super
-          return r unless r.success?
-
-          r = fetch_and_validate_client
           return r unless r.success?
 
           return error_with_identifier(

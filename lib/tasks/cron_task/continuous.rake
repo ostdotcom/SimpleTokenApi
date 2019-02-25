@@ -39,14 +39,17 @@ namespace :cron_task do
     # * Date: 25/10/2017
     # * Reviewed By: Sunil
     #
-    desc "rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks"
-    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"
+    desc "rake RAILS_ENV=development cron_task:continuous:process_kyc_whitelist_call_hooks shard_identifiers=shard_1,shard_2"
+    desc "*/5 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_kyc_whitelist_call_hooks shard_identifiers=shard_1,shard_2 >> /mnt/simpletoken-api/shared/log/process_kyc_whitelist_call_hooks.log"
     task :process_kyc_whitelist_call_hooks do |task|
       @sleep_interval = 10
 
+      shard_identifiers = ENV['shard_identifiers'].to_s.split(',').map(&:to_i)
+
+
       @process_name = "#{task}_#{ENV['lock_key_suffix'].to_i}"
       @performer_klass = 'Crons::KycWhitelistProcessor'
-      @optional_params = {}
+      @optional_params = {shard_identifiers: shard_identifiers}
       execute_continuous_task
     end
 
@@ -57,15 +60,17 @@ namespace :cron_task do
     # * Date: 12/07/2018
     # * Reviewed By:
     #
-    desc "rake RAILS_ENV=development cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1"
-    desc "*/1 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/process_user_submitted_images_call_hooks.log"
+    desc "rake RAILS_ENV=development cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1 shard_identifiers=shard_1,shard_2"
+    desc "*/1 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_user_submitted_images_call_hooks cron_identifier=p1 shard_identifiers=shard_1,shard_2 >> /mnt/simpletoken-api/shared/log/process_user_submitted_images_call_hooks.log"
     task :process_user_submitted_images_call_hooks do |task|
       @sleep_interval = 1
+
+      shard_identifiers = ENV['shard_identifiers'].to_s.split(',').map(&:to_i)
 
       cron_identifier = ENV['cron_identifier'].to_s
       @process_name = "#{task}_#{cron_identifier}"
       @performer_klass = 'Crons::ProcessUserSubmittedImages'
-      @optional_params = {cron_identifier: cron_identifier}
+      @optional_params = {cron_identifier: cron_identifier, shard_identifiers: shard_identifiers}
       execute_continuous_task
     end
 
@@ -128,15 +133,17 @@ namespace :cron_task do
     # * Date: 10/01/2018
     # * Reviewed By:
     #
-    desc "rake RAILS_ENV=development cron_task:continuous:process_user_aml_search cron_identifier=p1"
-    desc "*/1 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_user_aml_search cron_identifier=p1 >> /mnt/simpletoken-api/shared/log/process_user_aml_search.log"
+    desc "rake RAILS_ENV=development cron_task:continuous:process_user_aml_search cron_identifier=p1 shard_identifiers=shard_1,shard_2"
+    desc "*/1 * * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=staging cron_task:continuous:process_user_aml_search cron_identifier=p1 shard_identifiers=shard_1,shard_2 >> /mnt/simpletoken-api/shared/log/process_user_aml_search.log"
     task :process_user_aml_search do |task|
       @sleep_interval = 1
+
+      shard_identifiers = ENV['shard_identifiers'].to_s.split(',').map(&:to_i)
 
       cron_identifier = ENV['cron_identifier'].to_s
       @process_name = "#{task}_#{cron_identifier}"
       @performer_klass = 'Crons::AmlProcessors::Search'
-      @optional_params = {cron_identifier: cron_identifier}
+      @optional_params = {cron_identifier: cron_identifier, shard_identifiers: shard_identifiers}
       execute_continuous_task
     end
 

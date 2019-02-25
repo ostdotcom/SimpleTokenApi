@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 13/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [String] r_t (mandatory) - token for reset
     # @params [String] password (mandatory) - this is the new password
     # @params [String] confirm_password (mandatory) - this is the confirm password
@@ -21,9 +21,9 @@ module UserManagement
       @r_t = @params[:r_t]
       @password = @params[:password]
       @confirm_password = @params[:confirm_password]
-      @client_id = @params[:client_id]
+      @client = @params[:client]
 
-      @client = nil
+      @client_id = @client.id
       @reset_token = nil
       @temporary_token_id = nil
       @temporary_token_obj = nil
@@ -43,9 +43,6 @@ module UserManagement
     def perform
 
       r = validate_and_sanitize
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details
@@ -153,7 +150,8 @@ module UserManagement
     # Sets @temporary_token_obj
     #
     def fetch_temporary_token_obj
-      @temporary_token_obj = TemporaryToken.where(id: @temporary_token_id).first
+      @temporary_token_obj = TemporaryToken.where(id: @temporary_token_id,
+                                                  client_id: @client_id).first
     end
 
     # Validate Token
@@ -172,7 +170,7 @@ module UserManagement
 
       return invalid_url_error('um_rp_6') if @temporary_token_obj.status != GlobalConstant::TemporaryToken.active_status
 
-      return invalid_url_error('um_rp_7')  if @temporary_token_obj.is_expired?
+      return invalid_url_error('um_rp_7') if @temporary_token_obj.is_expired?
 
       return invalid_url_error('um_rp_8') if @temporary_token_obj.kind != GlobalConstant::TemporaryToken.reset_password_kind
 
@@ -191,14 +189,15 @@ module UserManagement
     # @return [Result::Base]
     #
     def fetch_user
-      @user = User.get_from_memcache(@temporary_token_obj.entity_id)
-      return unauthorized_access_response_for_web('um_rp_9','Invalid User') unless @user.present? && @user.password.present? &&
+      @user = User.using_client_shard(client: @client).get_from_memcache(@temporary_token_obj.entity_id)
+      return unauthorized_access_response_for_web('um_rp_9', 'Invalid User') unless @user.present? && @user.password.present? &&
+          (@user.client_id == @client_id) &&
           (@user.status == GlobalConstant::User.active_status)
 
-      return unauthorized_access_response_for_web('um_rp_11','Invalid User') if @user.client_id != @client_id
+      return unauthorized_access_response_for_web('um_rp_11', 'Invalid User') if @user.client_id != @client_id
 
-      @user_secret = UserSecret.where(id: @user.user_secret_id).first
-      return unauthorized_access_response_for_web('um_rp_10','Invalid User') unless @user_secret.present?
+      @user_secret = UserSecret.using_client_shard(client: @client).where(id: @user.user_secret_id).first
+      return unauthorized_access_response_for_web('um_rp_10', 'Invalid User') unless @user_secret.present?
 
       success
     end
@@ -229,7 +228,7 @@ module UserManagement
     # * Reviewed By: Sunil
     #
     def update_password
-      @user.password = User.get_encrypted_password(@password, @login_salt_d)
+      @user.password = User.using_client_shard(client: @client).get_encrypted_password(@password, @login_salt_d)
       @user.save!
     end
 
@@ -244,6 +243,7 @@ module UserManagement
       @temporary_token_obj.save!
 
       TemporaryToken.where(
+          client_id: @client_id,
           entity_id: @user.id,
           kind: GlobalConstant::TemporaryToken.reset_password_kind,
           status: GlobalConstant::TemporaryToken.active_status

@@ -18,6 +18,7 @@ module UserManagement
       @domain = @params[:domain]
 
       @client_id = nil
+      @client = nil
     end
 
     # Perform
@@ -36,7 +37,8 @@ module UserManagement
       return r unless r.success?
 
       success_with_data(
-          client_id: @client_id
+          client_id: @client_id,
+          client: @client
       )
 
     end
@@ -75,6 +77,10 @@ module UserManagement
       end
 
       @client_id = client_web_host_detail_obj.client_id
+      @client = Client.get_from_memcache(@client_id)
+
+      return unauthorized_access_response('um_vch_2') if @client.blank? ||
+          (@client.status != GlobalConstant::Client.active_status)
 
       success
     end

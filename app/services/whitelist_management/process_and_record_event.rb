@@ -294,8 +294,11 @@ module WhitelistManagement
     # @return [Result::Base]
     #
     def fetch_user_kyc_detail
+      @client_id = @kyc_whitelist_log.client_id
+      @client = Client.get_from_memcache(@client_id)
 
-      user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
+      user_kyc_details = Md5UserExtendedDetail.using_client_shard(client: @client).
+          get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
         @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
@@ -366,10 +369,7 @@ module WhitelistManagement
       end
 
       @user_id = @user_kyc_detail.user_id
-      @client_id = @user_kyc_detail.client_id
-
-      @user = User.get_from_memcache(@user_kyc_detail.user_id)
-      @client = Client.get_from_memcache(@client_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_kyc_detail.user_id)
       success
 
     end
@@ -481,6 +481,7 @@ module WhitelistManagement
     def handle_error(user_kyc_whitelist_log, error_type, error_data)
       notify_devs({transaction_hash: @transaction_hash, user_id: @user_id}, error_type)
       UserActivityLogJob.new().perform({
+                                           client_id: @client_id,
                                            user_id: @user.id,
                                            action: GlobalConstant::UserActivityLog.kyc_whitelist_attention_needed,
                                            action_timestamp: Time.now.to_i,

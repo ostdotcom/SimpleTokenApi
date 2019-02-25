@@ -17,6 +17,7 @@ class Web::SaasUser::BaseController < Web::WebController
 
     if service_response.success?
       params[:client_id] = service_response.data[:client_id]
+      params[:client] = service_response.data[:client]
       service_response.data = {}
     else
       render_api_response(service_response)
@@ -31,7 +32,7 @@ class Web::SaasUser::BaseController < Web::WebController
   #
   def authenticate_request
     service_response = UserManagement::VerifyCookie.new(
-        client_id: params[:client_id],
+        client: params[:client],
         cookie_value: cookies[GlobalConstant::Cookie.user_cookie_name.to_sym],
         browser_user_agent: http_user_agent
     ).perform

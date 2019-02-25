@@ -13,11 +13,15 @@ module Crons
     # @return [Crons::KycWhitelistProcessor]
     #
     def initialize(params)
+      @shard_identifiers = params[:shard_identifiers].present? ?
+                               params[:shard_identifiers] :
+                               GlobalConstant::SqlShard.shards_to_process_for_crons
       @api_data = {}
       @user_kyc_detail = nil
       @transaction_hash = nil
       @nonce = nil
       @gas_price = nil
+      @all_clients = []
     end
 
     # public method to process hooks
@@ -28,44 +32,50 @@ module Crons
     #
     def perform
       client_ids = ClientWhitelistDetail.not_suspended.
-            where(status: GlobalConstant::ClientWhitelistDetail.active_status).pluck(:client_id)
+          where(status: GlobalConstant::ClientWhitelistDetail.active_status).pluck(:client_id)
 
-      UserKycDetail.where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
-          kyc_admin_and_aml_approved.# records which are approved by both admin and aml
-      whitelist_status_unprocessed.# records which are not yet processed for whitelisting
-      find_in_batches(batch_size: 10) do |u_k_detail_objs|
 
-        u_k_detail_objs.each do |user_kyc_detail|
-          begin
+      @shard_identifiers.each do |shard_identifier|
 
-            init_iteration_params(user_kyc_detail)
+        UserKycDetail.using_shard(shard_identifier: shard_identifier).
+            where(client_id: client_ids, status: GlobalConstant::UserKycDetail.active_status).
+            kyc_admin_and_aml_approved.# records which are approved by both admin and aml
+        whitelist_status_unprocessed.# records which are not yet processed for whitelisting
+        find_in_batches(batch_size: 5) do |u_k_detail_objs|
 
-            # Ignore record if client whitelist detail is missing or suspended
-            client_whitelist_detail = ClientWhitelistDetail.get_from_memcache(user_kyc_detail.client_id)
-            next if client_whitelist_detail.blank? || !client_whitelist_detail.no_suspension_type?
+          u_k_detail_objs.each do |user_kyc_detail|
+            begin
 
-            # acquire lock over user_kyc_detail
-            start_processing_whitelisting
+              init_iteration_params(user_kyc_detail)
 
-            construct_api_data
+              # Ignore record if client whitelist detail is missing or suspended
+              client_whitelist_detail = ClientWhitelistDetail.get_from_memcache(user_kyc_detail.client_id)
+              next if client_whitelist_detail.blank? || !client_whitelist_detail.no_suspension_type?
 
-            # make the API call to private ops API for whitelisting
-            r = make_whitelist_api_call(client_whitelist_detail)
+              # acquire lock over user_kyc_detail
+              start_processing_whitelisting
 
-            # move to next record in case of api failures
-            next unless r.success?
+              construct_api_data
+
+              # make the API call to private ops API for whitelisting
+              r = make_whitelist_api_call(client_whitelist_detail)
+
+              # move to next record in case of api failures
+              next unless r.success?
 
             create_kyc_whitelist_log(client_whitelist_detail.version_id)
 
-            record_event_job
+              record_event_job
 
-          rescue => e
-            Rails.logger.info("Exception: #{e.inspect}")
-            handle_whitelist_error("Exception - #{e.inspect}", {exception: e})
+            rescue => e
+              Rails.logger.info("Exception: #{e.inspect}")
+              handle_whitelist_error("Exception - #{e.inspect}", {exception: e})
+            end
+
           end
-
+          return if GlobalConstant::SignalHandling.sigint_received?
         end
-        return if GlobalConstant::SignalHandling.sigint_received?
+
       end
 
     end
@@ -80,12 +90,32 @@ module Crons
     #
     # @params [UserKycDetail]
     #
-    # Sets @api_data, @user_kyc_detail
+    # Sets @api_data, @user_kyc_detail, @client, @client_id
     #
     def init_iteration_params(user_kyc_detail)
       @api_data = {}
       @user_kyc_detail = user_kyc_detail
       @transaction_hash = nil
+      @client_id = user_kyc_detail.client_id
+      @client = fetch_client(@client_id)
+    end
+
+    # Fetch client from memcache once
+    #
+    # * Author: Aman
+    # * Date: 25/01/2019
+    # * Reviewed By:
+    #
+    def fetch_client(client_id)
+      c = nil
+
+      if @all_clients[client_id].present?
+        c = @all_clients[client_id]
+      else
+        c = Client.get_from_memcache(client_id)
+        @all_clients[client_id] = c
+      end
+      c
     end
 
     # start processing whitelisting
@@ -181,7 +211,8 @@ module Crons
     # @return [String] Ethereum Address
     #
     def get_ethereum_address
-      user_extended_detail = UserExtendedDetail.where(id: @user_kyc_detail.user_extended_detail_id).first
+      user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).
+          where(id: @user_kyc_detail.user_extended_detail_id).first
       kyc_salt_e = user_extended_detail.kyc_salt
       r = Aws::Kms.new('kyc', 'admin').decrypt(kyc_salt_e)
       kyc_salt_d = r.data[:plaintext]
@@ -198,7 +229,8 @@ module Crons
     # @return [Integer] pahse
     #
     def get_phase
-      UserKycDetail.token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase]
+      UserKycDetail.using_client_shard(client: @client).
+          token_sale_participation_phases[@user_kyc_detail.token_sale_participation_phase]
     end
 
     # Handle whitelist errors
@@ -218,6 +250,7 @@ module Crons
       @user_kyc_detail.save!
 
       UserActivityLogJob.new().perform({
+                                           client_id: @client_id,
                                            user_id: @user_kyc_detail.user_id,
                                            action: GlobalConstant::UserActivityLog.kyc_whitelist_processor_error,
                                            action_timestamp: Time.now.to_i,
@@ -253,15 +286,15 @@ module Crons
     #
     def record_event_job
       WebhookJob::RecordEvent.perform_now({
-                                     client_id: @user_kyc_detail.client_id,
-                                     event_source: GlobalConstant::Event.kyc_system_source,
-                                     event_name: GlobalConstant::Event.kyc_status_update_name,
-                                     event_data: {
-                                         user_kyc_detail: @user_kyc_detail.get_hash,
-                                         admin: @user_kyc_detail.get_last_acted_admin_hash
-                                     },
-                                     event_timestamp: Time.now.to_i
-                                 })
+                                              client_id: @user_kyc_detail.client_id,
+                                              event_source: GlobalConstant::Event.kyc_system_source,
+                                              event_name: GlobalConstant::Event.kyc_status_update_name,
+                                              event_data: {
+                                                  user_kyc_detail: @user_kyc_detail.get_hash,
+                                                  admin: @user_kyc_detail.get_last_acted_admin_hash
+                                              },
+                                              event_timestamp: Time.now.to_i
+                                          })
 
     end
 

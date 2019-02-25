@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By: Sunil
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @params [Integer] id (mandatory) - user kyc details id
       # @params [Integer] page_number (optional) - page number if present
       # @params [Integer] page_size (optional) - page size if present
@@ -22,10 +22,12 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @case_id = @params[:id]
         @page_number = @params[:page_number].to_i
         @page_size = @params[:page_size].to_i
+
+        @client_id = @client.id
 
         @user_kyc_detail = nil
         @logs_ars = nil
@@ -70,7 +72,8 @@ module AdminManagement
         r = validate
         return r unless r.success?
 
-        @user_kyc_detail = UserKycDetail.where(client_id: @client_id, id: @case_id).first
+        @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id, id: @case_id).first
         return error_with_data(
             'am_k_fal_1',
             'KYC detail id not found',
@@ -78,9 +81,6 @@ module AdminManagement
             GlobalConstant::ErrorAction.default,
             {}
         ) if @user_kyc_detail.blank? || @user_kyc_detail.inactive_status?
-
-        r = fetch_and_validate_client
-        return r unless r.success?
 
         r = fetch_and_validate_admin
         return r unless r.success?
@@ -103,7 +103,7 @@ module AdminManagement
         offset = 0
         offset = @page_size * (@page_number - 1) if @page_number > 1
 
-        ar_relation = UserActivityLog.where(
+        ar_relation = UserActivityLog.using_client_shard(client: @client).where(
             user_id: @user_kyc_detail.user_id,
             log_type: GlobalConstant::UserActivityLog.admin_log_type
         )

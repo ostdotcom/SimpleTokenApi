@@ -11,7 +11,7 @@ module AdminManagement
       # * Reviewed By:
       #
       # @params [Integer] admin_id (mandatory) - logged in admin
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @params [String] email (mandatory) - search term to find case
       #
       # @return [AdminManagement::Kyc::GetByEmail]
@@ -20,9 +20,11 @@ module AdminManagement
         super
 
         @admin_id = @params[:admin_id]
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @email = @params[:email]
+
         @page_size = 10
+        @client_id = @client.id
 
         @user_ids = []
         @matching_users = {}
@@ -60,13 +62,15 @@ module AdminManagement
       # Sets @matching_users, @user_ids, @user_kycs
       #
       def fetch_records
-        User.where(client_id: @client_id).where("email like ?", "#{@email}%").select("id, email").limit(@page_size).each do |usr|
+        User.using_client_shard(client: @client).
+            where(client_id: @client_id).where("email like ?", "#{@email}%").select("id, email").limit(@page_size).each do |usr|
           @user_ids << usr.id
           @matching_users[usr.id] = usr
         end
         return if @matching_users.blank?
 
-        @user_kycs = UserKycDetail.where(client_id: @client_id, user_id: @user_ids).select("id, user_id").all
+        @user_kycs = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id, user_id: @user_ids).select("id, user_id").all
 
       end
 

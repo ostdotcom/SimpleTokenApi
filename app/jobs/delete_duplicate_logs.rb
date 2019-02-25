@@ -14,7 +14,7 @@ class DeleteDuplicateLogs < ApplicationJob
     init_params(params)
 
     # delete user utm data if present
-    UserUtmLog.where(user_id: @user_id).delete_all
+    UserUtmLog.using_client_shard(client: @client).where(user_id: @user_id).delete_all
 
     fetch_user_details
 
@@ -37,14 +37,18 @@ class DeleteDuplicateLogs < ApplicationJob
   # * Reviewed By:
   #
   # @params [Integer] user_id (mandatory) - user_id of deleted user
+  # @param [Integer] client_id - client id
   #
   # @return [DeleteDuplicates]
   #
   def init_params(params)
+    @client_id = params[:client_id]
     @user_id = params[:user_id]
     @event = params[:event]
 
-    @client_id, @user, @user_kyc_detail = nil, nil, nil
+    @client = Client.get_from_memcache(@client_id)
+
+    @user, @user_kyc_detail = nil, nil
 
     @duplicate_kyc_log_ids, @duplicate_kyc_user_ids = [], []
   end
@@ -58,9 +62,9 @@ class DeleteDuplicateLogs < ApplicationJob
   # Sets @user, @client_id, @user_kyc_detail
   #
   def fetch_user_details
-    @user = User.where(id: @user_id).first
+    @user = User.using_client_shard(client: @client).where(id: @user_id).first
     @client_id = @user.client_id
-    @user_kyc_detail = UserKycDetail.where(user_id: @user_id).first
+    @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).where(user_id: @user_id).first
   end
 
   # Mark email duplication logs as inactive and change email duplication status in user_kyc_details
@@ -73,32 +77,32 @@ class DeleteDuplicateLogs < ApplicationJob
   def unset_user_email_duplicates
     duplicate_email_user_ids = []
     # fetch as user1
-    duplicate_email_user_ids += UserEmailDuplicationLog.where(
+    duplicate_email_user_ids += UserEmailDuplicationLog.using_client_shard(client: @client).where(
         user1_id: @user_id,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
     ).pluck(:user2_id)
 
     # fetch as user2
-    duplicate_email_user_ids += UserEmailDuplicationLog.where(
+    duplicate_email_user_ids += UserEmailDuplicationLog.using_client_shard(client: @client).where(
         user2_id: @user_id,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
     ).pluck(:user1_id)
 
     return if duplicate_email_user_ids.blank?
 
-    UserEmailDuplicationLog.where(
+    UserEmailDuplicationLog.using_client_shard(client: @client).where(
         user1_id: @user_id,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
     ).update_all(status: GlobalConstant::UserEmailDuplicationLog.inactive_status,
                  updated_at: current_time)
 
-    UserEmailDuplicationLog.where(
+    UserEmailDuplicationLog.using_client_shard(client: @client).where(
         user2_id: @user_id,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
     ).update_all(updated_at: current_time,
                  status: GlobalConstant::UserEmailDuplicationLog.inactive_status)
 
-    duplicate_email_user_ids_with_kyc_done = UserKycDetail.where(
+    duplicate_email_user_ids_with_kyc_done = UserKycDetail.using_client_shard(client: @client).where(
         client_id: @client_id,
         user_id: duplicate_email_user_ids,
         status: GlobalConstant::UserKycDetail.active_status
@@ -109,7 +113,7 @@ class DeleteDuplicateLogs < ApplicationJob
 
     email_duplicate_data = {}
 
-    UserEmailDuplicationLog.where(
+    UserEmailDuplicationLog.using_client_shard(client: @client).where(
         user1_id: duplicate_email_user_ids_with_kyc_done,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
     ).all.each do |u_e_d_log|
@@ -118,7 +122,7 @@ class DeleteDuplicateLogs < ApplicationJob
     end
 
 
-    UserEmailDuplicationLog.where(
+    UserEmailDuplicationLog.using_client_shard(client: @client).where(
         user2_id: duplicate_email_user_ids_with_kyc_done,
         status: GlobalConstant::UserEmailDuplicationLog.active_status
     ).all.each do |u_e_d_log|
@@ -131,7 +135,7 @@ class DeleteDuplicateLogs < ApplicationJob
     if email_duplicate_data.present?
       all_user_ids = email_duplicate_data.keys
 
-      all_user_ids_with_kyc = UserKycDetail.where(
+      all_user_ids_with_kyc = UserKycDetail.using_client_shard(client: @client).where(
           client_id: @client_id,
           user_id: all_user_ids,
           status: GlobalConstant::UserKycDetail.active_status
@@ -145,7 +149,7 @@ class DeleteDuplicateLogs < ApplicationJob
 
     return if user_ids_not_email_duplicate_with_kyc_done.blank?
 
-    UserKycDetail.where(
+    UserKycDetail.using_client_shard(client: @client).where(
         client_id: @client_id,
         user_id: user_ids_not_email_duplicate_with_kyc_done,
         email_duplicate_status: GlobalConstant::UserKycDetail.yes_email_duplicate_status
@@ -154,7 +158,7 @@ class DeleteDuplicateLogs < ApplicationJob
         updated_at: current_time
     )
 
-    UserKycDetail.bulk_flush(user_ids_not_email_duplicate_with_kyc_done)
+    UserKycDetail.using_client_shard(client: @client).bulk_flush(user_ids_not_email_duplicate_with_kyc_done)
   end
 
   # Fetch user details
@@ -167,12 +171,12 @@ class DeleteDuplicateLogs < ApplicationJob
   #
   def fetch_existing_duplicate_data
     # fetch as user1
-    UserKycDuplicationLog.where(user1_id: @user_id).non_deleted.all.each do |d_log|
+    UserKycDuplicationLog.using_client_shard(client: @client).where(user1_id: @user_id).non_deleted.all.each do |d_log|
       @duplicate_kyc_log_ids << d_log.id
       @duplicate_kyc_user_ids << d_log.user2_id
     end
     # fetch as user2
-    UserKycDuplicationLog.where(user2_id: @user_id).non_deleted.all.each do |d_log|
+    UserKycDuplicationLog.using_client_shard(client: @client).where(user2_id: @user_id).non_deleted.all.each do |d_log|
       @duplicate_kyc_log_ids << d_log.id
       @duplicate_kyc_user_ids << d_log.user1_id
     end
@@ -186,7 +190,7 @@ class DeleteDuplicateLogs < ApplicationJob
   # * Reviewed By: Sunil
   #
   def update_duplicate_logs_to_inactive
-    UserKycDuplicationLog.where(id: @duplicate_kyc_log_ids).update_all(
+    UserKycDuplicationLog.using_client_shard(client: @client).where(id: @duplicate_kyc_log_ids).update_all(
         status: GlobalConstant::UserKycDuplicationLog.deleted_status,
         updated_at: current_time
     )
@@ -201,12 +205,12 @@ class DeleteDuplicateLogs < ApplicationJob
   def unset_kyc_duplicate_status_of_previous_users
     dup_active_user_ids = []
     # only current active user_extended_details_id will be with active status
-    dup_active_user_ids += UserKycDuplicationLog.where(
+    dup_active_user_ids += UserKycDuplicationLog.using_client_shard(client: @client).where(
         user1_id: @duplicate_kyc_user_ids,
         status: GlobalConstant::UserKycDuplicationLog.active_status
     ).pluck(:user1_id)
 
-    dup_active_user_ids += UserKycDuplicationLog.where(
+    dup_active_user_ids += UserKycDuplicationLog.using_client_shard(client: @client).where(
         user2_id: @duplicate_kyc_user_ids,
         status: GlobalConstant::UserKycDuplicationLog.active_status
     ).pluck(:user2_id)
@@ -217,20 +221,20 @@ class DeleteDuplicateLogs < ApplicationJob
 
     return if filtered_non_active_duplicate_user_ids.blank?
 
-    non_active_user_ids_extended_detail = UserKycDetail.where(
+    non_active_user_ids_extended_detail = UserKycDetail.using_client_shard(client: @client).where(
         user_id: filtered_non_active_duplicate_user_ids,
         status: GlobalConstant::UserKycDetail.active_status
     ).pluck(:user_extended_detail_id)
 
 
     dup_inactive_user_ids = []
-    dup_inactive_user_ids += UserKycDuplicationLog.where(
+    dup_inactive_user_ids += UserKycDuplicationLog.using_client_shard(client: @client).where(
         user1_id: filtered_non_active_duplicate_user_ids,
         user_extended_details1_id: non_active_user_ids_extended_detail,
         status: GlobalConstant::UserKycDuplicationLog.inactive_status
     ).pluck(:user1_id)
 
-    dup_inactive_user_ids += UserKycDuplicationLog.where(
+    dup_inactive_user_ids += UserKycDuplicationLog.using_client_shard(client: @client).where(
         user2_id: filtered_non_active_duplicate_user_ids,
         user_extended_details2_id: non_active_user_ids_extended_detail,
         status: GlobalConstant::UserKycDuplicationLog.inactive_status
@@ -240,7 +244,7 @@ class DeleteDuplicateLogs < ApplicationJob
 
     filtered_never_duplicate_user_ids = filtered_non_active_duplicate_user_ids - dup_inactive_user_ids
 
-    UserKycDetail.where(
+    UserKycDetail.using_client_shard(client: @client).where(
         user_id: filtered_never_duplicate_user_ids,
         user_extended_detail_id: non_active_user_ids_extended_detail
     ).where.not(kyc_duplicate_status: GlobalConstant::UserKycDetail.never_kyc_duplicate_status).update_all(
@@ -248,11 +252,11 @@ class DeleteDuplicateLogs < ApplicationJob
         updated_at: current_time
     )
 
-    UserKycDetail.bulk_flush(filtered_never_duplicate_user_ids)
+    UserKycDetail.using_client_shard(client: @client).bulk_flush(filtered_never_duplicate_user_ids)
 
     return if dup_inactive_user_ids.blank?
 
-    UserKycDetail.where(
+    UserKycDetail.using_client_shard(client: @client).where(
         user_id: dup_inactive_user_ids,
         user_extended_detail_id: non_active_user_ids_extended_detail,
         kyc_duplicate_status: GlobalConstant::UserKycDetail.is_kyc_duplicate_status
@@ -261,7 +265,7 @@ class DeleteDuplicateLogs < ApplicationJob
         updated_at: current_time
     )
 
-    UserKycDetail.bulk_flush(dup_inactive_user_ids)
+    UserKycDetail.using_client_shard(client: @client).bulk_flush(dup_inactive_user_ids)
   end
 
   # Get current time in string

@@ -187,7 +187,7 @@ module Crons
         return success if @user_kyc_detail.case_closed?
 
         if @aml_matches.blank?
-          @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.cleared_aml_status
+          @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.auto_approved_aml_status
         else
           return success if @user_kyc_detail.aml_status == GlobalConstant::UserKycDetail.pending_aml_status
           @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status

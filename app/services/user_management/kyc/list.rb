@@ -120,7 +120,7 @@ module UserManagement
 
           @filters.each do |filter_key, filter_val|
             next if filter_val.blank?
-            allowed_filter = GlobalConstant::UserKycDetail.filters
+            allowed_filter = GlobalConstant::UserKycDetail.filters_v2_deprecated
 
             if allowed_filter.keys.include?(filter_key)
               allowed_filter_val = allowed_filter[filter_key].keys
@@ -177,7 +177,7 @@ module UserManagement
         # puts "@allowed_filters  : #{@allowed_filters}"
         @ar_query ||= begin
           ar = UserKycDetail.using_client_shard(client: @client).where(client_id: @client_id).active_kyc
-          ar = ar.filter_by(@allowed_filters) if @allowed_filters.present?
+          ar = ar.v2_deprecated_filter_by(@allowed_filters) if @allowed_filters.present?
           ar = ar.sorting_by(@sort_by) if @sort_by.present?
           ar
         end

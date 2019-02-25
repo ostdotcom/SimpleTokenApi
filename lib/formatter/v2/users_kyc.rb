@@ -103,6 +103,10 @@ module Formatter
         # @returns [Hash]
         #
         def user_kyc_base(user_kyc_detail, admin)
+          kyc_status = ''
+          admin_status = ''
+          aml_status = ''
+
           {
               id: user_kyc_detail[:id],
               user_kyc_detail_id: user_kyc_detail[:user_extended_detail_id],

@@ -5,14 +5,26 @@ module GlobalConstant
 
     class << self
 
+      def cleared_aml_status_deprecated
+        'cleared'
+      end
+
+      def rejected_aml_status_deprecated
+        'rejected'
+      end
+
+      def failed_aml_status_deprecated
+        'failed'
+      end
+
       ### aml Status Start ###
 
       def unprocessed_aml_status
         'unprocessed'
       end
 
-      def cleared_aml_status
-        'cleared'
+      def auto_approved_aml_status
+        'auto_approved'
       end
 
       def pending_aml_status
@@ -23,18 +35,14 @@ module GlobalConstant
         'approved'
       end
 
-      def rejected_aml_status
-        'rejected'
-      end
-
-      def failed_aml_status
-        'failed'
+      def denied_aml_status
+        'denied'
       end
 
       ### aml Status End ###
 
       def aml_approved_statuses
-        [cleared_aml_status, approved_aml_status]
+        [auto_approved_aml_status, approved_aml_status]
       end
 
       def admin_approved_statuses
@@ -44,8 +52,7 @@ module GlobalConstant
       def aml_open_statuses
         [
             unprocessed_aml_status,
-            pending_aml_status,
-            failed_aml_status
+            pending_aml_status
         ]
       end
 
@@ -212,28 +219,6 @@ module GlobalConstant
 
       ### Status End ###
 
-      # Get mapped aml status from response status of aml call
-      #
-      # * Author: Aman
-      # * Date: 24/10/2017
-      # * Reviewed By: Sunil
-      #
-      #return[String] returns mapping of aml status
-      #
-      def get_aml_status(approval_status)
-
-        if approval_status == 'PENDING'
-          pending_aml_status
-        elsif approval_status == 'CLEARED'
-          cleared_aml_status
-        elsif approval_status == 'ACCEPTED'
-          approved_aml_status
-        elsif approval_status == 'REJECTED'
-          rejected_aml_status
-        else
-          unprocessed_aml_status
-        end
-      end
 
       #################### Filter keys ##################################
       def admin_action_types_key
@@ -261,13 +246,52 @@ module GlobalConstant
             },
 
             "#{aml_status_key}" => {
-                "#{cleared_aml_status}:#{approved_aml_status}" => [cleared_aml_status, approved_aml_status],
+                "#{auto_approved_aml_status}:#{approved_aml_status}" => [auto_approved_aml_status, approved_aml_status],
                 "#{unprocessed_aml_status}" => [unprocessed_aml_status],
                 "#{pending_aml_status}" => [pending_aml_status],
-                "#{cleared_aml_status}" => [cleared_aml_status],
+                "#{auto_approved_aml_status}" => [auto_approved_aml_status],
                 "#{approved_aml_status}" => [approved_aml_status],
-                "#{rejected_aml_status}" => [rejected_aml_status],
-                "#{failed_aml_status}" => [failed_aml_status]
+                "#{denied_aml_status}" => [denied_aml_status]
+            },
+            "#{whitelist_status_key}" => {
+                "#{unprocessed_whitelist_status}" => [unprocessed_whitelist_status],
+                "#{started_whitelist_status}" => [started_whitelist_status],
+                "#{done_whitelist_status}" => [done_whitelist_status],
+                "#{failed_whitelist_status}" => [failed_whitelist_status]
+            },
+            "#{admin_action_types_key}" => {
+                "no_admin_action" => {admin_action_types: 0},
+                "#{data_mismatch_admin_action_type}" => ["(admin_action_types & ?) = ?",
+                                                         ::UserKycDetail.use_any_instance.admin_action_types_config[data_mismatch_admin_action_type],
+                                                         ::UserKycDetail.use_any_instance.admin_action_types_config[data_mismatch_admin_action_type]
+                ],
+                "#{document_issue_admin_action_type}" => ["(admin_action_types & ?) = ?",
+                                                          ::UserKycDetail.use_any_instance.admin_action_types_config[document_issue_admin_action_type],
+                                                          ::UserKycDetail.use_any_instance.admin_action_types_config[document_issue_admin_action_type]
+                ],
+                "#{other_issue_admin_action_type}" => ["(admin_action_types & ?) = ?",
+                                                       ::UserKycDetail.use_any_instance.admin_action_types_config[other_issue_admin_action_type],
+                                                       ::UserKycDetail.use_any_instance.admin_action_types_config[other_issue_admin_action_type]
+                ]
+            }
+        }
+      end
+
+      def filters_v2_deprecated
+        {
+            "#{admin_status_key}" => {
+                "#{unprocessed_admin_status}" => [unprocessed_admin_status],
+                "#{qualified_admin_status}" => [qualified_admin_status],
+                "#{denied_admin_status}" => [denied_admin_status]
+            },
+            "#{aml_status_key}" => {
+                "#{cleared_aml_status_deprecated}:#{approved_aml_status}" => [auto_approved_aml_status, approved_aml_status],
+                "#{unprocessed_aml_status}" => [unprocessed_aml_status],
+                "#{pending_aml_status}" => [pending_aml_status],
+                "#{cleared_aml_status_deprecated}" => [auto_approved_aml_status],
+                "#{approved_aml_status}" => [approved_aml_status],
+                "#{rejected_aml_status_deprecated}" => [denied_aml_status],
+                "#{failed_aml_status_deprecated}" => [] # will make 0=1 query and hence no records as needed
             },
             "#{whitelist_status_key}" => {
                 "#{unprocessed_whitelist_status}" => [unprocessed_whitelist_status],

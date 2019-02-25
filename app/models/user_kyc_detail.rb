@@ -8,17 +8,31 @@ class UserKycDetail
       enum aml_status: {
           GlobalConstant::UserKycDetail.unprocessed_aml_status => 1, # yello
           GlobalConstant::UserKycDetail.pending_aml_status => 2, # yello
-          GlobalConstant::UserKycDetail.cleared_aml_status => 3, # green
+          GlobalConstant::UserKycDetail.auto_approved_aml_status => 3, # green
           GlobalConstant::UserKycDetail.approved_aml_status => 4, # green
-          GlobalConstant::UserKycDetail.rejected_aml_status => 5, # red
-          GlobalConstant::UserKycDetail.failed_aml_status => 6 # red
+          GlobalConstant::UserKycDetail.denied_aml_status => 5 # red
       }, _suffix: true
+
+      # enum aml_status_deprecated: {
+      #     GlobalConstant::UserKycDetail.unprocessed_aml_status => 1, # yello
+      #     GlobalConstant::UserKycDetail.pending_aml_status => 2, # yello
+      #     GlobalConstant::UserKycDetail.cleared_aml_status_deprecated => 3, # green
+      #     GlobalConstant::UserKycDetail.approved_aml_status => 4, # green
+      #     GlobalConstant::UserKycDetail.rejected_aml_status => 5, # red
+      #     GlobalConstant::UserKycDetail.failed_aml_status => 6 # red
+      # }, _suffix: true
 
       enum admin_status: {
           GlobalConstant::UserKycDetail.unprocessed_admin_status => 1, # yello
           GlobalConstant::UserKycDetail.qualified_admin_status => 2, # green
           GlobalConstant::UserKycDetail.denied_admin_status => 3 # red
       }, _suffix: true
+
+      # enum admin_status: {
+      #     GlobalConstant::UserKycDetail.unprocessed_admin_status => 1, # yello
+      #     GlobalConstant::UserKycDetail.qualified_admin_status => 2, # green
+      #     GlobalConstant::UserKycDetail.denied_admin_status => 3 # red
+      # }, _suffix: true
 
       enum token_sale_participation_phase: {
           GlobalConstant::TokenSale.early_access_token_sale_phase => 1,
@@ -49,7 +63,8 @@ class UserKycDetail
           GlobalConstant::UserKycDetail.inactive_status => 2
       }, _suffix: true
 
-      scope :kyc_admin_and_aml_approved, -> {where(aml_status: GlobalConstant::UserKycDetail.aml_approved_statuses, admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
+      scope :kyc_admin_and_aml_approved, -> {where(aml_status: GlobalConstant::UserKycDetail.aml_approved_statuses,
+                                                   admin_status: GlobalConstant::UserKycDetail.admin_approved_statuses)}
       scope :whitelist_status_unprocessed, -> {where(whitelist_status: GlobalConstant::UserKycDetail.unprocessed_whitelist_status)}
 
       scope :active_kyc, -> {where(status: GlobalConstant::UserKycDetail.active_status)}
@@ -59,6 +74,20 @@ class UserKycDetail
         where_bitwise_clause = {}
         filters.each do |key, val|
           filter_data = GlobalConstant::UserKycDetail.filters[key.to_s][val.to_s]
+          if key.to_s === GlobalConstant::UserKycDetail.admin_action_types_key
+            where_bitwise_clause = filter_data
+          else
+            where_clause[key] = filter_data if filter_data.present?
+          end
+        end
+        where(where_clause).where(where_bitwise_clause)
+      }
+
+      scope :v2_deprecated_filter_by, -> (filters) {
+        where_clause = {}
+        where_bitwise_clause = {}
+        filters.each do |key, val|
+          filter_data = GlobalConstant::UserKycDetail.filters_v2_deprecated[key.to_s][val.to_s]
           if key.to_s === GlobalConstant::UserKycDetail.admin_action_types_key
             where_bitwise_clause = filter_data
           else
@@ -112,7 +141,7 @@ class UserKycDetail
       # @returns [String] returns the last qualify type
       #
       def is_auto_approved?
-        kyc_approved? && (last_reopened_at.to_i == 0) && (aml_status == GlobalConstant::UserKycDetail.cleared_aml_status) &&
+        kyc_approved? && (last_reopened_at.to_i == 0) && (aml_status == GlobalConstant::UserKycDetail.auto_approved_aml_status) &&
             qualify_types_array.exclude?(GlobalConstant::UserKycDetail.manually_approved_qualify_type)
       end
 
@@ -157,15 +186,12 @@ class UserKycDetail
       end
 
       def kyc_approved?
-        GlobalConstant::UserKycDetail.aml_approved_statuses.include?(aml_status) && GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
+        GlobalConstant::UserKycDetail.aml_approved_statuses.include?(aml_status) &&
+            GlobalConstant::UserKycDetail.admin_approved_statuses.include?(admin_status)
       end
 
       def kyc_denied?
-        (aml_status == GlobalConstant::UserKycDetail.rejected_aml_status) || (admin_status == GlobalConstant::UserKycDetail.denied_admin_status)
-      end
-
-      def aml_rejected?
-        aml_status == GlobalConstant::UserKycDetail.rejected_aml_status
+        (aml_status == GlobalConstant::UserKycDetail.denied_aml_status) || (admin_status == GlobalConstant::UserKycDetail.denied_admin_status)
       end
 
       def case_closed_for_admin?

@@ -401,7 +401,7 @@ module AdminManagement
             admin_status: @user_kyc_detail.admin_status,
             last_qualified_type: last_qualified_type,
             aml_status: @user_kyc_detail.aml_status,
-            retry_aml: (@user_kyc_detail.aml_status == GlobalConstant::UserKycDetail.failed_aml_status).to_i,
+            retry_aml: 0,
             submission_count: @user_kyc_detail.submission_count.to_i,
             is_re_submitted: @user_kyc_detail.is_re_submitted?,
             is_duplicate: @user_kyc_detail.show_duplicate_status.to_i,

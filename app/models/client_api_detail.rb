@@ -44,6 +44,9 @@ class ClientApiDetail < EstablishSimpleTokenClientDbConnection
       r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)
       client_obj.decrypted_api_salt = r.data[:plaintext] if r.success?
 
+      client_obj.client_kyc_config_detail
+      client_obj.client_shard
+
       {client: client_obj, client_api_detail: client_api_detail}
     end
     r || {}

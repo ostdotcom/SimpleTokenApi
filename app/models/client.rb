@@ -190,32 +190,6 @@ class Client < EstablishSimpleTokenClientDbConnection
     end
   end
 
-  # Get/Set Memcache data for Client from api key
-  #
-  # * Author: Aman
-  # * Date: 26/12/2017
-  # * Reviewed By
-  #
-  # @param [Integer] api_key - client api_key
-  #
-  # @return [AR] Client object
-  #
-  def self.get_client_for_api_key_from_memcache(api_key)
-    api_memcache_key_object = MemcacheKey.new('client.api_key_details')
-    Memcache.get_set_memcached(api_memcache_key_object.key_template % {api_key: api_key}, api_memcache_key_object.expiry) do
-      client_obj = Client.where(api_key: api_key).first
-      return nil if client_obj.blank?
-
-      r = Aws::Kms.new('saas', 'saas').decrypt(client_obj.api_salt)
-      client_obj.decrypted_api_salt = r.data[:plaintext] if r.success?
-
-      client_obj.client_kyc_config_detail
-      client_obj.client_shard
-
-      client_obj
-    end
-  end
-
   private
 
   # Flush Memcache

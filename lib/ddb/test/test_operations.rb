@@ -2,6 +2,7 @@ module Ddb
   module Test
     class TestOperations
 
+      # todo:ddb - test for array and hash and log the response
       def self.get_item
         r = TestModel.new({shard_id: 's1'}, {use_column_mapping: true}).
             get_item({

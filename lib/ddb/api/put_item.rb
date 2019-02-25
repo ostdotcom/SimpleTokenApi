@@ -20,7 +20,8 @@ module Ddb
         Rails.logger.info {'Ddb::Api::PutItem::Sleeping..Retrying..'}
         #increase_read_capacity
         if @retry_count >= @current_retry_count
-          return error_with_identifier('', 'ddb_provision_throughput_exception',
+          # todo:ddb: - api error code
+          return error_with_identifier('', 'd_a_pi_p_1',
                                        '', 'Throughput exception while put record', {})
         else
           sleep( @retry_after_duration )

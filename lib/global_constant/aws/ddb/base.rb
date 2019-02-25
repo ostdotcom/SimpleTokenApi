@@ -254,6 +254,7 @@ module GlobalConstant
             {}
           end
 
+          # todo:ddb: - remove enum
           def variable_type
             {
                 number: :n,

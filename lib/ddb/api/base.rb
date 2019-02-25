@@ -2,7 +2,7 @@ module Ddb
   module Api
     class Base
 
-      RETRY_COUNT = 10
+      MAX_RETRY_COUNT = 10
       RETRY_TIME_INCREMENTER = 0.5 # in secs
       INITIAL_RETRY_AFTER = 3 # in secs
 
@@ -10,7 +10,7 @@ module Ddb
 
       def initialize(params)
         @params = params[:params]
-        @retry_count = params[:retry_count] || RETRY_COUNT
+        @retry_count = MAX_RETRY_COUNT
         @current_retry_count = 0
         @retry_time_incrementer = RETRY_TIME_INCREMENTER
         @retry_after_duration = INITIAL_RETRY_AFTER
@@ -49,14 +49,21 @@ module Ddb
       #
       def handle_error(e)
         case e
-        when Aws::DynamoDB::Errors::ProvisionedThroughputExceededException
-          raise e
-        when StandardError
-          return error_with_identifier('ddb_standard_error', 'standard_error',
-                                       [],e.message, {})
-        else
-          return error_with_identifier('swr', 'swr',
-                                       [],'Something went wrong', {})
+          when Aws::DynamoDB::Errors::ProvisionedThroughputExceededException
+            #  todo:ddb -  common error handling for ProvisionedThroughputExceededException
+            raise e
+          when StandardError
+            return error_with_identifier('ddb_standard_error', 'standard_error',
+                                         [], e.message, {})
+          else
+            return exception_with_data(
+                e,
+                'swr_a_b_he_1',
+                'exception in DDB: ' + e.message,
+                'Something went wrong.',
+                GlobalConstant::ErrorAction.default,
+                {}
+            )
         end
       end
     end

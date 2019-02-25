@@ -26,6 +26,9 @@ module Ddb
       table_info[:name] = "#{Rails.env}_#{@shard_id}_#{self.class.raw_table_name}"
     end
 
+    # NOTE:when false . attribute key passed in params should be short name and the value should be merged and enums operation
+    #   wont be supported(no enum processing, no full name processing, no merge column processing)
+    #
     def use_column_mapping?
       @use_column_mapping == false ? false : true
     end

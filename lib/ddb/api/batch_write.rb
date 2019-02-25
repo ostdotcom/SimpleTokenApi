@@ -13,6 +13,7 @@ module Ddb
       #
       def perform
         batch_write_operation
+      #   todo:ddb - check if ProvisionedThroughputExceededException has unprocessed_items
       rescue Aws::DynamoDB::Errors::ProvisionedThroughputExceededException => e
         Rails.logger.info {'Ddb::Api::BatchWrite::Sleeping..Retrying..'}
         #increase_read_capacity
@@ -25,6 +26,7 @@ module Ddb
           @retry_after_duration += @retry_time_incrementer
           retry
         end
+      #   todo:ddb - handle exceptions
       end
 
       # batch write api call with retry mechanism
@@ -44,6 +46,7 @@ module Ddb
           @retry_after_duration += @retry_time_incrementer
           batch_write_operation
         else
+          # todo:ddb: - give error res unprocessed_items
           success_with_data({data: batch_write_resp.unprocessed_items})
         end
       end

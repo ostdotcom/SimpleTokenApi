@@ -24,22 +24,22 @@ module Ddb
       #
       # @return [Result::Base] - response from dynamodb
       # # attributes in response can be accessed as *r.data[:data][:attributes]*
-      #
+
+      # todo:ddb: - item -> params
       def put_item(item)
 
         r = validate_for_ddb_options(item, self.class.allowed_params[:put_item])
         return r unless r.success?
+        # todo:ddb - use param_mapping function
         r = validate_and_map_params(item[:item])
-
         return r unless r.success?
+
         item[:item] = r.data[:data]
 
         r = Ddb::QueryBuilder::PutItem.new({params: item, table_info: table_info}).perform
-
         return r unless r.success?
 
         ddb_r = Ddb::Api::PutItem.new(params: r.data).perform
-
         return ddb_r unless ddb_r.success?
 
         return parse_write_response(ddb_r.data[:data])
@@ -231,8 +231,6 @@ module Ddb
         return ddb_r unless (ddb_r.success? && ddb_r.data[:data][:item].present?)
 
         parse_get_response ddb_r.data[:data]
-
-
       end
 
 
@@ -287,7 +285,7 @@ module Ddb
 
         attributes = parse_response(data[:attributes])
 
-        attributes = attributes.present? ? initialize_instance_variables(attributes) : attributes
+        initialize_instance_variables(attributes) if attributes.present?
 
         consumed_capacity = data[:consumed_capacity]
 
@@ -360,8 +358,8 @@ module Ddb
       # @param params [Hash] (mandatory)
       # @return [Result::Base] -
       #
-
       def validate_for_ddb_options(item, params)
+        # todo:ddb: - if key present then value should be present
         mandatory_params = params[:mandatory]
         optional_params = params[:optional]
         return error_with_identifier('mandatory_params_missing',
@@ -369,6 +367,7 @@ module Ddb
                                      (mandatory_params - item.keys)
         ) if (mandatory_params - item.keys).present?
 
+        # todo:ddb: - unexpected_params_present
         return error_with_identifier('unexpected_params_present',
                                      'sb_1',
                                      (item.keys - (optional_params + mandatory_params))
@@ -387,7 +386,7 @@ module Ddb
       # @return [Result Base]
       #
       def update_params_mapping(item)
-
+        # todo:ddb - use from all methods. validate all keys.
         remove_list = []
         [:key, :set, :add].each do |operation|
           r = validate_and_map_params(item[operation])
@@ -416,10 +415,12 @@ module Ddb
         list.each do |item|
           if use_column_mapping?
             short_name = get_short_key_name(item)
+            # todo:ddb - extra_item_param_given not defined
             return error_with_identifier('extra_item_param_given',
                                          'sb_1',
                                          []
             ) if short_name.blank?
+
             result_list << short_name
           else
             return error_with_identifier('extra_item_param_given',
@@ -479,8 +480,13 @@ module Ddb
       # @return [Result::Base]
       #
       def validate_and_map_params(item_list)
-
+        # todo:ddb: - return error when values missing
         return success unless item_list
+        # todo:ddb: - for use_column_mapping? do operations and then common function for validate_map_without_default_mapping
+        # enum val update
+        # full name processing
+        # merge values
+        # use values as per ddb format
         if use_column_mapping?
           return validate_map_with_default_mapping item_list
         else
@@ -499,9 +505,9 @@ module Ddb
       # @return [Result::Base]
       #
       def validate_map_with_default_mapping (item_list)
+
         temp_item_list = []
         item_list.each do |item|
-          attribute_values = []
           attr = {}
           item_attr = item[:attribute]
           short_attr_name = get_short_key_name(item_attr.keys)
@@ -509,6 +515,8 @@ module Ddb
                                        'sb_1',
                                        []
           ) if short_attr_name.blank?
+
+          # todo:ddb - merge logic for map_non_merged_columns and map_merged_columns and use 1 function
           if item_attr.values.length > 1
             attr[short_attr_name] = {GlobalConstant::Aws::Ddb::Base.variable_type[:string] => map_merged_columns(item_attr).to_s}
           else
@@ -516,8 +524,7 @@ module Ddb
                                                            item_attr.values[0], item_attr.keys[0])
           end
 
-          item[:attribute] = attr
-          temp_item_list << item
+          temp_item_list << {attribute: attr}
         end
         return success_with_data(data: temp_item_list)
       end
@@ -570,8 +577,10 @@ module Ddb
       # @return [Hash]
       #
       def map_non_merged_columns(data_type, val, long_name)
+        # todo:ddb: - why is array, HAsh not saved by its type but string
         if data_type_array_hash.include?(data_type)
           return {GlobalConstant::Aws::Ddb::Base.variable_type[:string] => val.to_json}
+          # todo:ddb: - enum should not be a type
         elsif data_type == GlobalConstant::Aws::Ddb::Base.variable_type[:enum]
           return {GlobalConstant::Aws::Ddb::Base.variable_type[:number] =>
                       self.class.enum[long_name][val].to_s}
@@ -651,13 +660,14 @@ module Ddb
             merged_columns = table_info[:merged_columns][key][:keys]
             if merged_columns.length > 1
               val = val[data_type_string].split(table_info[:delimiter])
-              merged_columns.each_with_index do |long_name, index|
-                merged_col[long_name[:name]] = {long_name[:type] => val[index]}
+              merged_columns.each_with_index do |long_name_hash, index|
+                merged_col[long_name_hash[:name]] = {long_name_hash[:type] => val[index]}
               end
             else
-              separate_col[merged_columns[0]["name"]] = val
+              separate_col[merged_columns[0][:name]] = val
             end
           end
+          # Note: merge merged_col afterwards to give preference to separate_col
           normalize_response separate_col.merge(merged_col)
         else
           normalize_response r
@@ -677,7 +687,7 @@ module Ddb
       def normalize_response(hash)
         result_hash = {}
         hash.each do |k, v|
-          result_hash[k] = format_value v.to_hash, k
+          result_hash[k] = format_value(v.to_hash, k)
         end if hash.present?
         result_hash
       end
@@ -693,6 +703,7 @@ module Ddb
       # @return field_name [string]
       #
       def format_value(value, field_name = '')
+        # todo:ddb: - use enum processing if use col mapping
         if (!use_column_mapping?) && is_any_key_enum?(field_name)
           return replace_enum_names(field_name, value.first[1])
         elsif value.first[0] == GlobalConstant::Aws::Ddb::Base.variable_type[:string]
@@ -702,6 +713,7 @@ module Ddb
         elsif value.first[0] == GlobalConstant::Aws::Ddb::Base.variable_type[:enum]
           return self.class.enum[field_name].key(value.first[1].to_i)
         else
+          # todo:ddb - throw an error
           return value.first[1]
         end
       end
@@ -762,6 +774,7 @@ module Ddb
       # @return [Hash]
       #
       def get_short_key_name(condition)
+        # todo:ddb: - recheck
         table_info[:merged_columns].
             select {
                 |_, v|

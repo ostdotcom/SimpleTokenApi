@@ -1,6 +1,8 @@
 module Ddb
   module QueryBuilder
     class GetItem < QueryBuilder::Base
+
+
       def initialize(params)
         super
       end
@@ -14,16 +16,12 @@ module Ddb
       # @return [Result::Base]
       #
       def perform
-
-        @key_hash = get_formatted_item_hash(@params[:key])
-
-        r = validate_primary_key
+        r = validate
         return r unless r.success?
         success_with_data({
                               key: @key_hash,
                               table_name: @table_info[:name],
-                              projection_expression: @params[:projection_expression].present? ?
-                                                         @params[:projection_expression].join(", ") : nil,
+                              projection_expression: get_projection_expression,
                               consistent_read: @params[:consistent_read],
                               return_consumed_capacity: @params[:return_consumed_capacity]
                           }.delete_if {|_, v| v.nil?})

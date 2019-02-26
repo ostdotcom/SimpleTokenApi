@@ -23,19 +23,24 @@ module Ddb
 
         filter_expn = condition_expression(@params[:filter_conditions][:conditions],
                                            @params[:filter_conditions][:logical_operator]) if @params[:filter_conditions].present?
+        return filter_expn unless filter_expn.success?
+        filter_expn = filter_expn.data[:data]
+
+        key_cond_exprs = condition_expression(@params[:key_conditions], 'AND')
+        return key_cond_exprs unless key_cond_exprs.success?
+        key_cond_exprs = key_cond_exprs.data[:data]
         success_with_data(
             {
-                key_condition_expression: condition_expression(@params[:key_conditions], 'AND'),
+                key_condition_expression: key_cond_exprs,
                 table_name: @table_info[:name],
                 filter_expression: filter_expn,
                 exclusive_start_key: @params[:exclusive_start_key],
                 limit: @params[:limit],
-                expression_attribute_values: @expression_attribute_values,
-                expression_attribute_names: @expression_attribute_names,
+                expression_attribute_values: expression_attribute_values_query,
+                expression_attribute_names: expression_attribute_names_query,
                 index_name: @params[:index_name],
                 return_consumed_capacity: @params[:return_consumed_capacity],
-                projection_expression: @params[:projection_expression].present? ?
-                                           @params[:projection_expression].join(", ") : nil,
+                projection_expression: get_projection_expression,
                 consistent_read: @params[:consistent_read]
 
             }.delete_if {|_, v| v.nil?}

@@ -23,7 +23,7 @@ module Ddb
               },
               l_i: {
                   keys: [{name: :lock_id, type: variable_type[:string]},
-                         {name: :image_processing_status, type: variable_type[:enum]}
+                         {name: :image_processing_status, type: variable_type[:number]}
                   ]
               },
               d_d: {
@@ -57,7 +57,7 @@ module Ddb
                   keys: [{name: :selfie_human_labels_percent, type: variable_type[:number]}]
               },
               i_p_s: {
-                  keys: [{name: :image_processing_status, type: variable_type[:enum]}]
+                  keys: [{name: :image_processing_status, type: variable_type[:number]}]
               },
               k_a_a_s: {
                   keys: [{name: :kyc_auto_approved_status, type: variable_type[:number]}]

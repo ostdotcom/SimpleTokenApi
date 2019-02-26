@@ -2,14 +2,20 @@ module Ddb
   module Test
     class TestOperations
 
+      def get_item
+
+      end
+
       # todo:ddb - test for array and hash and log the response
+      # DDB response
+      #  {:data=>#<struct Aws::DynamoDB::Types::GetItemOutput item={"l_n_m_p"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="45", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "c_a"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="22233445", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "f_n_m_p"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="20", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "l_i"=>#<struct Aws::DynamoDB::Types::AttributeValue s="p_21#1", n=nil, b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "d_d"=>#<struct Aws::DynamoDB::Types::AttributeValue s="{\"width\":\"212px\",\"height\":\"322px\"}", n=nil, b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "k_a_a_s"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="65", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "i_p_s"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="1", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "u_e_d_i"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="4", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "c_i"=>#<struct Aws::DynamoDB::Types::AttributeValue s=nil, n="76", b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>, "u_e_d_i_c_i"=>#<struct Aws::DynamoDB::Types::AttributeValue s="4#76", n=nil, b=nil, ss=nil, ns=nil, bs=nil, m=nil, l=nil, null=nil, bool=nil>}, consumed_capacity=nil>}
       def self.get_item
         r = TestModel.new({shard_id: 's1'}, {use_column_mapping: true}).
             get_item({
                          key: [{
                                    attribute: {
-                                       user_extended_detail_id: 4,
-                                       client_id: 76
+                                       user_extended_detail_id: 6,
+                                       client_id: 77
                                    }
                                },
                                {
@@ -20,9 +26,10 @@ module Ddb
 
                          ],
                          #projection_expression: [[:user_extended_detail_id, :client_id], [:client_id], [:document_dimensions]],
-                         consistent_read: true,
+                         #consistent_read: true,
                          return_consumed_capacity: "TOTAL"
                      })
+
       end
 
 
@@ -31,12 +38,12 @@ module Ddb
             get_item({
                          key: [{
                                    attribute: {
-                                       u_e_d_i_c_i: "2#43"
+                                       u_e_d_i_c_i: "4#76"
                                    }
                                },
                                {
                                    attribute: {
-                                       c_a: 12233445
+                                       c_a: 22233445
                                    }
                                }],
 
@@ -44,7 +51,7 @@ module Ddb
       end
 
       def self.put_item_without_mapping
-        item = [{:attribute => {:u_e_d_i_c_i => "2#43"}},
+        item = [{:attribute => {:u_e_d_i_c_i => "7#43"}},
                 {:attribute => {:c_a => 12233445}},
                 {:attribute => {:u_e_d_i => 2}},
                 {:attribute => {:c_i => 43}},
@@ -58,12 +65,13 @@ module Ddb
         TestModel.new({shard_id: 's1'}, {use_column_mapping: false}).put_item(item: item, return_values: "ALL_OLD")
       end
 
-
+      # DDB response
+      # {:attributes=>nil, :consumed_capacity=>nil, :item_collection_metrics=>nil}
       def self.put_item
-        item = [{:attribute => {:user_extended_detail_id => 4, :client_id => 76}},
+        item = [{:attribute => {:user_extended_detail_id => 6, :client_id => 77}},
                 {:attribute => {:created_at => 22233445}},
                 {:attribute => {:user_extended_detail_id => 4}},
-                {:attribute => {:client_id => 76}},
+                {:attribute => {:client_id => 77}},
                 {:attribute => {:lock_id => "p_21", :image_processing_status => "processed"}},
                 {:attribute => {:document_dimensions => {:width => "212px", :height => "322px"}}},
                 {:attribute => {:selfie_dimensions => {:width => "212px", :height => "322px"}}},
@@ -74,27 +82,30 @@ module Ddb
         TestModel.new({shard_id: 's1'}, {use_column_mapping: true}).put_item(item: item, return_item_collection_metrics: "SIZE")
       end
 
+      # DDB response
+      # {:items=>[{"d_d"=>{:s=>"{:width=>\"212px\", :height=>\"322px\"}", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "c_i"=>{:s=>nil, :n=>"76", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "u_e_d_i_c_i"=>{:s=>"5#76", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}}, {"d_d"=>{:s=>"{:width=>\"212px\", :height=>\"322px\"}", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "c_i"=>{:s=>nil, :n=>"76", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "u_e_d_i_c_i"=>{:s=>"6#76", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}}, {"d_d"=>{:s=>"{\"width\":\"212px\",\"height\":\"322px\"}", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "c_i"=>{:s=>nil, :n=>"76", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "u_e_d_i_c_i"=>{:s=>"4#76", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}}], :count=>3, :scanned_count=>3, :last_evaluated_key=>nil, :consumed_capacity=>nil}
       def self.scan
         TestModel.new({shard_id: 's1'}, {use_column_mapping: true}).
             scan({limit: 5, filter_conditions: {
                 conditions: [
                     {
                         attribute: {
-                            image_processing_status: "processing"
+                            image_processing_status: "processed"
                         },
                         operator: "="
-                    },
-                    {
-                        attribute: {
-                            client_id: 80
-                        },
-                        operator: "<"
                     }
+            # ,
+                    # {
+                    #     attribute: {
+                    #         client_id: 80
+                    #     },
+                    #     operator: "<"
+                    # }
 
                 ],
                 logical_operator: "AND",
             },
-                  projection_expression: [[:user_extended_detail_id, :client_id], [:client_id], [:document_dimensions]]
+                 projection_expression: [[:user_extended_detail_id, :client_id], [:client_id], [:document_dimensions]]
                  }
             )
       end
@@ -103,7 +114,8 @@ module Ddb
         TestModel.new({shard_id: 's1'}, {use_column_mapping: true}).
             scan({#limit: 5
                   #projection_expression: [[:user_extended_detail_id, :client_id], [:client_id], [:document_dimensions]]
-                  consistent_read: true
+                  consistent_read: true,
+                  limit: 5
                  }
             )
       end
@@ -116,7 +128,7 @@ module Ddb
                       conditions: [
                           {
                               attribute: {
-                                  i_p_s: "processing"
+                                  i_p_s: "processed"
                               },
                               operator: "="
                           },
@@ -135,6 +147,8 @@ module Ddb
             )
       end
 
+      # DDB response
+      # {:items=>[{"d_d"=>{:s=>"{\"width\":\"212px\",\"height\":\"322px\"}", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "u_e_d_i"=>{:s=>nil, :n=>"4", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "c_i"=>{:s=>nil, :n=>"76", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "u_e_d_i_c_i"=>{:s=>"4#76", :n=>nil, :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}}], :count=>1, :scanned_count=>1, :last_evaluated_key=>nil, :consumed_capacity=>nil}
       def self.query_wo_mapping
         TestModel.new({shard_id: 's1'}, {use_column_mapping: false}).query(
             {
@@ -150,7 +164,7 @@ module Ddb
                     conditions: [
                         {
                             attribute: {
-                                i_p_s: "processing"
+                                i_p_s: 1
                             },
                             operator: "="
                         }
@@ -182,7 +196,7 @@ module Ddb
                     conditions: [
                         {
                             attribute: {
-                                image_processing_status: "processing"
+                                image_processing_status: "processed"
                             },
                             operator: "="
                         }
@@ -240,19 +254,20 @@ module Ddb
 
       end
 
-
+      # DDB resp
+      # {:attributes=>{"k_a_a_s"=>{:s=>nil, :n=>"65", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}, "i_p_s"=>{:s=>nil, :n=>"1", :b=>nil, :ss=>nil, :ns=>nil, :bs=>nil, :m=>nil, :l=>nil, :null=>nil, :bool=>nil}}, :consumed_capacity=>nil, :item_collection_metrics=>nil}
       def self.update_item
         TestModel.new({shard_id: 's1'}, {use_column_mapping: true}).update_item(
             {
                 key: [{
                           attribute: {
-                              user_extended_detail_id: 4,
+                              user_extended_detail_id: 1,
                               client_id: 76
                           }
                       },
                       {
                           attribute: {
-                              created_at: 22233445
+                              created_at: '1\'}}'
                           }
                       }],
                 remove: [[:selfie_dimensions]],
@@ -285,7 +300,7 @@ module Ddb
                       }],
                 remove: [:d_i_n_m_p],
                 set: [{attribute: {
-                    i_p_s: "processed_1",
+                    i_p_s: 1,
                 }}
                 ],
                 add: [
@@ -374,12 +389,12 @@ module Ddb
              {:attribute => {:created_at => 50000000}},
              {:attribute => {:user_extended_detail_id => 50}},
              {:attribute => {:client_id => 500}},
-             {:attribute => {:lock_id => "p_50", :image_processing_status => "tilda"}},
+             {:attribute => {:lock_id => "p_50", :image_processing_status => "processed"}},
              {:attribute => {:document_dimensions => {:width => "500px", :height => "5000px"}}},
              {:attribute => {:selfie_dimensions => {:width => "200px", :height => "2000px"}}},
              {:attribute => {:first_name_match_percent => 20.0}},
              {:attribute => {:last_name_match_percent => 45.0}},
-             {:attribute => {:image_processing_status => "tilda"}},
+             {:attribute => {:image_processing_status => "processed"}},
              {:attribute => {:kyc_auto_approved_status => 1}}
             ],
 
@@ -387,36 +402,36 @@ module Ddb
              {:attribute => {:created_at => 60000000}},
              {:attribute => {:user_extended_detail_id => 60}},
              {:attribute => {:client_id => 600}},
-             {:attribute => {:lock_id => "p_60", :image_processing_status => "Samm"}},
+             {:attribute => {:lock_id => "p_60", :image_processing_status => "processed"}},
              {:attribute => {:document_dimensions => {:width => "600px", :height => "6000px"}}},
              {:attribute => {:selfie_dimensions => {:width => "600px", :height => "6000px"}}},
              {:attribute => {:first_name_match_percent => 20.0}},
              {:attribute => {:last_name_match_percent => 45.0}},
-             {:attribute => {:image_processing_status => "Samm"}},
+             {:attribute => {:image_processing_status => "processed"}},
              {:attribute => {:kyc_auto_approved_status => 1}}
             ],
             [{:attribute => {:user_extended_detail_id => 70, :client_id => 700}},
              {:attribute => {:created_at => 70000000}},
              {:attribute => {:user_extended_detail_id => 70}},
              {:attribute => {:client_id => 700}},
-             {:attribute => {:lock_id => "p_70", :image_processing_status => "yoo"}},
+             {:attribute => {:lock_id => "p_70", :image_processing_status => "processed"}},
              {:attribute => {:document_dimensions => {:width => "500px", :height => "5000px"}}},
              {:attribute => {:selfie_dimensions => {:width => "200px", :height => "2000px"}}},
              {:attribute => {:first_name_match_percent => 20.0}},
              {:attribute => {:last_name_match_percent => 45.0}},
-             {:attribute => {:image_processing_status => "yoo"}},
+             {:attribute => {:image_processing_status => "processed"}},
              {:attribute => {:kyc_auto_approved_status => 1}}
             ],
             [{:attribute => {:user_extended_detail_id => 80, :client_id => 800}},
              {:attribute => {:created_at => 80000000}},
              {:attribute => {:user_extended_detail_id => 80}},
              {:attribute => {:client_id => 800}},
-             {:attribute => {:lock_id => "p_50", :image_processing_status => "dsd"}},
+             {:attribute => {:lock_id => "p_50", :image_processing_status => "processed"}},
              {:attribute => {:document_dimensions => {:width => "800px", :height => "5000px"}}},
              {:attribute => {:selfie_dimensions => {:width => "200px", :height => "2000px"}}},
              {:attribute => {:first_name_match_percent => 20.0}},
              {:attribute => {:last_name_match_percent => 45.0}},
-             {:attribute => {:image_processing_status => "dsd"}},
+             {:attribute => {:image_processing_status => "processed"}},
              {:attribute => {:kyc_auto_approved_status => 1}}
             ]
 

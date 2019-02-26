@@ -14,11 +14,9 @@ module Ddb
       # @return [Result::Base]
       #
       def perform
-        @key_hash = get_formatted_item_hash(@params[:item])
 
         r = validate
         return r unless r.success?
-
 
         success_with_data (
                               {
@@ -33,16 +31,6 @@ module Ddb
 
       end
 
-
-      def validate
-        key = [@table_info[:partition_key], @table_info[:sort_key]].compact
-
-        return success if (key - @key_hash.keys).blank?
-        error_with_identifier('invalid_keys',
-                              '',
-
-        )
-      end
     end
   end
 end

@@ -191,7 +191,7 @@ module GlobalConstant
           #     ],
           # ]
           #
-
+          #
           # hash specifying ddb operations and parameters required/those can be used for these operations
           def allowed_params
             {
@@ -254,14 +254,35 @@ module GlobalConstant
             {}
           end
 
-          # todo:ddb: - remove enum
+          def ddb_variable_type
+            {
+                number: :n,
+                string: :s
+            }
+          end
+
+
           def variable_type
             {
                 number: :n,
                 string: :s,
                 array: :l,
-                hash: :m,
-                enum: :e
+                hash: :m
+            }
+
+          end
+
+
+
+          # params to validate: consistent_read, exclusive_start_key, return_consumed_capacity, limit, index_name,
+          # return_item_collection_metrics, return_values
+
+          def ddb_options
+            {
+                consistent_read: [true, false],
+                return_consumed_capacity: ["INDEXES", "TOTAL", "NONE"],
+                return_item_collection_metrics: ["SIZE", "NONE"],
+                return_values: ["NONE", "ALL_OLD", "UPDATED_OLD","ALL_NEW", "UPDATED_NEW"]
             }
           end
 

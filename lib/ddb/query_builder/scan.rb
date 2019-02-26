@@ -14,21 +14,25 @@ module Ddb
       # @return [Result::Base]
       #
       def perform
-        filter_expn = condition_expression(@params[:filter_conditions][:conditions],
-                      @params[:filter_conditions][:logical_operator] ) if @params[:filter_conditions].present?
+        filter_expn = nil
+        if @params[:filter_conditions].present?
+          filter_expn = condition_expression(@params[:filter_conditions][:conditions],
+                      @params[:filter_conditions][:logical_operator] )
+          return filter_expn unless filter_expn.success?
+          filter_expn = filter_expn.data[:data]
+        end
 
         success_with_data({
                               filter_expression: filter_expn,
                               table_name: @table_info[:name],
-                              expression_attribute_values: @expression_attribute_values.present? ? @expression_attribute_values : nil,
-                              expression_attribute_names: @expression_attribute_names.present? ? @expression_attribute_names : nil,
+                              expression_attribute_values: expression_attribute_values_query,
+                              expression_attribute_names: expression_attribute_names_query,
                               exclusive_start_key: @params[:exclusive_start_key],
                               limit: @params[:limit],
                               index_name: @params[:index_name],
                               consistent_read: @params[:consistent_read],
                               return_consumed_capacity: @params[:return_consumed_capacity],
-                              projection_expression: @params[:projection_expression].present? ?
-                                                         @params[:projection_expression].join(", ") : nil,
+                              projection_expression: get_projection_expression ,
                           }.delete_if {|_, v| v.nil?}
         )
       end

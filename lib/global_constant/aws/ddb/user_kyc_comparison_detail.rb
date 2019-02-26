@@ -4,7 +4,6 @@ module GlobalConstant
       class UserKycComparisonDetail < Ddb::Base
 
         class <<  self
-          # todo: use base.rb for gc
           #
           # mapping between long name and backend name(short name)
           def merged_columns
@@ -49,7 +48,7 @@ module GlobalConstant
                     keys:  [{name: :selfie_human_labels_percent, type:variable_type[:number] }]
                 },
                 i_p_s: {
-                    keys:  [{name: :image_processing_status, type: variable_type[:string] }]
+                    keys:  [{name: :image_processing_status, type: variable_type[:number] }]
                 },
                 k_a_a_s: {
                     keys: [{name: :kyc_auto_approved_status, type:variable_type[:number] }]

@@ -16,15 +16,9 @@ module Ddb
       #
       def perform
 
-        @key_hash = get_formatted_item_hash(@params[:key])
-
-        r = validate_primary_key
+        r = validate
         return r unless r.success?
-        p = {
-            key: @key_hash,
-            table_name: @table_info[:name],
-            return_values: @params[:return_values]
-        }
+
         success_with_data({
                               key: @key_hash,
                               table_name: @table_info[:name],

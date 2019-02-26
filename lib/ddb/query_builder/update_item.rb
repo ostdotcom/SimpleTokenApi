@@ -3,8 +3,6 @@ module Ddb
     class UpdateItem < QueryBuilder::Base
       def initialize(params)
         super
-
-
       end
 
       # returns update item query
@@ -17,16 +15,17 @@ module Ddb
       #
       def perform
 
-        @key_hash = get_formatted_item_hash(@params[:key])
-
-        r = validate_primary_key
+        r = validate
         return r unless r.success?
+
+        c_u_expression = create_update_expression
+
         success_with_data ({
             key: @key_hash,
             table_name: @table_info[:name],
-            update_expression: create_update_expression,
-            expression_attribute_values: @expression_attribute_values.present? ? @expression_attribute_values : nil,
-            expression_attribute_names: @expression_attribute_names.present? ? @expression_attribute_names : nil,
+            update_expression: c_u_expression.present? ? c_u_expression : nil,
+            expression_attribute_values: expression_attribute_values_query,
+            expression_attribute_names: expression_attribute_names_query,
             return_values: @params[:return_values],
             return_item_collection_metrics: @params[:return_item_collection_metrics],
             return_consumed_capacity: @params[:return_consumed_capacity]
@@ -43,23 +42,38 @@ module Ddb
       # @return [Result::Base]
       #
       def create_update_expression
-        set_expression, add_expression = [], []
-        @params[:set].each do |v|
-          set_expression << "##{v[:attribute].keys[0]}_name = :#{v[:attribute].keys[0]}_value"
-          @expression_attribute_values[":#{v[:attribute].keys[0]}_value"] = v[:attribute].values[0]
-          @expression_attribute_names["##{v[:attribute].keys[0]}_name"] = v[:attribute].keys[0]
-        end if @params[:set].present?
-        set_expr_str = set_expression.present? ? "SET #{set_expression.join(', ')}" : ''
-        @params[:add].each do |v|
-          add_expression << "##{v[:attribute].keys[0]}_name :#{v[:attribute].keys[0]}_value"
-          @expression_attribute_values[":#{v[:attribute].keys[0]}_value"] = v[:attribute].values[0]
-          @expression_attribute_names["##{v[:attribute].keys[0]}_name"] = v[:attribute].keys[0]
-        end if @params[:add].present?
-        add_expr_str = add_expression.present? ? "ADD #{add_expression.join(', ')}" : ''
+        set_expr_str, add_expr_str, remove_expr_str = "", "", ""
 
-        remove_expr_str = @params[:remove].present? ? "REMOVE #{@params[:remove].join(' ')}" : ''
+        if @params[:set].present?
+          r = create_expression(@params[:set], " = ", ', ')
+          return r unless r.success?
+          set_expr_str = "SET #{r.data[:data]}"
+        end
 
-        [set_expr_str, add_expr_str, remove_expr_str].join(' ')
+        if @params[:add].present?
+          r = create_expression(@params[:add], "  ", ', ')
+          return r unless r.success?
+          add_expr_str = "ADD #{r.data[:data]}"
+        end
+
+        if @params[:remove].present?
+          remove_expr_str = create_expression_for_list(@params[:remove], " ")
+          remove_expr_str = "REMOVE #{remove_expr_str.data[:data]}"
+        end
+        [set_expr_str, add_expr_str, remove_expr_str].reject(&:blank?).join(' ')
+      end
+
+
+      def create_expression(conditions, operator, separator)
+        expression = []
+        conditions.each do |condition|
+          key = condition[:attribute].keys[0].to_s
+          val = condition[:attribute].values[0]
+          name_alias = get_name_alias(key)
+          value_alias = get_value_alias(val)
+          expression << "#{name_alias} #{operator} #{value_alias}"
+        end
+        success_with_data(data: expression.join(" #{separator} "))
       end
     end
 

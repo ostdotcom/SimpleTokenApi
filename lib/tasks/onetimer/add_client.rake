@@ -84,7 +84,7 @@ namespace :onetimer do
   #                 "send_approve_email",
   #                 "send_deny_email",
   #                 "send_report_issue_email"
-  #             ]
+  #             ],
   #             "residency_proof_nationalities" => [],
   #             "blacklisted_countries" => []
   #         }

@@ -30,7 +30,7 @@ module Ddb
 
         r = validate_and_format_params(params)
         return r unless r.success?
-        params.merge(r.data[:data])
+        params = r.data[:data]
 
         r = Ddb::QueryBuilder::PutItem.new({params: params, table_info: table_info}).perform
         return r unless r.success?
@@ -64,7 +64,7 @@ module Ddb
         r = validate_and_format_params(params)
         return r unless r.success?
 
-        params.merge(r.data[:data])
+        params = r.data[:data]
 
         r = Ddb::QueryBuilder::DeleteItem.new({params: params, table_info: table_info}).perform
 
@@ -151,6 +151,7 @@ module Ddb
         return ddb_r unless ddb_r.success?
 
         return parse_multiple_read_response(ddb_r.data[:data])
+
       end
 
 
@@ -316,7 +317,7 @@ module Ddb
 
         success_with_data(data: {items: instance_array,
                                  last_evaluated_key: last_evaluated_key,
-                                 return_consumed_capacity: return_consumed_capacity,
+                                 consumed_capacity: return_consumed_capacity,
 
         })
 
@@ -451,11 +452,10 @@ module Ddb
       #
       def is_valid_exclusive_start_key?(key, index_name)
         return true if key.blank?
-
         if index_name.present?
           return  (key.keys - table_info[:indexes][index_name].values).blank?
         end
-       (key.keys - [table_info[:partition_key], table_info[:sort_key]]).blank?
+       (key.deep_symbolize_keys.keys - [table_info[:partition_key], table_info[:sort_key]]).blank?
       end
 
       # map list of long names to single short name
@@ -752,7 +752,6 @@ module Ddb
       #
       #
       def table (table_info)
-        puts "----table_info--- #{table_info}"
         self.table_info = table_info.with_indifferent_access
 
       end

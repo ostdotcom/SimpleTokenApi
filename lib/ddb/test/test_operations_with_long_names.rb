@@ -104,7 +104,8 @@ module Ddb
             scan({#limit: 5
                   #projection_expression: [[:user_extended_detail_id, :client_id], [:client_id], [:document_dimensions]]
                   consistent_read: true,
-                  limit: 5
+                  limit: 5,
+                  exclusive_start_key: {"c_a"=>{:n=>"1"}, "u_e_d_i_c_i"=>{:s=>"1#76"}}
                  }
             )
       end

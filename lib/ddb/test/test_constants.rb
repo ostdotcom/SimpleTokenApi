@@ -72,7 +72,7 @@ module Ddb
               u_a: {
                   keys: [{name: :updated_at, type: variable_type[:number]}]
               }
-          }.with_indifferent_access
+          }
         end
 
         def partition_key

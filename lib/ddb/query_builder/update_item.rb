@@ -24,11 +24,11 @@ module Ddb
             key: @key_hash,
             table_name: @table_info[:name],
             update_expression: c_u_expression.present? ? c_u_expression : nil,
-            expression_attribute_values: expression_attribute_values_query,
-            expression_attribute_names: expression_attribute_names_query,
             return_values: @params[:return_values],
             return_item_collection_metrics: @params[:return_item_collection_metrics],
-            return_consumed_capacity: @params[:return_consumed_capacity]
+            return_consumed_capacity: @params[:return_consumed_capacity],
+            expression_attribute_values: expression_attribute_values_query,
+            expression_attribute_names: expression_attribute_names_query
         }.delete_if {|_, v| v.nil?}
                           )
       end
@@ -58,7 +58,7 @@ module Ddb
 
         if @params[:remove].present?
           remove_expr_str = create_expression_for_list(@params[:remove], " ")
-          remove_expr_str = "REMOVE #{remove_expr_str.data[:data]}"
+          remove_expr_str = "REMOVE #{remove_expr_str}"
         end
         [set_expr_str, add_expr_str, remove_expr_str].reject(&:blank?).join(' ')
       end

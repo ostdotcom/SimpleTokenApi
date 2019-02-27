@@ -36,12 +36,12 @@ module Ddb
                 filter_expression: filter_expn,
                 exclusive_start_key: @params[:exclusive_start_key],
                 limit: @params[:limit],
-                expression_attribute_values: expression_attribute_values_query,
-                expression_attribute_names: expression_attribute_names_query,
                 index_name: @params[:index_name],
                 return_consumed_capacity: @params[:return_consumed_capacity],
                 projection_expression: get_projection_expression,
-                consistent_read: @params[:consistent_read]
+                consistent_read: @params[:consistent_read],
+                expression_attribute_values: expression_attribute_values_query,
+                expression_attribute_names: expression_attribute_names_query,
 
             }.delete_if {|_, v| v.nil?}
         )

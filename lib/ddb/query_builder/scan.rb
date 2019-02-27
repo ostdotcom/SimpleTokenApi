@@ -25,14 +25,15 @@ module Ddb
         success_with_data({
                               filter_expression: filter_expn,
                               table_name: @table_info[:name],
-                              expression_attribute_values: expression_attribute_values_query,
-                              expression_attribute_names: expression_attribute_names_query,
                               exclusive_start_key: @params[:exclusive_start_key],
                               limit: @params[:limit],
                               index_name: @params[:index_name],
                               consistent_read: @params[:consistent_read],
                               return_consumed_capacity: @params[:return_consumed_capacity],
                               projection_expression: get_projection_expression ,
+                              expression_attribute_values: expression_attribute_values_query,
+                              expression_attribute_names: expression_attribute_names_query
+
                           }.delete_if {|_, v| v.nil?}
         )
       end

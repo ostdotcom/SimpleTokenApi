@@ -30,7 +30,6 @@ module Ddb
 
         r = validate_and_format_params(params)
         return r unless r.success?
-        binding.pry
         params.merge(r.data[:data])
 
         r = Ddb::QueryBuilder::PutItem.new({params: params, table_info: table_info}).perform
@@ -540,7 +539,7 @@ module Ddb
       def validate_short_names(item_list)
         item_list.each do |item|
           return error_with_identifier('extra_params_given',
-                                       'd_t_vsn_1') if (item[:attribute].keys - table_info[:merged_columns].keys).present?
+                                       'd_t_vsn_1') if (item[:attribute].keys - table_info[:merged_columns].deep_symbolize_keys.keys).present?
         end
         success
       end
@@ -753,7 +752,9 @@ module Ddb
       #
       #
       def table (table_info)
-        self.table_info = table_info
+        puts "----table_info--- #{table_info}"
+        self.table_info = table_info.with_indifferent_access
+
       end
 
       # returns raw table name

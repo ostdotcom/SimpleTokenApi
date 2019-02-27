@@ -147,7 +147,7 @@ module Ddb
         else
           @expression_values_count += 1
           v = ":v_#{@expression_values_count}"
-          @expression_attribute_values["#{value_alias}"] = v
+          @expression_attribute_values["#{v}"] = value
           v
         end
       end

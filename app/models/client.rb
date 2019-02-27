@@ -216,7 +216,20 @@ class Client < EstablishSimpleTokenClientDbConnection
     end
   end
 
-  private
+
+  # self method to flush all client caches
+  #
+  # * Author: Aman
+  # * Date: 15/02/2018
+  # * Reviewed By:
+  #
+  # @param [Integer] client_id (mandatory) - client id
+  #
+  #
+  def self.flush_client_cache(client_id)
+    client = Client.get_from_memcache(client_id)
+    client.memcache_flush
+  end
 
   # Flush Memcache
   #
@@ -239,5 +252,7 @@ class Client < EstablishSimpleTokenClientDbConnection
     api_memcache_key = MemcacheKey.new('client.api_key_details').key_template % {api_key: self.api_key}
     Memcache.delete(api_memcache_key)
   end
+
+  private
 
 end

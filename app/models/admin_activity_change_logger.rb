@@ -9,7 +9,7 @@ class AdminActivityChangeLogger < EstablishSimpleTokenLogDbConnection
            columns: ['secret_key', 'status',  'url', 'event_result_types', 'event_sources']},
       GlobalConstant::AdminActivityChangeLogger.client_kyc_detail_api_activations_table =>
           {val: 3, skip_log_on_create: false,
-           columns: ['allowed_keys','extra_kyc_fields']},
+           columns: ['allowed_keys','extra_kyc_fields', 'kyc_fields']},
       GlobalConstant::AdminActivityChangeLogger.admin_session_setting_table =>
           {val: 4, skip_log_on_create: false,
            columns: ['admin_types','session_inactivity_timeout','status','mfa_frequency']},

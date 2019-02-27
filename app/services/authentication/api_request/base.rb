@@ -128,7 +128,7 @@ module Authentication::ApiRequest
     #
     def fetch_client
       # check if client not present?
-      r = ClientApiDetailt.get_client_data(@api_key)
+      r = ClientApiDetail.get_client_data(@api_key)
       @client = r[:client]
       @client_api_detail = r[:client_api_detail]
     end

@@ -47,7 +47,7 @@ class ClientApiDetail < EstablishSimpleTokenClientDbConnection
       client_obj.client_kyc_config_detail
       client_obj.client_shard
 
-      {client: client_obj, client_api_detail: client_api_detail}
+      {client: client_obj, client_api_detail: client_api_detail_obj}
     end
     r || {}
   end

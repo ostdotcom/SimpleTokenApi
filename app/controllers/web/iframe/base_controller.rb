@@ -23,6 +23,8 @@ class Web::Iframe::BaseController < Web::WebController
     #   render_api_response(service_response)
     # end
     params[:client_id] = 7
+    params[:client] = Client.get_from_memcache(params[:client_id])
+
     #params[:client_id] = 2
   end
 

@@ -1,7 +1,7 @@
 module Authentication
   module Client
 
-    class VerifyIframeReferer
+    class VerifyIframeReferer < ServicesBase
 
       # Initialize
       #

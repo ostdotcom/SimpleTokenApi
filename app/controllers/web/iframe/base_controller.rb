@@ -12,14 +12,18 @@ class Web::Iframe::BaseController < Web::WebController
   # * Reviewed By:
   #
   def authenticate_client_host
-    service_response = Authentication::Client::VerifyIframeReferer.new(domain: request.host).perform
-
-    if service_response.success?
-      params[:client_id] = service_response.data[:client_id]
-      service_response.data = {}
-    else
-      render_api_response(service_response)
-    end
+    Rails.logger.info "=**************** request.host #{request.host} ***********************************************************="
+    Rails.logger.info "=**************** request.referer #{request.referer} ***********************************************************="
+    # service_response = Authentication::Client::VerifyIframeReferer.new(domain: request.host).perform
+    #
+    # if service_response.success?
+    #   params[:client_id] = service_response.data[:client_id]
+    #   service_response.data = {}
+    # else
+    #   render_api_response(service_response)
+    # end
+    params[:client_id] = 7
+    #params[:client_id] = 2
   end
 
   # Validate cookie
@@ -29,9 +33,12 @@ class Web::Iframe::BaseController < Web::WebController
   # * Reviewed By: Sunil
   #
   def authenticate_request
-    params[:user_id] = params[:token].present? ? params[:token].to_i :
-                           UserKycDetail.active_kyc.where(client_id: params[:client_id]).
-                               where.not.(aml_status: GlobalConstant::UserKycDetail.aml_approved_statuses).last.user_id
+    # params[:user_id] = params[:token].present? ? params[:token].to_i :
+    #                        UserKycDetail.active_kyc.where(client_id: params[:client_id]).
+    #                            where.not.(aml_status: GlobalConstant::UserKycDetail.aml_approved_statuses).last.user_id
+    params[:user_id] = 11521
+    #params[:user_id] = 11009
+
   end
 
 end

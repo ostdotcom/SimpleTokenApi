@@ -485,87 +485,87 @@
 
 'ClientManagement::GetAutoApproveSetting':
   :mandatory:
-     - :admin_id
-     - :client_id
+    - :admin_id
+    - :client_id
   :optional:
 
 'ClientManagement::UpdateAutoApproveSetting':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :approve_type
-     - :ocr_comparison_fields
-     - :fr_match_percent
+    - :client_id
+    - :admin_id
+    - :approve_type
+    - :ocr_comparison_fields
+    - :fr_match_percent
   :optional:
 
 'ClientManagement::UpdateSaleSetting':
   :mandatory:
-     - :admin_id
-     - :client_id
-     - :sale_start_timestamp
-     - :sale_end_timestamp
+    - :admin_id
+    - :client_id
+    - :sale_start_timestamp
+    - :sale_end_timestamp
   :optional:
-     - :has_registration_setting
-     - :registration_end_timestamp
+    - :has_registration_setting
+    - :registration_end_timestamp
 
 'ClientManagement::GetSaleSetting':
   :mandatory:
-     - :client_id
+    - :client_id
   :optional:
 
 'ClientManagement::UpdateCountrySetting':
   :mandatory:
-     - :client_id
-     - :admin_id
+    - :client_id
+    - :admin_id
   :optional:
     - :blacklisted_countries
     - :residency_proof_nationalities
 
 'ClientManagement::GetCountrySetting':
   :mandatory:
-     - :client_id
+    - :client_id
   :optional:
 
 'ClientManagement::ResetApiCredentials':
   :mandatory:
-     - :client_id
-     - :admin_id
+    - :client_id
+    - :admin_id
   :optional:
 
 'ClientManagement::UpdateApiFields':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :set_allowed_keys
+    - :client_id
+    - :admin_id
+    - :set_allowed_keys
   :optional:
 
 'ClientManagement::DeveloperDetail':
   :mandatory:
-     - :admin_id
-     - :client_id
+    - :admin_id
+    - :client_id
   :optional:
 
 'ClientManagement::UpdateDepositAddress':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :otp
+    - :client_id
+    - :admin_id
+    - :otp
   :optional:
-     - :ethereum_deposit_address
+    - :ethereum_deposit_address
 
 'ClientManagement::UpdateWhitelistAddress':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :whitelist_contract_address
-     - :otp
+    - :client_id
+    - :admin_id
+    - :whitelist_contract_address
+    - :otp
   :optional:
-     - :rewhitelist
+    - :rewhitelist
 
 'ClientManagement::GetContractAddresses':
   :mandatory:
-     - :client_id
-     - :admin_id
+    - :client_id
+    - :admin_id
   :optional:
 
 'ClientManagement::GetMfaSessionSettings':
@@ -577,70 +577,70 @@
 
 'ClientManagement::UpdateMfaSessionSettings':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :admin_setting
-     - :has_sa_setting
+    - :client_id
+    - :admin_id
+    - :admin_setting
+    - :has_sa_setting
   :optional:
-     - :super_admin_setting
+    - :super_admin_setting
 
 'ClientManagement::GetEmailNotificationSetting':
   :mandatory:
-     - :client_id
-     - :admin_id
+    - :client_id
+    - :admin_id
   :optional:
 
 'ClientManagement::UpdateEmailNotificationSetting':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :email_setting
+    - :client_id
+    - :admin_id
+    - :email_setting
   :optional:
 
 'ClientManagement::GetWebhookDetail':
   :mandatory:
-     - :client_id
-     - :admin_id
+    - :client_id
+    - :admin_id
   :optional:
 
 'ClientManagement::Webhook::Create':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :url
-     - :event_sources
-     - :event_result_types
+    - :client_id
+    - :admin_id
+    - :url
+    - :event_sources
+    - :event_result_types
   :optional:
 
 'ClientManagement::Webhook::Update':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :webhook_id
-     - :url
-     - :event_sources
-     - :event_result_types
+    - :client_id
+    - :admin_id
+    - :webhook_id
+    - :url
+    - :event_sources
+    - :event_result_types
   :optional:
 
 'ClientManagement::WebhookSetting::Delete':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :webhook_id
+    - :client_id
+    - :admin_id
+    - :webhook_id
   :optional:
 
 'ClientManagement::WebhookSetting::Test':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :webhook_id
+    - :client_id
+    - :admin_id
+    - :webhook_id
   :optional:
 
 'ClientManagement::WebhookSetting::ResetSecretKey':
   :mandatory:
-     - :client_id
-     - :admin_id
-     - :webhook_id
+    - :client_id
+    - :admin_id
+    - :webhook_id
   :optional:
 
 
@@ -727,6 +727,8 @@
     - :id
   :optional:
 
+
+
 'AdminManagement::AdminUser::ActivateInvitedAdmin':
   :mandatory:
     - :i_t
@@ -790,6 +792,12 @@
     - :request_parameters
     - :allow_web_based_client
   :optional:
+
+
+'Authentication::Client::VerifyIframeReferer':
+  :mandatory:
+  :optional:
+    - :referer_host
 
 'UserManagement::Users::Create':
   :mandatory:

@@ -75,83 +75,103 @@ namespace :onetimer do
     end
 
 
-    update_country_hash.each do |old_country, new_country|
+    GlobalConstant::SqlShard.all_shard_identifiers.each do |shard_identifier|
 
-      puts "updating country-#{old_country}"
+      update_country_hash.each do |old_country, new_country|
 
-      hashed_db_country = Md5UserExtendedDetail.get_hashed_value(old_country)
-      user_extended_detail_ids = Md5UserExtendedDetail.where(country: hashed_db_country).pluck(:user_extended_detail_id)
-      puts "total rows to be updated-#{user_extended_detail_ids.length}"
-      next if user_extended_detail_ids.blank?
+        puts "updating country-#{old_country}"
+        # todo shard support
 
-      user_extended_detail_ids.each do |uedi|
-        puts "updating ued row id-#{uedi}"
+        hashed_db_country = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            get_hashed_value(old_country)
 
-        ued = UserExtendedDetail.where(id: uedi).first
+        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            where(country: hashed_db_country).pluck(:user_extended_detail_id)
 
-        r = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt)
-        fail 'decryption of kyc salt failed.' unless r.success?
+        puts "total rows to be updated-#{user_extended_detail_ids.length}"
+        next if user_extended_detail_ids.blank?
 
-        kyc_salt_d = r.data[:plaintext]
+        user_extended_detail_ids.each do |uedi|
+          puts "updating ued row id-#{uedi}"
 
-        encryptor_obj = LocalCipher.new(kyc_salt_d)
-        r = encryptor_obj.decrypt(ued.country)
-        fail 'decryption of old country failed.' unless r.success?
+          ued = UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+              where(id: uedi).first
 
-        decrypted_country = r.data[:plaintext]
+          r = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt)
+          fail 'decryption of kyc salt failed.' unless r.success?
 
-        fail "Country is different for id-#{uedi}" if decrypted_country.downcase != old_country.downcase
+          kyc_salt_d = r.data[:plaintext]
 
-        r = encryptor_obj.encrypt(new_country)
-        fail 'encryption of new country failed.' unless r.success?
+          encryptor_obj = LocalCipher.new(kyc_salt_d)
+          r = encryptor_obj.decrypt(ued.country)
+          fail 'decryption of old country failed.' unless r.success?
 
-        ued.country = r.data[:ciphertext_blob]
-        ued.save!
+          decrypted_country = r.data[:plaintext]
+
+          fail "Country is different for id-#{uedi}" if decrypted_country.downcase != old_country.downcase
+
+          r = encryptor_obj.encrypt(new_country)
+          fail 'encryption of new country failed.' unless r.success?
+
+          ued.country = r.data[:ciphertext_blob]
+          ued.save!
+        end
+
+        new_hashed_db_country = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            get_hashed_value(new_country)
+
+        Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            where(user_extended_detail_id: user_extended_detail_ids, country: hashed_db_country).
+            update_all(country: new_hashed_db_country)
+
       end
 
-      new_hashed_db_country = Md5UserExtendedDetail.get_hashed_value(new_country)
-      Md5UserExtendedDetail.where(user_extended_detail_id: user_extended_detail_ids, country: hashed_db_country).
-          update_all(country: new_hashed_db_country)
+      update_nationality_hash.each do |old_nationality, new_nationality|
 
-    end
+        puts "updating nationality-#{old_nationality}"
 
-    update_nationality_hash.each do |old_nationality, new_nationality|
+        hashed_db_nationality = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            get_hashed_value(old_nationality)
 
-      puts "updating nationality-#{old_nationality}"
+        user_extended_detail_ids = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            where(nationality: hashed_db_nationality).pluck(:user_extended_detail_id)
 
-      hashed_db_nationality = Md5UserExtendedDetail.get_hashed_value(old_nationality)
-      user_extended_detail_ids = Md5UserExtendedDetail.where(nationality: hashed_db_nationality).pluck(:user_extended_detail_id)
-      puts "total rows to be updated-#{user_extended_detail_ids.length}"
-      next if user_extended_detail_ids.blank?
+        puts "total rows to be updated-#{user_extended_detail_ids.length}"
+        next if user_extended_detail_ids.blank?
 
-      user_extended_detail_ids.each do |uedi|
-        puts "updating ued row id-#{uedi}"
-        ued = UserExtendedDetail.where(id: uedi).first
+        user_extended_detail_ids.each do |uedi|
+          puts "updating ued row id-#{uedi}"
+          ued = UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+              where(id: uedi).first
 
-        r = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt)
-        fail 'decryption of kyc salt failed.' unless r.success?
+          r = Aws::Kms.new('kyc', 'admin').decrypt(ued.kyc_salt)
+          fail 'decryption of kyc salt failed.' unless r.success?
 
-        kyc_salt_d = r.data[:plaintext]
+          kyc_salt_d = r.data[:plaintext]
 
-        encryptor_obj = LocalCipher.new(kyc_salt_d)
-        r = encryptor_obj.decrypt(ued.nationality)
-        fail 'decryption of old nationality failed.' unless r.success?
+          encryptor_obj = LocalCipher.new(kyc_salt_d)
+          r = encryptor_obj.decrypt(ued.nationality)
+          fail 'decryption of old nationality failed.' unless r.success?
 
-        decrypted_nationality = r.data[:plaintext]
+          decrypted_nationality = r.data[:plaintext]
 
-        fail "Country is different for id-#{uedi}" if decrypted_nationality.downcase != old_nationality.downcase
+          fail "Country is different for id-#{uedi}" if decrypted_nationality.downcase != old_nationality.downcase
 
-        r = encryptor_obj.encrypt(new_nationality)
-        fail 'encryption of new nationality failed.' unless r.success?
+          r = encryptor_obj.encrypt(new_nationality)
+          fail 'encryption of new nationality failed.' unless r.success?
 
-        ued.nationality = r.data[:ciphertext_blob]
-        ued.save!
+          ued.nationality = r.data[:ciphertext_blob]
+          ued.save!
+        end
+
+        new_hashed_db_nationality = Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            get_hashed_value(new_nationality)
+
+        Md5UserExtendedDetail.using_shard(shard_identifier: shard_identifier).
+            where(user_extended_detail_id: user_extended_detail_ids,
+                  nationality: hashed_db_nationality).update_all(nationality: new_hashed_db_nationality)
+
       end
-
-      new_hashed_db_nationality = Md5UserExtendedDetail.get_hashed_value(new_nationality)
-      Md5UserExtendedDetail.where(user_extended_detail_id: user_extended_detail_ids,
-                                  nationality: hashed_db_nationality).update_all(nationality: new_hashed_db_nationality)
-
     end
 
     puts "rake completed"

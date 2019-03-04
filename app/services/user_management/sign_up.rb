@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 11/10/2017
     # * Reviewed By: Sunil Khedar
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
@@ -21,7 +21,7 @@ module UserManagement
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
@@ -30,7 +30,7 @@ module UserManagement
 
       @utm_params = @params[:utm_params]
 
-      @client = nil
+      @client_id = @client.id
       @client_token_sale_details = nil
       @login_salt_hash = nil
       @user_secret = nil
@@ -48,9 +48,6 @@ module UserManagement
     def perform
 
       r = validate_and_sanitize
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       fetch_client_token_sale_details
@@ -164,7 +161,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def check_if_email_already_registered
-      user = User.where(client_id: @client_id, email: @email).first
+      user = User.using_client_shard(client: @client).where(client_id: @client_id, email: @email).first
 
       return error_with_data(
           'um_su_2',
@@ -209,11 +206,11 @@ module UserManagement
     #
     def create_user
       # first insert into user_secrets and use it's id in users table
-      @user_secret = UserSecret.create!(login_salt: @login_salt_hash[:ciphertext_blob])
+      @user_secret = UserSecret.using_client_shard(client: @client).create!(login_salt: @login_salt_hash[:ciphertext_blob])
 
-      password_e = User.get_encrypted_password(@password, @login_salt_hash[:plaintext])
+      password_e = User.using_client_shard(client: @client).get_encrypted_password(@password, @login_salt_hash[:plaintext])
 
-      @user = User.new(
+      @user = User.using_client_shard(client: @client).new(
           client_id: @client_id,
           email: @email,
           password: password_e,
@@ -244,6 +241,7 @@ module UserManagement
       BgJob.enqueue(
           NewUserRegisterJob,
           {
+              client_id: @client_id,
               user_id: @user.id,
               utm_params: @utm_params,
               ip_address: @ip_address,
@@ -273,7 +271,7 @@ module UserManagement
     # @return [Result::Base]
     #
     def set_cookie_value
-      cookie_value = User.get_cookie_value(@user.id, @user.password, @browser_user_agent)
+      cookie_value = User.using_client_shard(client: @client).get_cookie_value(@user.id, @user.password, @browser_user_agent)
       success_with_data({cookie_value: cookie_value, user_token_sale_state: @user.get_token_sale_state_page_name})
     end
 

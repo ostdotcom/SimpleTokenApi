@@ -8,7 +8,7 @@ module UserManagement
       # * Date: 03/12/2018
       # * Reviewed By:
       #
-      # @param [Integer] client_id (mandatory) -  client id
+      # @param [AR] client (mandatory) - client obj
       # @param [Integer] user_id (mandatory) - user id
       # @param [Hash] template_vars (optional) - @template_vars
       #
@@ -16,11 +16,12 @@ module UserManagement
       #
       def initialize(params)
         super
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @user_id = @params[:user_id]
         @template_vars = @params[:template_vars] || {}
 
-        @client = nil
+        @client_id = @client.id
+
         @user = nil
       end
 
@@ -38,9 +39,6 @@ module UserManagement
         return r unless r.success?
 
         r = fetch_and_validate_user
-        return r unless r.success?
-
-        r = fetch_and_validate_client
         return r unless r.success?
 
         success
@@ -77,7 +75,7 @@ module UserManagement
       # * Reviewed By:
       #
       def fetch_and_validate_user
-        @user = User.get_from_memcache(@user_id)
+        @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
 
         return error_with_identifier('resource_not_found',
                                      'um_se_b_favu_1'

@@ -18,8 +18,9 @@ class ReprocessKycAutoApproveJob < ApplicationJob
   #
   # Sets @client_id
   #
-  def init_params(params)
-    @client_id = params[:client_id]
+  def init_params(parmas)
+    @client_id = parmas[:client_id]
+    @client = Client.get_from_memcache(@client_id)
   end
 
   # Trigger auto_approve_update rescue task for users
@@ -29,7 +30,7 @@ class ReprocessKycAutoApproveJob < ApplicationJob
   # * Reviewed By:
   #
   def process_user_kyc_details
-    UserKycDetail.
+    UserKycDetail.using_client_shard(client: @client).
         where(client_id: @client_id,
               status: GlobalConstant::UserKycDetail.active_status,
               admin_status: GlobalConstant::UserKycDetail.unprocessed_admin_status).
@@ -55,8 +56,9 @@ class ReprocessKycAutoApproveJob < ApplicationJob
     BgJob.enqueue(
         AutoApproveUpdateJob,
         {
-            user_extended_details_id: user_extended_details_id,
-            reprocess: 1
+            client_id: @client_id,
+            reprocess: 1,
+            user_extended_details_id: user_extended_details_id
         }
     )
     Rails.logger.info("---- enqueue_job AutoApproveUpdateJob for ued_id-#{user_extended_details_id} done")

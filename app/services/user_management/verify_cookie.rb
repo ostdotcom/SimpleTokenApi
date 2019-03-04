@@ -10,7 +10,7 @@ module UserManagement
     #
     # @param [String] cookie_value (mandatory) - this is the user cookie value
     # @param [String] browser_user_agent (mandatory) - browser user agent
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     #
     # @return [UserManagement::VerifyCookie]
     #
@@ -19,7 +19,9 @@ module UserManagement
 
       @cookie_value = @params[:cookie_value]
       @browser_user_agent = @params[:browser_user_agent]
-      @client_id = @params[:client_id]
+      @client = @params[:client]
+
+      @client_id = @client.id
 
       @user_id = nil
       @created_ts = nil
@@ -96,14 +98,14 @@ module UserManagement
     # @return [Result::Base]
     #
     def validate_token
-      @user = User.get_from_memcache(@user_id)
-      return unauthorized_access_response('um_vc_5') unless @user.present? && @user.password.present? &&
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
+      return unauthorized_access_response('um_vc_6') unless @user.present? && @user.password.present? &&
           (@user[:status] == GlobalConstant::User.active_status) && @user.client_id == @client_id
 
-      return unauthorized_access_response('um_vc_6') if (@user.last_logged_in_at.to_i > @created_ts)
+      return unauthorized_access_response('um_vc_7') if (@user.last_logged_in_at.to_i > @created_ts)
 
-      evaluated_token = User.get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
-      return unauthorized_access_response('um_vc_7') unless (evaluated_token == @token)
+      evaluated_token = User.using_client_shard(client: @client).get_cookie_token(@user_id, @user[:password], @browser_user_agent, @created_ts)
+      return unauthorized_access_response('um_vc_8') unless (evaluated_token == @token)
 
       success
     end
@@ -118,7 +120,8 @@ module UserManagement
     #
     def set_extended_cookie_value
       #return if (@created_ts + 29.days.to_i) >= Time.now.to_i
-      @extended_cookie_value = User.get_cookie_value(@user_id, @user[:password], @browser_user_agent)
+      @extended_cookie_value = User.using_client_shard(client: @client).
+          get_cookie_value(@user_id, @user[:password], @browser_user_agent)
     end
 
   end

@@ -48,11 +48,11 @@ class UnwhitelistAddressJob < ApplicationJob
   # * Reviewed By:
   #
   def init_params(params)
+    @client_id = params[:client_id]
+
     @edit_kyc_id = params[:edit_kyc_id]
 
     @user_extended_detail_id = params[:user_extended_detail_id]
-
-    @client_id = params[:client_id]
 
     @user_kyc_detail_id = params[:user_kyc_detail_id]
 
@@ -60,6 +60,7 @@ class UnwhitelistAddressJob < ApplicationJob
 
     @user_id = params[:user_id]
 
+    @client = Client.get_from_memcache(@client_id)
   end
 
   # Fetch Ethereum Address to unwhitelist
@@ -71,7 +72,8 @@ class UnwhitelistAddressJob < ApplicationJob
   # Sets @ethereum_address
   #
   def fetch_ethereum_address
-    user_extended_detail = UserExtendedDetail.where(id: @user_extended_detail_id).first
+    user_extended_detail = UserExtendedDetail.using_client_shard(client: @client).
+        where(id: @user_extended_detail_id).first
 
     r = Aws::Kms.new('kyc', 'admin').decrypt(user_extended_detail.kyc_salt)
 
@@ -225,7 +227,8 @@ class UnwhitelistAddressJob < ApplicationJob
   # @status [Integer] status (mandatory) - Status to be set for Edit kyc entry
   #
   def update_edit_kyc_request(status, debug_data = nil)
-    EditKycRequests.where(id: @edit_kyc_id).update_all(status: status, debug_data: debug_data)
+    EditKycRequest.using_client_shard(client: @client).
+        where(id: @edit_kyc_id).update_all(status: status, debug_data: debug_data)
   end
 
   # Notify admin and internal devs about the error
@@ -235,7 +238,7 @@ class UnwhitelistAddressJob < ApplicationJob
   # * Reviewed By:
   #
   def notify_errors(error_message, result_base = nil)
-    user_email = User.get_from_memcache(@user_id).email
+    user_email = User.using_client_shard(client: @client).get_from_memcache(@user_id).email
 
     admin_emails_for_notification = GlobalConstant::Admin.get_all_admin_emails_for(
         @client_id,

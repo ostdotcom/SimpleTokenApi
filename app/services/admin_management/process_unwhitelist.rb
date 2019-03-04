@@ -13,6 +13,7 @@ module AdminManagement
     # @return [AdminManagement::ProcessUnwhitelist]
     #
     def initialize(params)
+      @client = params[:client]
       @user_kyc_detail = params[:user_kyc_detail]
       @kyc_whitelist_log = params[:kyc_whitelist_log]
 
@@ -58,7 +59,7 @@ module AdminManagement
     # return [Result::Base]
     #
     def fetch_edit_kyc_request
-      edit_kyc_requests = EditKycRequests.where(case_id: @user_kyc_detail.id,
+      edit_kyc_requests = EditKycRequest.using_client_shard(client: @client).where(case_id: @user_kyc_detail.id,
                                                 status: GlobalConstant::EditKycRequest.unwhitelist_in_process_status).all
 
 
@@ -119,7 +120,9 @@ module AdminManagement
     def reopen_case
       # Update USer kyc detail
       @user_kyc_detail.admin_status = GlobalConstant::UserKycDetail.unprocessed_admin_status
-      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status != GlobalConstant::UserKycDetail.unprocessed_aml_status
+      @user_kyc_detail.aml_status = GlobalConstant::UserKycDetail.pending_aml_status if @user_kyc_detail.aml_status !=
+          GlobalConstant::UserKycDetail.unprocessed_aml_status
+
       @user_kyc_detail.aml_user_id = nil
       @user_kyc_detail.whitelist_status = GlobalConstant::UserKycDetail.unprocessed_whitelist_status
       @user_kyc_detail.kyc_confirmed_at = nil
@@ -142,6 +145,7 @@ module AdminManagement
       BgJob.enqueue(
           UserActivityLogJob,
           {
+              client_id: @client.id,
               user_id: @edit_kyc_request.user_id,
               admin_id: @edit_kyc_request.admin_id,
               action: GlobalConstant::UserActivityLog.open_case,
@@ -161,7 +165,7 @@ module AdminManagement
     # * Reviewed By:
     #
     def send_email(is_success)
-      user_email = User.get_from_memcache(@edit_kyc_request.user_id).email
+      user_email = User.using_client_shard(client: @client).get_from_memcache(@edit_kyc_request.user_id).email
 
       admin_emails_for_notification = GlobalConstant::Admin.get_all_admin_emails_for(
           @user_kyc_detail.client_id,

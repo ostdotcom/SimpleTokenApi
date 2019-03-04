@@ -23,8 +23,9 @@ module Crons
     #
     def perform
       ClientPlan.where(status: GlobalConstant::ClientPlan.active_status).all.each do |client_plan|
-        client_usage_obj = populate_client_usage(client_plan.client_id)
-        notify_if_needed(client_plan, client_usage_obj)
+        client = Client.get_from_memcache(client_plan.client_id)
+        client_usage_obj = populate_client_usage(client)
+        notify_if_needed(client, client_plan, client_usage_obj)
         return if GlobalConstant::SignalHandling.sigint_received?
       end
     end
@@ -39,9 +40,12 @@ module Crons
     #
     # @return [AR] ClientUsage
     #
-    def populate_client_usage(client_id)
-      registration_count = User.where(client_id: client_id).count
-      kyc_submissions_count = UserKycDetail.where(client_id: client_id).sum(:submission_count)
+    def populate_client_usage(client)
+      client_id = client.id
+      registration_count = User.using_client_shard(client: client).where(client_id: client_id).count
+      kyc_submissions_count = UserKycDetail.using_client_shard(client: client).
+          where(client_id: client_id).sum(:submission_count)
+
       client_usage_obj = ClientUsage.find_or_initialize_by(client_id: client_id)
       client_usage_obj.registration_count = registration_count
       client_usage_obj.kyc_submissions_count = kyc_submissions_count
@@ -55,7 +59,7 @@ module Crons
     # * Date: 18/09/2018
     # * Reviewed By:
     #
-    def notify_if_needed(client_plan, client_usage_obj)
+    def notify_if_needed(client, client_plan, client_usage_obj)
 
       template_variables = {
           registration_count: client_usage_obj.registration_count,
@@ -66,8 +70,7 @@ module Crons
       ClientPlan::THRESHOLD_PERCENT.each do |notification_type, threshold_percent|
         next if ClientPlan.notification_types[client_plan.notification_type].to_i >= ClientPlan.notification_types[notification_type]
         next if client_usage_obj.kyc_submissions_count < ((client_plan.kyc_submissions_count * threshold_percent) / 100.0)
-        client = Client.get_from_memcache(client_plan.client_id)
-        send_report_email(client_plan.client_id, template_variables.merge(client_name: client.name, threshold_percent: threshold_percent))
+        send_report_email(client.id, template_variables.merge(client_name: client.name, threshold_percent: threshold_percent))
         client_plan.notification_type = notification_type
       end
 

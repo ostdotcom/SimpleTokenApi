@@ -31,7 +31,9 @@ class SendDoubleOptIn < ApplicationJob
   def init_params(params)
     @client_id = params[:client_id]
     @user_id = params[:user_id]
-    @user = User.find(@user_id)
+
+    @client = Client.get_from_memcache(@client_id)
+    @user = User.using_client_shard(client: @client).find(@user_id)
     @double_opt_in_token = nil
   end
 
@@ -45,7 +47,13 @@ class SendDoubleOptIn < ApplicationJob
   #
   def create_double_opt_in_token
     t_double_opt_in_token = Digest::MD5.hexdigest("#{@user_id}::#{@user.email}::#{Time.now.to_i}::token_sale_double_opt_in::#{rand}")
-    db_row = TemporaryToken.create!(entity_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind, token: t_double_opt_in_token)
+    db_row = TemporaryToken.create!(
+        {
+            client_id: @client_id,
+            entity_id: @user_id, kind: GlobalConstant::TemporaryToken.double_opt_in_kind,
+            token: t_double_opt_in_token
+        }
+    )
 
     double_opt_in_token_str = "#{db_row.id.to_s}:#{t_double_opt_in_token}"
     encryptor_obj = LocalCipher.new(GlobalConstant::SecretEncryptor.email_tokens_key)

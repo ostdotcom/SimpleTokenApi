@@ -10,17 +10,18 @@ module UserManagement
       # * Date: 13/10/2017
       # * Reviewed By: Sunil
       #
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @param [Hash] images (mandatory)
       #
       #
       def initialize(params)
         super
 
-        @client_id = @params[:client_id]
+        @client = @params[:client]
         @images = @params[:images] || {}
         @pdfs = @params[:pdfs] || {}
 
+        @client_id = @client.id
         @upload_params = {}
         @client_token_sale_details = nil
       end
@@ -69,9 +70,6 @@ module UserManagement
       #
       def validate
         r = super
-        return r unless r.success?
-
-        r = fetch_and_validate_client
         return r unless r.success?
 
 

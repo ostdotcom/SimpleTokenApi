@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [Integer] user_id (mandatory) - this is the user id
     #
     # @return [UserManagement::ProfileDetail]
@@ -17,9 +17,9 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
-      @client_id = @params[:client_id]
+      @client = @params[:client]
 
-      @client = nil
+      @client_id = @client.id
       @user = nil
       @user_token_sale_state = nil
       @user_kyc_detail = nil
@@ -36,9 +36,6 @@ module UserManagement
     #
     def perform
       r = validate
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details
@@ -91,7 +88,7 @@ module UserManagement
     # Sets @user, @user_token_sale_state
     #
     def fetch_user
-      @user = User.get_from_memcache(@user_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
       @user_token_sale_state = @user.get_token_sale_state_page_name
     end
 
@@ -117,7 +114,7 @@ module UserManagement
     # Sets @user
     #
     def fetch_user_kyc_detail
-      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+      @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
     end
 
     # Fetch clients setting and page setting data from cache

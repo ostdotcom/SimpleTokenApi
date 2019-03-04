@@ -36,7 +36,8 @@ class RestApi::SaasApi::BaseController < RestApi::RestApiController
 
     if service_response.success?
       # Set client id
-      params[:client_id] = service_response.data[:client_id]
+      params[:client] = service_response.data[:client]
+      params[:client_id] = params[:client].id
 
       # Remove sensitive data
       service_response.data = {}

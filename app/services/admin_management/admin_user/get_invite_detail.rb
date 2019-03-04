@@ -131,7 +131,9 @@ module AdminManagement
       #
       def fetch_admin
         @admin = Admin.where(id: @temporary_token_obj.entity_id).first
-        return incorrect_invite_error('invalid_token') if @admin.blank? || @admin.status != GlobalConstant::Admin.invited_status
+        return incorrect_invite_error('invalid_token') if @admin.blank? ||
+            @admin.status != GlobalConstant::Admin.invited_status ||
+            @admin.default_client_id != @temporary_token_obj.client_id
         success
       end
 

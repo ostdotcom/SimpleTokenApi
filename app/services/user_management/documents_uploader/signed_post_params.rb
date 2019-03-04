@@ -10,7 +10,7 @@ module UserManagement
       # * Date: 04/09/2018
       # * Reviewed By:
       #
-      # @params [Integer] client_id (mandatory) - logged in admin's client id
+      # @param [AR] client (mandatory) - client obj
       # @param [Hash] images (mandatory)
       # @param [Hash] pdfs (mandatory) - Either pdfs or images should be atleast present
       #

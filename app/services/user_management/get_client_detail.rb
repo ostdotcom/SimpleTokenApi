@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 12/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [String] template_type (mandatory) - this is the page template name
     #
     # @return [UserManagement::GetClientDetail]
@@ -16,10 +16,11 @@ module UserManagement
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
       @entity_type = @params[:template_type]
+
+      @client_id = @client.id
       @entity_group_id = nil
-      @client = nil
     end
 
     # Perform
@@ -32,9 +33,6 @@ module UserManagement
     #
     def perform
       r = validate_and_sanitize
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_client_details

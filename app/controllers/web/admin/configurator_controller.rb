@@ -124,6 +124,8 @@ class Web::Admin::ConfiguratorController < Web::Admin::BaseController
   #
   def validate_configurator_settings
     client = Client.get_from_memcache(params[:client_id])
+    params[:client] = client
+
     if !client.is_web_host_setup_done?
       delete_cookie(GlobalConstant::Cookie.admin_cookie_name)
       service_response = error_with_identifier("no_configurator_access", "w_a_cc_1")

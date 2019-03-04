@@ -8,7 +8,7 @@ module UserManagement
     # * Date: 27/10/2017
     # * Reviewed By: Sunil
     #
-    # @param [Integer] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @params [Integer] user_id (mandatory) - this is the user id
     #
     # @return [UserManagement::GetTokenSaleAddress]
@@ -17,9 +17,10 @@ module UserManagement
       super
 
       @user_id = @params[:user_id]
-      @client_id = @params[:client_id]
+      @client = @params[:client]
 
-      @client = nil
+      @client_id = @client.id
+
       @client_token_sale_details = nil
       @user_kyc_detail = nil
       @token_sale_ethereum_address = nil
@@ -35,9 +36,6 @@ module UserManagement
     #
     def perform
       r = validate
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       fetch_client_token_sale_details
@@ -76,7 +74,7 @@ module UserManagement
     # Sets @user_kyc_detail
     #
     def fetch_user_kyc_detail
-      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+      @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
     end
 
     # Validation for purchase

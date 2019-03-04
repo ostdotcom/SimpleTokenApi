@@ -89,11 +89,6 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
       change_column :admins, :default_client_id, :integer, null: false
     end
 
-    run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
-      change_column :user_kyc_details, :client_id, :integer, null: false
-      change_column :users, :client_id, :integer, null: false
-    end
-
     run_migration_for_db(EstablishSimpleTokenContractInteractionsDbConnection.config_key) do
       change_column :kyc_whitelist_logs, :client_id, :integer, null: false
     end
@@ -108,11 +103,6 @@ class ModifyColumnClientIdInTables < DbMigrationConnection
 
     run_migration_for_db(EstablishSimpleTokenAdminDbConnection.config_key) do
       change_column :admins, :default_client_id, :integer, null: true
-    end
-
-    run_migration_for_db(EstablishSimpleTokenUserDbConnection.config_key) do
-      change_column :user_kyc_details, :client_id, :integer, null: true
-      change_column :users, :client_id, :integer, null: true
     end
 
     run_migration_for_db(EstablishSimpleTokenContractInteractionsDbConnection.config_key) do

@@ -3,6 +3,11 @@ class Web::Admin::KycController < Web::Admin::BaseController
   # super admin
   before_action :authenticate_request
 
+  # super admin
+  before_action :merge_client_to_params
+
+  include ::Util::ResultHelper
+
   # Check details
   #
   # * Author: Kedar
@@ -24,86 +29,6 @@ class Web::Admin::KycController < Web::Admin::BaseController
     service_response = AdminManagement::Kyc::Dashboard::Status.new(params).perform
     render_api_response(service_response)
   end
-
-  # Run Pos Bonus Approval process in resque
-  #
-  # * Author: Aman
-  # * Date: 29/10/2017
-  # * Reviewed By: Sunil
-  #
-  # def run_pos_bonus_process
-  #   BgJob.enqueue(
-  #       BonusApproval::PosBonusApprovalJob,
-  #     {
-  #         bonus_file_name: 'mark_pos_with_email.csv'
-  #     }
-  #   )
-  #
-  #   r = Result::Base.success({})
-  #   render_api_response(r)
-  # end
-
-  # Run Alt token Approval process in resque
-  #
-  # * Author: Aman
-  # * Date: 06/11/2017
-  # * Reviewed By: Sunil
-  #
-  # def run_alt_token_bonus_process
-  #   BgJob.enqueue(
-  #       BonusApproval::AltTokenBonusApprovalJob,
-  #       {
-  #           bonus_file_name: 'mark_alternate_token_with_email.csv'
-  #       }
-  #   )
-  #
-  #   r = Result::Base.success({})
-  #   render_api_response(r)
-  # end
-
-  # Whitelist Dashboard
-  #
-  # * Author: Alpesh
-  # * Date: 14/10/2017
-  # * Reviewed By: Sunil
-  #
-  # def whitelist_dashboard
-  #   service_response = AdminManagement::Kyc::Dashboard::Whitelist.new(params).perform
-  #   render_api_response(service_response)
-  # end
-
-  # Sale All Dashboard
-  #
-  # * Author: Alpesh
-  # * Date: 09/11/2017
-  # * Reviewed By: Sunil
-  #
-  # def sale_all_dashboard
-  #   service_response = AdminManagement::Kyc::Dashboard::SaleAll.new(params).perform
-  #   render_api_response(service_response)
-  # end
-
-  # Sale Day wise Dashboard
-  #
-  # * Author: Alpesh
-  # * Date: 09/11/2017
-  # * Reviewed By: Sunil
-  #
-  # def sale_daily_dashboard
-  #   service_response = AdminManagement::Kyc::Dashboard::SaleDaily.new(params).perform
-  #   render_api_response(service_response)
-  # end
-
-  # Contract Events Dashboard
-  #
-  # * Author: Alpesh
-  # * Date: 10/11/2017
-  # * Reviewed By:
-  #
-  # def contract_events_dashboard
-  #   service_response = AdminManagement::Kyc::Dashboard::ContractEvents.new(params).perform
-  #   render_api_response(service_response)
-  # end
 
   # Fetch duplicate
   #
@@ -182,17 +107,6 @@ class Web::Admin::KycController < Web::Admin::BaseController
     render_api_response(service_response)
   end
 
-  # Change ethereum address and open the case.
-  #
-  # * Author: Alpesh
-  # * Date: 20/11/2017
-  # * Reviewed By:
-  #
-  # def change_address_and_open_case
-  #   service_response = AdminManagement::Kyc::ChangeAddressAndOpenCase.new(params).perform
-  #   render_api_response(service_response)
-  # end
-
   # Open Edit KYC case
   #
   # * Author: Pankaj
@@ -213,6 +127,26 @@ class Web::Admin::KycController < Web::Admin::BaseController
   def update_ethereum_address
     service_response = AdminManagement::Kyc::UpdateEthereumAddress.new(params).perform
     render_api_response(service_response)
+  end
+
+  private
+
+  # merge client obj to params and validate if active
+  #
+  # * Author: Aman
+  # * Date: 25/01/2019
+  # * Reviewed By:
+  #
+  #
+  def merge_client_to_params
+    client = Client.get_from_memcache(params[:client_id])
+    params[:client] = client
+
+    if client.blank? || client.status != GlobalConstant::Client.active_status
+      error_with_identifier('invalid_client_id','w_a_kc_mctp_1')
+      render_api_response(service_response)
+    end
+
   end
 
 end

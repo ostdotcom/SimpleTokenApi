@@ -9,7 +9,7 @@ module UserManagement::Users
     # * Date: 19/09/2018
     # * Reviewed By:
     #
-    # @param [Integer] client_id (mandatory) -  client id
+    # @param [AR] client (mandatory) - client obj
     # @param [Object] filters (optional) - filters for getting list
     # @param [Integer] page_number (optional ) - page number
     # @param [Integer] limit (optional ) - page size
@@ -22,11 +22,14 @@ module UserManagement::Users
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
+
       @filters = @params[:filters]
       @page_number = @params[:page_number]
       @order = @params[:order]
       @limit = @params[:limit]
+
+      @client_id = @client.id
 
       @offset = 0
       @total_records = 0
@@ -67,9 +70,6 @@ module UserManagement::Users
       return r unless r.success?
 
       r = validate_and_sanitize_params
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       success
@@ -197,7 +197,7 @@ module UserManagement::Users
     #
     def ar_query
       @ar_query ||= begin
-        ar = User.where(client_id: @client_id).is_active
+        ar = User.using_client_shard(client: @client).where(client_id: @client_id).is_active
         ar = ar.filter_by(@allowed_filters) if @allowed_filters.present?
         ar = ar.sorting_by(@sort_by) if @sort_by.present?
         ar

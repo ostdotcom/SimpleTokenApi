@@ -7,7 +7,7 @@ module SaasManagement
     # * Date: 04/09/2018
     # * Reviewed By:
     #
-    # @param [String] client_id (mandatory) - client id
+    # @param [AR] client (mandatory) - client obj
     # @param [Integer] user_id (optional) - user id
     #
     # @return [SaasManagement::GetUserDetail]
@@ -15,8 +15,10 @@ module SaasManagement
     def initialize(params)
       super
 
-      @client_id = @params[:client_id]
+      @client = @params[:client]
       @user_id = @params[:user_id].to_i
+
+      @client_id = @client.id
 
       @user = nil
       @user_kyc_detail = nil
@@ -57,9 +59,6 @@ module SaasManagement
     #
     def validate_and_sanitize
       r = validate
-      return r unless r.success?
-
-      r = fetch_and_validate_client
       return r unless r.success?
 
       r = validate_if_st_default_client
@@ -108,7 +107,7 @@ module SaasManagement
     #
     def find_user
 
-      @user = User.get_from_memcache(@user_id)
+      @user = User.using_client_shard(client: @client).get_from_memcache(@user_id)
 
       return error_with_data(
           'sm_gud_fu_1',
@@ -131,7 +130,7 @@ module SaasManagement
     # Sets @user
     #
     def fetch_user_kyc_detail
-      @user_kyc_detail = UserKycDetail.get_from_memcache(@user_id)
+      @user_kyc_detail = UserKycDetail.using_client_shard(client: @client).get_from_memcache(@user_id)
     end
 
     # response data on client basis

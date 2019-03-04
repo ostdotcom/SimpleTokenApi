@@ -13,6 +13,7 @@ module Crons
     # @return [Crons::ConfirmKycWhitelist]
     #
     def initialize(params)
+      @all_clients = []
     end
 
     # Perform
@@ -39,8 +40,12 @@ module Crons
             if pending_txn_status?
               # Transaction is pending retry after sometime
               increment_next_timestamp
+              break
+            end
 
-            elsif invalid_txn_status?
+            @client = fetch_client(kyc_whitelist_log.client_id)
+
+            if invalid_txn_status?
               # Transaction not found on chain, mark it as not found
               process_failed_txn_status(GlobalConstant::KycWhitelistLog.transaction_not_found)
               notify_devs({kyc_whitelist_log: kyc_whitelist_log, tx_info_status: @tx_info_status},
@@ -91,6 +96,25 @@ module Crons
       @kyc_whitelist_log = kyc_whitelist_log
       @tx_info_status, @block_hash, @block_number, @transaction_hash, @events_data, @transaction_status = nil, nil, nil, nil, nil, nil
       @user_id = nil
+      @client = nil
+    end
+
+    # Fetch client from memcache once
+    #
+    # * Author: Aman
+    # * Date: 25/01/2019
+    # * Reviewed By:
+    #
+    def fetch_client(client_id)
+      c = nil
+
+      if @all_clients[client_id].present?
+        c = @all_clients[client_id]
+      else
+        c = Client.get_from_memcache(client_id)
+        @all_clients[client_id] = c
+      end
+      c
     end
 
     # Check block mine status
@@ -304,8 +328,11 @@ module Crons
       user_kyc_detail = r.data[:user_kyc_detail]
 
       if @kyc_whitelist_log.phase == 0
-        AdminManagement::ProcessUnwhitelist.new({kyc_whitelist_log: @kyc_whitelist_log,
-                                                 user_kyc_detail: user_kyc_detail}).perform
+        AdminManagement::ProcessUnwhitelist.new({
+                                                    client: @client,
+                                                    kyc_whitelist_log: @kyc_whitelist_log,
+                                                    user_kyc_detail: user_kyc_detail
+                                                }).perform
       else
         user_kyc_detail.whitelist_status = GlobalConstant::KycWhitelistLog.failed_status
         if user_kyc_detail.changed?
@@ -351,7 +378,8 @@ module Crons
     # @return [Result::Base]
     #
     def fetch_user_kyc_detail
-      user_kyc_details = Md5UserExtendedDetail.get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
+      user_kyc_details = Md5UserExtendedDetail.using_client_shard(client: @client).
+          get_user_kyc_details(@kyc_whitelist_log.client_id, @kyc_whitelist_log.ethereum_address)
 
       if user_kyc_details.blank?
         @kyc_whitelist_log.mark_failed_with_reason(GlobalConstant::KycWhitelistLog.invalid_kyc_record)
@@ -439,8 +467,11 @@ module Crons
       user_kyc_detail = r.data[:user_kyc_detail]
 
       if @kyc_whitelist_log.phase == 0
-        AdminManagement::ProcessUnwhitelist.new({kyc_whitelist_log: @kyc_whitelist_log,
-                                                 user_kyc_detail: user_kyc_detail}).perform
+        AdminManagement::ProcessUnwhitelist.new({
+                                                    client: @client,
+                                                    kyc_whitelist_log: @kyc_whitelist_log,
+                                                    user_kyc_detail: user_kyc_detail
+                                                }).perform
       else
         user_kyc_detail.kyc_confirmed_at = Time.now.to_i
         user_kyc_detail.save!
@@ -457,15 +488,15 @@ module Crons
     def record_event_job(user_kyc_detail)
 
       WebhookJob::RecordEvent.perform_now({
-                                     client_id: user_kyc_detail.client_id,
-                                     event_source: GlobalConstant::Event.kyc_system_source,
-                                     event_name: GlobalConstant::Event.kyc_status_update_name,
-                                     event_data: {
-                                         user_kyc_detail: user_kyc_detail.get_hash,
-                                         admin: user_kyc_detail.get_last_acted_admin_hash
-                                     },
-                                     event_timestamp: Time.now.to_i
-                                 })
+                                              client_id: user_kyc_detail.client_id,
+                                              event_source: GlobalConstant::Event.kyc_system_source,
+                                              event_name: GlobalConstant::Event.kyc_status_update_name,
+                                              event_data: {
+                                                  user_kyc_detail: user_kyc_detail.get_hash,
+                                                  admin: user_kyc_detail.get_last_acted_admin_hash
+                                              },
+                                              event_timestamp: Time.now.to_i
+                                          })
 
     end
 

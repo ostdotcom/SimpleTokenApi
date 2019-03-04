@@ -83,7 +83,7 @@
 'AdminManagement::Kyc::CheckDetails':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
     - :filters
@@ -92,7 +92,7 @@
 'AdminManagement::Kyc::Dashboard::Status':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
   :optional:
     - :filters
     - :sortings
@@ -102,14 +102,14 @@
 'AdminManagement::Kyc::FetchDuplicates':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
 
 'AdminManagement::Kyc::FetchActionLogs':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
     - :page_number
@@ -118,22 +118,14 @@
 'AdminManagement::Kyc::GetByEmail':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :email
   :optional:
-
-#'AdminManagement::Kyc::ChangeAddressAndOpenCase':
-#  :mandatory:
-#    - :admin_id
-#    - :client_id
-#    - :case_id
-#  :optional:
-#    - :ethereum_address
 
 'AdminManagement::Kyc::AdminAction::DenyCase':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
     - :matched_ids
@@ -142,7 +134,7 @@
 'AdminManagement::Kyc::AdminAction::ReportIssue':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
     - :email_temp_vars
   :optional:
@@ -150,7 +142,7 @@
 'AdminManagement::Kyc::AdminAction::ApproveDetails':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
     - :is_auto_approve
@@ -158,7 +150,7 @@
 'AdminManagement::Kyc::AdminAction::ApproveCase':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
     - :matched_ids
@@ -168,6 +160,7 @@
 'AdminManagement::Kyc::CheckDuplicates':
   :mandatory:
     - :user_id
+    - :client
   :optional:
 
 'AdminManagement::Report::Kyc':
@@ -258,7 +251,7 @@
 
 'UserManagement::SignUp':
   :mandatory:
-    - :client_id
+    - :client
     - :email
     - :password
     - :browser_user_agent
@@ -269,7 +262,7 @@
 
 'UserManagement::Login':
   :mandatory:
-    - :client_id
+    - :client
     - :email
     - :password
     - :browser_user_agent
@@ -285,13 +278,14 @@
 
 'UserManagement::VerifyCookie':
   :mandatory:
-    - :client_id
+    - :client
     - :cookie_value
     - :browser_user_agent
   :optional:
 
 'UserManagement::DoubleOptIn':
   :mandatory:
+    - :client
     - :t
     - :user_id
   :optional:
@@ -299,59 +293,59 @@
 'UserManagement::GetBasicDetail':
   :mandatory:
     - :user_id
-    - :client_id
+    - :client
   :optional:
     - :template_type
     - :token
 
 'UserManagement::GetClientDetail':
   :mandatory:
-    - :client_id
+    - :client
     - :template_type
   :optional:
 
 'AdminManagement::CmsConfigurator::PreviewEntityDraft':
   :mandatory:
-    - :client_id
+    - :client
     - :template_type
     - :gid
   :optional:
 
 'UserManagement::DocumentsUploader::SignedPostParams':
   :mandatory:
-    - :client_id
+    - :client
   :optional:
     - :pdfs
     - :images
 
 'UserManagement::DocumentsUploader::SignedPutUrls':
   :mandatory:
-    - :client_id
+    - :client
   :optional:
     - :pdfs
     - :images
 
 'UserManagement::DocumentsUploader::V2::ForPost':
   :mandatory:
-    - :client_id
+    - :client
     - :files
   :optional:
 
 'UserManagement::DocumentsUploader::V2::ForPut':
   :mandatory:
-    - :client_id
+    - :client
     - :files
   :optional:
 
 'UserManagement::SendResetPasswordLink':
   :mandatory:
-    - :client_id
+    - :client
     - :email
   :optional:
 
 'UserManagement::ResetPassword':
   :mandatory:
-    - :client_id
+    - :client
     - :r_t
     - :password
     - :confirm_password
@@ -359,7 +353,7 @@
 
 'UserManagement::ProfileDetail':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
 
@@ -370,7 +364,7 @@
 
 'UserManagement::GetTokenSaleAddress':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
 
@@ -397,13 +391,13 @@
 'SaasManagement::AddUser':
   :mandatory:
     - :email
-    - :client_id
+    - :client
   :optional:
     - :user_ip_address
 
 'SaasManagement::GetUserDetail':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
 
@@ -444,21 +438,21 @@
 
 'UserManagement::SendEmail::Approve':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
     - :template_vars
 
 'UserManagement::SendEmail::Deny':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
     - :template_vars
 
 'UserManagement::SendEmail::ReportIssue':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
     - :template_vars
@@ -744,14 +738,14 @@
 'AdminManagement::Kyc::OpenEditKycCase':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
   :optional:
 
 'AdminManagement::Kyc::UpdateEthereumAddress':
   :mandatory:
     - :admin_id
-    - :client_id
+    - :client
     - :id
     - :ethereum_address
   :optional:
@@ -802,12 +796,12 @@
 'UserManagement::Users::Create':
   :mandatory:
     - :email
-    - :client_id
+    - :client
   :optional:
 
 'UserManagement::Users::List':
   :mandatory:
-    - :client_id
+    - :client
   :optional:
     - :page_number
     - :limit
@@ -816,25 +810,25 @@
 
 'UserManagement::Users::Get':
   :mandatory:
-    - :client_id
+    - :client
     - :id
   :optional:
 
 'UserManagement::Kyc::Get':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
 
 'UserManagement::KycDetail::Get':
   :mandatory:
-    - :client_id
+    - :client
     - :user_id
   :optional:
 
 'UserManagement::Kyc::List':
   :mandatory:
-    - :client_id
+    - :client
   :optional:
     - :page_number
     - :limit
@@ -844,7 +838,7 @@
 'UserManagement::Kyc::Submit':
   :mandatory:
     - :user_id
-    - :client_id
+    - :client
     - :first_name
     - :last_name
     - :birthdate

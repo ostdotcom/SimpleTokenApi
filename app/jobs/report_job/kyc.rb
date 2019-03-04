@@ -83,8 +83,10 @@ module ReportJob
           user_ids << user_kyc_detail.user_id
         end
 
-        users = ::User.where(client_id: @client_id, id: user_ids).all.index_by(&:id)
-        user_extended_details = ::UserExtendedDetail.where(id: user_extended_detail_ids).all.index_by(&:id)
+        users = ::User.using_client_shard(client: @client).
+            where(client_id: @client_id, id: user_ids).all.index_by(&:id)
+        user_extended_details = ::UserExtendedDetail.using_client_shard(client: @client).
+            where(id: user_extended_detail_ids).all.index_by(&:id)
 
         user_kyc_details.each do |user_kyc_detail|
           user = users[user_kyc_detail.user_id]
@@ -101,7 +103,8 @@ module ReportJob
 
     def user_kyc_detail_model_query
       @user_kyc_detail_model_query ||= begin
-        ar_relation = UserKycDetail.where(client_id: @client_id).active_kyc
+        ar_relation = UserKycDetail.using_client_shard(client: @client).
+            where(client_id: @client_id).active_kyc
         ar_relation = ar_relation.filter_by(@filters)
         ar_relation = ar_relation.sorting_by(@sortings)
         ar_relation

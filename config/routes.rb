@@ -174,6 +174,7 @@ Rails.application.routes.draw do
       match 'basic-detail' => :basic_detail, via: :GET
     end
     scope 'api/user', controller: 'web/iframe/kyc' do
+      match 'check-ethereum-address' => :check_ethereum_address, via: :GET
       match 'kyc-submit' => :kyc_submit, via: :POST
       match 'upload-params' => :get_upload_params, via: :GET
     end

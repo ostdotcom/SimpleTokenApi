@@ -39,4 +39,16 @@ class Web::Iframe::KycController < Web::Iframe::BaseController
     render_api_response(service_response)
   end
 
+
+  # Check if ethereum address is valid
+  #
+  # * Author: Abhay
+  # * Date: 31/10/2017
+  # * Reviewed By: Sunil
+  #
+  def check_ethereum_address
+    service_response = UserManagement::CheckEthereumAddress.new(params).perform
+    render_api_response(service_response)
+  end
+
 end

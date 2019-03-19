@@ -73,9 +73,7 @@ module AdminManagement
           rotp_client = TimeBasedOtp.new(@ga_secret_d)
           r = rotp_client.provisioning_uri("#{identifier_suffix}:#{@admin.name}")
           return r unless r.success?
-
-          otpauth = r.data[:otpauth]
-          @qr_code_url ="#{otpauth}"
+          @qr_code_url =r.data[:otpauth]
         end
 
         # Set Ga Secret Auth

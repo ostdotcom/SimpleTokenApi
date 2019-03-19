@@ -55,7 +55,7 @@ module AdminManagement
 
           set_ga_secret_auth
 
-          success_with_data(qr_code_url: @qr_code_url)
+          success_with_data(qr_code_string: @qr_code_url)
 
         end
 
@@ -75,10 +75,7 @@ module AdminManagement
           return r unless r.success?
 
           otpauth = r.data[:otpauth]
-          escaped_otpauth = CGI.escape(otpauth)
-
-          # @qr_code_url = "https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
-          @qr_code_url ="https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{escaped_otpauth}"
+          @qr_code_url ="#{otpauth}"
         end
 
         # Set Ga Secret Auth

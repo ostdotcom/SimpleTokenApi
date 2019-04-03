@@ -12,7 +12,6 @@ module UserManagement
     # @params [String] email (mandatory) - this is the email entered
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
-    # @params [String] ip_address (mandatory) - ip_address
     #
     # @return [UserManagement::Login]
     #
@@ -23,7 +22,6 @@ module UserManagement
       @email = @params[:email]
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
-      @ip_address = @params[:ip_address]
 
       @client_id = @client.id
       @client_token_sale_details = nil
@@ -180,8 +178,7 @@ module UserManagement
               action: GlobalConstant::UserActivityLog.login_action,
               action_timestamp: Time.now.to_i,
               extra_data: {
-                  browser_user_agent: @browser_user_agent,
-                  ip_address: @ip_address
+                  browser_user_agent: @browser_user_agent
               }
 
           }

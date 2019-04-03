@@ -151,7 +151,6 @@ module UserManagement
             {
                 client_id: @client_id,
                 user_id: @user.id,
-                ip_address: nil,
                 geoip_country: nil,
                 event: {
                     client_id: @user.client_id,

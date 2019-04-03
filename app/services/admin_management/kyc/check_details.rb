@@ -215,7 +215,6 @@ module AdminManagement
         if user_registration_data.present? && user_registration_data.e_data.present?
           decrypted_data = user_registration_data.decrypted_extra_data
           @user_geoip_data[:country] = decrypted_data[:geoip_country]
-          @user_geoip_data[:ip_address] = decrypted_data[:ip_address]
         end
 
         success

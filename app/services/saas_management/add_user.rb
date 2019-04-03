@@ -154,7 +154,6 @@ module SaasManagement
           {
               client_id: @client_id,
               user_id: @user.id,
-              ip_address: @user_ip_address,
               geoip_country: @geoip_country,
               event: {
                   client_id: @user.client_id,

@@ -75,6 +75,21 @@ namespace :cron_task do
       execute_lockable_task
     end
 
+    # Delte MFA Logs
+    #
+    # * Author: Aman
+    # * Date: 13/04/2019
+    # * Reviewed By:
+    #
+    desc "rake RAILS_ENV=development cron_task:lockable:delete_mfa_logs"
+    desc "* */6 * * * cd /mnt/simpletoken-api/current && rake RAILS_ENV=development cron_task:lockable:delete_mfa_logs >> /mnt/simpletoken-api/shared/log/delete_mfa_logs.log"
+    task :delete_mfa_logs do |task|
+      @process_name = task
+      @performer_klass = 'Crons::DeleteMfaLogs'
+      @optional_params = {}
+      execute_lockable_task
+    end
+
     private
 
     # task which running a continuing instance of perform method in performer klass

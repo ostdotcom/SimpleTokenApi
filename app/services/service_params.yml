@@ -255,7 +255,6 @@
     - :email
     - :password
     - :browser_user_agent
-    - :ip_address
   :optional:
     - :utm_params
     - :geoip_country
@@ -266,7 +265,6 @@
     - :email
     - :password
     - :browser_user_agent
-    - :ip_address
   :optional:
 
 'UserManagement::Logout':

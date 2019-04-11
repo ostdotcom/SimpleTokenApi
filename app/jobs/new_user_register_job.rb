@@ -26,7 +26,6 @@ class NewUserRegisterJob < ApplicationJob
                                          action: GlobalConstant::UserActivityLog.register_action,
                                          action_timestamp: Time.now.to_i,
                                          extra_data: {
-                                             ip_address: @ip_address,
                                              browser_user_agent: @browser_user_agent,
                                              geoip_country: @geoip_country
                                          }
@@ -46,7 +45,6 @@ class NewUserRegisterJob < ApplicationJob
   def init_params(params)
     @client_id = params[:client_id]
     @user_id = params[:user_id]
-    @ip_address= params[:ip_address]
     @browser_user_agent = params[:browser_user_agent]
     @geoip_country = params[:geoip_country]
     @utm_params = params[:utm_params] || {}

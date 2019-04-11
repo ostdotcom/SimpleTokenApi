@@ -18,7 +18,6 @@ class Web::SaasUser::LoginController < Web::SaasUser::BaseController
     service_response = UserManagement::SignUp.new(
         params.merge(
             browser_user_agent: http_user_agent,
-            ip_address: ip_address,
             geoip_country: geoip_country
         )
     ).perform
@@ -45,8 +44,7 @@ class Web::SaasUser::LoginController < Web::SaasUser::BaseController
   def login
     service_response = UserManagement::Login.new(
         params.merge(
-            browser_user_agent: http_user_agent,
-            ip_address: ip_address
+            browser_user_agent: http_user_agent
         )
     ).perform
 

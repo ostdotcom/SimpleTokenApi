@@ -256,7 +256,6 @@
     - :password
     - :browser_user_agent
   :optional:
-    - :utm_params
     - :geoip_country
 
 'UserManagement::Login':

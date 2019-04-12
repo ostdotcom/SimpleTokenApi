@@ -13,7 +13,6 @@ module UserManagement
     # @params [String] password (mandatory) - this is the password entered
     # @params [String] browser_user_agent (mandatory) - browser user agent
     # @params [String] geoip_country (optional) - geoip_country
-    # @params [Hash] utm_params (optional) - Utm Parameters for latest landing page if present
     #
     # @return [UserManagement::SignUp]
     #
@@ -25,8 +24,6 @@ module UserManagement
       @password = @params[:password]
       @browser_user_agent = @params[:browser_user_agent]
       @geoip_country = @params[:geoip_country]
-
-      @utm_params = @params[:utm_params]
 
       @client_id = @client.id
       @client_token_sale_details = nil
@@ -241,7 +238,6 @@ module UserManagement
           {
               client_id: @client_id,
               user_id: @user.id,
-              utm_params: @utm_params,
               browser_user_agent: @browser_user_agent,
               geoip_country: @geoip_country,
               event: {

@@ -12,8 +12,6 @@ class NewUserRegisterJob < ApplicationJob
 
     init_params(params)
 
-    create_user_utm_log if @utm_params.present?
-
     create_email_service_api_call_hook if @client.is_st_token_sale_client?
 
     fetch_duplicate_email_data
@@ -47,7 +45,6 @@ class NewUserRegisterJob < ApplicationJob
     @user_id = params[:user_id]
     @browser_user_agent = params[:browser_user_agent]
     @geoip_country = params[:geoip_country]
-    @utm_params = params[:utm_params] || {}
     @event = params[:event]
 
     @client = Client.get_from_memcache(@client_id)
@@ -56,26 +53,6 @@ class NewUserRegisterJob < ApplicationJob
     @duplicate_user_ids = []
   end
 
-  # Create User Utm Log
-  #
-  # * Author: Aman
-  # * Date: 23/10/2017
-  # * Reviewed By: Sunil
-  #
-  #
-  def create_user_utm_log
-    # Todo: return if @utm_params.blank?
-
-    u_utm_log = UserUtmLog.using_client_shard(client: @client).new(user_id: @user_id)
-    u_utm_log.origin_page= @utm_params['origin_page'].to_s
-    u_utm_log.utm_type= @utm_params['utm_type'].to_s
-    u_utm_log.utm_medium= @utm_params['utm_medium'].to_s
-    u_utm_log.utm_source= @utm_params['utm_source'].to_s
-    u_utm_log.utm_term= @utm_params['utm_term'].to_s
-    u_utm_log.utm_content= @utm_params['utm_content'].to_s
-    u_utm_log.utm_campaign = @utm_params['utm_campaign'].to_s
-    u_utm_log.save!(validate: false)
-  end
 
   # Create Hook to sync data in Email Service
   #

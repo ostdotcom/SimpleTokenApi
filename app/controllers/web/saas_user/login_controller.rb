@@ -1,7 +1,5 @@
 class Web::SaasUser::LoginController < Web::SaasUser::BaseController
 
-  prepend_before_action :merge_utm_to_params, only: [:sign_up]
-
   skip_before_action :authenticate_request
 
   before_action :verify_recaptcha, only: [:sign_up, :login]

@@ -35,6 +35,27 @@ Rails.application.routes.draw do
 
   end
 
+  constraints(InitOstPayment) do
+    scope 'api/', controller: 'rest_api/ost_payment' do
+      match 'get-token' => :get_token, via: :GET
+      match 'add-card' => :add_card, via: :POST
+      match 'charge-card' => :charge_card, via: :POST
+    end
+
+    scope 'api/braintree', controller: 'rest_api/ost_payment' do
+      match 'get-token' => :get_braintree_token, via: :POST
+      match 'save-nounce' => :save_nounce, via: :POST
+    end
+
+  end
+
+  constraints(InitOstPaymentClient) do
+    scope 'api/', controller: 'rest_api/ost_payment_client' do
+      match 'save-payment-detail' => :save_payment_detail, via: :POST
+    end
+  end
+
+
   constraints(InitKyc) do
 
     scope 'api', module: 'rest_api/saas_api' do

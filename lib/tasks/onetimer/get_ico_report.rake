@@ -1,8 +1,13 @@
 namespace :onetimer do
 
   task :get_ico_report => :environment do
+    Rails.logger.level = Logger::DEBUG
 
     csv_data = []
+    total_ether_spent = 0
+    total_ost_purchased = 0
+    total_ost_bonus = 0
+
 
     records = BonusTokenLog.where(is_pre_sale: 0).all.to_a
 
@@ -21,6 +26,7 @@ namespace :onetimer do
       ether_spent = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_record.total_ether_wei_value).to_f
 
       data = [
+          ethereum_address,
           user_extended_detail.first_name,
           user_extended_detail.last_name,
           ether_spent,
@@ -31,12 +37,15 @@ namespace :onetimer do
           record.total_bonus_in_wei,
       ]
       csv_data << data
-      break
+      total_ether_spent += ether_spent
+      total_ost_purchased += record.purchase_in_st
+      total_ost_bonus += record.total_bonus_value_in_st
     end
 
     puts "----------------------\n\n\n\n\n"
 
     puts [
+             'ethereum_address',
              'first_name',
              'last_name',
              'ether_spent',
@@ -53,6 +62,9 @@ namespace :onetimer do
     end
 
     puts "-----------------------\n\n\n\n\n"
+    puts "--------\n total_ether_spent: #{total_ether_spent}"
+    puts "--------\n total_ost_purchased: #{total_ost_purchased}"
+    puts "--------\n total_ost_bonus: #{total_ost_bonus}"
   end
 
 end

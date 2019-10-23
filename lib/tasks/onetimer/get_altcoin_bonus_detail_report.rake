@@ -16,147 +16,65 @@ namespace :onetimer do
 
   task :get_altcoin_bonus_detail_report => :environment do
 
-    def check_for_duplicate_ethereum_for_purchasers
-      eth_addresses = PurchaseLog.pluck(:ethereum_address).uniq
-      sha_ethereums = {}
+    records = AltCoinBonusLog.all.to_a
 
-      eth_addresses.each do |eth_address|
-        sha_ethereums[Md5UserExtendedDetail.get_hashed_value(eth_address)] = eth_address
-      end
-
-      user_mapping = {}
-
-      Md5UserExtendedDetail.where(ethereum_address: sha_ethereums.keys).all.each do |md5_obj|
-        ethereum_address = sha_ethereums[md5_obj.ethereum_address]
-        user_mapping[ethereum_address] ||= []
-        user_mapping[ethereum_address] << md5_obj.user_extended_detail_id
-      end
-
-      ued_ids = user_mapping.values.flatten.uniq
-      active_user_extended_detail_ids = UserKycDetail.where(user_extended_detail_id: ued_ids).kyc_admin_and_aml_approved.pluck(:user_extended_detail_id)
-
-      user_mapping.each do |ethereum_address, user_extended_detail_ids|
-        fail "#{ethereum_address} has no or duplicate active users" if (user_extended_detail_ids & active_user_extended_detail_ids).length != 1
-      end
-    end
-
-    def flush_and_insert_alt_bonus_details(array_data)
-      AltCoinBonusLog.delete_all
-      current_time = Time.now.to_s(:db)
-
-      array_data.each_slice(100) do |batched_data|
-        sql_data = []
-        batched_data.each do |rows|
-          sql_data << "('#{rows[0]}', '#{rows[1]}', '#{rows[2]}', #{rows[3]}, #{rows[5]}, #{rows[8]}, '#{current_time}', '#{current_time}')"
-        end
-        AltCoinBonusLog.bulk_insert(sql_data)
-      end
-    end
-
-    check_for_duplicate_ethereum_for_purchasers
-
-    transaction_details = {}
-    ether_to_user_mapping = {}
-
-    records = PurchaseLog.connection.execute(
-        'select ethereum_address, sum(st_wei_value) as st_wei_val, sum(ether_wei_value) as ether_wei_val from purchase_logs group by ethereum_address;')
-
-    total_st_sold = 0
-    records.each do |record|
-      ethereum_address = record[0]
-      st_wei_val = record[1]
-      ether_wei_val = record[2]
-      transaction_details[ethereum_address] = ether_wei_val
-      ether_to_user_mapping[ethereum_address] = Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
-      total_st_sold += st_wei_val
-    end
-
-    pre_sale_st_token_in_wei_value = SaleGlobalVariable.pre_sale_data[:pre_sale_st_token_in_wei_value]
-
-    user_ids = ether_to_user_mapping.values
-    user_kyc_details = UserKycDetail.where(user_id: user_ids).all.index_by(&:user_id)
-    alternate_tokens = AlternateToken.all.index_by(&:id)
-
-    summary_data = {}
     csv_data = []
+    total_ether_spent = 0
+    total_alt_token_amount = 0
 
-    ether_to_user_mapping.each do |ethereum_address, user_id|
-      user_kyc_detail = user_kyc_details[user_id]
+    records.each do |record|
+      ethereum_address = record.ethereum_address
+      user_id = Md5UserExtendedDetail.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier)
+                    .get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
 
-      next if user_kyc_detail.alternate_token_id_for_bonus.to_i == 0
+      user_kyc_detail = UserKycDetail.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier)
+                            .where(user_id: user_id).first
 
-      alt_token_id = user_kyc_detail.alternate_token_id_for_bonus.to_i
-      alt_token_name = alternate_tokens[alt_token_id].token_name
-      alt_token_contract_address = alternate_tokens[alt_token_id].contract_address
-      alt_token_number_of_decimal = alternate_tokens[alt_token_id].number_of_decimal
+      user_extended_detail = UserExtendedDetail.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier)
+                                 .where(:id => user_kyc_detail.user_extended_detail_id).first
 
-      purchase_in_ether_wei = transaction_details[ethereum_address]
-      purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
-
-      altcoin_bonus_in_ether_wei = GlobalConstant::ConversionRate.divide_by_power_of_10(purchase_in_ether_wei, 1).to_i
-      altcoin_bonus_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(altcoin_bonus_in_ether_wei)
+      ether_spent = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(record.ether_wei_value).to_f
+      alt_token_amount = GlobalConstant::ConversionRate.divide_by_power_of_10(record.alt_token_amount_in_wei, record.number_of_decimal).to_f
 
       data = [
           ethereum_address,
-          alt_token_name,
-          alt_token_contract_address,
-          purchase_in_ether_wei,
-          purchase_in_rounded_ether,
-          altcoin_bonus_in_ether_wei,
-          altcoin_bonus_in_rounded_ether,
-          user_kyc_detail.pos_bonus_percentage.to_i,
-          alt_token_number_of_decimal
+          user_extended_detail.first_name,
+          user_extended_detail.last_name,
+          record.alt_token_name,
+          ether_spent,
+          record.ether_wei_value,
+          alt_token_amount,
+          record.alt_token_amount_in_wei,
+          record.number_of_decimal
       ]
+
       csv_data << data
-
-      summary_data[alt_token_name] ||= {
-          altcoin_name: alt_token_name,
-          ether_wei_value: 0,
-          ether_bonus_wei_value: 0,
-          alt_token_contract_address: alt_token_contract_address
-      }
-
-      summary_data[alt_token_name][:ether_wei_value] += purchase_in_ether_wei
-      summary_data[alt_token_name][:ether_bonus_wei_value] += altcoin_bonus_in_ether_wei
+      total_ether_spent += ether_spent
+      total_alt_token_amount += alt_token_amount
     end
-
-    flush_and_insert_alt_bonus_details(csv_data)
 
     puts "----------------------\n\n\n\n\n"
 
-    puts ['ethereum_address', 'altcoin_name', 'altcoin_address', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit',
-          'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit', 'pos_bonus', 'alt_token_number_of_decimal'].join(',')
+    puts [
+             'ethereum_address',
+             'first_name',
+             'last_name',
+             'alt_token_name',
+             'ether_spent',
+             'ether_spent_in_wei',
+             'total_alt_bonus',
+             'total_alt_bonus_in_wei',
+             'number_of_decimal'
+         ].join(',')
+
 
     csv_data.each do |element|
       puts element.join(',')
     end
 
     puts "-----------------------\n\n\n\n\n"
-
-    summary_csv_data = []
-    summary_csv_data << ['altcoin_name', 'altcoin_address', 'purchase_in_ether_wei', 'purchase_in_ether_basic_unit', 'altcoin_bonus_in_ether_wei', 'altcoin_bonus_in_basic_unit']
-
-    summary_data.each do |altcoin_name, transaction_data|
-
-      purchase_in_ether_wei = transaction_data[:ether_wei_value]
-      purchase_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_in_ether_wei)
-
-      altcoin_bonus_in_ether_wei = transaction_data[:ether_bonus_wei_value]
-      altcoin_bonus_in_rounded_ether = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(altcoin_bonus_in_ether_wei)
-
-      summary_csv_data << [altcoin_name, transaction_data[:alt_token_contract_address], purchase_in_ether_wei, purchase_in_rounded_ether, altcoin_bonus_in_ether_wei, altcoin_bonus_in_rounded_ether]
-    end
-
-    puts "----------summary------------\n\n\n\n\n"
-
-    summary_csv_data.each do |element|
-      puts element.join(',')
-    end
-
-    puts "-----------------------\n\n\n\n\n"
-
-    puts "\n\n\n\t\t\t Total ST Tokens Sold- #{total_st_sold + pre_sale_st_token_in_wei_value}\n\n\n"
-
+    puts "--------\n total_ether_spent: #{total_ether_spent}"
+    puts "--------\n alt_token_amount: #{total_alt_token_amount}"
   end
 
 end

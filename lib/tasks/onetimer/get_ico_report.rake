@@ -8,10 +8,15 @@ namespace :onetimer do
 
     records.each do |record|
       ethereum_address = record.ethereum_address
-      user_id = Md5UserExtendedDetail.get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
+      user_id = Md5UserExtendedDetail.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier)
+                    .get_user_id(GlobalConstant::TokenSale.st_token_sale_client_id, ethereum_address)
+
       purchase_record = PurchaseLog.select('sum(ether_wei_value) as total_ether_wei_value').where(ethereum_address: ethereum_address).first
-      user_kyc_detail = UserKycDetail.where(user_id: user_id).first
-      user_extended_detail = UserExtendedDetail.where(:id => user_kyc_detail.user_extended_detail_id).first
+      user_kyc_detail = UserKycDetail.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier)
+                            .where(user_id: user_id).first
+
+      user_extended_detail = UserExtendedDetail.using_shard(shard_identifier: GlobalConstant::SqlShard.primary_shard_identifier)
+                                 .where(:id => user_kyc_detail.user_extended_detail_id).first
 
       ether_spent = GlobalConstant::ConversionRate.wei_to_basic_unit_in_string(purchase_record.total_ether_wei_value).to_f
 
